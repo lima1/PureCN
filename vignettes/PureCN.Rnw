@@ -1,0 +1,334 @@
+%\VignetteKeywords{runAbsoluteCN}
+%\VignetteEngine{knitr::knitr}
+%\VignetteDepends{PureCN}
+%\VignettePackage{PureCN}
+%\VignetteIndexEntry{PureCN}
+
+\documentclass{article}
+
+<<style-knitr, eval=TRUE, echo=FALSE, results="asis">>=
+BiocStyle::latex()
+@ 
+
+\title{PureCN: Estimating tumor purity, ploidy, LOH and SNV status using hybrid
+capture NGS data}
+\author{Markus Riester}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Background}
+
+\Biocpkg{PureCN} is a purity and ploidy aware copy number caller for cancer
+samples inspired by the \software{ABSOLUTE} algorithm.  It was designed for
+hybrid caputure next generation sequencing (NGS) data, especially with
+medium-sized targeted gene panels without matching normals in mind.
+
+It can be used to enhance existing segmentation and normalization algorithms.
+If the correct purity and ploidy solution was identified, \Biocpkg{PureCN} can
+also help in classifying variants as germline vs. somatic or clonal vs.
+sub-clonal.
+
+\section{Basic Input Files}
+
+The algorithm first needs to calculate copy number log-ratios of tumor vs.
+normal control.  Coverage data needs to be provided in \software{GATK
+DepthOfCoverage} format:
+
+\begin{footnotesize}
+\begin{verbatim}
+    Target  total_coverage  average_coverage    Sample1_total_cvg   Sample1_mean_cvg   
+    Sample1_granular_Q1 Sample1_granular_median Sample1_granular_Q3 Sample1_._above_15
+    chr1:69091-70009    0   0   0   0   1   1   1   0
+    chr1:367659-368598  6358    9.25121153819759    6358    9.25121153819759    1   7   13  11.6
+    chr1:621096-622035  6294    9.16910019318401    6294    9.16910019318401    1   7   12  9.5
+\end{verbatim}
+\end{footnotesize}
+
+PureCN will look for the columns "Target", "total\_coverage", and
+"average\_coverage". If \software{GATK} is not available, then we refer to the
+\CRANpkg{ExomeCNV} package and documentation, which provides scripts for
+generating coverage files from BAM files. 
+
+The algorithm works best when the coverage data is already
+GC normalized. The steps below will NOT GC normalize. The function
+\Rfunction{correctCoverageBias}, which borrows normalization code from the
+\Biocpkg{TitanCNA} package, can be used to correct for GC bias. We recommend
+correcting for GC bias, storing the corrected coverage files and then do the
+following steps on GC corrected data. All other assay-specific biases such as
+mappability or exon length are mitigated by using a control sample (GC bias is
+commonly library specific).
+
+PureCN currently assumes a completely diploid normal genome, this means the user
+is expected to remove any non-diploid chromosomes (i.e. XY for males and Y for
+females).
+
+We load a few example files:
+<<example_files>>=
+library(PureCN)
+
+gatk.normal.file <- system.file("extdata", "example_normal.txt",
+    package="PureCN") 
+gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+    package="PureCN") 
+gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file) 
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN") 
+vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+@
+
+The VCF file should contain both somatic and germline variants, for
+example as obtained by \software{MuTect}. 
+
+To obtain gene level copy number calls, we need an exon-to-gene mapping file.
+This is provided together with GC content via the gc.gene.file argument. The
+expected format:
+
+\begin{verbatim}
+    Target    gc_bias    Gene
+    chr1:69091-70009    0.427638737758433    OR4F5
+    chr1:367659-368598    0.459574468085106    OR4F29
+    chr1:621096-622035    0.459574468085106    OR4F3
+\end{verbatim}
+
+If \software{GATK} is available, then the \software{GCContentByInterval} tool
+can be used to generate the GC bias column. Otherwise, several
+\software{Bioconductor} annotation packages provide GC content information. 
+
+<<example_files2>>=
+gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    package="PureCN")
+@
+
+\section{Pool of Normals}
+
+If a pool of normal samples is available, we can use the coverage data to
+estimate the expected variance in coverage per exon. This will help the
+segmentation algorithm to filter noise:
+
+<<exonweightfile1>>=
+exon.weight.file <- "exon_weights.txt"
+createExonWeightFile(gatk.tumor.file, gatk.normal.files, exon.weight.file)
+@
+
+For each of the tumor files, exon-level log-ratios are calculated for all
+normal files. Only 1-2 tumor files are necessary.  It is also safe to use a
+normal instead of a tumor file in this step (which should be however not
+included in the normals).
+
+<<exonweightfile2>>=
+#createExonWeightFile(gatk.normal.files[1], gatk.normal.files[-1], 
+#   "exon_weights.txt")
+@
+
+We can also use the pool of normals to find SNPs with biased allelic fractions
+(significantly different from 0.5 for heterozygous SNPs). We do not do this here.
+
+<<snpblacklist>>=
+#mutect.normal.files <- dir("poolofnormals", pattern="vcf$", full.names=TRUE) 
+#snp.blacklist <- createSNPBlacklist(mutect.normal.files)
+#write.csv(snp.bl[[1]], file="SNP_blacklist.csv")
+#write.csv(snp.bl[[2]], file="SNP_blacklist_segmented.csv", row.names=FALSE, 
+#   quote=FALSE)
+@
+
+Finally, we can use the pool of normals to find normal samples for log-ratio
+calculation, especially when no matched normal sample is available:
+
+<<normaldb>>=
+normalDB <- createNormalDatabase(gatk.normal.files)
+
+# get the best 2 normals and average them
+gatk.best.normal.files <- findBestNormal(gatk.tumor.file, normalDB, 
+    num.normals=2)
+pool <- poolCoverage(lapply(gatk.best.normal.files, readCoverageGatk),
+     remove.chrs=c('chrX', 'chrY'))
+
+# get the best normal
+gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
+@
+
+Pooling is only recommended when the coverage in normals is significantly lower
+than in tumor.  Otherwise the PCA will typically do a good job in selecting a
+normal with decent coverage and similar biases compared to tumor. When pooling,
+it might be also necessary to remove certain principal components, most likely
+the first one, to avoid that coverage is the only selection criteria. The
+\Rfunction{plotBestNormal} function might be helpful in finding a good strategy.
+
+\section{VCF Artifact Filtering}
+
+If \software{MuTect} was run in matched normal mode, then all germline variants
+are rejected, that means we cannot just filter by the PASS/REJECT
+\software{MuTect} flags. The \Rfunction{filterVcfMuTect} function optionally
+reads the MuTect stats file and will keep germline variants, while removing
+potential artifacts. Otherwise it will use only the filters based on read
+depths as defined in \Rfunction{filterVcfBasic}. If \software{MuTect} was run
+in single mode, then the VCF file should be filtered to contain only variants
+annotated as PASS.
+
+\section{Recommended Run}
+
+Finally, we can run PureCN with all that information:
+
+<<runpurecn>>=
+ret <-runAbsoluteCN(gatk.normal.file=pool, gatk.tumor.file=gatk.tumor.file, 
+    vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file, 
+#args.filterVcf=list(snp.blacklist=snp.blacklist, stats.file=mutect.stats.file), 
+    args.segmentation=list(exon.weight.file=exon.weight.file), 
+    post.optimize=FALSE)
+@
+
+The post.optimize flag will increase the runtime by a lot, but might be worth
+it if the copy number profile is not very clean. This is recommended with lower
+coverage datasets or if there are significant capture biases. For high quality
+whole exome data, this is typically not necessary. Note the uncommented line,
+which is recommended, but not used here for simplicity. The
+\Rfunction{segmentationPSCBS} function requires the \CRANpkg{PSCBS} package,
+but sometimes gives better results than the default when the coverage data is
+relatively noisy, especially for whole exome data with a large number of
+heterozygous SNPs.
+
+We also need to create a few output files:
+
+<<createoutput>>=
+file.rds <- 'Sample1_PureCN.rds'
+saveRDS(ret, file=file.rds)
+pdf('Sample1_PureCN.pdf', width=10, height=12)
+plotAbs(ret, type='all')
+dev.off()
+@
+
+The first plot is an overview plot which shows the purity and ploidy local
+optima, sorted by final likelihood score after fitting both copy number and
+allelic fractions:
+
+<<figureexample1, fig.show='hide'>>=
+plotAbs(ret, type="overview")
+@
+\incfig{figure/figureexample1-1}{0.75\textwidth}{Overview.}
+{The colors visualize the copy number fitting score from low (blue) to high
+(red). The numbers indicate the ranks of the local optima.}
+
+We now look at the main plots of the maximum likelihood solution in more detail.
+
+<<figureexample2, fig.show='hide'>>=
+plotAbs(ret, 1, type="hist")
+@
+\incfig{figure/figureexample2-1}{0.75\textwidth}{Log-ratio histogram.}
+
+Figure~\ref{figure/figureexample2-1} displays a histogram of tumor vs. normal
+copy number log-ratios for the maximum likelihood solution (number 1 in
+Figure~\ref{figure/figureexample1-1}). The height of a bar in this plot is
+proportional to the fraction of the genome falling into the particular
+log-ratio copy number range. The vertical dotted lines and numbers visualize
+the, for the given purity/ploidy combination, expected log-ratios for all
+integer copy numbers from 0 to 7. It can be seen that most of the log-ratios of
+the maximum likelihood solution align well to expected values for copy numbers
+of 0, 1 and 2. 
+
+<<figureexample3, fig.show='hide'>>=
+plotAbs(ret, 1, type="BAF")
+@
+\incfig{figure/figureexample3-1}{0.95\textwidth}{B-allele frequency plot.}{Each
+dot is a (predicted) germline SNP.}
+
+Germline variant data are informative for calculating integer copy number,
+because unbalanced maternal and paternal chromosome numbers in the tumor
+portion of the sample lead to unbalanced germline allelic fractions in the
+tumor. Equations for calculating expected allelic fractions are given in the
+Supplemental Information of the \Biocpkg{PureCN} manuscript.
+Figure~\ref{figure/figureexample3-1} shows the allelic fractions of predicted
+germline SNPS.  In the middle panel, the corresponding copy number log-ratios
+are shown. The lower panel displays the calculated integer copy
+numbers, corrected for purity and ploidy.
+
+<<figureexample4, fig.show='hide'>>=
+plotAbs(ret, 1, type="AF")
+@
+\incfig{figure/figureexample4-1}{0.95\textwidth}{Allele fraction plots.}{Each
+dot is again a (predicted) germline SNP. This plot normally also shows somatic
+mutations in two additional panels. This toy example contains only germline 
+SNPs however.}
+
+Finally, Figure~\ref{figure/figureexample4-1} provides more insight into how
+well the variants fit the expected values. The left panel shows the correlation
+of expected and observed allelic fractions. The expected value is determined by
+the most likely state. High ploidy solutions have a lot of states, so this
+correlation is expected to be good for high ploidy solutions.  The right panel
+plots the observed allelic fractions against copy number. The labels show the
+expected values for all called states; 2m1 would be diploid, heterozygous, 2m2
+diploid, homozygous.
+\clearpage
+
+\section{Manual Curation}
+
+For prediction of SNV status (germline vs somatic, sub-clonal vs. clonal,
+homozyous vs heterozygous), it is important that both purity and ploidy are
+correct. We provide functionality for curating results:
+
+<<curationfile>>=
+createCurationFile(file.rds) 
+@
+
+This will generate a CSV file, in which the correct purity and ploidy values
+can be manually entered. It also contains a column "Curated", which should be
+set to TRUE, otherwise the file will be overwritten when re-run.
+
+Then in R, the correct solution (closest to the combination in the CSV file)
+can be loaded with the readCurationFile function:
+
+<<readcurationfile>>=
+ret <- readCurationFile(file.rds)
+@
+    
+\section{Custom Segmentation}
+
+By default, we will use \CRANpkg{DNAcopy} to segment the log-ratio. You can
+easily change that to your favorite method and the \Rfunction{segmentationCBS}
+function can serve as an example. The \Rfunction{segmentationPSCBS} function is
+another example which uses the \CRANpkg{PSCBS} package.
+
+It is also possible to provide segmented file, which we however only recommend
+when matched SNP6 data is available (otherwise it is better to customize the
+segmentation function as described above). The expected file format is:
+
+\begin{verbatim}
+    ID  chrom   loc.start   loc.end num.mark    seg.mean
+    Sample1   1   61723   5773942 2681    0.125406444072723
+    Sample1   1   5774674 5785170 10  -0.756511807441712
+\end{verbatim}
+
+\section{Output}
+
+The \Rcode{plotAbs()} call above will generate the main plots shown in the
+manuscript. The R data file (file.rds) contains gene level copy number calls,
+SNV status and LOH calls.  The purity/ploidy combinations are sorted by
+likelihood at stored in \Rcode{ret\$results}.
+
+<<output1>>=
+names(ret)
+head(ret$results[[1]]$gene.calls, 3)
+@
+
+This data.frame also contains gene level LOH information. The SNV posteriors:
+
+<<output2>>=
+head(ret$results[[1]]$SNV.posterior$beta.model$posteriors, 3)
+@
+    
+This lists all posterior probabilities for all possible SNV states. M0 to M7
+are multiplicity values, i.e. the number of chromosomes harboring the mutation
+(e.g. 1 heterozygous, 2 homozygous if copy number C is 2). Colums with the ML
+prefix indicate maximum likelihood estimates, e.g. ML.AR is the expected
+allelic ratio of the most likely state, AR is the observed allelic ratio.
+
+\appendix
+
+\section{Session Info}
+<<sessioninfo, results='asis', echo=FALSE>>=
+toLatex(sessionInfo())
+@
+
+\end{document}

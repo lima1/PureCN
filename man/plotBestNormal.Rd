@@ -1,0 +1,37 @@
+\name{plotBestNormal}
+\alias{plotBestNormal}
+\title{plotBestNormal}
+\description{Plot the PCA of tumor and its best normal(s) }
+\usage{plotBestNormal(gatk.normal.files, gatk.tumor.file, 
+    normalDB, x = 1, y = 2, col.tumor = "red", col.best.normal = "blue", 
+    col.other.normals = "black", verbose = TRUE, ...)}
+\arguments{
+  \item{gatk.normal.files}{GATK coverage file of normal files, typically identified via findBestNormal.}
+  \item{gatk.tumor.file}{GATK coverage file of a tumor sample.}
+  \item{normalDB}{Database of normal samples, created with createNormalDatabase().}
+  \item{x}{PC to be plotted on x-axis.}
+  \item{y}{PC to be plotted on y-axis.}
+  \item{col.tumor}{Color of tumor in plot.}
+  \item{col.best.normal}{Color of best normals in plot.}
+  \item{col.other.normals}{Color of best normals in plot.}
+  \item{verbose}{Verbose output.}
+  \item{\dots}{Arguments passed to the plot function.}
+}
+
+\value{Returns NULL}
+
+\author{Markus Riester}
+
+
+
+
+\examples{
+gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
+gatk.normal2.file <- system.file("extdata", "example_normal2.txt", package="PureCN")
+gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
+normalDB <- createNormalDatabase(gatk.normal.files)
+
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
+gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
+plotBestNormal(gatk.best.normal.file, gatk.tumor.file, normalDB)
+}

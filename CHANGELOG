@@ -1,0 +1,8 @@
+1.0
+    - added correctCoverageBias
+    
+0.1.2
+    - added PSCBS segmentation function
+    - added example data and vignette
+    - minor bugfix in findBestNormal if normal database is very small (< 3 samples)
+    - removed ExomeCNV dependency
