@@ -1,13 +1,16 @@
 \name{runAbsoluteCN}
 \alias{runAbsoluteCN}
-\title{Run our implementation of ABSOLUTE}
-\description{This function takes as input tumor and normal control coverage and allelic fractions of germline variants and somatic mutations.
-Coverage data is provied in GATK DepthOfCoverage format, allelic fraction in VCF format (e.g. obtained by MuTect). 
-Normal control does not need to be matched (from the same patient). In case VCF does not contain somatic status, it should contain
-dbSNP and optionally COSMIC annotation.}
+\title{Run PureCN implementation of ABSOLUTE}
+\description{This function takes as input tumor and normal control coverage and 
+allelic fractions of germline variants and somatic mutations.
+Coverage data is provied in GATK DepthOfCoverage format, allelic fraction 
+in VCF format (e.g. obtained by MuTect). Normal control does not need to 
+be matched (from the same patient). In case VCF does not contain somatic 
+status, it should contain dbSNP and optionally COSMIC annotation.}
 \usage{runAbsoluteCN(gatk.normal.file = NULL, gatk.tumor.file, 
     log.ratio = NULL, seg.file = NULL, seg.file.sdev = 0.4, 
-    vcf.file = NULL, genome = "hg19", fun.filterVcf = filterVcfMuTect, 
+    vcf.file = NULL, genome = "hg19", sex = c("?", 
+        "F", "M"), fun.filterVcf = filterVcfMuTect, 
     args.filterVcf = list(), fun.setPriorVcf = setPriorVcf, 
     args.setPriorVcf = list(), fun.segmentation = segmentationCBS, 
     args.segmentation = list(), fun.focal = findFocal, 
@@ -15,46 +18,109 @@ dbSNP and optionally COSMIC annotation.}
     max.ploidy = 6, test.num.copy = 0:7, test.purity = seq(0.05, 
         0.95, by = 0.01), prior.purity = rep(1, length(test.purity))/length(test.purity), 
     max.candidate.solutions = 15, candidates = NULL, 
-    coverage.cutoff = 15, max.non.clonal = 0.2, iterations = 30, 
-    log.ratio.calibration = 0.25, gc.gene.file = NULL, 
-    filter.lowhigh.gc.exons = 0.001, filter.targeted.base = 4, 
-    max.logr.sdev = 0.75, plot.cnv = TRUE, verbose = TRUE, 
+    coverage.cutoff = 15, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
+    iterations = 30, log.ratio.calibration = 0.25, 
+    gc.gene.file = NULL, filter.lowhigh.gc.exons = 0.001, 
+    filter.targeted.base = 4, max.logr.sdev = 0.75, 
+    max.segments = 200, plot.cnv = TRUE, verbose = TRUE, 
     post.optimize = FALSE, ...)}
 \arguments{
-  \item{gatk.normal.file}{GATK coverage file of normal control (optional if log.ratio is provided - then it will be only used to filter low coverage exons). Should be already GC-normalized.}
-  \item{gatk.tumor.file}{GATK coverage file of tumor. Should be already GC-normalized.}
-  \item{log.ratio}{Copy number log-ratios for all exons in the coverage files. If NULL, calculated based on coverage files.}
-  \item{seg.file}{Segmented data. Optional, to support matched SNP6 data. If null, use coverage files or log.ratio to segment the data.  }
-  \item{seg.file.sdev}{If seg.file provided, the log-ratio standard deviation, used to model likelihood of sub-clonal copy number events.}
-  \item{vcf.file}{VCF file, tested with MuTect output files.  Optional, but typically needed to select between local optima of similar likelihood. Can also be a CollapsedVCF, read with the readVcf function. Requires a DB info flag for dbSNP membership. The default fun.setPriorVcf function will also look for a Cosmic.CNT slot, containing the hits in the COSMIC database. Again, do not expect very useful results without a VCF file.}
+  \item{gatk.normal.file}{GATK coverage file of normal control (optional if 
+log.ratio is provided - then it will be only used to filter low coverage 
+exons). Should be already GC-normalized. Needs to be either a file name 
+or data read with the readCoverageGatk function.}
+  \item{gatk.tumor.file}{GATK coverage file of tumor. Should be already 
+GC-normalized. Needs to be either a file name or data read with the 
+readCoverageGatk function.}
+  \item{log.ratio}{Copy number log-ratios for all exons in the coverage files. 
+If NULL, calculated based on coverage files.}
+  \item{seg.file}{Segmented data. Optional, to support matched SNP6 data. 
+If null, use coverage files or log.ratio to segment the data.  }
+  \item{seg.file.sdev}{If seg.file provided, the log-ratio standard deviation, 
+used to model likelihood of sub-clonal copy number events.}
+  \item{vcf.file}{VCF file, tested with MuTect output files.  Optional, but
+typically needed to select between local optima of similar likelihood. Can 
+also be a CollapsedVCF, read with the readVcf function. Requires a DB info 
+flag for dbSNP membership. The default fun.setPriorVcf function will also
+look for a Cosmic.CNT slot, containing the hits in the COSMIC database.
+Again, do not expect very useful results without a VCF file.}
   \item{genome}{Genome version, required for the readVcf function.}
-  \item{fun.filterVcf}{Function for filtering variants. Expected output is a list with elements vcf (CollapsedVCF), flag (TRUE/FALSE) and flag_comment (string). The flags will be added to the output data and can be used to warn users, for example when samples look too noisy. Default filter will remove variants flagged by MuTect, but will keep germline variants. If ran in matched normal mode, it will by default use somatic status of variants and filter non-somatic calls with allelic fraction significantly different from 0.5 in normal. }
-  \item{args.filterVcf}{Arguments for variant filtering function. Arguments vcf, tumor.id.in.vcf, coverage.cutoff and verbose are required in the filter function and are automatically set (do NOT set them here again).}
-  \item{fun.setPriorVcf}{Function to set prior for somatic status for each variant in the VCF.}
+  \item{sex}{Sex of sample. If ?, detect.}
+  \item{fun.filterVcf}{Function for filtering variants. Expected output is a 
+list with elements vcf (CollapsedVCF), flag (TRUE/FALSE) and flag_comment 
+(string). The flags will be added to the output data and can be used to 
+warn users, for example when samples look too noisy. Default filter will 
+remove variants flagged by MuTect, but will keep germline variants. If 
+ran in matched normal mode, it will by default use somatic status of 
+variants and filter non-somatic calls with allelic fraction significantly 
+different from 0.5 in normal. }
+  \item{args.filterVcf}{Arguments for variant filtering function. Arguments 
+vcf, tumor.id.in.vcf, coverage.cutoff and verbose are required in the 
+filter function and are automatically set (do NOT set them here again).}
+  \item{fun.setPriorVcf}{Function to set prior for somatic status for each 
+variant in the VCF.}
   \item{args.setPriorVcf}{Arguments for somatic prior function.}
-  \item{fun.segmentation}{Function for segmenting the copy number log-ratios. Expected return value is a list with elements seg (the segmentation) and size (the size in bp for all segments).}
-  \item{args.segmentation}{Arguments for segmentation function. Arguments normal, tumor, log.ratio, plot.cnv, coverage.cutoff, sampleid, vcf, tumor.id.in.vcf, verbose are required in the segmentation function and automatically set (do NOT set them here again).}
+  \item{fun.segmentation}{Function for segmenting the copy number log-ratios. 
+Expected return value is a list with elements seg (the segmentation) and 
+size (the size in bp for all segments).}
+  \item{args.segmentation}{Arguments for segmentation function. Arguments 
+normal, tumor, log.ratio, plot.cnv, coverage.cutoff, sampleid, vcf, 
+tumor.id.in.vcf, verbose are required in the segmentation function and 
+automatically set (do NOT set them here again).}
   \item{fun.focal}{Function for identifying focal amplifications.}
   \item{args.focal}{Arguments for focal amplification function.}
   \item{sampleid}{Sample id, provided in output files etc.}
   \item{min.ploidy}{Minimum ploidy to be considered.}
   \item{max.ploidy}{Maximum ploidy to be considered.}
-  \item{test.num.copy}{Copy numbers tested in the grid search. Note that focal amplifications can have much higher copy numbers, but they will be labeled as subclonal (because they do not fit the integer copy numbers).}
+  \item{test.num.copy}{Copy numbers tested in the grid search. Note that focal 
+amplifications can have much higher copy numbers, but they will be labeled
+as subclonal (because they do not fit the integer copy numbers).}
   \item{test.purity}{Considered tumor purity values. }
-  \item{prior.purity}{Priors for purity if they are available. Only change when you know what you are doing.}
-  \item{max.candidate.solutions}{Number of local optima considered in optimization and variant fitting steps. If there are too many local optima, it will use specified number of top candidate solutions, but will also include all optima close to diploid, because silent genomes have often lots of local optima.}
-  \item{candidates}{Candidates to optimize from a previous run (return.object$candidates). If NULL, do 2D grid search and find local optima. }
-  \item{coverage.cutoff}{Minimum exon coverage in both normal and tumor. Exons with lower coverage are ingored. The cutoff choice depends on the expected purity and overall coverage. High purity samples might need a lower cutoff to call homozygous deletions. If an exon.weigh.file (below) is NOT specified, it is recommended to set a higher cutoff (e.g. 20) to remove noise from unreliable exon measurements. }
-  \item{max.non.clonal}{Maximum genomic fraction assigned to a subclonal copy number state.}
-  \item{iterations}{Maximum number of iterations in the Simulated Annealing copy number fit optimization.}
-  \item{log.ratio.calibration}{re-calibrate log-ratios in the window sd(log.ratio)*log.ratio.calibration.}
-  \item{gc.gene.file}{GC gene file, which assigns GC content and gene symbols to each exon in the coverage files. Used for generating gene level calls. First column in format CHR:START-END. Second column GC content (0 to 1). Third column gene symbol.}
-  \item{filter.lowhigh.gc.exons}{Quantile q (defines lower q and upper 1-q) for removing exons with outlier GC profile. Assuming that GC correction might not have been worked on those. Requires gc.gene.file.}
-  \item{filter.targeted.base}{Exclude exons with targeted base (size) smaller than this cutoff.}
-  \item{max.logr.sdev}{Flag noisy samples with segment log-ratio standard deviation larger than this. Assay specific and needs to be calibrated.}
+  \item{prior.purity}{Priors for purity if they are available. Only change 
+when you know what you are doing.}
+  \item{max.candidate.solutions}{Number of local optima considered in optimization 
+and variant fitting steps. If there are too many local optima, it will use
+specified number of top candidate solutions, but will also include all 
+optima close to diploid, because silent genomes have often lots of local 
+optima.}
+  \item{candidates}{Candidates to optimize from a previous run 
+(return.object$candidates). 
+If NULL, do 2D grid search and find local optima. }
+  \item{coverage.cutoff}{Minimum exon coverage in both normal and tumor. Exons
+with lower coverage are ingored. The cutoff choice depends on the expected
+purity and overall coverage. High purity samples might need a lower cutoff
+to call homozygous deletions. If an exon.weigh.file (below) is NOT 
+specified, it is recommended to set a higher cutoff (e.g. 20) to remove 
+noise from unreliable exon measurements. }
+  \item{max.non.clonal}{Maximum genomic fraction assigned to a subclonal copy 
+number state.}
+  \item{max.homozygous.loss}{Maximum genomic fraction assigned to homozygous loss. 
+This is set to a fairly high default value to not exclude correct
+solutions, especially in noisy segmentations. }
+  \item{iterations}{Maximum number of iterations in the Simulated Annealing copy 
+number fit optimization.}
+  \item{log.ratio.calibration}{re-calibrate log-ratios in the window 
+sd(log.ratio)*log.ratio.calibration.}
+  \item{gc.gene.file}{GC gene file, which assigns GC content and gene symbols 
+to each exon in the coverage files. Used for generating gene level calls. 
+First column in format CHR:START-END. Second column GC content (0 to 1). 
+Third column gene symbol.}
+  \item{filter.lowhigh.gc.exons}{Quantile q (defines lower q and upper 1-q) 
+for removing exons with outlier GC profile. Assuming that GC correction 
+might not have been worked on those. Requires gc.gene.file.}
+  \item{filter.targeted.base}{Exclude exons with targeted base (size) smaller 
+than this cutoff.}
+  \item{max.logr.sdev}{Flag noisy samples with segment log-ratio standard deviation 
+larger than this. Assay specific and needs to be calibrated.}
+  \item{max.segments}{Flag noisy samples with a large number of segments. Assay 
+specific and needs to be calibrated.}
   \item{plot.cnv}{Generate segmentation plots.}
   \item{verbose}{Verbose output.}
-  \item{post.optimize}{Optimize purity using final SCNA-fit and SNVs. This might take a long time when lots of SNVs need to be fitted, but will result in a slightly more accurate purity, especially for rather silent genomes or very low purities. Otherwise, it will just use the purity determined via the SCNA-fit.}
+  \item{post.optimize}{Optimize purity using final SCNA-fit and SNVs. This 
+might take a long time when lots of SNVs need to be fitted, but will 
+typically result in a slightly more accurate purity, especially for rather
+silent genomes or very low purities. Otherwise, it will just use the 
+purity determined via the SCNA-fit.}
   \item{\dots}{Additional parameters passed to the segmentation function.}
 }
 
@@ -69,19 +135,24 @@ dbSNP and optionally COSMIC annotation.}
 
 
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
+vcf.file <- system.file("extdata", "example_vcf.vcf", 
+    package="PureCN")
+gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    package="PureCN")
 
-# Speed-up the runAbsoluteCN by using the stored grid-search 
+# Speed-up the runAbsoluteCN call by using the stored grid-search 
 # (purecn.example.output$candidates).
 data(purecn.example.output)
 
 # The max.candidate.solutions parameter is set to a very low value only to
 # speed-up this example.  This is not a good idea for real samples.
 
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, gatk.tumor.file=gatk.tumor.file, 
-   candidates=purecn.example.output$candidates, max.candidate.solutions=2,
+ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
+    gatk.tumor.file=gatk.tumor.file, 
+    candidates=purecn.example.output$candidates, max.candidate.solutions=2,
     vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file)
 }

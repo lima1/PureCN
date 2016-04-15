@@ -7,13 +7,16 @@ normalDB,
 pcs=1:3,
 ### Principal components to use for distance calculation.
 num.normals=1,
-## Return the num.normals best normals.
+### Return the num.normals best normals.
+ignore.sex=FALSE,
+### If FALSE, detects sex of sample returns a best normal 
+### with matching sex.
 verbose=TRUE
+### Verbose output.
 ) {
     if (is.character(gatk.tumor.file)) {
         tumor  <- readCoverageGatk(gatk.tumor.file)
     } else {
-        if (verbose) message("gatk.tumor.file does not appear to be a filename, assuming it is valid GATK coverage data.")
         tumor <- gatk.tumor.file
     }    
     x <- t(tumor[normalDB$exons.used,"average.coverage", drop=FALSE])
@@ -22,8 +25,22 @@ verbose=TRUE
     idx.pcs <- pcs
     idx.pcs <- idx.pcs[idx.pcs %in% 1:ncol(normalDB$pca$x)]
 
-    best.match <- order(sapply(1:length(normalDB$gatk.normal.files), function(i) dist(  rbind(predict(normalDB$pca, x)[1,idx.pcs], predict(normalDB$pca)[i,idx.pcs]))[1]))
-    normalDB$gatk.normal.files[head(best.match, num.normals)]
+    idx.normals <- seq_along(normalDB$gatk.normal.files)
+
+    if (!ignore.sex && !is.null(normalDB$sex) && sum(!is.na(normalDB$sex))>0) {
+        sex <- getSexFromCoverage(tumor, verbose=FALSE)
+        if (verbose) message(paste("Sex of sample:", sex))
+        if (!is.na(sex)) {
+            idx.normals <- which(normalDB$sex == sex)
+        }
+        if (length(idx.normals) < 2) { 
+            warning(paste("Not enough samples of sex", sex, "in database. Ignoring sex."))
+            idx.normals <- seq_along(normalDB$gatk.normal.files)
+        }    
+    }    
+
+    best.match <- order(sapply(idx.normals, function(i) dist(  rbind(predict(normalDB$pca, x)[1,idx.pcs], predict(normalDB$pca)[i,idx.pcs]))[1]))
+    normalDB$gatk.normal.files[idx.normals][head(best.match, num.normals)]
 ### Return the filename of the best matching normal    
 },ex=function() {
 gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")

@@ -86,11 +86,6 @@ max.exon.ratio) {
                     Mi + g * (1 - p))/(p * lr.C[j] + 2 * (1 - p)), sd = sd.ar, log = TRUE) - 
                     log(lr.C[j] + 1), -Inf))))
             } else {
-                # p.ar <- lapply(c(0,1), function(g) lapply(1:length(ar_all), function(j)
-                # sapply(test.num.copy, function(Mi) ifelse(Mi <= lr.C[j], dbeta(x = (p * Mi + g
-                # * (1 - p))/(p * lr.C[j] + 2 * (1 - p)), shape1=ar_all[j]*dp_all[j]+1,
-                # shape2=(1-ar_all[j])*dp_all[j]+1, log = TRUE)-log(lr.C[j]+1+haploid.penalty) ,
-                # -Inf))))
                 p.ar <- lapply(c(0, 1), function(g) lapply(1:length(ar_all), function(j) sapply(test.num.copy, 
                   function(Mi) ifelse(Mi <= lr.C[j], dbeta(x = (p * Mi + g * (1 - 
                     p))/(p * lr.C[j] + 2 * (1 - p)), shape1 = ar_all[j] * dp_all[j] + 
@@ -265,7 +260,7 @@ max.exon.ratio) {
     return(result)
 }
 
-.flagResults <- function(results, max.non.clonal = 0.2, max.logr.sdev, logr.sdev, 
+.flagResults <- function(results, max.non.clonal = 0.2, max.logr.sdev, logr.sdev, max.segments,
     flag = NA, flag_comment = NA) {
     results <- lapply(results, .flagResult, max.non.clonal = max.non.clonal)
     
@@ -273,12 +268,21 @@ max.exon.ratio) {
     # results[[2]]$total.log.likelihood ) / abs( results[[1]]$total.log.likelihood )
     # if (ldiff < 0.1) { results[[1]]$flag <- TRUE results[[1]]$flag_comment <-
     # 'SIMILAR TO SECOND MOST LIKELY OPTIMUM' return(results) }
+    number.segments <- nrow(results[[1]]$seg)
     
     if (logr.sdev > max.logr.sdev) {
         for (i in 1:length(results)) {
             results[[i]]$flag <- TRUE
             results[[i]]$flag_comment <- .appendComment(results[[i]]$flag_comment, 
                 "NOISY LOG-RATIO")
+        }
+    }
+
+    if (number.segments > max.segments) {
+        for (i in 1:length(results)) {
+            results[[i]]$flag <- TRUE
+            results[[i]]$flag_comment <- .appendComment(results[[i]]$flag_comment, 
+                "NOISY SEGMENTATION")
         }
     }
     
@@ -519,4 +523,10 @@ max.exon.ratio) {
     data(chr.hash, envir = environment())
     chr.hash[as.character(ls), 2]
 }
+.add.chr.name <- function(ls) {
+    chr.hash <- NULL
+    data(chr.hash, envir = environment())
+    as.character(chr.hash$chr[match(ls, chr.hash$number)])
+}
+    
  

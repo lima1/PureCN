@@ -1,10 +1,12 @@
 \name{createNormalDatabase}
 \alias{createNormalDatabase}
 \title{createNormalDatabase}
-\description{Function to create a database of normal samples, used to find a good match for tumor copy number normalization.}
+\description{Function to create a database of normal samples, used to find 
+a good match for tumor copy number normalization.}
 \usage{createNormalDatabase(gatk.normal.files, ...)}
 \arguments{
-  \item{gatk.normal.files}{Vector with file names pointing to GATK coverage files of normal samples. }
+  \item{gatk.normal.files}{Vector with file names pointing to GATK coverage files 
+of normal samples. }
   \item{\dots}{Arguments passed to the prcomp function.}
 }
 

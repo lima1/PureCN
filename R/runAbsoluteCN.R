@@ -1,35 +1,67 @@
 runAbsoluteCN <-
-structure(function(# Run our implementation of ABSOLUTE
-### This function takes as input tumor and normal control coverage and allelic fractions of germline variants and somatic mutations.
-### Coverage data is provied in GATK DepthOfCoverage format, allelic fraction in VCF format (e.g. obtained by MuTect). 
-### Normal control does not need to be matched (from the same patient). In case VCF does not contain somatic status, it should contain
-### dbSNP and optionally COSMIC annotation.
+structure(function(# Run PureCN implementation of ABSOLUTE
+### This function takes as input tumor and normal control coverage and 
+### allelic fractions of germline variants and somatic mutations.
+### Coverage data is provied in GATK DepthOfCoverage format, allelic fraction 
+### in VCF format (e.g. obtained by MuTect). Normal control does not need to 
+### be matched (from the same patient). In case VCF does not contain somatic 
+### status, it should contain dbSNP and optionally COSMIC annotation.
 gatk.normal.file=NULL, 
-### GATK coverage file of normal control (optional if log.ratio is provided - then it will be only used to filter low coverage exons). Should be already GC-normalized.
+### GATK coverage file of normal control (optional if 
+### log.ratio is provided - then it will be only used to filter low coverage 
+### exons). Should be already GC-normalized. Needs to be either a file name 
+### or data read with the readCoverageGatk function.
 gatk.tumor.file, 
-### GATK coverage file of tumor. Should be already GC-normalized.
+### GATK coverage file of tumor. Should be already 
+### GC-normalized. Needs to be either a file name or data read with the 
+### readCoverageGatk function.
 log.ratio=NULL, 
-### Copy number log-ratios for all exons in the coverage files. If NULL, calculated based on coverage files.
+### Copy number log-ratios for all exons in the coverage files. 
+### If NULL, calculated based on coverage files.
 seg.file=NULL,
-### Segmented data. Optional, to support matched SNP6 data. If null, use coverage files or log.ratio to segment the data.  
+### Segmented data. Optional, to support matched SNP6 data. 
+### If null, use coverage files or log.ratio to segment the data.  
 seg.file.sdev=0.4,
-### If seg.file provided, the log-ratio standard deviation, used to model likelihood of sub-clonal copy number events.
+### If seg.file provided, the log-ratio standard deviation, 
+### used to model likelihood of sub-clonal copy number events.
 vcf.file=NULL, 
-### VCF file, tested with MuTect output files.  Optional, but typically needed to select between local optima of similar likelihood. Can also be a CollapsedVCF, read with the readVcf function. Requires a DB info flag for dbSNP membership. The default fun.setPriorVcf function will also look for a Cosmic.CNT slot, containing the hits in the COSMIC database. Again, do not expect very useful results without a VCF file.
+### VCF file, tested with MuTect output files.  Optional, but
+### typically needed to select between local optima of similar likelihood. Can 
+### also be a CollapsedVCF, read with the readVcf function. Requires a DB info 
+### flag for dbSNP membership. The default fun.setPriorVcf function will also
+### look for a Cosmic.CNT slot, containing the hits in the COSMIC database.
+### Again, do not expect very useful results without a VCF file.
 genome="hg19",
 ### Genome version, required for the readVcf function.
+sex=c("?","F","M"),
+### Sex of sample. If ?, detect.
 fun.filterVcf=filterVcfMuTect, 
-### Function for filtering variants. Expected output is a list with elements vcf (CollapsedVCF), flag (TRUE/FALSE) and flag_comment (string). The flags will be added to the output data and can be used to warn users, for example when samples look too noisy. Default filter will remove variants flagged by MuTect, but will keep germline variants. If ran in matched normal mode, it will by default use somatic status of variants and filter non-somatic calls with allelic fraction significantly different from 0.5 in normal. 
+### Function for filtering variants. Expected output is a 
+### list with elements vcf (CollapsedVCF), flag (TRUE/FALSE) and flag_comment 
+### (string). The flags will be added to the output data and can be used to 
+### warn users, for example when samples look too noisy. Default filter will 
+### remove variants flagged by MuTect, but will keep germline variants. If 
+### ran in matched normal mode, it will by default use somatic status of 
+### variants and filter non-somatic calls with allelic fraction significantly 
+### different from 0.5 in normal. 
 args.filterVcf=list(),
-### Arguments for variant filtering function. Arguments vcf, tumor.id.in.vcf, coverage.cutoff and verbose are required in the filter function and are automatically set (do NOT set them here again).
+### Arguments for variant filtering function. Arguments 
+### vcf, tumor.id.in.vcf, coverage.cutoff and verbose are required in the 
+### filter function and are automatically set (do NOT set them here again).
 fun.setPriorVcf=setPriorVcf,
-### Function to set prior for somatic status for each variant in the VCF.
+### Function to set prior for somatic status for each 
+### variant in the VCF.
 args.setPriorVcf=list(),
 ### Arguments for somatic prior function.
 fun.segmentation=segmentationCBS, 
-### Function for segmenting the copy number log-ratios. Expected return value is a list with elements seg (the segmentation) and size (the size in bp for all segments).
+### Function for segmenting the copy number log-ratios. 
+### Expected return value is a list with elements seg (the segmentation) and 
+### size (the size in bp for all segments).
 args.segmentation=list(),
-### Arguments for segmentation function. Arguments normal, tumor, log.ratio, plot.cnv, coverage.cutoff, sampleid, vcf, tumor.id.in.vcf, verbose are required in the segmentation function and automatically set (do NOT set them here again).
+### Arguments for segmentation function. Arguments 
+### normal, tumor, log.ratio, plot.cnv, coverage.cutoff, sampleid, vcf, 
+### tumor.id.in.vcf, verbose are required in the segmentation function and 
+### automatically set (do NOT set them here again).
 fun.focal=findFocal,
 ### Function for identifying focal amplifications.
 args.focal=list(),
@@ -41,37 +73,72 @@ min.ploidy=1,
 max.ploidy=6, 
 ### Maximum ploidy to be considered.
 test.num.copy=0:7, 
-### Copy numbers tested in the grid search. Note that focal amplifications can have much higher copy numbers, but they will be labeled as subclonal (because they do not fit the integer copy numbers).
+### Copy numbers tested in the grid search. Note that focal 
+### amplifications can have much higher copy numbers, but they will be labeled
+### as subclonal (because they do not fit the integer copy numbers).
 test.purity=seq(0.05,0.95,by=0.01), 
 ### Considered tumor purity values. 
 prior.purity=rep(1,length(test.purity))/length(test.purity), 
-### Priors for purity if they are available. Only change when you know what you are doing.
+### Priors for purity if they are available. Only change 
+### when you know what you are doing.
 max.candidate.solutions=15, 
-### Number of local optima considered in optimization and variant fitting steps. If there are too many local optima, it will use specified number of top candidate solutions, but will also include all optima close to diploid, because silent genomes have often lots of local optima.
+### Number of local optima considered in optimization 
+### and variant fitting steps. If there are too many local optima, it will use
+### specified number of top candidate solutions, but will also include all 
+### optima close to diploid, because silent genomes have often lots of local 
+### optima.
 candidates=NULL, 
-### Candidates to optimize from a previous run (return.object$candidates). If NULL, do 2D grid search and find local optima. 
+### Candidates to optimize from a previous run 
+### (return.object$candidates). 
+### If NULL, do 2D grid search and find local optima. 
 coverage.cutoff=15, 
-### Minimum exon coverage in both normal and tumor. Exons with lower coverage are ingored. The cutoff choice depends on the expected purity and overall coverage. High purity samples might need a lower cutoff to call homozygous deletions. If an exon.weigh.file (below) is NOT specified, it is recommended to set a higher cutoff (e.g. 20) to remove noise from unreliable exon measurements. 
+### Minimum exon coverage in both normal and tumor. Exons
+### with lower coverage are ingored. The cutoff choice depends on the expected
+### purity and overall coverage. High purity samples might need a lower cutoff
+### to call homozygous deletions. If an exon.weigh.file (below) is NOT 
+### specified, it is recommended to set a higher cutoff (e.g. 20) to remove 
+### noise from unreliable exon measurements. 
 max.non.clonal=0.2, 
-### Maximum genomic fraction assigned to a subclonal copy number state.
+### Maximum genomic fraction assigned to a subclonal copy 
+### number state.
+max.homozygous.loss=0.1,
+### Maximum genomic fraction assigned to homozygous loss. 
+### This is set to a fairly high default value to not exclude correct
+### solutions, especially in noisy segmentations. 
 iterations=30, 
-### Maximum number of iterations in the Simulated Annealing copy number fit optimization.
+### Maximum number of iterations in the Simulated Annealing copy 
+### number fit optimization.
 log.ratio.calibration=0.25,
-### re-calibrate log-ratios in the window sd(log.ratio)*log.ratio.calibration.
+### re-calibrate log-ratios in the window 
+### sd(log.ratio)*log.ratio.calibration.
 gc.gene.file=NULL, 
-### GC gene file, which assigns GC content and gene symbols to each exon in the coverage files. Used for generating gene level calls. First column in format CHR:START-END. Second column GC content (0 to 1). Third column gene symbol.
+### GC gene file, which assigns GC content and gene symbols 
+### to each exon in the coverage files. Used for generating gene level calls. 
+### First column in format CHR:START-END. Second column GC content (0 to 1). 
+### Third column gene symbol.
 filter.lowhigh.gc.exons=0.001,
-### Quantile q (defines lower q and upper 1-q) for removing exons with outlier GC profile. Assuming that GC correction might not have been worked on those. Requires gc.gene.file.
+### Quantile q (defines lower q and upper 1-q) 
+### for removing exons with outlier GC profile. Assuming that GC correction 
+### might not have been worked on those. Requires gc.gene.file.
 filter.targeted.base=4,
-### Exclude exons with targeted base (size) smaller than this cutoff.
+### Exclude exons with targeted base (size) smaller 
+### than this cutoff.
 max.logr.sdev=0.75,
-### Flag noisy samples with segment log-ratio standard deviation larger than this. Assay specific and needs to be calibrated.
+### Flag noisy samples with segment log-ratio standard deviation 
+### larger than this. Assay specific and needs to be calibrated.
+max.segments=200,
+### Flag noisy samples with a large number of segments. Assay 
+### specific and needs to be calibrated.
 plot.cnv=TRUE, 
 ### Generate segmentation plots.
 verbose=TRUE, 
 ### Verbose output.
 post.optimize=FALSE,
-### Optimize purity using final SCNA-fit and SNVs. This might take a long time when lots of SNVs need to be fitted, but will result in a slightly more accurate purity, especially for rather silent genomes or very low purities. Otherwise, it will just use the purity determined via the SCNA-fit.
+### Optimize purity using final SCNA-fit and SNVs. This 
+### might take a long time when lots of SNVs need to be fitted, but will 
+### typically result in a slightly more accurate purity, especially for rather
+### silent genomes or very low purities. Otherwise, it will just use the 
+### purity determined via the SCNA-fit.
 ... 
 ### Additional parameters passed to the segmentation function.
 ) {
@@ -132,6 +199,29 @@ post.optimize=FALSE,
         if (is.null(gatk.normal.file)) normal <- tumor
         if (!is.null(seg.file)) stop("Provide either log.ratio or seg.file, not both.") 
     }        
+    sex <- match.arg(sex)
+    sex.chr <- .getSexChr(tumor)
+    if (sex =="?") {
+        sex.tumor <- getSexFromCoverage(tumor, verbose=FALSE)
+        sex.normal <- getSexFromCoverage(normal, verbose=FALSE)
+        if (is.na(sex.tumor)) {
+            tumor <- .removeChr(tumor, remove.chrs=sex.chr)
+        }    
+        if (is.na(sex.normal)) {
+            normal <- .removeChr(normal, remove.chrs=sex.chr)
+        }    
+        if (!identical(sex.tumor, sex.normal)) warning(paste("Sex tumor/normal mismatch: tumor =", sex.tumor, "normal =", sex.normal))  
+        sex <- sex.tumor    
+        if (is.na(sex)) sex = "?"
+    } 
+    if (sex=="M") {
+        tumor <- .removeChr(tumor, remove.chrs=sex.chr)
+    } else if (sex=="F") {
+        tumor <- .removeChr(tumor, remove.chrs=sex.chr[2])
+    }       
+          
+    if (verbose) message(paste("Sex of sample:", sex))
+          
     # NA's in log.ratio confuse the CBS function
     idx <- !is.na(log.ratio) & !is.infinite(log.ratio)
     log.ratio <- log.ratio[idx]    
@@ -171,6 +261,7 @@ post.optimize=FALSE,
     vcf.germline <- NULL
     tumor.id.in.vcf <- NULL
     prior.somatic <- NULL
+    vcf.filtering <-list(flag=FALSE, flag_comment="")
 
     if (!is.null(vcf.file)) {
         if (verbose) message("Loading VCF...")
@@ -358,6 +449,10 @@ post.optimize=FALSE,
                 # set probability to zero if ploidy is not within requested range 
                 log.prior.ploidy <- log(ifelse(ploidy<min.ploidy | ploidy>max.ploidy,0,1))
                 if (iter > 1) p.rij <- p.rij+log.prior.ploidy
+                
+                frac.homozygous.loss <- sapply(test.num.copy, function(Ci) (sum(li[-i] * ifelse(C[-i]==0,1,0)) + li[i] * ifelse(Ci==0,1,0))/sum(li) )
+                log.prior.homozygous.loss <- log(ifelse(frac.homozygous.loss > max.homozygous.loss,0,1))
+                if (iter > 1) p.rij <- p.rij+log.prior.homozygous.loss
 
                 # model sub clonal state with a uniform distribution
                 p.rij <- c(p.rij,  .calcLlikSegmentSubClonal( exon.lrs[[i]]+log.ratio.offset[i], max.exon.ratio))
@@ -443,7 +538,7 @@ post.optimize=FALSE,
             SNV.posterior <- res.snvllik[[idx]]
         }
 
-        list(log.likelihood=llik, purity=p, ploidy=weighted.mean(C,li), total.ploidy=total.ploidy, seg=seg.adjusted, C.posterior=data.frame(C.posterior/rowSums(C.posterior), ML.C=C, ML.Subclonal=subclonal), SNV.posterior=SNV.posterior, fraction.subclonal=subclonal.f, gene.calls=gene.calls, log.ratio.offset=log.ratio.offset, failed=FALSE)
+        list(log.likelihood=llik, purity=p, ploidy=weighted.mean(C,li), total.ploidy=total.ploidy, seg=seg.adjusted, C.posterior=data.frame(C.posterior/rowSums(C.posterior), ML.C=C, ML.Subclonal=subclonal), SNV.posterior=SNV.posterior, fraction.subclonal=subclonal.f, fraction.homozygous.loss=sum(li[which(C<0.01)])/sum(li), gene.calls=gene.calls, log.ratio.offset=log.ratio.offset, failed=FALSE)
     }
 
     results <- lapply(1:nrow(candidate.solutions$candidates),.optimizeSolution)
@@ -451,7 +546,7 @@ post.optimize=FALSE,
 
     results <- .rankResults(results)
     results <- .filterDuplicatedResults(results)
-    results <- .flagResults(results, max.non.clonal=max.non.clonal, max.logr.sdev=max.logr.sdev, logr.sdev=sd.seg, flag=vcf.filtering$flag, flag_comment=vcf.filtering$flag_comment)  
+    results <- .flagResults(results, max.non.clonal=max.non.clonal, max.logr.sdev=max.logr.sdev, logr.sdev=sd.seg, max.segments=max.segments, flag=vcf.filtering$flag, flag_comment=vcf.filtering$flag_comment)  
     if (!is.null(gc.gene.file)) {
         # Add LOH calls to gene level calls 
         for (i in 1:length(results)) {
@@ -459,30 +554,37 @@ post.optimize=FALSE,
         }
     }    
 
-    for (i in 1:length(results)) {
-        results[[i]]$SNV.posterior$beta.model$posteriors <- .getVariantCallsLOH( results[[i]] )
+    if (!is.null(vcf.file)) {
+        for (i in 1:length(results)) {
+            results[[i]]$SNV.posterior$beta.model$posteriors <- .getVariantCallsLOH( results[[i]] )
+        }
     }
     ##value<< A list with elements
     list(
         candidates=candidate.solutions, ##<< Results of the grid search.
         results=results, ##<< All local optima, sorted by final rank.
-        input=list(tumor=gatk.tumor.file, normal=gatk.normal.file, log.ratio=data.frame(probe=normal[,1], log.ratio=log.ratio), log.ratio.sdev=sd.seg, vcf=vcf, sampleid=sampleid) ##<< The input data.
+        input=list(tumor=gatk.tumor.file, normal=gatk.normal.file, log.ratio=data.frame(probe=normal[,1], log.ratio=log.ratio), log.ratio.sdev=sd.seg, vcf=vcf, sampleid=sampleid, sex=sex) ##<< The input data.
         )
 ##end<<
 },ex=function(){
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
+vcf.file <- system.file("extdata", "example_vcf.vcf", 
+    package="PureCN")
+gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    package="PureCN")
 
-# Speed-up the runAbsoluteCN by using the stored grid-search 
+# Speed-up the runAbsoluteCN call by using the stored grid-search 
 # (purecn.example.output$candidates).
 data(purecn.example.output)
 
 # The max.candidate.solutions parameter is set to a very low value only to
 # speed-up this example.  This is not a good idea for real samples.
 
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, gatk.tumor.file=gatk.tumor.file, 
-   candidates=purecn.example.output$candidates, max.candidate.solutions=2,
+ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
+    gatk.tumor.file=gatk.tumor.file, 
+    candidates=purecn.example.output$candidates, max.candidate.solutions=2,
     vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file)
 })    

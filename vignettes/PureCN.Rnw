@@ -61,9 +61,10 @@ following steps on GC corrected data. All other assay-specific biases such as
 mappability or exon length are mitigated by using a control sample (GC bias is
 commonly library specific).
 
-PureCN currently assumes a completely diploid normal genome, this means the user
-is expected to remove any non-diploid chromosomes (i.e. XY for males and Y for
-females).
+PureCN currently assumes a completely diploid normal genome. PureCN tries to
+detect the sex of samples by calculating the coverage ratio of chromosomes X
+and Y and will then remove any non-diploid chromosomes (i.e. XY for males and Y
+for females).
 
 We load a few example files:
 <<example_files>>=

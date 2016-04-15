@@ -1,10 +1,13 @@
 createNormalDatabase <- structure(function(
-### Function to create a database of normal samples, used to find a good match for tumor copy number normalization.
+### Function to create a database of normal samples, used to find 
+### a good match for tumor copy number normalization.
 gatk.normal.files,
-### Vector with file names pointing to GATK coverage files of normal samples. 
+### Vector with file names pointing to GATK coverage files 
+### of normal samples. 
 ...
 ### Arguments passed to the prcomp function.
 ) {
+    gatk.normal.files <- normalizePath(gatk.normal.files)
     normals <- lapply(gatk.normal.files, readCoverageGatk)
     normals.m <- do.call(cbind, lapply(normals, function(x) x$average.coverage))
     idx <- complete.cases(normals.m)
@@ -15,7 +18,8 @@ gatk.normal.files,
         exons.used=idx, 
         coverage=apply(normals.m, 2, mean, na.rm=TRUE), 
         exon.median.coverage=apply(normals.m,1,median, na.rm=TRUE),
-        exon.log2.sd.coverage=apply(log2(normals.m+1),1,sd, na.rm=TRUE)
+        exon.log2.sd.coverage=apply(log2(normals.m+1),1,sd, na.rm=TRUE),
+        sex=sapply(normals,getSexFromCoverage)
     )
 ### A normal database that can be used in the findBestNormal function to 
 ### retrieve good matching normal samples for a given tumor sample.
@@ -27,11 +31,13 @@ normalDB <- createNormalDatabase(gatk.normal.files)
 })    
 
 createExonWeightFile <- structure(function(# Calculate exon weights
-### Creates an exon weight file useful for segmentation, by down-weighting unreliable exons.
+### Creates an exon weight file useful for segmentation, by 
+### down-weighting unreliable exons.
 gatk.tumor.files, 
 ### A small number (1-3) of GATK tumor coverage samples.
 gatk.normal.files,
-### A large number of GATK normal coverage samples (>20) to estimate exon log-ratio standard deviations.
+### A large number of GATK normal coverage samples (>20) 
+### to estimate exon log-ratio standard deviations.
 exon.weight.file
 ### Output filename.
 ) {
@@ -51,7 +57,7 @@ exon.weight.file
     ret <- data.frame(Target=tumor.coverage[[1]][,1], Weights=zz)
 
     write.table(ret, file=exon.weight.file,row.names=FALSE, quote=FALSE, sep="\t")
-    ret
+    invisible(ret)
 ###A data.frame with exon weights.
 }, ex=function() {
 exon.weight.file <- "exon_weights.txt"

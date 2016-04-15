@@ -3,15 +3,15 @@
 \title{findBestNormal}
 \description{Function to find the best matching normal for a provided tumor sample.}
 \usage{findBestNormal(gatk.tumor.file, normalDB, pcs = 1:3, 
-    num.normals = 1, verbose = TRUE)}
+    num.normals = 1, ignore.sex = FALSE, verbose = TRUE)}
 \arguments{
   \item{gatk.tumor.file}{GATK coverage file of a tumor sample.}
   \item{normalDB}{Database of normal samples, created with createNormalDatabase().}
   \item{pcs}{Principal components to use for distance calculation.}
-  \item{num.normals}{
-}
-  \item{verbose}{
-}
+  \item{num.normals}{Return the num.normals best normals.}
+  \item{ignore.sex}{If FALSE, detects sex of sample returns a best normal 
+with matching sex.}
+  \item{verbose}{Verbose output.}
 }
 
 \value{Return the filename of the best matching normal    }

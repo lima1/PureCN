@@ -1,12 +1,14 @@
 \name{createExonWeightFile}
 \alias{createExonWeightFile}
 \title{Calculate exon weights}
-\description{Creates an exon weight file useful for segmentation, by down-weighting unreliable exons.}
+\description{Creates an exon weight file useful for segmentation, by 
+down-weighting unreliable exons.}
 \usage{createExonWeightFile(gatk.tumor.files, gatk.normal.files, 
     exon.weight.file)}
 \arguments{
   \item{gatk.tumor.files}{A small number (1-3) of GATK tumor coverage samples.}
-  \item{gatk.normal.files}{A large number of GATK normal coverage samples (>20) to estimate exon log-ratio standard deviations.}
+  \item{gatk.normal.files}{A large number of GATK normal coverage samples (>20) 
+to estimate exon log-ratio standard deviations.}
   \item{exon.weight.file}{Output filename.}
 }
 

@@ -69,7 +69,7 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, gatk.tumor.file=gatk.tumo
 .pruneByVCF <- function(x, vcf, tumor.id.in.vcf, min.size=5, max.pval=0.00001, iterations=3, debug=FALSE) {
     seg <- segments.p(x$cna)
     for (iter in 1:iterations) {
-        seg.gr <- GRanges(seqnames=paste("chr", seg$chrom,sep=""), IRanges(start=seg$loc.start, end=seg$loc.end))
+        seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), IRanges(start=seg$loc.start, end=seg$loc.end))
         ov <- findOverlaps(seg.gr, vcf)
         ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
         ar.r <- ifelse(ar>0.5, 1-ar, ar)
