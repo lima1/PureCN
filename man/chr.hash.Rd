@@ -5,7 +5,7 @@
 A data.frame of chromosome names to hash to numeric representation.
 }
 \description{
-a table of chromosome name and their corresponding numerical representation. This is needed because the way DNAcopy encodes the chromosomes.
+A table of chromosome name and their corresponding numerical representation. This is needed because the way DNAcopy encodes the chromosomes.
 }
 \usage{data(chr.hash)}
 \value{
