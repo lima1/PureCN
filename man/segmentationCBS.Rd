@@ -7,7 +7,7 @@ via args.segmentation.}
 \usage{segmentationCBS(normal, tumor, log.ratio, plot.cnv, 
     coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
     alpha = 0.005, vcf = NULL, tumor.id.in.vcf = 1, 
-    verbose = TRUE, ...)}
+    verbose = TRUE)}
 \arguments{
   \item{normal}{GATK coverage file for normal sample.}
   \item{tumor}{GATK coverage file for tumor sample.}
@@ -20,8 +20,6 @@ via args.segmentation.}
   \item{vcf}{Optional VCF object with germline allelic ratios.}
   \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in VCF.}
   \item{verbose}{Verbose output.}
-  \item{\dots}{Additional parameters passed to a modified version of CNV.analyze function
-of the ExomeCNV package.}
 }
 
 \value{A list with elements

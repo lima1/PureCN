@@ -23,11 +23,8 @@ vcf=NULL,
 ### Optional VCF object with germline allelic ratios.
 tumor.id.in.vcf=1,
 ### Id of tumor in case multiple samples are stored in VCF.
-verbose=TRUE,
+verbose=TRUE
 ### Verbose output.
-...
-### Additional parameters passed to a modified version of CNV.analyze function
-### of the ExomeCNV package.
 ) {
     exon.weights <- NULL
     if (!is.null(exon.weight.file)) {
@@ -35,7 +32,7 @@ verbose=TRUE,
         exon.weights <- exon.weights[match(as.character(tumor[,1]), exon.weights[,1]),2]
         if (verbose) message("Exon weights found, will use weighted CBS.")
     }
-    x <- .CNV.analyze2(normal, tumor, logR=log.ratio, plot.cnv=plot.cnv, coverage.cutoff=coverage.cutoff, sampleid=sampleid, alpha=alpha, weights=exon.weights, verbose=verbose,...) 
+    x <- .CNV.analyze2(normal, tumor, logR=log.ratio, plot.cnv=plot.cnv, coverage.cutoff=coverage.cutoff, sampleid=sampleid, alpha=alpha, weights=exon.weights, verbose=verbose) 
     if (!is.null(vcf)) {
         x <- .pruneByVCF(x, vcf, tumor.id.in.vcf)
     }

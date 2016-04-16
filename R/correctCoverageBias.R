@@ -9,15 +9,12 @@ gc.gene.file,
 ### First column in format CHR:START-END. Second column GC content (0 to 1). 
 ### Third column provides gene symbols, which are optional, but used in
 ### runAbsoluteCN to generate gene level calls.
-output.file=NULL,
+output.file=NULL
 ### Optionally, write minimal GATK coverage file with GC corrected coverage.
-verbose=TRUE
-### Verbose output.
 ) {
     if (is.character(gatk.coverage.file)) {
         tumor  <- readCoverageGatk(gatk.coverage.file)
     } else {
-        if (verbose) message("gatk.tumor.file does not appear to be a filename, assuming it is valid GATK coverage data.")
         tumor <- gatk.coverage.file
     }    
     
@@ -31,11 +28,16 @@ verbose=TRUE
     gc$valid[tumor$average.coverage <= 0 | gc$gc_bias < 0] <- FALSE
     gc$ideal <- TRUE
     routlier <- 0.01
-    range <- quantile(tumor$average.coverage[gc$valid], prob = c(0, 1 - routlier), na.rm = TRUE)
+    range <- quantile(tumor$average.coverage[gc$valid], prob = c(0, 1 - routlier), 
+        na.rm = TRUE)
     doutlier <- 0.001
-    domain <- quantile(gc$gc_bias[gc$valid], prob = c(doutlier, 1 - doutlier), na.rm = TRUE)
-    gc$ideal[!gc$valid | tumor$average.coverage <= range[1] |
-        tumor$average.coverage > range[2] | gc$gc_bias < domain[1] | gc$gc_bias > domain[2]] <- FALSE
+    domain <- quantile(gc$gc_bias[gc$valid], prob = c(doutlier, 1 - doutlier), 
+        na.rm = TRUE)
+    gc$ideal[!gc$valid | 
+        tumor$average.coverage <= range[1] |
+        tumor$average.coverage > range[2] | 
+        gc$gc_bias < domain[1] | 
+        gc$gc_bias > domain[2]] <- FALSE
 
     rough <- loess(tumor$average.coverage[gc$ideal] ~ gc$gc_bias[gc$ideal], span = 0.03)
     i <- seq(0, 1, by = 0.001)
@@ -53,8 +55,9 @@ verbose=TRUE
     tumor
 ### GC normalized coverage
 }, ex=function() {
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    package="PureCN")
 coverage <- correctCoverageBias(gatk.normal.file, gc.gene.file)
-})    
-    
+})
