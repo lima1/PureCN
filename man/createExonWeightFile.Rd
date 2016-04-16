@@ -21,10 +21,13 @@ to estimate exon log-ratio standard deviations.}
 
 \examples{
 exon.weight.file <- "exon_weights.txt"
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+    package="PureCN")
 gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
 
 createExonWeightFile(gatk.tumor.file, gatk.normal.files, exon.weight.file)
 }

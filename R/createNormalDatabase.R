@@ -24,8 +24,10 @@ gatk.normal.files,
 ### A normal database that can be used in the findBestNormal function to 
 ### retrieve good matching normal samples for a given tumor sample.
 },ex=function() {
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+    package="PureCN")
 gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
 normalDB <- createNormalDatabase(gatk.normal.files)
 })    
@@ -42,7 +44,9 @@ exon.weight.file
 ### Output filename.
 ) {
     tumor.coverage <- lapply(gatk.tumor.files,  readCoverageGatk)
-    lrs <- lapply(tumor.coverage, function(tc) sapply(gatk.normal.files, function(x) .calcLogRatio(readCoverageGatk(x), tc, verbose=TRUE)))
+    lrs <- lapply(tumor.coverage, function(tc) sapply(gatk.normal.files, function(x) 
+            .calcLogRatio(readCoverageGatk(x), tc, verbose=TRUE)))
+
     lrs <- do.call(cbind, lrs)
 
     lrs[is.infinite(lrs)] <- NA
@@ -61,10 +65,13 @@ exon.weight.file
 ###A data.frame with exon weights.
 }, ex=function() {
 exon.weight.file <- "exon_weights.txt"
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+    package="PureCN")
 gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
 
 createExonWeightFile(gatk.tumor.file, gatk.normal.files, exon.weight.file)
-})        
+})      

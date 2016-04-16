@@ -19,8 +19,10 @@ retrieve good matching normal samples for a given tumor sample.}
 
 
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+    package="PureCN")
 gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
 normalDB <- createNormalDatabase(gatk.normal.files)
 }

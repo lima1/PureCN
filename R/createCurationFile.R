@@ -24,7 +24,8 @@ overwrite.uncurated=TRUE
     if (file.exists(filename)) {
         tmp <- read.csv(filename, as.is=TRUE)
         if (tmp$Curated[1]) {
-            warning(paste(filename, "already exists and seems to be edited. Will not overwrite it."))
+            warning(paste(filename, 
+                "already exists and seems to be edited. Will not overwrite it."))
         } else if (!overwrite.uncurated) {
             warning(paste(filename, "already exists. Will not overwrite it."))
         } else {
@@ -33,7 +34,7 @@ overwrite.uncurated=TRUE
     } else {   
         write.csv(d.f.curation, file=filename, row.names=FALSE)
     }
-    d.f.curation
+    invisible(d.f.curation)
 ###A data.frame with the tumor purity and ploidy of the maximum likelihood
 ###solution 
 },ex=function() {
@@ -41,4 +42,4 @@ data(purecn.example.output)
 file.rds <- 'Sample1_PureCN.rds'
 saveRDS(purecn.example.output, file=file.rds)
 createCurationFile(file.rds) 
-})    
+})

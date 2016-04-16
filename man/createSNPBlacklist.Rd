@@ -6,12 +6,13 @@ fraction (AF) smaller than 0.5 in diploid genomes.  }
 \usage{createSNPBlacklist(vcf.files, n = min(10, length(vcf.files)), 
     low.af = 0.025, high.af = 0.1, genome = "hg19")}
 \arguments{
-  \item{vcf.files}{List of VCF files. When a VCF file contains multiple samples, it will
-ignore all samples except of the first.  }
-  \item{n}{Required number of VCF files showing low allelic fraction to blacklist a SNP id. }
+  \item{vcf.files}{List of VCF files. When a VCF file contains multiple samples, 
+it will ignore all samples except of the first.  }
+  \item{n}{Required number of VCF files showing low allelic fraction to 
+blacklist a SNP id. }
   \item{low.af}{Defines a low AF p-value.}
-  \item{high.af}{Defines a high AF p-value. For every sample with high AF p-value, there
-must be one more sample with low AF to reach the cutoff.  }
+  \item{high.af}{Defines a high AF p-value. For every sample with high AF p-value, 
+there must be one more sample with low AF to reach the cutoff.  }
   \item{genome}{Version of the reference genome, required for the readVcf() function.}
 }
 
