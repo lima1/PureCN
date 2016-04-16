@@ -10,11 +10,15 @@ ratio of chrX and chrY.}
   \item{verbose}{Verbose output.}
 }
 
-\value{Returns "M" for male, "F" for female, or NULL if unknown.    }
+\value{Returns "M" for male, "F" for female, or NA if unknown.    }
 
 \author{Markus Riester}
 
 
 
 
-
+\examples{
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
+sex <- getSexFromCoverage(gatk.tumor.file)
+}

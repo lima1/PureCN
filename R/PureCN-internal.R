@@ -10,12 +10,12 @@ max.exon.ratio) {
     .calcLlikSegmentClonal(lr, sd.seg, p, Ci, total.ploidy)
 }
 .calcLlikSegmentClonal <- function(lr, sd.seg, p, Ci, total.ploidy) {
-    sum(dnorm(lr, mean = log2((p * Ci + (1 - p) * 2)/total.ploidy), sd = sd.seg, 
-        log = TRUE))
+    sum(dnorm(lr, mean = log2((p * Ci + (1 - p) * 2)/total.ploidy), 
+        sd = sd.seg, log = TRUE))
 }
 .calcLlikSegmentSubClonal <- function(lr, max.exon.ratio) {
     sum(dunif(x = sapply(2^lr, function(y) min(y, max.exon.ratio)), min = 0, 
-                max = max.exon.ratio, log = TRUE))
+        max = max.exon.ratio, log = TRUE))
 }
 .calcLogRatio <- function(normal, tumor, verbose) {
     # make sure that normal and tumor align
@@ -28,16 +28,16 @@ max.exon.ratio) {
     log.ratio <- log2(tumor$average.coverage/normal$average.coverage) + 
                  log2(total.cov.normal/total.cov.tumor)
 
-    mean.log.ratio <- mean(subset(log.ratio, !is.infinite(log.ratio)), na.rm = TRUE)
-    if (verbose) 
-        message(paste("mean log-ratio:", mean.log.ratio))
+    mean.log.ratio <- mean(subset(log.ratio, !is.infinite(log.ratio)), 
+        na.rm = TRUE)
     # calibrate
     log.ratio <- log.ratio - mean.log.ratio
     log.ratio
 }
-.calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, C.posterior, 
-    C, snv.model, prior.somatic, snv.lr, sampleid = NULL, cont.rate = 0.01, prior.M = NULL, 
-    post.optimize) {
+.calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
+    C.posterior, C, snv.model, prior.somatic, snv.lr, sampleid = NULL, 
+    cont.rate = 0.01, prior.M = NULL, post.optimize) {
+
     prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
     prior.somatic <- prior.somatic/(1 + cont.rate)
     
@@ -53,8 +53,8 @@ max.exon.ratio) {
     # of 0. We add the subclonal posterior to the maximum copy number to fix this.
     idx <- abs(round(C) - C) > 0.001 & C > max(test.num.copy)
     if (length(idx) > 1) {
-        C.posterior[idx, ncol(C.posterior) - 1] <- C.posterior[idx, ncol(C.posterior) - 
-            1] + C.posterior[idx, ncol(C.posterior)]
+        C.posterior[idx, ncol(C.posterior) - 1] <- C.posterior[idx, 
+            ncol(C.posterior) - 1] + C.posterior[idx, ncol(C.posterior)]
     }
     
     seg.idx <- which(1:nrow(C.posterior) %in% queryHits(ov))
@@ -66,75 +66,90 @@ max.exon.ratio) {
         ar_all <- unlist(geno(vcf)$FA[idx, tumor.id.in.vcf])
         ar_all[ar_all > 1] <- 1
         dp_all <- unlist(geno(vcf)$DP[idx, tumor.id.in.vcf])
-        # lr <- snv.lrs[[which(unique(queryHits(ov))==i)]] This gets the exon level
-        # log-ratio lr.C <- C[sapply(lr, function(x) which.min(abs(seg$seg.mean-x)))] but
-        # right now, we just use the segment log-ratio.
+
         lapply(test.num.copy, function(Ci) {
             lr.C <- rep(Ci, length(ar_all))
             pM <- prior.M[[as.character(i)]]
-            pM.both <- list(rep(log(Ci + 1 + haploid.penalty), length(test.num.copy)), 
-                rep(log(Ci + 1 + haploid.penalty), length(test.num.copy)))
+            pM.both <- list(rep(log(Ci + 1 + haploid.penalty), 
+                                length(test.num.copy)), 
+                            rep(log(Ci + 1 + haploid.penalty), 
+                                length(test.num.copy)))
             
             if (!is.null(pM)) {
-                pM.both <- list(rep(log(Ci + 1 + haploid.penalty), length(test.num.copy)), 
-                  log((1 - pM) + (Ci + 1) + haploid.penalty))
+                pM.both <- list(rep(log(Ci + 1 + haploid.penalty), 
+                                    length(test.num.copy)), 
+                                log((1 - pM) + (Ci + 1) + haploid.penalty))
             }
             
-            if (snv.model == "normal") {
-                p.ar <- lapply(c(0, 1), function(g) lapply(1:length(ar_all), function(j) sapply(test.num.copy, 
-                  function(Mi) ifelse(Mi <= lr.C[j], dnorm(ar_all[j], mean = (p * 
-                    Mi + g * (1 - p))/(p * lr.C[j] + 2 * (1 - p)), sd = sd.ar, log = TRUE) - 
-                    log(lr.C[j] + 1), -Inf))))
-            } else {
-                p.ar <- lapply(c(0, 1), function(g) lapply(1:length(ar_all), function(j) sapply(test.num.copy, 
-                  function(Mi) ifelse(Mi <= lr.C[j], dbeta(x = (p * Mi + g * (1 - 
-                    p))/(p * lr.C[j] + 2 * (1 - p)), shape1 = ar_all[j] * dp_all[j] + 
-                    1, shape2 = (1 - ar_all[j]) * dp_all[j] + 1, log = TRUE) - pM.both[[g + 
-                    1]][which.min(abs(Mi - test.num.copy))], -Inf))))
-            }
+            p.ar <- lapply(c(0, 1), function(g) 
+                lapply(1:length(ar_all), function(j) 
+                sapply(test.num.copy, function(Mi) 
+                    ifelse(Mi > lr.C[j], -Inf, 
+                    dbeta(x = (p * Mi + g * (1-p))/(p * lr.C[j] + 2 * (1-p)), 
+                    shape1 = ar_all[j] * dp_all[j] + 1, 
+                    shape2 = (1 - ar_all[j]) * dp_all[j] + 1, log = TRUE) -
+                    pM.both[[g + 1]][which.min(abs(Mi - test.num.copy))]))))
             
-            p.ar.cont.1 <- lapply(1:length(ar_all), function(j) dbeta(x = (p * lr.C[j] + 
-                2 * (1 - p - cont.rate))/(p * lr.C[j] + 2 * (1 - p)), shape1 = ar_all[j] * 
-                dp_all[j] + 1, shape2 = (1 - ar_all[j]) * dp_all[j] + 1, log = TRUE) - 
+            p.ar.cont.1 <- lapply(1:length(ar_all), function(j) 
+                dbeta(x = (p * lr.C[j] + 2 * (1 - p - cont.rate))/
+                    (p * lr.C[j] + 2 * (1 - p)), 
+                    shape1 = ar_all[j] * dp_all[j] + 1, 
+                    shape2 = (1 - ar_all[j]) * dp_all[j] + 1, log = TRUE) - 
                 log(lr.C[j] + 1 + haploid.penalty))
-            p.ar.cont.2 <- lapply(1:length(ar_all), function(j) dbeta(x = (cont.rate)/(p * 
-                lr.C[j] + 2 * (1 - p)), shape1 = ar_all[j] * dp_all[j] + 1, shape2 = (1 - 
-                ar_all[j]) * dp_all[j] + 1, log = TRUE) - log(lr.C[j] + 1 + haploid.penalty))
+
+            p.ar.cont.2 <- lapply(1:length(ar_all), function(j) 
+                dbeta(x = (cont.rate)/(p * lr.C[j] + 2 * (1 - p)), 
+                    shape1 = ar_all[j] * dp_all[j] + 1, 
+                    shape2 = (1 - ar_all[j]) * dp_all[j] + 1, log = TRUE) - 
+                log(lr.C[j] + 1 + haploid.penalty))
             
             # add prior probabilities for somatic vs germline
-            p.ar[[1]] <- lapply(1:length(p.ar[[1]]), function(j) p.ar[[1]][[j]] + 
-                log(prior.somatic[idx][j]))
-            p.ar[[2]] <- lapply(1:length(p.ar[[2]]), function(j) p.ar[[2]][[j]] + 
-                log(1 - prior.somatic[idx][j]))
-            # contamination (either homozygous germline, or germline from other sample)
-            p.ar[[3]] <- lapply(1:length(p.ar.cont.1), function(j) p.ar.cont.1[[j]] + 
-                log(prior.cont[idx][j]))
-            p.ar[[4]] <- lapply(1:length(p.ar.cont.2), function(j) p.ar.cont.2[[j]] + 
-                log(prior.cont[idx][j]))
+            p.ar[[1]] <- lapply(1:length(p.ar[[1]]), 
+                function(j) p.ar[[1]][[j]] + log(prior.somatic[idx][j]))
+
+            p.ar[[2]] <- lapply(1:length(p.ar[[2]]), 
+                function(j) p.ar[[2]][[j]] + log(1 - prior.somatic[idx][j]))
+
+            # contamination (either homozygous germline, or germline from 
+            # other sample)
+
+            p.ar[[3]] <- lapply(1:length(p.ar.cont.1), 
+                function(j) p.ar.cont.1[[j]] + log(prior.cont[idx][j]))
+            p.ar[[4]] <- lapply(1:length(p.ar.cont.2), 
+                function(j) p.ar.cont.2[[j]] + log(prior.cont[idx][j]))
             
             do.call(cbind, lapply(p.ar, function(x) do.call(rbind, x)))
         })
         
     })
-    snv.posteriors <- do.call(rbind, lapply(1:length(xx), function(i) Reduce("+", 
-        lapply(test.num.copy, function(Ci) exp(xx[[i]][[Ci + 1]]) * C.posterior[seg.idx[i], 
-            Ci + 1]))))
-    colnames(snv.posteriors) <- c(paste("SOMATIC.M", test.num.copy, sep = ""), paste("GERMLINE.M", 
-        test.num.copy, sep = ""), "GERMLINE.CONTHIGH", "GERMLINE.CONTLOW")
+    snv.posteriors <- do.call(rbind, 
+        lapply(1:length(xx), function(i) Reduce("+", 
+            lapply(test.num.copy, function(Ci) 
+                exp(xx[[i]][[Ci + 1]]) * C.posterior[seg.idx[i], Ci + 1]))))
+
+    colnames(snv.posteriors) <- c(paste("SOMATIC.M", test.num.copy, sep = ""), 
+        paste("GERMLINE.M", test.num.copy, sep = ""), "GERMLINE.CONTHIGH", 
+        "GERMLINE.CONTLOW")
     
-    vcf.ids <- do.call(c, lapply(seg.idx, function(i) subjectHits(ov)[queryHits(ov) == 
-        i]))
+    vcf.ids <- do.call(c, lapply(seg.idx, function(i) 
+        subjectHits(ov)[queryHits(ov) == i]))
     rownames(snv.posteriors) <- vcf.ids
     
     # this just adds a lot of helpful info to the SNV posteriors
     xx <- .extractMLSNVState(snv.posteriors)
     
     posteriors <- snv.posteriors/rowSums(snv.posteriors)
-    posteriors <- cbind(as.data.frame(rowRanges(vcf[vcf.ids]))[, 1:3], posteriors, 
-        xx, ML.C = C[queryHits(ov)])
+    posteriors <- cbind(
+        as.data.frame(rowRanges(vcf[vcf.ids]))[, 1:3], 
+        posteriors, 
+        xx, 
+        ML.C = C[queryHits(ov)]
+    )
     
-    posteriors$ML.AR <- (p * posteriors$ML.M + ifelse(posteriors$ML.SOMATIC, 0, 1) * 
+    posteriors$ML.AR <- (p * posteriors$ML.M + 
+        ifelse(posteriors$ML.SOMATIC, 0, 1) * 
         (1 - p))/(p * posteriors$ML.C + 2 * (1 - p))
+
     posteriors$AR <- unlist(geno(vcf[vcf.ids])$FA[, tumor.id.in.vcf])
     posteriors$CN.Subclonal <- subclonal
     posteriors$Log.Ratio <- snv.lr[vcf.ids]
@@ -142,29 +157,38 @@ max.exon.ratio) {
     posteriors$Prior.Contamination <- prior.cont[vcf.ids]
     
     # Extract LOH
-    posteriors$ML.LOH <- (posteriors$ML.M == posteriors$ML.C | posteriors$ML.M == 
-        0 | posteriors$ML.C == 1)
-    loh <- segment(CNA(ifelse(posteriors$ML.LOH, 1, 0), chrom = posteriors$seqnames, 
-        maploc = posteriors$start, data.type = "binary", sampleid = sampleid, presorted = TRUE))
+    posteriors$ML.LOH <- (posteriors$ML.M == posteriors$ML.C | 
+        posteriors$ML.M == 0 | posteriors$ML.C == 1)
+
+    loh <- segment(
+        CNA(ifelse(posteriors$ML.LOH, 1, 0), 
+            chrom = posteriors$seqnames, 
+            maploc = posteriors$start, 
+            data.type = "binary", 
+            sampleid = sampleid, 
+            presorted = TRUE))
     
     # these are potential artifacts with very high clonal probability and would have
     # huge impact on log-likelihood
     rm.snv.posteriors <- apply(snv.posteriors, 1, max)
-    idx.ignore <- (posteriors$CN.Subclonal & posteriors$ML.C < max(test.num.copy) & 
-        C.posterior[queryHits(ov), ncol(C.posterior)] > 0.95) | rm.snv.posteriors == 
-        0
-    # idx.ignore <- ( posteriors$CN.Subclonal & C.posterior[queryHits(ov),
-    # ncol(C.posterior)] > 0.95 ) | rowMax(snv.posteriors) < 0.00001
-    
-    # list(llik = sum(log(apply(snv.posteriors[!posteriors$CN.Subclonal,],1,max))),
-    # likelihoods=snv.posteriors, posteriors=posteriors, vcf.ids=vcf.ids,
-    # segment.ids=queryHits(ov))
-    ret <- list(llik = sum(log(rm.snv.posteriors[!idx.ignore])) - sum(idx.ignore), 
-        likelihoods = snv.posteriors, posteriors = posteriors, vcf.ids = vcf.ids, 
-        segment.ids = queryHits(ov), loh = loh, llik.ignored = idx.ignore)
+    idx.ignore <- (posteriors$CN.Subclonal & 
+        posteriors$ML.C < max(test.num.copy) & 
+        C.posterior[queryHits(ov), ncol(C.posterior)] > 0.95) | 
+        rm.snv.posteriors == 0
+
+    ret <- list(
+        llik = sum(log(rm.snv.posteriors[!idx.ignore])) - sum(idx.ignore), 
+        likelihoods = snv.posteriors, 
+        posteriors = posteriors, 
+        vcf.ids = vcf.ids, 
+        segment.ids = queryHits(ov), 
+        loh = loh, 
+        llik.ignored = idx.ignore)
+
     if (post.optimize && is.null(prior.M)) {
-        ret <- .calcSNVLLik(vcf, tumor.id.in.vcf, ov, p, test.num.copy, C.posterior, 
-            C, snv.model, prior.somatic, snv.lr, sampleid, cont.rate, prior.M = .calcMpriorGermline(ret), 
+        ret <- .calcSNVLLik(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
+            C.posterior, C, snv.model, prior.somatic, snv.lr, sampleid, 
+            cont.rate, prior.M = .calcMpriorGermline(ret), 
             post.optimize = post.optimize)
     }
     ret
@@ -502,16 +526,19 @@ max.exon.ratio) {
 }
 .createFakeLogRatios <- function(tumor, seg.file) {
     seg <- read.delim(seg.file)
-    required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", "seg.mean")
+    required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
+        "seg.mean")
     if (!all.equal(colnames(seg), required.colnames)) {
-        stop(paste("Segmentation file expected with colnames", paste(required.colnames, 
-            collapse = ", ")))
+        stop(paste("Segmentation file expected with colnames", 
+                paste(required.colnames, collapse = ", ")))
     }
     
-    seg.gr <- GRanges(seqnames = paste("chr", gsub("24", "Y", gsub("23", "X", seg$chrom)), 
-        sep = ""), IRanges(start = round(seg$loc.start), end = seg$loc.end))
-    exon.gr <- GRanges(seqnames = gsub("24", "Y", gsub("23", "X", tumor$chr)), IRanges(start = tumor$probe_start, 
-        end = tumor$probe_end))
+    seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom), 
+                IRanges(start = round(seg$loc.start), end = seg$loc.end))
+
+    exon.gr <- GRanges(seqnames = gsub("24", "Y", gsub("23", "X", tumor$chr)), 
+                IRanges(start = tumor$probe_start, end = tumor$probe_end))
+
     ov <- findOverlaps(exon.gr, seg.gr)
     log.ratio <- seg$seg.mean[subjectHits(ov)]
     # sanity check, so that every exon has exactly one segment log-ratio
@@ -521,12 +548,16 @@ max.exon.ratio) {
 .strip.chr.name <- function(ls) {
     chr.hash <- NULL
     data(chr.hash, envir = environment())
-    chr.hash[as.character(ls), 2]
+    x <- chr.hash[as.character(ls), 2]
+    x[is.na(x)] <- ls[is.na(x)]
+    x
 }
 .add.chr.name <- function(ls) {
     chr.hash <- NULL
     data(chr.hash, envir = environment())
-    as.character(chr.hash$chr[match(ls, chr.hash$number)])
+    x <- as.character(chr.hash$chr[match(ls, chr.hash$number)])
+    x[is.na(x)] <- ls[is.na(x)]
+    x
 }
     
  

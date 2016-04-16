@@ -156,7 +156,10 @@ than in tumor.  Otherwise the PCA will typically do a good job in selecting a
 normal with decent coverage and similar biases compared to tumor. When pooling,
 it might be also necessary to remove certain principal components, most likely
 the first one, to avoid that coverage is the only selection criteria. The
-\Rfunction{plotBestNormal} function might be helpful in finding a good strategy.
+\Rfunction{plotBestNormal} function might be helpful in finding a good
+strategy. Note that this example removes sex chromosomes; if the normal database
+contains a sufficient number of samples with matching sex,
+\Rfunction{findBestNormal} will return only normal samples with matching sex.
 
 \section{VCF Artifact Filtering}
 
@@ -236,14 +239,13 @@ plotAbs(ret, 1, type="BAF")
 dot is a (predicted) germline SNP.}
 
 Germline variant data are informative for calculating integer copy number,
-because unbalanced maternal and paternal chromosome numbers in the tumor
-portion of the sample lead to unbalanced germline allelic fractions in the
-tumor. Equations for calculating expected allelic fractions are given in the
-Supplemental Information of the \Biocpkg{PureCN} manuscript.
-Figure~\ref{figure/figureexample3-1} shows the allelic fractions of predicted
-germline SNPS.  In the middle panel, the corresponding copy number log-ratios
-are shown. The lower panel displays the calculated integer copy
-numbers, corrected for purity and ploidy.
+because unbalanced maternal and paternal chromosome numbers in the tumor portion
+of the sample lead to unbalanced germline allelic fractions.  Equations for
+calculating expected allelic fractions are given in the Supplemental Information
+of the \Biocpkg{PureCN} manuscript.  Figure~\ref{figure/figureexample3-1} shows
+the allelic fractions of predicted germline SNPS.  In the middle panel, the
+corresponding copy number log-ratios are shown. The lower panel displays the
+calculated integer copy numbers, corrected for purity and ploidy.
 
 <<figureexample4, fig.show='hide'>>=
 plotAbs(ret, 1, type="AF")
@@ -291,9 +293,10 @@ easily change that to your favorite method and the \Rfunction{segmentationCBS}
 function can serve as an example. The \Rfunction{segmentationPSCBS} function is
 another example which uses the \CRANpkg{PSCBS} package.
 
-It is also possible to provide segmented file, which we however only recommend
-when matched SNP6 data is available (otherwise it is better to customize the
-segmentation function as described above). The expected file format is:
+It is also possible to provide already segmented data, which we however only
+recommend when matched SNP6 data is available (otherwise it is better to
+customize the segmentation function as described above). The expected file
+format is:
 
 \begin{verbatim}
     ID  chrom   loc.start   loc.end num.mark    seg.mean

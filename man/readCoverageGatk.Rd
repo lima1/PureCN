@@ -17,6 +17,7 @@ are: Target, total_coverage, and average_coverage. }
 
 
 \examples{
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
 coverage <- readCoverageGatk(gatk.tumor.file)
 }
