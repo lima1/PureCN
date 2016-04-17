@@ -6,6 +6,8 @@ structure(function(# Run PureCN implementation of ABSOLUTE
 ### in VCF format (e.g. obtained by MuTect). Normal control does not need to 
 ### be matched (from the same patient). In case VCF does not contain somatic 
 ### status, it should contain dbSNP and optionally COSMIC annotation.
+### Returns purity and ploidy combinations, sorted by likelihood score.
+### Provides copy number and LOH data, by both gene and genomic region. 
 gatk.normal.file=NULL, 
 ### GATK coverage file of normal control (optional if 
 ### log.ratio is provided - then it will be only used to filter low coverage 
@@ -112,7 +114,7 @@ log.ratio.calibration=0.25,
 ### re-calibrate log-ratios in the window 
 ### sd(log.ratio)*log.ratio.calibration.
 gc.gene.file=NULL, 
-### GC gene file, which assigns GC content and gene symbols 
+### A mapping file that assigns GC content and gene symbols 
 ### to each exon in the coverage files. Used for generating gene level calls. 
 ### First column in format CHR:START-END. Second column GC content (0 to 1). 
 ### Third column gene symbol.
@@ -122,7 +124,9 @@ filter.lowhigh.gc.exons=0.001,
 ### might not have been worked on those. Requires gc.gene.file.
 filter.targeted.base=4,
 ### Exclude exons with targeted base (size) smaller 
-### than this cutoff.
+### than this cutoff. This is useful when the same interval file was used to
+### calculate GC content. For such small exons, the GC content is likely 
+### very different from the true GC content of the probes.
 max.logr.sdev=0.75,
 ### Flag noisy samples with segment log-ratio standard deviation 
 ### larger than this. Assay specific and needs to be calibrated.

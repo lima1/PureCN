@@ -3,7 +3,7 @@
 \title{Plot the PCA of tumor and its best normal(s)}
 \description{This function can be used to understand how a best normal is chosen
 by the findBestNormal function. It can be also used to tune the
-best normal selection by finding good parameters values for
+best normal selection by finding good parameter values for
 num.normals and pcs.}
 \usage{plotBestNormal(gatk.normal.files, gatk.tumor.file, 
     normalDB, x = 1, y = 2, col.tumor = "red", col.best.normal = "blue", 

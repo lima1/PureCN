@@ -3,7 +3,7 @@ createSNPBlacklist <- structure(function(# Create SNP black list
 ### fraction (AF) smaller than 0.5 in diploid genomes.  
 vcf.files, 
 ### List of VCF files. When a VCF file contains multiple samples, 
-### it will ignore all samples except of the first.  
+### it will ignore all samples except the first.
 n=min(10, length(vcf.files)),
 ### Required number of VCF files showing low allelic fraction to 
 ### blacklist a SNP id. 

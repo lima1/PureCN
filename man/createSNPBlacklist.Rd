@@ -7,7 +7,7 @@ fraction (AF) smaller than 0.5 in diploid genomes.  }
     low.af = 0.025, high.af = 0.1, genome = "hg19")}
 \arguments{
   \item{vcf.files}{List of VCF files. When a VCF file contains multiple samples, 
-it will ignore all samples except of the first.  }
+it will ignore all samples except the first.}
   \item{n}{Required number of VCF files showing low allelic fraction to 
 blacklist a SNP id. }
   \item{low.af}{Defines a low AF p-value.}

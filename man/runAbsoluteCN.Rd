@@ -6,7 +6,9 @@ allelic fractions of germline variants and somatic mutations.
 Coverage data is provided in GATK DepthOfCoverage format, allelic fraction
 in VCF format (e.g. obtained by MuTect). Normal control does not need to 
 be matched (from the same patient). In case VCF does not contain somatic 
-status, it should contain dbSNP and optionally COSMIC annotation.}
+status, it should contain dbSNP and optionally COSMIC annotation.
+Returns purity and ploidy combinations, sorted by likelihood score.
+Provides copy number and LOH data, by both gene and genomic region. }
 \usage{runAbsoluteCN(gatk.normal.file = NULL, gatk.tumor.file, 
     log.ratio = NULL, seg.file = NULL, seg.file.sdev = 0.4, 
     vcf.file = NULL, genome = "hg19", sex = c("?", 
@@ -101,7 +103,7 @@ solutions, especially in noisy segmentations. }
 number fit optimization.}
   \item{log.ratio.calibration}{re-calibrate log-ratios in the window 
 sd(log.ratio)*log.ratio.calibration.}
-  \item{gc.gene.file}{GC gene file, which assigns GC content and gene symbols 
+  \item{gc.gene.file}{A mapping file that assigns GC content and gene symbols 
 to each exon in the coverage files. Used for generating gene level calls. 
 First column in format CHR:START-END. Second column GC content (0 to 1). 
 Third column gene symbol.}
@@ -109,7 +111,9 @@ Third column gene symbol.}
 for removing exons with outlier GC profile. Assuming that GC correction 
 might not have been worked on those. Requires gc.gene.file.}
   \item{filter.targeted.base}{Exclude exons with targeted base (size) smaller 
-than this cutoff.}
+than this cutoff. This is useful when the same interval file was used to
+calculate GC content. For such small exons, the GC content is likely 
+very different from the true GC content of the probes.}
   \item{max.logr.sdev}{Flag noisy samples with segment log-ratio standard deviation 
 larger than this. Assay specific and needs to be calibrated.}
   \item{max.segments}{Flag noisy samples with a large number of segments. Assay 

@@ -68,7 +68,7 @@ plotBestNormal <- structure(
     function(#Plot the PCA of tumor and its best normal(s)
 ### This function can be used to understand how a best normal is chosen
 ### by the findBestNormal function. It can be also used to tune the
-### best normal selection by finding good parameters values for
+### best normal selection by finding good parameter values for
 ### num.normals and pcs.
 gatk.normal.files,
 ### GATK coverage file of normal files, typically identified via 
