@@ -15,4 +15,8 @@ test_runAbsoluteCN <- function() {
         max.candidate.solutions=2)
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
+    
+    # chromosomes in segmentation ordered numerically, not alphabetically
+    chrom <- ret$results[[1]]$seg$chrom
+    checkEqualsNumeric(1:22,chrom[!duplicated(chrom)])
 }    

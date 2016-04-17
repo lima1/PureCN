@@ -4,9 +4,9 @@ structure(function(# CBS segmentation
 ### fun.segmentation argument of runAbsoluteCN. The arguments are passed
 ### via args.segmentation.
 normal, 
-### GATK coverage file for normal sample.
+### GATK coverage data for normal sample.
 tumor,  
-### GATK coverage file for tumor sample.
+### GATK coverage data for tumor sample.
 log.ratio, 
 ### Copy number log-ratios, one for each exon in coverage file.
 plot.cnv, 
@@ -29,10 +29,13 @@ verbose=TRUE
     exon.weights <- NULL
     if (!is.null(exon.weight.file)) {
         exon.weights <- read.delim(exon.weight.file, as.is=TRUE)
-        exon.weights <- exon.weights[match(as.character(tumor[,1]), exon.weights[,1]),2]
+        exon.weights <- exon.weights[match(as.character(tumor[,1]), 
+            exon.weights[,1]),2]
         if (verbose) message("Exon weights found, will use weighted CBS.")
     }
-    x <- .CNV.analyze2(normal, tumor, logR=log.ratio, plot.cnv=plot.cnv, coverage.cutoff=coverage.cutoff, sampleid=sampleid, alpha=alpha, weights=exon.weights, verbose=verbose) 
+    x <- .CNV.analyze2(normal, tumor, logR=log.ratio, plot.cnv=plot.cnv, 
+        coverage.cutoff=coverage.cutoff, sampleid=sampleid, alpha=alpha, 
+        weights=exon.weights, verbose=verbose) 
     if (!is.null(vcf)) {
         x <- .pruneByVCF(x, vcf, tumor.id.in.vcf)
     }
@@ -44,17 +47,21 @@ verbose=TRUE
     )
 ##end<<
 },ex=function() {
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
+vcf.file <- system.file("extdata", "example_vcf.vcf", 
+    package="PureCN")
+gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    package="PureCN")
 
 # speed-up the runAbsoluteCN by using the stored grid-search.
 # (purecn.example.output$candidates).
 data(purecn.example.output)
 
-# The max.candidate.solutions is set to a very low value only to speed-up this example.
-# This is not a good idea for real samples.
+# The max.candidate.solutions argument is set to a very low value only to 
+# speed-up this example. This is not a good idea for real samples.
 ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
     gatk.tumor.file=gatk.tumor.file, 
     vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file, 
@@ -62,12 +69,14 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))
 })    
 
-# looks at breakpoints, and if p-value is higher than max.pval, merge unless there is evidence based
-# on germline SNPs
-.pruneByVCF <- function(x, vcf, tumor.id.in.vcf, min.size=5, max.pval=0.00001, iterations=3, debug=FALSE) {
+# looks at breakpoints, and if p-value is higher than max.pval, merge unless 
+# there is evidence based on germline SNPs
+.pruneByVCF <- function(x, vcf, tumor.id.in.vcf, min.size=5, max.pval=0.00001,
+    iterations=3, debug=FALSE) {
     seg <- segments.p(x$cna)
     for (iter in 1:iterations) {
-        seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), IRanges(start=seg$loc.start, end=seg$loc.end))
+        seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), 
+            IRanges(start=seg$loc.start, end=seg$loc.end))
         ov <- findOverlaps(seg.gr, vcf)
         ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
         ar.r <- ifelse(ar>0.5, 1-ar, ar)
@@ -77,20 +86,28 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
             if (is.na(seg$pval[i-1]) || seg$pval[i-1]<max.pval) next
             # don't merge when we have no germline data for segments    
             if (!(i %in% queryHits(ov) && (i-1) %in% queryHits(ov))) next
-            ar.i <- list(ar.r[subjectHits(ov)][queryHits(ov)==i],ar.r[subjectHits(ov)][queryHits(ov)==i-1])
+            ar.i <- list(
+                ar.r[subjectHits(ov)][queryHits(ov)==i],
+                ar.r[subjectHits(ov)][queryHits(ov)==i-1])
             if (length(ar.i[[1]]) < min.size || length(ar.i[[2]]) < min.size) next
             if (merged[i-1]) next
             
             p.t <- t.test(ar.i[[1]], ar.i[[2]])$p.value
             if (p.t>0.2) {
                 merged[i] <- TRUE
-                x$cna$output$seg.mean[i-1] <- weighted.mean(c(seg$seg.mean[i],seg$seg.mean[i-1]),w=c(seg$num.mark[i],seg$num.mark[i-1]))
+                x$cna$output$seg.mean[i-1] <- weighted.mean(
+                    c(seg$seg.mean[i],seg$seg.mean[i-1]),
+                    w=c(seg$num.mark[i],seg$num.mark[i-1]))
+
                 x$cnv$size[i-1] <- x$cnv$size[i]+x$cnv$size[i-1]
                 x$cna$output$num.mark[i-1] <- seg$num.mark[i]+seg$num.mark[i-1]
                 x$cna$output$loc.end[i-1] <- seg$loc.end[i]
                 seg$pval[i-1] <- seg$pval[i]
             }
-            if (debug) message(paste(i, "LR diff:", abs(seg$seg.mean[i]-seg$seg.mean[i-1]), "Size: ", seg$num.mark[i-1], "PV:", p.t, "PV bp:",seg$pval[i-1] , "Merged:", merged[i],"\n", sep=" "))
+            if (debug) message(paste(i, "LR diff:", 
+                abs(seg$seg.mean[i]-seg$seg.mean[i-1]), "Size: ", 
+                seg$num.mark[i-1], "PV:", p.t, "PV bp:",seg$pval[i-1], 
+                "Merged:", merged[i],"\n", sep=" "))
         }
         x$cna$output <- x$cna$output[!merged,]
         x$cnv <- x$cnv[!merged,]
@@ -99,7 +116,6 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     x
 }
     
-
 # ExomeCNV version without the x11() calls 
 .CNV.analyze2 <-
 function(normal, tumor, logR=NULL, coverage.cutoff=15, normal.chrs=c("chr1",

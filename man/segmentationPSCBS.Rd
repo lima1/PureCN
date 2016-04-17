@@ -9,8 +9,8 @@ The arguments are passed via args.segmentation.}
     flavor = "tcn&dh", tauA = 0.03, vcf = NULL, tumor.id.in.vcf = 1, 
     verbose = TRUE, ...)}
 \arguments{
-  \item{normal}{GATK coverage file for normal sample.}
-  \item{tumor}{GATK coverage file for tumor sample.}
+  \item{normal}{GATK coverage data for normal sample.}
+  \item{tumor}{GATK coverage data for tumor sample.}
   \item{log.ratio}{Copy number log-ratios, one for each exon in coverage file.}
   \item{plot.cnv}{Segmentation plots.}
   \item{coverage.cutoff}{Minimum coverage in both normal and tumor.}

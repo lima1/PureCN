@@ -4,9 +4,9 @@ structure(function(# PSCBS segmentation
 ### This function is called via the fun.segmentation argument of runAbsoluteCN.
 ### The arguments are passed via args.segmentation.
 normal, 
-### GATK coverage file for normal sample.
+### GATK coverage data for normal sample.
 tumor,  
-### GATK coverage file for tumor sample.
+### GATK coverage data for tumor sample.
 log.ratio, 
 ### Copy number log-ratios, one for each exon in coverage file.
 plot.cnv, 

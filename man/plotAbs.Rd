@@ -1,6 +1,6 @@
 \name{plotAbs}
 \alias{plotAbs}
-\title{Plots for analyzing PureCN solutions.}
+\title{Plots for analyzing PureCN solutions}
 \description{This function provides various plots for finding correct 
 purity and ploidy combinations in the results of a runAbsoluteCN call.}
 \usage{plotAbs(res, ids = NULL, type = c("hist", "overview", 

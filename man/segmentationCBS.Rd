@@ -9,8 +9,8 @@ via args.segmentation.}
     alpha = 0.005, vcf = NULL, tumor.id.in.vcf = 1, 
     verbose = TRUE)}
 \arguments{
-  \item{normal}{GATK coverage file for normal sample.}
-  \item{tumor}{GATK coverage file for tumor sample.}
+  \item{normal}{GATK coverage data for normal sample.}
+  \item{tumor}{GATK coverage data for tumor sample.}
   \item{log.ratio}{Copy number log-ratios, one for each exon in coverage file.}
   \item{plot.cnv}{Segmentation plots.}
   \item{coverage.cutoff}{Minimum coverage in both normal and tumor.}
@@ -32,17 +32,21 @@ via args.segmentation.}
 
 
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
+vcf.file <- system.file("extdata", "example_vcf.vcf", 
+    package="PureCN")
+gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    package="PureCN")
 
 # speed-up the runAbsoluteCN by using the stored grid-search.
 # (purecn.example.output$candidates).
 data(purecn.example.output)
 
-# The max.candidate.solutions is set to a very low value only to speed-up this example.
-# This is not a good idea for real samples.
+# The max.candidate.solutions argument is set to a very low value only to 
+# speed-up this example. This is not a good idea for real samples.
 ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
     gatk.tumor.file=gatk.tumor.file, 
     vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file, 

@@ -32,7 +32,7 @@ verbose=TRUE
     flag_comment <- NA
 
     if (is.null(tumor.id.in.vcf)) {
-        tumor.id.in.vcf <- names(  which.min(colSums(geno(vcf)$GT=="0")) )
+        tumor.id.in.vcf <- names( which.min(colSums(geno(vcf)$GT=="0")) )
     }
     if (use.somatic.status) {
         n <- nrow(vcf)
@@ -196,7 +196,8 @@ vcf.filtered <- filterVcfMuTect(vcf)
 })
 
 setPriorVcf <- structure(function(# Set Somatic Prior VCF
-### Function to set prior for somatic mutation status for each variant in the provided CollapsedVCF object.
+### Function to set prior for somatic mutation status for each
+### variant in the provided CollapsedVCF object.
 vcf,
 ### VCF object, read in with the readVcf function from the 
 ### VariantAnnotation package.
@@ -242,7 +243,7 @@ verbose=TRUE
 ### A vector with the prior probability of somatic status for each 
 ### variant in the CollapsedVCF.
 },ex=function() {
-# This function is typically only called by runAbsolute via the 
+# This function is typically only called by runAbsoluteCN via the 
 # fun.setPriorVcf and args.setPriorVcf comments.
 vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")

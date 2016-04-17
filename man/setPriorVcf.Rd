@@ -1,7 +1,8 @@
 \name{setPriorVcf}
 \alias{setPriorVcf}
 \title{Set Somatic Prior VCF}
-\description{Function to set prior for somatic mutation status for each variant in the provided CollapsedVCF object.}
+\description{Function to set prior for somatic mutation status for each
+variant in the provided CollapsedVCF object.}
 \usage{setPriorVcf(vcf, prior.somatic = c(0.5, 5e-04, 0.999, 
     1e-04, 0.95, 0.01), verbose = TRUE)}
 \arguments{
@@ -29,7 +30,7 @@ variant in the CollapsedVCF.}
 
 
 \examples{
-# This function is typically only called by runAbsolute via the 
+# This function is typically only called by runAbsoluteCN via the 
 # fun.setPriorVcf and args.setPriorVcf comments.
 vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")
