@@ -43,8 +43,9 @@ data(purecn.example.output)
 
 # The max.candidate.solutions is set to a very low value only to speed-up this example.
 # This is not a good idea for real samples.
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, gatk.tumor.file=gatk.tumor.file, 
-   vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file, 
-   candidates=purecn.example.output$candidates, max.candidate.solutions=2,
-   fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))
+ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
+    gatk.tumor.file=gatk.tumor.file, 
+    vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file, 
+    candidates=purecn.example.output$candidates, max.candidate.solutions=2,
+    fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))
 }

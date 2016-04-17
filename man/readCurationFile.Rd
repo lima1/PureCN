@@ -9,8 +9,8 @@ the runAbsoluteCN function.}
 \arguments{
   \item{file.rds}{Output of the runAbsoluteCN() function, serialized with 
 saveRDS()}
-  \item{file.curation}{Filename of curation file that points to the correct 
-solution.}
+  \item{file.curation}{Filename of a curation file that points to the correct 
+tumor purity and ploidy solution.}
   \item{remove.failed}{Do not return solutions that failed.}
   \item{report.best.only}{Only return correct/best solution (useful on low memory
 machines when lots of samples are loaded)}

@@ -24,10 +24,11 @@ overwrite.uncurated=TRUE
     if (file.exists(filename)) {
         tmp <- read.csv(filename, as.is=TRUE)
         if (tmp$Curated[1]) {
-            warning(paste(filename, 
-                "already exists and seems to be edited. Will not overwrite it."))
+            warning(filename, 
+                " already exists and seems to be edited.",
+                " Will not overwrite it.")
         } else if (!overwrite.uncurated) {
-            warning(paste(filename, "already exists. Will not overwrite it."))
+            warning(filename, " already exists. Will not overwrite it.")
         } else {
             write.csv(d.f.curation, file=filename, row.names=FALSE)
         }       

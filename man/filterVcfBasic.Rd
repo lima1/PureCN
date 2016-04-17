@@ -14,8 +14,9 @@ VariantAnnotation package.}
 information to remove non-heterozygous germline SNPs or germline SNPS 
 with biased allelic fractions.  }
   \item{snp.blacklist}{CSV file with SNP ids with expected allelic fraction 
-significantly different from 0.5 in diploid genomes. Can be an array of lists. 
-The function createSNPBlacklist can provide appropriate black lists.}
+significantly different from 0.5 in diploid genomes. Can be an array of 
+lists. The function createSNPBlacklist can provide appropriate black 
+lists.}
   \item{af.range}{Exclude SNPs with allelic fraction smaller or greater than the 
 two values, respectively.}
   \item{contamination.cutoff}{Count SNPs in dbSNP with allelic fraction smaller than the 

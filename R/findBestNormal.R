@@ -37,8 +37,8 @@ verbose=TRUE
             idx.normals <- which(normalDB$sex == sex)
         }
         if (length(idx.normals) < 2) { 
-            warning(paste("Not enough samples of sex", sex, 
-                "in database. Ignoring sex."))
+            warning("Not enough samples of sex ", sex, 
+                " in database. Ignoring sex.")
             idx.normals <- seq_along(normalDB$gatk.normal.files)
         }    
     }    

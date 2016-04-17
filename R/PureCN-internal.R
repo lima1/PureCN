@@ -549,7 +549,7 @@ max.exon.ratio) {
     chr.hash <- NULL
     data(chr.hash, envir = environment())
     x <- chr.hash[as.character(ls), 2]
-    x[is.na(x)] <- ls[is.na(x)]
+    x[is.na(x)] <- as.numeric(ls[is.na(x)])
     x
 }
 .add.chr.name <- function(ls) {

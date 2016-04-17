@@ -12,8 +12,9 @@ use.somatic.status=TRUE,
 ### with biased allelic fractions.  
 snp.blacklist=NULL,
 ### CSV file with SNP ids with expected allelic fraction 
-### significantly different from 0.5 in diploid genomes. Can be an array of lists. 
-### The function createSNPBlacklist can provide appropriate black lists.
+### significantly different from 0.5 in diploid genomes. Can be an array of 
+### lists. The function createSNPBlacklist can provide appropriate black 
+### lists.
 af.range=c(0.03, 0.97),
 ### Exclude SNPs with allelic fraction smaller or greater than the 
 ### two values, respectively.
@@ -55,12 +56,12 @@ verbose=TRUE
     vcf <- vcf[unlist(geno(vcf)$FA[,tumor.id.in.vcf]) >= af.range[1]]
     # remove homozygous germline
     vcf <- vcf[!info(vcf)$DB | geno(vcf)$FA[,tumor.id.in.vcf] < af.range[2]]
-    if (verbose) message(paste("Removing ", n-nrow(vcf), 
+    if (verbose) message("Removing ", n-nrow(vcf), 
         " SNPs with AF < ", af.range[1],
         " or AF >= ", af.range[2], 
         " or less than ", min.supporting.reads, 
         " supporting reads or depth < ",
-        coverage.cutoff, ".", sep=""))
+        coverage.cutoff, ".")
 
     if (!is.null(snp.blacklist)) {
         for (i in 1:length(snp.blacklist)) {
@@ -78,8 +79,8 @@ verbose=TRUE
             } else {    
                 vcf <- vcf[!rownames(vcf) %in% snp.blacklist.data[,1],]
             }
-            if (verbose) message(paste("Removing", n-nrow(vcf), 
-                "blacklisted SNPs."))
+            if (verbose) message("Removing ", n-nrow(vcf), 
+                " blacklisted SNPs.")
         }    
     }    
 
@@ -92,8 +93,8 @@ verbose=TRUE
         idx <- info(vcf)$DB & unlist(geno(vcf)$FA[,tumor.id.in.vcf]) < 
             contamination.cutoff[2]
         vcf <- vcf[which(!idx)]
-        if (verbose) message(paste("Removing", sum(idx, na.rm=TRUE), 
-            "contamination SNPs."))
+        if (verbose) message("Removing ", sum(idx, na.rm=TRUE), 
+            " contamination SNPs.")
         flag <- TRUE
         flag_comment <- "POTENTIAL SAMPLE CONTAMINATION"    
     }
@@ -115,8 +116,8 @@ verbose=TRUE
             idx <- info(vcf)$DB & unlist(geno(vcf)$FA[,tumor.id.in.vcf]) > 
                 (1 - contamination.cutoff[2])
             vcf <- vcf[which(!idx)]
-            if (verbose) message(paste("Removing", sum(idx, na.rm=TRUE), 
-                "noisy homozygous germline SNPs."))
+            if (verbose) message("Removing ", sum(idx, na.rm=TRUE), 
+                " noisy homozygous germline SNPs.")
             flag <- TRUE
             flag_comment <- .appendComment(flag_comment, 
                 "NOISY HOMOZYGOUS GERMLINE CALLS")    
@@ -168,8 +169,8 @@ verbose=TRUE,
     ov <- findOverlaps(vcf, gr.stats)
      
     if (!identical(queryHits(ov),subjectHits(ov))) {
-        warning(paste("MuTect stats file and VCF file do not align perfectly.",
-         "Will remove unmatched variants."))
+        warning("MuTect stats file and VCF file do not align perfectly. ",
+         "Will remove unmatched variants.")
         stats <- stats[subjectHits(ov)]
         vcf <- vcf[queryHits(ov)]
     }    
@@ -179,8 +180,8 @@ verbose=TRUE,
     ids <- sort(unique(unlist(sapply(ignore, grep, stats$failure_reasons))))
     vcf <- vcf[-ids]
 
-    if (verbose) message(paste("Removing ", n-nrow(vcf), 
-        " MuTect calls due to blacklisted failure reasons.", sep=""))
+    if (verbose) message("Removing ", n-nrow(vcf), 
+        " MuTect calls due to blacklisted failure reasons.")
     filterVcfBasic(vcf, tumor.id.in.vcf, verbose=verbose, ...)
 ### A list with elements vcf, flag and flag_comment. "vcf" contains the 
 ### filtered CollapsedVCF, "flag" a flag if problems were identified, further 
@@ -217,24 +218,24 @@ verbose=TRUE
          tmp <- prior.somatic
          prior.somatic <- ifelse(info(vcf)$SOMATIC,
             prior.somatic[3],prior.somatic[4])
-         if (verbose) message(paste("Found SOMATIC annotation in VCF. ",
+         if (verbose) message("Found SOMATIC annotation in VCF. ",
             "Setting somatic prior probabilities for somatic variants to ", 
-            tmp[3]," or to ", tmp[4], " otherwise.", sep="")) 
+            tmp[3]," or to ", tmp[4], " otherwise.")
     } else {
          tmp <- prior.somatic
          prior.somatic <- ifelse(info(vcf)$DB,
             prior.somatic[2], prior.somatic[1])
          if (!is.null(info(vcf)$Cosmic.CNT)) {
-             if (verbose) message(paste("Found COSMIC annotation in VCF. ",
+             if (verbose) message("Found COSMIC annotation in VCF. ",
                 "Setting somatic prior probabilities for hits to ", tmp[5],
-                " or to ", tmp[6], " if in both COSMIC and dbSNP.", sep="")) 
+                " or to ", tmp[6], " if in both COSMIC and dbSNP.")
 
              prior.somatic[which(info(vcf)$Cosmic.CNT>2)] <- tmp[5]
-             prior.somatic[which(info(vcf)$Cosmic.CNT>2 & info(vcf)$DB)] <- tmp[6]
+             prior.somatic[which(info(vcf)$Cosmic.CNT>2 & 
+                info(vcf)$DB)] <- tmp[6]
          } else {
-             if (verbose) message(paste("Setting somatic prior probabilities ",
-                "for dbSNP hits to ", tmp[2]," or to ", tmp[1], " otherwise.",
-                sep="")) 
+             if (verbose) message("Setting somatic prior probabilities ",
+                "for dbSNP hits to ", tmp[2]," or to ", tmp[1], " otherwise.")
          }      
     }     
     prior.somatic

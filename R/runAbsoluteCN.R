@@ -150,8 +150,8 @@ post.optimize=FALSE,
     test.num.copy <- sort(test.num.copy)
 
     if (!is.null(gc.gene.file) && !file.exists(gc.gene.file)) { 
-        warning(paste("gc.gene.file", gc.gene.file, 
-            "not found. You won't get gene level calls."))
+        warning("gc.gene.file ", gc.gene.file, 
+            " not found. You won't get gene level calls.")
         gc.gene.file=NULL
     }    
 
@@ -224,8 +224,8 @@ post.optimize=FALSE,
             normal <- .removeChr(normal, remove.chrs=sex.chr)
         }    
         if (!identical(sex.tumor, sex.normal)) {
-            warning(paste("Sex tumor/normal mismatch: tumor =", sex.tumor, 
-                "normal =", sex.normal))  
+            warning("Sex tumor/normal mismatch: tumor = ", sex.tumor, 
+                " normal = ", sex.normal)
         }
         sex <- sex.tumor    
         if (is.na(sex)) sex = "?"
@@ -236,7 +236,7 @@ post.optimize=FALSE,
         tumor <- .removeChr(tumor, remove.chrs=sex.chr[2])
     }       
           
-    if (verbose) message(paste("Sex of sample:", sex))
+    if (verbose) message("Sex of sample: ", sex)
           
     # NA's in log.ratio confuse the CBS function
     idx <- !is.na(log.ratio) & !is.infinite(log.ratio)
@@ -249,12 +249,12 @@ post.optimize=FALSE,
         gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
     }
 
-    # clean up noisy exons, but not if the segmentation was already provided. 
+    # clean up noisy exons, but not if the segmentation was already provided.
     if (is.null(seg.file)) {
         if (!is.null(filter.targeted.base)) {
             idx <- which(tumor$targeted.base >= filter.targeted.base)
-            if (verbose) message(paste("Removing", nrow(tumor)-length(idx), 
-                "small exons."))
+            if (verbose) message("Removing ", nrow(tumor)-length(idx), 
+                " small exons.")
             log.ratio <- log.ratio[idx]    
             normal <- normal[idx,]
             tumor <- tumor[idx,]
@@ -266,8 +266,8 @@ post.optimize=FALSE,
                 1-filter.lowhigh.gc.exons), na.rm=TRUE)
 
             idx <- which(!(gc.data$gc_bias < qq[1] | gc.data$gc_bias > qq[2]))
-            if (verbose) message(paste("Removing", nrow(gc.data)-length(idx),
-                 "low/high GC exons."))
+            if (verbose) message("Removing ", nrow(gc.data)-length(idx),
+                 " low/high GC exons.")
             gc.data <- gc.data[idx,]    
             log.ratio <- log.ratio[idx]    
             normal <- normal[idx,]
@@ -304,12 +304,12 @@ post.optimize=FALSE,
         }    
             
         tumor.id.in.vcf <- names( which.min(colSums(geno(vcf)$GT=="0")) )
-        if (verbose) message(paste("Assuming", tumor.id.in.vcf, 
-            "is tumor in VCF file."))
+        if (verbose) message("Assuming ", tumor.id.in.vcf, 
+            " is tumor in VCF file.")
         
         n.vcf.before.filter <- nrow(vcf)
-        if (verbose) message(paste("Found", n.vcf.before.filter, 
-            "variants in VCF file."))
+        if (verbose) message("Found ", n.vcf.before.filter, 
+            " variants in VCF file.")
         
         args.filterVcf <- c(list(vcf=vcf, tumor.id.in.vcf=tumor.id.in.vcf, 
             coverage.cutoff=coverage.cutoff, verbose=verbose), args.filterVcf)
@@ -341,7 +341,6 @@ post.optimize=FALSE,
     
     snv.lr <- NULL
 
-        
     if (!is.null(vcf.file)) {
         ov <- findOverlaps(seg.gr, vcf)
         sd.ar <- sd(unlist(geno(vcf)$FA[,tumor.id.in.vcf]))
@@ -350,14 +349,18 @@ post.optimize=FALSE,
     
     # get exon log-ratios for all segments 
     ov.se <- findOverlaps(seg.gr, exon.gr)
-    exon.lrs <- lapply(1:nrow(seg), function(i) log.ratio[subjectHits(ov.se)[queryHits(ov.se)==i]])
-    exon.lrs <- lapply(exon.lrs, function(x) subset(x, !is.na(x) & !is.infinite(x)))
+    exon.lrs <- lapply(1:nrow(seg), function(i) 
+        log.ratio[subjectHits(ov.se)[queryHits(ov.se)==i]])
+    exon.lrs <- lapply(exon.lrs, function(x) 
+        subset(x, !is.na(x) & !is.infinite(x)))
 
-    # estimate stand. dev. for exon logR within exons. this will be used as proxy for sample error.
+    # estimate stand. dev. for exon logR within exons. this will be used as 
+    # proxy for sample error.
     sd.seg <- median(sapply(exon.lrs, sd), na.rm=TRUE)
     
-    # if user provided seg file, then we do not have access to the log-ratios and need to use the user provided noise estimate
-    # also, don't do outlier smoothing when we use already segmented data
+    # if user provided seg file, then we do not have access to the log-ratios 
+    # and need to use the user provided noise estimate also, don't do outlier 
+    # smoothing when we use already segmented data
     if (!is.null(seg.file)) {
         sd.seg <- seg.file.sdev
     } else {   
@@ -371,9 +374,14 @@ post.optimize=FALSE,
         if (!is.null(seg.file)) {
             seg.orig <- read.delim(seg.file)
             par(mfrow=c(2,1))
-            hist(do.call(c, lapply(1:nrow(seg.orig), function(i) rep(seg.orig$seg.mean[i], seg.orig$num.mark[i]))),breaks=100,xlab="log2 ratio", main=paste(sampleid, "(original segmentation)"))
+            hist(do.call(c, lapply(1:nrow(seg.orig), function(i) 
+                rep(seg.orig$seg.mean[i], seg.orig$num.mark[i]))), breaks=100,
+                xlab="log2 ratio", main=paste(sampleid, 
+                "(original segmentation)"))
         }    
-        hist(do.call(c, lapply(1:nrow(seg), function(i) rep(seg$seg.mean[i], seg$num.mark[i]))),breaks=100,xlab="log2 ratio", main=sampleid)
+        hist(do.call(c, lapply(1:nrow(seg), function(i) 
+                rep(seg$seg.mean[i], seg$num.mark[i]))), breaks=100,
+                xlab="log2 ratio", main=sampleid)
         par(mfrow=c(1,1))
     }
 
@@ -384,34 +392,51 @@ post.optimize=FALSE,
 
     if (sum(li < 0) > 0) stop("Some segments have negative size.")
 
-    if(verbose) message(paste("Mean standard deviation of log-ratios:", round(sd.seg, digits=2)))
+    if(verbose) message("Mean standard deviation of log-ratios: ", round(sd.seg, digits=2))
     log.ratio.offset <- rep(0, nrow(seg))
      
-    if(verbose) message("Optimizing purity and ploidy. Will take a minute or two...")
+    if(verbose) message("Optimizing purity and ploidy. ",
+        "Will take a minute or two...")
     
     # find local maxima. use a coarser grid for purity, otherwise we will get far too many solutions, which we will
     # need to cluster later anyways.
     if (!is.null(candidates)){
         candidate.solutions <- candidates    
     } else {
-        candidate.solutions <- .optimizeGrid(test.purity=seq( max(0.1,min(test.purity)), min(0.9, max(test.purity)),by=0.05), min.ploidy, max.ploidy, test.num.copy=test.num.copy, exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal, verbose, debug)
+        candidate.solutions <- .optimizeGrid(
+            test.purity=seq( max(0.1,min(test.purity)), 
+                min(0.9, max(test.purity)),by=0.05), min.ploidy, max.ploidy, 
+            test.num.copy=test.num.copy, exon.lrs, seg, sd.seg, li, 
+            max.exon.ratio, max.non.clonal, verbose, debug)
 
-        # if we have > 20 somatic mutations, we can try estimating purity based on allelic fractions and assuming diploid genomes.
-        if (!is.null(vcf.file) && sum(prior.somatic > 0.5, na.rm=TRUE) > 20 ) {
-            somatic.purity <- min(max(test.purity), .calcPuritySomaticVariants(vcf, prior.somatic, tumor.id.in.vcf))
+        # if we have > 20 somatic mutations, we can try estimating purity 
+        # based on allelic fractions and assuming diploid genomes.
+        if (!is.null(vcf.file) && sum(prior.somatic > 0.5, na.rm=TRUE) > 20) {
+            somatic.purity <- min(max(test.purity), 
+                .calcPuritySomaticVariants(vcf, prior.somatic, 
+                    tumor.id.in.vcf))
 
-            candidate.solutions$candidates <- rbind( candidate.solutions$candidates, c(2,somatic.purity ,NA,2))
+            candidate.solutions$candidates <- rbind( 
+                candidate.solutions$candidates, 
+                c(2,somatic.purity ,NA,2)
+            )
         }
     }    
 
     if (nrow(candidate.solutions$candidates) > max.candidate.solutions) {
         # test the best solutions and everything close to diploid
-        idx.keep <- unique(c(1:max.candidate.solutions, which( ( candidate.solutions$candidates$tumor.ploidy > 1.6 &  candidate.solutions$candidates$tumor.ploidy < 2.6 ))))
-        candidate.solutions$candidates <- candidate.solutions$candidates[idx.keep,]
-        warning("Too many candidate solutions! Trying optimizing the top candidates.")
+        idx.keep <- unique(c(1:max.candidate.solutions, 
+            which( ( candidate.solutions$candidates$tumor.ploidy > 1.6 &
+                    candidate.solutions$candidates$tumor.ploidy < 2.6 ))))
+        candidate.solutions$candidates <- 
+            candidate.solutions$candidates[idx.keep,]
+        warning("Too many candidate solutions! ",
+            "Trying optimizing the top candidates.")
     }    
     
-    if(verbose) message(paste("Local optima:", paste(candidate.solutions$candidates$purity, candidate.solutions$candidates$ploidy,sep="/", collapse=", "))) 
+    if(verbose) message("Local optima: ", 
+        paste(candidate.solutions$candidates$purity, 
+            candidate.solutions$candidates$ploidy,sep="/", collapse=", "))
 
     simulated.annealing <- TRUE
 
@@ -423,7 +448,8 @@ post.optimize=FALSE,
         total.ploidy <- candidate.solutions$candidates$ploidy[cpi]
         p <- candidate.solutions$candidates$purity[cpi]
 
-        if (verbose) message(paste("Testing local optimum at purity ", p, " and total ploidy ", total.ploidy, ".", sep=""))
+        if (verbose) message("Testing local optimum at purity ", p, 
+            " and total ploidy ", total.ploidy, ".")
 
         subclonal <- rep(FALSE, nrow(seg))
         old.llik <- -1; cnt.llik.equal <- 0;
@@ -431,58 +457,97 @@ post.optimize=FALSE,
         colnames(C.posterior) <- c(test.num.copy, "Subclonal")
         for (iter in 1:iterations) {
             # test for convergence
-            if (abs(old.llik - llik) < 0.0001) cnt.llik.equal <- cnt.llik.equal+1 
+            if (abs(old.llik - llik) < 0.0001) { 
+                cnt.llik.equal <- cnt.llik.equal+1 
+            }
+
             old.llik <- llik;    
             if (cnt.llik.equal > 3) break;
-            subclonal.f <- length(unlist(exon.lrs[subclonal])) / length(unlist(exon.lrs))
-            # should not happen, but sometimes does for very unlikely local optima.
+            subclonal.f <- length(unlist(exon.lrs[subclonal])) / 
+                length(unlist(exon.lrs))
+            # should not happen, but sometimes does for very unlikely local 
+            # optima.
             if (subclonal.f > max.non.clonal+0.1) break
-            if (iter == 1) log.ratio.offset <- .sampleOffsetFast(test.num.copy, seg, exon.lrs, sd.seg, p, C, total.ploidy, max.exon.ratio, simulated.annealing, log.ratio.calibration) 
+            if (iter == 1) log.ratio.offset <- .sampleOffsetFast(test.num.copy,
+                 seg, exon.lrs, sd.seg, p, C, total.ploidy, max.exon.ratio, 
+                 simulated.annealing, log.ratio.calibration) 
 
-            # in the first iteration, we do not have integer copy numbers yet (corresponding to local optima purity/ploidy)
+            # in the first iteration, we do not have integer copy numbers yet
+            # (corresponding to local optima purity/ploidy)
             if (iter > 1) { 
-
                 # calculate posterior probabilities of all requested purities
                 total.ploidy  <- p*(sum(li*(C)))/sum(li)+(1-p)*2   #ploidy
-                px.rij <- lapply(test.purity, function(px) sapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal=subclonal[i], lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, p=px, Ci=C[i], total.ploidy=total.ploidy, max.exon.ratio=max.exon.ratio)))
+                px.rij <- lapply(test.purity, function(px) 
+                    sapply(which(!is.na(C)), function(i) 
+                        .calcLlikSegment(subclonal=subclonal[i], 
+                        lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, 
+                        p=px, Ci=C[i], total.ploidy=total.ploidy, 
+                        max.exon.ratio=max.exon.ratio)))
                 px.rij.s <- sapply(px.rij, sum, na.rm=TRUE) + log(prior.purity)
                 
                 if (simulated.annealing) px.rij.s <- px.rij.s * exp(iter/4)
 
                 px.rij.s <- exp(px.rij.s-max(px.rij.s))
                 # Gibbs sample purity 
-                p <- test.purity[min(which(runif(n=1, min=0, max=sum(px.rij.s)) <= cumsum(px.rij.s)))]
-                total.ploidy  <- p*(sum(li*(C)))/sum(li)+(1-p)*2   #total ploidy
+                p <- test.purity[min(which(runif(n=1, min=0, 
+                    max=sum(px.rij.s)) <= cumsum(px.rij.s)))]
+                total.ploidy  <- p*(sum(li*(C)))/sum(li)+(1-p)*2   
                 # Gibbs sample offset 
-                if (iter > 2) log.ratio.offset <- .sampleOffset(subclonal, seg, exon.lrs, sd.seg, p, C, total.ploidy, max.exon.ratio, simulated.annealing, iter, log.ratio.calibration)
+                if (iter > 2) log.ratio.offset <- .sampleOffset(subclonal, 
+                    seg, exon.lrs, sd.seg, p, C, total.ploidy, max.exon.ratio, 
+                    simulated.annealing, iter, log.ratio.calibration)
             }
 
-            # calculate the log-liklihood of purity and integer copy numbers plus clonal vs subclonal status
-            llik <- sum(sapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal=subclonal[i], lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, p=p, Ci=C[i], total.ploidy=total.ploidy, max.exon.ratio=max.exon.ratio)))
+            # calculate the log-liklihood of purity and integer copy numbers 
+            # plus clonal vs subclonal status
+            llik <- sum(sapply(which(!is.na(C)), function(i) 
+                .calcLlikSegment(subclonal=subclonal[i], 
+                    lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, p=p, 
+                    Ci=C[i], total.ploidy=total.ploidy, 
+                    max.exon.ratio=max.exon.ratio)))
 
-            if (debug) message(paste("Iteration:", iter, " Log-likelihood: ",llik, " Purity:",p," Total Ploidy:", total.ploidy, " Tumor Ploidy:", sum(li*(C))/sum(li), " Fraction sub-clonal:", subclonal.f, " Mean log-ratio offset", mean(log.ratio.offset)))
+            if (debug) message(paste("Iteration:", iter, 
+                " Log-likelihood: ", llik, 
+                " Purity:",p,
+                " Total Ploidy:", total.ploidy, 
+                " Tumor Ploidy:", sum(li*(C))/sum(li), 
+                " Fraction sub-clonal:", subclonal.f, 
+                " Mean log-ratio offset", mean(log.ratio.offset)))
                  
             for (i in 1:nrow(seg)) { 
                 # Gibbs sample copy number
                 # Step 1: calculate log-likelihoods of fits
-                # In the first iteration, we do not have the integer copy numbers yet, so calculate ploidy only when we have
+                # In the first iteration, we do not have the integer copy 
+                # numbers yet, so calculate ploidy only when we have
                 # it next time. Now, use the ploidy from the candidate solution. 
-                if (iter > 1) total.ploidy  <- p*(sum(li*(C)))/sum(li)+(1-p)*2   #total ploidy
-                p.rij <- sapply(test.num.copy, function(Ci) .calcLlikSegment(subclonal=FALSE, lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, p=p, Ci=Ci, total.ploidy=total.ploidy, max.exon.ratio=max.exon.ratio))
+                if (iter > 1) total.ploidy  <- p*(sum(li*(C)))/sum(li)+(1-p)*2
 
-                # calculate tumor ploidy for all possible copy numbers in this segment
-                ploidy <- sapply(test.num.copy, function(Ci) (sum(li[-i]*(C[-i]))+li[i]*Ci )/sum(li))
+                p.rij <- sapply(test.num.copy, function(Ci) 
+                    .calcLlikSegment(subclonal=FALSE, 
+                        lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg,
+                        p=p, Ci=Ci, total.ploidy=total.ploidy, 
+                        max.exon.ratio=max.exon.ratio))
+
+                # calculate tumor ploidy for all possible copy numbers in this
+                # segment
+                ploidy <- sapply(test.num.copy, function(Ci) 
+                    (sum(li[-i]*(C[-i]))+li[i]*Ci )/sum(li))
 
                 # set probability to zero if ploidy is not within requested range 
-                log.prior.ploidy <- log(ifelse(ploidy<min.ploidy | ploidy>max.ploidy,0,1))
+                log.prior.ploidy <- log(ifelse(ploidy<min.ploidy | 
+                    ploidy>max.ploidy,0,1))
                 if (iter > 1) p.rij <- p.rij+log.prior.ploidy
                 
-                frac.homozygous.loss <- sapply(test.num.copy, function(Ci) (sum(li[-i] * ifelse(C[-i]==0,1,0)) + li[i] * ifelse(Ci==0,1,0))/sum(li) )
-                log.prior.homozygous.loss <- log(ifelse(frac.homozygous.loss > max.homozygous.loss,0,1))
+                frac.homozygous.loss <- sapply(test.num.copy, function(Ci) 
+                    (sum(li[-i] * ifelse(C[-i]==0,1,0)) + li[i] * 
+                    ifelse(Ci==0,1,0))/sum(li) )
+                log.prior.homozygous.loss <- log(
+                    ifelse(frac.homozygous.loss > max.homozygous.loss,0,1))
                 if (iter > 1) p.rij <- p.rij+log.prior.homozygous.loss
 
                 # model sub clonal state with a uniform distribution
-                p.rij <- c(p.rij,  .calcLlikSegmentSubClonal( exon.lrs[[i]]+log.ratio.offset[i], max.exon.ratio))
+                p.rij <- c(p.rij, .calcLlikSegmentSubClonal( 
+                    exon.lrs[[i]]+log.ratio.offset[i], max.exon.ratio))
 
                 C.posterior[i,] <- exp(p.rij-max(p.rij))  
 
@@ -499,16 +564,19 @@ post.optimize=FALSE,
                 old.C <- C[i]
                 if (id > length(test.num.copy)) {
                     # optimal non-integer copy number
-                    C[i] <- max((2^(seg$seg.mean[i])*total.ploidy)/p-((2*(1-p))/p),0)
+                    C[i] <- max((2^(seg$seg.mean[i])*total.ploidy)/
+                        p-((2*(1-p))/p),0)
                     subclonal[i] <- TRUE
                 } else {    
                     C[i] <- test.num.copy[id]
                     subclonal[i] <- FALSE
                 }
-                if (old.C != C[i] && debug) message(paste("Old: ", old.C, "New: ", C[i], "LR:", mean(exon.lrs[[i]])))
+                if (old.C != C[i] && debug) message("Old: ", old.C, " New: ", 
+                    C[i], " LR: ", mean(exon.lrs[[i]]))
             }
         }
-         if (subclonal.f < max.non.clonal && abs(total.ploidy - candidate.solutions$candidates$ploidy[cpi]) < 1) break
+         if (subclonal.f < max.non.clonal && abs(total.ploidy - 
+            candidate.solutions$candidates$ploidy[cpi]) < 1) break
          log.ratio.calibration <- log.ratio.calibration + 0.25    
          if (verbose && attempt < max.attempts) {
             message("Recalibrating log-ratios...")
@@ -560,9 +628,9 @@ post.optimize=FALSE,
                 pp <- 1
             }
             res.snvllik <- lapply(tp, function(px) {
-                if (verbose) message(paste("Fitting SNVs for purity ", 
+                if (verbose) message("Fitting SNVs for purity ", 
                     round(px, digits=2), " and tumor ploidy ", 
-                    round( weighted.mean(C,li),digits=2), ".", sep=""))
+                    round( weighted.mean(C,li),digits=2), ".")
 
                 list(
                     beta.model  = .calcSNVLLik(vcf, tumor.id.in.vcf,  ov, px, 
@@ -587,7 +655,7 @@ post.optimize=FALSE,
                 idx <- 1
             }    
             p <- tp[idx]
-            if (verbose) message(paste("Optimized purity:", p))
+            if (verbose) message("Optimized purity: ", p)
             SNV.posterior <- res.snvllik[[idx]]
         }
 
