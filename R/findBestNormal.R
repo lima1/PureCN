@@ -32,7 +32,7 @@ verbose=TRUE
     if (!ignore.sex && !is.null(normalDB$sex) && 
         sum(!is.na(normalDB$sex))>0) {
         sex <- getSexFromCoverage(tumor, verbose=FALSE)
-        if (verbose) message(paste("Sex of sample:", sex))
+        if (verbose) message("Sex of sample:", sex)
         if (!is.na(sex)) {
             idx.normals <- which(normalDB$sex == sex)
         }

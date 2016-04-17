@@ -5,8 +5,8 @@ file.rds,
 ### Output of the runAbsoluteCN() function, serialized with 
 ### saveRDS()
 file.curation=gsub(".rds$", ".csv", file.rds),
-### Filename of curation file that points to the correct 
-### solution.
+### Filename of a curation file that points to the correct 
+### tumor purity and ploidy solution.
 remove.failed=FALSE,
 ### Do not return solutions that failed.
 report.best.only=FALSE,

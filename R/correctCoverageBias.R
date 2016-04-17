@@ -4,7 +4,8 @@ correctCoverageBias <- structure(function(# Correct for GC bias
 ### a loess normalization for bias correction. Largely follows the GC 
 ### correction of the TitanCNA package.
 gatk.coverage.file, 
-### Exon coverage file as produced by GATK.
+### Exon coverage file as produced by GATK. Either a file name
+### or data parsed with the readCoverageGatk function.
 gc.gene.file,
 ### File providing GC content for each exon in the coverage files.
 ### First column in format CHR:START-END. Second column GC content (0 to 1). 
