@@ -131,7 +131,7 @@ purity determined via the SCNA-fit.}
 \value{A list with elements
 \item{candidates}{Results of the grid search.}
 \item{results}{All local optima, sorted by final rank.}
-\item{sex}{The input data.}}
+\item{input}{The input data.}}
 
 \author{Markus Riester}
 

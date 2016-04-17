@@ -34,6 +34,20 @@ sub-clonal.
 PureCN was designed to integrate well with industry standard pipelines, but it
 is straightforward to generate input data from other pipelines.
 
+\section{Limitations}
+
+PureCN currently assumes a completely diploid normal genome. PureCN tries to
+detect the sex of samples by calculating the coverage ratio of chromosomes X and
+Y and will then remove any non-diploid chromosomes (i.e. XY for males and Y for
+females). Non-diploid chromosomes provide only limited information for purity
+and ploidy selection, but are of interest for copy number calling. Future
+versions might support full copy number calling on the XY chromosomes.
+
+PureCN currently also assumes a mostly clonal genome. For most clinical samples,
+this is reasonable, but very heterogenous samples are likely not possible to
+call without manual curation. Due to the lack of signal, manual curation is also
+often necessary in low purity samples or very quiet genomes. 
+
 \section{Basic Input Files}
 
 The algorithm first needs to calculate copy number log-ratios of tumor vs.
@@ -63,20 +77,6 @@ recommend correcting for GC bias, storing the corrected coverage files and then
 do the following steps on GC corrected data. All other assay-specific biases
 such as mappability or exon length are mitigated by using a control sample (GC
 bias is commonly library specific).
-
-\section{Limitations}
-
-PureCN currently assumes a completely diploid normal genome. PureCN tries to
-detect the sex of samples by calculating the coverage ratio of chromosomes X and
-Y and will then remove any non-diploid chromosomes (i.e. XY for males and Y for
-females). Non-diploid chromosomes provide only limited information for purity
-and ploidy selection, but are of interest for copy number calling. Future
-versions might support full copy number calling on the XY chromosomes.
-
-PureCN currently also assumes a mostly clonal genome. For most clinical samples,
-this is reasonable, but very heterogenous samples are likely not possible to
-call without manual curation. Due to the lack of signal, manual curation is also
-often necessary in low purity samples or very quiet genomes. 
 
 \section{Example data}
 

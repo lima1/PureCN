@@ -708,14 +708,14 @@ post.optimize=FALSE,
     list(
         candidates=candidate.solutions, ##<< Results of the grid search.
         results=results, ##<< All local optima, sorted by final rank.
-        input=list(
+        input=list( ##<< The input data.
             tumor=gatk.tumor.file, 
             normal=gatk.normal.file, 
             log.ratio=data.frame(probe=normal[,1], log.ratio=log.ratio), 
             log.ratio.sdev=sd.seg, 
             vcf=vcf, 
             sampleid=sampleid, 
-            sex=sex) ##<< The input data.
+            sex=sex) 
         )
 ##end<<
 },ex=function(){
