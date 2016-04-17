@@ -34,21 +34,29 @@ verbose=TRUE
             idx.normals <- which(normalDB$sex == sex)
         }
         if (length(idx.normals) < 2) { 
-            warning(paste("Not enough samples of sex", sex, "in database. Ignoring sex."))
+            warning(paste("Not enough samples of sex", sex, 
+                "in database. Ignoring sex."))
             idx.normals <- seq_along(normalDB$gatk.normal.files)
         }    
     }    
 
-    best.match <- order(sapply(idx.normals, function(i) dist(  rbind(predict(normalDB$pca, x)[1,idx.pcs], predict(normalDB$pca)[i,idx.pcs]))[1]))
+    best.match <- order(sapply(idx.normals, function(i) 
+        dist( rbind(predict(normalDB$pca, x)[1,idx.pcs], 
+              predict(normalDB$pca)[i,idx.pcs]))[1]
+    ))
+
     normalDB$gatk.normal.files[idx.normals][head(best.match, num.normals)]
 ### Return the filename of the best matching normal    
 },ex=function() {
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+    package="PureCN")
 gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
 normalDB <- createNormalDatabase(gatk.normal.files)
 
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
 gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 })    
 
@@ -56,7 +64,8 @@ gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 plotBestNormal <- structure(function(
 ### Plot the PCA of tumor and its best normal(s) 
 gatk.normal.files,
-### GATK coverage file of normal files, typically identified via findBestNormal.
+### GATK coverage file of normal files, typically identified via 
+### findBestNormal.
 gatk.tumor.file,
 ### GATK coverage file of a tumor sample.
 normalDB,
@@ -71,15 +80,12 @@ col.best.normal="blue",
 ### Color of best normals in plot.
 col.other.normals="black",
 ### Color of best normals in plot.
-verbose=TRUE,
-### Verbose output.
 ...
 ### Arguments passed to the plot function.
 ) {
     if (is.character(gatk.tumor.file)) {
         tumor  <- readCoverageGatk(gatk.tumor.file)
     } else {
-        if (verbose) message("gatk.tumor.file does not appear to be a filename, assuming it is valid GATK coverage data.")
         tumor <- gatk.tumor.file
     }    
     xx <- t(tumor[normalDB$exons.used,"average.coverage", drop=FALSE])
@@ -92,13 +98,15 @@ verbose=TRUE,
         ylab=paste("PC",y),...)
 ### Returns NULL
 },ex=function() {
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.normal2.file <- system.file("extdata", "example_normal2.txt",
+     package="PureCN")
 gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
 normalDB <- createNormalDatabase(gatk.normal.files)
 
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
 gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 plotBestNormal(gatk.best.normal.file, gatk.tumor.file, normalDB)
 })    
-    

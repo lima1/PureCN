@@ -15,8 +15,7 @@ VariantAnnotation package.}
   \item{stats.file}{MuTect stats file}
   \item{ignore}{
 }
-  \item{verbose}{
-}
+  \item{verbose}{Verbose output.}
   \item{\dots}{Additional arguments passed to filterVcfBasic}
 }
 

@@ -22,11 +22,14 @@ with matching sex.}
 
 
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+    package="PureCN")
 gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
 normalDB <- createNormalDatabase(gatk.normal.files)
 
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
 gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 }

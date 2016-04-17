@@ -150,10 +150,11 @@ tumor.id.in.vcf=NULL,
 stats.file=NULL, 
 ### MuTect stats file
 ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events", 
-    "poor_mapping_region_alternate_allele_mapq", "poor_mapping_region_mapq0", 
-    "possible_contamination", "strand_artifact"),
+"poor_mapping_region_alternate_allele_mapq", "poor_mapping_region_mapq0", 
+"possible_contamination", "strand_artifact"),
 ### Failure flags that lead to exclusion of variant.
 verbose=TRUE,
+### Verbose output.
 ...
 ### Additional arguments passed to filterVcfBasic
 ){
