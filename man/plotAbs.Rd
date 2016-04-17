@@ -1,7 +1,8 @@
 \name{plotAbs}
 \alias{plotAbs}
-\title{plotAbs}
-\description{Plots for analyzing PureCN solutions.}
+\title{Plots for analyzing PureCN solutions.}
+\description{This function provides various plots for finding correct 
+purity and ploidy combinations in the results of a runAbsoluteCN call.}
 \usage{plotAbs(res, ids = NULL, type = c("hist", "overview", 
     "BAF", "AF", "LOH", "all"), chr = NULL, germline.only = TRUE, 
     show.contour = FALSE, purity = NULL, ploidy = NULL, 

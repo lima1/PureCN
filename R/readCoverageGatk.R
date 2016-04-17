@@ -1,5 +1,5 @@
 # from the ExomeCNV package
-readCoverageGatk <- structure(function(
+readCoverageGatk <- structure(function(#Read GATK coverage files
 ###  Read coverage file produced by The Genome Analysis Toolkit.
 ###  The three only important columns in the GATK-generated file
 ###  are: Target, total_coverage, and average_coverage. 

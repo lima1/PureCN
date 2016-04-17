@@ -37,41 +37,63 @@ verbose=TRUE,
     exon.weights <- NULL
     if (!is.null(exon.weight.file)) {
         exon.weights <- read.delim(exon.weight.file, as.is=TRUE)
-        exon.weights <- exon.weights[match(as.character(tumor[,1]), exon.weights[,1]),2]
-        if (verbose) message("Exon weights found, but currently not supported by PSCBS.")
+        exon.weights <- exon.weights[match(as.character(tumor[,1]), 
+            exon.weights[,1]),2]
+        if (verbose) message(
+            "Exon weights found, but currently not supported by PSCBS.")
     }
-    well.covered.exon.idx = ((normal$average.coverage > coverage.cutoff) & (tumor$average.coverage > coverage.cutoff)) | ((normal$average.coverage > 1.5 * coverage.cutoff) &  (tumor$average.coverage > 0.5 * coverage.cutoff))
+    well.covered.exon.idx <- ((normal$average.coverage > coverage.cutoff) &
+        (tumor$average.coverage > coverage.cutoff)) | 
+        ((normal$average.coverage > 1.5 * coverage.cutoff) &  
+        (tumor$average.coverage > 0.5 * coverage.cutoff))
+
     #MR: fix for missing chrX/Y 
     well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
     tumor <- tumor[well.covered.exon.idx,]
     log.ratio <- log.ratio[well.covered.exon.idx]
-    exon.gr <- GRanges(seqnames=tumor$chr, IRanges(start=tumor$probe_start, end=tumor$probe_end))
+    exon.gr <- GRanges(seqnames=tumor$chr, 
+        IRanges(start=tumor$probe_start, end=tumor$probe_end))
     ov <- findOverlaps(vcf, exon.gr)
-    d.f <- cbind(tumor[subjectHits(ov),], CT=2^(log.ratio+1)[subjectHits(ov)], betaT=unlist(geno(vcf[queryHits(ov)])$FA[,tumor.id.in.vcf]), x=start(vcf[queryHits(ov)]) )
-    d.f.2 <- cbind(tumor[-subjectHits(ov),], CT=2^(log.ratio+1)[-subjectHits(ov)], betaT=NA, x=tumor$probe_start[-subjectHits(ov)] )
+    d.f <- cbind(tumor[subjectHits(ov),], 
+        CT=2^(log.ratio+1)[subjectHits(ov)], 
+        betaT=unlist(geno(vcf[queryHits(ov)])$FA[,tumor.id.in.vcf]), 
+        x=start(vcf[queryHits(ov)]) )
+
+    d.f.2 <- cbind(tumor[-subjectHits(ov),], 
+        CT=2^(log.ratio+1)[-subjectHits(ov)], betaT=NA, 
+        x=tumor$probe_start[-subjectHits(ov)] )
+
     d.f.3 <- rbind(d.f, d.f.2)
     d.f.3 <- d.f.3[order(.strip.chr.name(d.f.3$chr), d.f.3$x),]
     d.f <- d.f.3
-    seg <- PSCBS::segmentByNonPairedPSCBS(CT=d.f$CT, betaT=d.f$betaT, chromosome=.strip.chr.name(d.f$chr), x=d.f$x, tauA=tauA, flavor=flavor,...)
+    seg <- PSCBS::segmentByNonPairedPSCBS(CT=d.f$CT, betaT=d.f$betaT, 
+        chromosome=.strip.chr.name(d.f$chr), x=d.f$x, tauA=tauA, 
+        flavor=flavor,...)
     .PSCBSoutput2DNAcopy(seg, sampleid)
-### A list with elements seg and size. "seg" contains the segmentation, 
-### "size" the size of all segments in base pairs.    
+### A list with elements seg and size. "seg" contains the 
+### segmentation, "size" the size of all segments in base pairs.    
 },ex=function() {
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
+vcf.file <- system.file("extdata", "example_vcf.vcf", 
+    package="PureCN")
+gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    package="PureCN")
 
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, gatk.tumor.file=gatk.tumor.file, 
-   vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS)
+ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
+    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, sampleid='Sample1', 
+    gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS)
 })    
 
     
 .PSCBSoutput2DNAcopy <- function(seg, sampleid) {
     sx <- cbind(ID=sampleid, seg$output[complete.cases(seg$output),])
-    sx <- sx[,c("ID", "chromosome", "tcnStart", "tcnEnd", "tcnNbrOfLoci", "tcnMean")]
-    colnames(sx) <- c("ID", "chrom", "loc.start",  "loc.end", "num.mark", "seg.mean")
+    sx <- sx[,c("ID", "chromosome", "tcnStart", "tcnEnd", "tcnNbrOfLoci", 
+        "tcnMean")]
+    colnames(sx) <- c("ID", "chrom", "loc.start",  "loc.end", "num.mark", 
+        "seg.mean")
     sx$seg.mean <- log2(sx$seg.mean/2)
     list(seg=sx, size=sx$loc.end-sx$loc.start+1)
 }
-    

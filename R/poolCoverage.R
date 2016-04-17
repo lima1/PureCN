@@ -1,4 +1,4 @@
-poolCoverage <- structure(function(
+poolCoverage <- structure(function(#Pool coverage from multiple samples
 ### Averages the coverage of a list of samples.
 all.data, 
 ### List of normals, read with readCoverageGatk.
@@ -18,16 +18,21 @@ w=NULL
 #        pool$sequenced.base = find.max.of.2lists(pool$sequenced.base, 
 #            all.data[[i]]$sequenced.base)
         pool$coverage <- pool$coverage + (w[i] * all.data[[i]]$coverage)
-        pool$average.coverage <- pool$average.coverage + (w[i] * all.data[[i]]$average.coverage)
-        pool$base.with..10.coverage <- pool$base.with..10.coverage + (w[i] * all.data[[i]]$base.with..10.coverage)
+        pool$average.coverage <- pool$average.coverage + 
+            (w[i] * all.data[[i]]$average.coverage)
+        pool$base.with..10.coverage <- pool$base.with..10.coverage + 
+            (w[i] * all.data[[i]]$base.with..10.coverage)
     }
     return(.removeChr(pool, remove.chrs))
 ### A data.frame with the averaged coverage over all normals.
 },ex=function() {
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+    package="PureCN")
 gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
 
 normalDB <- createNormalDatabase(gatk.normal.files)
 

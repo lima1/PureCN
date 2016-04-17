@@ -3,7 +3,7 @@
 \title{Run PureCN implementation of ABSOLUTE}
 \description{This function takes as input tumor and normal control coverage and 
 allelic fractions of germline variants and somatic mutations.
-Coverage data is provied in GATK DepthOfCoverage format, allelic fraction 
+Coverage data is provided in GATK DepthOfCoverage format, allelic fraction
 in VCF format (e.g. obtained by MuTect). Normal control does not need to 
 be matched (from the same patient). In case VCF does not contain somatic 
 status, it should contain dbSNP and optionally COSMIC annotation.}
@@ -127,7 +127,7 @@ purity determined via the SCNA-fit.}
 \value{A list with elements
 \item{candidates}{Results of the grid search.}
 \item{results}{All local optima, sorted by final rank.}
-\item{input}{The input data.}}
+\item{sex}{The input data.}}
 
 \author{Markus Riester}
 

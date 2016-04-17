@@ -2,10 +2,11 @@
 \alias{chr.hash}
 \docType{data}
 \title{
-A data.frame of chromosome names to hash to numeric representation.
+A data.frame of chromosome names.
 }
 \description{
-A table of chromosome name and their corresponding numerical representation. This is needed because the way DNAcopy encodes the chromosomes.
+A table of chromosome names and their corresponding numerical representation. 
+This is needed because DNAcopy requires numerical chromosome names.
 }
 \usage{data(chr.hash)}
 \value{

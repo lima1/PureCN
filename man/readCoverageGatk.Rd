@@ -1,6 +1,6 @@
 \name{readCoverageGatk}
 \alias{readCoverageGatk}
-\title{readCoverageGatk}
+\title{Read GATK coverage files}
 \description{Read coverage file produced by The Genome Analysis Toolkit.
 The three only important columns in the GATK-generated file
 are: Target, total_coverage, and average_coverage. }

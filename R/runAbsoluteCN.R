@@ -2,7 +2,7 @@ runAbsoluteCN <-
 structure(function(# Run PureCN implementation of ABSOLUTE
 ### This function takes as input tumor and normal control coverage and 
 ### allelic fractions of germline variants and somatic mutations.
-### Coverage data is provied in GATK DepthOfCoverage format, allelic fraction 
+### Coverage data is provided in GATK DepthOfCoverage format, allelic fraction
 ### in VCF format (e.g. obtained by MuTect). Normal control does not need to 
 ### be matched (from the same patient). In case VCF does not contain somatic 
 ### status, it should contain dbSNP and optionally COSMIC annotation.
@@ -150,7 +150,8 @@ post.optimize=FALSE,
     test.num.copy <- sort(test.num.copy)
 
     if (!is.null(gc.gene.file) && !file.exists(gc.gene.file)) { 
-        warning(paste("gc.gene.file", gc.gene.file, "not found. You won't get gene level calls."))
+        warning(paste("gc.gene.file", gc.gene.file, 
+            "not found. You won't get gene level calls."))
         gc.gene.file=NULL
     }    
 
@@ -160,7 +161,6 @@ post.optimize=FALSE,
         if (is.character(gatk.normal.file)) {
             normal <- readCoverageGatk(gatk.normal.file)
         } else {
-            if (verbose) message("gatk.normal.file does not appear to be a filename, assuming it is valid GATK coverage data.")
             normal <- gatk.normal.file
         }    
         # common chrchr bug workaround
@@ -171,33 +171,46 @@ post.optimize=FALSE,
         tumor  <- readCoverageGatk(gatk.tumor.file)
         if (is.null(sampleid)) sampleid <- basename(gatk.tumor.file)
     } else {
-        if (verbose) message("gatk.tumor.file does not appear to be a filename, assuming it is valid GATK coverage data.")
+        if (verbose) message(
+            paste("gatk.tumor.file does not appear to be a filename, assuming",
+                "it is valid GATK coverage data."))
         tumor <- gatk.tumor.file
         if (is.null(sampleid)) sampleid <- "Sample.1"
     }    
     tumor[,2] <- gsub("^chrchr","chr", as.character(tumor[,2]))
 
-    # check that normal is not the same as tumor (only if no log-ratio or segmentation is provided, in that case we wouldn't use normal anyway)
+    # check that normal is not the same as tumor (only if no log-ratio or 
+    # segmentation is provided, in that case we wouldn't use normal anyway)
     if (!is.null(gatk.normal.file) & is.null(log.ratio) & is.null(seg.file)) {
-        if (identical(tumor$average.coverage, normal$average.coverage)) stop("Tumor and normal are identical. This won't give any meaningful results and I'm stopping here.")
+        if (identical(tumor$average.coverage, normal$average.coverage)) { 
+            stop(paste("Tumor and normal are identical. This won't give any", 
+                "meaningful results and I'm stopping here."))
+        }
     }    
 
-    # this ugly if else chain covers the 3 possible ways of segmenting the data:
-    # if there is no log-ratio provided, we either need to calculate (case 1) or 
-    # create fake log-ratios from a provided segmentation file (case 2). Otherwise
-    # we just take the provided log-ratio (case 3).
+    # this ugly if else chain covers the 3 possible ways of segmenting the 
+    # data: if there is no log-ratio provided, we either need to calculate 
+    # (case 1) or create fake log-ratios from a provided segmentation file 
+    # (case 2). Otherwise we just take the provided log-ratio (case 3).
     if (is.null(log.ratio)) {
         if (!is.null(seg.file)) {
             if (is.null(gatk.normal.file)) normal <- tumor
             log.ratio <- .createFakeLogRatios(tumor, seg.file)     
         } else {
-            if (is.null(gatk.normal.file)) stop("Need a normal coverage file without log.ratio or seg.file.")
+            if (is.null(gatk.normal.file)) {
+                stop(
+                "Need a normal coverage file without log.ratio or seg.file.")
+            }
             log.ratio <- .calcLogRatio(normal, tumor, verbose=debug)
         }
     } else {
-        # the segmentation algorithm will remove exons with low coverage in both tumor and normal, so we just use tumor if there is no normal coverage file.
+        # the segmentation algorithm will remove exons with low coverage in 
+        # both tumor and normal, so we just use tumor if there is no normal 
+        # coverage file.
         if (is.null(gatk.normal.file)) normal <- tumor
-        if (!is.null(seg.file)) stop("Provide either log.ratio or seg.file, not both.") 
+        if (!is.null(seg.file)) {
+            stop("Provide either log.ratio or seg.file, not both.") 
+        }
     }        
     sex <- match.arg(sex)
     sex.chr <- .getSexChr(tumor)
@@ -210,7 +223,10 @@ post.optimize=FALSE,
         if (is.na(sex.normal)) {
             normal <- .removeChr(normal, remove.chrs=sex.chr)
         }    
-        if (!identical(sex.tumor, sex.normal)) warning(paste("Sex tumor/normal mismatch: tumor =", sex.tumor, "normal =", sex.normal))  
+        if (!identical(sex.tumor, sex.normal)) {
+            warning(paste("Sex tumor/normal mismatch: tumor =", sex.tumor, 
+                "normal =", sex.normal))  
+        }
         sex <- sex.tumor    
         if (is.na(sex)) sex = "?"
     } 
@@ -237,7 +253,8 @@ post.optimize=FALSE,
     if (is.null(seg.file)) {
         if (!is.null(filter.targeted.base)) {
             idx <- which(tumor$targeted.base >= filter.targeted.base)
-            if (verbose) message(paste("Removing", nrow(tumor)-length(idx), "small exons."))
+            if (verbose) message(paste("Removing", nrow(tumor)-length(idx), 
+                "small exons."))
             log.ratio <- log.ratio[idx]    
             normal <- normal[idx,]
             tumor <- tumor[idx,]
@@ -245,9 +262,12 @@ post.optimize=FALSE,
 
         if (!is.null(gc.gene.file)) {
             gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
-            qq <- quantile(gc.data$gc_bias, p=c(filter.lowhigh.gc.exons, 1-filter.lowhigh.gc.exons), na.rm=TRUE)
+            qq <- quantile(gc.data$gc_bias, p=c(filter.lowhigh.gc.exons, 
+                1-filter.lowhigh.gc.exons), na.rm=TRUE)
+
             idx <- which(!(gc.data$gc_bias < qq[1] | gc.data$gc_bias > qq[2]))
-            if (verbose) message(paste("Removing", nrow(gc.data)-length(idx), "low/high GC exons."))
+            if (verbose) message(paste("Removing", nrow(gc.data)-length(idx),
+                 "low/high GC exons."))
             gc.data <- gc.data[idx,]    
             log.ratio <- log.ratio[idx]    
             normal <- normal[idx,]
@@ -255,7 +275,8 @@ post.optimize=FALSE,
         }
     }
 
-    exon.gr <- GRanges(seqnames=gsub("24", "Y", gsub("23","X", tumor$chr)), IRanges(start=tumor$probe_start,end=tumor$probe_end))
+    exon.gr <- GRanges(seqnames=gsub("24", "Y", gsub("23","X", tumor$chr)), 
+        IRanges(start=tumor$probe_start,end=tumor$probe_end))
 
     vcf <- NULL
     vcf.germline <- NULL
@@ -272,21 +293,26 @@ post.optimize=FALSE,
         } else {
             vcf <- vcf.file
         } 
-        if (is.null(args.filterVcf$use.somatic.status)) args.filterVcf$use.somatic.status <- TRUE
-        if (sum(colSums(geno(vcf)$DP)>0) == 1 && args.filterVcf$use.somatic.status) { 
-            message("VCF file seems to have only one sample. Using SNVs in single mode.")
+        if (is.null(args.filterVcf$use.somatic.status)) {
+            args.filterVcf$use.somatic.status <- TRUE
+        }
+        if (sum(colSums(geno(vcf)$DP)>0) == 1 && 
+            args.filterVcf$use.somatic.status) { 
+            message(paste("VCF file seems to have only one sample.", 
+                "Using SNVs in single mode."))
             args.filterVcf$use.somatic.status <- FALSE
         }    
             
-        tumor.id.in.vcf <- names(  which.min(colSums(geno(vcf)$GT=="0")) )
-        if (verbose) message(paste("Assuming", tumor.id.in.vcf, "is tumor in VCF file."))
+        tumor.id.in.vcf <- names( which.min(colSums(geno(vcf)$GT=="0")) )
+        if (verbose) message(paste("Assuming", tumor.id.in.vcf, 
+            "is tumor in VCF file."))
         
         n.vcf.before.filter <- nrow(vcf)
-        if (verbose) message(paste("Found", n.vcf.before.filter, "variants in VCF file."))
-            
-        #n.vcf.homozygous <- sum(info(vcf)$DB & unlist(geno(vcf)$FA[, tumor.id.in.vcf])>= 0.97, na.rm=TRUE)
+        if (verbose) message(paste("Found", n.vcf.before.filter, 
+            "variants in VCF file."))
         
-        args.filterVcf <- c(list(vcf=vcf, tumor.id.in.vcf=tumor.id.in.vcf, coverage.cutoff=coverage.cutoff, verbose=verbose), args.filterVcf)
+        args.filterVcf <- c(list(vcf=vcf, tumor.id.in.vcf=tumor.id.in.vcf, 
+            coverage.cutoff=coverage.cutoff, verbose=verbose), args.filterVcf)
         vcf.filtering <- do.call(fun.filterVcf, args.filterVcf)
 
         vcf <- vcf.filtering$vcf
@@ -300,12 +326,18 @@ post.optimize=FALSE,
 
     if (verbose) message("Segmenting data...")
 
-    args.segmentation <-  c(list(normal=normal, tumor=tumor, log.ratio=log.ratio, plot.cnv=plot.cnv, coverage.cutoff=ifelse(is.null(seg.file), coverage.cutoff, -1), sampleid=sampleid, vcf=vcf.germline, tumor.id.in.vcf=tumor.id.in.vcf, verbose=verbose,...), args.segmentation)
+    args.segmentation <-  c(list(normal=normal, tumor=tumor, 
+        log.ratio=log.ratio, plot.cnv=plot.cnv, 
+        coverage.cutoff=ifelse(is.null(seg.file), coverage.cutoff, -1), 
+        sampleid=sampleid, vcf=vcf.germline, tumor.id.in.vcf=tumor.id.in.vcf,
+        verbose=verbose,...), args.segmentation)
+
     vcf.germline <- NULL
     seg.result <- do.call(fun.segmentation, args.segmentation) 
 
     seg <- seg.result$seg
-    seg.gr <- GRanges(seqnames=paste("chr",gsub("24", "Y", gsub("23","X",seg$chrom)),sep=""), IRanges(start=round(seg$loc.start), end=seg$loc.end))
+    seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), 
+        IRanges(start=round(seg$loc.start), end=seg$loc.end))
     
     snv.lr <- NULL
 
@@ -313,12 +345,7 @@ post.optimize=FALSE,
     if (!is.null(vcf.file)) {
         ov <- findOverlaps(seg.gr, vcf)
         sd.ar <- sd(unlist(geno(vcf)$FA[,tumor.id.in.vcf]))
-
         snv.lr <- log.ratio[subjectHits(findOverlaps(vcf, exon.gr))]
-        
-        # This gets the exon level log-ratio for each SNV. Not used yet, but might be possible to improve
-        # segmentation when exon level log-ratio is different from segment log-ratio. 
-        #snv.lrs <- lapply(unique(queryHits(ov)), function(i)  log.ratio[subjectHits(findOverlaps(vcf[subjectHits(ov)[queryHits(ov)==i] ], exon.gr))])
     }
     
     # get exon log-ratios for all segments 
@@ -483,7 +510,9 @@ post.optimize=FALSE,
         }
          if (subclonal.f < max.non.clonal && abs(total.ploidy - candidate.solutions$candidates$ploidy[cpi]) < 1) break
          log.ratio.calibration <- log.ratio.calibration + 0.25    
-         if (verbose && attempt < max.attempts) message("Recalibrating log-ratios...")
+         if (verbose && attempt < max.attempts) {
+            message("Recalibrating log-ratios...")
+         }   
         }    
         seg.adjusted <- seg
         seg.adjusted$C <- C
@@ -495,21 +524,35 @@ post.optimize=FALSE,
             if (!is.null(vcf.file)) {
                 # we skipped the SNV fitting for this rare corner case.
                 SNV.posterior <- list(
-                    #normal.model=list(llik=-Inf), 
                     beta.model=list(llik=-Inf))
             }    
-            return(list(log.likelihood=llik, purity=p, ploidy=weighted.mean(C,li), total.ploidy=total.ploidy, seg=seg.adjusted, C.posterior=data.frame(C.posterior/rowSums(C.posterior), ML.C=C, ML.Subclonal=subclonal), SNV.posterior=SNV.posterior, fraction.subclonal=subclonal.f, gene.calls=NA, log.ratio.offset=log.ratio.offset))
+            return(list(
+                log.likelihood=llik, 
+                purity=p, 
+                ploidy=weighted.mean(C,li), 
+                total.ploidy=total.ploidy, 
+                seg=seg.adjusted, 
+                C.posterior=data.frame(C.posterior/rowSums(C.posterior), 
+                ML.C=C, 
+                ML.Subclonal=subclonal), 
+                SNV.posterior=SNV.posterior, 
+                fraction.subclonal=subclonal.f, 
+                gene.calls=NA, 
+                log.ratio.offset=log.ratio.offset))
         }
 
         if (!is.null(gc.gene.file)) {
-            gene.calls <- .getGeneCalls(seg.adjusted, gc.data, log.ratio, fun.focal, args.focal)
+            gene.calls <- .getGeneCalls(seg.adjusted, gc.data, log.ratio, 
+                fun.focal, args.focal)
         } else {
             gene.calls <- NA
         }       
 
         if (!is.null(vcf.file)) {
             if (post.optimize) { 
-                idx <- (max(1, match(p, test.purity)-4)):(min(length(test.purity),  match(p, test.purity)+4))
+                idx <- (max(1, 
+                    match(p, test.purity)-4)):(min(length(test.purity),  
+                    match(p, test.purity)+4))
                 tp <- test.purity[idx]
                 pp <- prior.purity[idx]
             } else {
@@ -517,16 +560,26 @@ post.optimize=FALSE,
                 pp <- 1
             }
             res.snvllik <- lapply(tp, function(px) {
-                if (verbose) message(paste("Fitting SNVs for purity ", round(px, digits=2), " and tumor ploidy ", round( weighted.mean(C,li),digits=2), ".", sep=""))
+                if (verbose) message(paste("Fitting SNVs for purity ", 
+                    round(px, digits=2), " and tumor ploidy ", 
+                    round( weighted.mean(C,li),digits=2), ".", sep=""))
+
                 list(
-                    #normal.model = .calcSNVLLik(vcf, tumor.id.in.vcf,  ov, px, test.num.copy, C.posterior, C, snv.model="normal", prior.somatic, snv.lr, sampleid),
-                    beta.model  = .calcSNVLLik(vcf, tumor.id.in.vcf,  ov, px, test.num.copy, C.posterior, C, snv.model="beta", prior.somatic, snv.lr, sampleid, post.optimize=post.optimize)
+                    beta.model  = .calcSNVLLik(vcf, tumor.id.in.vcf,  ov, px, 
+                        test.num.copy, C.posterior, C, snv.model="beta", 
+                        prior.somatic, snv.lr, sampleid, 
+                        post.optimize=post.optimize)
                 )})
 
             if (post.optimize) {
-                px.rij <- lapply(tp, function(px) sapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal=subclonal[i], lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, p=px, Ci=C[i], total.ploidy= px*(sum(li*(C)))/sum(li)+(1-px)*2, max.exon.ratio=max.exon.ratio)))
+                px.rij <- lapply(tp, function(px) sapply(which(!is.na(C)), 
+                    function(i) .calcLlikSegment(subclonal=subclonal[i], 
+                    lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, p=px, 
+                    Ci=C[i], total.ploidy= px*(sum(li*(C)))/sum(li)+(1-px)*2, 
+                    max.exon.ratio=max.exon.ratio)))
 
-                px.rij.s <- sapply(px.rij, sum, na.rm=TRUE) + log(pp) + sapply(res.snvllik, function(x) x$beta.model$llik)
+                px.rij.s <- sapply(px.rij, sum, na.rm=TRUE) + log(pp) + 
+                    sapply(res.snvllik, function(x) x$beta.model$llik)
             
                 px.rij.s <- exp(px.rij.s-max(px.rij.s))
                 idx <- which.max(px.rij.s)
@@ -538,15 +591,34 @@ post.optimize=FALSE,
             SNV.posterior <- res.snvllik[[idx]]
         }
 
-        list(log.likelihood=llik, purity=p, ploidy=weighted.mean(C,li), total.ploidy=total.ploidy, seg=seg.adjusted, C.posterior=data.frame(C.posterior/rowSums(C.posterior), ML.C=C, ML.Subclonal=subclonal), SNV.posterior=SNV.posterior, fraction.subclonal=subclonal.f, fraction.homozygous.loss=sum(li[which(C<0.01)])/sum(li), gene.calls=gene.calls, log.ratio.offset=log.ratio.offset, failed=FALSE)
+        list(
+            log.likelihood=llik, 
+            purity=p, 
+            ploidy=weighted.mean(C,li), 
+            total.ploidy=total.ploidy, 
+            seg=seg.adjusted, 
+            C.posterior=data.frame(C.posterior/rowSums(C.posterior), 
+            ML.C=C, 
+            ML.Subclonal=subclonal), 
+            SNV.posterior=SNV.posterior, 
+            fraction.subclonal=subclonal.f, 
+            fraction.homozygous.loss=sum(li[which(C<0.01)])/sum(li), 
+            gene.calls=gene.calls, 
+            log.ratio.offset=log.ratio.offset, 
+            failed=FALSE)
     }
 
     results <- lapply(1:nrow(candidate.solutions$candidates),.optimizeSolution)
-    if (verbose) message("Remember, posterior probabilities assume a correct SCNA fit.")
+    if (verbose) message(
+        "Remember, posterior probabilities assume a correct SCNA fit.")
 
     results <- .rankResults(results)
     results <- .filterDuplicatedResults(results)
-    results <- .flagResults(results, max.non.clonal=max.non.clonal, max.logr.sdev=max.logr.sdev, logr.sdev=sd.seg, max.segments=max.segments, flag=vcf.filtering$flag, flag_comment=vcf.filtering$flag_comment)  
+    results <- .flagResults(results, max.non.clonal=max.non.clonal, 
+        max.logr.sdev=max.logr.sdev, logr.sdev=sd.seg, 
+        max.segments=max.segments, flag=vcf.filtering$flag, 
+        flag_comment=vcf.filtering$flag_comment)  
+
     if (!is.null(gc.gene.file)) {
         # Add LOH calls to gene level calls 
         for (i in 1:length(results)) {
@@ -556,14 +628,22 @@ post.optimize=FALSE,
 
     if (!is.null(vcf.file)) {
         for (i in 1:length(results)) {
-            results[[i]]$SNV.posterior$beta.model$posteriors <- .getVariantCallsLOH( results[[i]] )
+            results[[i]]$SNV.posterior$beta.model$posteriors <- 
+                .getVariantCallsLOH( results[[i]] )
         }
     }
     ##value<< A list with elements
     list(
         candidates=candidate.solutions, ##<< Results of the grid search.
         results=results, ##<< All local optima, sorted by final rank.
-        input=list(tumor=gatk.tumor.file, normal=gatk.normal.file, log.ratio=data.frame(probe=normal[,1], log.ratio=log.ratio), log.ratio.sdev=sd.seg, vcf=vcf, sampleid=sampleid, sex=sex) ##<< The input data.
+        input=list(
+            tumor=gatk.tumor.file, 
+            normal=gatk.normal.file, 
+            log.ratio=data.frame(probe=normal[,1], log.ratio=log.ratio), 
+            log.ratio.sdev=sd.seg, 
+            vcf=vcf, 
+            sampleid=sampleid, 
+            sex=sex) ##<< The input data.
         )
 ##end<<
 },ex=function(){

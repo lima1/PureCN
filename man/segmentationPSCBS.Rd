@@ -24,8 +24,8 @@ The arguments are passed via args.segmentation.}
   \item{\dots}{Additional parameters passed to the segmentByNonPairedPSCBS function.}
 }
 
-\value{A list with elements seg and size. "seg" contains the segmentation, 
-"size" the size of all segments in base pairs.    }
+\value{A list with elements seg and size. "seg" contains the 
+segmentation, "size" the size of all segments in base pairs.    }
 
 \author{Markus Riester}
 
@@ -33,11 +33,16 @@ The arguments are passed via args.segmentation.}
 
 
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", package="PureCN")
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", package="PureCN")
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package="PureCN")
+gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    package="PureCN")
+vcf.file <- system.file("extdata", "example_vcf.vcf", 
+    package="PureCN")
+gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    package="PureCN")
 
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, gatk.tumor.file=gatk.tumor.file, 
-   vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS)
+ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
+    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, sampleid='Sample1', 
+    gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS)
 }

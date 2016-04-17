@@ -1,15 +1,17 @@
-findBestNormal <- structure(function(
-### Function to find the best matching normal for a provided tumor sample.
+findBestNormal <- structure(function(#Find best normal sample in database
+### Function to find the best matching normal for a provided 
+### tumor sample.
 gatk.tumor.file, 
 ### GATK coverage file of a tumor sample.
 normalDB,
-### Database of normal samples, created with createNormalDatabase().
+### Database of normal samples, created with 
+### createNormalDatabase().
 pcs=1:3,
 ### Principal components to use for distance calculation.
 num.normals=1,
 ### Return the num.normals best normals.
 ignore.sex=FALSE,
-### If FALSE, detects sex of sample returns a best normal 
+### If FALSE, detects sex of sample and returns best normals
 ### with matching sex.
 verbose=TRUE
 ### Verbose output.
@@ -27,7 +29,8 @@ verbose=TRUE
 
     idx.normals <- seq_along(normalDB$gatk.normal.files)
 
-    if (!ignore.sex && !is.null(normalDB$sex) && sum(!is.na(normalDB$sex))>0) {
+    if (!ignore.sex && !is.null(normalDB$sex) && 
+        sum(!is.na(normalDB$sex))>0) {
         sex <- getSexFromCoverage(tumor, verbose=FALSE)
         if (verbose) message(paste("Sex of sample:", sex))
         if (!is.na(sex)) {
@@ -46,7 +49,7 @@ verbose=TRUE
     ))
 
     normalDB$gatk.normal.files[idx.normals][head(best.match, num.normals)]
-### Return the filename of the best matching normal    
+### Filename of the best matching normal.
 },ex=function() {
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
@@ -61,8 +64,12 @@ gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 })    
 
 
-plotBestNormal <- structure(function(
-### Plot the PCA of tumor and its best normal(s) 
+plotBestNormal <- structure(
+    function(#Plot the PCA of tumor and its best normal(s)
+### This function can be used to understand how a best normal is chosen
+### by the findBestNormal function. It can be also used to tune the
+### best normal selection by finding good parameters values for
+### num.normals and pcs.
 gatk.normal.files,
 ### GATK coverage file of normal files, typically identified via 
 ### findBestNormal.
@@ -93,9 +100,10 @@ col.other.normals="black",
 
     xx <- predict(normalDB$pca,xx)
     xx <- rbind(xx, normalDB$pca$x)
-    plot(xx[,x],xx[,y],col=c(col.tumor, ifelse( normalDB$gatk.normal.files %in% 
-        gatk.normal.files, col.best.normal, col.other.normals)),xlab=paste("PC",x),
-        ylab=paste("PC",y),...)
+    plot(xx[,x],xx[,y],col=c(col.tumor, 
+        ifelse( normalDB$gatk.normal.files %in% 
+        gatk.normal.files, col.best.normal, col.other.normals)),
+        xlab=paste("PC",x), ylab=paste("PC",y),...)
 ### Returns NULL
 },ex=function() {
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
@@ -109,4 +117,4 @@ gatk.tumor.file <- system.file("extdata", "example_tumor.txt",
     package="PureCN")
 gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 plotBestNormal(gatk.best.normal.file, gatk.tumor.file, normalDB)
-})    
+})

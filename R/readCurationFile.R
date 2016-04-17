@@ -1,17 +1,23 @@
-readCurationFile <- structure(function(
-### Function that can be used to read the curated output of the runAbsoluteCN function.
+readCurationFile <- structure(function(#Read curation file
+### Function that can be used to read the curated output of
+### the runAbsoluteCN function.
 file.rds,
-### Output of the runAbsoluteCN() function, serialized with saveRDS()
+### Output of the runAbsoluteCN() function, serialized with 
+### saveRDS()
 file.curation=gsub(".rds$", ".csv", file.rds),
-### Filename that points to the correct solution
+### Filename of curation file that points to the correct 
+### solution.
 remove.failed=FALSE,
 ### Do not return solutions that failed.
 report.best.only=FALSE,
-### Only return correct/best solution (useful on low memory machines when lots of samples are loaded)
+### Only return correct/best solution (useful on low memory
+### machines when lots of samples are loaded)
 min.ploidy=NULL,
-### Minimum ploidy to be considered. If NULL, all. Can be used to automatically ignore unlikely solutions.
+### Minimum ploidy to be considered. If NULL, all. Can be 
+### used to automatically ignore unlikely solutions.
 max.ploidy=NULL
-### Maximum ploidy to be considered. If NULL, all. Can be used to automatically ignore unlikely solutions.
+### Maximum ploidy to be considered. If NULL, all. Can be 
+### used to automatically ignore unlikely solutions.
 ) {
     res <- readRDS(file.rds)
     curation <- read.csv(file.curation)
@@ -50,4 +56,3 @@ createCurationFile(file.rds)
 # CSV file. The correct solution is then loaded with readCurationFile.
 purecn.curated.example.output <-readCurationFile(file.rds) 
 })    
-

@@ -1,6 +1,6 @@
 \name{createNormalDatabase}
 \alias{createNormalDatabase}
-\title{createNormalDatabase}
+\title{Create database of normal samples}
 \description{Function to create a database of normal samples, used to find 
 a good match for tumor copy number normalization.}
 \usage{createNormalDatabase(gatk.normal.files, ...)}

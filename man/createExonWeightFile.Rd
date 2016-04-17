@@ -6,9 +6,10 @@ down-weighting unreliable exons.}
 \usage{createExonWeightFile(gatk.tumor.files, gatk.normal.files, 
     exon.weight.file)}
 \arguments{
-  \item{gatk.tumor.files}{A small number (1-3) of GATK tumor coverage samples.}
+  \item{gatk.tumor.files}{A small number (1-3) of GATK tumor or normal coverage samples.}
   \item{gatk.normal.files}{A large number of GATK normal coverage samples (>20) 
-to estimate exon log-ratio standard deviations.}
+to estimate exon log-ratio standard deviations.
+Should not overlap with files in gatk.tumor.files.}
   \item{exon.weight.file}{Output filename.}
 }
 

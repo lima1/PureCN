@@ -1,11 +1,12 @@
 correctCoverageBias <- structure(function(# Correct for GC bias
-### Takes as input coverage data in GATK format (or data read by readCoverageGatk)
-### and a mapping file for GC content, and then uses a loess normalization for
-### bias correction. Largely follows the GC correction of the TitanCNA package.
+### Takes as input coverage data in GATK format (or data 
+### read by readCoverageGatk) and a mapping file for GC content, and then uses
+### a loess normalization for bias correction. Largely follows the GC 
+### correction of the TitanCNA package.
 gatk.coverage.file, 
 ### Exon coverage file as produced by GATK.
 gc.gene.file,
-### GC gene file, which provides GC content for each exon in the coverage files. 
+### File providing GC content for each exon in the coverage files.
 ### First column in format CHR:START-END. Second column GC content (0 to 1). 
 ### Third column provides gene symbols, which are optional, but used in
 ### runAbsoluteCN to generate gene level calls.
@@ -20,16 +21,17 @@ output.file=NULL
     
     gc <- read.delim(gc.gene.file)
     if (!identical(as.character(gc[,1]), as.character(tumor[,1]))) {
-        stop("Interval files in gatk.coverage.file and gc.gene.file different.")
-    }    
+        stop(
+        "Interval files in gatk.coverage.file and gc.gene.file different.")
+    }
 
     # taken from TitanCNA
     gc$valid <- TRUE
     gc$valid[tumor$average.coverage <= 0 | gc$gc_bias < 0] <- FALSE
     gc$ideal <- TRUE
     routlier <- 0.01
-    range <- quantile(tumor$average.coverage[gc$valid], prob = c(0, 1 - routlier), 
-        na.rm = TRUE)
+    range <- quantile(tumor$average.coverage[gc$valid], prob = 
+        c(0, 1 - routlier), na.rm = TRUE)
     doutlier <- 0.001
     domain <- quantile(gc$gc_bias[gc$valid], prob = c(doutlier, 1 - doutlier), 
         na.rm = TRUE)
@@ -39,7 +41,8 @@ output.file=NULL
         gc$gc_bias < domain[1] | 
         gc$gc_bias > domain[2]] <- FALSE
 
-    rough <- loess(tumor$average.coverage[gc$ideal] ~ gc$gc_bias[gc$ideal], span = 0.03)
+    rough <- loess(tumor$average.coverage[gc$ideal] ~ gc$gc_bias[gc$ideal], 
+        span = 0.03)
     i <- seq(0, 1, by = 0.001)
     final <- loess(predict(rough, i) ~ i, span = 0.3)
     cor.gc <- predict(final, gc$gc_bias)
@@ -53,7 +56,7 @@ output.file=NULL
         write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE)
     }    
     tumor
-### GC normalized coverage
+### GC normalized coverage.
 }, ex=function() {
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

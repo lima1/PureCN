@@ -1,4 +1,4 @@
-createNormalDatabase <- structure(function(
+createNormalDatabase <- structure(function(#Create database of normal samples
 ### Function to create a database of normal samples, used to find 
 ### a good match for tumor copy number normalization.
 gatk.normal.files,
@@ -9,7 +9,8 @@ gatk.normal.files,
 ) {
     gatk.normal.files <- normalizePath(gatk.normal.files)
     normals <- lapply(gatk.normal.files, readCoverageGatk)
-    normals.m <- do.call(cbind, lapply(normals, function(x) x$average.coverage))
+    normals.m <- do.call(cbind, 
+        lapply(normals, function(x) x$average.coverage))
     idx <- complete.cases(normals.m)
     normals.pca <- prcomp(t(normals.m[idx,]), ...)
     list(
@@ -36,16 +37,17 @@ createExonWeightFile <- structure(function(# Calculate exon weights
 ### Creates an exon weight file useful for segmentation, by 
 ### down-weighting unreliable exons.
 gatk.tumor.files, 
-### A small number (1-3) of GATK tumor coverage samples.
+### A small number (1-3) of GATK tumor or normal coverage samples.
 gatk.normal.files,
 ### A large number of GATK normal coverage samples (>20) 
 ### to estimate exon log-ratio standard deviations.
+### Should not overlap with files in gatk.tumor.files.
 exon.weight.file
 ### Output filename.
 ) {
     tumor.coverage <- lapply(gatk.tumor.files,  readCoverageGatk)
-    lrs <- lapply(tumor.coverage, function(tc) sapply(gatk.normal.files, function(x) 
-            .calcLogRatio(readCoverageGatk(x), tc, verbose=TRUE)))
+    lrs <- lapply(tumor.coverage, function(tc) sapply(gatk.normal.files, 
+            function(x) .calcLogRatio(readCoverageGatk(x), tc, verbose=TRUE)))
 
     lrs <- do.call(cbind, lrs)
 
@@ -60,7 +62,8 @@ exon.weight.file
     zz[idx] <- min(zz, na.rm=TRUE)
     ret <- data.frame(Target=tumor.coverage[[1]][,1], Weights=zz)
 
-    write.table(ret, file=exon.weight.file,row.names=FALSE, quote=FALSE, sep="\t")
+    write.table(ret, file=exon.weight.file,row.names=FALSE, quote=FALSE, 
+        sep="\t")
     invisible(ret)
 ###A data.frame with exon weights.
 }, ex=function() {
@@ -74,4 +77,4 @@ gatk.tumor.file <- system.file("extdata", "example_tumor.txt",
     package="PureCN")
 
 createExonWeightFile(gatk.tumor.file, gatk.normal.files, exon.weight.file)
-})      
+})
