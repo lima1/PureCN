@@ -2,7 +2,8 @@
 \alias{getSexFromCoverage}
 \title{Get sample sex from coverage}
 \description{This function determines the sex of a sample by the coverage 
-ratio of chrX and chrY.}
+ratio of chrX and chrY. Loss of chromosome Y (LOY) can result in a wrong
+female call. }
 \usage{getSexFromCoverage(gatk.coverage, min.ratio = 20, verbose = TRUE)}
 \arguments{
   \item{gatk.coverage}{GATK coverage file or data read with readCoverageGatk.}

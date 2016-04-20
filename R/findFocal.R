@@ -2,7 +2,7 @@ findFocal <- structure(function(# Find focal amplifications
 ### Function to find focal amplifications in segmented data. 
 ### This is automatically called in runAbsoluteCN.
 seg,
-### Segmentation data
+### Segmentation data.
 size.cutoff=2000000,
 ### Cutoff for focal in base pairs.
 cn.diff=2, 

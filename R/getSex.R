@@ -1,6 +1,7 @@
 getSexFromCoverage <- structure(function(# Get sample sex from coverage
 ### This function determines the sex of a sample by the coverage 
-### ratio of chrX and chrY.
+### ratio of chrX and chrY. Loss of chromosome Y (LOY) can result in a wrong
+### female call. 
 gatk.coverage, 
 ### GATK coverage file or data read with readCoverageGatk.
 min.ratio=20,

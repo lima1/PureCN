@@ -1,15 +1,16 @@
 filterVcfBasic <-
 structure(function(#Basic VCF filter function
-### Function to remove artifacts and low confidence/quality variant calls 
+### Function to remove artifacts and low confidence/quality 
+### variant calls.
 vcf, 
-### VCF object, read in with the readVcf function from the 
-### VariantAnnotation package.
+### CollapsedVCF object, read in with the readVcf function 
+### from the VariantAnnotation package.
 tumor.id.in.vcf=NULL, 
-### The tumor id in the VCF file, optional.
+### The tumor id in the CollapsedVCF (optional).
 use.somatic.status=TRUE, 
 ### If somatic status and germline data is available, then use this 
 ### information to remove non-heterozygous germline SNPs or germline SNPS 
-### with biased allelic fractions.  
+### with biased allelic fractions.
 snp.blacklist=NULL,
 ### CSV file with SNP ids with expected allelic fraction 
 ### significantly different from 0.5 in diploid genomes. Can be an array of 

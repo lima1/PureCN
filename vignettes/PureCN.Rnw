@@ -31,22 +31,31 @@ If the correct purity and ploidy solution was identified, \Biocpkg{PureCN} can
 also help in classifying variants as germline vs. somatic or clonal vs.
 sub-clonal.
 
-PureCN was designed to integrate well with industry standard pipelines, but it
-is straightforward to generate input data from other pipelines.
+PureCN was further designed to integrate well with industry standard pipelines,
+but it is straightforward to generate input data from other pipelines.
 
 \section{Limitations}
 
 PureCN currently assumes a completely diploid normal genome. PureCN tries to
 detect the sex of samples by calculating the coverage ratio of chromosomes X and
 Y and will then remove any non-diploid chromosomes (i.e. XY for males and Y for
-females). Non-diploid chromosomes provide only limited information for purity
-and ploidy selection, but are of interest for copy number calling. Future
-versions might support full copy number calling on the XY chromosomes.
+females)\footnote{Loss of Y chromosome (LOY) can result in wrong female calls,
+especially in high purity samples or if LOY is germline.
+Since homozygous germline SNPs on the X chromosome are removed, this will not
+affect purity/ploidy selection. A future version might warn users in this case
+when germline SNPs are provided.`}. Non-diploid chromosomes provide only limited
+information for purity and ploidy selection, but are of interest for copy number
+calling. Future versions might support full copy number calling on the XY
+chromosomes. 
 
 PureCN currently also assumes a mostly clonal genome. For most clinical samples,
 this is reasonable, but very heterogenous samples are likely not possible to
 call without manual curation. Due to the lack of signal, manual curation is also
 often necessary in low purity samples or very quiet genomes. 
+
+In the absence of matched normals, PureCN currently requires some normal
+contamination to infer germline genotypes. Since cell lines are rarely matched,
+PureCN will likely not work well with cell line data.  
 
 \section{Basic Input Files}
 
@@ -69,11 +78,13 @@ PureCN will only use data from the columns "Target", "total\_coverage", and
 available, then we refer to the \CRANpkg{ExomeCNV} package and documentation,
 which provides scripts for generating coverage files from BAM files. 
 
+\section{GC bias}
+
 The algorithm works best when the coverage data is already GC normalized. The
-steps below will NOT GC normalize, since the example data is already normalized.
+steps below will not GC normalize, since the example data is already normalized.
 The function \Rfunction{correctCoverageBias}, which borrows normalization code
-from the \Biocpkg{TitanCNA} package, can be used to correct for GC bias. We
-recommend correcting for GC bias, storing the corrected coverage files and then
+from the \Biocpkg{TitanCNA} package, can be used to correct for GC bias. 
+We recommend correcting for GC bias, storing the corrected coverage files and then
 do the following steps on GC corrected data. All other assay-specific biases
 such as mappability or exon length are mitigated by using a control sample (GC
 bias is commonly library specific).
@@ -292,8 +303,8 @@ diploid, homozygous.
 
 \section{Manual Curation}
 
-For prediction of SNV status (germline vs somatic, sub-clonal vs. clonal,
-homozygous vs heterozygous), it is important that both purity and ploidy are
+For prediction of SNV status (germline vs. somatic, sub-clonal vs. clonal,
+homozygous vs. heterozygous), it is important that both purity and ploidy are
 correct. We provide functionality for curating results:
 
 <<curationfile>>=
@@ -334,7 +345,7 @@ format is:
 The \Rcode{plotAbs()} call above will generate the main plots shown in the
 manuscript. The R data file (file.rds) contains gene level copy number calls,
 SNV status and LOH calls.  The purity/ploidy combinations are sorted by
-likelihood at stored in \Rcode{ret\$results}.
+likelihood and stored in \Rcode{ret\$results}.
 
 <<output1>>=
 names(ret)

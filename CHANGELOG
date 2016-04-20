@@ -1,5 +1,6 @@
 1.0
     - added correctCoverageBias
+    - added getSexFromCoverage
     
 0.1.2
     - added PSCBS segmentation function

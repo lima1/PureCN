@@ -5,7 +5,7 @@
 This is automatically called in runAbsoluteCN.}
 \usage{findFocal(seg, size.cutoff = 2e+06, cn.diff = 2, amp.cutoff = 6)}
 \arguments{
-  \item{seg}{Segmentation data}
+  \item{seg}{Segmentation data.}
   \item{size.cutoff}{Cutoff for focal in base pairs.}
   \item{cn.diff}{Minimum copy number delta between neighboring segments.}
   \item{amp.cutoff}{Minimum amplification integer copy number.}

@@ -34,8 +34,12 @@ normalDB <- createNormalDatabase(gatk.normal.files)
 })    
 
 createExonWeightFile <- structure(function(# Calculate exon weights
-### Creates an exon weight file useful for segmentation, by 
-### down-weighting unreliable exons.
+### Creates an exon weight file useful for segmentation. Requires a
+### set of GATK coverage files from normal samples. A small number of 
+### tumor (or other normal) samples is then tested against all normals. Exon
+### weights will be set proportional to the inverse of coverage standard
+### deviation across all normals. Exons with high variance in coverage in the
+### pool of normals are thus down-weighted.
 gatk.tumor.files, 
 ### A small number (1-3) of GATK tumor or normal coverage samples.
 gatk.normal.files,
