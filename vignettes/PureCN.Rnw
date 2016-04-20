@@ -24,7 +24,7 @@ capture NGS data}
 \Biocpkg{PureCN} is a purity and ploidy aware copy number caller for cancer
 samples inspired by the \software{ABSOLUTE} algorithm.  It was designed for
 hybrid caputure next generation sequencing (NGS) data, especially with
-medium-sized targeted gene panels without matching normals in mind.
+medium-sized targeted gene panels without matching normal samples in mind.
 
 It can be used to enhance existing segmentation and normalization algorithms.
 If the correct purity and ploidy solution was identified, \Biocpkg{PureCN} can
@@ -34,18 +34,23 @@ sub-clonal.
 PureCN was further designed to integrate well with industry standard pipelines,
 but it is straightforward to generate input data from other pipelines.
 
+<<load-purecn, echo=FALSE, message=FALSE>>=
+library(PureCN)
+@
+
 \section{Limitations}
 
 PureCN currently assumes a completely diploid normal genome. PureCN tries to
-detect the sex of samples by calculating the coverage ratio of chromosomes X and
-Y and will then remove any non-diploid chromosomes (i.e. XY for males and Y for
-females)\footnote{Loss of Y chromosome (LOY) can result in wrong female calls,
-especially in high purity samples or if LOY is germline.
-Since homozygous germline SNPs on the X chromosome are removed, this will not
-affect purity/ploidy selection. A future version might warn users in this case
-when germline SNPs are provided.`}. Non-diploid chromosomes provide only limited
-information for purity and ploidy selection, but are of interest for copy number
-calling. Future versions might support full copy number calling on the XY
+detect the sex of samples by calculating the coverage ratio of chromosomes X
+and Y and will then remove any non-diploid chromosomes (i.e. XY for males and Y
+for females)\footnote{Loss of Y chromosome (LOY) can result in wrong female
+calls, especially in high purity samples or if LOY is in both tumor and
+contaminating normal cells.  Since homozygous germline SNPs on the X
+chromosome are removed, this will not affect purity/ploidy selection. A
+future version might warn users in this case when germline SNPs are
+provided.`}. Non-diploid chromosomes provide only limited information for
+purity and ploidy selection, but are of interest for copy number calling.
+Future versions might support full copy number calling on the XY
 chromosomes. 
 
 PureCN currently also assumes a mostly clonal genome. For most clinical samples,
@@ -57,7 +62,7 @@ In the absence of matched normals, PureCN currently requires some normal
 contamination to infer germline genotypes. Since cell lines are rarely matched,
 PureCN will likely not work well with cell line data.  
 
-\section{Basic Input Files}
+\section{Basic input files}
 
 The algorithm first needs to calculate copy number log-ratios of tumor vs.
 normal control.  The for this calculation necessary coverage data needs to be
@@ -78,22 +83,13 @@ PureCN will only use data from the columns "Target", "total\_coverage", and
 available, then we refer to the \CRANpkg{ExomeCNV} package and documentation,
 which provides scripts for generating coverage files from BAM files. 
 
-\section{GC bias}
-
-The algorithm works best when the coverage data is already GC normalized. The
-steps below will not GC normalize, since the example data is already normalized.
-The function \Rfunction{correctCoverageBias}, which borrows normalization code
-from the \Biocpkg{TitanCNA} package, can be used to correct for GC bias. 
-We recommend correcting for GC bias, storing the corrected coverage files and then
-do the following steps on GC corrected data. All other assay-specific biases
-such as mappability or exon length are mitigated by using a control sample (GC
-bias is commonly library specific).
+Germline SNPs and somatic mutations are expected in a single VCF file. This VCF
+should contain a DB flag for dbSNP membership.
 
 \section{Example data}
 
 We now load a few example files:
-<<example_files>>=
-library(PureCN)
+<<example_files, message=FALSE, warning=FALSE, results='hide'>>=
 
 gatk.normal.file <- system.file("extdata", "example_normal.txt",
     package="PureCN") 
@@ -128,9 +124,77 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
     package="PureCN")
 @
 
+\section{GC bias}
+
+The algorithm works best when the coverage data is GC normalized. The steps
+below will not GC normalize, since the example data is already normalized.  The
+function \Rfunction{correctCoverageBias}, which borrows normalization code from
+the \Biocpkg{TitanCNA} package, can be used to correct for GC bias.  We
+recommend correcting for GC bias, storing the corrected coverage files and then
+do the following steps on GC corrected data. All other assay-specific biases
+such as mappability or exon length are mitigated by using a control sample (GC
+bias is commonly library-specific).
+
+<<gccorrect>>=
+gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    package = "PureCN")
+gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    package = "PureCN")
+coverage <- correctCoverageBias(gatk.normal.file, gc.gene.file, "example_normal_loess.txt")
+@
+
 \section{Pool of Normals}
 
-If a pool of normal samples is available, we can use the coverage data to
+\subsection{Selection of normals for log-ratio calculation}
+
+For calculating copy number log-ratios of tumor vs. normal, PureCN requires
+coverage from a process-matched normal sample.  Using a normal that was
+sequenced using a similar, but not identical assay, rarely works, since
+differently covered genomic regions result in too many log-ratio outliers. This
+section describes how to identify a good process-matched normal in case no
+matched normal is available or in case the matched normal has low or uneven
+coverage.
+ 
+First, we will use the \Rfunction{createCurationFile} function to build a
+database of coverage files:
+
+<<normaldb>>=
+normalDB <- createNormalDatabase(gatk.normal.files)
+@
+
+Internally, this will determine the sex of the samples and will train a PCA
+that is later used for clustering a tumor file with all normal samples in the
+database. This clustering is performed by the \Rfunction{findBestNormal} function:
+
+<<normaldbpca>>=
+# get the best 2 normals and average them
+gatk.best.normal.files <- findBestNormal(gatk.tumor.file, normalDB, 
+    num.normals=2)
+pool <- poolCoverage(lapply(gatk.best.normal.files, readCoverageGatk),
+     remove.chrs=c('chrX', 'chrY'))
+
+# get the best normal
+gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
+@
+
+As you can see, this function can also return multiple normal files that can be
+averaged into a single pool.  Pooling is only recommended when the coverage in
+normals is significantly lower than in tumor.  Otherwise the PCA will typically
+do a good job in selecting a normal with decent coverage and similar biases
+compared to tumor. But it is worth experimenting with different strategies.
+When pooling, it might be also necessary to remove certain principal
+components, most likely the first one, to avoid that coverage is the only
+selection criteria. The \Rfunction{plotBestNormal} function might be
+helpful in finding a good strategy. Note that this example removes sex
+chromosomes; if the normal database contains a sufficient number of samples
+with matching sex, \Rfunction{findBestNormal} will return only normal
+samples with matching sex.
+
+
+\subsection{Artifact filtering}
+ 
+A large selection of normal files is also helpful for the identification and
+removal of artifacts. We can for example use the normal coverage data to
 estimate the expected variance in coverage per exon. This will help the
 segmentation algorithm to filter noise. This step is optional, but recommended
 with the default segmentation function and large pool of normals.
@@ -140,10 +204,20 @@ exon.weight.file <- "exon_weights.txt"
 createExonWeightFile(gatk.tumor.file, gatk.normal.files, exon.weight.file)
 @
 
-For each of the tumor files, exon-level log-ratios are calculated for all
-normal files. Only 1-2 tumor files are necessary.  It is also safe to use a
-normal instead of a tumor file in this step (which should be however not
-included in the normals).
+This function calculates exon-level copy number log-ratios for all normal
+samples provided in the \Rcode{gatk.normal.files} argument.  Assuming that all
+normal samples are in general diploid, an unusually high variance in log-ratio
+is indicative of an exon with either common germline alterations or frequent
+artifacts; high or low copy number log-ratios in those exons are unlikely
+measuring somatic copy number events. 
+
+For the log-ratio calculation, we provide a coverage file that is used as tumor
+in the log-ratio calculation. The corresponding \Rcode{gatk.tumor.file}
+argument can also be an array of coverage files, in which case the exon
+coverage variance is averaged over all provided tumor files. As long as the
+coverage of the tumor files is even, only 1 or 2 tumor files are necessary,
+however. It is also safe to use a high coverage normal file instead of a tumor
+file in this step:
 
 <<exonweightfile2>>=
 #createExonWeightFile(gatk.normal.files[1], gatk.normal.files[-1], 
@@ -168,33 +242,7 @@ states.
 #   quote=FALSE)
 @
 
-Finally, we can use the pool of normals to find normal samples for log-ratio
-calculation, especially when no matched normal sample is available:
-
-<<normaldb>>=
-normalDB <- createNormalDatabase(gatk.normal.files)
-
-# get the best 2 normals and average them
-gatk.best.normal.files <- findBestNormal(gatk.tumor.file, normalDB, 
-    num.normals=2)
-pool <- poolCoverage(lapply(gatk.best.normal.files, readCoverageGatk),
-     remove.chrs=c('chrX', 'chrY'))
-
-# get the best normal
-gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
-@
-
-Pooling is only recommended when the coverage in normals is significantly lower
-than in tumor.  Otherwise the PCA will typically do a good job in selecting a
-normal with decent coverage and similar biases compared to tumor. When pooling,
-it might be also necessary to remove certain principal components, most likely
-the first one, to avoid that coverage is the only selection criteria. The
-\Rfunction{plotBestNormal} function might be helpful in finding a good
-strategy. Note that this example removes sex chromosomes; if the normal database
-contains a sufficient number of samples with matching sex,
-\Rfunction{findBestNormal} will return only normal samples with matching sex.
-
-\section{VCF Artifact Filtering}
+\section{VCF artifact filtering}
 
 It is important to remove artifacts from the VCF file, since low ploidy
 solutions are typically punished more by artifacts than high ploidy solutions.
@@ -206,9 +254,10 @@ optionally reads the MuTect stats file and will keep germline variants, while
 removing potential artifacts. Otherwise it will use only the filters based on
 read depths as defined in \Rfunction{filterVcfBasic}. If \software{MuTect} was
 run in single mode, then the VCF file should be filtered to contain only
-variants annotated as PASS.
+variants annotated as PASS. Both functions are automatically called by PureCN,
+but can be easily modified and replaced if necessary.
 
-\section{Recommended Run}
+\section{Recommended run}
 
 Finally, we can run PureCN with all that information:
 
@@ -217,7 +266,7 @@ ret <-runAbsoluteCN(gatk.normal.file=pool, gatk.tumor.file=gatk.tumor.file,
     vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file, 
 #args.filterVcf=list(snp.blacklist=snp.blacklist, stats.file=mutect.stats.file), 
     args.segmentation=list(exon.weight.file=exon.weight.file), 
-    post.optimize=FALSE)
+    post.optimize=FALSE, plot.cnv=FALSE)
 @
 
 The post.optimize flag will increase the runtime by a lot, but might be worth
@@ -225,10 +274,12 @@ it if the copy number profile is not very clean. This is recommended with lower
 coverage datasets or if there are significant capture biases. For high quality
 whole exome data, this is typically not necessary. Note the uncommented line,
 which is recommended, but not used here for simplicity. The
-\Rfunction{segmentationPSCBS} function requires the \CRANpkg{PSCBS} package,
-but sometimes gives better results than the default when the coverage data is
+\Rfunction{segmentationPSCBS} function requires the \CRANpkg{PSCBS} package and
+sometimes gives better results than the default when the coverage data is
 relatively noisy, especially for whole exome data with a large number of
-heterozygous SNPs.
+heterozygous SNPs. The \Rcode{plot.cnv} argument is set to \Rcode{FALSE} for
+this vignette, but provides often helpful additional plots provided by the
+segmentation function.
 
 We also need to create a few output files:
 
@@ -301,7 +352,7 @@ expected values for all called states; 2m1 would be diploid, heterozygous, 2m2
 diploid, homozygous.
 \clearpage
 
-\section{Manual Curation}
+\section{Manual curation}
 
 For prediction of SNV status (germline vs. somatic, sub-clonal vs. clonal,
 homozygous vs. heterozygous), it is important that both purity and ploidy are
@@ -322,7 +373,7 @@ can be loaded with the readCurationFile function:
 ret <- readCurationFile(file.rds)
 @
     
-\section{Custom Segmentation}
+\section{Custom segmentation}
 
 By default, we will use \CRANpkg{DNAcopy} to segment the log-ratio. You can
 easily change that to your favorite method and the \Rfunction{segmentationCBS}
