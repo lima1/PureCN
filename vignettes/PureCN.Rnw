@@ -167,29 +167,31 @@ that is later used for clustering a tumor file with all normal samples in the
 database. This clustering is performed by the \Rfunction{findBestNormal} function:
 
 <<normaldbpca>>=
+# get the best normal
+gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
+@
+
+This function can also return multiple normal files that can be averaged into a
+single pool:  
+
+<<normaldbpcapool>>=
 # get the best 2 normals and average them
 gatk.best.normal.files <- findBestNormal(gatk.tumor.file, normalDB, 
     num.normals=2)
 pool <- poolCoverage(lapply(gatk.best.normal.files, readCoverageGatk),
      remove.chrs=c('chrX', 'chrY'))
-
-# get the best normal
-gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 @
 
-As you can see, this function can also return multiple normal files that can be
-averaged into a single pool.  Pooling is only recommended when the coverage in
-normals is significantly lower than in tumor.  Otherwise the PCA will typically
-do a good job in selecting a normal with decent coverage and similar biases
-compared to tumor. But it is worth experimenting with different strategies.
-When pooling, it might be also necessary to remove certain principal
-components, most likely the first one, to avoid that coverage is the only
-selection criteria. The \Rfunction{plotBestNormal} function might be
-helpful in finding a good strategy. Note that this example removes sex
-chromosomes; if the normal database contains a sufficient number of samples
-with matching sex, \Rfunction{findBestNormal} will return only normal
-samples with matching sex.
-
+Pooling is only recommended when the coverage in normals is significantly lower
+than in tumor.  Otherwise the PCA will typically do a good job in selecting a
+normal with decent coverage and similar biases compared to tumor. But it is
+worth experimenting with different strategies.  When pooling, it might be also
+necessary to remove certain principal components, most likely the first one, to
+avoid that coverage is the only selection criteria. The
+\Rfunction{plotBestNormal} function might be helpful in finding a good strategy.
+Note that this example removes sex chromosomes; if the normal database contains
+a sufficient number of samples with matching sex, \Rfunction{findBestNormal}
+will return only normal samples with matching sex.
 
 \subsection{Artifact filtering}
 
