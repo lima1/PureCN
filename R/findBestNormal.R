@@ -32,7 +32,7 @@ verbose=TRUE
     if (!ignore.sex && !is.null(normalDB$sex) && 
         sum(!is.na(normalDB$sex))>0) {
         sex <- getSexFromCoverage(tumor, verbose=FALSE)
-        if (verbose) message("Sex of sample:", sex)
+        if (verbose) message("Sex of sample: ", sex)
         if (!is.na(sex)) {
             idx.normals <- which(normalDB$sex == sex)
         }
@@ -40,8 +40,8 @@ verbose=TRUE
             warning("Not enough samples of sex ", sex, 
                 " in database. Ignoring sex.")
             idx.normals <- seq_along(normalDB$gatk.normal.files)
-        }    
-    }    
+        }
+    }
 
     best.match <- order(sapply(idx.normals, function(i) 
         dist( rbind(predict(normalDB$pca, x)[1,idx.pcs], 

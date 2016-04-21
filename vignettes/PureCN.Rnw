@@ -192,12 +192,15 @@ samples with matching sex.
 
 
 \subsection{Artifact filtering}
- 
-A large selection of normal files is also helpful for the identification and
-removal of artifacts. We can for example use the normal coverage data to
-estimate the expected variance in coverage per exon. This will help the
-segmentation algorithm to filter noise. This step is optional, but recommended
-with the default segmentation function and large pool of normals.
+
+It is important to remove as many artifacts as possible, since low ploidy
+solutions are typically punished more by artifacts than high ploidy solutions.
+High ploidy solutions are complex and usually find ways of explaining artifacts
+reasonably well. A large selection of normal files is helpful for the
+identification and removal of artifacts. We can for example use the normal
+coverage data to estimate the expected variance in coverage per exon. This will
+help the segmentation algorithm to filter noise. This step is optional, but
+recommended with the default segmentation function and large pool of normals.
 
 <<exonweightfile1>>=
 exon.weight.file <- "exon_weights.txt"
@@ -206,7 +209,7 @@ createExonWeightFile(gatk.tumor.file, gatk.normal.files, exon.weight.file)
 
 This function calculates exon-level copy number log-ratios for all normal
 samples provided in the \Rcode{gatk.normal.files} argument.  Assuming that all
-normal samples are in general diploid, an unusually high variance in log-ratio
+normal samples are in general diploid, an unusual high variance in log-ratio
 is indicative of an exon with either common germline alterations or frequent
 artifacts; high or low copy number log-ratios in those exons are unlikely
 measuring somatic copy number events. 
@@ -242,20 +245,19 @@ states.
 #   quote=FALSE)
 @
 
-\section{VCF artifact filtering}
+\subsection{Artifact filtering without a pool of normals}
 
-It is important to remove artifacts from the VCF file, since low ploidy
-solutions are typically punished more by artifacts than high ploidy solutions.
-High ploidy solutions are complex and usually find ways of explaining artifacts
-reasonably well.  If \software{MuTect} was run in matched normal mode, then all
-germline variants are rejected, that means we cannot just filter by the
+By default, \Biocpkg{PureCN} will exclude exons with coverage below 15X from
+segmentation. For SNVs, the same 15X cutoff is applied. \software{MuTect}
+applies more sophisticated artifact tests and flags suspicious variants. If
+\software{MuTect} was run in matched normal mode, then both potential artifacts
+and germline variants are rejected, that means we cannot just filter by the
 PASS/REJECT \software{MuTect} flags. The \Rfunction{filterVcfMuTect} function
 optionally reads the MuTect stats file and will keep germline variants, while
-removing potential artifacts. Otherwise it will use only the filters based on
-read depths as defined in \Rfunction{filterVcfBasic}. If \software{MuTect} was
-run in single mode, then the VCF file should be filtered to contain only
-variants annotated as PASS. Both functions are automatically called by
-\Biocpkg{PureCN}, but can be easily modified and replaced if necessary.
+removing potential artifacts.  Without the stats file, \Biocpkg{PureCN} will use
+only the filters based on read depths as defined in \Rfunction{filterVcfBasic}.
+Both functions are automatically called by \Biocpkg{PureCN}, but can be easily
+modified and replaced if necessary.
 
 \section{Recommended run}
 
