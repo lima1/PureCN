@@ -370,13 +370,25 @@ This will generate a CSV file, in which the correct purity and ploidy values
 can be manually entered. It also contains a column "Curated", which should be
 set to TRUE, otherwise the file will be overwritten when re-run.
 
+
 Then in R, the correct solution (closest to the combination in the CSV file)
-can be loaded with the readCurationFile function:
+can be loaded with the \Rfunction{readCurationFile} function:
 
 <<readcurationfile>>=
 ret <- readCurationFile(file.rds)
 @
-    
+
+This function has various handy features, but most importantly it will re-order
+the local optima so that the curated purity and ploidy combination is ranked
+first. This means \Rcode{plotAbs(ret,1,type="hist")} would show the plot for
+the curated purity/ploidy combination, for example.
+
+The default curation file will list the maximum likelihood solution:
+
+<<curationfileshow>>=
+read.csv('Sample1_PureCN.csv')
+@
+
 \section{Custom segmentation}
 
 By default, we will use \CRANpkg{DNAcopy} to segment the log-ratio. You can
@@ -418,6 +430,26 @@ are multiplicity values, i.e. the number of chromosomes harboring the mutation
 (e.g. 1 heterozygous, 2 homozygous if copy number C is 2). Colums with the ML
 prefix indicate maximum likelihood estimates, e.g. ML.AR is the expected
 allelic ratio of the most likely state, AR is the observed allelic ratio.
+
+\section{Prediction of somatic status and cellular fraction}
+
+The SNV posteriors above provide posterior probabilities for all possible
+states.  The \Rfunction{predictSomatic} status adjusts these posterior
+probabilities by excluding germline states that do not correspond to the
+maternal and paternal chromosome numbers. For predicted somatic mutations, this
+function also provides cellular fraction estimates, i.e. the fraction of cells
+with mutation. Fractions significantly below 1 indicate
+sub-clonality\footnote{This number can be above 1 when the observed allelic
+fraction is higher than expected for a clonal mutation. This maybe due to wrong
+copy number, sub-clonal copy number events, or wrong purity/ploidy estimates}.
+
+<<output3>>=
+head(predictSomatic(ret), 3)
+@
+
+Segment 1 in this toy example has clearly copy number 2 and LOH, so
+heterozygous mutations are impossible and the posterior probabilities for
+\Rcode{GERMLINE.M1} are set to 0.
 
 \appendix
 
