@@ -1,3 +1,6 @@
+1.2
+    - added calculatePowerDetectSomatic
+
 1.0
     - added correctCoverageBias
     - added getSexFromCoverage

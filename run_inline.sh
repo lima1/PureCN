@@ -1,7 +1,7 @@
 #!/bin/sh
 
-/usr/local/bin/R --vanilla <<RSCRIPT
-#R --no-save <<RSCRIPT
+#/usr/local/bin/R --vanilla <<RSCRIPT
+R --no-save <<RSCRIPT
 library(inlinedocs);
 package.skeleton.dx('.')
 RSCRIPT

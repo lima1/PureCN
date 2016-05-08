@@ -2,8 +2,8 @@ Package: PureCN
 Type: Package
 Title: Estimating tumor purity, ploidy, LOH, and SNV status using
         hybrid capture NGS data
-Version: 1.1.0
-Date: 2016-04-30
+Version: 1.1.1
+Date: 2016-05-08
 Author: Markus Riester
 Maintainer: Markus Riester <markus.riester@novartis.com>
 Description: This package estimates tumor purity, copy number, loss of
@@ -11,7 +11,7 @@ Description: This package estimates tumor purity, copy number, loss of
     PureCN is designed for hybrid capture next generation sequencing (NGS) 
     data, integrates well with standard somatic variant detection pipelines, 
     and has support for tumor samples without matching normal samples.
-Depends: R (>= 3.3), DNAcopy, VariantAnnotation (>= 1.14.1)
+Depends: R (>= 3.2), DNAcopy, VariantAnnotation (>= 1.14.1)
 Imports: GenomicRanges (>= 1.20.3), IRanges (>= 2.2.1), RColorBrewer,
         S4Vectors, data.table, grDevices, graphics, stats, utils,
         SummarizedExperiment, GenomeInfoDb
