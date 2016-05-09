@@ -61,15 +61,18 @@ verbose=TRUE
      power <- 1 - sum(dbinom(0:(k-1), size=coverage, prob=f)) + 
               .d(k) * dbinom(k, size=coverage, prob=f)
      
-     power         
-### Returns power to detect somatic mutations with specified
-### expected allelic fraction.
+    ##value<< A list with elements
+    list(
+        power=power, ##<< Power to detect somatic mutations.
+        k=k, ##<< Minimum number of supporting reads.
+        f=f  ##<< Expected allelic fraction.
+    )    
 },ex=function() {
 purity <- c(0.1,0.15,0.2,0.25,0.4,0.6,1)
 coverage <- seq(5,35,1)
 power <- lapply(purity, function(p) sapply(coverage, function(cv) 
     calculatePowerDetectSomatic(coverage=cv, purity=p, ploidy=2, 
-    verbose=FALSE)))
+    verbose=FALSE)$power))
 
 # Figure S7b in Carter et al.
 plot(coverage, power[[1]], col=1, xlab="Sequence coverage", ylab="Detection power", ylim=c(0,1), type="l")
@@ -81,7 +84,7 @@ legend("bottomright", legend=paste("Purity", purity), fill=1:length(purity))
 coverage <- seq(5,350,1)
 power <- lapply(purity, function(p) sapply(coverage, function(cv) 
     calculatePowerDetectSomatic(coverage=cv, purity=p, ploidy=2, 
-        cell.fraction=0.2, verbose=FALSE)))
+        cell.fraction=0.2, verbose=FALSE)$power))
 plot(coverage, power[[1]], col=1, xlab="Sequence coverage", ylab="Detection power", ylim=c(0,1), type="l")
 for (i in 2:length(power)) lines(coverage, power[[i]], col=i)
 abline(h=0.8, lty=2, col="grey")     
