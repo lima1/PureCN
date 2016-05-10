@@ -111,7 +111,7 @@ iterations=30,
 ### Maximum number of iterations in the Simulated Annealing copy 
 ### number fit optimization.
 log.ratio.calibration=0.25,
-### re-calibrate log-ratios in the window 
+### Re-calibrate log-ratios in the window 
 ### sd(log.ratio)*log.ratio.calibration.
 gc.gene.file=NULL, 
 ### A mapping file that assigns GC content and gene symbols 

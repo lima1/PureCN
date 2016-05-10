@@ -101,7 +101,7 @@ This is set to a fairly high default value to not exclude correct
 solutions, especially in noisy segmentations. }
   \item{iterations}{Maximum number of iterations in the Simulated Annealing copy 
 number fit optimization.}
-  \item{log.ratio.calibration}{re-calibrate log-ratios in the window 
+  \item{log.ratio.calibration}{Re-calibrate log-ratios in the window 
 sd(log.ratio)*log.ratio.calibration.}
   \item{gc.gene.file}{A mapping file that assigns GC content and gene symbols 
 to each exon in the coverage files. Used for generating gene level calls. 
