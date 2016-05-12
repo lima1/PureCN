@@ -14,7 +14,8 @@ or data parsed with the readCoverageGatk function.}
 First column in format CHR:START-END. Second column GC content (0 to 1). 
 Third column provides gene symbols, which are optional, but used in
 runAbsoluteCN to generate gene level calls.}
-  \item{output.file}{Optionally, write minimal GATK coverage file with GC corrected coverage.}
+  \item{output.file}{Optionally, write file with GC corrected coverage. Can be read with
+the readCoverageGatk function.}
 }
 
 \value{GC normalized coverage.}

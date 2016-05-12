@@ -1,6 +1,7 @@
 1.2
     - added calculatePowerDetectSomatic
     - added getSexFromVcf
+    - added calculateBamCoverageFromInterval
 
 1.0
     - added correctCoverageBias

@@ -12,7 +12,8 @@ gc.gene.file,
 ### Third column provides gene symbols, which are optional, but used in
 ### runAbsoluteCN to generate gene level calls.
 output.file=NULL
-### Optionally, write minimal GATK coverage file with GC corrected coverage.
+### Optionally, write file with GC corrected coverage. Can be read with
+### the readCoverageGatk function.
 ) {
     if (is.character(gatk.coverage.file)) {
         tumor  <- readCoverageGatk(gatk.coverage.file)
