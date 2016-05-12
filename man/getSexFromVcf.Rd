@@ -15,7 +15,7 @@ from the VariantAnnotation package.}
   \item{verbose}{Verbose output.}
 }
 
-
+\value{Returns "M" for male, "F" for female, or NA if unknown.    }
 
 \author{Markus Riester}
 

@@ -83,6 +83,7 @@ verbose=TRUE
     if (res$p.value <= max.pv && res$estimate >= min.or) sex <- "M"
     if (verbose) message("Sex from VCF: ", sex, " (Fisher's p-value: ", res$p.value, "  odds-ratio: ", res$estimate, ")")    
     return(sex)    
+### Returns "M" for male, "F" for female, or NA if unknown.    
 }, ex=function() {
 vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")
