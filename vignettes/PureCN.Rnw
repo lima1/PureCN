@@ -47,8 +47,8 @@ and Y and will then remove any non-diploid chromosomes (i.e. XY for males and Y
 for females)\footnote{Loss of Y chromosome (LOY) can result in wrong female
 calls, especially in high purity samples or if LOY is in both tumor and
 contaminating normal cells.  Since homozygous germline SNPs on the X
-chromosome are removed, this will not affect purity/ploidy selection. A
-future version might warn users in this case when germline SNPs are
+chromosome are removed, this will not affect purity/ploidy selection. 
+The software throws a warning in this case when germline SNPs are
 provided.`}. Non-diploid chromosomes provide only limited information for
 purity and ploidy selection, but are of interest for copy number calling.
 Future versions might support full copy number calling on the XY

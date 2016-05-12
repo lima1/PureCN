@@ -47,3 +47,46 @@ verbose=TRUE
     }
     return(as.character(23:24))    
 }
+
+getSexFromVcf <- structure(function(# Get sample sex from VCF file
+### This function detects non-random distribution of homozygous
+### variants on chromosome X compared to all other chromosomes.
+vcf,
+### CollapsedVCF object, read in with the readVcf function 
+### from the VariantAnnotation package.
+tumor.id.in.vcf=NULL, 
+### The tumor id in the CollapsedVCF (optional).
+min.or=4,
+### Minimum odds-ratio to call sample as male.
+min.or.na=2,
+### Minimum odds-ratio to not call a sample.
+max.pv=0.0001,
+### Maximum Fisher's exact p-value to call sample as male.
+verbose=TRUE
+### Verbose output.
+) {
+    if (is.null(tumor.id.in.vcf)) {
+        tumor.id.in.vcf <- names( which.min(colSums(geno(vcf)$GT=="0")) )
+    }
+    chrY <- seqnames(vcf) == "chrY" | seqnames(vcf) == "24"
+    vcf <- vcf[!chrY]
+
+    chrX <- seqnames(vcf) == "chrX" | seqnames(vcf) == "23"
+    homozygous <- geno(vcf)$FA[,tumor.id.in.vcf] == 1
+    if ( sum(homozygous)/length(homozygous) < 0.001 ) {
+        if (verbose) message("No homozygous variants in VCF, provide unfiltered VCF.")
+        return(NA)
+    }
+    res <- fisher.test(homozygous, as.vector(chrX))
+    sex <- "F"    
+    if (res$p.value <= max.pv && res$estimate >= min.or.na) sex <- NA
+    if (res$p.value <= max.pv && res$estimate >= min.or) sex <- "M"
+    if (verbose) message("Sex from VCF: ", sex, " (Fisher's p-value: ", res$p.value, "  odds-ratio: ", res$estimate, ")")    
+    return(sex)    
+}, ex=function() {
+vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+vcf <- readVcf(vcf.file, "hg19")
+# This example vcf is already filtered and contains no homozygous calls,
+# which are necessary for determining sex from chromosome X.
+getSexFromVcf(vcf)
+})    

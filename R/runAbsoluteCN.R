@@ -22,7 +22,7 @@ log.ratio=NULL,
 ### If NULL, calculated based on coverage files.
 seg.file=NULL,
 ### Segmented data. Optional, to support matched SNP6 data. 
-### If null, use coverage files or log.ratio to segment the data.  
+### If NULL, use coverage files or log.ratio to segment the data.  
 seg.file.sdev=0.4,
 ### If seg.file provided, the log-ratio standard deviation, 
 ### used to model likelihood of sub-clonal copy number events.
@@ -240,7 +240,6 @@ post.optimize=FALSE,
         tumor <- .removeChr(tumor, remove.chrs=sex.chr[2])
     }       
           
-    if (verbose) message("Sex of sample: ", sex)
           
     # NA's in log.ratio confuse the CBS function
     idx <- !is.na(log.ratio) & !is.infinite(log.ratio)
@@ -287,6 +286,7 @@ post.optimize=FALSE,
     tumor.id.in.vcf <- NULL
     prior.somatic <- NULL
     vcf.filtering <-list(flag=FALSE, flag_comment="")
+    sex.vcf <- NULL
 
     if (!is.null(vcf.file)) {
         if (verbose) message("Loading VCF...")
@@ -310,6 +310,9 @@ post.optimize=FALSE,
         tumor.id.in.vcf <- names( which.min(colSums(geno(vcf)$GT=="0")) )
         if (verbose) message("Assuming ", tumor.id.in.vcf, 
             " is tumor in VCF file.")
+        sex.vcf <- getSexFromVcf(vcf, tumor.id.in.vcf, verbose=verbose)
+        if (!is.na(sex.vcf) && sex.vcf != sex) warning("Sex mismatch of coverage and VCF. ",
+            "Could be because of noisy data, loss of chrY or a sample swap.")
         
         n.vcf.before.filter <- nrow(vcf)
         if (verbose) message("Found ", n.vcf.before.filter, 
@@ -327,6 +330,8 @@ post.optimize=FALSE,
         prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
         vcf.germline <- vcf[which(prior.somatic < 0.5)]
     }
+
+    if (verbose) message("Sex of sample: ", sex)
 
     if (verbose) message("Segmenting data...")
 
@@ -715,7 +720,7 @@ post.optimize=FALSE,
             log.ratio.sdev=sd.seg, 
             vcf=vcf, 
             sampleid=sampleid, 
-            sex=sex) 
+            sex=sex, sex.vcf=sex.vcf) 
         )
 ##end<<
 },ex=function(){

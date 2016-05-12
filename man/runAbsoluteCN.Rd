@@ -37,7 +37,7 @@ readCoverageGatk function.}
   \item{log.ratio}{Copy number log-ratios for all exons in the coverage files. 
 If NULL, calculated based on coverage files.}
   \item{seg.file}{Segmented data. Optional, to support matched SNP6 data. 
-If null, use coverage files or log.ratio to segment the data.  }
+If NULL, use coverage files or log.ratio to segment the data.  }
   \item{seg.file.sdev}{If seg.file provided, the log-ratio standard deviation, 
 used to model likelihood of sub-clonal copy number events.}
   \item{vcf.file}{VCF file, tested with MuTect output files.  Optional, but
