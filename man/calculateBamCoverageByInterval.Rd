@@ -1,9 +1,9 @@
-\name{calculateBamCoverageFromInterval}
-\alias{calculateBamCoverageFromInterval}
+\name{calculateBamCoverageByInterval}
+\alias{calculateBamCoverageByInterval}
 \title{Function to calculate coverage from BAM file}
 \description{Takes a BAM file and an interval file as input and 
 returns coverage for each interval.}
-\usage{calculateBamCoverageFromInterval(bam.file, interval.file, 
+\usage{calculateBamCoverageByInterval(bam.file, interval.file, 
     output.file = NULL)}
 \arguments{
   \item{bam.file}{Filename of a BAM file.}
@@ -23,5 +23,5 @@ readCoverageGatk function.}
 \examples{
 gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
     package="PureCN")
-# calculateBamCoverageFromInterval(bam.file, gc.gene.file)   
+# calculateBamCoverageByInterval(bam.file, gc.gene.file)   
 }

@@ -1,4 +1,4 @@
-calculateBamCoverageFromInterval <- structure(
+calculateBamCoverageByInterval <- structure(
 function(# Function to calculate coverage from BAM file
 ### Takes a BAM file and an interval file as input and 
 ### returns coverage for each interval.
@@ -52,5 +52,5 @@ output.file=NULL
 }, ex=function() {
 gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
     package="PureCN")
-# calculateBamCoverageFromInterval(bam.file, gc.gene.file)   
+# calculateBamCoverageByInterval(bam.file, gc.gene.file)   
 })    

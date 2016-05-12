@@ -82,7 +82,7 @@ provided in \software{GATK DepthOfCoverage} format:
 \Biocpkg{PureCN} will only use data from the columns "Target",
 "total\_coverage", and "average\_coverage", all other columns are optional. If
 \software{GATK} is not available, then the
-\Rfunction{calculateBamCoverageFromInterval} function can be used to generate
+\Rfunction{calculateBamCoverageByInterval} function can be used to generate
 the required coverage data from BAM files.  We also refer to the
 \CRANpkg{ExomeCNV} \cite{Sathirapongsasuti2011} package and documentation,
 which provides different scripts for generating coverage files from BAM files. 
