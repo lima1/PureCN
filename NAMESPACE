@@ -36,6 +36,6 @@ importFrom("graphics", "abline", "axis", "boxplot", "contour", "hist",
     "image", "legend", "lines", "par", "plot", "text")
 importFrom("stats", "C", "complete.cases", "dbeta", "dist", "dnorm",
     "dunif", "loess", "pbeta", "prcomp", "predict", "runif", "t.test",
-    "weighted.mean")
+    "weighted.mean", "dbinom", "fisher.test")
 importFrom("utils", "data", "head", "read.csv", "read.delim",
     "read.table", "write.csv", "write.table")
