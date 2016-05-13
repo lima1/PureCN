@@ -57,7 +57,7 @@ output.file=NULL
         colnames(tmp) <- c("Target", "total_coverage", "average_coverage")
         write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE)
     }    
-    tumor
+    invisible(tumor)
 ### GC normalized coverage.
 }, ex=function() {
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 

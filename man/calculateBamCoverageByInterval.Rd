@@ -21,7 +21,11 @@ readCoverageGatk function.}
 
 
 \examples{
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
-    package="PureCN")
-# calculateBamCoverageByInterval(bam.file, gc.gene.file)   
+bam.file <- system.file("extdata", "ex1.bam", package="PureCN", 
+    mustWork = TRUE)
+interval.file <- system.file("extdata", "ex1_intervals.txt", 
+    package="PureCN", mustWork = TRUE)
+
+coverage <- calculateBamCoverageByInterval(bam.file=bam.file, 
+    interval.file=interval.file)
 }
