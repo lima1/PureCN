@@ -163,6 +163,7 @@ post.optimize=FALSE,
 
     if (!is.null(gatk.normal.file)) {    
         if (is.character(gatk.normal.file)) {
+            gatk.normal.file <- normalizePath(gatk.normal.file, mustWork=TRUE)
             normal <- readCoverageGatk(gatk.normal.file)
         } else {
             normal <- gatk.normal.file
@@ -172,6 +173,7 @@ post.optimize=FALSE,
     }
     
     if (is.character(gatk.tumor.file)) {
+        gatk.tumor.file <- normalizePath(gatk.tumor.file, mustWork=TRUE)
         tumor  <- readCoverageGatk(gatk.tumor.file)
         if (is.null(sampleid)) sampleid <- basename(gatk.tumor.file)
     } else {
