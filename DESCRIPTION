@@ -14,11 +14,10 @@ Description: This package estimates tumor purity, copy number, loss of
 Depends: R (>= 3.2), DNAcopy, VariantAnnotation (>= 1.14.1)
 Imports: GenomicRanges (>= 1.20.3), IRanges (>= 2.2.1), RColorBrewer,
         S4Vectors, data.table, grDevices, graphics, stats, utils,
-        SummarizedExperiment, GenomeInfoDb, Rsamtools
+        SummarizedExperiment, GenomeInfoDb, Rsamtools, Biostrings
 Suggests: PSCBS, RUnit, BiocStyle, BiocGenerics, knitr
 VignetteBuilder: knitr
 License: Artistic-2.0
 biocViews: CopyNumberVariation, Software, Sequencing,
         VariantAnnotation, VariantDetection, Coverage
 NeedsCompilation: no
-Packaged: 2016-04-14 21:52:04 UTC; riestma1

@@ -40,3 +40,4 @@ importFrom("stats", "C", "complete.cases", "dbeta", "dist", "dnorm",
     "weighted.mean", "dbinom", "fisher.test")
 importFrom("utils", "data", "head", "read.csv", "read.delim",
     "read.table", "write.csv", "write.table")
+importFrom("Biostrings", "letterFrequency")

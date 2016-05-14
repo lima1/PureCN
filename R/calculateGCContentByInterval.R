@@ -1,5 +1,7 @@
 calculateGCContentByInterval <- structure(
 function(# Calculates GC content by interval
+### Uses scanFa from the Rsamtools package to retrieve GC 
+### content of intervals in a reference FASTA file.
 interval.file,
 ### File specifying the intervals. Interval is expected in 
 ### first column in format CHR:START-END.
@@ -26,6 +28,7 @@ output.file=NULL
             sep="\t")
     }    
     invisible(gc)
+### Returns GC content by interval.
 }, ex=function() {
 reference.file <- system.file("extdata", "ex2_reference.fa", 
     package="PureCN", mustWork = TRUE)
