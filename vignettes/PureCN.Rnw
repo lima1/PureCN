@@ -22,9 +22,10 @@ capture sequencing data}
 \section{Background}
 
 \Biocpkg{PureCN} is a purity and ploidy aware copy number caller for cancer
-samples inspired by the \software{ABSOLUTE} algorithm \cite{Carter2012}.  It
-was designed for hybrid caputure sequencing data, especially with medium-sized
-targeted gene panels without matching normal samples in mind.
+samples inspired by the \software{ABSOLUTE} algorithm \cite{Carter2012}.  It was
+designed for hybrid caputure sequencing data, especially with medium-sized
+targeted gene panels without matching normal samples in mind (matched whole
+exome data is of course supported). 
 
 It can be used to enhance existing segmentation and normalization algorithms.
 If the correct purity and ploidy solution was identified, \Biocpkg{PureCN} can
@@ -54,7 +55,7 @@ purity and ploidy selection, but are of interest for copy number calling.
 Future versions might support full copy number calling on the XY
 chromosomes. 
 
-\Biocpkg{PureCN} currently also assumes a mostly clonal genome. For most
+\Biocpkg{PureCN} currently also assumes a mostly mono-clonal genome. For most
 clinical samples, this is reasonable, but very heterogenous samples are likely
 not possible to call without manual curation. Due to the lack of signal, manual
 curation is also often necessary in low purity samples or very quiet genomes. 
@@ -470,6 +471,55 @@ Segment 1 in this toy example has clearly copy number 2 and LOH, so
 heterozygous mutations are impossible and the posterior probabilities for
 \Rcode{GERMLINE.M1} are set to 0.
 
+\section{Power to detect somatic mutations}
+
+As final quality control step, we can test if coverage and tumor purity are
+sufficent to detect mono-clonal or even sub-clonal somatic mutations. We
+strictly follow the power calculation by Carter et al. \cite{Carter2012}. 
+
+The following Figure~\ref{figure/power1-1} shows the power to detect mono-clonal
+somatic mutations as a function of tumor purity and sequencing coverage
+(reproduced from \cite{Carter2012}):
+
+<<power1, fig.show='hide'>>=
+purity <- c(0.1,0.15,0.2,0.25,0.4,0.6,1)
+coverage <- seq(5,35,1)
+power <- lapply(purity, function(p) sapply(coverage, function(cv) 
+    calculatePowerDetectSomatic(coverage=cv, purity=p, ploidy=2, 
+    verbose=FALSE)$power))
+
+# Figure S7b in Carter et al.
+plot(coverage, power[[1]], col=1, xlab="Sequence coverage", 
+    ylab="Detection power", ylim=c(0,1), type="l")
+
+for (i in 2:length(power)) lines(coverage, power[[i]], col=i)
+abline(h=0.8, lty=2, col="grey")     
+legend("bottomright", legend=paste("Purity", purity),
+    fill=1:length(purity))
+@
+\incfig{figure/power1-1}{0.95\textwidth}{Power to detect mono-clonal somatic
+mutations.}{Reproduced from \cite{Carter2012}.}
+
+Figure~\ref{figure/power2-1} then shows the same plot for sub-clonal mutations present in 20\%
+of all cells: 
+
+<<power2, fig.show='hide'>>=
+coverage <- seq(5,350,1)
+power <- lapply(purity, function(p) sapply(coverage, function(cv) 
+    calculatePowerDetectSomatic(coverage=cv, purity=p, ploidy=2, 
+    cell.fraction=0.2, verbose=FALSE)$power))
+plot(coverage, power[[1]], col=1, xlab="Sequence coverage", 
+    ylab="Detection power", ylim=c(0,1), type="l")
+
+for (i in 2:length(power)) lines(coverage, power[[i]], col=i)
+abline(h=0.8, lty=2, col="grey")     
+legend("bottomright", legend=paste("Purity", purity),
+    fill=1:length(purity))
+@
+\incfig{figure/power2-1}{0.95\textwidth}{Power to detect sub-clonal somatic
+mutations with cellular fraction of 0.2.}{Reproduced from \cite{Carter2012}.}
+
+\clearpage
 \appendix
 
 \bibliography{PureCN}
