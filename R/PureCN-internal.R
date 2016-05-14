@@ -206,13 +206,19 @@ max.exon.ratio) {
     xx
 }
 
-.checkParameters <- function(test.purity, min.ploidy, max.ploidy, max.non.clonal) {
+.checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
+    max.non.clonal) {
     if (min(test.purity) <= 0 || max(test.purity) > 1) 
         stop("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
         stop("min.ploidy or max.ploidy not within expected range.")
     if (max.non.clonal > 1) 
         stop("max.non.clonal not within expected range.")
+
+    stopifnot(is.numeric(min.ploidy))
+    stopifnot(is.numeric(max.ploidy))
+    stopifnot(is.numeric(test.purity))
+    stopifnot(is.numeric(max.non.clonal))
 }
 .failedNonAberrant <- function(result, cutoffs = c(0.005, 0.002)) {
     xx <- split(result$seg, result$seg$C)

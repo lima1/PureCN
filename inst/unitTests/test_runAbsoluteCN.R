@@ -19,4 +19,18 @@ test_runAbsoluteCN <- function() {
     # chromosomes in segmentation ordered numerically, not alphabetically
     chrom <- ret$results[[1]]$seg$chrom
     checkEqualsNumeric(1:22,chrom[!duplicated(chrom)])
+
+    # test a few exceptions
+    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file), silent=TRUE)
+    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, min.ploidy=0),
+        silent=TRUE)
+    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, max.ploidy=0),
+        silent=TRUE)
+    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
+        gatk.normal.file=gatk.normal.file, max.ploidy="a"), silent=FALSE)
+    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
+        gatk.normal.file=gatk.normal.file, max.ploidy="a"), silent=FALSE)
+    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
+        gatk.normal.file=gatk.normal.file, test.purity="a"), silent=FALSE)
+
 }    
