@@ -122,8 +122,9 @@ expected format:
 \end{verbatim}
 
 If \software{GATK} is available, then the \software{GCContentByInterval} tool
-can be used to generate the GC bias column. Otherwise, several
-\software{Bioconductor} annotation packages provide GC content information. 
+can be used to generate the GC bias column. Otherwise, the
+\Rfunction{calculateGCContentByInterval} function provides similar
+functionality. 
 
 <<example_files2>>=
 gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 

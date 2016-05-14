@@ -7,7 +7,7 @@ returns coverage for each interval.}
     output.file = NULL)}
 \arguments{
   \item{bam.file}{Filename of a BAM file.}
-  \item{interval.file}{File specifying the interval. Interval is expected in 
+  \item{interval.file}{File specifying the intervals. Interval is expected in 
 first column in format CHR:START-END. The gc.gene.file can be used.}
   \item{output.file}{Optionally, write minimal coverage file. Can be read with the
 readCoverageGatk function.}

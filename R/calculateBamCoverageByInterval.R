@@ -5,7 +5,7 @@ function(# Function to calculate coverage from BAM file
 bam.file, 
 ### Filename of a BAM file.
 interval.file,
-### File specifying the interval. Interval is expected in 
+### File specifying the intervals. Interval is expected in 
 ### first column in format CHR:START-END. The gc.gene.file can be used.
 output.file=NULL
 ### Optionally, write minimal coverage file. Can be read with the
