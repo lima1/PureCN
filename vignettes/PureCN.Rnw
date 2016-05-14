@@ -151,7 +151,7 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 coverage <- correctCoverageBias(gatk.normal.file, gc.gene.file, "example_normal_loess.txt")
 @
 
-\section{Pool of Normals}
+\section{Pool of normals}
 
 \subsection{Selection of normals for log-ratio calculation}
 
