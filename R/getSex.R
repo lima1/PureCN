@@ -58,10 +58,12 @@ tumor.id.in.vcf=NULL,
 ### The tumor id in the CollapsedVCF (optional).
 min.or=4,
 ### Minimum odds-ratio to call sample as male.
-min.or.na=2,
+min.or.na=2.5,
 ### Minimum odds-ratio to not call a sample.
-max.pv=0.0001,
+max.pv=0.001,
 ### Maximum Fisher's exact p-value to call sample as male.
+homozygous.cutoff=0.95,
+### Minimum allelic fraction to call position homozygous.
 verbose=TRUE
 ### Verbose output.
 ) {
@@ -72,16 +74,20 @@ verbose=TRUE
     vcf <- vcf[!chrY]
 
     chrX <- seqnames(vcf) == "chrX" | seqnames(vcf) == "23"
-    homozygous <- geno(vcf)$FA[,tumor.id.in.vcf] == 1
+    homozygous <- geno(vcf)$FA[,tumor.id.in.vcf] > homozygous.cutoff
     if ( sum(homozygous)/length(homozygous) < 0.001 ) {
         if (verbose) message("No homozygous variants in VCF, provide unfiltered VCF.")
         return(NA)
     }
     res <- fisher.test(homozygous, as.vector(chrX))
+    if (verbose) message(sum( homozygous & as.vector(chrX)), 
+        " homozygous and ", sum( !homozygous & as.vector(chrX)), 
+        " heterozygous variants on chromosome X.")
     sex <- "F"    
-    if (res$p.value <= max.pv && res$estimate >= min.or.na) sex <- NA
+    if (res$estimate >= min.or.na) sex <- NA
+    if (res$estimate >= min.or && res$p.value > max.pv) sex <- NA
     if (res$p.value <= max.pv && res$estimate >= min.or) sex <- "M"
-    if (verbose) message("Sex from VCF: ", sex, " (Fisher's p-value: ", res$p.value, "  odds-ratio: ", res$estimate, ")")    
+    if (verbose) message("Sex from VCF: ", sex, " (Fisher's p-value: ", res$p.value, "  odds-ratio: ", res$estimate, ")")
     return(sex)    
 ### Returns "M" for male, "F" for female, or NA if unknown.    
 }, ex=function() {

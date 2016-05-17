@@ -4,7 +4,8 @@
 \description{This function detects non-random distribution of homozygous
 variants on chromosome X compared to all other chromosomes.}
 \usage{getSexFromVcf(vcf, tumor.id.in.vcf = NULL, min.or = 4, 
-    min.or.na = 2, max.pv = 1e-04, verbose = TRUE)}
+    min.or.na = 2.5, max.pv = 0.001, homozygous.cutoff = 0.95, 
+    verbose = TRUE)}
 \arguments{
   \item{vcf}{CollapsedVCF object, read in with the readVcf function 
 from the VariantAnnotation package.}
@@ -12,6 +13,7 @@ from the VariantAnnotation package.}
   \item{min.or}{Minimum odds-ratio to call sample as male.}
   \item{min.or.na}{Minimum odds-ratio to not call a sample.}
   \item{max.pv}{Maximum Fisher's exact p-value to call sample as male.}
+  \item{homozygous.cutoff}{Minimum allelic fraction to call position homozygous.}
   \item{verbose}{Verbose output.}
 }
 
