@@ -185,12 +185,12 @@ max.exon.ratio) {
         loh = loh, 
         llik.ignored = idx.ignore)
 
-   # if (post.optimize && is.null(prior.M)) {
-   #     ret <- .calcSNVLLik(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
-   #         C.posterior, C, snv.model, prior.somatic, snv.lr, sampleid, 
-   #         cont.rate, prior.M = .calcMpriorGermline(ret), 
-   #         post.optimize = post.optimize)
-   # }
+    if (post.optimize && is.null(prior.M)) {
+        ret <- .calcSNVLLik(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
+            C.posterior, C, snv.model, prior.somatic, snv.lr, sampleid, 
+            cont.rate, prior.M = .calcMpriorGermline(ret), 
+            post.optimize = post.optimize)
+    }
     ret
 }
 
