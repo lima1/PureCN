@@ -55,6 +55,8 @@ verbose=TRUE
 getSexFromVcf <- structure(function(# Get sample sex from VCF file
 ### This function detects non-random distribution of homozygous
 ### variants on chromosome X compared to all other chromosomes.
+### A non-significant Fisher's exact p-value indicates a diploid 
+### chromosome X.
 vcf,
 ### CollapsedVCF object, read in with the readVcf function 
 ### from the VariantAnnotation package.

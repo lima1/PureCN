@@ -2,7 +2,9 @@
 \alias{getSexFromVcf}
 \title{Get sample sex from VCF file}
 \description{This function detects non-random distribution of homozygous
-variants on chromosome X compared to all other chromosomes.}
+variants on chromosome X compared to all other chromosomes.
+A non-significant Fisher's exact p-value indicates a diploid 
+chromosome X.}
 \usage{getSexFromVcf(vcf, tumor.id.in.vcf = NULL, min.or = 4, 
     min.or.na = 2.5, max.pv = 0.001, homozygous.cutoff = 0.95, 
     verbose = TRUE)}
