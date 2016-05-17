@@ -482,6 +482,16 @@ max.exon.ratio) {
     })
     do.call(c, lapply(1:length(lr), function(i) rep(lr[[i]], length(seg.ids.by.chr[[i]]))))
 }
+.removeOutliers <- function(x, na.rm=TRUE,...) {
+    if (length(x) < 5) 
+        return(x)
+    qnt <- quantile(x, probs = c(0.25, 0.75), na.rm = na.rm, ...)
+    H <- 1.5 * IQR(x, na.rm = na.rm)
+    if (H < 0.001) return(x)
+    # find points outside the 'boxplot' range
+    idx <- x <= (qnt[1] - H) | x >= (qnt[2] + H)
+    x[!idx]
+}    
 .smoothOutliers <- function(x, na.rm = TRUE, ...) {
     if (length(x) < 5) 
         return(x)

@@ -6,6 +6,8 @@ gatk.coverage,
 ### GATK coverage file or data read with readCoverageGatk.
 min.ratio=20,
 ### Min chrX/chrY coverage ratio to call sample as female.
+remove.outliers=TRUE,
+### Removes coverage outliers before calculating mean chromosome coverages.
 verbose=TRUE
 ### Verbose output.
 ) {
@@ -17,14 +19,22 @@ verbose=TRUE
 
     sex.chr <- .getSexChr(x)
     xx <- split(x$average.coverage, x$chr)
-    avg.coverage <- sapply(xx, median, na.rm=TRUE)
+    
+    # for small panels the median appears more robust.
+    if (length(xx[[sex.chr[2]]]) < 10) {    
+        avg.coverage <- sapply(xx, median, na.rm=TRUE)
+    } else {
+        if (remove.outliers) xx <- lapply(xx, .removeOutliers)
+        avg.coverage <- sapply(xx, mean, na.rm=TRUE)
+    }    
+
     if (is.na(avg.coverage[sex.chr[1]]) || is.na(avg.coverage[sex.chr[2]]) ) {
         if (verbose) message(
             "Allosome coverage appears to be missing, cannot determine sex.")
         return(NA)
     }    
 
-    autosome.ratio <- median(avg.coverage[-match(sex.chr, names(avg.coverage))], 
+    autosome.ratio <- mean(avg.coverage[-match(sex.chr, names(avg.coverage))], 
         na.rm=TRUE)/(avg.coverage[sex.chr[1]]+0.0001)
     if (autosome.ratio > 5) { 
         if (verbose) message(
@@ -33,8 +43,8 @@ verbose=TRUE
     }
     XY.ratio <- avg.coverage[sex.chr[1]]/ (avg.coverage[sex.chr[2]]+ 0.0001)
     if (verbose) {
-        message("Median coverage chrX: ",  avg.coverage[sex.chr[1]], 
-                ".\nMedian coverage chrY: ", avg.coverage[sex.chr[2]])
+        message("Mean coverage chrX: ",  avg.coverage[sex.chr[1]], 
+                ".\nMean coverage chrY: ", avg.coverage[sex.chr[2]])
     }     
     if (XY.ratio > min.ratio) return("F")
     return("M")    
