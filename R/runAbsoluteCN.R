@@ -313,7 +313,7 @@ post.optimize=FALSE,
         if (verbose) message("Assuming ", tumor.id.in.vcf, 
             " is tumor in VCF file.")
         sex.vcf <- getSexFromVcf(vcf, tumor.id.in.vcf, verbose=verbose)
-        if (!is.na(sex.vcf) && sex.vcf != sex) warning("Sex mismatch of coverage and VCF. ",
+        if (!is.na(sex.vcf) && sex %in% c("F", "M") && sex.vcf != sex) warning("Sex mismatch of coverage and VCF. ",
             "Could be because of noisy data, loss of chrY or a sample swap.")
         
         n.vcf.before.filter <- nrow(vcf)
