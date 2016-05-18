@@ -19,4 +19,11 @@ test_getSexFromCoverage <- function() {
     coverage.sex <- do.call(rbind, list(coverage, chrX, chrY))
     sex <- getSexFromCoverage(coverage.sex)
     checkIdentical(sex, "F")
+
+    chrY <- chr22
+    chrY$chr <- "chrY"
+    chrY$average.coverage <- chrY$average.coverage/10
+    coverage.sex <- do.call(rbind, list(coverage, chrX, chrY))
+    sex <- getSexFromCoverage(coverage.sex)
+    checkTrue(is.na(sex))
 }    

@@ -6,6 +6,12 @@ gatk.coverage,
 ### GATK coverage file or data read with readCoverageGatk.
 min.ratio=20,
 ### Min chrX/chrY coverage ratio to call sample as female.
+min.ratio.na=7,
+### Min chrX/chrY coverage ratio to call sample as NA. This ratio defines a 
+### grey zone from min.ratio.na to min.ratio in which samples are not called.
+### The default is set to a copy number ratio that would be rare in male samples,
+### but lower than expected in female samples. Contamination can be a 
+### source of ambiguous calls.
 remove.outliers=TRUE,
 ### Removes coverage outliers before calculating mean chromosome coverages.
 verbose=TRUE
@@ -47,7 +53,8 @@ verbose=TRUE
                 ".\nMean coverage chrY: ", avg.coverage[sex.chr[2]])
     }     
     if (XY.ratio > min.ratio) return("F")
-    return("M")    
+    if (XY.ratio > min.ratio.na) return(NA)
+    return("M") 
 ### Returns "M" for male, "F" for female, or NA if unknown.    
 }, ex=function(){
     gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
@@ -73,9 +80,13 @@ vcf,
 tumor.id.in.vcf=NULL, 
 ### The tumor id in the CollapsedVCF (optional).
 min.or=4,
-### Minimum odds-ratio to call sample as male.
+### Minimum odds-ratio to call sample as male. If p-value is
+### not significant due to a small number of SNPs on chromosome X,
+### sample will be called as NA.
 min.or.na=2.5,
-### Minimum odds-ratio to not call a sample.
+### Minimum odds-ratio to not call a sample. Odds-ratios in the
+### range min.or.na to min.or define a grey area in which samples
+### are not called. Contamination can be a source of ambiguous calls.
 max.pv=0.001,
 ### Maximum Fisher's exact p-value to call sample as male.
 homozygous.cutoff=0.95,

@@ -12,8 +12,12 @@ chromosome X.}
   \item{vcf}{CollapsedVCF object, read in with the readVcf function 
 from the VariantAnnotation package.}
   \item{tumor.id.in.vcf}{The tumor id in the CollapsedVCF (optional).}
-  \item{min.or}{Minimum odds-ratio to call sample as male.}
-  \item{min.or.na}{Minimum odds-ratio to not call a sample.}
+  \item{min.or}{Minimum odds-ratio to call sample as male. If p-value is
+not significant due to a small number of SNPs on chromosome X,
+sample will be called as NA.}
+  \item{min.or.na}{Minimum odds-ratio to not call a sample. Odds-ratios in the
+range min.or.na to min.or define a grey area in which samples
+are not called. Contamination can be a source of ambiguous calls.}
   \item{max.pv}{Maximum Fisher's exact p-value to call sample as male.}
   \item{homozygous.cutoff}{Minimum allelic fraction to call position homozygous.}
   \item{verbose}{Verbose output.}
