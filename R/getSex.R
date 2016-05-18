@@ -91,6 +91,9 @@ max.pv=0.001,
 ### Maximum Fisher's exact p-value to call sample as male.
 homozygous.cutoff=0.95,
 ### Minimum allelic fraction to call position homozygous.
+af.cutoff=0.03,
+### Remove all SNVs with allelic fraction lower than the
+### specified value.
 verbose=TRUE
 ### Verbose output.
 ) {
@@ -99,6 +102,8 @@ verbose=TRUE
     }
     chrY <- seqnames(vcf) == "chrY" | seqnames(vcf) == "24"
     vcf <- vcf[!chrY]
+    af <- geno(vcf)$FA[,tumor.id.in.vcf] > af.cutoff
+    vcf <- vcf[af]
 
     chrX <- seqnames(vcf) == "chrX" | seqnames(vcf) == "23"
     homozygous <- geno(vcf)$FA[,tumor.id.in.vcf] > homozygous.cutoff

@@ -7,7 +7,7 @@ A non-significant Fisher's exact p-value indicates a diploid
 chromosome X.}
 \usage{getSexFromVcf(vcf, tumor.id.in.vcf = NULL, min.or = 4, 
     min.or.na = 2.5, max.pv = 0.001, homozygous.cutoff = 0.95, 
-    verbose = TRUE)}
+    af.cutoff = 0.03, verbose = TRUE)}
 \arguments{
   \item{vcf}{CollapsedVCF object, read in with the readVcf function 
 from the VariantAnnotation package.}
@@ -20,6 +20,8 @@ range min.or.na to min.or define a grey area in which samples
 are not called. Contamination can be a source of ambiguous calls.}
   \item{max.pv}{Maximum Fisher's exact p-value to call sample as male.}
   \item{homozygous.cutoff}{Minimum allelic fraction to call position homozygous.}
+  \item{af.cutoff}{Remove all SNVs with allelic fraction lower than the
+specified value.}
   \item{verbose}{Verbose output.}
 }
 
