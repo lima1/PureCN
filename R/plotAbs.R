@@ -35,10 +35,12 @@ ploidy=NULL,
 ...
 ### Additonal parameters passed to the plot() function. 
 ) {
+    sd.seg <- ifelse(is.null(res$input$log.ratio.sdev), 0.4, res$input$log.ratio.sdev)
+
     .ar <- function(C) { 
         (purity * C + 2*(1-purity))/( purity*ploidy + 2*(1-purity))  
     }
-    .ardnorm <- function(x,C) dnorm(x, mean=log2(.ar(C)), sd=0.4, log=TRUE)
+    .ardnorm <- function(x,C) dnorm(x, mean=log2(.ar(C)), sd=sd.seg, log=TRUE)
 
     type <- match.arg(type)
     if (type=="hist") {
@@ -82,7 +84,8 @@ ploidy=NULL,
                 labels=names(peak.ideal.means), tick=FALSE, padj=1)
             par(par.mar)
 
-#            sapply(0:7, function(C) curve(.ardnorm(x,C),log2(.ar(C))-0.3, log2(.ar(C))+0.3, xlim=c(-1,1.5), add=C>0))
+#zz<- lapply(0:7, function(C) curve(.ardnorm(x,C),log2(.ar(C))-0.5, log2(.ar(C))+0.5, xlim=c(-1,1.5), add=C>0))
+
         }
     } else if (type=="BAF") {
         if (is.null(res$input$vcf)) stop("runAbsoluteCN was run without a VCF file.")

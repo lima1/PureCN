@@ -12,7 +12,7 @@ others
 ) {
    matching.ids <- lapply(seq_along(reference$results), function(i) {
         ref.obj <- reference$results[[i]]
-        sapply(others, function(ret) which.min(sapply(ret$results, 
+        sapply(others, function(other) which.min(sapply(other$results, 
             function(x) .differenceBySeg(x$seg,ref.obj$seg))))
     })   
     # sum up the likelihoods of the best matches

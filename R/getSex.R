@@ -39,9 +39,10 @@ verbose=TRUE
             "Allosome coverage appears to be missing, cannot determine sex.")
         return(NA)
     }    
-
-    autosome.ratio <- mean(avg.coverage[-match(sex.chr, names(avg.coverage))], 
-        na.rm=TRUE)/(avg.coverage[sex.chr[1]]+0.0001)
+    
+    avg.autosome.coverage <- mean(avg.coverage[-match(sex.chr, 
+        names(avg.coverage))],na.rm=TRUE)
+    autosome.ratio <- avg.autosome.coverage/(avg.coverage[sex.chr[1]]+0.0001)
     if (autosome.ratio > 5) { 
         if (verbose) message(
             "Allosome coverage very low, cannot determine sex.")
@@ -49,8 +50,11 @@ verbose=TRUE
     }
     XY.ratio <- avg.coverage[sex.chr[1]]/ (avg.coverage[sex.chr[2]]+ 0.0001)
     if (verbose) {
-        message("Mean coverage chrX: ",  avg.coverage[sex.chr[1]], 
-                ".\nMean coverage chrY: ", avg.coverage[sex.chr[2]])
+        message("Mean coverages:",
+                " chrX: ",  round(avg.coverage[sex.chr[1]], digits=2), 
+                " chrY: ", round(avg.coverage[sex.chr[2]], digits=2),
+                " chr1-22: ",round(avg.autosome.coverage, digits=2),"."
+        )
     }     
     if (XY.ratio > min.ratio) return("F")
     if (XY.ratio > min.ratio.na) return(NA)

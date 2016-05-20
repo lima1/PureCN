@@ -178,8 +178,8 @@ post.optimize=FALSE,
         if (is.null(sampleid)) sampleid <- basename(gatk.tumor.file)
     } else {
         if (verbose) message(
-            paste("gatk.tumor.file does not appear to be a filename, assuming",
-                "it is valid GATK coverage data."))
+            "gatk.tumor.file does not appear to be a filename, assuming",
+            " it is valid GATK coverage data.")
         tumor <- gatk.tumor.file
         if (is.null(sampleid)) sampleid <- "Sample.1"
     }    
@@ -189,8 +189,8 @@ post.optimize=FALSE,
     # segmentation is provided, in that case we wouldn't use normal anyway)
     if (!is.null(gatk.normal.file) & is.null(log.ratio) & is.null(seg.file)) {
         if (identical(tumor$average.coverage, normal$average.coverage)) { 
-            stop(paste("Tumor and normal are identical. This won't give any", 
-                "meaningful results and I'm stopping here."))
+            stop("Tumor and normal are identical. This won't give any", 
+                " meaningful results and I'm stopping here.")
         }
     }    
 
@@ -304,8 +304,8 @@ post.optimize=FALSE,
         }
         if (sum(colSums(geno(vcf)$DP)>0) == 1 && 
             args.filterVcf$use.somatic.status) { 
-            message(paste("VCF file seems to have only one sample.", 
-                "Using SNVs in single mode."))
+            message("VCF file seems to have only one sample. ", 
+                "Using SNVs in single mode.")
             args.filterVcf$use.somatic.status <- FALSE
         }    
             
@@ -406,20 +406,23 @@ post.optimize=FALSE,
 
     if (sum(li < 0) > 0) stop("Some segments have negative size.")
 
-    if(verbose) message("Mean standard deviation of log-ratios: ", round(sd.seg, digits=2))
+    if(verbose) { 
+        message("Mean standard deviation of log-ratios: ", 
+           round(sd.seg, digits=2))
+    }    
     log.ratio.offset <- rep(0, nrow(seg))
      
     if(verbose) message("Optimizing purity and ploidy. ",
         "Will take a minute or two...")
     
-    # find local maxima. use a coarser grid for purity, otherwise we will get far too many solutions, which we will
-    # need to cluster later anyways.
+    # find local maxima. use a coarser grid for purity, otherwise we will get
+    # far too many solutions, which we will need to cluster later anyways.
     if (!is.null(candidates)){
         candidate.solutions <- candidates    
     } else {
         candidate.solutions <- .optimizeGrid(
             test.purity=seq( max(0.1,min(test.purity)), 
-                min(0.9, max(test.purity)),by=0.05), min.ploidy, max.ploidy, 
+                min(0.9, max(test.purity)),by=0.025), min.ploidy, max.ploidy, 
             test.num.copy=test.num.copy, exon.lrs, seg, sd.seg, li, 
             max.exon.ratio, max.non.clonal, verbose, debug)
 

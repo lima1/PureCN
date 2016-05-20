@@ -487,7 +487,7 @@ max.exon.ratio) {
         return(x)
     qnt <- quantile(x, probs = c(0.25, 0.75), na.rm = na.rm, ...)
     H <- 1.5 * IQR(x, na.rm = na.rm)
-    if (H < 0.001) return(x)
+    if (is.na(H) || H < 0.001) return(x)
     # find points outside the 'boxplot' range
     idx <- x <= (qnt[1] - H) | x >= (qnt[2] + H)
     x[!idx]
