@@ -1,17 +1,20 @@
 getSexFromCoverage <- structure(function(# Get sample sex from coverage
 ### This function determines the sex of a sample by the coverage 
 ### ratio of chrX and chrY. Loss of chromosome Y (LOY) can result in a wrong
-### female call. 
+### female call. For small targeted panels, this will only work 
+### when sufficient sex marker genes such as AMELY are covered on the panel.
+### Parameters might be tuned for the assay.
 gatk.coverage, 
 ### GATK coverage file or data read with readCoverageGatk.
-min.ratio=20,
+min.ratio=25,
 ### Min chrX/chrY coverage ratio to call sample as female.
-min.ratio.na=7,
+min.ratio.na=20,
 ### Min chrX/chrY coverage ratio to call sample as NA. This ratio defines a 
 ### grey zone from min.ratio.na to min.ratio in which samples are not called.
 ### The default is set to a copy number ratio that would be rare in male samples,
 ### but lower than expected in female samples. Contamination can be a 
-### source of ambiguous calls.
+### source of ambiguous calls. Mappability issues on chromosome Y resulting in 
+### low coverage need to be considered when setting cutoffs.
 remove.outliers=TRUE,
 ### Removes coverage outliers before calculating mean chromosome coverages.
 verbose=TRUE
@@ -77,7 +80,9 @@ getSexFromVcf <- structure(function(# Get sample sex from VCF file
 ### This function detects non-random distribution of homozygous
 ### variants on chromosome X compared to all other chromosomes.
 ### A non-significant Fisher's exact p-value indicates a diploid 
-### chromosome X.
+### chromosome X. This function is called in runAbsoluteCN as sanity 
+### check when a VCF is provided. It is also useful for determining
+### sex if no sex marker genes such as AMELY on chrY are available.
 vcf,
 ### CollapsedVCF object, read in with the readVcf function 
 ### from the VariantAnnotation package.

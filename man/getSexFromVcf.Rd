@@ -4,7 +4,9 @@
 \description{This function detects non-random distribution of homozygous
 variants on chromosome X compared to all other chromosomes.
 A non-significant Fisher's exact p-value indicates a diploid 
-chromosome X.}
+chromosome X. This function is called in runAbsoluteCN as sanity 
+check when a VCF is provided. It is also useful for determining
+sex if no sex marker genes such as AMELY on chrY are available.}
 \usage{getSexFromVcf(vcf, tumor.id.in.vcf = NULL, min.or = 4, 
     min.or.na = 2.5, max.pv = 0.001, homozygous.cutoff = 0.95, 
     af.cutoff = 0.03, verbose = TRUE)}

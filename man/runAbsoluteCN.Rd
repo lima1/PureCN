@@ -19,7 +19,7 @@ Provides copy number and LOH data, by both gene and genomic region. }
     args.focal = list(), sampleid = NULL, min.ploidy = 1, 
     max.ploidy = 6, test.num.copy = 0:7, test.purity = seq(0.05, 
         0.95, by = 0.01), prior.purity = rep(1, length(test.purity))/length(test.purity), 
-    max.candidate.solutions = 15, candidates = NULL, 
+    max.candidate.solutions = 20, candidates = NULL, 
     coverage.cutoff = 15, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
     iterations = 30, log.ratio.calibration = 0.25, 
     gc.gene.file = NULL, filter.lowhigh.gc.exons = 0.001, 

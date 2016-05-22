@@ -36,7 +36,9 @@ vcf.file=NULL,
 genome="hg19",
 ### Genome version, required for the readVcf function.
 sex=c("?","F","M"),
-### Sex of sample. If ?, detect.
+### Sex of sample. If ?, detect using getSexFromCoverage function and default
+### parameters. Default parameters might not work well with every assay and 
+### might need to be tuned.
 fun.filterVcf=filterVcfMuTect, 
 ### Function for filtering variants. Expected output is a 
 ### list with elements vcf (CollapsedVCF), flag (TRUE/FALSE) and flag_comment 
@@ -83,7 +85,7 @@ test.purity=seq(0.05,0.95,by=0.01),
 prior.purity=rep(1,length(test.purity))/length(test.purity), 
 ### Priors for purity if they are available. Only change 
 ### when you know what you are doing.
-max.candidate.solutions=15, 
+max.candidate.solutions=20, 
 ### Number of local optima considered in optimization 
 ### and variant fitting steps. If there are too many local optima, it will use
 ### specified number of top candidate solutions, but will also include all 
@@ -422,7 +424,7 @@ post.optimize=FALSE,
     } else {
         candidate.solutions <- .optimizeGrid(
             test.purity=seq( max(0.1,min(test.purity)), 
-                min(0.9, max(test.purity)),by=0.025), min.ploidy, max.ploidy, 
+                min(0.9, max(test.purity)),by=1/30), min.ploidy, max.ploidy, 
             test.num.copy=test.num.copy, exon.lrs, seg, sd.seg, li, 
             max.exon.ratio, max.non.clonal, verbose, debug)
 
@@ -452,8 +454,9 @@ post.optimize=FALSE,
     }    
     
     if(verbose) message("Local optima: ", 
-        paste(candidate.solutions$candidates$purity, 
-            candidate.solutions$candidates$ploidy,sep="/", collapse=", "))
+        paste(round(candidate.solutions$candidates$purity, digits=2),
+            round(candidate.solutions$candidates$ploidy, digits=2),
+            sep="/", collapse=", "))
 
     simulated.annealing <- TRUE
 
@@ -465,8 +468,9 @@ post.optimize=FALSE,
         total.ploidy <- candidate.solutions$candidates$ploidy[cpi]
         p <- candidate.solutions$candidates$purity[cpi]
 
-        if (verbose) message("Testing local optimum at purity ", p, 
-            " and total ploidy ", total.ploidy, ".")
+        if (verbose) message("Testing local optimum at purity ", 
+            round(p, digits=2), " and total ploidy ", 
+            round(total.ploidy, digits=2), ".")
 
         subclonal <- rep(FALSE, nrow(seg))
         old.llik <- -1; cnt.llik.equal <- 0;
@@ -579,10 +583,11 @@ post.optimize=FALSE,
                 }    
                 id <- min(which(z <= cumsum(p.rij)))
                 old.C <- C[i]
+                opt.C <- max((2^(seg$seg.mean[i])*total.ploidy)/ 
+                    p-((2*(1-p))/p),0)
                 if (id > length(test.num.copy)) {
                     # optimal non-integer copy number
-                    C[i] <- max((2^(seg$seg.mean[i])*total.ploidy)/
-                        p-((2*(1-p))/p),0)
+                    C[i] <- opt.C
                     subclonal[i] <- TRUE
                 } else {    
                     C[i] <- test.num.copy[id]

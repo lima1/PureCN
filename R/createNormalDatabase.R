@@ -4,6 +4,9 @@ createNormalDatabase <- structure(function(#Create database of normal samples
 gatk.normal.files,
 ### Vector with file names pointing to GATK coverage files 
 ### of normal samples. 
+sex=NULL,
+### Vector of sex."F" for female, "M" for male. If NULL
+### determine from coverage.
 ...
 ### Arguments passed to the prcomp function.
 ) {
@@ -13,6 +16,25 @@ gatk.normal.files,
         lapply(normals, function(x) x$average.coverage))
     idx <- complete.cases(normals.m)
     normals.pca <- prcomp(t(normals.m[idx,]), ...)
+    sex.determined <- sapply(normals,getSexFromCoverage)
+    if (is.null(sex)) {
+        sex <- sex.determined
+    } else {   
+        if (length(sex) != length(normals)) {
+            stop("Length of gatk.normal.files and sex different")
+        } 
+        idx.sex <- sex %in% c(NA, "F", "M")
+        sex[!idx.sex] <- NA
+        if(sum(!idx.sex)>0) warning("Unexpected values in sex ignored.")   
+        for (i in seq_along(sex.determined)) {
+            if (!is.na(sex.determined[i]) &&
+                sex.determined[i] != sex[i]) {
+                warning("Sex mismatch in ", gatk.normal.files[i], 
+                    ". Sex provided is ", sex, ", but could be ", 
+                    sex.determined[i])
+            }    
+        }    
+    }
     list(
         gatk.normal.files=gatk.normal.files, 
         pca=normals.pca, 
@@ -20,7 +42,7 @@ gatk.normal.files,
         coverage=apply(normals.m, 2, mean, na.rm=TRUE), 
         exon.median.coverage=apply(normals.m,1,median, na.rm=TRUE),
         exon.log2.sd.coverage=apply(log2(normals.m+1),1,sd, na.rm=TRUE),
-        sex=sapply(normals,getSexFromCoverage)
+        sex=sex
     )
 ### A normal database that can be used in the findBestNormal function to 
 ### retrieve good matching normal samples for a given tumor sample.
