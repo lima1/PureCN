@@ -6,7 +6,7 @@ variant calls.}
 \usage{filterVcfBasic(vcf, tumor.id.in.vcf = NULL, use.somatic.status = TRUE, 
     snp.blacklist = NULL, af.range = c(0.03, 0.97), 
     contamination.cutoff = c(0.05, 0.075), coverage.cutoff = 20, 
-    min.supporting.reads = 3, verbose = TRUE)}
+    min.supporting.reads = NULL, error = 0.001, verbose = TRUE)}
 \arguments{
   \item{vcf}{CollapsedVCF object, read in with the readVcf function 
 from the VariantAnnotation package.}
@@ -24,7 +24,11 @@ two values, respectively.}
 first value, if found on most chromosomes, remove all with AF smaller than
 the second value.}
   \item{coverage.cutoff}{Minimum coverage in tumor. Variants with lower coverage are ignored.}
-  \item{min.supporting.reads}{Minimum number of reads supporting the alt allele.}
+  \item{min.supporting.reads}{Minimum number of reads supporting the alt allele. 
+If NULL, calculate based on coverage and assuming sequencing error 
+of 10^-3.}
+  \item{error}{Estimated sequencing error rate. Used to calculate minimum
+number of supporting reads using calculatePowerDetectSomatic.}
   \item{verbose}{
 }
 }

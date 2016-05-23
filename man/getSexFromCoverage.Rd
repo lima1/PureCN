@@ -4,8 +4,8 @@
 \description{This function determines the sex of a sample by the coverage 
 ratio of chrX and chrY. Loss of chromosome Y (LOY) can result in a wrong
 female call. For small targeted panels, this will only work 
-when sufficient sex marker genes such as AMELY are covered on the panel.
-Parameters might be tuned for the assay.}
+when sufficient sex marker genes such as AMELY are covered.
+For optimal results, parameters might need to be tuned for the assay.}
 \usage{getSexFromCoverage(gatk.coverage, min.ratio = 25, min.ratio.na = 20, 
     remove.outliers = TRUE, verbose = TRUE)}
 \arguments{
@@ -13,8 +13,8 @@ Parameters might be tuned for the assay.}
   \item{min.ratio}{Min chrX/chrY coverage ratio to call sample as female.}
   \item{min.ratio.na}{Min chrX/chrY coverage ratio to call sample as NA. This ratio defines a 
 grey zone from min.ratio.na to min.ratio in which samples are not called.
-The default is set to a copy number ratio that would be rare in male samples,
-but lower than expected in female samples. Contamination can be a 
+The default is set to a copy number ratio that would be rare in male 
+samples, but lower than expected in female samples. Contamination can be a 
 source of ambiguous calls. Mappability issues on chromosome Y resulting in 
 low coverage need to be considered when setting cutoffs.}
   \item{remove.outliers}{Removes coverage outliers before calculating mean chromosome coverages.}

@@ -25,8 +25,13 @@ contamination.cutoff=c(0.05,0.075),
 ### the second value.
 coverage.cutoff=20,
 ### Minimum coverage in tumor. Variants with lower coverage are ignored.
-min.supporting.reads=3,
-### Minimum number of reads supporting the alt allele.
+min.supporting.reads=NULL,
+### Minimum number of reads supporting the alt allele. 
+### If NULL, calculate based on coverage and assuming sequencing error 
+### of 10^-3.
+error=0.001,
+### Estimated sequencing error rate. Used to calculate minimum
+### number of supporting reads using calculatePowerDetectSomatic.
 verbose=TRUE
 ) {
     flag <- NA
@@ -42,6 +47,12 @@ verbose=TRUE
             "non heterozygous (in matched normal) germline SNPs."))
     } else {
         info(vcf)$SOMATIC <- NULL
+    }    
+
+    if (is.null(min.supporting.reads)) {
+        min.supporting.reads <- calculatePowerDetectSomatic(
+            mean(geno(vcf)$DP[,tumor.id.in.vcf], na.rm=TRUE),
+            purity=1,ploidy=2, error=error, verbose=FALSE)$k
     }    
 
     n <- nrow(vcf)

@@ -47,7 +47,9 @@ flag for dbSNP membership. The default fun.setPriorVcf function will also
 look for a Cosmic.CNT slot, containing the hits in the COSMIC database.
 Again, do not expect very useful results without a VCF file.}
   \item{genome}{Genome version, required for the readVcf function.}
-  \item{sex}{Sex of sample. If ?, detect.}
+  \item{sex}{Sex of sample. If ?, detect using getSexFromCoverage function and default
+parameters. Default parameters might not work well with every assay and 
+might need to be tuned.}
   \item{fun.filterVcf}{Function for filtering variants. Expected output is a 
 list with elements vcf (CollapsedVCF), flag (TRUE/FALSE) and flag_comment 
 (string). The flags will be added to the output data and can be used to 

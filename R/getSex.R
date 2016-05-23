@@ -2,8 +2,8 @@ getSexFromCoverage <- structure(function(# Get sample sex from coverage
 ### This function determines the sex of a sample by the coverage 
 ### ratio of chrX and chrY. Loss of chromosome Y (LOY) can result in a wrong
 ### female call. For small targeted panels, this will only work 
-### when sufficient sex marker genes such as AMELY are covered on the panel.
-### Parameters might be tuned for the assay.
+### when sufficient sex marker genes such as AMELY are covered.
+### For optimal results, parameters might need to be tuned for the assay.
 gatk.coverage, 
 ### GATK coverage file or data read with readCoverageGatk.
 min.ratio=25,
@@ -11,8 +11,8 @@ min.ratio=25,
 min.ratio.na=20,
 ### Min chrX/chrY coverage ratio to call sample as NA. This ratio defines a 
 ### grey zone from min.ratio.na to min.ratio in which samples are not called.
-### The default is set to a copy number ratio that would be rare in male samples,
-### but lower than expected in female samples. Contamination can be a 
+### The default is set to a copy number ratio that would be rare in male 
+### samples, but lower than expected in female samples. Contamination can be a 
 ### source of ambiguous calls. Mappability issues on chromosome Y resulting in 
 ### low coverage need to be considered when setting cutoffs.
 remove.outliers=TRUE,
@@ -76,13 +76,13 @@ verbose=TRUE
     return(as.character(23:24))    
 }
 
-getSexFromVcf <- structure(function(# Get sample sex from VCF file
+getSexFromVcf <- structure(function(# Get sample sex from a VCF file
 ### This function detects non-random distribution of homozygous
 ### variants on chromosome X compared to all other chromosomes.
-### A non-significant Fisher's exact p-value indicates a diploid 
-### chromosome X. This function is called in runAbsoluteCN as sanity 
-### check when a VCF is provided. It is also useful for determining
-### sex if no sex marker genes such as AMELY on chrY are available.
+### A non-significant Fisher's exact p-value indicates more than one
+### chromosome X copy. This function is called in runAbsoluteCN as 
+### sanity check when a VCF is provided. It is also useful for determining
+### sex when no sex marker genes on chrY (e.g. AMELY) are available.
 vcf,
 ### CollapsedVCF object, read in with the readVcf function 
 ### from the VariantAnnotation package.
@@ -91,7 +91,7 @@ tumor.id.in.vcf=NULL,
 min.or=4,
 ### Minimum odds-ratio to call sample as male. If p-value is
 ### not significant due to a small number of SNPs on chromosome X,
-### sample will be called as NA.
+### sample will be called as NA even when odds-ratio exceeds this cutoff.
 min.or.na=2.5,
 ### Minimum odds-ratio to not call a sample. Odds-ratios in the
 ### range min.or.na to min.or define a grey area in which samples
@@ -102,7 +102,7 @@ homozygous.cutoff=0.95,
 ### Minimum allelic fraction to call position homozygous.
 af.cutoff=0.03,
 ### Remove all SNVs with allelic fraction lower than the
-### specified value.
+### specified value. 
 verbose=TRUE
 ### Verbose output.
 ) {
