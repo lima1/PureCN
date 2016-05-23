@@ -34,7 +34,7 @@ import(IRanges)
 importFrom("S4Vectors", "queryHits", "subjectHits")
 importFrom("grDevices", "colorRampPalette", "dev.off", "png")
 importFrom("graphics", "abline", "axis", "boxplot", "contour", "hist",
-    "image", "legend", "lines", "par", "plot", "text")
+    "image", "legend", "lines", "par", "plot", "text", "smoothScatter")
 importFrom("stats", "C", "complete.cases", "dbeta", "dist", "dnorm",
     "dunif", "loess", "pbeta", "prcomp", "predict", "runif", "t.test",
     "weighted.mean", "dbinom", "fisher.test")

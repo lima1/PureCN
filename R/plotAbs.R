@@ -32,6 +32,9 @@ purity=NULL,
 ploidy=NULL,
 ### Display expected integer copy numbers for ploidy, defaults 
 ### to ploidy of the solution (type=hist only).
+alpha=TRUE,
+### Add transparency to the plot if VCF contains many variants 
+### (>1000, type=AF only). 
 ...
 ### Additonal parameters passed to the plot() function. 
 ) {
@@ -193,15 +196,31 @@ ploidy=NULL,
             mypch <- mycol.palette$pch[
                 match(as.character(r$Prior.Somatic), mycol.palette$priors)]
 
+            main.color <- sort(table(mycol), decreasing=TRUE)[1]
+
             par(mfrow=c(2,2))
             main <- paste(
                 "Purity:", round(res$results[[i]]$purity[[1]], digits=2), 
                 " Tumor Ploidy:", round( res$results[[i]]$ploidy, digits=3)
             )
-            plot(r$ML.AR[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC],  
-                col=mycol[!r$ML.SOMATIC], pch=mypch[!r$ML.SOMATIC], 
-                xlab="Expected allelic fraction", 
-                ylab="Allelic fraction (germline)", main=main,...)
+            if (!alpha || main.color < 1000) {
+                plot(r$ML.AR[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC],  
+                    col=mycol[!r$ML.SOMATIC], pch=mypch[!r$ML.SOMATIC], 
+                    xlab="Expected allelic fraction", 
+                    ylab="Allelic fraction (germline)", main=main,...)
+            } else {
+                smoothScatter(
+                    r$ML.AR[!r$ML.SOMATIC & mycol==names(main.color)], 
+                    r$AR[!r$ML.SOMATIC & !r$ML.SOMATIC & mycol==names(main.color)], 
+                    colramp=colorRampPalette(c("white", names(main.color))),
+                    xlab="Expected allelic fraction", 
+                    ylab="Allelic fraction (germline)", main=main, 
+                    transformation = function(x) x,...)
+                points(r$ML.AR[!r$ML.SOMATIC & mycol != names(main.color)], 
+                        r$AR[!r$ML.SOMATIC &  mycol != names(main.color)], 
+                        col=mycol[!r$ML.SOMATIC &  mycol != names(main.color)], 
+                        pch=mypch[!r$ML.SOMATIC &  mycol != names(main.color)])
+            }    
             abline(a=0, b=1, lty=3, col="grey")
 
             seg <- res$results[[i]]$seg
@@ -223,18 +242,29 @@ ploidy=NULL,
             idx.labels <- !duplicated(scatter.labels) & 
                 as.character(r$ML.C[!r$ML.SOMATIC]) %in% 
                 names(peak.ideal.means)
-
-            plot(r$Log.Ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
-                col=mycol[!r$ML.SOMATIC], pch=mypch[!r$ML.SOMATIC], 
-                xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)")
-
+            if (!alpha || main.color < 1000) {
+                plot(r$Log.Ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
+                    col=mycol[!r$ML.SOMATIC], pch=mypch[!r$ML.SOMATIC], 
+                    xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)")
+            } else {
+                smoothScatter(
+                    r$Log.Ratio[!r$ML.SOMATIC & mycol==names(main.color)], 
+                    r$AR[!r$ML.SOMATIC & !r$ML.SOMATIC & mycol==names(main.color)], 
+                    colramp=colorRampPalette(c("white", names(main.color))),
+                    xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
+                    transformation = function(x) x
+                    )
+                points(r$Log.Ratio[!r$ML.SOMATIC & mycol != names(main.color)], 
+                        r$AR[!r$ML.SOMATIC &  mycol != names(main.color)], 
+                        col=mycol[!r$ML.SOMATIC &  mycol != names(main.color)], 
+                        pch=mypch[!r$ML.SOMATIC &  mycol != names(main.color)])
+            }    
             text(
                 x=peak.ideal.means[
                     as.character(r$ML.C[!r$ML.SOMATIC])][idx.labels], 
                 y=r$ML.AR[!r$ML.SOMATIC][idx.labels], 
                 labels=scatter.labels[idx.labels]
             )
-            
 
             if (sum(r$ML.SOMATIC)>0) {
                 plot(r$ML.AR[r$ML.SOMATIC], r$AR[r$ML.SOMATIC], 
