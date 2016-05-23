@@ -32,7 +32,7 @@ purity=NULL,
 ploidy=NULL,
 ### Display expected integer copy numbers for ploidy, defaults 
 ### to ploidy of the solution (type=hist only).
-alpha=TRUE,
+alpha=FALSE,
 ### Add transparency to the plot if VCF contains many variants 
 ### (>1000, type=AF only). 
 ...
@@ -215,7 +215,8 @@ alpha=TRUE,
                     colramp=colorRampPalette(c("white", names(main.color))),
                     xlab="Expected allelic fraction", 
                     ylab="Allelic fraction (germline)", main=main, 
-                    transformation = function(x) x,...)
+                    nrpoints=0,  
+                    ...)
                 points(r$ML.AR[!r$ML.SOMATIC & mycol != names(main.color)], 
                         r$AR[!r$ML.SOMATIC &  mycol != names(main.color)], 
                         col=mycol[!r$ML.SOMATIC &  mycol != names(main.color)], 
@@ -236,6 +237,9 @@ alpha=TRUE,
                 custom.solution <- FALSE
             }    
 
+            mylogratio.xlim <- quantile(subset(r$Log.Ratio,
+                    !is.infinite(r$Log.Ratio)), p=c(0.001, 1-0.001),na.rm=TRUE)
+
             peak.ideal.means <- log2(sapply(sapply(seg.split[idx], 
                             function(x) x$C[1]), function(j) .ar(j)))
             scatter.labels <- paste(r$ML.C,"m", r$ML.M, sep="")[!r$ML.SOMATIC]
@@ -245,14 +249,17 @@ alpha=TRUE,
             if (!alpha || main.color < 1000) {
                 plot(r$Log.Ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
                     col=mycol[!r$ML.SOMATIC], pch=mypch[!r$ML.SOMATIC], 
-                    xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)")
+                    xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
+                    xlim=mylogratio.xlim
+                    )
             } else {
                 smoothScatter(
                     r$Log.Ratio[!r$ML.SOMATIC & mycol==names(main.color)], 
                     r$AR[!r$ML.SOMATIC & !r$ML.SOMATIC & mycol==names(main.color)], 
                     colramp=colorRampPalette(c("white", names(main.color))),
                     xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
-                    transformation = function(x) x
+                    nrpoints=0,  
+                    xlim=mylogratio.xlim
                     )
                 points(r$Log.Ratio[!r$ML.SOMATIC & mycol != names(main.color)], 
                         r$AR[!r$ML.SOMATIC &  mycol != names(main.color)], 
@@ -286,7 +293,9 @@ alpha=TRUE,
                 plot(r$Log.Ratio[r$ML.SOMATIC], r$AR[r$ML.SOMATIC], 
                     col=mycol[r$ML.SOMATIC], pch=mypch[r$ML.SOMATIC], 
                     xlab="Copy Number log-ratio", 
-                    ylab="Allelic fraction (somatic)")
+                    ylab="Allelic fraction (somatic)",
+                    xlim=mylogratio.xlim
+                    )
 
                 text(x=peak.ideal.means[
                     as.character(r$ML.C[r$ML.SOMATIC])][idx.labels], 
