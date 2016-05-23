@@ -404,7 +404,7 @@ max.exon.ratio) {
         candidates <- rbind(candidates, c(2, as.numeric(names(which.max(mm.05["2", ]))), 
             max(mm.05["2", ]), 2))
         # remove the worse one if too similar 
-        if (nrow(candidates > 2) && 
+        if (nrow(candidates) > 2 && 
             abs(Reduce("-",tail(candidates$ploidy,2))) < 0.001 && 
             abs(Reduce("-",tail(candidates$purity,2))) < 0.1) {
             candidates <- candidates[- (nrow(candidates) - 2 + 
