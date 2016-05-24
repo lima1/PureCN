@@ -2,7 +2,7 @@ Package: PureCN
 Type: Package
 Title: Estimating tumor purity, ploidy, LOH, and SNV status using
         hybrid capture sequencing data
-Version: 1.1.10
+Version: 1.1.11
 Date: 2016-05-16
 Author: Markus Riester
 Maintainer: Markus Riester <markus.riester@novartis.com>

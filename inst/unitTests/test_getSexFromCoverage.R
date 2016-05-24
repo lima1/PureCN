@@ -22,7 +22,7 @@ test_getSexFromCoverage <- function() {
 
     chrY <- chr22
     chrY$chr <- "chrY"
-    chrY$average.coverage <- chrY$average.coverage/10
+    chrY$average.coverage <- chrY$average.coverage/21
     coverage.sex <- do.call(rbind, list(coverage, chrX, chrY))
     sex <- getSexFromCoverage(coverage.sex)
     checkTrue(is.na(sex))

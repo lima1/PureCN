@@ -32,9 +32,9 @@ importFrom("SummarizedExperiment", "rowRanges")
 importFrom("Rsamtools", "ScanBamParam", "scanBamFlag", "scanBam", "scanFa")
 import(IRanges)
 importFrom("S4Vectors", "queryHits", "subjectHits")
-importFrom("grDevices", "colorRampPalette", "dev.off", "png")
+importFrom("grDevices", "colorRampPalette", "dev.off", "png", "adjustcolor")
 importFrom("graphics", "abline", "axis", "boxplot", "contour", "hist",
-    "image", "legend", "lines", "par", "plot", "text", "smoothScatter")
+    "image", "legend", "lines", "par", "plot", "text")
 importFrom("stats", "C", "complete.cases", "dbeta", "dist", "dnorm",
     "dunif", "loess", "pbeta", "prcomp", "predict", "runif", "t.test",
     "weighted.mean", "dbinom", "fisher.test")
