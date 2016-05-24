@@ -6,7 +6,7 @@ purity and ploidy combinations in the results of a runAbsoluteCN call.}
 \usage{plotAbs(res, ids = NULL, type = c("hist", "overview", 
     "BAF", "AF", "LOH", "all"), chr = NULL, germline.only = TRUE, 
     show.contour = FALSE, purity = NULL, ploidy = NULL, 
-    alpha = FALSE, ...)}
+    alpha = TRUE, ...)}
 \arguments{
   \item{res}{Return object of the runAbsoluteCN() function.}
   \item{ids}{Candidate solutions to be plotted. ids=1 will draw the 
@@ -31,7 +31,7 @@ to purity of the solution (type=hist only).}
   \item{ploidy}{Display expected integer copy numbers for ploidy, defaults 
 to ploidy of the solution (type=hist only).}
   \item{alpha}{Add transparency to the plot if VCF contains many variants 
-(>1000, type=AF only). }
+(>2000, type=AF and BAF only). }
   \item{\dots}{Additonal parameters passed to the plot() function. }
 }
 

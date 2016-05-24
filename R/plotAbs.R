@@ -32,9 +32,9 @@ purity=NULL,
 ploidy=NULL,
 ### Display expected integer copy numbers for ploidy, defaults 
 ### to ploidy of the solution (type=hist only).
-alpha=FALSE,
+alpha=TRUE,
 ### Add transparency to the plot if VCF contains many variants 
-### (>1000, type=AF only). 
+### (>2000, type=AF and BAF only). 
 ...
 ### Additonal parameters passed to the plot() function. 
 ) {
@@ -121,6 +121,7 @@ alpha=FALSE,
                 "#E41A1C", "#377EB8")
             mypch <- ifelse(r$GERMLINE.CONTHIGH > 0.5, 2, 
                 ifelse(r$GERMLINE.CONTLOW>0.5, 3, 1))[idx]
+            myalpha <- ifelse(alpha && nrow(r) > 2000, 2000/nrow(r), 1)
 
             tmp <- cbind(levels(r[,1]), match(levels(r[,1]), r[idx, 1]))
             tmp <- tmp[complete.cases(tmp),,drop=FALSE]
@@ -147,7 +148,7 @@ alpha=FALSE,
                     ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), ... )
             } else {
                 plot(r$AR[idx],ylab="B-Allele Frequency", xlab="SNV Index",
-                    main=main, col=mycol, pch=mypch, ...)
+                    main=main, col=adjustcolor(mycol, alpha=myalpha), pch=mypch, ...)
                 axis(side=3, at=tmp[,2], labels=tmp[,1], tick=FALSE, padj=1)
                 abline(h=0.5, lty=3, col="grey")
                 abline(v=tmp[,2], lty=3, col="grey")
@@ -160,8 +161,8 @@ alpha=FALSE,
                 myylim[2] <- ceiling(myylim[2])
 
                 plot(r$Log.Ratio[idx], ylab="Copy Number log-ratio", 
-                    xlab="SNV Index", col=mycol, main=main, pch=mypch, 
-                    ylim=myylim, ... )
+                    xlab="SNV Index", col=adjustcolor(mycol, alpha=myalpha),
+                    main=main, pch=mypch, ylim=myylim, ... )
                 lines(segment.log.ratio.lines, col="grey", lwd=3)
 
                 abline(h=0, lty=3, col="grey")
@@ -203,25 +204,13 @@ alpha=FALSE,
                 "Purity:", round(res$results[[i]]$purity[[1]], digits=2), 
                 " Tumor Ploidy:", round( res$results[[i]]$ploidy, digits=3)
             )
-            if (!alpha || main.color < 1000) {
-                plot(r$ML.AR[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC],  
-                    col=mycol[!r$ML.SOMATIC], pch=mypch[!r$ML.SOMATIC], 
-                    xlab="Expected allelic fraction", 
-                    ylab="Allelic fraction (germline)", main=main,...)
-            } else {
-                smoothScatter(
-                    r$ML.AR[!r$ML.SOMATIC & mycol==names(main.color)], 
-                    r$AR[!r$ML.SOMATIC & !r$ML.SOMATIC & mycol==names(main.color)], 
-                    colramp=colorRampPalette(c("white", names(main.color))),
-                    xlab="Expected allelic fraction", 
-                    ylab="Allelic fraction (germline)", main=main, 
-                    nrpoints=0,  
-                    ...)
-                points(r$ML.AR[!r$ML.SOMATIC & mycol != names(main.color)], 
-                        r$AR[!r$ML.SOMATIC &  mycol != names(main.color)], 
-                        col=mycol[!r$ML.SOMATIC &  mycol != names(main.color)], 
-                        pch=mypch[!r$ML.SOMATIC &  mycol != names(main.color)])
-            }    
+            
+            myalpha <- ifelse(alpha && nrow(r) > 2000, 2000/nrow(r), 1)
+
+            plot(r$ML.AR[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC],  
+                col=adjustcolor(mycol[!r$ML.SOMATIC],alpha=myalpha), pch=mypch[!r$ML.SOMATIC], 
+                xlab="Expected allelic fraction", 
+                ylab="Allelic fraction (germline)", main=main,...)
             abline(a=0, b=1, lty=3, col="grey")
 
             seg <- res$results[[i]]$seg
@@ -246,26 +235,11 @@ alpha=FALSE,
             idx.labels <- !duplicated(scatter.labels) & 
                 as.character(r$ML.C[!r$ML.SOMATIC]) %in% 
                 names(peak.ideal.means)
-            if (!alpha || main.color < 1000) {
-                plot(r$Log.Ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
-                    col=mycol[!r$ML.SOMATIC], pch=mypch[!r$ML.SOMATIC], 
-                    xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
-                    xlim=mylogratio.xlim
-                    )
-            } else {
-                smoothScatter(
-                    r$Log.Ratio[!r$ML.SOMATIC & mycol==names(main.color)], 
-                    r$AR[!r$ML.SOMATIC & !r$ML.SOMATIC & mycol==names(main.color)], 
-                    colramp=colorRampPalette(c("white", names(main.color))),
-                    xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
-                    nrpoints=0,  
-                    xlim=mylogratio.xlim
-                    )
-                points(r$Log.Ratio[!r$ML.SOMATIC & mycol != names(main.color)], 
-                        r$AR[!r$ML.SOMATIC &  mycol != names(main.color)], 
-                        col=mycol[!r$ML.SOMATIC &  mycol != names(main.color)], 
-                        pch=mypch[!r$ML.SOMATIC &  mycol != names(main.color)])
-            }    
+            plot(r$Log.Ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
+                col=adjustcolor(mycol[!r$ML.SOMATIC], alpha=myalpha), pch=mypch[!r$ML.SOMATIC], 
+                xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
+                xlim=mylogratio.xlim
+                )
             text(
                 x=peak.ideal.means[
                     as.character(r$ML.C[!r$ML.SOMATIC])][idx.labels], 
