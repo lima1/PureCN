@@ -13,6 +13,9 @@ num.normals=1,
 ignore.sex=FALSE,
 ### If FALSE, detects sex of sample and returns best normals
 ### with matching sex.
+sex=NULL,
+### Sex of sample. If NULL, determine with getSexFromCoverage
+### and default parameters.
 verbose=TRUE
 ### Verbose output.
 ) {
@@ -31,7 +34,9 @@ verbose=TRUE
 
     if (!ignore.sex && !is.null(normalDB$sex) && 
         sum(!is.na(normalDB$sex))>0) {
-        sex <- getSexFromCoverage(tumor, verbose=FALSE)
+        if (is.null(sex)) {
+            sex <- getSexFromCoverage(tumor, verbose=FALSE)
+        }
         if (verbose) message("Sex of sample: ", sex)
         if (!is.na(sex)) {
             idx.normals <- which(normalDB$sex == sex)

@@ -4,7 +4,8 @@
 \description{Function to find the best matching normal for a provided 
 tumor sample.}
 \usage{findBestNormal(gatk.tumor.file, normalDB, pcs = 1:3, 
-    num.normals = 1, ignore.sex = FALSE, verbose = TRUE)}
+    num.normals = 1, ignore.sex = FALSE, sex = NULL, 
+    verbose = TRUE)}
 \arguments{
   \item{gatk.tumor.file}{GATK coverage file of a tumor sample.}
   \item{normalDB}{Database of normal samples, created with 
@@ -13,6 +14,8 @@ createNormalDatabase().}
   \item{num.normals}{Return the num.normals best normals.}
   \item{ignore.sex}{If FALSE, detects sex of sample and returns best normals
 with matching sex.}
+  \item{sex}{Sex of sample. If NULL, determine with getSexFromCoverage
+and default parameters.}
   \item{verbose}{Verbose output.}
 }
 

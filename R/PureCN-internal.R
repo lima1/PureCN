@@ -392,15 +392,28 @@ max.exon.ratio) {
     candidates$tumor.ploidy <- (candidates$ploidy - 2 * (1 - candidates$purity))/candidates$purity
     
     # add diploid candidate solutions in case there are none.
-    middle <- which.min(abs(as.numeric(colnames(mm)) - 0.5))
+    t1 <- which.min(abs(as.numeric(colnames(mm)) - 1/3))
+    t2 <- which.min(abs(as.numeric(colnames(mm)) - 2/3))
 
-    if (min(abs(2 - candidates$tumor.ploidy[candidates$purity<0.5])) > 0.3) {
-        mm.05 <- mm[,1:middle]
+    if (min(abs(2 - candidates$tumor.ploidy[candidates$purity<1/3])) > 0.3) {
+        mm.05 <- mm[,1:t1]
         candidates <- rbind(candidates, c(2, as.numeric(names(which.max(mm.05["2", ]))), 
             max(mm.05["2", ]), 2))
     }
-    if (min(abs(2 - candidates$tumor.ploidy[candidates$purity>0.5])) > 0.3) {
-        mm.05 <- mm[,(middle+1):ncol(mm)]
+    if (min(abs(2 - candidates$tumor.ploidy[candidates$purity>1/3 & candidates$purity< 2/3 ])) > 0.3) {
+        mm.05 <- mm[,(t1+1):t2]
+        candidates <- rbind(candidates, c(2, as.numeric(names(which.max(mm.05["2", ]))), 
+            max(mm.05["2", ]), 2))
+        # remove the worse one if too similar 
+        if (nrow(candidates) > 2 && 
+            abs(Reduce("-",tail(candidates$ploidy,2))) < 0.001 && 
+            abs(Reduce("-",tail(candidates$purity,2))) < 0.1) {
+            candidates <- candidates[- (nrow(candidates) - 2 + 
+                which.min(tail(candidates$llik,2))),]
+        }    
+    }
+    if (min(abs(2 - candidates$tumor.ploidy[candidates$purity>2/3 ])) > 0.3) {
+        mm.05 <- mm[,(t2+1):ncol(mm)]
         candidates <- rbind(candidates, c(2, as.numeric(names(which.max(mm.05["2", ]))), 
             max(mm.05["2", ]), 2))
         # remove the worse one if too similar 
