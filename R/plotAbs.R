@@ -148,7 +148,7 @@ alpha=TRUE,
                     ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), ... )
             } else {
                 plot(r$AR[idx],ylab="B-Allele Frequency", xlab="SNV Index",
-                    main=main, col=adjustcolor(mycol, alpha=myalpha), pch=mypch, ...)
+                    main=main, col=adjustcolor(mycol, alpha.f=myalpha), pch=mypch, ...)
                 axis(side=3, at=tmp[,2], labels=tmp[,1], tick=FALSE, padj=1)
                 abline(h=0.5, lty=3, col="grey")
                 abline(v=tmp[,2], lty=3, col="grey")
@@ -161,7 +161,7 @@ alpha=TRUE,
                 myylim[2] <- ceiling(myylim[2])
 
                 plot(r$Log.Ratio[idx], ylab="Copy Number log-ratio", 
-                    xlab="SNV Index", col=adjustcolor(mycol, alpha=myalpha),
+                    xlab="SNV Index", col=adjustcolor(mycol, alpha.f=myalpha),
                     main=main, pch=mypch, ylim=myylim, ... )
                 lines(segment.log.ratio.lines, col="grey", lwd=3)
 
@@ -208,7 +208,8 @@ alpha=TRUE,
             myalpha <- ifelse(alpha && nrow(r) > 2000, 2000/nrow(r), 1)
 
             plot(r$ML.AR[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC],  
-                col=adjustcolor(mycol[!r$ML.SOMATIC],alpha=myalpha), pch=mypch[!r$ML.SOMATIC], 
+                col=adjustcolor(mycol[!r$ML.SOMATIC],alpha.f=myalpha), 
+                pch=mypch[!r$ML.SOMATIC], 
                 xlab="Expected allelic fraction", 
                 ylab="Allelic fraction (germline)", main=main,...)
             abline(a=0, b=1, lty=3, col="grey")
@@ -236,7 +237,7 @@ alpha=TRUE,
                 as.character(r$ML.C[!r$ML.SOMATIC]) %in% 
                 names(peak.ideal.means)
             plot(r$Log.Ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
-                col=adjustcolor(mycol[!r$ML.SOMATIC], alpha=myalpha), pch=mypch[!r$ML.SOMATIC], 
+                col=adjustcolor(mycol[!r$ML.SOMATIC], alpha.f=myalpha), pch=mypch[!r$ML.SOMATIC], 
                 xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
                 xlim=mylogratio.xlim
                 )
