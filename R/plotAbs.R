@@ -340,8 +340,8 @@ alpha=TRUE,
             "black")
         myfont <-  ifelse(sapply(res$results, function(x) x$flag), 3, 1)
         main <- NULL
-    #    opar <- par(no.readonly=TRUE)
-    #    par(mar= c(5, 4, 4, 4) + 0.1)
+        parm <- par("mar")
+        par(mar= c(5, 4, 4, 4) + 0.1)
         #if ("darkgrey" %in% myfont) main="Italics: SCNA-fitting flagged."
         xc <- .matrixTotalPloidyToTumorPloidy(res$candidates$all)
         xc[is.infinite(xc)] <- min(xc[!is.infinite(xc)])
@@ -352,6 +352,7 @@ alpha=TRUE,
         image(as.numeric(colnames(xc)), as.numeric(rownames(xc)), 
             t(xc)-max(xc), col=mycol.image, xlab = "Purity", 
             ylab = "Ploidy",main = main,...)
+        .legend.col(col=mycol.image, lev=min(xc):max(xc), ylim=quantile(as.numeric(rownames(xc)), p=c(0,1)))
 
         if (show.contour) contour(as.numeric(colnames(xc)), 
             as.numeric(rownames(xc)), t(xc), add=TRUE)
@@ -359,7 +360,7 @@ alpha=TRUE,
         text( sapply(res$results, function(x) min(0.9, x$purity))-0.02,
             sapply(res$results, function(x) x$ploidy)-0.1, 
             1:length(res$results), col=mycol, cex=2,font=myfont)
-    #    par( opar ) 
+        par(mar=parm)
     }
 ### Returns NULL
 },ex=function() {
@@ -399,4 +400,31 @@ ss) {
     colnames(cc) <- colnames(ca)
     rownames(cc) <- rownames(ca)
     cc
+}
+
+.legend.col <- function(col, lev, ylim){
+n <- length(col)
+ 
+bx <- par("usr")
+ 
+box.cx <- c(bx[2] + (bx[2] - bx[1]) / 1000,
+bx[2] + (bx[2] - bx[1]) / 1000 + (bx[2] - bx[1]) / 50)
+box.cy <- c(bx[3], bx[3])
+box.sy <- (bx[4] - bx[3]) / n
+ 
+xx <- rep(box.cx, each = 2)
+
+pxpd = par("xpd")
+par(xpd = TRUE)
+for(i in 1:n){
+ 
+yy <- c(box.cy[1] + (box.sy * (i - 1)),
+box.cy[1] + (box.sy * (i)),
+box.cy[1] + (box.sy * (i)),
+box.cy[1] + (box.sy * (i - 1)))
+polygon(xx, yy, col = col[i], border = col[i])
+}
+axis(side=4, at=c(ylim[1], (ylim[2]+ylim[1])/2, ylim[2]), tick=FALSE, labels=round(c(min(lev), median(lev), max(lev))))
+mtext("Copy number Log-Likelihood",side=4,line=2)
+par(xpd = pxpd)
 }
