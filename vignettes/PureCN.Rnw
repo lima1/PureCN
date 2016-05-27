@@ -85,8 +85,8 @@ format:
 \Biocpkg{PureCN} will only use data from the columns "Target",
 "total\_coverage", and "average\_coverage", all other columns are optional. 
 
-It is recommended to GC-normalize coverage. GC-content is provided via the
-gc.gene.file argument. The expected format:
+It is recommended to GC-normalize coverage. GC-content is expected in
+\software{GATK GCContentByInterval} format:
 
 \begin{verbatim}
     Target    gc_bias    Gene
@@ -95,9 +95,8 @@ gc.gene.file argument. The expected format:
     chr1:621096-622035    0.459574468085106    OR4F3
 \end{verbatim}
 
-If \software{GATK} is available, then the \software{GCContentByInterval} tool
-can be used to generate the \Rcode{gc\_bias} column. The \Rcode{Gene} column is
-optional and only required for providing gene-level copy number and LOH calls. 
+The \Rcode{Gene} column is optional and only required for providing gene-level
+copy number and LOH calls. 
 
 \subsection{Generating coverage data without \software{GATK}}
 
