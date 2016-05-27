@@ -76,7 +76,12 @@ alpha=TRUE,
             }    
 
             main <- paste("Purity:", round(purity, digits=2), 
-                          "Tumor Ploidy:", round( ploidy, digits=3))
+                          " Tumor ploidy:", round( ploidy, digits=3))
+
+            if (!is.null(res$results[[i]]$bootstrap.value)) {
+                main <- paste(main, " Bootstrap value:", 
+                    round(res$results[[i]]$bootstrap.value, digits=2))
+            }    
 
             h <- hist(do.call(c, lapply(1:nrow(seg), function(i)
                     rep(seg$seg.mean[i], seg$num.mark[i]))),breaks=100, 
@@ -108,10 +113,10 @@ alpha=TRUE,
             par(mar=c(c(5, 4, 5, 2) + 0.1))
             main <- paste(
                 "Purity:", round(res$results[[i]]$purity[[1]], digits=2), 
-                " Tumor Ploidy:", round( res$results[[i]]$ploidy, digits=3), 
-                " SNV Log-Likelihood:", 
+                " Tumor ploidy:", round( res$results[[i]]$ploidy, digits=3), 
+                " SNV log-likelihood:", 
                     round(res$results[[i]]$SNV.posterior$beta$llik, digits=2),
-                " Mean Coverage:", 
+                " Mean coverage:", 
                     paste(round(apply(geno(res$input$vcf)$DP,2,mean)),
                     collapse=";") )
 
@@ -216,7 +221,7 @@ alpha=TRUE,
             par(mfrow=c(2,2))
             main <- paste(
                 "Purity:", round(res$results[[i]]$purity[[1]], digits=2), 
-                " Tumor Ploidy:", round( res$results[[i]]$ploidy, digits=3)
+                " Tumor ploidy:", round( res$results[[i]]$ploidy, digits=3)
             )
             
             myalpha <- ifelse(alpha && nrow(r) > 2000, 2000/nrow(r), 1)
@@ -304,10 +309,10 @@ alpha=TRUE,
             par(mfrow=c(3,1))
             main <- paste(
                 "Purity:", round(res$results[[i]]$purity[[1]], digits=2), 
-                " Tumor Ploidy:", round(res$results[[i]]$ploidy, digits=3),
-                " SNV Log-Likelihood:", 
+                " Tumor ploidy:", round(res$results[[i]]$ploidy, digits=3),
+                " SNV log-likelihood:", 
                     round(res$results[[i]]$SNV.posterior$beta$llik, digits=2),
-                " Mean Coverage:", 
+                " Mean coverage:", 
                     paste(round(apply(geno(res$input$vcf)$DP,2,mean)),
                     collapse=";") 
             )

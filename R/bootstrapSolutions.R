@@ -1,10 +1,14 @@
 .bootstrapSolutions <- function(results, n=500, top=2) {
     .bootstrapSolution <- function(result) {
-        lliks <- log(rowMax(result$SNV.posterior$beta.model$likelihoods[!result$SNV.posterior$beta.model$llik.ignored,]))
+        lliks <- log(apply(result$SNV.posterior$beta.model$likelihoods[!result$SNV.posterior$beta.model$llik.ignored,],1,max))
         lliks <- sum(sample(lliks, replace=TRUE))
         result$log.likelihood + sum(lliks) - sum(result$SNV.posterior$beta.model$llik.ignored)
     }
     best <- lapply(1:n, function(i) head(order(sapply(results, .bootstrapSolution), decreasing=TRUE), 2))
+    bootstrap.value <- sapply(seq_along(results), function(i) sum(sapply(best, function(x) x[1]==i)))/length(best)
+    for (i in seq_along(results)) {
+        results[[i]]$bootstrap.value <- bootstrap.value[i]
+    }    
     best <- unlist(best)
     results[as.numeric(names(sort(table(best),decreasing=TRUE)))]
 }
@@ -27,6 +31,10 @@ top=2
     r <- .bootstrapSolutions(ret$results, n=n, top=top)
     ret$results <- r
     ret
+### Returns the runAbsoluteCN object with low likelihood solutions
+### removed. Also adds a bootstrap value to each solution. This value is
+### the fraction of bootstrap replicates in which the solution ranked
+### first.                
 }, ex=function() {
 data(purecn.example.output)
 ret.boot <- bootstrapSolutions(purecn.example.output)

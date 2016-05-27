@@ -14,7 +14,10 @@ solutions rank low.}
 any bootstrap replicate.}
 }
 
-
+\value{Returns the runAbsoluteCN object with low likelihood solutions
+removed. Also adds a bootstrap value to each solution. This value is
+the fraction of bootstrap replicates in which the solution ranked
+first.                }
 
 \author{Markus Riester}
 
