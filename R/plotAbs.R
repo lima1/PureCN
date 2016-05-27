@@ -44,6 +44,14 @@ alpha=TRUE,
         (purity * C + 2*(1-purity))/( purity*ploidy + 2*(1-purity))  
     }
     .ardnorm <- function(x,C) dnorm(x, mean=log2(.ar(C)), sd=sd.seg, log=TRUE)
+    .idealPeaks <- function(seg) {
+        seg.split <- split(seg, seg$C)
+        idx <- sapply(seg.split, nrow) > 2 | 
+            ( sapply(seg.split, function(x) x$C[1]) <= 7 &  
+              sapply(seg.split, function(x) x$C[1]) %in% 0:7 )
+        peak.ideal.means <- log2(sapply(sapply(seg.split[idx], 
+            function(x) x$C[1]), function(j) .ar(j)))
+    }
 
     type <- match.arg(type)
     if (type=="hist") {
@@ -52,10 +60,6 @@ alpha=TRUE,
             par.mar <- par("mar")
             par(mar=c(c(5, 4, 5, 2) + 0.1))
             seg <- res$results[[i]]$seg
-            seg.split <- split(seg, seg$C)
-            idx <- sapply(seg.split, nrow) > 2 | 
-                ( sapply(seg.split, function(x) x$C[1]) <= 7 &  
-                  sapply(seg.split, function(x) x$C[1]) %in% 0:7 )
 
             custom.solution <- TRUE
             if (is.null(purity)) { 
@@ -65,9 +69,7 @@ alpha=TRUE,
                 ploidy <- res$results[[i]]$ploidy
                 custom.solution <- FALSE
             }    
-
-            peak.ideal.means <- log2(sapply(sapply(seg.split[idx], 
-                function(x) x$C[1]), function(j) .ar(j)))
+            peak.ideal.means <- .idealPeaks(seg)
             if (custom.solution) {
                 peak.ideal.means <- log2(sapply(0:7, function(j) .ar(j)))
                 names(peak.ideal.means) <- 0:7
@@ -96,6 +98,12 @@ alpha=TRUE,
         for (i in ids) {
             r <- res$results[[i]]$SNV.posterior$beta.model$posterior
             if (is.null(r)) next
+            seg <- res$results[[i]]$seg
+
+            purity <- res$results[[i]]$purity
+            ploidy <- res$results[[i]]$ploidy
+            peak.ideal.means <- .idealPeaks(seg)
+
             par(mfrow=c(3,1))
             par(mar=c(c(5, 4, 5, 2) + 0.1))
             main <- paste(
@@ -143,6 +151,9 @@ alpha=TRUE,
                 segment.log.ratio.lines[,1] <- x[segment.log.ratio.lines[,1]]
                 lines(segment.log.ratio.lines, col="grey", lwd=3)
                 abline(h=0, lty=3, col="grey")
+                abline(h=peak.ideal.means, lty=2, col="grey")
+                axis(side=4,at=peak.ideal.means, 
+                    labels=names(peak.ideal.means))
                 plot(x, r$ML.C[idx], ylab="Maximum Likelihood Copy Number", 
                     xlab="Pos (kbp)", 
                     ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), ... )
@@ -167,6 +178,9 @@ alpha=TRUE,
 
                 abline(h=0, lty=3, col="grey")
                 abline(v=tmp[,2], lty=3, col="grey")
+                abline(h=peak.ideal.means, lty=2, col="grey")
+                axis(side=4,at=peak.ideal.means, 
+                    labels=names(peak.ideal.means))
 
                 plot(r$ML.C[idx], ylab="Maximum Likelihood Copy Number", 
                     xlab="SNV Index", 
@@ -215,10 +229,6 @@ alpha=TRUE,
             abline(a=0, b=1, lty=3, col="grey")
 
             seg <- res$results[[i]]$seg
-            seg.split <- split(seg, seg$C)
-            idx <- sapply(seg.split, nrow) > 2 | 
-                ( sapply(seg.split, function(x) x$C[1]) <= 7 &  
-                  sapply(seg.split, function(x) x$C[1]) %in% 0:7 )
             if (is.null(purity)) { 
                 purity <- res$results[[i]]$purity
             }    
@@ -230,8 +240,7 @@ alpha=TRUE,
             mylogratio.xlim <- quantile(subset(r$Log.Ratio,
                     !is.infinite(r$Log.Ratio)), p=c(0.001, 1-0.001),na.rm=TRUE)
 
-            peak.ideal.means <- log2(sapply(sapply(seg.split[idx], 
-                            function(x) x$C[1]), function(j) .ar(j)))
+            peak.ideal.means <- .idealPeaks(seg)
             scatter.labels <- paste(r$ML.C,"m", r$ML.M, sep="")[!r$ML.SOMATIC]
             idx.labels <- !duplicated(scatter.labels) & 
                 as.character(r$ML.C[!r$ML.SOMATIC]) %in% 

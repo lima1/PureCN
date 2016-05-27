@@ -99,8 +99,8 @@ verbose=TRUE
     idx <- info(vcf)$DB & unlist(geno(vcf)$FA[,tumor.id.in.vcf]) < 
         contamination.cutoff[1]
 
-    # do we have many low allelic fraction calls that are in dbSNP on basically all chromosomes? 
-    # then we found some contamination
+    # do we have many low allelic fraction calls that are in dbSNP on basically
+    # all chromosomes? then we found some contamination
     if (sum(runLength(seqnames(rowRanges(vcf[idx])))>1) >= 20) {
         idx <- info(vcf)$DB & unlist(geno(vcf)$FA[,tumor.id.in.vcf]) < 
             contamination.cutoff[2]
@@ -213,7 +213,7 @@ setPriorVcf <- structure(function(# Set Somatic Prior VCF
 vcf,
 ### CollapsedVCF object, read in with the readVcf function 
 ### from the VariantAnnotation package.
-prior.somatic=c(0.5, 0.0005, 0.999, 0.0001, 0.95, 0.01), 
+prior.somatic=c(0.5, 0.0005, 0.999, 0.0001, 0.995, 0.01), 
 ### Prior probabilities for somatic mutations. First value is for 
 ### the case when no matched normals are available and the variant is not in 
 ### dbSNP (second value). Third value is for variants with MuTect somatic call.
@@ -222,7 +222,7 @@ prior.somatic=c(0.5, 0.0005, 0.999, 0.0001, 0.95, 0.01),
 ### likelihood score. Forth value is for variants not labeled as somatic by 
 ### MuTect. Last two values are optional, if vcf contains a flag Cosmic.CNT, 
 ### it will set the prior probability for variants with CNT > 2 to the first 
-### of those values in case of no matched normal available (0.95 default). 
+### of those values in case of no matched normal available (0.995 default). 
 ### Final value is for the case that variant is in both dbSNP and COSMIC > 2. 
 verbose=TRUE
 ### Verbose output.
