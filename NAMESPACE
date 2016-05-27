@@ -1,5 +1,6 @@
 export(runAbsoluteCN)
 export(filterVcfBasic)
+export(bootstrapSolutions)
 export(filterVcfMuTect)
 export(setPriorVcf)
 export(segmentationCBS)

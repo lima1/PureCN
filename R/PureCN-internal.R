@@ -611,4 +611,4 @@ max.exon.ratio) {
     sds <- sapply(seq_along(end), function(i) sd(dlr[start[i]:end[i]], na.rm=TRUE))
     ids <- which(sds > quantile(sds, na.rm=TRUE, p=1-0.001))
 }
-     
+
