@@ -445,7 +445,7 @@ number of heterozygous losses and single copy gains; a large fraction of the
 genome would be by definition normal diploid.  The \Rfunction{getDiploid}
 function is internally used to find diploid solutions.  Since there should not
 be any diploid solutions in true high ploidy samples, these diploid solutions
-are then moved to the top of the ranking. If multiple diploid solutions exists,
+are then moved to the top of the ranking. If multiple diploid solutions exist,
 additional heuristics try to guess the correct one (for example the diploid
 purity should not be too different from the maximum likelihood purity).
 

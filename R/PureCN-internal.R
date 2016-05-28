@@ -220,7 +220,7 @@ max.exon.ratio) {
     stopifnot(is.numeric(test.purity))
     stopifnot(is.numeric(max.non.clonal))
 }
-.failedNonAberrant <- function(result, cutoffs = c(0.005, 0.002)) {
+.failedNonAberrant <- function(result, cutoffs = c(0.01, 0.005)) {
     xx <- split(result$seg, result$seg$C)
     if (length(xx) < 3) 
         return(TRUE)

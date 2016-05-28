@@ -8,7 +8,7 @@ getDiploid <- structure(function(# Function to extract diploid solutions.
 ### algorithm to correctly identify purity and ploidy.
 res, 
 ### Return object of the runAbsoluteCN() function.
-min.diploid=0.65, 
+min.diploid=0.5, 
 ### Minimum fraction of genome with normal copy number 2.
 max.non.single.gain.loss=0.10
 ### Maximum fraction of genome with copy number smaller 1 or more than 3.
