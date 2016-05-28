@@ -3,7 +3,7 @@
     - added getSexFromVcf
     - added calculateBamCoverageByInterval
     - added calculateGCContentByInterval
-    - added bootstrapSolutions
+    - added bootstrapResults
 
 1.0
     - added correctCoverageBias

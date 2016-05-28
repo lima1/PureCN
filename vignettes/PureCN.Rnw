@@ -333,7 +333,7 @@ plotAbs(ret, type="overview")
 
 The number of considered local optima is typically high. Optima with low
 likelihood score can be automatically removed with the
-\Rfunction{bootstrapSolutions} function
+\Rfunction{bootstrapResults} function
 (Figure~\ref{figure/figureexample1b-1}).  This function bootstraps variants in
 the provided VCF and re-ranks local optima. Solutions that never rank high are
 then excluded. Large-scale copy number artifacts can decrease the likelihood
@@ -341,7 +341,7 @@ scores of correct solutions, potentially resulting in a removal of
 purity/ploidy estimates closest to the true values.
 
 <<figureexample1b, fig.show='hide'>>=
-ret <- bootstrapSolutions(ret)
+ret <- bootstrapResults(ret)
 plotAbs(ret, type="overview")
 @
 \incfig{figure/figureexample1b-1}{0.75\textwidth}{Overview.}
