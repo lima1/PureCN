@@ -4,6 +4,8 @@
     - added calculateBamCoverageByInterval
     - added calculateGCContentByInterval
     - added bootstrapResults
+    - added getDiploid
+    - added autoCurateResults
 
 1.0
     - added correctCoverageBias

@@ -1,1 +1,11 @@
-Initial release.
+Focus on PureCN 1.2 was to dramatically improve user-friendliness. GATK
+requirement was dropped, and PureCN now comes with functionality to generate
+necessary coverage data when GATK is not available.
+
+Automatic curation of results was added.
+
+Output plots were polished.
+
+Functions to calculate power to detect mono-clonal and sub-clonal somatic
+mutations (Carter et al., Nature Biotech, 2012) were added.
+
