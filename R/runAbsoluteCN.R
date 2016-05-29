@@ -456,10 +456,10 @@ post.optimize=FALSE,
             "Trying optimizing the top candidates.")
     }    
     
-    if(verbose) message("Local optima: ", 
+    if(verbose) message(paste(strwrap(paste("Local optima:", 
         paste(round(candidate.solutions$candidates$purity, digits=2),
             round(candidate.solutions$candidates$ploidy, digits=2),
-            sep="/", collapse=", "))
+            sep="/", collapse=", "))),collapse="\n"))
 
     simulated.annealing <- TRUE
 

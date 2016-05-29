@@ -274,20 +274,21 @@ max.exon.ratio) {
         result$flag <- TRUE
         result$flag_comment <- .appendComment(result$flag_comment, "RARE KARYOTYPE")
     }
-    if (!is.null(result$SNV.posterior)) {
-        tmp <- result$SNV.posterior$beta.model$loh$output
-        if (!is.null(tmp)) {
-            tmp <- tmp[complete.cases(tmp), ]
-            fraction.loh <- sum(tmp[which(tmp$seg.mean > 0.2), "num.mark"])/sum(tmp$num.mark)
-            # Assume that everything below 2.6 did not undergo genome duplication, which can
-            # result in lots of LOH
-            if (result$ploidy < 2.6 && fraction.loh > 0.5) {
-                result$flag <- TRUE
-                result$flag_comment <- .appendComment(result$flag_comment, "EXCESSIVE LOH")
-            }
-        }
+    fraction.loh <- .getFractionLoh(result)
+    # Assume that everything below 2.6 did not undergo genome duplication, which can
+    # result in lots of LOH
+    if (result$ploidy < 2.6 && fraction.loh > 0.5) {
+        result$flag <- TRUE
+        result$flag_comment <- .appendComment(result$flag_comment, "EXCESSIVE LOH")
     }
     return(result)
+}
+
+.getFractionLoh <- function(result, min.seg.mean=0.3) {
+    tmp <- result$SNV.posterior$beta.model$loh$output
+    if (is.null(tmp)) return(0)
+    tmp <- tmp[complete.cases(tmp), ]
+    sum(tmp[which(tmp$seg.mean >= min.seg.mean), "num.mark"])/sum(tmp$num.mark)
 }
 
 .flagResults <- function(results, max.non.clonal = 0.2, max.logr.sdev, logr.sdev, max.segments,
@@ -391,38 +392,31 @@ max.exon.ratio) {
         2]]), llik = mm[ai])
     candidates$tumor.ploidy <- (candidates$ploidy - 2 * (1 - candidates$purity))/candidates$purity
     
-    # add diploid candidate solutions in case there are none.
-    t1 <- which.min(abs(as.numeric(colnames(mm)) - 1/3))
-    t2 <- which.min(abs(as.numeric(colnames(mm)) - 2/3))
+    # add diploid candidate solutions in the following purity grid in 
+    # case there are none.
+    grid <- seq(0,1,by=1/4)
+    for (i in seq_along(grid)[-length(grid)]) {
+   
+        t1 <- which.min(abs(as.numeric(colnames(mm)) - grid[i]))
+        t2 <- which.min(abs(as.numeric(colnames(mm)) - grid[i+1]))
 
-    if (min(abs(2 - candidates$tumor.ploidy[candidates$purity<1/3])) > 0.3) {
-        mm.05 <- mm[,1:t1]
-        candidates <- rbind(candidates, c(2, as.numeric(names(which.max(mm.05["2", ]))), 
-            max(mm.05["2", ]), 2))
-    }
-    if (min(abs(2 - candidates$tumor.ploidy[candidates$purity>1/3 & candidates$purity< 2/3 ])) > 0.3) {
-        mm.05 <- mm[,(t1+1):t2]
-        candidates <- rbind(candidates, c(2, as.numeric(names(which.max(mm.05["2", ]))), 
-            max(mm.05["2", ]), 2))
-        # remove the worse one if too similar 
-        if (nrow(candidates) > 2 && 
-            abs(Reduce("-",tail(candidates$ploidy,2))) < 0.001 && 
-            abs(Reduce("-",tail(candidates$purity,2))) < 0.1) {
-            candidates <- candidates[- (nrow(candidates) - 2 + 
-                which.min(tail(candidates$llik,2))),]
-        }    
-    }
-    if (min(abs(2 - candidates$tumor.ploidy[candidates$purity>2/3 ])) > 0.3) {
-        mm.05 <- mm[,(t2+1):ncol(mm)]
-        candidates <- rbind(candidates, c(2, as.numeric(names(which.max(mm.05["2", ]))), 
-            max(mm.05["2", ]), 2))
-        # remove the worse one if too similar 
-        if (nrow(candidates) > 2 && 
-            abs(Reduce("-",tail(candidates$ploidy,2))) < 0.001 && 
-            abs(Reduce("-",tail(candidates$purity,2))) < 0.1) {
-            candidates <- candidates[- (nrow(candidates) - 2 + 
-                which.min(tail(candidates$llik,2))),]
-        }    
+        # Nothing close to diplod in this range? Then add.
+        if (min(abs(2 - candidates$tumor.ploidy[candidates$purity>grid[i] & 
+            candidates$purity< grid[i+1] ])) > 0.3) {
+
+            mm.05 <- mm[,(t1+1):t2]
+            candidates <- rbind(candidates, 
+                c(2, as.numeric(names(which.max(mm.05["2", ]))), 
+                max(mm.05["2", ]), 2))
+
+            # Remove again if too similar with existing candidate
+            if (nrow(candidates) > 2 && 
+                abs(Reduce("-",tail(candidates$ploidy,2))) < 0.001 && 
+                abs(Reduce("-",tail(candidates$purity,2))) < 0.1) {
+                candidates <- candidates[- (nrow(candidates) - 2 + 
+                    which.min(tail(candidates$llik,2))),]
+            }    
+        }
     }
     
     candidates <- candidates[candidates$tumor.ploidy >= 0.5, ]

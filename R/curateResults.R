@@ -10,15 +10,22 @@ res,
 ### Return object of the runAbsoluteCN() function.
 min.diploid=0.5, 
 ### Minimum fraction of genome with normal copy number 2.
-max.non.single.gain.loss=0.10
+max.non.single.gain.loss=0.10,
 ### Maximum fraction of genome with copy number smaller 1 or more than 3.
+max.loh=0.5
+### Maximum fraction of genome in LOH. 
 ) {
     cs <- sapply(0:7, function(i) sapply(res$results, function(x) 
                 sum(x$seg$size[x$seg$C == i])/sum(x$seg$size)))
+    
+    fraction.loh <- sapply(res$results, .getFractionLoh)
 
     fraction.non.single <- apply(cs[, -(2:4)],1,sum)
 
-    idx <- cs[,3] >= min.diploid & fraction.non.single < max.non.single.gain.loss
+    idx <- cs[,3] >= min.diploid & 
+        fraction.non.single < max.non.single.gain.loss & 
+        fraction.loh <= max.loh
+
     ##value<< A list with elements
     list(
         ids=which(idx), ##<< The ids of diploid solutions (res$results[ids]).
