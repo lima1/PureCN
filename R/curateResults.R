@@ -5,11 +5,16 @@ getDiploid <- structure(function(# Function to extract diploid solutions.
 ### identified diploid solutions is likely correct if there are any. This 
 ### function can be used for automated curation workflows; very silent genomes
 ### have by definition only a small number of CNVs, making it difficult for the
-### algorithm to correctly identify purity and ploidy.
+### algorithm to correctly identify purity and ploidy. If the maximum
+### likelihood solution is diploid, it is always returned; all other solutions
+### must pass the more stringent criteria as defined in the function arguments.
 res, 
 ### Return object of the runAbsoluteCN() function.
 min.diploid=0.5, 
 ### Minimum fraction of genome with normal copy number 2.
+min.single.gain.loss=0.05,
+### Minimum fraction of genome with copy number 1 or 3. This makes sure that 
+### low purity samples are not confused with quiet samples.
 max.non.single.gain.loss=0.10,
 ### Maximum fraction of genome with copy number smaller 1 or more than 3.
 max.loh=0.5
@@ -18,13 +23,17 @@ max.loh=0.5
     cs <- sapply(0:7, function(i) sapply(res$results, function(x) 
                 sum(x$seg$size[x$seg$C == i])/sum(x$seg$size)))
     
+    ploidy <- sapply(res$results, function(x) x$ploidy)
+
     fraction.loh <- sapply(res$results, .getFractionLoh)
-
+    fraction.single <- apply(cs[,  c(2,4)],1,sum)
     fraction.non.single <- apply(cs[, -(2:4)],1,sum)
-
-    idx <- cs[,3] >= min.diploid & 
+    
+    idx <- ( cs[,3] >= min.diploid & 
+        fraction.single >= min.single.gain.loss &
         fraction.non.single < max.non.single.gain.loss & 
-        fraction.loh <= max.loh
+        fraction.loh <= max.loh ) |
+        ( ploidy > 1.5 && ploidy < 2.5 & seq_along(ploidy)==1 )
 
     ##value<< A list with elements
     list(
