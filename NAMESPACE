@@ -37,10 +37,10 @@ import(IRanges)
 importFrom("S4Vectors", "queryHits", "subjectHits")
 importFrom("grDevices", "colorRampPalette", "dev.off", "png", "adjustcolor")
 importFrom("graphics", "abline", "axis", "boxplot", "contour", "hist",
-    "image", "legend", "lines", "par", "plot", "text")
+    "image", "legend", "lines", "par", "plot", "text", "mtext", "polygon")
 importFrom("stats", "C", "complete.cases", "dbeta", "dist", "dnorm",
     "dunif", "loess", "pbeta", "prcomp", "predict", "runif", "t.test",
     "weighted.mean", "dbinom", "fisher.test")
 importFrom("utils", "data", "head", "read.csv", "read.delim",
-    "read.table", "write.csv", "write.table")
+    "read.table", "write.csv", "write.table", "tail")
 importFrom("Biostrings", "letterFrequency")
