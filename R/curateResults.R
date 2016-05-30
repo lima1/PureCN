@@ -83,12 +83,16 @@ verbose=TRUE
     ids <- diploid$ids
     # Similar bootstrap value? Then re-order by ploidy closest to diploid
     if (bootstrap && length(diploid$ids)>1) {
-        # re-order now, and undo if this looks wrong
+        # re-order now
         ids <- diploid$ids[order(diploid$fraction.non.single[diploid$ids])]
-        if (res$results[[ids[2]]]$bootstrap.value - 
-            res$results[[ids[1]]]$bootstrap.value > 0.1 ||
-            abs(res$results[[ids[1]]]$purity - 
-                res$results[[1]]$purity) > 0.2) {
+        
+    # undo re-ordering if bootstrap value of now second solution is 
+    # very low, or purity is very different from non-diploid ML solution.
+        if ( min(ids) > 1 &&
+            (( res$results[[ids[1]]]$bootstrap.value < 0.01 &&
+              res$results[[ids[2]]]$bootstrap.value > 0.5 ) ||
+              abs(res$results[[ids[1]]]$purity - 
+                res$results[[1]]$purity) > 0.2 )) {
             ids <- diploid$ids
         }    
     }           
@@ -97,4 +101,7 @@ verbose=TRUE
     }
     res    
 }, ex=function() {
+data(purecn.example.output)
+# no diploid solutions in the example
+example.output.curated <- autoCurateResults(purecn.example.output)
 })        

@@ -1,0 +1,34 @@
+\name{bootstrapResults}
+\alias{bootstrapResults}
+\title{Filter unlikely purity/ploidy solutions}
+\description{This function bootstraps SNVs, then re-ranks solutions 
+by using the bootstrap estimate of the likelihood score, and then keeps 
+only solutions that were ranked highest in any bootstrap replicate.
+Large-scale copy number artifacts can cause true purity/ploidy 
+solutions rank low.}
+\usage{bootstrapResults(ret, n = 500, top = 2, keep = c())}
+\arguments{
+  \item{ret}{Return object of the runAbsoluteCN() function.}
+  \item{n}{Number of bootstrap replicates.}
+  \item{top}{Include solution if it appears in the top n solutions of
+any bootstrap replicate.}
+  \item{keep}{Ids of solutions that should not be removed, even if bootstrap
+value is low, for example diploid solutions. So this will not remove 
+the ret$results[keep] solutions.}
+}
+
+\value{Returns the runAbsoluteCN object with low likelihood solutions
+removed. Also adds a bootstrap value to each solution. This value is
+the fraction of bootstrap replicates in which the solution ranked
+first.                }
+
+\author{Markus Riester}
+
+
+
+
+\examples{
+data(purecn.example.output)
+ret.boot <- bootstrapResults(purecn.example.output)
+plotAbs(ret.boot, type="overview")
+}

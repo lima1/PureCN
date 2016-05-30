@@ -21,4 +21,8 @@ bootstrapResults function.}
 
 
 
-
+\examples{
+data(purecn.example.output)
+# no diploid solutions in the example
+example.output.curated <- autoCurateResults(purecn.example.output)
+}
