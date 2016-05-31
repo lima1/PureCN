@@ -16,7 +16,7 @@ sex=NULL,
         lapply(normals, function(x) x$average.coverage))
     idx <- complete.cases(normals.m)
     normals.pca <- prcomp(t(normals.m[idx,]), ...)
-    sex.determined <- sapply(normals,getSexFromCoverage)
+    sex.determined <- sapply(normals,getSexFromCoverage, verbose=is.null(sex))
     if (is.null(sex)) {
         sex <- sex.determined
     } else {   

@@ -41,7 +41,7 @@ gatk.tumor.file <- system.file("extdata", "example_tumor.txt",
 gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 plotBestNormal(gatk.best.normal.file, gatk.tumor.file, normalDB)
 
-# display sample sex
+# Display sample sex. The first point in the plot is always tumor.
 plotBestNormal(gatk.best.normal.file, gatk.tumor.file, normalDB,  
-    pch=ifelse(normalDB$sex=="F", 1, 2))
+    pch=c(1,ifelse(normalDB$sex=="F", 1, 2)))
 }
