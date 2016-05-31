@@ -16,6 +16,9 @@ ignore.sex=FALSE,
 sex=NULL,
 ### Sex of sample. If NULL, determine with getSexFromCoverage
 ### and default parameters.
+gatk.normal.files=NULL,
+### Only consider these normal samples. If NULL, use all in 
+### the database. Must match normalDB$gatk.normal.files. 
 verbose=TRUE
 ### Verbose output.
 ) {
@@ -47,6 +50,11 @@ verbose=TRUE
             idx.normals <- seq_along(normalDB$gatk.normal.files)
         }
     }
+
+    if (!is.null(gatk.normal.files)) {
+        idx.normals <- idx.normals[normalDB$gatk.normal.files[idx.normals] %in%
+            gatk.normal.files]
+    }    
 
     best.match <- order(sapply(idx.normals, function(i) 
         dist( rbind(predict(normalDB$pca, x)[1,idx.pcs], 
@@ -122,4 +130,9 @@ gatk.tumor.file <- system.file("extdata", "example_tumor.txt",
     package="PureCN")
 gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 plotBestNormal(gatk.best.normal.file, gatk.tumor.file, normalDB)
+
+# Display sample sex. The first point in the plot is always tumor.
+plotBestNormal(gatk.best.normal.file, gatk.tumor.file, normalDB,  
+    pch=c(1,ifelse(normalDB$sex=="F", 1, 2)))
 })
+

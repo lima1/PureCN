@@ -40,4 +40,8 @@ gatk.tumor.file <- system.file("extdata", "example_tumor.txt",
     package="PureCN")
 gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 plotBestNormal(gatk.best.normal.file, gatk.tumor.file, normalDB)
+
+# display sample sex
+plotBestNormal(gatk.best.normal.file, gatk.tumor.file, normalDB,  
+    pch=ifelse(normalDB$sex=="F", 1, 2))
 }

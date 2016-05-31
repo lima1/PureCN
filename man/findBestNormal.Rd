@@ -5,7 +5,7 @@
 tumor sample.}
 \usage{findBestNormal(gatk.tumor.file, normalDB, pcs = 1:3, 
     num.normals = 1, ignore.sex = FALSE, sex = NULL, 
-    verbose = TRUE)}
+    gatk.normal.files = NULL, verbose = TRUE)}
 \arguments{
   \item{gatk.tumor.file}{GATK coverage file of a tumor sample.}
   \item{normalDB}{Database of normal samples, created with 
@@ -16,6 +16,8 @@ createNormalDatabase().}
 with matching sex.}
   \item{sex}{Sex of sample. If NULL, determine with getSexFromCoverage
 and default parameters.}
+  \item{gatk.normal.files}{Only consider these normal samples. If NULL, use all in 
+the database. Must match normalDB$gatk.normal.files. }
   \item{verbose}{Verbose output.}
 }
 

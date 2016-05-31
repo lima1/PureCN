@@ -1,7 +1,7 @@
 Focus on PureCN 1.2 was to dramatically improve user-friendliness:
 
 - GATK requirement was dropped, and PureCN now comes with functionality to
-  generate necessary coverage data when GATK is not available.
+  generate coverage data when GATK is not available.
 
 - Automatic curation of results was added.
 
