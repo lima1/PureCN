@@ -35,6 +35,10 @@ ploidy=NULL,
 alpha=TRUE,
 ### Add transparency to the plot if VCF contains many variants 
 ### (>2000, type=AF and BAF only). 
+show.segment.means=c("segments", "SNV", "both"),
+### Show segment means in germline allele frequency plot? 
+### If "both", show SNVs and segment means. If "SNV" show
+### all SNVs. Type "AF" only.
 ...
 ### Additonal parameters passed to the plot() function. 
 ) {
@@ -250,11 +254,31 @@ alpha=TRUE,
             idx.labels <- !duplicated(scatter.labels) & 
                 as.character(r$ML.C[!r$ML.SOMATIC]) %in% 
                 names(peak.ideal.means)
-            plot(r$Log.Ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
-                col=adjustcolor(mycol[!r$ML.SOMATIC], alpha.f=myalpha), pch=mypch[!r$ML.SOMATIC], 
-                xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
-                xlim=mylogratio.xlim
-                )
+            segment.means <- match.arg(show.segment.means)
+
+            idx.nna <- !is.na(r$ML.M ) & !r$ML.SOMATIC
+            y <- sapply(split(r$AR[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
+            x <- sapply(split(r$Log.Ratio[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
+            mlm <- sapply(split(r$ML.M[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
+            mlc <- sapply(split(r$ML.C[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
+            size <- sapply(split(r$ML.M[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), length)
+            
+            if (segment.means %in% c("both", "SNV")) {    
+                plot(r$Log.Ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
+                    col=adjustcolor(mycol[!r$ML.SOMATIC], alpha.f=myalpha), pch=mypch[!r$ML.SOMATIC], 
+                    xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
+                    xlim=mylogratio.xlim
+                    )
+                if (segment.means == "both") points(x,y,
+                   col=adjustcolor("orange", alpha.f=0.2),pch=20,cex=log2(size))
+            } else {
+                plot(x,y,
+                    col=adjustcolor("orange", alpha.f=0.5),pch=20,cex=log2(size),
+                    xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
+                    xlim=mylogratio.xlim
+                    )
+            } 
+
             text(
                 x=peak.ideal.means[
                     as.character(r$ML.C[!r$ML.SOMATIC])][idx.labels], 
