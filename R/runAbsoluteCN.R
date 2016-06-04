@@ -115,7 +115,7 @@ iterations=30,
 log.ratio.calibration=0.25,
 ### Re-calibrate log-ratios in the window 
 ### sd(log.ratio)*log.ratio.calibration.
-remove.off.target.snvs=FALSE,
+remove.off.target.snvs=TRUE,
 ### If set to a true value, will remove all SNVs outside the 
 ### covered regions.
 gc.gene.file=NULL, 

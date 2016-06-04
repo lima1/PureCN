@@ -22,7 +22,7 @@ Provides copy number and LOH data, by both gene and genomic region. }
     max.candidate.solutions = 20, candidates = NULL, 
     coverage.cutoff = 15, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
     iterations = 30, log.ratio.calibration = 0.25, 
-    remove.off.target.snvs = FALSE, gc.gene.file = NULL, 
+    remove.off.target.snvs = TRUE, gc.gene.file = NULL, 
     filter.lowhigh.gc.exons = 0.001, filter.targeted.base = 4, 
     max.logr.sdev = 0.75, max.segments = 200, plot.cnv = TRUE, 
     verbose = TRUE, post.optimize = FALSE, ...)}
