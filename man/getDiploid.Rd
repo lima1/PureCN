@@ -12,7 +12,7 @@ likelihood solution is diploid, it is always returned; all other solutions
 must pass the more stringent criteria as defined in the function arguments.}
 \usage{getDiploid(res, min.diploid = 0.5, min.single.gain.loss = 0.05, 
     max.non.single.gain.loss = 0.1, max.loh = 0.5, 
-    min.log.likelihood = NULL)}
+    min.log.likelihood = NULL, min.purity.relaxed.rules = 0.5)}
 \arguments{
   \item{res}{Return object of the runAbsoluteCN() function.}
   \item{min.diploid}{Minimum fraction of genome with normal copy number 2.}
@@ -21,6 +21,9 @@ low purity samples are not confused with quiet samples.}
   \item{max.non.single.gain.loss}{Maximum fraction of genome with copy number smaller 1 or more than 3.}
   \item{max.loh}{Maximum fraction of genome in LOH. }
   \item{min.log.likelihood}{Minimum copy number log-likelihood to consider sample. If NULL, not tested.}
+  \item{min.purity.relaxed.rules}{If purity exceeds the specified purity, then only require that 
+there are more single than non-single gains and losses and ploidy exceeds 
+min.diploid.}
 }
 
 \value{A list with elements

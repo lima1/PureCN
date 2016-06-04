@@ -35,7 +35,15 @@ test_runAbsoluteCN <- function() {
 
     # run with a VCF
     ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-        gatk.tumor.file=gatk.tumor.file, 
+        gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
+        vcf.file=vcf.file, test.purity=seq(0.3,0.7, by=0.01),
+        max.candidate.solutions=2)
+
+    checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
+    checkEqualsNumeric(seq(0.3,0.7,by=1/30),as.numeric(colnames(ret$candidates$all)))
+
+    ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
+        gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=FALSE,
         vcf.file=vcf.file, test.purity=seq(0.3,0.7, by=0.01),
         max.candidate.solutions=2)
 

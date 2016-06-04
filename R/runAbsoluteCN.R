@@ -80,7 +80,7 @@ test.num.copy=0:7,
 ### Copy numbers tested in the grid search. Note that focal 
 ### amplifications can have much higher copy numbers, but they will be labeled
 ### as subclonal (because they do not fit the integer copy numbers).
-test.purity=seq(0.05,0.95,by=0.01), 
+test.purity=seq(0.15,0.95,by=0.01), 
 ### Considered tumor purity values. 
 prior.purity=rep(1,length(test.purity))/length(test.purity), 
 ### Priors for purity if they are available. Only change 
@@ -115,6 +115,9 @@ iterations=30,
 log.ratio.calibration=0.25,
 ### Re-calibrate log-ratios in the window 
 ### sd(log.ratio)*log.ratio.calibration.
+remove.off.target.snvs=FALSE,
+### If set to a true value, will remove all SNVs outside the 
+### covered regions.
 gc.gene.file=NULL, 
 ### A mapping file that assigns GC content and gene symbols 
 ### to each exon in the coverage files. Used for generating gene level calls. 
@@ -330,12 +333,14 @@ post.optimize=FALSE,
         vcf.filtering <- do.call(fun.filterVcf, args.filterVcf)
 
         vcf <- vcf.filtering$vcf
-
-        n.vcf.before.filter <- nrow(vcf)
-        # make sure all SNVs are in covered exons
-        vcf <- vcf[1:nrow(vcf) %in% queryHits(findOverlaps(vcf, exon.gr))]
-        if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
-            " variants outside intervals.")
+        
+        if (remove.off.target.snvs) {
+            n.vcf.before.filter <- nrow(vcf)
+            # make sure all SNVs are in covered exons
+            vcf <- vcf[1:nrow(vcf) %in% queryHits(findOverlaps(vcf, exon.gr))]
+            if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
+                " variants outside intervals.")
+        }        
         args.setPriorVcf <- c(list(vcf=vcf), args.setPriorVcf) 
         prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
         vcf.germline <- vcf[which(prior.somatic < 0.5)]
@@ -362,8 +367,19 @@ post.optimize=FALSE,
 
     if (!is.null(vcf.file)) {
         ov <- findOverlaps(seg.gr, vcf)
+        n.vcf.before.filter <- nrow(vcf)
+        # make sure all SNVs are in covered segments
+        vcf <- vcf[subjectHits(ov)]
+        if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
+            " variants outside segments.")
+        # Add segment log-ratio to off-target snvs. 
+        # For on-target, use observed log-ratio.   
         sd.ar <- sd(unlist(geno(vcf)$FA[,tumor.id.in.vcf]))
-        snv.lr <- log.ratio[subjectHits(findOverlaps(vcf, exon.gr))]
+        snv.lr <- seg$seg.mean[queryHits(ov)]
+        ov.vcfexon <- findOverlaps(vcf, exon.gr)
+        snv.lr[queryHits(ov.vcfexon)] <- log.ratio[subjectHits(ov.vcfexon)]
+        ov <- findOverlaps(seg.gr, vcf)
+        if (verbose) message("Using ", nrow(vcf), " variants.")
     }
     
     # get exon log-ratios for all segments 
@@ -658,7 +674,7 @@ post.optimize=FALSE,
                     round( weighted.mean(C,li),digits=2), ".")
 
                 list(
-                    beta.model  = .calcSNVLLik(vcf, tumor.id.in.vcf,  ov, px, 
+                    beta.model  = .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, 
                         test.num.copy, C.posterior, C, snv.model="beta", 
                         prior.somatic, snv.lr, sampleid, 
                         post.optimize=post.optimize)
@@ -755,9 +771,10 @@ data(purecn.example.output)
 
 # The max.candidate.solutions parameter is set to a very low value only to
 # speed-up this example.  This is not a good idea for real samples.
+# We also remove off target snvs, also only to speed-up the example.
 
 ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, 
+    gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
     candidates=purecn.example.output$candidates, max.candidate.solutions=2,
     vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file)
 })    

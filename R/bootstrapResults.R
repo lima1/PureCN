@@ -16,7 +16,10 @@
     }    
     best <- unlist(best)
     best <- c(best, keep)
-    results[as.numeric(names(sort(table(best),decreasing=TRUE)))]
+    results <- results[unique(best)]
+    results <- results[order(sapply(results, function(x) x$bootstrap.value),decreasing=TRUE)]
+#    results[as.numeric(names(sort(table(best),decreasing=TRUE)))]
+    results
 }
 
 bootstrapResults <- structure(

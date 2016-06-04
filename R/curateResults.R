@@ -19,13 +19,18 @@ max.non.single.gain.loss=0.10,
 ### Maximum fraction of genome with copy number smaller 1 or more than 3.
 max.loh=0.5,
 ### Maximum fraction of genome in LOH. 
-min.log.likelihood=NULL
+min.log.likelihood=NULL,
 ### Minimum copy number log-likelihood to consider sample. If NULL, not tested.
+min.purity.relaxed.rules=0.5
+### If purity exceeds the specified purity, then only require that 
+### there are more single than non-single gains and losses and ploidy exceeds 
+### min.diploid.
 ) {
     cs <- sapply(0:7, function(i) sapply(res$results, function(x) 
                 sum(x$seg$size[x$seg$C == i])/sum(x$seg$size)))
     
     ploidy <- sapply(res$results, function(x) x$ploidy)
+    purity <- sapply(res$results, function(x) x$purity)
 
     ll <- sapply(res$results, function(x) x$log.likelihood)
     if (is.null(min.log.likelihood)) min.log.likelihood <- min(ll)
@@ -39,7 +44,10 @@ min.log.likelihood=NULL
         fraction.non.single < max.non.single.gain.loss & 
         fraction.loh <= max.loh &
         ll >= min.log.likelihood ) |
-        ( ploidy > 1.5 & ploidy < 2.5 & seq_along(ploidy)==1 )
+        ( ploidy > 1.5 & ploidy < 2.5 & seq_along(ploidy)==1 ) |
+        ( purity > min.purity.relaxed.rules & cs[,3] >= min.diploid &
+          fraction.non.single < fraction.single & 
+          fraction.loh <= max.loh & ll >= min.log.likelihood ) 
 
     ##value<< A list with elements
     list(
@@ -70,6 +78,8 @@ verbose=TRUE
 ) {
     ll <- sapply(res$results, function(x) x$log.likelihood)
     diploid <- getDiploid(res, min.log.likelihood=quantile(ll, p=1/3))
+    
+    if (length(diploid$ids)<1) diploid <- getDiploid(res)
 
     if (verbose) message("Found ", length(diploid$ids), " diploid solutions.")
 

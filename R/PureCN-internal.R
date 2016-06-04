@@ -43,7 +43,7 @@ max.exon.ratio) {
     
     haploid.penalty <- 0
     
-    if (median(C) < 1.1 && p < 0.3) {
+    if (median(C) < 1.1 && p <= 0.3) {
         haploid.penalty <- 1
     }
     
@@ -237,8 +237,9 @@ max.exon.ratio) {
     diff.purity <- abs(sapply(results[idx - 1], function(x) x$purity) - sapply(results[idx], 
         function(x) x$purity))
     diff.ploidy <- abs(sapply(results[idx - 1], function(x) x$ploidy) - sapply(results[idx], 
-        function(x) x$ploidy))
-    idx.duplicated <- c(FALSE, diff.purity < 0.1 & diff.ploidy < 0.2)
+        function(x) x$ploidy)) / sapply(results[idx - 1], function(x) x$ploidy)
+
+    idx.duplicated <- c(FALSE, diff.purity < 0.1 & diff.ploidy < 0.1)
     results[!idx.duplicated]
 }
 .findLocalMinima <- function(m) {

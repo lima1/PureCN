@@ -17,15 +17,15 @@ Provides copy number and LOH data, by both gene and genomic region. }
     args.setPriorVcf = list(), fun.segmentation = segmentationCBS, 
     args.segmentation = list(), fun.focal = findFocal, 
     args.focal = list(), sampleid = NULL, min.ploidy = 1, 
-    max.ploidy = 6, test.num.copy = 0:7, test.purity = seq(0.05, 
+    max.ploidy = 6, test.num.copy = 0:7, test.purity = seq(0.15, 
         0.95, by = 0.01), prior.purity = rep(1, length(test.purity))/length(test.purity), 
     max.candidate.solutions = 20, candidates = NULL, 
     coverage.cutoff = 15, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
     iterations = 30, log.ratio.calibration = 0.25, 
-    gc.gene.file = NULL, filter.lowhigh.gc.exons = 0.001, 
-    filter.targeted.base = 4, max.logr.sdev = 0.75, 
-    max.segments = 200, plot.cnv = TRUE, verbose = TRUE, 
-    post.optimize = FALSE, ...)}
+    remove.off.target.snvs = FALSE, gc.gene.file = NULL, 
+    filter.lowhigh.gc.exons = 0.001, filter.targeted.base = 4, 
+    max.logr.sdev = 0.75, max.segments = 200, plot.cnv = TRUE, 
+    verbose = TRUE, post.optimize = FALSE, ...)}
 \arguments{
   \item{gatk.normal.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
@@ -105,6 +105,8 @@ solutions, especially in noisy segmentations. }
 number fit optimization.}
   \item{log.ratio.calibration}{Re-calibrate log-ratios in the window 
 sd(log.ratio)*log.ratio.calibration.}
+  \item{remove.off.target.snvs}{If set to a true value, will remove all SNVs outside the 
+covered regions.}
   \item{gc.gene.file}{A mapping file that assigns GC content and gene symbols 
 to each exon in the coverage files. Used for generating gene level calls. 
 First column in format CHR:START-END. Second column GC content (0 to 1). 
@@ -156,9 +158,10 @@ data(purecn.example.output)
 
 # The max.candidate.solutions parameter is set to a very low value only to
 # speed-up this example.  This is not a good idea for real samples.
+# We also remove off target snvs, also only to speed-up the example.
 
 ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, 
+    gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
     candidates=purecn.example.output$candidates, max.candidate.solutions=2,
     vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file)
 }
