@@ -64,7 +64,7 @@ verbose=TRUE,
         x=tumor$probe_start[-subjectHits(ov)] )
     
     offv <- vcf[-queryHits(ov)]
-    d.f.offv <- cbind(
+    d.f.offv <- data.frame(
         probe=paste(seqnames(offv), ":", start(offv), "-", end(offv), sep=""), 
         chr=as.character(seqnames(offv)), 
         probe_start=start(offv), 
@@ -77,10 +77,11 @@ verbose=TRUE,
         CT=NA,
         betaT=unlist(geno(offv)$FA[,tumor.id.in.vcf]),
         x=start(offv))
-
-    # for off-target SNVs, require a higher cutoff until PSCBS supports weights
-    d.f.offv <- d.f.offv[d.f.offv$coverage > coverage.cutoff * 1.5,]
-
+    
+    if (nrow(d.f.offv) > 0) {
+        # for off-target SNVs, require a higher cutoff until PSCBS supports weights
+        d.f.offv <- d.f.offv[d.f.offv$coverage > coverage.cutoff * 1.5,]
+    }
     d.f.3 <- rbind(d.f, d.f.2, d.f.offv)
     d.f.3 <- d.f.3[order(.strip.chr.name(d.f.3$chr), d.f.3$x),]
     d.f <- d.f.3
@@ -103,7 +104,8 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # The max.candidate.solutions argument is set to a very low value only to 
 # speed-up this example. This is not a good idea for real samples.
 ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, sampleid='Sample1', 
+    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, 
+    genome="hg19", sampleid='Sample1', 
     max.candidate.solutions=2, remove.off.target.snvs=TRUE,
     gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS)
 })    

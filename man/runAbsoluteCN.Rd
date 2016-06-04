@@ -11,17 +11,16 @@ Returns purity and ploidy combinations, sorted by likelihood score.
 Provides copy number and LOH data, by both gene and genomic region. }
 \usage{runAbsoluteCN(gatk.normal.file = NULL, gatk.tumor.file, 
     log.ratio = NULL, seg.file = NULL, seg.file.sdev = 0.4, 
-    vcf.file = NULL, genome = "hg19", sex = c("?", 
-        "F", "M"), fun.filterVcf = filterVcfMuTect, 
-    args.filterVcf = list(), fun.setPriorVcf = setPriorVcf, 
-    args.setPriorVcf = list(), fun.segmentation = segmentationCBS, 
-    args.segmentation = list(), fun.focal = findFocal, 
-    args.focal = list(), sampleid = NULL, min.ploidy = 1, 
-    max.ploidy = 6, test.num.copy = 0:7, test.purity = seq(0.15, 
-        0.95, by = 0.01), prior.purity = rep(1, length(test.purity))/length(test.purity), 
-    max.candidate.solutions = 20, candidates = NULL, 
-    coverage.cutoff = 15, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
-    iterations = 30, log.ratio.calibration = 0.25, 
+    vcf.file = NULL, genome, sex = c("?", "F", "M"), 
+    fun.filterVcf = filterVcfMuTect, args.filterVcf = list(), 
+    fun.setPriorVcf = setPriorVcf, args.setPriorVcf = list(), 
+    fun.segmentation = segmentationCBS, args.segmentation = list(), 
+    fun.focal = findFocal, args.focal = list(), sampleid = NULL, 
+    min.ploidy = 1, max.ploidy = 6, test.num.copy = 0:7, 
+    test.purity = seq(0.15, 0.95, by = 0.01), prior.purity = rep(1, 
+        length(test.purity))/length(test.purity), max.candidate.solutions = 20, 
+    candidates = NULL, coverage.cutoff = 15, max.non.clonal = 0.2, 
+    max.homozygous.loss = 0.1, iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = TRUE, gc.gene.file = NULL, 
     filter.lowhigh.gc.exons = 0.001, filter.targeted.base = 4, 
     max.logr.sdev = 0.75, max.segments = 200, plot.cnv = TRUE, 
@@ -162,6 +161,7 @@ data(purecn.example.output)
 
 ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
     gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
-    candidates=purecn.example.output$candidates, max.candidate.solutions=2,
-    vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file)
+    genome="hg19", candidates=purecn.example.output$candidates, 
+    max.candidate.solutions=2, vcf.file=vcf.file, sampleid='Sample1', 
+    gc.gene.file=gc.gene.file)
 }

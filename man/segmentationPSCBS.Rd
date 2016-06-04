@@ -45,7 +45,8 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # The max.candidate.solutions argument is set to a very low value only to 
 # speed-up this example. This is not a good idea for real samples.
 ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, sampleid='Sample1', 
+    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, 
+    genome="hg19", sampleid='Sample1', 
     max.candidate.solutions=2, remove.off.target.snvs=TRUE,
     gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS)
 }

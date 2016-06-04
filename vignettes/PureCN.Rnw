@@ -297,7 +297,8 @@ Finally, we can run \Biocpkg{PureCN} with all that information:
 
 <<runpurecn>>=
 ret <-runAbsoluteCN(gatk.normal.file=pool, gatk.tumor.file=gatk.tumor.file, 
-    vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file, 
+    vcf.file=vcf.file, genome="hg19", sampleid='Sample1', 
+    gc.gene.file=gc.gene.file, 
 #args.filterVcf=list(snp.blacklist=snp.blacklist, stats.file=mutect.stats.file), 
     args.segmentation=list(exon.weight.file=exon.weight.file), 
     post.optimize=FALSE, plot.cnv=FALSE)

@@ -33,7 +33,7 @@ vcf.file=NULL,
 ### flag for dbSNP membership. The default fun.setPriorVcf function will also
 ### look for a Cosmic.CNT slot, containing the hits in the COSMIC database.
 ### Again, do not expect very useful results without a VCF file.
-genome="hg19",
+genome,
 ### Genome version, required for the readVcf function.
 sex=c("?","F","M"),
 ### Sex of sample. If ?, detect using getSexFromCoverage function and default
@@ -152,6 +152,11 @@ post.optimize=FALSE,
 ### Additional parameters passed to the segmentation function.
 ) {
     debug <- FALSE
+
+    if (missing(genome) && !is.null(vcf.file)) {
+        genome <- "hg19"
+        message("Default of genome=hg19 is deprecated. Please specify genome.")
+    }    
     
     # argument checking
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal)
@@ -775,6 +780,7 @@ data(purecn.example.output)
 
 ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
     gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
-    candidates=purecn.example.output$candidates, max.candidate.solutions=2,
-    vcf.file=vcf.file, sampleid='Sample1', gc.gene.file=gc.gene.file)
+    genome="hg19", candidates=purecn.example.output$candidates, 
+    max.candidate.solutions=2, vcf.file=vcf.file, sampleid='Sample1', 
+    gc.gene.file=gc.gene.file)
 })    
