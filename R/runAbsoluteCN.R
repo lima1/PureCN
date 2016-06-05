@@ -120,7 +120,7 @@ remove.off.target.snvs=TRUE,
 ### covered regions.
 gc.gene.file=NULL, 
 ### A mapping file that assigns GC content and gene symbols 
-### to each exon in the coverage files. Used for generating gene level calls. 
+### to each exon in the coverage files. Used for generating gene-level calls. 
 ### First column in format CHR:START-END. Second column GC content (0 to 1). 
 ### Third column gene symbol.
 filter.lowhigh.gc.exons=0.001,
@@ -165,7 +165,7 @@ post.optimize=FALSE,
 
     if (!is.null(gc.gene.file) && !file.exists(gc.gene.file)) { 
         warning("gc.gene.file ", gc.gene.file, 
-            " not found. You won't get gene level calls.")
+            " not found. You won't get gene-level calls.")
         gc.gene.file=NULL
     }    
 
@@ -289,7 +289,13 @@ post.optimize=FALSE,
             tumor <- tumor[idx,]
         }
     }
-
+    
+    if (!is.null(gc.gene.file) && is.null(gc.data$Gene) ) {
+        if (verbose) message("No Gene column in gc.gene.file.",
+            " You won't get gene-level calls.")
+        gc.gene.file <- NULL
+    }
+        
     exon.gr <- GRanges(seqnames=gsub("24", "Y", gsub("23","X", tumor$chr)), 
         IRanges(start=tumor$probe_start,end=tumor$probe_end))
 
