@@ -34,6 +34,8 @@ verbose=TRUE,
 ...
 ### Additional parameters passed to the segmentByNonPairedPSCBS function.
 ) {
+    debug <- TRUE
+        
     if (!requireNamespace("PSCBS", quietly = TRUE)) {
         stop("segmentationPSCBS requires the PSCBS package.")
     }
@@ -94,7 +96,8 @@ verbose=TRUE,
     d.f <- d.f.3
     colnames(d.f)[2] <- "chromosome"
     d.f$chromosome <- .strip.chr.name(d.f$chromosome)
-    d.f <- PSCBS::dropSegmentationOutliers(d.f)
+    idx <- !is.na(d.f$CT)
+    d.f[idx,] <- PSCBS::dropSegmentationOutliers(d.f[idx,])
     if (find.large.gaps) {
         gaps <- PSCBS::findLargeGaps(d.f, minLength = min.gap.length)
         knownSegments <- PSCBS::gapsToSegments(gaps)
@@ -102,8 +105,9 @@ verbose=TRUE,
             flavor=flavor,knownSegments = knownSegments,  ...)
     } else {
         seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
-            flavor=flavor,...)
+            flavor=flavor, ...)
     }    
+    if (plot.cnv) plotTracks(seg)
     .PSCBSoutput2DNAcopy(seg, sampleid)
 ### A list with elements seg and size. "seg" contains the 
 ### segmentation, "size" the size of all segments in base pairs.    
@@ -119,12 +123,12 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 
 # The max.candidate.solutions argument is set to a very low value only to 
 # speed-up this example. This is not a good idea for real samples.
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, 
-    genome="hg19", sampleid='Sample1', 
-    max.candidate.solutions=2, remove.off.target.snvs=TRUE,
-    gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS,
-    args.segmentation=list(find.large.gaps=FALSE))
+#ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
+#    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, 
+#    genome="hg19", sampleid='Sample1', 
+#    max.candidate.solutions=2, remove.off.target.snvs=TRUE,
+#    gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS,
+#    args.segmentation=list(find.large.gaps=FALSE))
 })    
 
     
