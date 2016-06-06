@@ -233,13 +233,16 @@ max.exon.ratio) {
 .filterDuplicatedResults <- function(results) {
     if (length(results) < 2) 
         return(results)
-    idx <- 2:length(results)
-    diff.purity <- abs(sapply(results[idx - 1], function(x) x$purity) - sapply(results[idx], 
-        function(x) x$purity))
-    diff.ploidy <- abs(sapply(results[idx - 1], function(x) x$ploidy) - sapply(results[idx], 
-        function(x) x$ploidy)) / sapply(results[idx - 1], function(x) x$ploidy)
+    idx.duplicated <- rep(FALSE, length(results))
 
-    idx.duplicated <- c(FALSE, diff.purity < 0.1 & diff.ploidy < 0.1)
+    for (i in 1:(length(results)-1)) {
+        for (j in (i+1):length(results)) {
+            if ( abs( results[[i]]$purity - results[[j]]$purity ) < 0.1 &&
+                 abs( results[[i]]$ploidy - results[[j]]$ploidy ) / results[[i]]$ploidy < 0.1) {
+                idx.duplicated[j] <- TRUE
+            }    
+        }    
+    }
     results[!idx.duplicated]
 }
 .findLocalMinima <- function(m) {

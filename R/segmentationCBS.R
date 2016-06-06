@@ -23,6 +23,8 @@ vcf=NULL,
 ### Optional VCF object with germline allelic ratios.
 tumor.id.in.vcf=1,
 ### Id of tumor in case multiple samples are stored in VCF.
+normal.id.in.vcf=NULL,
+### Id of normal in in VCF. Currently not used.
 verbose=TRUE
 ### Verbose output.
 ) {

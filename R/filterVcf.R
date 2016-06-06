@@ -183,7 +183,7 @@ verbose=TRUE,
     if (!identical(queryHits(ov),subjectHits(ov))) {
         warning("MuTect stats file and VCF file do not align perfectly. ",
          "Will remove unmatched variants.")
-        stats <- stats[subjectHits(ov)]
+        stats <- stats[subjectHits(ov),]
         vcf <- vcf[queryHits(ov)]
     }    
 

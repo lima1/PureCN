@@ -318,14 +318,21 @@ post.optimize=FALSE,
         if (is.null(args.filterVcf$use.somatic.status)) {
             args.filterVcf$use.somatic.status <- TRUE
         }
+        normal.id.in.vcf <- NULL
+
         if (sum(colSums(geno(vcf)$DP)>0) == 1 && 
             args.filterVcf$use.somatic.status) { 
             message("VCF file seems to have only one sample. ", 
                 "Using SNVs in single mode.")
             args.filterVcf$use.somatic.status <- FALSE
+        } 
+
+        if (args.filterVcf$use.somatic.status) { 
+            normal.id.in.vcf <- names( which.max(colSums(geno(vcf)$GT=="0")) )
         }    
             
         tumor.id.in.vcf <- names( which.min(colSums(geno(vcf)$GT=="0")) )
+
         if (verbose) message("Assuming ", tumor.id.in.vcf, 
             " is tumor in VCF file.")
         sex.vcf <- getSexFromVcf(vcf, tumor.id.in.vcf, verbose=verbose)
@@ -365,6 +372,7 @@ post.optimize=FALSE,
         log.ratio=log.ratio, plot.cnv=plot.cnv, 
         coverage.cutoff=ifelse(is.null(seg.file), coverage.cutoff, -1), 
         sampleid=sampleid, vcf=vcf.germline, tumor.id.in.vcf=tumor.id.in.vcf,
+        normal.id.in.vcf=normal.id.in.vcf,
         verbose=verbose,...), args.segmentation)
 
     vcf.germline <- NULL
@@ -381,6 +389,9 @@ post.optimize=FALSE,
         n.vcf.before.filter <- nrow(vcf)
         # make sure all SNVs are in covered segments
         vcf <- vcf[subjectHits(ov)]
+        args.setPriorVcf$vcf <- vcf
+        args.setPriorVcf$verbose <- FALSE
+        prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
         if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
             " variants outside segments.")
         # Add segment log-ratio to off-target snvs. 

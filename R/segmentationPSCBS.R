@@ -29,6 +29,8 @@ vcf=NULL,
 ### Optional VCF object with germline allelic ratios.
 tumor.id.in.vcf=1,
 ### Id of tumor in case multiple samples are stored in VCF.
+normal.id.in.vcf=NULL,
+### Id of normal in in VCF. If NULL, use unpaired PSCBS.
 verbose=TRUE,
 ### Verbose output.
 ...
@@ -63,10 +65,15 @@ verbose=TRUE,
     d.f <- cbind(tumor[subjectHits(ov),], 
         CT=2^(log.ratio+1)[subjectHits(ov)], 
         betaT=unlist(geno(vcf[queryHits(ov)])$FA[,tumor.id.in.vcf]), 
+        betaN=NA,
         x=start(vcf[queryHits(ov)]) )
-
+    
+    if (!is.null(normal.id.in.vcf)) {
+        d.f$betaN <- unlist(geno(vcf[queryHits(ov)])$FA[,normal.id.in.vcf])
+    }
+         
     d.f.2 <- cbind(tumor[-subjectHits(ov),], 
-        CT=2^(log.ratio+1)[-subjectHits(ov)], betaT=NA, 
+        CT=2^(log.ratio+1)[-subjectHits(ov)], betaT=NA, betaN=NA,
         x=tumor$probe_start[-subjectHits(ov)] )
     
     offv <- vcf[-queryHits(ov)]
@@ -84,7 +91,12 @@ verbose=TRUE,
             base.with..10.coverage=NA,
             CT=NA,
             betaT=unlist(geno(offv)$FA[,tumor.id.in.vcf]),
+            betaN=NA,
             x=start(offv))
+
+        if (!is.null(normal.id.in.vcf)) {
+            d.f.offv$betaN <- unlist(geno(offv)$FA[,normal.id.in.vcf])
+        }
     
         # for off-target SNVs, require a higher cutoff until PSCBS supports weights
         d.f.offv <- d.f.offv[d.f.offv$coverage > coverage.cutoff * 1.5,]
@@ -101,13 +113,23 @@ verbose=TRUE,
     if (find.large.gaps) {
         gaps <- PSCBS::findLargeGaps(d.f, minLength = min.gap.length)
         knownSegments <- PSCBS::gapsToSegments(gaps)
-        seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
-            flavor=flavor,knownSegments = knownSegments,  ...)
+        if (!is.null(normal.id.in.vcf)) {
+            seg <- PSCBS::segmentByPairedPSCBS(d.f, tauA=tauA, 
+                flavor=flavor,knownSegments = knownSegments,  ...)
+        } else {
+            seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
+                flavor=flavor,knownSegments = knownSegments,  ...)
+        }    
     } else {
-        seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
-            flavor=flavor, ...)
+        if (!is.null(normal.id.in.vcf)) {
+            seg <- PSCBS::segmentByPairedPSCBS(d.f, tauA=tauA, 
+                flavor=flavor, ...)
+        } else {
+            seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
+                flavor=flavor, ...)
+        }    
     }    
-    if (plot.cnv) plotTracks(seg)
+    if (plot.cnv) PSCBS::plotTracks(seg)
     .PSCBSoutput2DNAcopy(seg, sampleid)
 ### A list with elements seg and size. "seg" contains the 
 ### segmentation, "size" the size of all segments in base pairs.    
@@ -133,7 +155,7 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 
     
 .PSCBSoutput2DNAcopy <- function(seg, sampleid) {
-    sx <- cbind(ID=sampleid, seg$output[complete.cases(seg$output),])
+    sx <- cbind(ID=sampleid, seg$output[!is.na(seg$output$tcnMean),])
     sx <- sx[,c("ID", "chromosome", "tcnStart", "tcnEnd", "tcnNbrOfLoci", 
         "tcnMean")]
     colnames(sx) <- c("ID", "chrom", "loc.start",  "loc.end", "num.mark", 
