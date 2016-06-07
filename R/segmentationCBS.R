@@ -118,6 +118,14 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     }
     x
 }
+
+.getSDundo <- function(log.ratio) {
+    q <- quantile(log.ratio,p=c(0.1, 0.9))
+    if (q[1] > -0.4 && q[2] < 0.4) return(0.5)
+    if (q[1] > -0.5 && q[2] < 0.5) return(1)
+    if (q[1] > -0.6 && q[2] < 0.6) return(2)
+    return(3)
+}    
     
 # ExomeCNV version without the x11() calls 
 .CNV.analyze2 <-
@@ -125,7 +133,7 @@ function(normal, tumor, logR=NULL, coverage.cutoff=15, normal.chrs=c("chr1",
 "chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11",
 "chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20",
 "chr21","chr22","chrX","chrY"), normal.chr=normal.chrs, c=0.5, 
-weights=NULL, doDNAcopy=TRUE, sdundo=0.5, 
+weights=NULL, doDNAcopy=TRUE, sdundo=NULL, 
 undo.splits="sdundo", smooth=TRUE, alpha=0.01, sampleid=NULL, plot.cnv=TRUE, 
 verbose=TRUE) {
     `%+%` <- function(x,y) paste(x,y,sep="")
@@ -146,7 +154,12 @@ verbose=TRUE) {
         " low coverage exons.")
     if (is.null(logR)) norm.log.ratio = .calcLogRatio(normal, tumor, verbose)
     else norm.log.ratio = logR
-
+    
+    if (is.null(sdundo)) {
+        sdundo <- .getSDundo(norm.log.ratio[well.covered.exon.idx])
+        if (verbose) message("Setting sd.undo parameter to ", sdundo)
+    }   
+     
     if (doDNAcopy) {
 
         CNA.obj <- CNA(norm.log.ratio[well.covered.exon.idx], 
