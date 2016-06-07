@@ -7,7 +7,7 @@ via args.segmentation.}
 \usage{segmentationCBS(normal, tumor, log.ratio, plot.cnv, 
     coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
     alpha = 0.005, vcf = NULL, tumor.id.in.vcf = 1, 
-    verbose = TRUE)}
+    normal.id.in.vcf = NULL, verbose = TRUE)}
 \arguments{
   \item{normal}{GATK coverage data for normal sample.}
   \item{tumor}{GATK coverage data for tumor sample.}
@@ -19,6 +19,7 @@ via args.segmentation.}
   \item{alpha}{Alpha value for CBS, see documentation for the segment function.}
   \item{vcf}{Optional VCF object with germline allelic ratios.}
   \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in VCF.}
+  \item{normal.id.in.vcf}{Id of normal in in VCF. Currently not used.}
   \item{verbose}{Verbose output.}
 }
 

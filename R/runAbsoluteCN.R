@@ -302,6 +302,7 @@ post.optimize=FALSE,
     vcf <- NULL
     vcf.germline <- NULL
     tumor.id.in.vcf <- NULL
+    normal.id.in.vcf <- NULL
     prior.somatic <- NULL
     vcf.filtering <-list(flag=FALSE, flag_comment="")
     sex.vcf <- NULL
@@ -318,7 +319,6 @@ post.optimize=FALSE,
         if (is.null(args.filterVcf$use.somatic.status)) {
             args.filterVcf$use.somatic.status <- TRUE
         }
-        normal.id.in.vcf <- NULL
 
         if (sum(colSums(geno(vcf)$DP)>0) == 1 && 
             args.filterVcf$use.somatic.status) { 

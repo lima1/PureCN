@@ -107,7 +107,7 @@ sd(log.ratio)*log.ratio.calibration.}
   \item{remove.off.target.snvs}{If set to a true value, will remove all SNVs outside the 
 covered regions.}
   \item{gc.gene.file}{A mapping file that assigns GC content and gene symbols 
-to each exon in the coverage files. Used for generating gene level calls. 
+to each exon in the coverage files. Used for generating gene-level calls. 
 First column in format CHR:START-END. Second column GC content (0 to 1). 
 Third column gene symbol.}
   \item{filter.lowhigh.gc.exons}{Quantile q (defines lower q and upper 1-q) 

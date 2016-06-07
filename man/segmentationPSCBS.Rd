@@ -6,8 +6,9 @@ This function is called via the fun.segmentation argument of runAbsoluteCN.
 The arguments are passed via args.segmentation.}
 \usage{segmentationPSCBS(normal, tumor, log.ratio, plot.cnv, 
     coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
-    flavor = "tcn&dh", tauA = 0.03, vcf = NULL, tumor.id.in.vcf = 1, 
-    verbose = TRUE, ...)}
+    flavor = "tcn&dh", tauA = 0.03, find.large.gaps = TRUE, 
+    min.gap.length = 5e+06, vcf = NULL, tumor.id.in.vcf = 1, 
+    normal.id.in.vcf = NULL, verbose = TRUE, ...)}
 \arguments{
   \item{normal}{GATK coverage data for normal sample.}
   \item{tumor}{GATK coverage data for tumor sample.}
@@ -16,10 +17,13 @@ The arguments are passed via args.segmentation.}
   \item{coverage.cutoff}{Minimum coverage in both normal and tumor.}
   \item{sampleid}{Sample id, used in output files.}
   \item{exon.weight.file}{Can be used to assign weights to exons. NOT SUPPORTED YET.}
-  \item{flavor}{Flavor value for PSBCS. See segmentByNonPairedPSCBS.}
+  \item{flavor}{Flavor value for PSCBS. See segmentByNonPairedPSCBS.}
   \item{tauA}{tauA argument for PSCBS. See segmentByNonPairedPSCBS.}
+  \item{find.large.gaps}{Use the PSCBS findLargeGaps function to find large gaps.}
+  \item{min.gap.length}{The minLength argument of findLargeGaps in PSCBS.}
   \item{vcf}{Optional VCF object with germline allelic ratios.}
   \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in VCF.}
+  \item{normal.id.in.vcf}{Id of normal in in VCF. If NULL, use unpaired PSCBS.}
   \item{verbose}{Verbose output.}
   \item{\dots}{Additional parameters passed to the segmentByNonPairedPSCBS function.}
 }
@@ -44,9 +48,10 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 
 # The max.candidate.solutions argument is set to a very low value only to 
 # speed-up this example. This is not a good idea for real samples.
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, 
-    genome="hg19", sampleid='Sample1', 
-    max.candidate.solutions=2, remove.off.target.snvs=TRUE,
-    gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS)
+#ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
+#    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, 
+#    genome="hg19", sampleid='Sample1', 
+#    max.candidate.solutions=2, remove.off.target.snvs=TRUE,
+#    gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS,
+#    args.segmentation=list(find.large.gaps=FALSE))
 }

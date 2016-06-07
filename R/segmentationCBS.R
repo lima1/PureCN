@@ -121,9 +121,9 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
 
 .getSDundo <- function(log.ratio) {
     q <- quantile(log.ratio,p=c(0.1, 0.9))
-    if (q[1] > -0.4 && q[2] < 0.4) return(0.5)
-    if (q[1] > -0.5 && q[2] < 0.5) return(1)
-    if (q[1] > -0.6 && q[2] < 0.6) return(2)
+    if (q[1] > -0.5 && q[2] < 0.5) return(0.5)
+    if (q[1] > -0.6 && q[2] < 0.6) return(1)
+    if (q[1] > -0.8 && q[2] < 0.8) return(2)
     return(3)
 }    
     
