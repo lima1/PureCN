@@ -79,7 +79,7 @@ verbose=TRUE
     ll <- sapply(res$results, function(x) x$log.likelihood)
     diploid <- getDiploid(res, min.log.likelihood=quantile(ll, p=1/3))
     
-    if (length(diploid$ids)<1) diploid <- getDiploid(res)
+#    if (length(diploid$ids)<1) diploid <- getDiploid(res)
 
     if (verbose) message("Found ", length(diploid$ids), " diploid solutions.")
 
