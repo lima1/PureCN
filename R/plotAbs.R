@@ -35,7 +35,7 @@ ploidy=NULL,
 alpha=TRUE,
 ### Add transparency to the plot if VCF contains many variants 
 ### (>2000, type=AF and BAF only). 
-show.segment.means=c("segments", "SNV", "both"),
+show.segment.means=c("SNV", "segments", "both"),
 ### Show segment means in germline allele frequency plot? 
 ### If "both", show SNVs and segment means. If "SNV" show
 ### all SNVs. Type "AF" only.

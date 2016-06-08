@@ -1,6 +1,6 @@
 Focus on PureCN 1.2 was to dramatically improve user-friendliness:
 
-- GATK requirement was dropped, and PureCN now comes with functionality to
+- GATK requirement was dropped: PureCN now comes with functionality to
   generate coverage data when GATK is not available.
 
 - Automatic curation of results was added.
@@ -15,3 +15,6 @@ Performance enhancements:
 
 - More thorough initial grid search should minimize cases where pruity/ploidy
   is wrong because the solution was not considered.
+
+- Support for SNVs outside the copy number interval file
+  (remove.off.target.snvs=FALSE)   

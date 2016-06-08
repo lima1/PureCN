@@ -6,8 +6,8 @@ purity and ploidy combinations in the results of a runAbsoluteCN call.}
 \usage{plotAbs(res, ids = NULL, type = c("hist", "overview", 
     "BAF", "AF", "LOH", "all"), chr = NULL, germline.only = TRUE, 
     show.contour = FALSE, purity = NULL, ploidy = NULL, 
-    alpha = TRUE, show.segment.means = c("segments", 
-        "SNV", "both"), ...)}
+    alpha = TRUE, show.segment.means = c("SNV", "segments", 
+        "both"), ...)}
 \arguments{
   \item{res}{Return object of the runAbsoluteCN() function.}
   \item{ids}{Candidate solutions to be plotted. ids=1 will draw the 
