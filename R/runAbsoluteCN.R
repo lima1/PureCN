@@ -487,7 +487,7 @@ post.optimize=FALSE,
     if (nrow(candidate.solutions$candidates) > max.candidate.solutions) {
         # test the best solutions and everything close to diploid
         idx.keep <- unique(c(1:max.candidate.solutions, 
-            which( ( candidate.solutions$candidates$tumor.ploidy > 1.6 &
+            which( ( candidate.solutions$candidates$tumor.ploidy > 1.5 &
                     candidate.solutions$candidates$tumor.ploidy < 2.6 ))))
         candidate.solutions$candidates <- 
             candidate.solutions$candidates[idx.keep,]
