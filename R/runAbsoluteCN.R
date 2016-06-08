@@ -357,7 +357,8 @@ post.optimize=FALSE,
             # make sure all SNVs are in covered exons
             vcf <- vcf[1:nrow(vcf) %in% queryHits(findOverlaps(vcf, exon.gr))]
             if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
-                " variants outside intervals.")
+                " variants outside intervals.", 
+                " Set remove.off.target.snvs=FALSE to include.")
         }        
         args.setPriorVcf <- c(list(vcf=vcf), args.setPriorVcf) 
         prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
