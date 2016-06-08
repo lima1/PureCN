@@ -6,7 +6,7 @@ fun.segmentation argument of runAbsoluteCN. The arguments are passed
 via args.segmentation.}
 \usage{segmentationCBS(normal, tumor, log.ratio, plot.cnv, 
     coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
-    alpha = 0.005, vcf = NULL, tumor.id.in.vcf = 1, 
+    alpha = 0.005, undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, 
     normal.id.in.vcf = NULL, verbose = TRUE)}
 \arguments{
   \item{normal}{GATK coverage data for normal sample.}
@@ -17,6 +17,7 @@ via args.segmentation.}
   \item{sampleid}{Sample id, used in output files.}
   \item{exon.weight.file}{Can be used to assign weights to exons.}
   \item{alpha}{Alpha value for CBS, see documentation for the segment function.}
+  \item{undo.SD}{undo.SD for CBS, see documentation of the segment function.}
   \item{vcf}{Optional VCF object with germline allelic ratios.}
   \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in VCF.}
   \item{normal.id.in.vcf}{Id of normal in in VCF. Currently not used.}

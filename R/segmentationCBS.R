@@ -19,6 +19,8 @@ exon.weight.file=NULL,
 ### Can be used to assign weights to exons.
 alpha=0.005,
 ### Alpha value for CBS, see documentation for the segment function.
+undo.SD=NULL,
+### undo.SD for CBS, see documentation of the segment function.
 vcf=NULL,
 ### Optional VCF object with germline allelic ratios.
 tumor.id.in.vcf=1,
@@ -37,7 +39,7 @@ verbose=TRUE
     }
     x <- .CNV.analyze2(normal, tumor, logR=log.ratio, plot.cnv=plot.cnv, 
         coverage.cutoff=coverage.cutoff, sampleid=sampleid, alpha=alpha, 
-        weights=exon.weights, verbose=verbose) 
+        weights=exon.weights, sdundo=undo.SD, verbose=verbose) 
     if (!is.null(vcf)) {
         x <- .pruneByVCF(x, vcf, tumor.id.in.vcf)
     }
@@ -121,10 +123,12 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
 
 .getSDundo <- function(log.ratio) {
     q <- quantile(log.ratio,p=c(0.1, 0.9))
-    if (q[1] > -0.5 && q[2] < 0.5) return(0.5)
-    if (q[1] > -0.6 && q[2] < 0.6) return(1)
-    if (q[1] > -0.8 && q[2] < 0.8) return(2)
-    return(3)
+    q.diff <- abs(q[1] - q[2])
+    if (q.diff < 1) return(0.5)
+    if (q.diff < 1.25) return(0.75)
+    if (q.diff < 1.5) return(1)
+    if (q.diff < 1.75) return(1.25)
+    return(1.5)
 }    
     
 # ExomeCNV version without the x11() calls 
@@ -157,8 +161,8 @@ verbose=TRUE) {
     
     if (is.null(sdundo)) {
         sdundo <- .getSDundo(norm.log.ratio[well.covered.exon.idx])
-        if (verbose) message("Setting sd.undo parameter to ", sdundo)
     }   
+    if (verbose) message("Setting undo.SD parameter to ", sdundo)
      
     if (doDNAcopy) {
 
