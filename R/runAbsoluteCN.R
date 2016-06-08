@@ -372,7 +372,7 @@ post.optimize=FALSE,
         log.ratio=log.ratio, plot.cnv=plot.cnv, 
         coverage.cutoff=ifelse(is.null(seg.file), coverage.cutoff, -1), 
         sampleid=sampleid, vcf=vcf.germline, tumor.id.in.vcf=tumor.id.in.vcf,
-        normal.id.in.vcf=normal.id.in.vcf,
+        normal.id.in.vcf=normal.id.in.vcf, max.segments=max.segments,
         verbose=verbose,...), args.segmentation)
 
     vcf.germline <- NULL

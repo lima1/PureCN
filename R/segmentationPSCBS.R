@@ -31,6 +31,9 @@ tumor.id.in.vcf=1,
 ### Id of tumor in case multiple samples are stored in VCF.
 normal.id.in.vcf=NULL,
 ### Id of normal in in VCF. If NULL, use unpaired PSCBS.
+max.segments=NULL,
+### If not NULL, try a higher undo.SD parameter if number of
+### segments exceeds the threshold.
 verbose=TRUE,
 ### Verbose output.
 ...

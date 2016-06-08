@@ -27,6 +27,9 @@ tumor.id.in.vcf=1,
 ### Id of tumor in case multiple samples are stored in VCF.
 normal.id.in.vcf=NULL,
 ### Id of normal in in VCF. Currently not used.
+max.segments=NULL,
+### If not NULL, try a higher undo.SD parameter if number of
+### segments exceeds the threshold.
 verbose=TRUE
 ### Verbose output.
 ) {
@@ -39,7 +42,8 @@ verbose=TRUE
     }
     x <- .CNV.analyze2(normal, tumor, logR=log.ratio, plot.cnv=plot.cnv, 
         coverage.cutoff=coverage.cutoff, sampleid=sampleid, alpha=alpha, 
-        weights=exon.weights, sdundo=undo.SD, verbose=verbose) 
+        weights=exon.weights, sdundo=undo.SD, max.segments=max.segments,
+        verbose=verbose) 
     if (!is.null(vcf)) {
         x <- .pruneByVCF(x, vcf, tumor.id.in.vcf)
     }
@@ -125,10 +129,8 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     q <- quantile(log.ratio,p=c(0.1, 0.9))
     q.diff <- abs(q[1] - q[2])
     if (q.diff < 1) return(0.5)
-    if (q.diff < 1.25) return(0.75)
-    if (q.diff < 1.5) return(1)
-    if (q.diff < 1.75) return(1.25)
-    return(1.5)
+    if (q.diff < 1.5) return(0.75)
+    return(1)
 }    
     
 # ExomeCNV version without the x11() calls 
@@ -139,7 +141,7 @@ function(normal, tumor, logR=NULL, coverage.cutoff=15, normal.chrs=c("chr1",
 "chr21","chr22","chrX","chrY"), normal.chr=normal.chrs, c=0.5, 
 weights=NULL, doDNAcopy=TRUE, sdundo=NULL, 
 undo.splits="sdundo", smooth=TRUE, alpha=0.01, sampleid=NULL, plot.cnv=TRUE, 
-verbose=TRUE) {
+max.segments=NULL, verbose=TRUE) {
     `%+%` <- function(x,y) paste(x,y,sep="")
     normal.chrs = intersect(levels(normal$chr), normal.chrs)
 
@@ -162,7 +164,6 @@ verbose=TRUE) {
     if (is.null(sdundo)) {
         sdundo <- .getSDundo(norm.log.ratio[well.covered.exon.idx])
     }   
-    if (verbose) message("Setting undo.SD parameter to ", sdundo)
      
     if (doDNAcopy) {
 
@@ -173,19 +174,29 @@ verbose=TRUE) {
             sampleid=sampleid)
 
         smoothed.CNA.obj = if (smooth) smooth.CNA(CNA.obj) else CNA.obj
-        if (!is.null(weights)) { 
-            weights <- weights[well.covered.exon.idx]
-            # MR: this shouldn't happen. In doubt, count them as maximum 
-            # (assuming that poorly performing exons are down-weighted)
-            weights[is.na(weights)] <- max(weights, na.rm=TRUE)
-            segment.smoothed.CNA.obj <- segment(smoothed.CNA.obj, 
-                undo.splits=undo.splits, undo.SD=sdundo, 
-                verbose=ifelse(verbose, 1, 0), alpha=alpha,weights=weights)
-        } else {
-            segment.smoothed.CNA.obj <- segment(smoothed.CNA.obj, 
-                undo.splits=undo.splits, undo.SD=sdundo, 
-                verbose=ifelse(verbose, 1, 0), alpha=alpha)
-        } 
+
+        try.again <- 0
+
+        while (try.again < 2) {
+            if (verbose) message("Setting undo.SD parameter to ", sdundo)
+            if (!is.null(weights)) { 
+                weights <- weights[well.covered.exon.idx]
+                # MR: this shouldn't happen. In doubt, count them as maximum 
+                # (assuming that poorly performing exons are down-weighted)
+                weights[is.na(weights)] <- max(weights, na.rm=TRUE)
+                segment.smoothed.CNA.obj <- segment(smoothed.CNA.obj, 
+                    undo.splits=undo.splits, undo.SD=sdundo, 
+                    verbose=ifelse(verbose, 1, 0), alpha=alpha,weights=weights)
+            } else {
+                segment.smoothed.CNA.obj <- segment(smoothed.CNA.obj, 
+                    undo.splits=undo.splits, undo.SD=sdundo, 
+                    verbose=ifelse(verbose, 1, 0), alpha=alpha)
+            } 
+            if (is.null(max.segments) || nrow(segment.smoothed.CNA.obj$output) 
+                < max.segments) break
+            sdundo <- sdundo * 2
+            try.again <- try.again + 1
+        }
 
         if (plot.cnv) {
             plot(segment.smoothed.CNA.obj, plot.type="s")
