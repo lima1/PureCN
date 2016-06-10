@@ -45,7 +45,9 @@ min.purity.relaxed.rules=0.5
         fraction.loh <= max.loh &
         ll >= min.log.likelihood ) |
         ( ploidy > 1.5 & ploidy < 2.5 & seq_along(ploidy)==1 ) |
-        ( purity > min.purity.relaxed.rules & cs[,3] >= min.diploid &
+        ( purity > min.purity.relaxed.rules & 
+          cs[,3] >= min.diploid &
+          cs[,3] < 0.99 &
           fraction.non.single < fraction.single & 
           fraction.loh <= max.loh & ll >= min.log.likelihood ) 
 
