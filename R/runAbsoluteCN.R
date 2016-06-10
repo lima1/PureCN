@@ -510,8 +510,9 @@ post.optimize=FALSE,
         total.ploidy <- candidate.solutions$candidates$ploidy[cpi]
         p <- candidate.solutions$candidates$purity[cpi]
 
-        if (verbose) message("Testing local optimum at purity ", 
-            round(p, digits=2), " and total ploidy ", 
+        if (verbose) message("Testing local optimum ", cpi, "/", 
+            nrow(candidate.solutions$candidates),
+            " at purity ", round(p, digits=2), " and total ploidy ", 
             round(total.ploidy, digits=2), ".")
 
         subclonal <- rep(FALSE, nrow(seg))

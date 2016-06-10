@@ -34,6 +34,40 @@ max.exon.ratio) {
     log.ratio <- log.ratio - mean.log.ratio
     log.ratio
 }
+
+.calcMsSegmentC <- function(yy, test.num.copy, Ci) {
+    max.M <- floor(Ci/2)
+    idx.germline <- test.num.copy+length(test.num.copy)+1
+    idx.somatic <- test.num.copy+1
+
+    yys <- lapply(0:max.M, function(Mi) {
+        for (i in test.num.copy) {
+            n.cases.germ <- ifelse(Mi==Ci-Mi,1,2)
+            n.cases.somatic <- length(unique(c(1,Mi, Ci-Mi)))
+             
+            if (i!=Mi && i!=Ci - Mi) {
+                yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(0.001) - log(n.cases.germ)
+
+                # allow somatic mutations always have M=1
+                if (i==1) {
+                    yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(1 - 0.001) - log(n.cases.somatic)
+                } else {
+                    yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(0.001) - log(n.cases.somatic)
+                }    
+            } else {
+                yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(1-0.001) -log(n.cases.germ)
+                yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(1-0.001) - log(n.cases.somatic)
+            }    
+        }
+        yy
+    })    
+    yys[[which.max(sapply(yys, function(x) sum(apply(x, 1, max))))]]
+}
+
+.calcMsSegment <- function(xxi, test.num.copy) {
+    lapply(seq_along(xxi), function(i).calcMsSegmentC( xxi[[i]], test.num.copy, test.num.copy[i]))
+}    
+
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
     C.posterior, C, snv.model, prior.somatic, snv.lr, sampleid = NULL, 
     cont.rate = 0.01, prior.M = NULL, post.optimize) {
@@ -122,6 +156,8 @@ max.exon.ratio) {
         })
         
     })
+    
+    xx <- lapply(xx, .calcMsSegment, test.num.copy)
     snv.posteriors <- do.call(rbind, 
         lapply(1:length(xx), function(i) Reduce("+", 
             lapply(test.num.copy, function(Ci) 
@@ -436,11 +472,23 @@ max.exon.ratio) {
             b/D), sd = sd.seg, log = TRUE))))
 }
 
+# This function is used to punish more complex copy number models
+# a little bit. Based on the BIC. This just counts the number of utilized 
+# copy number states, excluding normal 2. Then multiplies by 
+# log(number exons)
+.calcComplexityCopyNumber <- function(results) {
+    cs <- sapply((0:7)[-3], function(i) sapply(results, function(y)
+                    sum(y$seg$size[y$seg$C == i])/sum(y$seg$size)))
+    complexity <- apply(cs,1, function(z) sum(z>0.001))
+    n <- sum(results[[1]]$seg$num.mark, na.rm=TRUE)
+    penalty <- -complexity*log(n)
+}
+
 .rankResults <- function(results) {
     
     # max.ll <- max(sapply(results, function(z) z$log.likelihood)) max.snv.ll <-
     # max(sapply(results, function(z) z$SNV.posterior$beta.model$llik))
-    
+    complexity <- .calcComplexityCopyNumber(results) 
     for (i in 1:length(results)) {
         if (is.null(results[[i]]$SNV.posterior)) {
             results[[i]]$total.log.likelihood <- results[[i]]$log.likelihood
@@ -449,6 +497,7 @@ max.exon.ratio) {
             # 2*(results[[i]]$SNV.posterior$beta.model$llik/max.snv.ll)
             results[[i]]$total.log.likelihood <- results[[i]]$log.likelihood + results[[i]]$SNV.posterior$beta.model$llik
         }
+        results[[i]]$total.log.likelihood <- results[[i]]$total.log.likelihood + complexity[i]
     }
     idx.opt <- order(sapply(results, function(z) z$total.log.likelihood), decreasing = TRUE)
     

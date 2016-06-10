@@ -7,14 +7,20 @@ Focus on PureCN 1.2 was to dramatically improve user-friendliness:
 
 - Output plots were polished.
 
-- Functions to calculate power to detect mono-clonal and sub-clonal somatic
-  mutations (Carter et al., Nature Biotech, 2012) were added.
-
 
 Performance enhancements:
 
 - More thorough initial grid search should minimize cases where pruity/ploidy
   is wrong because the solution was not considered.
 
+- More robust and accurate likelihood model.  
+
 - Support for SNVs outside the copy number interval file
   (remove.off.target.snvs=FALSE)   
+
+
+Other new features:
+
+- Functions to calculate power to detect mono-clonal and sub-clonal somatic
+  mutations (Carter et al., Nature Biotech, 2012) were added.
+
