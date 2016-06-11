@@ -7,7 +7,7 @@ res,
 ids=NULL, 
 ### Candidate solutions to be plotted. ids=1 will draw the 
 ### plot for the maximum likelihood solution.
-type=c("hist", "overview", "BAF", "AF", "LOH", "all"),
+type=c("hist", "overview", "BAF", "AF", "all"),
 ### Different types of plots. "hist" will plot a histogram, 
 ### assigning log-ratio peaks to integer values. "overview" will plot all 
 ### local optima, sorted by likelihood. "BAF" plots something like a B-allele
@@ -328,47 +328,6 @@ show.segment.means=c("SNV", "segments", "both"),
                     digits=4)), col=mycol.palette$color, pch=mycol.palette$pch)
             }
         }
-    } else if (type=="LOH") {
-        if (is.null(res$input$vcf)) 
-            stop("runAbsoluteCN was run without a VCF file.")
-        if (is.null(ids)) ids <- 1:length(res$results)
-        for (i in ids) {
-            r <- res$results[[i]]$SNV.posterior$beta$posterior
-            idx <-!r$ML.SOMATIC
-            tmp <- cbind(levels(r[,1]), match(levels(r[,1]), r[idx, 1]))
-            tmp <- tmp[complete.cases(tmp),,drop=FALSE]
-            if (is.null(r)) next
-            par(mfrow=c(3,1))
-            main <- paste(
-                "Purity:", round(res$results[[i]]$purity[[1]], digits=2), 
-                " Tumor ploidy:", round(res$results[[i]]$ploidy, digits=3),
-                " SNV log-likelihood:", 
-                    round(res$results[[i]]$SNV.posterior$beta$llik, digits=2),
-                " Mean coverage:", 
-                    paste(round(apply(geno(res$input$vcf)$DP,2,mean)),
-                    collapse=";") 
-            )
-            mycol <- ifelse(as.numeric(r[!r$ML.SOMATIC,1]) %% 2, "#E41A1C",
-                "#377EB8")
-            loh <- res$results[[i]]$SNV.posterior$beta$loh$output
-            plot( do.call(c, lapply(1:nrow(loh), function(i) 
-                rep(loh$seg.mean[i], loh$num.mark[i]))),
-                ylab="Fraction LOH (segmented)", xlab="SNV Index",
-                type="l", main=main, ...)
-            axis(side=3, at=tmp[,2], labels=tmp[,1], tick=FALSE, padj=1)
-            abline(v=tmp[,2], lty=3, col="grey")
-            plot(r$ML.M[!r$ML.SOMATIC], 
-                ylab="Maximum Likelihood SNV Multiplicity", 
-                xlab="SNV Index", 
-                ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), col=mycol,...)
-            abline(v=tmp[,2], lty=3, col="grey")
-            if (sum(r$ML.SOMATIC)>0) {
-                s <- r[!idx,paste("SOMATIC.M", 1:7, sep="")]
-                colnames(s) <- gsub("SOMATIC.","",colnames(s))
-                boxplot(s, xlab="Multiplicity somatic mutations", 
-                    ylab="Posterior probability")
-            }
-        }
     } else if (type =="all") {
         plotAbs(res, type="overview")
         if (is.null(ids)) ids <- 1:length(res$results)
@@ -378,7 +337,6 @@ show.segment.means=c("SNV", "segments", "both"),
             if (!is.null(res$input$vcf)) {
                 plotAbs(res,i, type="BAF",...)
                 plotAbs(res,i, type="AF",...)
-                plotAbs(res,i, type="LOH",...)
             }
         }    
     } else {
