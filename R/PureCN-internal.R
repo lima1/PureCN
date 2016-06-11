@@ -61,7 +61,8 @@ max.exon.ratio) {
         }
         yy
     })    
-    yys[[which.max(sapply(yys, function(x) sum(apply(x, 1, max))))]]
+    best <- which.max(sapply(yys, function(x) sum(apply(x, 1, max))))
+    list(best=yys[[best]], M=test.num.copy[best])
 }
 
 .calcMsSegment <- function(xxi, test.num.copy) {
@@ -157,7 +158,15 @@ max.exon.ratio) {
         
     })
     
-    xx <- lapply(xx, .calcMsSegment, test.num.copy)
+    tmp <- lapply(xx, .calcMsSegment, test.num.copy)
+    xx <- lapply(tmp, lapply, function(x) x$best)
+    
+    # Get segment M's for each SNV
+    segment.M <- sapply(seq_along(tmp), function(i) 
+        tmp[[i]][[min(C[seg.idx[i]], max(test.num.copy))+1]]$M)
+    segment.M <- unlist(sapply(seq_along(seg.idx), function(i) 
+        rep(segment.M[i], sum(seg.idx[i]==queryHits(ov)))))
+
     snv.posteriors <- do.call(rbind, 
         lapply(1:length(xx), function(i) Reduce("+", 
             lapply(test.num.copy, function(Ci) 
@@ -179,7 +188,8 @@ max.exon.ratio) {
         as.data.frame(rowRanges(vcf[vcf.ids]))[, 1:3], 
         posteriors, 
         xx, 
-        ML.C = C[queryHits(ov)]
+        ML.C = C[queryHits(ov)],
+        ML.M.Segment=segment.M
     )
     
     posteriors$ML.AR <- (p * posteriors$ML.M + 
@@ -211,6 +221,9 @@ max.exon.ratio) {
         posteriors$ML.C < max(test.num.copy) & 
         C.posterior[queryHits(ov), ncol(C.posterior)] > 0.95) | 
         rm.snv.posteriors == 0
+
+    # change seqnames to chr
+    colnames(posteriors)[1] <- "chr"    
 
     ret <- list(
         llik = sum(log(rm.snv.posteriors[!idx.ignore])) - sum(idx.ignore), 
@@ -601,7 +614,7 @@ max.exon.ratio) {
 }
 .getVariantCallsLOH <- function(result) {
     g <- result$SNV.posterior$beta.model$posteriors
-    g.gr <- GRanges(seqnames = g$seqnames, IRanges(start = g$start, end = g$end))
+    g.gr <- GRanges(seqnames = g$chr, IRanges(start = g$start, end = g$end))
     l <- result$SNV.posterior$beta.model$loh$output
     l.gr <- GRanges(seqnames = l$chrom, IRanges(start = l$loc.start, end = l$loc.end))
     ov <- findOverlaps(g.gr, l.gr)

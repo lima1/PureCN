@@ -146,7 +146,11 @@ show.segment.means=c("SNV", "segments", "both"),
             segment.log.ratio <- res$results[[i]]$seg$seg.mean[
                 res$results[[i]]$SNV.posterior$beta.model$segment.ids]
             segment.log.ratio.lines <- .toLines(ss=segment.log.ratio[idx])
-            
+            segment.M.log.ratio.lines <- .toLines(
+                peak.ideal.means[as.character(
+                res$results[[i]]$SNV.posterior$beta.model$posteriors$ML.M.Segment[idx]
+            )])
+
             if (!is.null(chr) && length(chr)==1) {
                 x <- r$start[idx]/1000
                 plot(x, r$AR[idx],ylab="B-Allele Frequency", 
@@ -158,7 +162,9 @@ show.segment.means=c("SNV", "segments", "both"),
                 plot(x, r$Log.Ratio[idx], ylab="Copy Number log-ratio", 
                     xlab="Pos (kbp)", col=mycol, main=main, pch=mypch,... )
                 segment.log.ratio.lines[,1] <- x[segment.log.ratio.lines[,1]]
-                lines(segment.log.ratio.lines, col="grey", lwd=3)
+                lines(segment.log.ratio.lines, col="black", lwd=3)
+                segment.M.log.ratio.lines[,1] <- x[segment.M.log.ratio.lines[,1]]
+                lines(segment.M.log.ratio.lines, col="grey", lwd=3)
                 abline(h=0, lty=3, col="grey")
                 abline(h=peak.ideal.means, lty=2, col="grey")
                 axis(side=4,at=peak.ideal.means, 
@@ -183,7 +189,8 @@ show.segment.means=c("SNV", "segments", "both"),
                 plot(r$Log.Ratio[idx], ylab="Copy Number log-ratio", 
                     xlab="SNV Index", col=adjustcolor(mycol, alpha.f=myalpha),
                     main=main, pch=mypch, ylim=myylim, ... )
-                lines(segment.log.ratio.lines, col="grey", lwd=3)
+                lines(segment.log.ratio.lines, col="black", lwd=3)
+                lines(segment.M.log.ratio.lines, col="grey", lwd=3)
 
                 abline(h=0, lty=3, col="grey")
                 abline(v=tmp[,2], lty=3, col="grey")
@@ -194,6 +201,7 @@ show.segment.means=c("SNV", "segments", "both"),
                 plot(r$ML.C[idx], ylab="Maximum Likelihood Copy Number", 
                     xlab="SNV Index", 
                     ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), ... )
+                points(r$ML.M.Segment[idx], col="grey")
                 abline(v=tmp[,2], lty=3, col="grey")
             } 
         }
@@ -412,6 +420,9 @@ plotAbs(purecn.example.output, 1, type="BAF")
 .toLines <- function(
 ### "segments" already segmented log-ratios into a list for plotting
 ss) {
+    # avoid the corner case when last SNV is in different segment
+    if (length(ss)>2) ss[length(ss)] <- ss[length(ss)-1]
+
     #get brakepoints
     bp <- sapply(2:(length(ss)),function(i) ss[i] != ss[i-1])
     bp <- c(TRUE, bp)
