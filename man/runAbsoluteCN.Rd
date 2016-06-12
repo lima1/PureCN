@@ -18,7 +18,7 @@ Provides copy number and LOH data, by both gene and genomic region. }
     fun.focal = findFocal, args.focal = list(), sampleid = NULL, 
     min.ploidy = 1, max.ploidy = 6, test.num.copy = 0:7, 
     test.purity = seq(0.15, 0.95, by = 0.01), prior.purity = rep(1, 
-        length(test.purity))/length(test.purity), max.candidate.solutions = 25, 
+        length(test.purity))/length(test.purity), max.candidate.solutions = 20, 
     candidates = NULL, coverage.cutoff = 15, max.non.clonal = 0.2, 
     max.homozygous.loss = 0.1, iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = TRUE, gc.gene.file = NULL, 

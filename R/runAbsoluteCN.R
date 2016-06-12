@@ -85,7 +85,7 @@ test.purity=seq(0.15,0.95,by=0.01),
 prior.purity=rep(1,length(test.purity))/length(test.purity), 
 ### Priors for purity if they are available. Only change 
 ### when you know what you are doing.
-max.candidate.solutions=25, 
+max.candidate.solutions=20, 
 ### Number of local optima considered in optimization 
 ### and variant fitting steps. If there are too many local optima, it will use
 ### specified number of top candidate solutions, but will also include all 
