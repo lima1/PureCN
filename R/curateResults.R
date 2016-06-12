@@ -19,12 +19,8 @@ max.non.single.gain.loss=0.10,
 ### Maximum fraction of genome with copy number smaller 1 or more than 3.
 max.loh=0.5,
 ### Maximum fraction of genome in LOH. 
-min.log.likelihood=NULL,
+min.log.likelihood=NULL
 ### Minimum copy number log-likelihood to consider sample. If NULL, not tested.
-min.purity.relaxed.rules=0.5
-### If purity exceeds the specified purity, then only require that 
-### there are more single than non-single gains and losses and ploidy exceeds 
-### min.diploid.
 ) {
     cs <- sapply(0:7, function(i) sapply(res$results, function(x) 
                 sum(x$seg$size[x$seg$C == i])/sum(x$seg$size)))
@@ -44,12 +40,7 @@ min.purity.relaxed.rules=0.5
         fraction.non.single < max.non.single.gain.loss & 
         fraction.loh <= max.loh &
         ll >= min.log.likelihood ) |
-        ( ploidy > 1.5 & ploidy < 2.5 & seq_along(ploidy)==1 ) |
-        ( purity > min.purity.relaxed.rules & 
-          cs[,3] >= min.diploid &
-          cs[,3] < 0.99 &
-          fraction.non.single < fraction.single & 
-          fraction.loh <= max.loh & ll >= min.log.likelihood ) 
+        ( ploidy > 1.5 & ploidy < 2.5 & seq_along(ploidy)==1 ) 
 
     ##value<< A list with elements
     list(
@@ -78,21 +69,17 @@ bootstrap=TRUE,
 verbose=TRUE
 ### Verbose output.
 ) {
-    ll <- sapply(res$results, function(x) x$log.likelihood)
-    diploid <- getDiploid(res, min.log.likelihood=quantile(ll, p=1/3))
-    
-#    if (length(diploid$ids)<1) diploid <- getDiploid(res)
-
-    if (verbose) message("Found ", length(diploid$ids), " diploid solutions.")
 
     if (bootstrap && is.null(res$results[[1]]$bootstrap.value)) {
         if (verbose) message("Bootstrapping VCF ",
                 "to reduce number of solutions.")
-        res <- bootstrapResults(res, keep=diploid$ids)
-        diploid <- getDiploid(res)
+        res <- bootstrapResults(res)
     }
+    diploid <- getDiploid(res)
 
+    if (verbose) message("Found ", length(diploid$ids), " diploid solutions.")
     ids <- diploid$ids
+
     # Similar bootstrap value? Then re-order by ploidy closest to diploid
     if (bootstrap && length(diploid$ids)>1) {
         # re-order now
@@ -100,11 +87,11 @@ verbose=TRUE
         
     # undo re-ordering if bootstrap value of now second solution is 
     # very low, or purity is very different from non-diploid ML solution.
-        if ( min(ids) > 1 &&
-            (( res$results[[ids[1]]]$bootstrap.value < 0.01 &&
+        if ( 
+            ( res$results[[ids[1]]]$bootstrap.value < 0.05 &&
               res$results[[ids[2]]]$bootstrap.value > 0.5 ) ||
               abs(res$results[[ids[1]]]$purity - 
-                res$results[[1]]$purity) > 0.2 )) {
+                res$results[[1]]$purity) > 0.2 ) {
             ids <- diploid$ids
         }    
     }           
