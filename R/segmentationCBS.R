@@ -30,6 +30,12 @@ normal.id.in.vcf=NULL,
 max.segments=NULL,
 ### If not NULL, try a higher undo.SD parameter if number of
 ### segments exceeds the threshold.
+prune.hclust.h=0.1,
+### Height in the hclust pruning step. Increasing this value 
+### will merge segments more aggressively.
+prune.hclust.method="ward.D",
+### Cluster method used in the hclust pruning step. See
+### documentation for the hclust function.
 verbose=TRUE
 ### Verbose output.
 ) {
@@ -46,7 +52,8 @@ verbose=TRUE
         verbose=verbose) 
     if (!is.null(vcf)) {
         x <- .pruneByVCF(x, vcf, tumor.id.in.vcf)
-        x <- .pruneByHclust(x, vcf, tumor.id.in.vcf)
+        x <- .pruneByHclust(x, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
+            method=prune.hclust.method)
     }
     idx.enough.markers <- x$cna$output$num.mark > 1
     ##value<< A list with elements
@@ -79,7 +86,8 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))
 })    
 
-.pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=0.1, min.variants=7) {
+.pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=0.1, method="ward.D", 
+    min.variants=7) {
     seg <- segments.p(x$cna)
     seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), 
         IRanges(start=seg$loc.start, end=seg$loc.end))
@@ -91,7 +99,7 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
         mean(ar.r[subjectHits(ov)][queryHits(ov) == i], na.rm=TRUE))
     numVariants <- sapply(1:nrow(seg), function(i) sum(queryHits(ov) == i))
     dx <- cbind(seg$seg.mean,xx)
-    hc <- hclust(dist(dx))
+    hc <- hclust(dist(dx), method=method)
     seg.hc <- data.frame(id=1:nrow(dx), dx, num=numVariants, 
         cluster=cutree(hc,h=h))[hc$order,]
 

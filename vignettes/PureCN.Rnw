@@ -304,17 +304,13 @@ ret <-runAbsoluteCN(gatk.normal.file=pool, gatk.tumor.file=gatk.tumor.file,
     post.optimize=FALSE, plot.cnv=FALSE)
 @
 
-The post.optimize flag will increase the runtime by a lot, but might be worth it
-if the copy number profile is not very clean. This is recommended with lower
+The post.optimize flag will increase the runtime by a lot, but might be worth
+it if the copy number profile is not very clean. This is recommended with lower
 coverage datasets or if there are significant capture biases. For high quality
 whole exome data, this is typically not necessary. Note the uncommented line,
-which is recommended, but not used here for simplicity. The
-\Rfunction{segmentationPSCBS} function requires the \CRANpkg{PSCBS} package
-\cite{Olshen2011} and sometimes gives better results than the default when the
-coverage data is relatively noisy, especially for whole exome data with a large
-number of heterozygous SNPs. The \Rcode{plot.cnv} argument is set to
-\Rcode{FALSE} for this vignette, but generates often helpful additional plots
-provided by the segmentation function.
+which is recommended, but not used here for simplicity.  The \Rcode{plot.cnv}
+argument is set to \Rcode{FALSE} for this vignette, but generates often helpful
+additional plots provided by the segmentation function.
 
 We also need to create a few output files:
 
@@ -480,7 +476,7 @@ By default, we will use \CRANpkg{DNAcopy} \cite{Venkatraman2007} to segment the
 log-ratio. It is straightforward to replace the default with other methods and
 the \Rfunction{segmentationCBS} function can serve as an example. The
 \Rfunction{segmentationPSCBS} function is another example which uses the
-\CRANpkg{PSCBS} package \cite{Olshen2011}.
+\CRANpkg{PSCBS} package \cite{Olshen2011}. 
 
 It is also possible to provide already segmented data, which we however only
 recommend when matched SNP6 data is available. Otherwise it is usually better to

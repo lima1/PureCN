@@ -7,7 +7,8 @@ via args.segmentation.}
 \usage{segmentationCBS(normal, tumor, log.ratio, plot.cnv, 
     coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
     alpha = 0.005, undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, 
-    normal.id.in.vcf = NULL, max.segments = NULL, verbose = TRUE)}
+    normal.id.in.vcf = NULL, max.segments = NULL, prune.hclust.h = 0.1, 
+    prune.hclust.method = "ward.D", verbose = TRUE)}
 \arguments{
   \item{normal}{GATK coverage data for normal sample.}
   \item{tumor}{GATK coverage data for tumor sample.}
@@ -23,6 +24,10 @@ via args.segmentation.}
   \item{normal.id.in.vcf}{Id of normal in in VCF. Currently not used.}
   \item{max.segments}{If not NULL, try a higher undo.SD parameter if number of
 segments exceeds the threshold.}
+  \item{prune.hclust.h}{Height in the hclust pruning step. Increasing this value 
+will merge segments more aggressively.}
+  \item{prune.hclust.method}{Cluster method used in the hclust pruning step. See
+documentation for the hclust function.}
   \item{verbose}{Verbose output.}
 }
 
