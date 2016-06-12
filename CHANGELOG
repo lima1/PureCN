@@ -1,11 +1,12 @@
 1.2
-    - added calculatePowerDetectSomatic
-    - added getSexFromVcf
+    - added autoCurateResults
+    - added bootstrapResults
     - added calculateBamCoverageByInterval
     - added calculateGCContentByInterval
-    - added bootstrapResults
+    - added calculatePowerDetectSomatic
+    - added callAlterations
     - added getDiploid
-    - added autoCurateResults
+    - added getSexFromVcf
 
 1.0
     - added correctCoverageBias

@@ -570,6 +570,13 @@ del.ids <- ret$results[[1]]$gene.calls$C < 0.5
 ret$results[[1]]$gene.calls[amp.ids,]
 @
 
+This strategy is implemented in the \Rfunction{callAlterations} function:
+
+<<calling2>>=
+gene.calls <- callAlterations(ret)
+head(gene.calls)
+@
+
 \section{Power to detect somatic mutations}
 
 As final quality control step, we can test if coverage and tumor purity are

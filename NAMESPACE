@@ -10,6 +10,7 @@ export(segmentationPSCBS)
 export(poolCoverage)
 export(readCoverageGatk)
 export(correctCoverageBias)
+export(callAlterations)
 export(findFocal)
 export(readCurationFile)
 export(calculatePowerDetectSomatic)
@@ -40,7 +41,7 @@ importFrom("graphics", "abline", "axis", "boxplot", "contour", "hist",
     "image", "legend", "lines", "par", "plot", "text", "mtext", "polygon")
 importFrom("stats", "C", "complete.cases", "dbeta", "dist", "dnorm",
     "dunif", "loess", "pbeta", "prcomp", "predict", "runif", "t.test",
-    "weighted.mean", "dbinom", "fisher.test")
+    "weighted.mean", "dbinom", "fisher.test", "hclust")
 importFrom("utils", "data", "head", "read.csv", "read.delim",
     "read.table", "write.csv", "write.table", "tail")
 importFrom("Biostrings", "letterFrequency")

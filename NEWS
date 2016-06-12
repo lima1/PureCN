@@ -16,7 +16,9 @@ Performance enhancements:
 - More robust and accurate likelihood model.  
 
 - Support for SNVs outside the copy number interval file
-  (remove.off.target.snvs=FALSE)   
+  (remove.off.target.snvs=FALSE).   
+
+- Improved segmentation and log-ratio normalization.  
 
 
 Other new features:

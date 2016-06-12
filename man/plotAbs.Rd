@@ -4,7 +4,7 @@
 \description{This function provides various plots for finding correct 
 purity and ploidy combinations in the results of a runAbsoluteCN call.}
 \usage{plotAbs(res, ids = NULL, type = c("hist", "overview", 
-    "BAF", "AF", "LOH", "all"), chr = NULL, germline.only = TRUE, 
+    "BAF", "AF", "all"), chr = NULL, germline.only = TRUE, 
     show.contour = FALSE, purity = NULL, ploidy = NULL, 
     alpha = TRUE, show.segment.means = c("SNV", "segments", 
         "both"), ...)}

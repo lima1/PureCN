@@ -299,6 +299,11 @@ post.optimize=FALSE,
     exon.gr <- GRanges(seqnames=gsub("24", "Y", gsub("23","X", tumor$chr)), 
         IRanges(start=tumor$probe_start,end=tumor$probe_end))
 
+    # these are not used for segmentation, so be a little bit more careful 
+    # with removing (outliers will be smoothed anyways)
+    exon.well.covered.gr <- 
+        exon.gr[.getWellCoveredExons(normal, tumor, coverage.cutoff*0.75)]
+
     vcf <- NULL
     vcf.germline <- NULL
     tumor.id.in.vcf <- NULL
@@ -406,7 +411,7 @@ post.optimize=FALSE,
     }
     
     # get exon log-ratios for all segments 
-    ov.se <- findOverlaps(seg.gr, exon.gr)
+    ov.se <- findOverlaps(seg.gr, exon.well.covered.gr)
     exon.lrs <- lapply(1:nrow(seg), function(i) 
         log.ratio[subjectHits(ov.se)[queryHits(ov.se)==i]])
     exon.lrs <- lapply(exon.lrs, function(x) 
@@ -424,6 +429,12 @@ post.optimize=FALSE,
     } else {   
         exon.lrs <- lapply(exon.lrs, .smoothOutliers)
     }    
+
+    # renormalize, in case segmentation function changed means
+    exon.lrs <- lapply(seq_along(exon.lrs), function(i) {
+        if (length(exon.lrs[[i]]) < 5) return(exon.lrs[[i]])
+        exon.lrs[[i]]-mean(exon.lrs[[i]])+seg$seg.mean[i]
+    })
 
     max.exon.ratio <- 7
 

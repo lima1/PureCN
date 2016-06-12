@@ -62,4 +62,5 @@ test_runAbsoluteCN <- function() {
         vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
         max.candidate.solutions=2)
     checkTrue(is.na( ret$results[[1]]$gene.calls ))
+    checkException(callAlterations(ret))
 }    

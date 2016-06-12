@@ -46,6 +46,7 @@ verbose=TRUE
         verbose=verbose) 
     if (!is.null(vcf)) {
         x <- .pruneByVCF(x, vcf, tumor.id.in.vcf)
+        x <- .pruneByHclust(x, vcf, tumor.id.in.vcf)
     }
     idx.enough.markers <- x$cna$output$num.mark > 1
     ##value<< A list with elements
@@ -77,6 +78,35 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     candidates=purecn.example.output$candidates, max.candidate.solutions=2,
     fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))
 })    
+
+.pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=0.1, min.variants=7) {
+    seg <- segments.p(x$cna)
+    seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), 
+        IRanges(start=seg$loc.start, end=seg$loc.end))
+    ov <- findOverlaps(seg.gr, vcf)
+
+    ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
+    ar.r <- ifelse(ar>0.5, 1-ar, ar)
+    xx <- sapply(1:nrow(seg), function(i) 
+        mean(ar.r[subjectHits(ov)][queryHits(ov) == i], na.rm=TRUE))
+    numVariants <- sapply(1:nrow(seg), function(i) sum(queryHits(ov) == i))
+    dx <- cbind(seg$seg.mean,xx)
+    hc <- hclust(dist(dx))
+    seg.hc <- data.frame(id=1:nrow(dx), dx, num=numVariants, 
+        cluster=cutree(hc,h=h))[hc$order,]
+
+    # cluster only segments with at least n variants    
+    seg.hc <- seg.hc[seg.hc$num>=min.variants,]
+    clusters <- lapply(unique(seg.hc$cluster), function(i) seg.hc$id[seg.hc$cluster==i])
+    clusters <- clusters[sapply(clusters, length)>1]
+
+    for (i in seq_along(clusters)) {
+        x$cna$output$seg.mean[clusters[[i]]] <- 
+            weighted.mean(x$cna$output$seg.mean[clusters[[i]]], x$cna$output$num.mark[clusters[[i]]])
+    }
+    x
+}
+    
 
 # looks at breakpoints, and if p-value is higher than max.pval, merge unless 
 # there is evidence based on germline SNPs
@@ -132,7 +162,18 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     if (q.diff < 1.5) return(0.75)
     return(1)
 }    
-    
+
+.getWellCoveredExons <- function(normal, tumor, coverage.cutoff) {
+    well.covered.exon.idx <- ((normal$average.coverage > coverage.cutoff) & 
+        (tumor$average.coverage > coverage.cutoff)) | 
+        ((normal$average.coverage > 1.5 * coverage.cutoff) &  
+        (tumor$average.coverage > 0.5 * coverage.cutoff))
+    #MR: fix for missing chrX/Y 
+    well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
+
+    well.covered.exon.idx
+}
+        
 # ExomeCNV version without the x11() calls 
 .CNV.analyze2 <-
 function(normal, tumor, logR=NULL, coverage.cutoff=15, normal.chrs=c("chr1",
@@ -148,13 +189,8 @@ max.segments=NULL, verbose=TRUE) {
     # first, do it for exons with enough coverage. MR: added less stringent 
     # cutoff in case normal looks great. these could be homozygous deletions 
     # in high purity samples
-    well.covered.exon.idx <- ((normal$average.coverage > coverage.cutoff) & 
-        (tumor$average.coverage > coverage.cutoff)) | 
-        ((normal$average.coverage > 1.5 * coverage.cutoff) &  
-        (tumor$average.coverage > 0.5 * coverage.cutoff))
-
-    #MR: fix for missing chrX/Y 
-    well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
+    well.covered.exon.idx <- .getWellCoveredExons(normal, tumor, 
+        coverage.cutoff)
 
     if (verbose) message("Removing ", sum(!well.covered.exon.idx), 
         " low coverage exons.")
@@ -194,7 +230,7 @@ max.segments=NULL, verbose=TRUE) {
             } 
             if (is.null(max.segments) || nrow(segment.smoothed.CNA.obj$output) 
                 < max.segments) break
-            sdundo <- sdundo * 2
+            sdundo <- sdundo * 1.5
             try.again <- try.again + 1
         }
 
