@@ -13,7 +13,7 @@ cutoff=0.1
 ### posterior probability is lower than cutoff.
 ){
     llik <- res$results[[id]]$SNV.posterior$beta.model$likelihoods
-    pp   <- res$results[[id]]$SNV.posterior$beta.model$posteriors
+    pp   <- .addSymbols(res$results[[id]])
     purity <- res$results[[id]]$purity
 
     llik.segment.sums <- .calcMpriorGermline(
@@ -60,3 +60,25 @@ purecn.snvs <- predictSomatic(purecn.example.output)
     lapply(llik.segment, function(x) colSums(x[, germline.cols])/
         max(colSums(x[, germline.cols])))
 }
+
+.addSymbols <- function(result) {
+    if (class(result$gene.calls) == "data.frame") {
+        
+    g.gr <- GRanges(seqnames=result$gene.calls$chr,
+              IRanges(start=result$gene.calls$start,
+                      end=result$gene.calls$end))
+       
+    p.gr <- GRanges(seqnames=result$SNV.posterior$beta.model$posteriors$chr,
+              IRanges(start=result$SNV.posterior$beta.model$posteriors$start,
+                      end=result$SNV.posterior$beta.model$posteriors$end))
+    
+    ov <- findOverlaps(p.gr, g.gr)
+    
+    result$SNV.posterior$beta.model$posteriors$gene.symbol <- NA
+    result$SNV.posterior$beta.model$posteriors$gene.symbol[queryHits(ov)] <- 
+        rownames(result$gene.calls)[subjectHits(ov)]
+    }    
+    result$SNV.posterior$beta.model$posteriors
+}
+    
+
