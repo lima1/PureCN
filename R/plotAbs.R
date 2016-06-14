@@ -140,8 +140,11 @@ show.segment.means=c("SNV", "segments", "both"),
                 ifelse(r$GERMLINE.CONTLOW>0.5, 3, 1))[idx]
             myalpha <- ifelse(alpha && nrow(r) > 2000, 2000/nrow(r), 1)
 
-            tmp <- cbind(levels(r[,1]), match(levels(r[,1]), r[idx, 1]))
+            tmp <- data.frame(chr=levels(r[,1]), start=match(levels(r[,1]), r[idx, 1]), 
+                stringsAsFactors=FALSE)
             tmp <- tmp[complete.cases(tmp),,drop=FALSE]
+            tmp <- tmp[order(.strip.chr.name(tmp$chr)),]
+            tmp$end <- c(tmp[-1,2]-1, nrow(r))
 
             segment.log.ratio <- res$results[[i]]$seg$seg.mean[
                 res$results[[i]]$SNV.posterior$beta.model$segment.ids]
@@ -174,8 +177,10 @@ show.segment.means=c("SNV", "segments", "both"),
                     ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), ... )
             } else {
                 plot(r$AR[idx],ylab="B-Allele Frequency", xlab="SNV Index",
-                    main=main, col=adjustcolor(mycol, alpha.f=myalpha), pch=mypch, ...)
-                axis(side=3, at=tmp[,2], labels=tmp[,1], tick=FALSE, padj=1)
+                    main=main, col=adjustcolor(mycol, alpha.f=myalpha), 
+                    pch=mypch, ...)
+                axis(side=3, at=(tmp[,3]+tmp[,2])/2, labels=.strip.chr.name(tmp[,1]), 
+                    tick=FALSE, padj=1)
                 abline(h=0.5, lty=3, col="grey")
                 abline(v=tmp[,2], lty=3, col="grey")
                 main <- paste("SCNA-fit Log-Likelihood:", 

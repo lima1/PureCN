@@ -91,6 +91,13 @@ max.exon.ratio) {
         C.posterior[idx, ncol(C.posterior) - 1] <- C.posterior[idx, 
             ncol(C.posterior) - 1] + C.posterior[idx, ncol(C.posterior)]
     }
+
+    # the same issue, but for subclonal alterations below < 7
+    idx <- C.posterior[,ncol(C.posterior)] > 0.999 & C < max(test.num.copy)
+    if (length(idx) > 1) {
+        f <- 1/ncol(C.posterior)
+        C.posterior[idx,] <-(C.posterior[idx,]+f)/(ncol(C.posterior)*f+1)
+    }   
     
     seg.idx <- which(1:nrow(C.posterior) %in% queryHits(ov))
     sd.ar <- sd(unlist(geno(vcf)$FA[, tumor.id.in.vcf]))

@@ -1,7 +1,8 @@
 \name{callAlterations}
 \alias{callAlterations}
 \title{Calling of amplifications and deletions}
-\description{Function to extract }
+\description{Function to extract major copy number alterations from a 
+runAbsoluteCN return object.}
 \usage{callAlterations(res, id = 1, cutoffs = c(0.5, 6, 7), 
     log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, 
     ...)}

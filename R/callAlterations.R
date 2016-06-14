@@ -1,6 +1,7 @@
 callAlterations <- structure(
 function(# Calling of amplifications and deletions
-### Function to extract 
+### Function to extract major copy number alterations from a 
+### runAbsoluteCN return object.
 res,
 ### Return object of the runAbsoluteCN() function.
 id=1,
