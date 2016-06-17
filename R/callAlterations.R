@@ -39,11 +39,12 @@ failed=NULL,
             log.ratio.cutoffs[1]
     }
 
-    amps <- data.frame(res$results[[1]]$gene.calls[amp.ids,], 
-        type="AMPLIFICATION")
-    dels <- data.frame(res$results[[1]]$gene.calls[del.ids,], 
-        type="DELETION")
-    rbind(amps, dels)
+    calls <- res$results[[1]]$gene.calls
+    calls$type <- NA
+    calls$type[amp.ids] <- "AMPLIFICATION"
+    calls$type[del.ids] <- "DELETION"
+
+    calls[!is.na(calls$type),]
 ### A data.frame with gene-level amplification and deletion calls.
 },ex=function() {
 data(purecn.example.output)

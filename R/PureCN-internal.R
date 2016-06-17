@@ -677,6 +677,6 @@ max.exon.ratio) {
     start <- seq(1,length(dlr), by=window)
     end <- seq(window,length(dlr), by=window)
     sds <- sapply(seq_along(end), function(i) sd(dlr[start[i]:end[i]], na.rm=TRUE))
-    ids <- which(sds > quantile(sds, na.rm=TRUE, p=1-0.001))
+ #   ids <- which(sds > quantile(sds, na.rm=TRUE, p=1-0.001))
 }
 

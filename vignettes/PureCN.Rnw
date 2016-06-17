@@ -277,6 +277,9 @@ states.
 #   quote=FALSE)
 @
 
+Finally, we recommend running \software{MuTect} with a pool of normal samples 
+to filter common sequencing errors and alignment artifacts from the VCF.
+
 \subsection{Artifact filtering without a pool of normals}
 
 By default, \Biocpkg{PureCN} will exclude exons with coverage below 15X from

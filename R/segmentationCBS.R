@@ -87,7 +87,7 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
 })    
 
 .pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=0.1, method="ward.D", 
-    min.variants=7) {
+    min.variants=5) {
     seg <- segments.p(x$cna)
     seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), 
         IRanges(start=seg$loc.start, end=seg$loc.end))
@@ -95,8 +95,14 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
 
     ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
     ar.r <- ifelse(ar>0.5, 1-ar, ar)
-    xx <- sapply(1:nrow(seg), function(i) 
-        mean(ar.r[subjectHits(ov)][queryHits(ov) == i], na.rm=TRUE))
+    dp <- geno(vcf)$DP[, tumor.id.in.vcf]
+
+    xx <- sapply(1:nrow(seg), function(i) {
+        weighted.mean(
+            ar.r[subjectHits(ov)][queryHits(ov) == i], 
+            w=sqrt(dp[subjectHits(ov)][queryHits(ov) == i]),
+            na.rm=TRUE)
+    })
     numVariants <- sapply(1:nrow(seg), function(i) sum(queryHits(ov) == i))
     dx <- cbind(seg$seg.mean,xx)
     hc <- hclust(dist(dx), method=method)
