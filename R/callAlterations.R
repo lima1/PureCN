@@ -44,6 +44,7 @@ failed=NULL,
     dels <- data.frame(res$results[[1]]$gene.calls[del.ids,], 
         type="DELETION")
     rbind(amps, dels)
+### A data.frame with gene-level amplification and deletion calls.
 },ex=function() {
 data(purecn.example.output)
 callAlterations(purecn.example.output)

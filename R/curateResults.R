@@ -66,6 +66,8 @@ res,
 bootstrap=TRUE,
 ### Try to reduce the number of local optima by using the
 ### bootstrapResults function.
+bootstrap.n=500,
+### Number of bootstrap replicates.
 verbose=TRUE
 ### Verbose output.
 ) {
@@ -73,7 +75,7 @@ verbose=TRUE
     if (bootstrap && is.null(res$results[[1]]$bootstrap.value)) {
         if (verbose) message("Bootstrapping VCF ",
                 "to reduce number of solutions.")
-        res <- bootstrapResults(res)
+        res <- bootstrapResults(res, n=bootstrap.n)
     }
     diploid <- getDiploid(res)
 
@@ -99,8 +101,11 @@ verbose=TRUE
         res$results <- c(res$results[ids], res$results[-ids])        
     }
     res    
+### The provided runAbsoluteCN return object with unlikely 
+### purity and ploidy solutions filtered out.
 }, ex=function() {
 data(purecn.example.output)
 # no diploid solutions in the example
-example.output.curated <- autoCurateResults(purecn.example.output)
+example.output.curated <- autoCurateResults(purecn.example.output, 
+    bootstrap.n=100)
 })        

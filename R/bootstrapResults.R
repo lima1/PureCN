@@ -51,6 +51,6 @@ keep=c()
 ### first.                
 }, ex=function() {
 data(purecn.example.output)
-ret.boot <- bootstrapResults(purecn.example.output)
+ret.boot <- bootstrapResults(purecn.example.output, n=100)
 plotAbs(ret.boot, type="overview")
 })    

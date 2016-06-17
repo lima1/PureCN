@@ -20,7 +20,7 @@ annotation, which can be set in the curation file.}
 }
 }
 
-
+\value{A data.frame with gene-level amplification and deletion calls.}
 
 \author{Markus Riester}
 
