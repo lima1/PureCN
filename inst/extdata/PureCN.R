@@ -72,9 +72,12 @@ sampleid, outdir
 outdir <- normalizePath(outdir, mustWork=TRUE)
 gatk.tumor.file <- normalizePath(gatk.tumor.file, mustWork=TRUE)
 
+if (is.null(sampleid)) stop("Need sampleid.")
+
 library(PureCN)
 
 PureCN(gatk.tumor.file, gatk.normal.file, tumor.vcf, genome,
-gc.gene.file, snp.blacklist=NULL, exon.weight.file=NULL, normalDB=NULL, 
+gc.gene.file, snp.blacklist=snp.blacklist, 
+exon.weight.file=exon.weight.file, normalDB=normalDB, 
 sampleid, outdir) 
 
