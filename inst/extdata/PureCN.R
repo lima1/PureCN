@@ -1,4 +1,4 @@
-library('getopt');
+library('getopt')
 
 spec <- matrix(c(
 'help' , 'h', 0, "logical",
@@ -12,13 +12,13 @@ spec <- matrix(c(
 'normaldb' , 'd', 1, "character",
 'outdir' , 'o', 1, "character",
 'sampleid' , 'i', 1, "character"
-), byrow=TRUE, ncol=4);
-opt <- getopt(spec);
+), byrow=TRUE, ncol=4)
+opt <- getopt(spec)
 
 
 if ( !is.null(opt$help) ) {
-    cat(getopt(spec, usage=TRUE));
-    q(status=1);
+    cat(getopt(spec, usage=TRUE))
+    q(status=1)
 }
 
 gatk.normal.file <- opt$normal
