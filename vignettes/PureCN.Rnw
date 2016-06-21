@@ -625,6 +625,32 @@ legend("bottomright", legend=paste("Purity", purity),
 mutations with cellular fraction of 0.2.}{Reproduced from \cite{Carter2012}.}
 
 \clearpage
+
+\section{Command line scripts}
+
+We provide a basic template for GC-normalizing BAM or \software{GATK
+DepthOfCoverage} files from the command line. For example:
+
+\begin{verbatim}
+# From a BAM file
+Rscript Coverage.R --outdir ~/tmp/ --bam ex1.bam \
+     --gcgene ex1_intervals.txt
+
+# From a GATK DepthOfCoverage file
+Rscript Coverage.R --outdir ~/tmp/ --gatkcoverage example_tumor.txt \ 
+    --gcgene  example_gc.gene.file.txt     
+\end{verbatim}
+
+PureCN.R is an example script to run PureCN with basic parameters:
+
+\begin{verbatim}
+Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \ 
+    --normal example_normal.txt --vcf example_vcf.vcf -i Sample1 \
+     --genome hg19 --gcgene  example_gc.gene.file.txt
+\end{verbatim}
+
+These R scripts can be found in the extdata directory of the installed package.
+
 \appendix
 
 \bibliography{PureCN}

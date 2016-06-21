@@ -9,18 +9,15 @@ spec <- matrix(c(
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
 
-
 if ( !is.null(opt$help) ) {
     cat(getopt(spec, usage=TRUE))
     q(status=1)
 }
 
 bam.file <- opt$bam
-interval.file <- opt$interval
 gatk.coverage <- opt$gatkcoverage
 gc.gene.file <- opt$gcgene
 outdir <- opt$outdir
-
 
 outdir <- normalizePath(outdir, mustWork=TRUE)
 gc.gene.file <- normalizePath(gc.gene.file, mustWork=TRUE)
