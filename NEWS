@@ -2,27 +2,32 @@ Focus on PureCN 1.2 was to dramatically improve user-friendliness:
 
 - GATK requirement was dropped: PureCN now comes with functionality to
   generate coverage data when GATK is not available.
-
 - Automatic curation of results was added.
-
 - Output plots were polished.
 
+-------------------------------------------------------------------------------
 
-Performance enhancements:
+Performance enhancements
 
 - More thorough initial grid search should minimize cases where pruity/ploidy
   is wrong because the solution was not considered.
-
 - More robust and accurate likelihood model.  
-
 - Support for SNVs outside the copy number interval file
   (remove.off.target.snvs=FALSE).   
-
 - Improved segmentation and log-ratio normalization.  
 
+-------------------------------------------------------------------------------
 
-Other new features:
+Other new features
 
 - Functions to calculate power to detect mono-clonal and sub-clonal somatic
   mutations (Carter et al., Nature Biotech, 2012) were added.
 
+-------------------------------------------------------------------------------
+
+Planned features for PureCN 1.4 (Bioconductor 3.5)
+
+- Support for indels and maybe rearrangements.
+- Performance enhancements  
+
+-------------------------------------------------------------------------------
