@@ -131,7 +131,7 @@ show.segment.means=c("SNV", "segments", "both"),
                     idx <- rep(TRUE, nrow(r))
                 } 
             } else {
-                idx <-r$seqnames %in% chr
+                idx <-r$chr %in% chr
                 if (germline.only) idx[r$ML.SOMATIC[idx]] <- FALSE
             }    
             mycol <- ifelse(.strip.chr.name(r[idx,1]) %% 2, 
@@ -378,6 +378,7 @@ plotAbs(purecn.example.output, type="overview")
 # plot details for the maximum likelihood solution (rank 1)
 plotAbs(purecn.example.output, 1, type="hist")
 plotAbs(purecn.example.output, 1, type="BAF")
+plotAbs(purecn.example.output, 1, type = "BAF", chr="chr2")
 })    
 
 .toLines <- function(

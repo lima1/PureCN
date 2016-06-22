@@ -52,4 +52,5 @@ plotAbs(purecn.example.output, type="overview")
 # plot details for the maximum likelihood solution (rank 1)
 plotAbs(purecn.example.output, 1, type="hist")
 plotAbs(purecn.example.output, 1, type="BAF")
+plotAbs(purecn.example.output, 1, type = "BAF", chr="chr2")
 }
