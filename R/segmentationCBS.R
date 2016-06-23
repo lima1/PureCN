@@ -52,7 +52,7 @@ verbose=TRUE
         verbose=verbose) 
     if (!is.null(vcf)) {
         x <- .pruneByVCF(x, vcf, tumor.id.in.vcf)
-        x <- .findCNNLOH(x, vcf, tumor.id.in.vcf)
+        x <- .findCNNLOH(x, vcf, tumor.id.in.vcf, alpha=alpha)
         x <- .pruneByHclust(x, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
             method=prune.hclust.method)
     }
@@ -87,37 +87,41 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))
 })    
 
-.findCNNLOH <- function( x, vcf, tumor.id.in.vcf, min.variants=10 ) {
-    seg <- x$cna$output
-    seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), 
-        IRanges(start=seg$loc.start, end=seg$loc.end))
-    ov <- findOverlaps(seg.gr, vcf)
-    ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
-    ar.r <- ifelse(ar>0.5, 1-ar, ar)
+.findCNNLOH <- function( x, vcf, tumor.id.in.vcf, alpha=0.005, min.variants=7, 
+iterations=2 ) {
+    for (iter in 1:iterations) {
+        seg <- x$cna$output
+        seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), 
+            IRanges(start=seg$loc.start, end=seg$loc.end))
+        ov <- findOverlaps(seg.gr, vcf)
+        ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
+        ar.r <- ifelse(ar>0.5, 1-ar, ar)
 
-    segs <- split(seg, 1:nrow(seg))
-    sizes <- split(x$cnv$size, 1:nrow(seg))
+        segs <- split(seg, 1:nrow(seg))
+        sizes <- split(x$cnv$size, 1:nrow(seg))
 
-    for (i in 1:nrow(seg)) {
-        sar <-ar.r[subjectHits(ov)][queryHits(ov)==i]
-        if (length(sar) < 2 *min.variants) next
-        bp <- which.min(sapply(seq(min.variants, length(sar)-min.variants, by=1), 
-            function(i) sum(c( sd(sar[1:i]), sd(sar[(i+1):length(sar)])))))
-        bp <- bp + min.variants-1
-        tt <- t.test( sar[1:bp], sar[(bp+1):length(sar)])
-        if ( abs(tt$estimate[1] - tt$estimate[2]) > 0.05 
-            && tt$p.value < 0.001) {
-            segs[[i]] <- rbind(segs[[i]], segs[[i]])            
-            bpPosition <-  start(vcf[subjectHits(ov)][queryHits(ov)==i])[bp]
-            segs[[i]]$loc.end[1] <- bpPosition
-            segs[[i]]$loc.start[2] <- bpPosition+1
-            sizes[[i]] <- c(bpPosition, sizes[[i]]-bpPosition)
-            segs[[i]]$num.mark <- round(sizes[[i]]/sum(sizes[[i]]) * 
-                segs[[i]]$num.mark)
+        for (i in 1:nrow(seg)) {
+            sar <-ar.r[subjectHits(ov)][queryHits(ov)==i]
+            if (length(sar) < 2 *min.variants) next
+            bp <- which.min(sapply(seq(min.variants, length(sar)-min.variants, by=1), 
+                function(i) sum(c( sd(sar[1:i]), sd(sar[(i+1):length(sar)])))))
+            bp <- bp + min.variants-1
+            tt <- t.test( sar[1:bp], sar[(bp+1):length(sar)])
+            if ( abs(tt$estimate[1] - tt$estimate[2]) > 0.05
+                && tt$p.value < alpha) {
+                segs[[i]] <- rbind(segs[[i]], segs[[i]])            
+                bpPosition <-  start(vcf[subjectHits(ov)][queryHits(ov)==i])[bp]
+                segs[[i]]$loc.end[1] <- bpPosition
+                segs[[i]]$loc.start[2] <- bpPosition+1
+                sizes[[i]] <- c(bpPosition, sizes[[i]]-bpPosition)
+                segs[[i]]$num.mark <- round(sizes[[i]]/sum(sizes[[i]]) * 
+                    segs[[i]]$num.mark)
+                #message("Iteration: ", iter, " Found CNNLOH on ", seg$chrom[i]) 
+            }
         }
+        x$cna$output <- do.call(rbind, segs)
+        x$cnv <- list(size=as.vector(do.call(c, sizes)))
     }
-    x$cna$output <- do.call(rbind, segs)
-    x$cnv <- list(size=as.vector(do.call(c, sizes)))
     x
 }
     
