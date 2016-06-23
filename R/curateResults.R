@@ -22,6 +22,8 @@ max.loh=0.5,
 min.log.likelihood=NULL
 ### Minimum copy number log-likelihood to consider sample. If NULL, not tested.
 ) {
+    if (length(res$results) < 2) return(res)
+
     cs <- sapply(0:7, function(i) sapply(res$results, function(x) 
                 sum(x$seg$size[x$seg$C == i])/sum(x$seg$size)))
     
@@ -71,7 +73,6 @@ bootstrap.n=500,
 verbose=TRUE
 ### Verbose output.
 ) {
-
     if (bootstrap && is.null(res$results[[1]]$bootstrap.value)) {
         if (verbose) message("Bootstrapping VCF ",
                 "to reduce number of solutions.")
