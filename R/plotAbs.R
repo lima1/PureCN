@@ -203,10 +203,10 @@ show.segment.means=c("SNV", "segments", "both"),
                 axis(side=4,at=peak.ideal.means, 
                     labels=names(peak.ideal.means))
 
-                plot(r$ML.C[idx], ylab="Maximum Likelihood Copy Number", 
+                plot(r$ML.M.Segment[idx], ylab="Maximum Likelihood Copy Number", 
                     xlab="SNV Index", 
-                    ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), ... )
-                points(r$ML.M.Segment[idx], col="grey")
+                    ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), col="grey", ... )
+                points(r$ML.C[idx], col="black")
                 abline(v=tmp[,2], lty=3, col="grey")
             } 
         }
