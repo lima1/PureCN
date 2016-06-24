@@ -357,7 +357,12 @@ of 0, 1 and 2.
 plotAbs(ret, 1, type="BAF")
 @
 \incfig{figure/figureexample3-1}{0.95\textwidth}{B-allele frequency plot.}{Each
-dot is a (predicted) germline SNP.}
+dot is a (predicted) germline SNP. The first panel shows the allelic
+fractions.  The black lines visualize the expected (not the average!) allelic
+fractions in the segment. These are calculated using the estimated purity and
+the total and minor segment copy numbers. These are visualized in black and grey,
+respectively, in the second and third panel.  The second panel shows the
+copy number log-ratios, the third panel the integer copy numbers.}
 
 Germline variant data are informative for calculating integer copy number,
 because unbalanced maternal and paternal chromosome numbers in the tumor portion
@@ -366,15 +371,16 @@ calculating expected allelic fractions are given in the Supplemental Information
 of the \Biocpkg{PureCN} manuscript.  Figure~\ref{figure/figureexample3-1} shows
 the allelic fractions of predicted germline SNPs.  In the middle panel, the
 corresponding copy number log-ratios are shown. The lower panel displays the
-calculated integer copy numbers, corrected for purity and ploidy.
+calculated integer copy numbers, corrected for purity and ploidy. 
 
 <<figureexample4, fig.show='hide'>>=
 plotAbs(ret, 1, type="AF")
 @
 \incfig{figure/figureexample4-1}{0.95\textwidth}{Allele fraction plots.}{Each
 dot is again a (predicted) germline SNP. This plot normally also shows somatic
-mutations in two additional panels. This toy example contains only germline 
-SNPs however.}
+mutations in two additional panels. This toy example contains only germline
+SNPs however. For one SNP, the allelic fractions did not fit the expected
+fraction well and it is predicted as a somatic alteration instead.}
 
 Finally, Figure~\ref{figure/figureexample4-1} provides more insight into how
 well the variants fit the expected values. The left panel shows the correlation
