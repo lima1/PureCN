@@ -153,12 +153,26 @@ show.segment.means=c("SNV", "segments", "both"),
                 peak.ideal.means[as.character(
                 res$results[[i]]$SNV.posterior$beta.model$posteriors$ML.M.Segment[idx]
             )])
+            
+            # calculate expected segment B-allelic fractions
+            purity <- res$results[[i]]$purity
+            ploidy <- res$results[[i]]$ploidy
+            b1 <- ((purity*r$ML.M.Segment[idx])+(1-purity))/((purity*r$ML.C[idx])+2*(1-purity))
+            b2 <- 1-b1
+            segment.b1.lines <- .toLines(ss=b1)
+            segment.b2.lines <- .toLines(ss=b2)
 
             if (!is.null(chr) && length(chr)==1) {
                 x <- r$start[idx]/1000
                 plot(x, r$AR[idx],ylab="B-Allele Frequency", 
                     xlab="Pos (kbp)",main=paste(main, " Chromosome:", chr), 
                     col=mycol, pch=mypch, ...)
+
+                segment.b1.lines[,1] <- x[segment.b1.lines[,1]]
+                segment.b2.lines[,1] <- x[segment.b2.lines[,1]]
+                lines(segment.b1.lines, col="black", lwd=3)
+                lines(segment.b2.lines, col="black", lwd=3)
+
                 abline(h=0.5, lty=3, col="grey")
                 main <- paste("SCNA-fit Log-Likelihood:", 
                     round(res$results[[i]]$log.likelihood, digits=2) )
@@ -179,6 +193,8 @@ show.segment.means=c("SNV", "segments", "both"),
                 plot(r$AR[idx],ylab="B-Allele Frequency", xlab="SNV Index",
                     main=main, col=adjustcolor(mycol, alpha.f=myalpha), 
                     pch=mypch, ...)
+                lines(segment.b1.lines, col="black", lwd=3)
+                lines(segment.b2.lines, col="black", lwd=3)
                 axis(side=3, at=(tmp[,3]+tmp[,2])/2, labels=.strip.chr.name(tmp[,1]), 
                     tick=FALSE, padj=1)
                 abline(h=0.5, lty=3, col="grey")
