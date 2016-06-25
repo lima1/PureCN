@@ -78,19 +78,27 @@ verbose=TRUE
     if (!is.null(snp.blacklist)) {
         for (i in 1:length(snp.blacklist)) {
             snp.blacklist.data <- read.csv(snp.blacklist[i], as.is=TRUE)
+            snp.blacklist.data2 <- read.delim(snp.blacklist[i], as.is=TRUE)
+            if (ncol(snp.blacklist.data2) > ncol(snp.blacklist.data)) {
+                snp.blacklist.data <- snp.blacklist.data2
+            }
             n <- nrow(vcf)
-            if (ncol(snp.blacklist.data)==5) {
+            if (sum( rownames(vcf) %in% snp.blacklist.data[,1]) > 1  ) {
+                vcf <- vcf[!rownames(vcf) %in% snp.blacklist.data[,1],]
+            } else {
+                if (is.null(snp.blacklist.data$seg.mean)) {
+                    snp.blacklist.data$seg.mean <- 1
+                }    
                 snp.blacklist.data <- 
                     snp.blacklist.data[snp.blacklist.data$seg.mean > 0.2,]
-                ov <- findOverlaps(vcf, GRanges(seqnames=snp.blacklist.data[,1], 
+                ov <- suppressWarnings(findOverlaps(vcf, 
+                    GRanges(seqnames=snp.blacklist.data[,1], 
                     IRanges(start=snp.blacklist.data[,2], 
-                            end=snp.blacklist.data[,3])))
+                            end=snp.blacklist.data[,3]))))
 
                 idx <- !(1:nrow(vcf) %in% queryHits(ov) & info(vcf)$DB)
                 vcf <- vcf[idx]
-            } else {    
-                vcf <- vcf[!rownames(vcf) %in% snp.blacklist.data[,1],]
-            }
+            }    
             if (verbose) message("Removing ", n-nrow(vcf), 
                 " blacklisted SNPs.")
         }    
