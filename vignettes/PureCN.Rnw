@@ -176,6 +176,7 @@ correctCoverageBias(gatk.normal.file, gc.gene.file,
 \section{Pool of normals}
 
 \subsection{Selection of normals for log-ratio calculation}
+\label{bestnormal}
 
 For calculating copy number log-ratios of tumor vs. normal, \Biocpkg{PureCN}
 requires coverage from a process-matched normal sample.  Using a normal that
@@ -224,6 +225,7 @@ a sufficient number of samples with matching sex, \Rfunction{findBestNormal}
 will return only normal samples with matching sex.
 
 \subsection{Artifact filtering}
+\label{artifactfiltering}
 
 It is important to remove as many artifacts as possible, since low ploidy
 solutions are typically punished more by artifacts than high ploidy solutions.
@@ -281,6 +283,7 @@ Finally, we recommend running \software{MuTect} with a pool of normal samples
 to filter common sequencing errors and alignment artifacts from the VCF.
 
 \subsection{Artifact filtering without a pool of normals}
+\label{artifactfiltering2}
 
 By default, \Biocpkg{PureCN} will exclude exons with coverage below 15X from
 segmentation. For SNVs, the same 15X cutoff is applied. \software{MuTect}
@@ -293,6 +296,17 @@ variants, while removing potential artifacts.  Without the stats file,
 \Biocpkg{PureCN} will use only the filters based on read depths as defined in
 \Rfunction{filterVcfBasic}.  Both functions are automatically called by
 \Biocpkg{PureCN}, but can be easily modified and replaced if necessary.
+
+Instead of using a pool of normals to find SNPs with biased allelic fractions,
+we can also use a bed file to blacklist regions. For example the segmental
+duplications and simple repeats tracks from the UCSC. This is again recommended
+when matching normals are not available.
+
+<<ucsc_segmental>>=
+# instead of using a pool of normals to find low quality regions,
+# use general BED files, for example from the UCSC genome browser.
+snp.blacklist <- c('hg19_segmentalDuplications.txt', 'hg19_simpleRepeats.txt')
+@
 
 \section{Recommended run}
 
@@ -656,6 +670,37 @@ Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \
 \end{verbatim}
 
 These R scripts can be found in the extdata directory of the installed package.
+
+\section{FAQ}
+
+\paragraph{If the ploidy is frequently too high, please check:}
+
+\begin{itemize}
+    \item Does the log-ratio histogram (Figure~\ref{figure/figureexample2-1})
+look noisy?
+    \begin{itemize}
+    \item Is the coverage sufficient? Coverages below 80X can be difficult.
+    \item Is the coverage data GC-normalized? If not, see 
+\Rfunction{correctCoverageBias}.
+    \item Is the coverage of the normal sample sufficient? Coverages below 50X
+might result in high variance of log-ratios. See Section~\ref{bestnormal} for
+finding a good normal sample for log-ratio calculation.
+    \item Is the quality of both tumor and normal sufficient? A high AT or
+GC-dropout might result in high variance of log-ratios. Challenging FFPE samples
+also might need parameter tuning of the segmentation function. See 
+\Rfunction{segmentationCBS}. A high expected tumor purity allows more aggressive
+segmentation parameters, such as \Rcode{prune.hclust.h=0.2} or higher.
+    \end{itemize}
+    \item Otherwise, if log-ratio peaks are clean as in 
+Figure~\ref{figure/figureexample2-1}:
+    \begin{itemize}
+        \item Was MuTect run without a matched normal? If yes, then make sure to 
+    provide a SNP blacklist as described in Sections~\ref{artifactfiltering} and 
+    \ref{artifactfiltering2}.
+        \item A high fraction of sub-clonal copy-number alterations might also
+    result in a low ranking of correct low ploidy solutions. 
+    \end{itemize}
+\end{itemize} 
 
 \appendix
 
