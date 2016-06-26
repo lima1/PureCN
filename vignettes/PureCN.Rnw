@@ -303,8 +303,24 @@ duplications and simple repeats tracks from the UCSC. This is again recommended
 when matching normals are not available.
 
 <<ucsc_segmental>>=
-# instead of using a pool of normals to find low quality regions,
-# use general BED files, for example from the UCSC genome browser.
+# Instead of using a pool of normals to find low quality regions,
+# we use suitable BED files, for example from the UCSC genome browser.
+
+# We do not download these in this vignette to avoid build failures due to 
+# internet connectivity problems.
+
+#library(rtracklayer)
+#mySession <- browserSession("UCSC")
+#genome(mySession) <- "hg19"
+#tbl.segmentalDups <- getTable( ucscTableQuery(mySession, 
+#    track="Segmental Dups", table="genomicSuperDups"))
+#tbl.simpleRepeats <- getTable( ucscTableQuery(mySession, 
+#    track="Simple Repeats", table="simpleRepeat"))
+#write.table(tbl.segmentalDups[,-1],file="hg19_segmentalDuplications.txt", 
+#    sep="\t", row.names=FALSE)
+#write.table(tbl.simpleRepeats[,-1],file="hg19_simpleRepeats.txt", 
+#    sep="\t", row.names=FALSE)
+
 snp.blacklist <- c('hg19_segmentalDuplications.txt', 'hg19_simpleRepeats.txt')
 @
 
