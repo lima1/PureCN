@@ -10,7 +10,7 @@ Focus on PureCN 1.2 was to dramatically improve user-friendliness:
 
 Other major enhancements
 
-- More thorough initial grid search should minimize cases where pruity/ploidy
+- More thorough initial grid search should minimize cases where purity/ploidy
   is wrong because the solution was not considered.
 - More robust and accurate likelihood model.  
 - Support for SNVs outside the copy number interval file

@@ -301,7 +301,7 @@ variants, while removing potential artifacts.  Without the stats file,
 \Biocpkg{PureCN}, but can be easily modified and replaced if necessary.
 
 Instead of using a pool of normals to find SNPs with biased allelic fractions,
-we can also use a bed file to blacklist regions. For example the segmental
+we can also use a BED file to blacklist regions. For example the segmental
 duplications and simple repeats tracks from the UCSC. This is again recommended
 when matching normals are not available.
 
