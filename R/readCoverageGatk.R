@@ -11,7 +11,8 @@ file
     chrpos <- matrix(unlist(strsplit(as.character(gatk$Target), 
         ":")), ncol = 2, byrow = TRUE)
 # MR: add chr only if not already added.
-    chr <- factor(.add.chr.name(chrpos[, 1]))
+   # chr <- factor(.add.chr.name(chrpos[, 1]))
+    chr <- factor(chrpos[, 1])
     
     pos <- matrix(as.integer(unlist(strsplit(chrpos[, 2], "-"))), 
         ncol = 2, byrow = TRUE)

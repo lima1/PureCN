@@ -138,6 +138,10 @@ max.logr.sdev=0.75,
 max.segments=200,
 ### Flag noisy samples with a large number of segments. Assay 
 ### specific and needs to be calibrated.
+chr.hash=NULL,
+### Mapping of non-numerical chromsome names to numerical names
+### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
+### are properly ordered.   
 plot.cnv=TRUE, 
 ### Generate segmentation plots.
 verbose=TRUE, 
@@ -178,8 +182,6 @@ post.optimize=FALSE,
         } else {
             normal <- gatk.normal.file
         }    
-        # common chrchr bug workaround
-        normal[,2] <- gsub("^chrchr","chr", as.character(normal[,2]))
     }
     
     if (is.character(gatk.tumor.file)) {
@@ -193,7 +195,7 @@ post.optimize=FALSE,
         tumor <- gatk.tumor.file
         if (is.null(sampleid)) sampleid <- "Sample.1"
     }    
-    tumor[,2] <- gsub("^chrchr","chr", as.character(tumor[,2]))
+    if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
 
     # check that normal is not the same as tumor (only if no log-ratio or 
     # segmentation is provided, in that case we wouldn't use normal anyway)
@@ -211,7 +213,7 @@ post.optimize=FALSE,
     if (is.null(log.ratio)) {
         if (!is.null(seg.file)) {
             if (is.null(gatk.normal.file)) normal <- tumor
-            log.ratio <- .createFakeLogRatios(tumor, seg.file)     
+            log.ratio <- .createFakeLogRatios(tumor, seg.file, chr.hash)     
         } else {
             if (is.null(gatk.normal.file)) {
                 stop(
@@ -296,7 +298,7 @@ post.optimize=FALSE,
         gc.gene.file <- NULL
     }
         
-    exon.gr <- GRanges(seqnames=gsub("24", "Y", gsub("23","X", tumor$chr)), 
+    exon.gr <- GRanges(seqnames=tumor$chr, 
         IRanges(start=tumor$probe_start,end=tumor$probe_end))
 
     # these are not used for segmentation, so be a little bit more careful 
@@ -321,6 +323,11 @@ post.optimize=FALSE,
         } else {
             vcf <- vcf.file
         } 
+
+        if (length(intersect(tumor$chr,seqlevels(vcf))) < 1) {
+            stop("Different chromosome names in coverage and VCF.")
+        }    
+
         if (is.null(args.filterVcf$use.somatic.status)) {
             args.filterVcf$use.somatic.status <- TRUE
         }
@@ -379,18 +386,20 @@ post.optimize=FALSE,
         coverage.cutoff=ifelse(is.null(seg.file), coverage.cutoff, -1), 
         sampleid=sampleid, vcf=vcf.germline, tumor.id.in.vcf=tumor.id.in.vcf,
         normal.id.in.vcf=normal.id.in.vcf, max.segments=max.segments,
-        verbose=verbose,...), args.segmentation)
+        chr.hash=chr.hash, verbose=verbose,...), args.segmentation)
 
     vcf.germline <- NULL
     seg.result <- do.call(fun.segmentation, args.segmentation) 
 
     seg <- seg.result$seg
-    seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), 
+    segChrom <- seg$chrom
+    seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
         IRanges(start=round(seg$loc.start), end=seg$loc.end))
     
     snv.lr <- NULL
 
     if (!is.null(vcf.file)) {
+
         ov <- findOverlaps(seg.gr, vcf)
         n.vcf.before.filter <- nrow(vcf)
         # make sure all SNVs are in covered segments
@@ -687,7 +696,7 @@ post.optimize=FALSE,
 
         if (!is.null(gc.gene.file)) {
             gene.calls <- .getGeneCalls(seg.adjusted, gc.data, log.ratio, 
-                fun.focal, args.focal)
+                fun.focal, args.focal, chr.hash)
         } else {
             gene.calls <- NA
         }       
@@ -787,7 +796,8 @@ post.optimize=FALSE,
             log.ratio.sdev=sd.seg, 
             vcf=vcf, 
             sampleid=sampleid, 
-            sex=sex, sex.vcf=sex.vcf) 
+            sex=sex, sex.vcf=sex.vcf,
+            chr.hash=chr.hash) 
         )
 ##end<<
 },ex=function(){

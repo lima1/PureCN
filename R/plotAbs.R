@@ -42,7 +42,13 @@ show.segment.means=c("SNV", "segments", "both"),
 ...
 ### Additonal parameters passed to the plot() function. 
 ) {
-    sd.seg <- ifelse(is.null(res$input$log.ratio.sdev), 0.4, res$input$log.ratio.sdev)
+    chr.hash <- res$input$chr.hash
+    if (is.null(chr.hash)) {
+        chr.hash <- .getChrHash(gsub(":.*$","",res$input$log.ratio[,1]))
+    }    
+
+    sd.seg <- ifelse(is.null(res$input$log.ratio.sdev), 0.4, 
+        res$input$log.ratio.sdev)
 
     .ar <- function(C) { 
         (purity * C + 2*(1-purity))/( purity*ploidy + 2*(1-purity))  
@@ -134,7 +140,7 @@ show.segment.means=c("SNV", "segments", "both"),
                 idx <-r$chr %in% chr
                 if (germline.only) idx[r$ML.SOMATIC[idx]] <- FALSE
             }    
-            mycol <- ifelse(.strip.chr.name(r[idx,1]) %% 2, 
+            mycol <- ifelse(.strip.chr.name(r[idx,1], chr.hash) %% 2, 
                 "#E41A1C", "#377EB8")
             mypch <- ifelse(r$GERMLINE.CONTHIGH > 0.5, 2, 
                 ifelse(r$GERMLINE.CONTLOW>0.5, 3, 1))[idx]
@@ -143,7 +149,7 @@ show.segment.means=c("SNV", "segments", "both"),
             tmp <- data.frame(chr=levels(r[,1]), start=match(levels(r[,1]), r[idx, 1]), 
                 stringsAsFactors=FALSE)
             tmp <- tmp[complete.cases(tmp),,drop=FALSE]
-            tmp <- tmp[order(.strip.chr.name(tmp$chr)),]
+            tmp <- tmp[order(.strip.chr.name(tmp$chr,chr.hash)),]
             tmp$end <- c(tmp[-1,2]-1, nrow(r))
 
             segment.log.ratio <- res$results[[i]]$seg$seg.mean[
@@ -195,7 +201,8 @@ show.segment.means=c("SNV", "segments", "both"),
                     pch=mypch, ...)
                 lines(segment.b1.lines, col="black", lwd=3)
                 lines(segment.b2.lines, col="black", lwd=3)
-                axis(side=3, at=(tmp[,3]+tmp[,2])/2, labels=.strip.chr.name(tmp[,1]), 
+                axis(side=3, at=(tmp[,3]+tmp[,2])/2, 
+                    labels=.strip.chr.name(tmp[,1], chr.hash), 
                     tick=FALSE, padj=1)
                 abline(h=0.5, lty=3, col="grey")
                 abline(v=tmp[,2], lty=3, col="grey")

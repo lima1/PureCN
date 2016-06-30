@@ -36,9 +36,15 @@ prune.hclust.h=0.1,
 prune.hclust.method="ward.D",
 ### Cluster method used in the hclust pruning step. See
 ### documentation for the hclust function.
+chr.hash=NULL,
+### Mapping of non-numerical chromsome names to numerical names
+### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
+### are properly ordered.   
 verbose=TRUE
 ### Verbose output.
 ) {
+    if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
+
     exon.weights <- NULL
     if (!is.null(exon.weight.file)) {
         exon.weights <- read.delim(exon.weight.file, as.is=TRUE)
@@ -49,12 +55,13 @@ verbose=TRUE
     x <- .CNV.analyze2(normal, tumor, logR=log.ratio, plot.cnv=plot.cnv, 
         coverage.cutoff=coverage.cutoff, sampleid=sampleid, alpha=alpha, 
         weights=exon.weights, sdundo=undo.SD, max.segments=max.segments,
-        verbose=verbose) 
+        chr.hash=chr.hash, verbose=verbose) 
     if (!is.null(vcf)) {
-        x <- .pruneByVCF(x, vcf, tumor.id.in.vcf)
-        x <- .findCNNLOH(x, vcf, tumor.id.in.vcf, alpha=alpha)
+        x <- .pruneByVCF(x, vcf, tumor.id.in.vcf, chr.hash=chr.hash)
+        x <- .findCNNLOH(x, vcf, tumor.id.in.vcf, alpha=alpha, 
+            chr.hash=chr.hash)
         x <- .pruneByHclust(x, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
-            method=prune.hclust.method)
+            method=prune.hclust.method, chr.hash=chr.hash)
     }
     idx.enough.markers <- x$cna$output$num.mark > 1
     ##value<< A list with elements
@@ -88,10 +95,10 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
 })    
 
 .findCNNLOH <- function( x, vcf, tumor.id.in.vcf, alpha=0.005, min.variants=7, 
-iterations=2 ) {
+iterations=2, chr.hash ) {
     for (iter in 1:iterations) {
         seg <- x$cna$output
-        seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), 
+        seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
             IRanges(start=seg$loc.start, end=seg$loc.end))
         ov <- findOverlaps(seg.gr, vcf)
         ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
@@ -126,9 +133,9 @@ iterations=2 ) {
 }
     
 .pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=0.1, method="ward.D", 
-    min.variants=5) {
+    min.variants=5, chr.hash) {
     seg <- x$cna$output
-    seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), 
+    seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
         IRanges(start=seg$loc.start, end=seg$loc.end))
     ov <- findOverlaps(seg.gr, vcf)
 
@@ -164,10 +171,10 @@ iterations=2 ) {
 # looks at breakpoints, and if p-value is higher than max.pval, merge unless 
 # there is evidence based on germline SNPs
 .pruneByVCF <- function(x, vcf, tumor.id.in.vcf, min.size=5, max.pval=0.00001,
-    iterations=3, debug=FALSE) {
+    iterations=3, chr.hash, debug=FALSE) {
     seg <- segments.p(x$cna)
     for (iter in 1:iterations) {
-        seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom), 
+        seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
             IRanges(start=seg$loc.start, end=seg$loc.end))
         ov <- findOverlaps(seg.gr, vcf)
         ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
@@ -235,7 +242,7 @@ function(normal, tumor, logR=NULL, coverage.cutoff=15, normal.chrs=c("chr1",
 "chr21","chr22","chrX","chrY"), normal.chr=normal.chrs, c=0.5, 
 weights=NULL, doDNAcopy=TRUE, sdundo=NULL, 
 undo.splits="sdundo", smooth=TRUE, alpha=0.01, sampleid=NULL, plot.cnv=TRUE, 
-max.segments=NULL, verbose=TRUE) {
+max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
     `%+%` <- function(x,y) paste(x,y,sep="")
     normal.chrs = intersect(levels(normal$chr), normal.chrs)
 
@@ -257,7 +264,7 @@ max.segments=NULL, verbose=TRUE) {
     if (doDNAcopy) {
 
         CNA.obj <- CNA(norm.log.ratio[well.covered.exon.idx], 
-            .strip.chr.name(normal$chr[well.covered.exon.idx]), 
+            .strip.chr.name(normal$chr[well.covered.exon.idx], chr.hash), 
             (normal$probe_start[well.covered.exon.idx] + 
             normal$probe_end[well.covered.exon.idx])/2, data.type="logratio", 
             sampleid=sampleid)
@@ -294,7 +301,7 @@ max.segments=NULL, verbose=TRUE) {
         }
 
         cnv <- .get.proper.cnv.positions(normal[well.covered.exon.idx,], 
-            print(segment.smoothed.CNA.obj))
+            print(segment.smoothed.CNA.obj), chr.hash=chr.hash)
 
         return(list(cnv=cnv, cna=segment.smoothed.CNA.obj, 
             logR=norm.log.ratio))
@@ -324,12 +331,10 @@ max.segments=NULL, verbose=TRUE) {
     }
 }
 
-.get.proper.cnv.positions <- function (exons, cnv) 
+.get.proper.cnv.positions <- function (exons, cnv, chr.hash) 
 {
-    chr.hash <- NULL    
-    data(chr.hash, envir=environment())
     `%+%` <- function(x, y) paste(x, y, sep = "")
-    order.by.chr = order(.strip.chr.name(exons$chr))
+    order.by.chr = order(.strip.chr.name(exons$chr, chr.hash))
     exons = exons[order.by.chr, ]
     cnv$chr = as.character(chr.hash[cnv$chrom, "chr"])
     cnv$probe = "cnv" %+% as.character(1:nrow(cnv))

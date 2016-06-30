@@ -8,7 +8,8 @@ via args.segmentation.}
     coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
     alpha = 0.005, undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, 
     normal.id.in.vcf = NULL, max.segments = NULL, prune.hclust.h = 0.1, 
-    prune.hclust.method = "ward.D", verbose = TRUE)}
+    prune.hclust.method = "ward.D", chr.hash = NULL, 
+    verbose = TRUE)}
 \arguments{
   \item{normal}{GATK coverage data for normal sample.}
   \item{tumor}{GATK coverage data for tumor sample.}
@@ -28,6 +29,9 @@ segments exceeds the threshold.}
 will merge segments more aggressively.}
   \item{prune.hclust.method}{Cluster method used in the hclust pruning step. See
 documentation for the hclust function.}
+  \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
+(e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
+are properly ordered.   }
   \item{verbose}{Verbose output.}
 }
 

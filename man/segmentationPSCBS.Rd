@@ -8,8 +8,8 @@ The arguments are passed via args.segmentation.}
     coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
     flavor = "tcn&dh", tauA = 0.03, find.large.gaps = TRUE, 
     min.gap.length = 5e+06, vcf = NULL, tumor.id.in.vcf = 1, 
-    normal.id.in.vcf = NULL, max.segments = NULL, verbose = TRUE, 
-    ...)}
+    normal.id.in.vcf = NULL, max.segments = NULL, chr.hash = NULL, 
+    verbose = TRUE, ...)}
 \arguments{
   \item{normal}{GATK coverage data for normal sample.}
   \item{tumor}{GATK coverage data for tumor sample.}
@@ -27,6 +27,9 @@ The arguments are passed via args.segmentation.}
   \item{normal.id.in.vcf}{Id of normal in in VCF. If NULL, use unpaired PSCBS.}
   \item{max.segments}{If not NULL, try a higher undo.SD parameter if number of
 segments exceeds the threshold.}
+  \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
+(e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
+are properly ordered.   }
   \item{verbose}{Verbose output.}
   \item{\dots}{Additional parameters passed to the segmentByNonPairedPSCBS function.}
 }

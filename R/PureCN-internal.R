@@ -387,7 +387,7 @@ max.exon.ratio) {
     }
     results
 }
-.getGeneCalls <- function(seg.adjusted, gc.data, log.ratio, fun.focal, args.focal) {
+.getGeneCalls <- function(seg.adjusted, gc.data, log.ratio, fun.focal, args.focal, chr.hash) {
     args.focal <- c(list(seg = seg.adjusted), args.focal)
     focal <- do.call(fun.focal, args.focal)
     abs.gc <- GRanges(seqnames = seg.adjusted$chrom, IRanges(start = seg.adjusted$loc.start, 
@@ -404,7 +404,7 @@ max.exon.ratio) {
     gc.pos <- gc.pos[idx, ]
     log.ratio <- log.ratio[idx]
     
-    gc.gr <- GRanges(seqnames = .strip.chr.name(gc.pos$chrom), IRanges(start = gc.pos$start, 
+    gc.gr <- GRanges(seqnames = .strip.chr.name(gc.pos$chrom, chr.hash), IRanges(start = gc.pos$start, 
         end = gc.pos$end))
     ov <- findOverlaps(gc.gr, abs.gc)
     # use funky data.table to calculate means etc. in two lines of code.
@@ -636,7 +636,7 @@ max.exon.ratio) {
 .calcPuritySomaticVariants <- function(vcf, prior.somatic, tumor.id.in.vcf) {
     median(unlist(geno(vcf[prior.somatic > 0.5])$FA[, tumor.id.in.vcf]), na.rm = TRUE)/0.48
 }
-.createFakeLogRatios <- function(tumor, seg.file) {
+.createFakeLogRatios <- function(tumor, seg.file, chr.hash) {
     seg <- read.delim(seg.file)
     required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
         "seg.mean")
@@ -645,10 +645,10 @@ max.exon.ratio) {
                 paste(required.colnames, collapse = ", ")))
     }
     
-    seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom), 
+    seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), 
                 IRanges(start = round(seg$loc.start), end = seg$loc.end))
 
-    exon.gr <- GRanges(seqnames = gsub("24", "Y", gsub("23", "X", tumor$chr)), 
+    exon.gr <- GRanges(seqnames = tumor$chr, 
                 IRanges(start = tumor$probe_start, end = tumor$probe_end))
 
     ov <- findOverlaps(exon.gr, seg.gr)
@@ -657,21 +657,27 @@ max.exon.ratio) {
     log.ratio <- log.ratio[match(1:nrow(tumor), queryHits(ov))]
     log.ratio
 }
-.strip.chr.name <- function(ls) {
-    chr.hash <- NULL
-    data(chr.hash, envir = environment())
+.strip.chr.name <- function(ls, chr.hash) {
     x <- chr.hash[as.character(ls), 2]
     x[is.na(x)] <- as.numeric(ls[is.na(x)])
     x
 }
-.add.chr.name <- function(ls) {
-    chr.hash <- NULL
-    data(chr.hash, envir = environment())
+.add.chr.name <- function(ls, chr.hash) {
     x <- as.character(chr.hash$chr[match(ls, chr.hash$number)])
     x[is.na(x)] <- ls[is.na(x)]
     x
 }
-    
+.getChrHash <- function(ls) {
+    ls <- unique(ls)
+    ls <- ls[!ls %in% "chrM"]
+    chr.hash <- NULL
+    data(chr.hash, envir = environment())
+
+    if (sum(!ls %in% chr.hash[,1]) == 0) return(chr.hash)
+
+    data.frame(chr=as.factor(ls), number=1:length(ls), row.names=ls)
+}
+        
 .ffpeCleanLogRatio <- function(log.ratio, window=20) {
     dlr <- c(0, diff(log.ratio))
     start <- seq(1,length(dlr), by=window)

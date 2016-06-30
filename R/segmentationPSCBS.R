@@ -34,6 +34,10 @@ normal.id.in.vcf=NULL,
 max.segments=NULL,
 ### If not NULL, try a higher undo.SD parameter if number of
 ### segments exceeds the threshold.
+chr.hash=NULL,
+### Mapping of non-numerical chromsome names to numerical names
+### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
+### are properly ordered.   
 verbose=TRUE,
 ### Verbose output.
 ...
@@ -44,6 +48,8 @@ verbose=TRUE,
     if (!requireNamespace("PSCBS", quietly = TRUE)) {
         stop("segmentationPSCBS requires the PSCBS package.")
     }
+
+    if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
 
     exon.weights <- NULL
     if (!is.null(exon.weight.file)) {
@@ -107,10 +113,10 @@ verbose=TRUE,
     } else {
         d.f.3 <- rbind(d.f, d.f.2)
     }    
-    d.f.3 <- d.f.3[order(.strip.chr.name(d.f.3$chr), d.f.3$x),]
+    d.f.3 <- d.f.3[order(.strip.chr.name(d.f.3$chr), d.f.3$x, chr.hash),]
     d.f <- d.f.3
     colnames(d.f)[2] <- "chromosome"
-    d.f$chromosome <- .strip.chr.name(d.f$chromosome)
+    d.f$chromosome <- .strip.chr.name(d.f$chromosome, chr.hash)
     idx <- !is.na(d.f$CT)
     d.f[idx,] <- PSCBS::dropSegmentationOutliers(d.f[idx,])
     if (find.large.gaps) {

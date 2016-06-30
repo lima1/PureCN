@@ -12,6 +12,10 @@ low.af=0.025,
 high.af=0.1,
 ### Defines a high AF p-value. For every sample with high AF p-value, 
 ### there must be one more sample with low AF to reach the cutoff.  
+chr.hash=NULL,
+### Mapping of non-numerical chromsome names to numerical names
+### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
+### are properly ordered.   
 genome="hg19"
 ### Version of the reference genome, required for the readVcf() function.
 ) {
@@ -46,11 +50,18 @@ genome="hg19"
     snp.bl <- xx[(xx$Count-xx$Count.G)>=n,,drop=FALSE]
     d.f <- do.call(rbind, lapply(vcfs, function(x) { 
         x <- x[rownames(x) %in% rownames(snp.bl)]
-        data.frame(ID=rownames(x), AR=do.call(rbind, geno(x)$FA[,1,drop=FALSE] ))
+        data.frame(
+            ID=rownames(x), 
+            AR=do.call(rbind, geno(x)$FA[,1,drop=FALSE]),
+            seqnames=as.character(seqnames(x)), 
+            start=start(x)
+        )
     }))
 
     mean.ar <- sapply(split(d.f$AR, d.f$ID), mean)
     snp.bl$Mean.AR <- mean.ar[rownames(snp.bl)]
+    snp.pl$chr <- d.f$seqnames[match(rownames(snp.bl), d.f$ID)]
+    snp.pl$start <- d.f$start[match(rownames(snp.bl), d.f$ID)]
 
     # segment
     d.f <- do.call(rbind, lapply(vcfs, function(x) 
@@ -65,7 +76,9 @@ genome="hg19"
         data.type="binary", 
         presorted=FALSE))$output
 
-    snp.bl.segmented <- snp.bl.segmented[order(.strip.chr.name(snp.bl.segmented$chrom)),]
+    if (is.null(chr.hash)) chr.hash <- .getChrHash(d.f$seqnames)
+
+    snp.bl.segmented <- snp.bl.segmented[order(.strip.chr.name(snp.bl.segmented$chrom, chr.hash)),]
 
     list(snp.black.list=snp.bl, segmented=snp.bl.segmented[,-1])
 ### A list with elements snp.black.list and segmented. 

@@ -17,7 +17,8 @@ with biased allelic fractions.}
   \item{snp.blacklist}{CSV file with SNP ids with expected allelic fraction 
 significantly different from 0.5 in diploid genomes. Can be an array of 
 lists. The function createSNPBlacklist can provide appropriate black 
-lists.}
+lists. Can also be a BED file (either tab or comma separated) of 
+blacklisted genomic regions (columns 1-3: chromosome, start, end).}
   \item{af.range}{Exclude SNPs with allelic fraction smaller or greater than the 
 two values, respectively.}
   \item{contamination.cutoff}{Count SNPs in dbSNP with allelic fraction smaller than the 
