@@ -8,8 +8,8 @@ a good match for tumor copy number normalization.}
 \arguments{
   \item{gatk.normal.files}{Vector with file names pointing to GATK coverage files 
 of normal samples. }
-  \item{sex}{Vector of sex."F" for female, "M" for male. If NULL
-determine from coverage.}
+  \item{sex}{Vector of sex."F" for female, "M" for male. If all chromosomes are diploid, specify "diploid". 
+If NULL determine from coverage.}
   \item{\dots}{Arguments passed to the prcomp function.}
 }
 

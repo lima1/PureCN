@@ -5,8 +5,8 @@ gatk.normal.files,
 ### Vector with file names pointing to GATK coverage files 
 ### of normal samples. 
 sex=NULL,
-### Vector of sex."F" for female, "M" for male. If NULL
-### determine from coverage.
+### Vector of sex."F" for female, "M" for male. If all chromosomes are diploid, specify "diploid". 
+### If NULL determine from coverage.
 ...
 ### Arguments passed to the prcomp function.
 ) {
@@ -23,11 +23,11 @@ sex=NULL,
         if (length(sex) != length(normals)) {
             stop("Length of gatk.normal.files and sex different")
         } 
-        idx.sex <- sex %in% c(NA, "F", "M")
+        idx.sex <- sex %in% c(NA, "F", "M", "diploid")
         sex[!idx.sex] <- NA
         if(sum(!idx.sex)>0) warning("Unexpected values in sex ignored.")   
         for (i in seq_along(sex.determined)) {
-            if (!is.na(sex.determined[i]) &&
+            if (!is.na(sex.determined[i]) && sex[i] != "diploid" &&
                 sex.determined[i] != sex[i]) {
                 warning("Sex mismatch in ", gatk.normal.files[i], 
                     ". Sex provided is ", sex, ", but could be ", 

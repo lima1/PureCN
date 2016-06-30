@@ -11,16 +11,17 @@ Returns purity and ploidy combinations, sorted by likelihood score.
 Provides copy number and LOH data, by both gene and genomic region. }
 \usage{runAbsoluteCN(gatk.normal.file = NULL, gatk.tumor.file, 
     log.ratio = NULL, seg.file = NULL, seg.file.sdev = 0.4, 
-    vcf.file = NULL, genome, sex = c("?", "F", "M"), 
-    fun.filterVcf = filterVcfMuTect, args.filterVcf = list(), 
-    fun.setPriorVcf = setPriorVcf, args.setPriorVcf = list(), 
-    fun.segmentation = segmentationCBS, args.segmentation = list(), 
-    fun.focal = findFocal, args.focal = list(), sampleid = NULL, 
-    min.ploidy = 1, max.ploidy = 6, test.num.copy = 0:7, 
-    test.purity = seq(0.15, 0.95, by = 0.01), prior.purity = rep(1, 
-        length(test.purity))/length(test.purity), max.candidate.solutions = 20, 
-    candidates = NULL, coverage.cutoff = 15, max.non.clonal = 0.2, 
-    max.homozygous.loss = 0.1, iterations = 30, log.ratio.calibration = 0.25, 
+    vcf.file = NULL, genome, sex = c("?", "F", "M", 
+        "diploid"), fun.filterVcf = filterVcfMuTect, 
+    args.filterVcf = list(), fun.setPriorVcf = setPriorVcf, 
+    args.setPriorVcf = list(), fun.segmentation = segmentationCBS, 
+    args.segmentation = list(), fun.focal = findFocal, 
+    args.focal = list(), sampleid = NULL, min.ploidy = 1, 
+    max.ploidy = 6, test.num.copy = 0:7, test.purity = seq(0.15, 
+        0.95, by = 0.01), prior.purity = rep(1, length(test.purity))/length(test.purity), 
+    max.candidate.solutions = 20, candidates = NULL, 
+    coverage.cutoff = 15, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
+    iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = TRUE, gc.gene.file = NULL, 
     filter.lowhigh.gc.exons = 0.001, filter.targeted.base = 4, 
     max.logr.sdev = 0.75, max.segments = 200, chr.hash = NULL, 
@@ -48,8 +49,10 @@ look for a Cosmic.CNT slot, containing the hits in the COSMIC database.
 Again, do not expect very useful results without a VCF file.}
   \item{genome}{Genome version, required for the readVcf function.}
   \item{sex}{Sex of sample. If ?, detect using getSexFromCoverage function and default
-parameters. Default parameters might not work well with every assay and 
-might need to be tuned.}
+parameters. 
+Default parameters might not work well with every assay and 
+might need to be tuned. If set to diploid, then PureCN will assume all 
+chromosomes are diploid and will not try to detect sex. }
   \item{fun.filterVcf}{Function for filtering variants. Expected output is a 
 list with elements vcf (CollapsedVCF), flag (TRUE/FALSE) and flag_comment 
 (string). The flags will be added to the output data and can be used to 

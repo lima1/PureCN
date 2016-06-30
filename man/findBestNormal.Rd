@@ -15,7 +15,9 @@ createNormalDatabase().}
   \item{ignore.sex}{If FALSE, detects sex of sample and returns best normals
 with matching sex.}
   \item{sex}{Sex of sample. If NULL, determine with getSexFromCoverage
-and default parameters.}
+and default parameters.
+Valid values are "F" for female, "M" for male. If all 
+chromosomes are diploid, specify "diploid". }
   \item{gatk.normal.files}{Only consider these normal samples. If NULL, use all in 
 the database. Must match normalDB$gatk.normal.files. }
   \item{verbose}{Verbose output.}

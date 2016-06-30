@@ -4,10 +4,11 @@ Focus on PureCN 1.2 was to dramatically improve user-friendliness:
   generate coverage data when GATK is not available.
 - Automatic curation of results was added.
 - Output plots were polished.
+- Both numerical and non-numerical chromosome names (1 vs. chr1) supported.
 
 -------------------------------------------------------------------------------
 
-Performance enhancements
+Other major enhancements
 
 - More thorough initial grid search should minimize cases where pruity/ploidy
   is wrong because the solution was not considered.
@@ -15,6 +16,7 @@ Performance enhancements
 - Support for SNVs outside the copy number interval file
   (remove.off.target.snvs=FALSE).   
 - Improved segmentation and log-ratio normalization.  
+- Support for non-human samples.
 
 -------------------------------------------------------------------------------
 
@@ -28,6 +30,6 @@ Other new features
 Planned features for PureCN 1.4 (Bioconductor 3.5)
 
 - Support for indels and maybe rearrangements.
-- Performance enhancements  
+- Better runtime performance.  
 
 -------------------------------------------------------------------------------

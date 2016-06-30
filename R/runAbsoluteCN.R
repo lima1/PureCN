@@ -35,10 +35,12 @@ vcf.file=NULL,
 ### Again, do not expect very useful results without a VCF file.
 genome,
 ### Genome version, required for the readVcf function.
-sex=c("?","F","M"),
+sex=c("?","F","M","diploid"),
 ### Sex of sample. If ?, detect using getSexFromCoverage function and default
-### parameters. Default parameters might not work well with every assay and 
-### might need to be tuned.
+### parameters. 
+### Default parameters might not work well with every assay and 
+### might need to be tuned. If set to diploid, then PureCN will assume all 
+### chromosomes are diploid and will not try to detect sex. 
 fun.filterVcf=filterVcfMuTect, 
 ### Function for filtering variants. Expected output is a 
 ### list with elements vcf (CollapsedVCF), flag (TRUE/FALSE) and flag_comment 
@@ -232,28 +234,29 @@ post.optimize=FALSE,
     }        
     sex <- match.arg(sex)
     sex.chr <- .getSexChr(tumor)
-    if (sex =="?") {
-        sex.tumor <- getSexFromCoverage(tumor, verbose=FALSE)
-        sex.normal <- getSexFromCoverage(normal, verbose=FALSE)
-        if (is.na(sex.tumor)) {
+    if (sex != "diploid") {
+        if (sex =="?") {
+            sex.tumor <- getSexFromCoverage(tumor, verbose=FALSE)
+            sex.normal <- getSexFromCoverage(normal, verbose=FALSE)
+            if (is.na(sex.tumor)) {
+                tumor <- .removeChr(tumor, remove.chrs=sex.chr)
+            }    
+            if (is.na(sex.normal)) {
+                normal <- .removeChr(normal, remove.chrs=sex.chr)
+            }    
+            if (!identical(sex.tumor, sex.normal)) {
+                warning("Sex tumor/normal mismatch: tumor = ", sex.tumor, 
+                    " normal = ", sex.normal)
+            }
+            sex <- sex.tumor    
+            if (is.na(sex)) sex = "?"
+        } 
+        if (sex=="M") {
             tumor <- .removeChr(tumor, remove.chrs=sex.chr)
-        }    
-        if (is.na(sex.normal)) {
-            normal <- .removeChr(normal, remove.chrs=sex.chr)
-        }    
-        if (!identical(sex.tumor, sex.normal)) {
-            warning("Sex tumor/normal mismatch: tumor = ", sex.tumor, 
-                " normal = ", sex.normal)
-        }
-        sex <- sex.tumor    
-        if (is.na(sex)) sex = "?"
-    } 
-    if (sex=="M") {
-        tumor <- .removeChr(tumor, remove.chrs=sex.chr)
-    } else if (sex=="F") {
-        tumor <- .removeChr(tumor, remove.chrs=sex.chr[2])
-    }       
-          
+        } else if (sex=="F") {
+            tumor <- .removeChr(tumor, remove.chrs=sex.chr[2])
+        }       
+    }      
           
     # NA's in log.ratio confuse the CBS function
     idx <- !is.na(log.ratio) & !is.infinite(log.ratio)
@@ -347,13 +350,14 @@ post.optimize=FALSE,
 
         if (verbose) message("Assuming ", tumor.id.in.vcf, 
             " is tumor in VCF file.")
-        sex.vcf <- getSexFromVcf(vcf, tumor.id.in.vcf, verbose=verbose)
-        if (!is.na(sex.vcf) && sex %in% c("F", "M") && sex.vcf != sex) { 
-            warning("Sex mismatch of coverage and VCF. ",
-            "Could be because of noisy data, contamination, ",
-            "loss of chrY or a mis-alignment of coverage and VCF.")
-        }    
-        
+        if (sex != "diploid") {    
+            sex.vcf <- getSexFromVcf(vcf, tumor.id.in.vcf, verbose=verbose)
+            if (!is.na(sex.vcf) && sex %in% c("F", "M") && sex.vcf != sex) { 
+                warning("Sex mismatch of coverage and VCF. ",
+                "Could be because of noisy data, contamination, ",
+                "loss of chrY or a mis-alignment of coverage and VCF.")
+            }    
+        }
         n.vcf.before.filter <- nrow(vcf)
         if (verbose) message("Found ", n.vcf.before.filter, 
             " variants in VCF file.")

@@ -16,6 +16,8 @@ ignore.sex=FALSE,
 sex=NULL,
 ### Sex of sample. If NULL, determine with getSexFromCoverage
 ### and default parameters.
+### Valid values are "F" for female, "M" for male. If all 
+### chromosomes are diploid, specify "diploid". 
 gatk.normal.files=NULL,
 ### Only consider these normal samples. If NULL, use all in 
 ### the database. Must match normalDB$gatk.normal.files. 
