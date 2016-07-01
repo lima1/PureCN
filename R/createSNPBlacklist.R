@@ -19,11 +19,11 @@ chr.hash=NULL,
 genome="hg19"
 ### Version of the reference genome, required for the readVcf() function.
 ) {
-    vcfs <- lapply(vcf.files, readVcf, genome)
+    vcfs <- lapply(vcf.files, .readAndCheckVcf, genome)
     vcfs <- lapply(vcfs, function(x) x[info(x)$DB & 
         do.call(rbind, geno(x)$FA[,1, drop=FALSE])[,1]< 0.9 ,])
 
-    .testLH <- 
+    .testAllelicRatioHeterozygousBias <- 
     function(vcf) {
         ar_all <- do.call(rbind, geno(vcf)$FA[,1, drop=FALSE])
         dp_all <- geno(vcf)$DP[,1, drop=FALSE]
@@ -32,7 +32,7 @@ genome="hg19"
                 shape1=ar_all[j]*dp_all[j]+1, 
                 shape2=(1-ar_all[j])*dp_all[j]+1,log.p=FALSE))
     }
-    vcfs.lh <- lapply(vcfs, .testLH)
+    vcfs.lh <- lapply(vcfs, .testAllelicRatioHeterozygousBias)
     vcfs.ar <- lapply(vcfs, function(vcf) do.call(rbind, geno(vcf)$FA[,1, drop=FALSE]))
 
     vcfs.smaller <- lapply(1:length(vcfs), function(i) 
@@ -43,11 +43,11 @@ genome="hg19"
         vcfs[[i]][vcfs.lh[[i]] < 1 - high.af,])
     xx.s <- sort(table(do.call(c, lapply(vcfs.greater, function(x) names(rowRanges(x))))))
 
-    xx <- data.frame(Count=xx)
-    xx <- cbind(xx, Count.G=xx.s[rownames(xx)])
-    xx$Count.G[is.na(xx$Count.G)] <- 0
+    countTable <- data.frame(Count=as.vector(xx), row.names=names(xx))
+    countTable <- cbind(countTable, Count.G=as.vector(xx.s[rownames(countTable)]))
+    countTable$Count.G[is.na(countTable$Count.G)] <- 0
 
-    snp.bl <- xx[(xx$Count-xx$Count.G)>=n,,drop=FALSE]
+    snp.bl <- countTable[(countTable$Count-countTable$Count.G)>=n,,drop=FALSE]
     d.f <- do.call(rbind, lapply(vcfs, function(x) { 
         x <- x[rownames(x) %in% rownames(snp.bl)]
         data.frame(
@@ -60,8 +60,8 @@ genome="hg19"
 
     mean.ar <- sapply(split(d.f$AR, d.f$ID), mean)
     snp.bl$Mean.AR <- mean.ar[rownames(snp.bl)]
-    snp.pl$chr <- d.f$seqnames[match(rownames(snp.bl), d.f$ID)]
-    snp.pl$start <- d.f$start[match(rownames(snp.bl), d.f$ID)]
+    snp.bl$chr <- d.f$seqnames[match(rownames(snp.bl), d.f$ID)]
+    snp.bl$start <- d.f$start[match(rownames(snp.bl), d.f$ID)]
 
     # segment
     d.f <- do.call(rbind, lapply(vcfs, function(x) 

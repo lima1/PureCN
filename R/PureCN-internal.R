@@ -685,4 +685,14 @@ max.exon.ratio) {
     sds <- sapply(seq_along(end), function(i) sd(dlr[start[i]:end[i]], na.rm=TRUE))
  #   ids <- which(sds > quantile(sds, na.rm=TRUE, p=1-0.001))
 }
-
+.readAndCheckVcf <- function(vcf.file, genome, check.db=TRUE, 
+    check.fa=TRUE) {
+    vcf <- readVcf(vcf.file, genome)
+    if (is.null(info(vcf)$DB) && check.db) {
+        stop(vcf.file, " has no DB info flag for dbSNP membership.")
+    }
+    if (is.null(geno(vcf)$FA) && check.fa) {
+        stop(vcf.file, " has no FA genome flag containing allelic fractions.")
+    }
+    vcf     
+}    
