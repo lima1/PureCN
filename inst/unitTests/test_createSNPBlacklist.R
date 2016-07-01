@@ -9,4 +9,12 @@ test_createSNPBlacklist <- function() {
         , as.character(ret[[1]]$chr))
     checkEqualsNumeric(unlist(geno(vcf[rownames(ret[[1]])])$FA[,1]),
         ret[[1]]$Mean.AR)
+
+    write.csv(ret[[1]], file="SNP_blacklist.csv")
+    write.csv(ret[[2]], file="SNP_blacklist_segmented.csv", row.names=FALSE,
+        quote=FALSE)
+
+    vcfFiltered <- filterVcfBasic(vcf, snp.blacklist="SNP_blacklist.csv")
+    vcfFiltered2 <- filterVcfBasic(vcf, snp.blacklist=
+        "SNP_blacklist_segmented.csv")
 }    
