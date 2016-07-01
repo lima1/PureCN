@@ -320,7 +320,7 @@ post.optimize=FALSE,
     if (!is.null(vcf.file)) {
         if (verbose) message("Loading VCF...")
         if (class(vcf.file) == "character") {    
-            vcf <- readVcf(vcf.file, genome=genome)
+            vcf <- .readAndCheckVcf(vcf.file, genome=genome)
         } else if (class(vcf.file) != "CollapsedVCF") {
             stop("vcf.file neither a filename nor a CollapsedVCF object.") 
         } else {
