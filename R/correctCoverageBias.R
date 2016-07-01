@@ -22,9 +22,20 @@ output.file=NULL
     }    
     
     gc <- read.delim(gc.gene.file)
+
+    if (is.null(gc$gc_bias)) {
+        stop("gc.gene.file header invalid.")
+    }
+    
     if (!identical(as.character(gc[,1]), as.character(tumor[,1]))) {
-        stop(
+        if (sum(!as.character(tumor[,1]) %in% as.character(gc[,1])) > 0) {
+            stop(
+            "Interval files in gatk.coverage.file and gc.gene.file different.\n",
+            "Some intervals in coverage have no GC information.")
+        }
+        warning(
         "Interval files in gatk.coverage.file and gc.gene.file different.")
+        gc <- gc[match(as.character(tumor[,1]), as.character(gc[,1])),]
     }
 
     # taken from TitanCNA

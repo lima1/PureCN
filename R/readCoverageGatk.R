@@ -10,6 +10,10 @@ file
     gatk <- read.table(file, header = TRUE)
     chrpos <- matrix(unlist(strsplit(as.character(gatk$Target), 
         ":")), ncol = 2, byrow = TRUE)
+
+    idx <- !grepl("-", chrpos[,2])
+    chrpos[idx,2] <- paste(chrpos[idx,2], "-", chrpos[idx,2],sep="")
+
 # MR: add chr only if not already added.
    # chr <- factor(.add.chr.name(chrpos[, 1]))
     chr <- factor(chrpos[, 1])
