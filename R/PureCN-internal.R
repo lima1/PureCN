@@ -14,8 +14,9 @@ max.exon.ratio) {
         sd = sd.seg, log = TRUE))
 }
 .calcLlikSegmentSubClonal <- function(lr, max.exon.ratio) {
-    sum(dunif(x = sapply(2^lr, function(y) min(y, max.exon.ratio)), min = 0, 
-        max = max.exon.ratio, log = TRUE))
+    sum(dunif(
+        x =  vapply(2^lr, function(y) min(y, max.exon.ratio), double(1)), 
+        min = 0, max = max.exon.ratio, log = TRUE))
 }
 .calcLogRatio <- function(normal, tumor, verbose) {
     # make sure that normal and tumor align
@@ -61,7 +62,7 @@ max.exon.ratio) {
         }
         yy
     })    
-    best <- which.max(sapply(yys, function(x) sum(apply(x, 1, max))))
+    best <- which.max(vapply(yys, function(x) sum(apply(x, 1, max)),double(1)))
     list(best=yys[[best]], M=test.num.copy[best])
 }
 
@@ -125,12 +126,14 @@ max.exon.ratio) {
             
             p.ar <- lapply(c(0, 1), function(g) 
                 lapply(seq_along(ar_all), function(j) 
-                sapply(test.num.copy, function(Mi) 
+                vapply(test.num.copy, function(Mi) 
                     ifelse(Mi > lr.C[j], -Inf, 
                     dbeta(x = (p * Mi + g * (1-p))/(p * lr.C[j] + 2 * (1-p)), 
                     shape1 = ar_all[j] * dp_all[j] + 1, 
                     shape2 = (1 - ar_all[j]) * dp_all[j] + 1, log = TRUE) -
-                    pM.both[[g + 1]][which.min(abs(Mi - test.num.copy))]))))
+                    pM.both[[g + 1]][which.min(abs(Mi - test.num.copy))]),
+                    double(1))
+            ))
             
             p.ar.cont.1 <- lapply(seq_along(ar_all), function(j) 
                 dbeta(x = (p * lr.C[j] + 2 * (1 - p - cont.rate))/
@@ -280,7 +283,8 @@ max.exon.ratio) {
     xx <- split(result$seg, result$seg$C)
     if (length(xx) < 3) 
         return(TRUE)
-    xx.sum <- sort(sapply(xx, function(x) sum(x$size)), decreasing = TRUE)
+    xx.sum <- sort(vapply(xx, function(x) sum(x$size), double(1)), 
+        decreasing = TRUE)
     xx.sum <- xx.sum/sum(xx.sum)
     if (xx.sum[2] <= cutoffs[1] && xx.sum[3] <= cutoffs[2]) 
         return(TRUE)
@@ -435,13 +439,13 @@ max.exon.ratio) {
             dt <- p/D
             llik.all <- lapply(seq_along(exon.lrs), function(i) .calcLlikSegmentExonLrs(exon.lrs[[i]], 
                 log.ratio.offset, max.exon.ratio, sd.seg, dt, b, D, test.num.copy))
-            subclonal <- sapply(llik.all, which.max) == 1
+            subclonal <- vapply(llik.all, which.max, double(1)) == 1
             subclonal.f <- length(unlist(exon.lrs[subclonal]))/length(unlist(exon.lrs))
             if (debug) 
                 message(paste(sum(subclonal), subclonal.f))
             if (subclonal.f > max.non.clonal) 
                 return(-Inf)
-            llik <- sum(sapply(llik.all, max))
+            llik <- sum(vapply(llik.all, max, double(1)))
         })
     })
     mm <- sapply(mm, function(x) unlist(x))
@@ -487,9 +491,9 @@ max.exon.ratio) {
 }
 .calcLlikSegmentExonLrs <- function(exon.lrs, log.ratio.offset, max.exon.ratio, sd.seg, 
     dt, b, D, test.num.copy) {
-    c(.calcLlikSegmentSubClonal(exon.lrs + log.ratio.offset, max.exon.ratio), sapply(test.num.copy, 
+    c(.calcLlikSegmentSubClonal(exon.lrs + log.ratio.offset, max.exon.ratio), vapply(test.num.copy, 
         function(Ci) sum(dnorm(exon.lrs + log.ratio.offset, mean = log2(dt * Ci + 
-            b/D), sd = sd.seg, log = TRUE))))
+            b/D), sd = sd.seg, log = TRUE)),double(1)))
 }
 
 # This function is used to punish more complex copy number models
@@ -536,16 +540,16 @@ max.exon.ratio) {
     seg.ids.by.chr <- list(seq_len(nrow(seg)))
     
     lr <- lapply(seq_along(seg.ids.by.chr), function(j) {
-        px.offset <- lapply(test.offset, function(px) sapply(seg.ids.by.chr[[j]], 
+        px.offset <- lapply(test.offset, function(px) vapply(seg.ids.by.chr[[j]], 
             function(i) {
                 b <- 2 * (1 - p)
                 D <- total.ploidy
                 dt <- p/D
                 llik.all <- .calcLlikSegmentExonLrs(exon.lrs[[i]], px, max.exon.ratio, 
                   sd.seg, dt, b, D, test.num.copy)
-                sapply(llik.all, max)
-            }))
-        px.offset.s <- sapply(lapply(px.offset, apply, 2, max), sum)
+                vapply(llik.all, max, double(1))
+            }, double(1+length(test.num.copy))))
+        px.offset.s <- vapply(lapply(px.offset, apply, 2, max), sum, double(1))
         
         px.offset.s <- exp(px.offset.s - max(px.offset.s))
         log.ratio.offset <- test.offset[min(which(runif(n = 1, min = 0, max = sum(px.offset.s)) <= 
@@ -561,9 +565,10 @@ max.exon.ratio) {
     seg.ids.by.chr <- list(seq_len(nrow(seg)))
     
     lr <- lapply(seq_along(seg.ids.by.chr), function(j) {
-        px.offset <- lapply(test.offset, function(px) sapply(seg.ids.by.chr[[j]], 
+        px.offset <- lapply(test.offset, function(px) vapply(seg.ids.by.chr[[j]], 
             function(i) .calcLlikSegment(subclonal[i], exon.lrs[[i]] + px, sd.seg, 
-                p, C[i], total.ploidy, max.exon.ratio)))
+                p, C[i], total.ploidy, max.exon.ratio), double(1))
+        )
         
         px.offset.s <- sapply(px.offset, sum, na.rm = TRUE)
         if (simulated.annealing) 
