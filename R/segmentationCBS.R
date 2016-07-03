@@ -240,7 +240,7 @@ function(normal, tumor, logR=NULL, coverage.cutoff=15, normal.chrs=c("chr1",
 "chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11",
 "chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20",
 "chr21","chr22","chrX","chrY"), normal.chr=normal.chrs, c=0.5, 
-weights=NULL, doDNAcopy=TRUE, sdundo=NULL, 
+weights=NULL, sdundo=NULL, 
 undo.splits="sdundo", smooth=TRUE, alpha=0.01, sampleid=NULL, plot.cnv=TRUE, 
 max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
     `%+%` <- function(x,y) paste(x,y,sep="")
@@ -261,74 +261,48 @@ max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
         sdundo <- .getSDundo(norm.log.ratio[well.covered.exon.idx])
     }   
      
-    if (doDNAcopy) {
+    CNA.obj <- CNA(norm.log.ratio[well.covered.exon.idx], 
+        .strip.chr.name(normal$chr[well.covered.exon.idx], chr.hash), 
+        (normal$probe_start[well.covered.exon.idx] + 
+        normal$probe_end[well.covered.exon.idx])/2, data.type="logratio", 
+        sampleid=sampleid)
 
-        CNA.obj <- CNA(norm.log.ratio[well.covered.exon.idx], 
-            .strip.chr.name(normal$chr[well.covered.exon.idx], chr.hash), 
-            (normal$probe_start[well.covered.exon.idx] + 
-            normal$probe_end[well.covered.exon.idx])/2, data.type="logratio", 
-            sampleid=sampleid)
+    smoothed.CNA.obj = if (smooth) smooth.CNA(CNA.obj) else CNA.obj
 
-        smoothed.CNA.obj = if (smooth) smooth.CNA(CNA.obj) else CNA.obj
+    try.again <- 0
 
-        try.again <- 0
-
-        while (try.again < 2) {
-            if (verbose) message("Setting undo.SD parameter to ", sdundo)
-            if (!is.null(weights)) { 
-                weights <- weights[well.covered.exon.idx]
-                # MR: this shouldn't happen. In doubt, count them as maximum 
-                # (assuming that poorly performing exons are down-weighted)
-                weights[is.na(weights)] <- max(weights, na.rm=TRUE)
-                segment.smoothed.CNA.obj <- segment(smoothed.CNA.obj, 
-                    undo.splits=undo.splits, undo.SD=sdundo, 
-                    verbose=ifelse(verbose, 1, 0), alpha=alpha,weights=weights)
-            } else {
-                segment.smoothed.CNA.obj <- segment(smoothed.CNA.obj, 
-                    undo.splits=undo.splits, undo.SD=sdundo, 
-                    verbose=ifelse(verbose, 1, 0), alpha=alpha)
-            } 
-            if (is.null(max.segments) || nrow(segment.smoothed.CNA.obj$output) 
-                < max.segments) break
-            sdundo <- sdundo * 1.5
-            try.again <- try.again + 1
-        }
-
-        if (plot.cnv) {
-            plot(segment.smoothed.CNA.obj, plot.type="s")
-            plot(segment.smoothed.CNA.obj, plot.type="w")
-            abline(h=log2(c + (1-c)*c(1,3,4,5)/2), col="purple")
-        }
-
-        cnv <- .get.proper.cnv.positions(normal[well.covered.exon.idx,], 
-            print(segment.smoothed.CNA.obj), chr.hash=chr.hash)
-
-        return(list(cnv=cnv, cna=segment.smoothed.CNA.obj, 
-            logR=norm.log.ratio))
-
-    } else {
-
-        logR.mean <- mean(norm.log.ratio[well.covered.exon.idx])
-        logR.sd <- sd(norm.log.ratio[well.covered.exon.idx])
-        logR.min <- min(norm.log.ratio[well.covered.exon.idx])
-        logR.max <- max(norm.log.ratio[well.covered.exon.idx])
-
-        if (plot.cnv) {
-            par(mfrow=c(4,6))
-            for (chr in levels(normal$chr)) {
-                x <- (normal$probe_start[well.covered.exon.idx & 
-                    normal$chr==chr] + normal$probe_end[well.covered.exon.idx &
-                    normal$chr==chr])/2
-                y <- norm.log.ratio[well.covered.exon.idx & normal$chr==chr]
-                plot(x, y, pch="*", pc=20, ylim=c(logR.min, logR.max), 
-                    main=chr, xlab="position", ylab="log ratio")
-                abline(h=logR.mean + logR.sd, col="red")
-                abline(h=logR.mean - logR.sd, col="red")
-                abline(h=0, col="gray")
-            }
-        }
-        return(list(logR=norm.log.ratio))
+    while (try.again < 2) {
+        if (verbose) message("Setting undo.SD parameter to ", sdundo)
+        if (!is.null(weights)) { 
+            weights <- weights[well.covered.exon.idx]
+            # MR: this shouldn't happen. In doubt, count them as maximum 
+            # (assuming that poorly performing exons are down-weighted)
+            weights[is.na(weights)] <- max(weights, na.rm=TRUE)
+            segment.smoothed.CNA.obj <- segment(smoothed.CNA.obj, 
+                undo.splits=undo.splits, undo.SD=sdundo, 
+                verbose=ifelse(verbose, 1, 0), alpha=alpha,weights=weights)
+        } else {
+            segment.smoothed.CNA.obj <- segment(smoothed.CNA.obj, 
+                undo.splits=undo.splits, undo.SD=sdundo, 
+                verbose=ifelse(verbose, 1, 0), alpha=alpha)
+        } 
+        if (is.null(max.segments) || nrow(segment.smoothed.CNA.obj$output) 
+            < max.segments) break
+        sdundo <- sdundo * 1.5
+        try.again <- try.again + 1
     }
+
+    if (plot.cnv) {
+        plot(segment.smoothed.CNA.obj, plot.type="s")
+        plot(segment.smoothed.CNA.obj, plot.type="w")
+        abline(h=log2(c + (1-c)*c(1,3,4,5)/2), col="purple")
+    }
+
+    cnv <- .get.proper.cnv.positions(normal[well.covered.exon.idx,], 
+        print(segment.smoothed.CNA.obj), chr.hash=chr.hash)
+
+    return(list(cnv=cnv, cna=segment.smoothed.CNA.obj, 
+        logR=norm.log.ratio))
 }
 
 .get.proper.cnv.positions <- function (exons, cnv, chr.hash) 
