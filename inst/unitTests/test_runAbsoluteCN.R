@@ -82,11 +82,28 @@ test_runAbsoluteCN <- function() {
     normCov$probe <- paste(normCov$chr, ":", normCov$probe_start, "-", normCov$probe_end, sep="")
     tumorCov$probe <- paste(tumorCov$chr, ":", tumorCov$probe_start, "-", tumorCov$probe_end, sep="")
 
-    ret <-runAbsoluteCN(gatk.normal.file=normCov, 
+    checkException(runAbsoluteCN(gatk.normal.file=normCov, 
         gatk.tumor.file=tumorCov, remove.off.target.snvs=TRUE,
+        gc.gene.file=gc.gene.file,
+        vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
+        max.candidate.solutions=2))
+
+    gc3 <- read.delim(gc.gene.file, as.is=TRUE)
+    gc3[,1] <- tumorCov$probe
+    write.table(gc3, file="tmp3.gc", row.names=FALSE, sep="\t", quote=FALSE)
+
+    ret <- runAbsoluteCN(gatk.normal.file=normCov, 
+        gatk.tumor.file=tumorCov, remove.off.target.snvs=TRUE,
+        gc.gene.file="tmp3.gc",
         vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
         max.candidate.solutions=2)
 
-
-
+    gpnmb <- callAlterations(ret)["GPNMB",]
+    checkEquals("7", gpnmb$chr)
+    checkTrue(gpnmb$start>23000000)
+    checkTrue(gpnmb$end  <23400000)
+    checkTrue(gpnmb$C >= 6) 
+    checkEquals("AMPLIFICATION", gpnmb$type) 
+    # run the plot function to catch crashes
+    plotAbs(ret, 1, type="all")
 }    

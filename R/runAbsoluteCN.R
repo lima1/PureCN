@@ -266,6 +266,9 @@ post.optimize=FALSE,
 
     if (!is.null(gc.gene.file)) {
         gc.data <- read.delim(gc.gene.file, as.is=TRUE)
+        if (!length(intersect(gc.data[,1], tumor[,1]))) {
+            stop("Intervals of gatk.tumor.file and gc.gene.file do not align.")
+        }
         gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
     }
 
