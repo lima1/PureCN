@@ -24,12 +24,12 @@ output.file=NULL
     gc <- read.delim(gc.gene.file)
 
     if (is.null(gc$gc_bias)) {
-        stop("gc.gene.file header invalid.")
+        .stopUserError("gc.gene.file header invalid.")
     }
     
     if (!identical(as.character(gc[,1]), as.character(tumor[,1]))) {
         if (sum(!as.character(tumor[,1]) %in% as.character(gc[,1])) > 0) {
-            stop(
+            .stopUserError(
             "Interval files in gatk.coverage.file and gc.gene.file different.\n",
             "Some intervals in coverage have no GC information.")
         }

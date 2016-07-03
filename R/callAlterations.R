@@ -19,7 +19,7 @@ failed=NULL,
 ...) {
 
     if (class(res$results[[id]]$gene.calls) != "data.frame") {
-        stop("This function requires gene-level calls.\n",
+        .stopUserError("This function requires gene-level calls.\n",
             "Please add a column 'Gene' containing gene symbols to the ",
             "gc.gene.file.")
     }

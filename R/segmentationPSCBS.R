@@ -46,7 +46,7 @@ verbose=TRUE,
     debug <- TRUE
         
     if (!requireNamespace("PSCBS", quietly = TRUE)) {
-        stop("segmentationPSCBS requires the PSCBS package.")
+        .stopUserError("segmentationPSCBS requires the PSCBS package.")
     }
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)

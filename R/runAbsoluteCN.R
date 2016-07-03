@@ -203,7 +203,7 @@ post.optimize=FALSE,
     # segmentation is provided, in that case we wouldn't use normal anyway)
     if (!is.null(gatk.normal.file) & is.null(log.ratio) & is.null(seg.file)) {
         if (identical(tumor$average.coverage, normal$average.coverage)) { 
-            stop("Tumor and normal are identical. This won't give any", 
+            .stopUserError("Tumor and normal are identical. This won't give any", 
                 " meaningful results and I'm stopping here.")
         }
     }    
@@ -218,8 +218,9 @@ post.optimize=FALSE,
             log.ratio <- .createFakeLogRatios(tumor, seg.file, chr.hash)     
         } else {
             if (is.null(gatk.normal.file)) {
-                stop(
-                "Need a normal coverage file without log.ratio or seg.file.")
+                .stopUserError(
+                "Need a normal coverage file if log.ratio and seg.file are not",
+                " provided.")
             }
             log.ratio <- .calcLogRatio(normal, tumor, verbose=debug)
         }
@@ -229,7 +230,7 @@ post.optimize=FALSE,
         # coverage file.
         if (is.null(gatk.normal.file)) normal <- tumor
         if (!is.null(seg.file)) {
-            stop("Provide either log.ratio or seg.file, not both.") 
+            .stopUserError("Provide either log.ratio or seg.file, not both.") 
         }
     }        
     sex <- match.arg(sex)
@@ -267,7 +268,8 @@ post.optimize=FALSE,
     if (!is.null(gc.gene.file)) {
         gc.data <- read.delim(gc.gene.file, as.is=TRUE)
         if (!length(intersect(gc.data[,1], tumor[,1]))) {
-            stop("Intervals of gatk.tumor.file and gc.gene.file do not align.")
+            .stopUserError("Intervals of gatk.tumor.file and gc.gene.file ",
+                "do not align.")
         }
         gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
     }
@@ -325,13 +327,14 @@ post.optimize=FALSE,
         if (class(vcf.file) == "character") {    
             vcf <- .readAndCheckVcf(vcf.file, genome=genome)
         } else if (class(vcf.file) != "CollapsedVCF") {
-            stop("vcf.file neither a filename nor a CollapsedVCF object.") 
+            .stopUserError("vcf.file neither a filename nor a CollapsedVCF ", 
+                "object.") 
         } else {
             vcf <- vcf.file
         } 
 
         if (length(intersect(tumor$chr,seqlevels(vcf))) < 1) {
-            stop("Different chromosome names in coverage and VCF.")
+            .stopUserError("Different chromosome names in coverage and VCF.")
         }    
 
         if (is.null(args.filterVcf$use.somatic.status)) {
@@ -475,7 +478,7 @@ post.optimize=FALSE,
     li <- seg.result$size
     C <- rep(2, length(li))
 
-    if (sum(li < 0) > 0) stop("Some segments have negative size.")
+    if (sum(li < 0) > 0) .stopRuntimeError("Some segments have negative size.")
 
     if(verbose) { 
         message("Mean standard deviation of log-ratios: ", 

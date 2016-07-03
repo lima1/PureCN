@@ -108,7 +108,9 @@ show.segment.means=c("SNV", "segments", "both"),
 
         }
     } else if (type=="BAF") {
-        if (is.null(res$input$vcf)) stop("runAbsoluteCN was run without a VCF file.")
+        if (is.null(res$input$vcf)) {
+            .stopUserError("runAbsoluteCN was run without a VCF file.")
+        }
         if (is.null(ids)) ids <- 1:length(res$results)
         for (i in ids) {
             r <- res$results[[i]]$SNV.posterior$beta.model$posterior
@@ -234,7 +236,9 @@ show.segment.means=c("SNV", "segments", "both"),
             } 
         }
     } else if (type=="AF") {
-        if (is.null(res$input$vcf)) stop("runAbsoluteCN was run without a VCF file.")
+        if (is.null(res$input$vcf)) {
+            .stopUserError("runAbsoluteCN was run without a VCF file.")
+        }
         if (is.null(ids)) ids <- 1:length(res$results)
         for (i in ids) {
             r <- res$results[[i]]$SNV.posterior$beta$posterior

@@ -23,11 +23,11 @@ verbose=TRUE
 ) {
     # check parameters
     coverage <- round(coverage)
-    if (coverage < 2) stop("coverage not in expected range (>=2)")
-    if (error < 0 || error > 1) stop("error not in expected range.")
-    if (fpr < 0 || fpr > 1) stop("fpr not in expected range.")
+    if (coverage < 2) .stopUserError("coverage not in expected range (>=2)")
+    if (error < 0 || error > 1) .stopUserError("error not in expected range.")
+    if (fpr < 0 || fpr > 1) .stopUserError("fpr not in expected range.")
     if (cell.fraction <= 0 || cell.fraction > 1) { 
-        stop("cell.fraction not in expected range.")
+        .stopUserError("cell.fraction not in expected range.")
     }
     
     # calculate minimum number of required sequencing reads with mutation
@@ -41,15 +41,17 @@ verbose=TRUE
      # find allelic fraction to test
      if (is.null(f)) {     
          if (is.null(purity) || is.null(ploidy)) {
-             stop("Need either f or purity and ploidy.")
+             .stopUserError("Need either f or purity and ploidy.")
          }    
-         if (purity < 0 || purity > 1) stop("purity not in expected range.")
-         if (ploidy <= 0) stop("ploidy not in expected range.")
+         if (purity < 0 || purity > 1) {
+            .stopUserError("purity not in expected range.")
+         }
+         if (ploidy <= 0) .stopUserError("ploidy not in expected range.")
          D <- purity * ploidy + (1 - purity) * 2 
          f <- purity/D
          f <- f * cell.fraction
      }
-     if (f < 0 || f > 1) stop("f not in expected range.")
+     if (f < 0 || f > 1) .stopUserError("f not in expected range.")
      if (verbose) message("Expected allelic fraction ", f, ".")
      
      # calculate power

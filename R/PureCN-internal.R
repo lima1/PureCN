@@ -20,7 +20,7 @@ max.exon.ratio) {
 .calcLogRatio <- function(normal, tumor, verbose) {
     # make sure that normal and tumor align
     if (!identical(as.character(normal[, 1]), as.character(tumor[, 1]))) {
-        stop("Interval files in normal and tumor different.")
+        .stopUserError("Interval files in normal and tumor different.")
     }
     total.cov.normal <- sum(as.numeric(normal$coverage), na.rm = TRUE)
     total.cov.tumor <- sum(as.numeric(tumor$coverage), na.rm = TRUE)
@@ -265,11 +265,11 @@ max.exon.ratio) {
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
     max.non.clonal) {
     if (min(test.purity) <= 0 || max(test.purity) > 1) 
-        stop("test.purity not within expected range.")
+        .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
-        stop("min.ploidy or max.ploidy not within expected range.")
+        .stopUserError("min.ploidy or max.ploidy not within expected range.")
     if (max.non.clonal > 1) 
-        stop("max.non.clonal not within expected range.")
+        .stopUserError("max.non.clonal not within expected range.")
 
     stopifnot(is.numeric(min.ploidy))
     stopifnot(is.numeric(max.ploidy))
@@ -641,7 +641,7 @@ max.exon.ratio) {
     required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
         "seg.mean")
     if (!all.equal(colnames(seg), required.colnames)) {
-        stop(paste("Segmentation file expected with colnames", 
+        .stopUserError(paste("Segmentation file expected with colnames", 
                 paste(required.colnames, collapse = ", ")))
     }
     
@@ -689,10 +689,26 @@ max.exon.ratio) {
     check.fa=TRUE) {
     vcf <- readVcf(vcf.file, genome)
     if (is.null(info(vcf)$DB) && check.db) {
-        stop(vcf.file, " has no DB info flag for dbSNP membership.")
+        .stopUserError(vcf.file, " has no DB info flag for dbSNP membership.")
     }
     if (is.null(geno(vcf)$FA) && check.fa) {
-        stop(vcf.file, " has no FA genome flag containing allelic fractions.")
+        .stopUserError(vcf.file, 
+            " has no FA genome flag containing allelic fractions.")
     }
     vcf     
 }    
+
+.stopUserError <- function(...) {
+    msg <- paste(c(...), collapse="")
+    msg <- paste(msg, "\n\nThis is most likely a user error due to",
+        " invalid input data or parameters (PureCN ", 
+        packageVersion("PureCN"), ").", sep="")
+    stop( paste(strwrap(msg),"\n"), call.= FALSE)
+}
+.stopRuntimeError <- function(...) {
+    msg <- paste(c(...), collapse="")
+    msg <- paste(msg, "\n\nThis runtime error might be caused by",
+        " invalid input data or parameters. Please report bug (PureCN ", 
+        packageVersion("PureCN"), ").", sep="")
+    stop( paste(strwrap(msg),"\n"), call.= FALSE)
+}

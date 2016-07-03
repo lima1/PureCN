@@ -21,7 +21,7 @@ sex=NULL,
         sex <- sex.determined
     } else {   
         if (length(sex) != length(normals)) {
-            stop("Length of gatk.normal.files and sex different")
+            .stopUserError("Length of gatk.normal.files and sex different")
         } 
         idx.sex <- sex %in% c(NA, "F", "M", "diploid")
         sex[!idx.sex] <- NA
