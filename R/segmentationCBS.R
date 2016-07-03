@@ -96,7 +96,7 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
 
 .findCNNLOH <- function( x, vcf, tumor.id.in.vcf, alpha=0.005, min.variants=7, 
 iterations=2, chr.hash ) {
-    for (iter in 1:iterations) {
+    for (iter in seq_len(iterations)) {
         seg <- x$cna$output
         seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
             IRanges(start=seg$loc.start, end=seg$loc.end))
@@ -104,16 +104,18 @@ iterations=2, chr.hash ) {
         ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
         ar.r <- ifelse(ar>0.5, 1-ar, ar)
 
-        segs <- split(seg, 1:nrow(seg))
-        sizes <- split(x$cnv$size, 1:nrow(seg))
+        segs <- split(seg, seq_len(nrow(seg)) )
+        sizes <- split(x$cnv$size, seq_len(nrow(seg)) )
 
-        for (i in 1:nrow(seg)) {
+        for (i in seq_len(nrow(seg)) ) {
             sar <-ar.r[subjectHits(ov)][queryHits(ov)==i]
-            if (length(sar) < 2 *min.variants) next
+            if (length(sar) < 2 * min.variants) next
             bp <- which.min(sapply(seq(min.variants, length(sar)-min.variants, by=1), 
-                function(i) sum(c( sd(sar[1:i]), sd(sar[(i+1):length(sar)])))))
+                function(i) sum(c( sd(sar[seq_len(i)]),
+                    sd(sar[seq(i+1,length(sar))])))
+            ))
             bp <- bp + min.variants-1
-            tt <- t.test( sar[1:bp], sar[(bp+1):length(sar)])
+            tt <- t.test( sar[seq_len(bp)], sar[seq(bp+1,length(sar))])
             if ( abs(tt$estimate[1] - tt$estimate[2]) > 0.05
                 && tt$p.value < alpha) {
                 segs[[i]] <- rbind(segs[[i]], segs[[i]])            
@@ -143,13 +145,13 @@ iterations=2, chr.hash ) {
     ar.r <- ifelse(ar>0.5, 1-ar, ar)
     dp <- geno(vcf)$DP[, tumor.id.in.vcf]
 
-    xx <- sapply(1:nrow(seg), function(i) {
+    xx <- sapply(seq_len(nrow(seg)) , function(i) {
         weighted.mean(
             ar.r[subjectHits(ov)][queryHits(ov) == i], 
             w=sqrt(dp[subjectHits(ov)][queryHits(ov) == i]),
             na.rm=TRUE)
     })
-    numVariants <- sapply(1:nrow(seg), function(i) sum(queryHits(ov) == i))
+    numVariants <- sapply(seq_len(nrow(seg)), function(i) sum(queryHits(ov) == i))
     dx <- cbind(seg$seg.mean,xx)
     hc <- hclust(dist(dx), method=method)
     seg.hc <- data.frame(id=1:nrow(dx), dx, num=numVariants, 
@@ -173,7 +175,7 @@ iterations=2, chr.hash ) {
 .pruneByVCF <- function(x, vcf, tumor.id.in.vcf, min.size=5, max.pval=0.00001,
     iterations=3, chr.hash, debug=FALSE) {
     seg <- segments.p(x$cna)
-    for (iter in 1:iterations) {
+    for (iter in seq_len(iterations)) {
         seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
             IRanges(start=seg$loc.start, end=seg$loc.end))
         ov <- findOverlaps(seg.gr, vcf)

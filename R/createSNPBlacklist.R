@@ -27,7 +27,7 @@ genome="hg19"
     function(vcf) {
         ar_all <- do.call(rbind, geno(vcf)$FA[,1, drop=FALSE])
         dp_all <- geno(vcf)$DP[,1, drop=FALSE]
-        xx <-sapply(1:length(ar_all), function(j) 
+        xx <-sapply(seq_along(ar_all), function(j) 
             pbeta(1/2, 
                 shape1=ar_all[j]*dp_all[j]+1, 
                 shape2=(1-ar_all[j])*dp_all[j]+1,log.p=FALSE))
@@ -35,11 +35,11 @@ genome="hg19"
     vcfs.lh <- lapply(vcfs, .testAllelicRatioHeterozygousBias)
     vcfs.ar <- lapply(vcfs, function(vcf) do.call(rbind, geno(vcf)$FA[,1, drop=FALSE]))
 
-    vcfs.smaller <- lapply(1:length(vcfs), function(i) 
+    vcfs.smaller <- lapply(seq_along(vcfs), function(i) 
         vcfs[[i]][vcfs.lh[[i]] > 1 - low.af,])
 
     xx <- sort(table(do.call(c, lapply(vcfs.smaller, function(x) names(rowRanges(x))))))
-    vcfs.greater <- lapply(1:length(vcfs), function(i) 
+    vcfs.greater <- lapply(seq_along(vcfs), function(i) 
         vcfs[[i]][vcfs.lh[[i]] < 1 - high.af,])
     xx.s <- sort(table(do.call(c, lapply(vcfs.greater, function(x) names(rowRanges(x))))))
 

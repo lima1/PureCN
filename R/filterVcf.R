@@ -77,7 +77,7 @@ verbose=TRUE
         coverage.cutoff, ".")
 
     if (!is.null(snp.blacklist)) {
-        for (i in 1:length(snp.blacklist)) {
+        for (i in seq_along(snp.blacklist)) {
             snp.blacklist.data <- read.csv(snp.blacklist[i], as.is=TRUE)
             snp.blacklist.data2 <- read.delim(snp.blacklist[i], as.is=TRUE)
             if (ncol(snp.blacklist.data2) > ncol(snp.blacklist.data)) {
@@ -97,7 +97,7 @@ verbose=TRUE
                     IRanges(start=snp.blacklist.data[,2], 
                             end=snp.blacklist.data[,3]))))
 
-                idx <- !(1:nrow(vcf) %in% queryHits(ov) & info(vcf)$DB)
+                idx <- !(seq_len(nrow(vcf)) %in% queryHits(ov) & info(vcf)$DB)
                 vcf <- vcf[idx]
             }    
             if (verbose) message("Removing ", n-nrow(vcf), 
@@ -277,7 +277,7 @@ function(vcf, tumor.id.in.vcf) {
         colnames(geno(vcf)$FA)), drop=FALSE])
     dp_all <- geno(vcf)$DP[,-match(tumor.id.in.vcf, 
         colnames(geno(vcf)$DP)), drop=FALSE]
-    xx <-sapply(1:length(ar_all), function(j) 
+    xx <-sapply(seq_along(ar_all), function(j) 
         pbeta(1/2, 
             shape1=ar_all[j]*dp_all[j]+1, 
             shape2=(1-ar_all[j])*dp_all[j]+1,log.p=FALSE))

@@ -99,7 +99,7 @@ max.exon.ratio) {
         C.posterior[idx,] <-(C.posterior[idx,]+f)/(ncol(C.posterior)*f+1)
     }   
     
-    seg.idx <- which(1:nrow(C.posterior) %in% queryHits(ov))
+    seg.idx <- which(seq_len(nrow(C.posterior)) %in% queryHits(ov))
     sd.ar <- sd(unlist(geno(vcf)$FA[, tumor.id.in.vcf]))
     xx <- lapply(seg.idx, function(i) {
         # classify germline vs somatic
@@ -124,7 +124,7 @@ max.exon.ratio) {
             }
             
             p.ar <- lapply(c(0, 1), function(g) 
-                lapply(1:length(ar_all), function(j) 
+                lapply(seq_along(ar_all), function(j) 
                 sapply(test.num.copy, function(Mi) 
                     ifelse(Mi > lr.C[j], -Inf, 
                     dbeta(x = (p * Mi + g * (1-p))/(p * lr.C[j] + 2 * (1-p)), 
@@ -132,32 +132,32 @@ max.exon.ratio) {
                     shape2 = (1 - ar_all[j]) * dp_all[j] + 1, log = TRUE) -
                     pM.both[[g + 1]][which.min(abs(Mi - test.num.copy))]))))
             
-            p.ar.cont.1 <- lapply(1:length(ar_all), function(j) 
+            p.ar.cont.1 <- lapply(seq_along(ar_all), function(j) 
                 dbeta(x = (p * lr.C[j] + 2 * (1 - p - cont.rate))/
                     (p * lr.C[j] + 2 * (1 - p)), 
                     shape1 = ar_all[j] * dp_all[j] + 1, 
                     shape2 = (1 - ar_all[j]) * dp_all[j] + 1, log = TRUE) - 
                 log(lr.C[j] + 1 + haploid.penalty))
 
-            p.ar.cont.2 <- lapply(1:length(ar_all), function(j) 
+            p.ar.cont.2 <- lapply(seq_along(ar_all), function(j) 
                 dbeta(x = (cont.rate)/(p * lr.C[j] + 2 * (1 - p)), 
                     shape1 = ar_all[j] * dp_all[j] + 1, 
                     shape2 = (1 - ar_all[j]) * dp_all[j] + 1, log = TRUE) - 
                 log(lr.C[j] + 1 + haploid.penalty))
             
             # add prior probabilities for somatic vs germline
-            p.ar[[1]] <- lapply(1:length(p.ar[[1]]), 
+            p.ar[[1]] <- lapply(seq_along(p.ar[[1]]), 
                 function(j) p.ar[[1]][[j]] + log(prior.somatic[idx][j]))
 
-            p.ar[[2]] <- lapply(1:length(p.ar[[2]]), 
+            p.ar[[2]] <- lapply(seq_along(p.ar[[2]]), 
                 function(j) p.ar[[2]][[j]] + log(1 - prior.somatic[idx][j]))
 
             # contamination (either homozygous germline, or germline from 
             # other sample)
 
-            p.ar[[3]] <- lapply(1:length(p.ar.cont.1), 
+            p.ar[[3]] <- lapply(seq_along(p.ar.cont.1), 
                 function(j) p.ar.cont.1[[j]] + log(prior.cont[idx][j]))
-            p.ar[[4]] <- lapply(1:length(p.ar.cont.2), 
+            p.ar[[4]] <- lapply(seq_along(p.ar.cont.2), 
                 function(j) p.ar.cont.2[[j]] + log(prior.cont[idx][j]))
             
             do.call(cbind, lapply(p.ar, function(x) do.call(rbind, x)))
@@ -175,7 +175,7 @@ max.exon.ratio) {
         rep(segment.M[i], sum(seg.idx[i]==queryHits(ov)))))
 
     snv.posteriors <- do.call(rbind, 
-        lapply(1:length(xx), function(i) Reduce("+", 
+        lapply(seq_along(xx), function(i) Reduce("+", 
             lapply(test.num.copy, function(Ci) 
                 exp(xx[[i]][[Ci + 1]]) * C.posterior[seg.idx[i], Ci + 1]))))
 
@@ -291,8 +291,8 @@ max.exon.ratio) {
         return(results)
     idx.duplicated <- rep(FALSE, length(results))
 
-    for (i in 1:(length(results)-1)) {
-        for (j in (i+1):length(results)) {
+    for (i in seq_len(length(results)-1)) {
+        for (j in seq(i+1,length(results)) ) {
             if ( abs( results[[i]]$purity - results[[j]]$purity ) < 0.1 &&
                  abs( results[[i]]$ploidy - results[[j]]$ploidy ) / results[[i]]$ploidy < 0.1) {
                 idx.duplicated[j] <- TRUE
@@ -303,11 +303,11 @@ max.exon.ratio) {
 }
 .findLocalMinima <- function(m) {
     loc.min <- matrix(nrow = 0, ncol = 2)
-    for (i in 1:nrow(m)) {
-        for (j in 1:ncol(m)) {
-            x <- (i - 1):(i + 1)
+    for (i in seq_len(nrow(m))) {
+        for (j in seq_len(ncol(m))) {
+            x <- seq(i - 1, i + 1)
             x <- x[x >= 1 & x <= nrow(m)]
-            y <- (j - 1):(j + 1)
+            y <- seq(j - 1, j + 1)
             y <- y[y >= 1 & y <= ncol(m)]
             if (m[i, j] == max(m[x, y]) && !is.infinite(m[i, j])) 
                 loc.min <- rbind(loc.min, c(row = i, col = j))
@@ -362,7 +362,7 @@ max.exon.ratio) {
     number.segments <- nrow(results[[1]]$seg)
     
     if (logr.sdev > max.logr.sdev) {
-        for (i in 1:length(results)) {
+        for (i in seq_along(results)) {
             results[[i]]$flag <- TRUE
             results[[i]]$flag_comment <- .appendComment(results[[i]]$flag_comment, 
                 "NOISY LOG-RATIO")
@@ -370,7 +370,7 @@ max.exon.ratio) {
     }
 
     if (number.segments > max.segments) {
-        for (i in 1:length(results)) {
+        for (i in seq_along(results)) {
             results[[i]]$flag <- TRUE
             results[[i]]$flag_comment <- .appendComment(results[[i]]$flag_comment, 
                 "NOISY SEGMENTATION")
@@ -379,7 +379,7 @@ max.exon.ratio) {
     
     # some global flags
     if (!is.na(flag) && flag) {
-        for (i in 1:length(results)) {
+        for (i in seq_along(results)) {
             results[[i]]$flag <- TRUE
             results[[i]]$flag_comment <- .appendComment(results[[i]]$flag_comment, 
                 flag_comment)
@@ -433,7 +433,7 @@ max.exon.ratio) {
             message(paste(b, log.ratio.offset))
         lapply(ploidy.grid, function(D) {
             dt <- p/D
-            llik.all <- lapply(1:length(exon.lrs), function(i) .calcLlikSegmentExonLrs(exon.lrs[[i]], 
+            llik.all <- lapply(seq_along(exon.lrs), function(i) .calcLlikSegmentExonLrs(exon.lrs[[i]], 
                 log.ratio.offset, max.exon.ratio, sd.seg, dt, b, D, test.num.copy))
             subclonal <- sapply(llik.all, which.max) == 1
             subclonal.f <- length(unlist(exon.lrs[subclonal]))/length(unlist(exon.lrs))
@@ -509,7 +509,7 @@ max.exon.ratio) {
     # max.ll <- max(sapply(results, function(z) z$log.likelihood)) max.snv.ll <-
     # max(sapply(results, function(z) z$SNV.posterior$beta.model$llik))
     complexity <- .calcComplexityCopyNumber(results) 
-    for (i in 1:length(results)) {
+    for (i in seq_along(results)) {
         if (is.null(results[[i]]$SNV.posterior)) {
             results[[i]]$total.log.likelihood <- results[[i]]$log.likelihood
         } else {
@@ -533,11 +533,9 @@ max.exon.ratio) {
     # Gibbs sample offset
     test.offset <- seq(sd.seg * -log.ratio.calibration, sd.seg * log.ratio.calibration, 
         by = 0.01)
-    # adjust by chromosome or total. total works better in simulation? seg.ids.by.chr
-    # <- lapply(split(cbind(seg, id=1:nrow(seg)), seg$chrom), function(x) x$id)
-    seg.ids.by.chr <- list(1:nrow(seg))
+    seg.ids.by.chr <- list(seq_len(nrow(seg)))
     
-    lr <- lapply(1:length(seg.ids.by.chr), function(j) {
+    lr <- lapply(seq_along(seg.ids.by.chr), function(j) {
         px.offset <- lapply(test.offset, function(px) sapply(seg.ids.by.chr[[j]], 
             function(i) {
                 b <- 2 * (1 - p)
@@ -553,18 +551,16 @@ max.exon.ratio) {
         log.ratio.offset <- test.offset[min(which(runif(n = 1, min = 0, max = sum(px.offset.s)) <= 
             cumsum(px.offset.s)))]
     })
-    do.call(c, lapply(1:length(lr), function(i) rep(lr[[i]], length(seg.ids.by.chr[[i]]))))
+    do.call(c, lapply(seq_along(lr), function(i) rep(lr[[i]], length(seg.ids.by.chr[[i]]))))
 }
 .sampleOffset <- function(subclonal, seg, exon.lrs, sd.seg, p, C, total.ploidy, max.exon.ratio, 
     simulated.annealing, iter, log.ratio.calibration = 0.25) {
     # Gibbs sample offset
     test.offset <- seq(sd.seg * -log.ratio.calibration, sd.seg * log.ratio.calibration, 
         by = 0.01)
-    # adjust by chromosome or total. total works better in simulation? seg.ids.by.chr
-    # <- lapply(split(cbind(seg, id=1:nrow(seg)), seg$chrom), function(x) x$id)
-    seg.ids.by.chr <- list(1:nrow(seg))
+    seg.ids.by.chr <- list(seq_len(nrow(seg)))
     
-    lr <- lapply(1:length(seg.ids.by.chr), function(j) {
+    lr <- lapply(seq_along(seg.ids.by.chr), function(j) {
         px.offset <- lapply(test.offset, function(px) sapply(seg.ids.by.chr[[j]], 
             function(i) .calcLlikSegment(subclonal[i], exon.lrs[[i]] + px, sd.seg, 
                 p, C[i], total.ploidy, max.exon.ratio)))
@@ -576,7 +572,7 @@ max.exon.ratio) {
         log.ratio.offset <- test.offset[min(which(runif(n = 1, min = 0, max = sum(px.offset.s)) <= 
             cumsum(px.offset.s)))]
     })
-    do.call(c, lapply(1:length(lr), function(i) rep(lr[[i]], length(seg.ids.by.chr[[i]]))))
+    do.call(c, lapply(seq_along(lr), function(i) rep(lr[[i]], length(seg.ids.by.chr[[i]]))))
 }
 .removeOutliers <- function(x, na.rm=TRUE,...) {
     if (length(x) < 5) 
@@ -654,7 +650,7 @@ max.exon.ratio) {
     ov <- findOverlaps(exon.gr, seg.gr)
     log.ratio <- seg$seg.mean[subjectHits(ov)]
     # sanity check, so that every exon has exactly one segment log-ratio
-    log.ratio <- log.ratio[match(1:nrow(tumor), queryHits(ov))]
+    log.ratio <- log.ratio[match(seq_len(nrow(tumor)), queryHits(ov))]
     log.ratio
 }
 .strip.chr.name <- function(ls, chr.hash) {
@@ -675,7 +671,7 @@ max.exon.ratio) {
 
     if (sum(!ls %in% chr.hash[,1]) == 0) return(chr.hash)
 
-    data.frame(chr=as.factor(ls), number=1:length(ls), row.names=ls)
+    data.frame(chr=as.factor(ls), number=seq_along(ls), row.names=ls)
 }
         
 .ffpeCleanLogRatio <- function(log.ratio, window=20) {

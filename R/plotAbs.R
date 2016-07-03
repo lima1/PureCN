@@ -65,7 +65,7 @@ show.segment.means=c("SNV", "segments", "both"),
 
     type <- match.arg(type)
     if (type=="hist") {
-        if (is.null(ids)) ids <- 1:length(res$results)
+        if (is.null(ids)) ids <- seq_along(res$results)
         for (i in ids) {
             par.mar <- par("mar")
             par(mar=c(c(5, 4, 5, 2) + 0.1))
@@ -93,7 +93,7 @@ show.segment.means=c("SNV", "segments", "both"),
                     round(res$results[[i]]$bootstrap.value, digits=2))
             }    
 
-            h <- hist(do.call(c, lapply(1:nrow(seg), function(i)
+            h <- hist(do.call(c, lapply(seq_len(nrow(seg)), function(i)
                     rep(seg$seg.mean[i], seg$num.mark[i]))),breaks=100, 
                     plot=FALSE)
             h$density <- h$counts/sum(h$counts)
@@ -111,7 +111,7 @@ show.segment.means=c("SNV", "segments", "both"),
         if (is.null(res$input$vcf)) {
             .stopUserError("runAbsoluteCN was run without a VCF file.")
         }
-        if (is.null(ids)) ids <- 1:length(res$results)
+        if (is.null(ids)) ids <- seq_along(res$results)
         for (i in ids) {
             r <- res$results[[i]]$SNV.posterior$beta.model$posterior
             if (is.null(r)) next
@@ -239,7 +239,7 @@ show.segment.means=c("SNV", "segments", "both"),
         if (is.null(res$input$vcf)) {
             .stopUserError("runAbsoluteCN was run without a VCF file.")
         }
-        if (is.null(ids)) ids <- 1:length(res$results)
+        if (is.null(ids)) ids <- seq_along(res$results)
         for (i in ids) {
             r <- res$results[[i]]$SNV.posterior$beta$posterior
             if (is.null(r)) next
@@ -250,10 +250,10 @@ show.segment.means=c("SNV", "segments", "both"),
 
             mycol.palette <- data.frame(
                 priors=levels(as.factor(r$Prior.Somatic)), 
-                color=tmp[1:nlevels(as.factor(r$Prior.Somatic))] 
+                color=tmp[seq_len(nlevels(as.factor(r$Prior.Somatic)))] 
             )
 
-            mycol.palette$pch <- 1:nrow(mycol.palette)
+            mycol.palette$pch <- seq_len(nrow(mycol.palette))
 
             mycol <- mycol.palette$color[
                 match(as.character(r$Prior.Somatic), mycol.palette$priors)]
@@ -362,7 +362,7 @@ show.segment.means=c("SNV", "segments", "both"),
         }
     } else if (type =="all") {
         plotAbs(res, type="overview")
-        if (is.null(ids)) ids <- 1:length(res$results)
+        if (is.null(ids)) ids <- seq_along(res$results)
         for (i in ids) {
             par(mfrow=c(1,1))
             plotAbs(res,i, type="hist")
@@ -395,7 +395,7 @@ show.segment.means=c("SNV", "segments", "both"),
 
         text( sapply(res$results, function(x) min(0.9, x$purity))-0.02,
             sapply(res$results, function(x) x$ploidy)-0.1, 
-            1:length(res$results), col=mycol, cex=2,font=myfont)
+            seq_along(res$results), col=mycol, cex=2,font=myfont)
         par(mar=parm)
     }
 ### Returns NULL
@@ -434,7 +434,7 @@ ss) {
         sapply(ploidy, function(i) ifelse(min(abs(x-i)) < 1,
              which.min(abs(x-i) ), NA)))
 
-    cc <- do.call(cbind, lapply(1:length(tumor.ploidy.i), function(i) 
+    cc <- do.call(cbind, lapply(seq_along(tumor.ploidy.i), function(i) 
         ca[tumor.ploidy.i[[i]],i]))
 
     colnames(cc) <- colnames(ca)
@@ -443,28 +443,27 @@ ss) {
 }
 
 .legend.col <- function(col, lev, ylim){
-n <- length(col)
- 
-bx <- par("usr")
- 
-box.cx <- c(bx[2] + (bx[2] - bx[1]) / 1000,
-bx[2] + (bx[2] - bx[1]) / 1000 + (bx[2] - bx[1]) / 50)
-box.cy <- c(bx[3], bx[3])
-box.sy <- (bx[4] - bx[3]) / n
- 
-xx <- rep(box.cx, each = 2)
+    n <- length(col)
+    bx <- par("usr")
+     
+    box.cx <- c(bx[2] + (bx[2] - bx[1]) / 1000,
+    bx[2] + (bx[2] - bx[1]) / 1000 + (bx[2] - bx[1]) / 50)
+    box.cy <- c(bx[3], bx[3])
+    box.sy <- (bx[4] - bx[3]) / n
+     
+    xx <- rep(box.cx, each = 2)
 
-pxpd = par("xpd")
-par(xpd = TRUE)
-for(i in 1:n){
- 
-yy <- c(box.cy[1] + (box.sy * (i - 1)),
-box.cy[1] + (box.sy * (i)),
-box.cy[1] + (box.sy * (i)),
-box.cy[1] + (box.sy * (i - 1)))
-polygon(xx, yy, col = col[i], border = col[i])
-}
-axis(side=4, at=c(ylim[1], (ylim[2]+ylim[1])/2, ylim[2]), tick=FALSE, labels=round(c(min(lev), median(lev), max(lev))))
-mtext("Copy number Log-Likelihood",side=4,line=2)
-par(xpd = pxpd)
+    pxpd = par("xpd")
+    par(xpd = TRUE)
+    for(i in seq_len(n)){
+        yy <- c(box.cy[1] + (box.sy * (i - 1)),
+        box.cy[1] + (box.sy * (i)),
+        box.cy[1] + (box.sy * (i)),
+        box.cy[1] + (box.sy * (i - 1)))
+        polygon(xx, yy, col = col[i], border = col[i])
+    }
+    axis(side=4, at=c(ylim[1], (ylim[2]+ylim[1])/2, ylim[2]), tick=FALSE, 
+    labels=round(c(min(lev), median(lev), max(lev))))
+    mtext("Copy number Log-Likelihood",side=4,line=2)
+    par(xpd = pxpd)
 }

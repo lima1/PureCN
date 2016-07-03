@@ -23,9 +23,9 @@ max.ploidy=NULL
     curation <- read.csv(file.curation)
     if (curation$Failed) {
         if (remove.failed) return(NA)
-        for (i in 1:length(res$results)) res$results[[i]]$failed <- TRUE
+        for (i in seq_along(res$results)) res$results[[i]]$failed <- TRUE
     } else {
-        for (i in 1:length(res$results)) res$results[[i]]$failed <- FALSE
+        for (i in seq_along(res$results)) res$results[[i]]$failed <- FALSE
     }            
     diff.correct <- sapply(res$results, function(x) {
         abs(x$purity-curation$Purity) + (abs(x$ploidy-curation$Ploidy)/6)

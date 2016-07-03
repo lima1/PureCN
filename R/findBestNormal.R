@@ -33,7 +33,7 @@ verbose=TRUE
     x[is.na(x)] <- 0
 
     idx.pcs <- pcs
-    idx.pcs <- idx.pcs[idx.pcs %in% 1:ncol(normalDB$pca$x)]
+    idx.pcs <- idx.pcs[idx.pcs %in% seq_len(ncol(normalDB$pca$x))]
 
     idx.normals <- seq_along(normalDB$gatk.normal.files)
 

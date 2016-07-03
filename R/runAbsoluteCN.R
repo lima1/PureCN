@@ -377,7 +377,7 @@ post.optimize=FALSE,
         if (remove.off.target.snvs) {
             n.vcf.before.filter <- nrow(vcf)
             # make sure all SNVs are in covered exons
-            vcf <- vcf[1:nrow(vcf) %in% queryHits(findOverlaps(vcf, exon.gr))]
+            vcf <- vcf[seq_len(nrow(vcf)) %in% queryHits(findOverlaps(vcf, exon.gr))]
             if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
                 " variants outside intervals.", 
                 " Set remove.off.target.snvs=FALSE to include.")
@@ -431,7 +431,7 @@ post.optimize=FALSE,
     
     # get exon log-ratios for all segments 
     ov.se <- findOverlaps(seg.gr, exon.well.covered.gr)
-    exon.lrs <- lapply(1:nrow(seg), function(i) 
+    exon.lrs <- lapply(seq_len(nrow(seg)), function(i) 
         log.ratio[subjectHits(ov.se)[queryHits(ov.se)==i]])
     exon.lrs <- lapply(exon.lrs, function(x) 
         subset(x, !is.na(x) & !is.infinite(x)))
@@ -462,12 +462,12 @@ post.optimize=FALSE,
         if (!is.null(seg.file)) {
             seg.orig <- read.delim(seg.file)
             par(mfrow=c(2,1))
-            hist(do.call(c, lapply(1:nrow(seg.orig), function(i) 
+            hist(do.call(c, lapply(seq_len(nrow(seg.orig)), function(i) 
                 rep(seg.orig$seg.mean[i], seg.orig$num.mark[i]))), breaks=100,
                 xlab="log2 ratio", main=paste(sampleid, 
                 "(original segmentation)"))
         }    
-        hist(do.call(c, lapply(1:nrow(seg), function(i) 
+        hist(do.call(c, lapply(seq_len(nrow(seg)), function(i) 
                 rep(seg$seg.mean[i], seg$num.mark[i]))), breaks=100,
                 xlab="log2 ratio", main=sampleid)
         par(mfrow=c(1,1))
@@ -516,7 +516,7 @@ post.optimize=FALSE,
 
     if (nrow(candidate.solutions$candidates) > max.candidate.solutions) {
         # test the best solutions and everything close to diploid
-        idx.keep <- unique(c(1:max.candidate.solutions, 
+        idx.keep <- unique(c(seq_len(max.candidate.solutions), 
             which( ( candidate.solutions$candidates$tumor.ploidy > 1.5 &
                     candidate.solutions$candidates$tumor.ploidy < 2.6 ))))
         candidate.solutions$candidates <- 
@@ -549,7 +549,7 @@ post.optimize=FALSE,
         old.llik <- -1; cnt.llik.equal <- 0;
         C.posterior <- matrix(ncol=length(test.num.copy)+1, nrow=nrow(seg))
         colnames(C.posterior) <- c(test.num.copy, "Subclonal")
-        for (iter in 1:iterations) {
+        for (iter in seq_len(iterations)) {
             # test for convergence
             if (abs(old.llik - llik) < 0.0001) { 
                 cnt.llik.equal <- cnt.llik.equal+1 
@@ -608,7 +608,7 @@ post.optimize=FALSE,
                 " Fraction sub-clonal:", subclonal.f, 
                 " Mean log-ratio offset", mean(log.ratio.offset)))
                  
-            for (i in 1:nrow(seg)) { 
+            for (i in seq_len(nrow(seg))) { 
                 # Gibbs sample copy number
                 # Step 1: calculate log-likelihoods of fits
                 # In the first iteration, we do not have the integer copy 
@@ -771,7 +771,8 @@ post.optimize=FALSE,
             failed=FALSE)
     }
 
-    results <- lapply(1:nrow(candidate.solutions$candidates),.optimizeSolution)
+    results <- lapply(seq_len(nrow(candidate.solutions$candidates)),
+        .optimizeSolution)
     if (verbose) message(
         "Remember, posterior probabilities assume a correct SCNA fit.")
 
@@ -784,13 +785,13 @@ post.optimize=FALSE,
 
     if (!is.null(gc.gene.file)) {
         # Add LOH calls to gene level calls 
-        for (i in 1:length(results)) {
+        for (i in seq_along(results)) {
             results[[i]]$gene.calls <- .getGeneCallsLOH( results[[i]] )
         }
     }    
 
     if (!is.null(vcf.file)) {
-        for (i in 1:length(results)) {
+        for (i in seq_along(results)) {
             results[[i]]$SNV.posterior$beta.model$posteriors <- 
                 .getVariantCallsLOH( results[[i]] )
         }

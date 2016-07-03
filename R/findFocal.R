@@ -11,7 +11,7 @@ amp.cutoff=6
 ### Minimum amplification integer copy number.
 ) {
     focal <- rep(FALSE, nrow(seg))
-    for (i in 1:nrow(seg)) {
+    for (i in seq_len(nrow(seg))) {
         if (seg$C[i] < amp.cutoff) next
         if (seg$size[i] > size.cutoff) next
         size <- seg$size[i]

@@ -6,7 +6,7 @@
         result$log.likelihood + sum(lliks) - 
             sum(result$SNV.posterior$beta.model$llik.ignored)
     }
-    best <- lapply(1:n, function(i) head(
+    best <- lapply(seq_len(n), function(i) head(
         order(sapply(results, .bootstrapResult), decreasing=TRUE), 2))
     bootstrap.value <- sapply(seq_along(results), function(i) 
         sum(sapply(best, function(x) x[1]==i)))/length(best)

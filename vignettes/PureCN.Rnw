@@ -639,7 +639,7 @@ plot(coverage, power[[1]], col=1, xlab="Sequence coverage",
 for (i in 2:length(power)) lines(coverage, power[[i]], col=i)
 abline(h=0.8, lty=2, col="grey")     
 legend("bottomright", legend=paste("Purity", purity),
-    fill=1:length(purity))
+    fill=seq_along(purity))
 @
 \incfig{figure/power1-1}{0.95\textwidth}{Power to detect mono-clonal somatic
 mutations.}{Reproduced from \cite{Carter2012}.}
@@ -658,7 +658,7 @@ plot(coverage, power[[1]], col=1, xlab="Sequence coverage",
 for (i in 2:length(power)) lines(coverage, power[[i]], col=i)
 abline(h=0.8, lty=2, col="grey")     
 legend("bottomright", legend=paste("Purity", purity),
-    fill=1:length(purity))
+    fill=seq_along(purity))
 @
 \incfig{figure/power2-1}{0.95\textwidth}{Power to detect sub-clonal somatic
 mutations with cellular fraction of 0.2.}{Reproduced from \cite{Carter2012}.}
