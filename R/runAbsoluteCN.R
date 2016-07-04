@@ -162,7 +162,7 @@ post.optimize=FALSE,
 ) {
     debug <- FALSE
 
-    if (missing(genome) && !is.null(vcf.file)) {
+    if (missing(genome)) {
         genome <- "hg19"
         message("Default of genome=hg19 is deprecated. Please specify genome.")
     }    
