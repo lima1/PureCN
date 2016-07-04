@@ -44,7 +44,7 @@ plot(coverage, power[[1]], col=1, xlab="Sequence coverage",
 
 for (i in 2:length(power)) lines(coverage, power[[i]], col=i)
 abline(h=0.8, lty=2, col="grey")     
-legend("bottomright", legend=paste("Purity", purity), fill=1:length(purity))
+legend("bottomright", legend=paste("Purity", purity), fill=seq_along(purity))
 
 # Figure S7c in Carter et al.
 coverage <- seq(5,350,1)
@@ -56,5 +56,5 @@ plot(coverage, power[[1]], col=1, xlab="Sequence coverage",
 
 for (i in 2:length(power)) lines(coverage, power[[i]], col=i)
 abline(h=0.8, lty=2, col="grey")     
-legend("bottomright", legend=paste("Purity", purity), fill=1:length(purity))
+legend("bottomright", legend=paste("Purity", purity), fill=seq_along(purity))
 }

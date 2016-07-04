@@ -13,7 +13,7 @@ saveRDS()}
 tumor purity and ploidy solution.}
   \item{remove.failed}{Do not return solutions that failed.}
   \item{report.best.only}{Only return correct/best solution (useful on low memory
-machines when lots of samples are loaded)}
+machines when lots of samples are loaded).}
   \item{min.ploidy}{Minimum ploidy to be considered. If NULL, all. Can be 
 used to automatically ignore unlikely solutions.}
   \item{max.ploidy}{Maximum ploidy to be considered. If NULL, all. Can be 
