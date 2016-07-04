@@ -8,7 +8,7 @@
             sum(result$SNV.posterior$beta.model$llik.ignored)
     }
     best <- replicate(n, head(order(sapply(results, .bootstrapResult), 
-        decreasing=TRUE), 2))
+        decreasing=TRUE), top))
     
     ## Calculate bootstrap value as fraction solution is ranked first.
     bootstrap.value <- sapply(seq_along(results), function(i) 
