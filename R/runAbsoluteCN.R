@@ -35,6 +35,9 @@ vcf.file=NULL,
 ### Again, do not expect very useful results without a VCF file.
 genome,
 ### Genome version, required for the readVcf function.
+centromeres=NULL,
+### Data.frame with centromere positions in first three columns. 
+### If NULL, use pre-stored positions for genome versions hg18, hg19 and hg38. 
 sex=c("?","F","M","diploid"),
 ### Sex of sample. If ?, detect using getSexFromCoverage function and default
 ### parameters. 
@@ -164,6 +167,14 @@ post.optimize=FALSE,
         message("Default of genome=hg19 is deprecated. Please specify genome.")
     }    
     
+    if (is.null(centromeres)) {
+        data(centromeres, envir = environment())
+        if (genome %in% names(centromeres)) {
+            centromeres <- centromeres[[genome]]
+        } else {
+            centromeres <- NULL
+        }
+    }
     # argument checking
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal)
    
@@ -811,8 +822,10 @@ post.optimize=FALSE,
             log.ratio.sdev=sd.seg, 
             vcf=vcf, 
             sampleid=sampleid, 
-            sex=sex, sex.vcf=sex.vcf,
-            chr.hash=chr.hash) 
+            sex=sex, 
+            sex.vcf=sex.vcf,
+            chr.hash=chr.hash,
+            centromeres=centromeres) 
         )
 ##end<<
 },ex=function(){

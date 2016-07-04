@@ -11,8 +11,8 @@ Returns purity and ploidy combinations, sorted by likelihood score.
 Provides copy number and LOH data, by both gene and genomic region. }
 \usage{runAbsoluteCN(gatk.normal.file = NULL, gatk.tumor.file, 
     log.ratio = NULL, seg.file = NULL, seg.file.sdev = 0.4, 
-    vcf.file = NULL, genome, sex = c("?", "F", "M", 
-        "diploid"), fun.filterVcf = filterVcfMuTect, 
+    vcf.file = NULL, genome, centromeres = NULL, sex = c("?", 
+        "F", "M", "diploid"), fun.filterVcf = filterVcfMuTect, 
     args.filterVcf = list(), fun.setPriorVcf = setPriorVcf, 
     args.setPriorVcf = list(), fun.segmentation = segmentationCBS, 
     args.segmentation = list(), fun.focal = findFocal, 
@@ -48,6 +48,8 @@ flag for dbSNP membership. The default fun.setPriorVcf function will also
 look for a Cosmic.CNT slot, containing the hits in the COSMIC database.
 Again, do not expect very useful results without a VCF file.}
   \item{genome}{Genome version, required for the readVcf function.}
+  \item{centromeres}{Data.frame with centromere positions in first three columns. 
+If NULL, use pre-stored positions for genome versions hg18, hg19 and hg38. }
   \item{sex}{Sex of sample. If ?, detect using getSexFromCoverage function and default
 parameters. 
 Default parameters might not work well with every assay and 
