@@ -1,4 +1,5 @@
 .bootstrapResults <- function(results, n=500, top=2) {
+    ## Sample SNVs with replacement and recalculate log-likelihood.
     .bootstrapResult <- function(result) {
         lliks <- log(apply(result$SNV.posterior$beta.model$likelihoods[
             !result$SNV.posterior$beta.model$llik.ignored,],1,max))
@@ -6,17 +7,21 @@
         result$log.likelihood + sum(lliks) - 
             sum(result$SNV.posterior$beta.model$llik.ignored)
     }
-    best <- lapply(seq_len(n), function(i) head(
-        order(sapply(results, .bootstrapResult), decreasing=TRUE), 2))
+    best <- replicate(n, head(order(sapply(results, .bootstrapResult), 
+        decreasing=TRUE), 2))
+    
+    ## Calculate bootstrap value as fraction solution is ranked first.
     bootstrap.value <- sapply(seq_along(results), function(i) 
-        sum(sapply(best, function(x) x[1]==i)))/length(best)
-
+        sum(best[1,]==i))/ncol(best)
     for (i in seq_along(results)) {
         results[[i]]$bootstrap.value <- bootstrap.value[i]
-    }    
-    best <- unlist(best)
+    }
+    
+    ## Return only solutions that had ranked high in at least one replicate.
+    best <- as.vector(best)
     results <- results[unique(best)]
-    results <- results[order(sapply(results, function(x) x$bootstrap.value),decreasing=TRUE)]
+    results <- results[order(sapply(results, function(x) x$bootstrap.value),
+        decreasing=TRUE)]
     results
 }
 
@@ -36,9 +41,7 @@ top=2
 ### any bootstrap replicate.
 ) {
     if (length(res$results) < 2) return(res)
-
-    r <- .bootstrapResults(res$results, n=n, top=top)
-    res$results <- r
+    res$results <- .bootstrapResults(res$results, n=n, top=top)
     res
 ### Returns the runAbsoluteCN object with low likelihood solutions
 ### removed. Also adds a bootstrap value to each solution. This value is
@@ -48,4 +51,4 @@ top=2
 data(purecn.example.output)
 ret.boot <- bootstrapResults(purecn.example.output, n=100)
 plotAbs(ret.boot, type="overview")
-})    
+})
