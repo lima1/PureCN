@@ -572,11 +572,12 @@ post.optimize=FALSE,
                 # calculate posterior probabilities of all requested purities
                 total.ploidy  <- p*(sum(li*(C)))/sum(li)+(1-p)*2   #ploidy
                 px.rij <- lapply(test.purity, function(px) 
-                    sapply(which(!is.na(C)), function(i) 
+                    vapply(which(!is.na(C)), function(i) 
                         .calcLlikSegment(subclonal=subclonal[i], 
                         lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, 
                         p=px, Ci=C[i], total.ploidy=total.ploidy, 
-                        max.exon.ratio=max.exon.ratio)))
+                        max.exon.ratio=max.exon.ratio), double(1))
+                )
                 px.rij.s <- sapply(px.rij, sum, na.rm=TRUE) + log(prior.purity)
                 
                 if (simulated.annealing) px.rij.s <- px.rij.s * exp(iter/4)
@@ -594,11 +595,12 @@ post.optimize=FALSE,
 
             # calculate the log-liklihood of purity and integer copy numbers 
             # plus clonal vs subclonal status
-            llik <- sum(sapply(which(!is.na(C)), function(i) 
+            llik <- sum(vapply(which(!is.na(C)), function(i) 
                 .calcLlikSegment(subclonal=subclonal[i], 
                     lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, p=p, 
                     Ci=C[i], total.ploidy=total.ploidy, 
-                    max.exon.ratio=max.exon.ratio)))
+                    max.exon.ratio=max.exon.ratio), double(1))
+            )
 
             if (debug) message(paste("Iteration:", iter, 
                 " Log-likelihood: ", llik, 
@@ -616,25 +618,25 @@ post.optimize=FALSE,
                 # it next time. Now, use the ploidy from the candidate solution. 
                 if (iter > 1) total.ploidy  <- p*(sum(li*(C)))/sum(li)+(1-p)*2
 
-                p.rij <- sapply(test.num.copy, function(Ci) 
+                p.rij <- vapply(test.num.copy, function(Ci) 
                     .calcLlikSegment(subclonal=FALSE, 
                         lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg,
                         p=p, Ci=Ci, total.ploidy=total.ploidy, 
-                        max.exon.ratio=max.exon.ratio))
+                        max.exon.ratio=max.exon.ratio), double(1))
 
                 # calculate tumor ploidy for all possible copy numbers in this
                 # segment
-                ploidy <- sapply(test.num.copy, function(Ci) 
-                    (sum(li[-i]*(C[-i]))+li[i]*Ci )/sum(li))
+                ploidy <- vapply(test.num.copy, function(Ci) 
+                    (sum(li[-i]*(C[-i]))+li[i]*Ci )/sum(li), double(1))
 
                 # set probability to zero if ploidy is not within requested range 
                 log.prior.ploidy <- log(ifelse(ploidy<min.ploidy | 
                     ploidy>max.ploidy,0,1))
                 if (iter > 1) p.rij <- p.rij+log.prior.ploidy
                 
-                frac.homozygous.loss <- sapply(test.num.copy, function(Ci) 
+                frac.homozygous.loss <- vapply(test.num.copy, function(Ci) 
                     (sum(li[-i] * ifelse(C[-i]==0,1,0)) + li[i] * 
-                    ifelse(Ci==0,1,0))/sum(li) )
+                    ifelse(Ci==0,1,0))/sum(li), double(1))
                 log.prior.homozygous.loss <- log(
                     ifelse(frac.homozygous.loss > max.homozygous.loss,0,1))
                 if (iter > 1) p.rij <- p.rij+log.prior.homozygous.loss
@@ -735,14 +737,16 @@ post.optimize=FALSE,
                 )})
 
             if (post.optimize) {
-                px.rij <- lapply(tp, function(px) sapply(which(!is.na(C)), 
+                px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), 
                     function(i) .calcLlikSegment(subclonal=subclonal[i], 
                     lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, p=px, 
-                    Ci=C[i], total.ploidy= px*(sum(li*(C)))/sum(li)+(1-px)*2, 
-                    max.exon.ratio=max.exon.ratio)))
+                    Ci=C[i], total.ploidy=px*(sum(li*(C)))/sum(li)+(1-px)*2, 
+                    max.exon.ratio=max.exon.ratio), double(1))
+                )
 
                 px.rij.s <- sapply(px.rij, sum, na.rm=TRUE) + log(pp) + 
-                    sapply(res.snvllik, function(x) x$beta.model$llik)
+                    vapply(res.snvllik, function(x) x$beta.model$llik, 
+                        double(1))
             
                 px.rij.s <- exp(px.rij.s-max(px.rij.s))
                 idx <- which.max(px.rij.s)

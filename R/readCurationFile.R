@@ -11,7 +11,7 @@ remove.failed=FALSE,
 ### Do not return solutions that failed.
 report.best.only=FALSE,
 ### Only return correct/best solution (useful on low memory
-### machines when lots of samples are loaded)
+### machines when lots of samples are loaded).
 min.ploidy=NULL,
 ### Minimum ploidy to be considered. If NULL, all. Can be 
 ### used to automatically ignore unlikely solutions.
@@ -21,29 +21,34 @@ max.ploidy=NULL
 ) {
     res <- readRDS(file.rds)
     curation <- read.csv(file.curation)
+
+    ## Mark all solutions as failed if sample is curated as failed
     if (curation$Failed) {
         if (remove.failed) return(NA)
         for (i in seq_along(res$results)) res$results[[i]]$failed <- TRUE
     } else {
         for (i in seq_along(res$results)) res$results[[i]]$failed <- FALSE
-    }            
-    diff.correct <- sapply(res$results, function(x) {
+    }
+
+    ## Find purity/ploidy solution most similar to curation
+    diffCurated <- vapply(res$results, function(x) {
         abs(x$purity-curation$Purity) + (abs(x$ploidy-curation$Ploidy)/6)
-    })
-    idx.correct <- which.min(diff.correct)
-    if (idx.correct != 1) {
-        res$results[c(1,idx.correct)] <-  res$results[c(idx.correct, 1)]
-    } 
+    }, double(1))
+    idxCurated <- which.min(diffCurated)
+    if (idxCurated != 1) {
+        res$results[c(1,idxCurated)] <-  res$results[c(idxCurated, 1)]
+    }
+    
+    ## Filter by ploidy if necessary
     ploidy <- sapply(res$results, function(x) x$ploidy)
     if (is.null(min.ploidy)) min.ploidy <- min(ploidy)
     if (is.null(max.ploidy)) max.ploidy <- max(ploidy)
-
-    idx <- which(ploidy>=min.ploidy & ploidy <= max.ploidy)
-    res$results <- res$results[idx]
+    idxPloidyOk <- which(ploidy>=min.ploidy & ploidy <= max.ploidy)
+    res$results <- res$results[idxPloidyOk]
      
     if (report.best.only) {
         res$results <- res$results[1]
-    }       
+    }
     res
 ### The return value of the corresponding runAbsoluteCN call, but with the
 ### results array manipulated according the curation CSV file and arguments
