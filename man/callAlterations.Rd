@@ -5,7 +5,7 @@
 runAbsoluteCN return object.}
 \usage{callAlterations(res, id = 1, cutoffs = c(0.5, 6, 7), 
     log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, 
-    ...)}
+    all.genes = FALSE, ...)}
 \arguments{
   \item{res}{Return object of the runAbsoluteCN() function.}
   \item{id}{Candidate solutions to be used. id=1 will use the 
@@ -16,6 +16,8 @@ and broad amplifications.}
 in failed samples.}
   \item{failed}{Indicates whether sample was failed. If NULL, use available 
 annotation, which can be set in the curation file.}
+  \item{all.genes}{If FALSE, then only return amplifications and deletions 
+passing the thresholds.}
   \item{\dots}{
 }
 }
@@ -30,4 +32,5 @@ annotation, which can be set in the curation file.}
 \examples{
 data(purecn.example.output)
 callAlterations(purecn.example.output)
+callAlterations(purecn.example.output, all.genes=TRUE)["ESR2",]
 }
