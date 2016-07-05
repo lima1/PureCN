@@ -30,6 +30,20 @@ IRanges(start=armLocations$start, end=armLocations$end))
     seg$M[minorChrNumber[,1]] <- minorChrNumber[,2]
     seg <- seg[complete.cases(seg),]
     seg$chrom <- .add.chr.name(seg$chrom, chr.hash)
+    
+    # merge consecutive segments if they have same genotype
+    i <- 1
+    while (i < nrow(seg)) {
+        key <- paste(seg$chrom, seg$C, seg$M)
+        if (key[i] == key[i+1]) {
+            seg$loc.end[i] <- seg$loc.end[i+1]
+            seg$num.mark[i] <- seg$num.mark[i] + seg$num.mark[i+1]
+            seg <- seg[-(i+1),]
+            next
+        }
+        i <- i + 1
+    }
+
     segGR <- GRanges(seqnames=seg$chrom, IRanges(start=seg$loc.start,
     end=seg$loc.end))
 
@@ -42,8 +56,7 @@ IRanges(start=armLocations$start, end=armLocations$end))
         match(paste(segLOH$chrom, segLOH$arm),
         paste(armLocations$chrom, armLocations$arm))], digits=2)
     segLOH$type <- ""
-    segLOH$type[segLOH$C %% 2 == 0 & segLOH$C > 1 & 
-        segLOH$M == 0] <- "COPY-NEUTRAL LOH"
+    segLOH$type[segLOH$C == 2 & segLOH$M == 0] <- "COPY-NEUTRAL LOH"
     segLOH$type[segLOH$type=="" & segLOH$M == 0] <- "LOH"
     idx <- segLOH$fraction.arm > arm.cutoff & segLOH$type != ""
     segLOH$type[idx] <- paste("WHOLE ARM",
