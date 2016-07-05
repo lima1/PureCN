@@ -137,7 +137,7 @@ verbose=TRUE
     if (res$p.value <= max.pv && res$estimate >= min.or) sex <- "M"
     if (verbose) { 
         message("Sex from VCF: ", sex, " (Fisher's p-value: ", 
-            ifelse(res$p.value < 0.0001, " < 0.0001", 
+            ifelse(res$p.value < 0.0001, "< 0.0001", 
             round(res$p.value, digits=3)), 
             "  odds-ratio: ", round(res$estimate, digits=2), ")")
     }    

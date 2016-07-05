@@ -174,7 +174,8 @@ iterations=2, chr.hash ) {
 # there is evidence based on germline SNPs
 .pruneByVCF <- function(x, vcf, tumor.id.in.vcf, min.size=5, max.pval=0.00001,
     iterations=3, chr.hash, debug=FALSE) {
-    seg <- segments.p(x$cna)
+    seg <- try(segments.p(x$cna), silent=TRUE)
+    if (class(seg) == "try-error") return(x)
     for (iter in seq_len(iterations)) {
         seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
             IRanges(start=seg$loc.start, end=seg$loc.end))

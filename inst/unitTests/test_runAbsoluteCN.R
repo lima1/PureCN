@@ -6,6 +6,9 @@ test_runAbsoluteCN <- function() {
     vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
     gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
         package = "PureCN")
+    seg.file <- system.file("extdata", "example_seg.txt", 
+        package = "PureCN")
+
     data(purecn.example.output)
 
     # run without a VCF
@@ -32,6 +35,8 @@ test_runAbsoluteCN <- function() {
         gatk.normal.file=gatk.normal.file, max.ploidy="a"), silent=FALSE)
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
         gatk.normal.file=gatk.normal.file, test.purity="a"), silent=FALSE)
+    checkException(runAbsoluteCN(gatk.tumor.file, gatk.tumor.file, genome="hg19"),
+        silent=TRUE)
 
     # run with a VCF
     ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
@@ -106,4 +111,11 @@ test_runAbsoluteCN <- function() {
     checkEquals("AMPLIFICATION", gpnmb$type) 
     # run the plot function to catch crashes
     plotAbs(ret, 1, type="all")
+
+    # test with a seg.file
+    ret <- runAbsoluteCN( gatk.tumor.file = gatk.tumor.file, seg.file=seg.file,
+        vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
+        test.purity=seq(0.3,0.7, by=0.01))
+    
+    checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
 }    

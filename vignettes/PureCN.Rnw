@@ -532,6 +532,12 @@ already segmented copy number data is:
     Sample1   1   5774674 5785170 10  -0.756511807441712
 \end{verbatim}
 
+Since its likelihood model is exon-based, \Biocpkg{PureCN} currently 
+still requires an interval file to generate simulated exon-level log-ratios
+from a segmentation file.  For simplicity, this interval file is expected in
+\software{GATK DepthOfCoverage} format and provided via the
+\Rcode{gatk.tumor.file} argument. 
+
 \section{Output}
 
 The \Rcode{plotAbs()} call above will generate the main plots shown in the
