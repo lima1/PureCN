@@ -72,6 +72,8 @@ verbose=TRUE
 .getSexChr <- function(gatk.coverage) {
     if ("chrX" %in% gatk.coverage$chr) {
         return(c("chrX", "chrY"))
+    } else if ("X" %in% gatk.coverage$chr) {
+        return(c("X", "Y"))
     }
     return(as.character(23:24))    
 }

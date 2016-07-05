@@ -549,9 +549,9 @@ instead of accessing the data directly.
 
 \subsection{Prediction of somatic status and cellular fraction}
 
-To understand allelic fractions of a particular SNV, we must know the (i)
+To understand allelic fractions of particular SNVs, we must know the (i)
 somatic status, the (ii) tumor purity, the (iii) local copy number, as well as
-the (iv) number of chromosomes harboring the mutation or SNP. One of
+the (iv) number of chromosomes harboring the mutations or SNPs. One of
 \Biocpkg{PureCN} main functions is to find the most likely combination of these
 four values. We further assign posterior probabilities to all possible
 combinations or states. Availability of matched normals reduces the search space
