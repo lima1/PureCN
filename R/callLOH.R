@@ -38,10 +38,10 @@ IRanges(start=armLocations$start, end=armLocations$end))
     segLOH <-  cbind(seg[subjectHits(ov),], armLocations[queryHits(ov),])
     segLOH$loc.start <- apply(segLOH[,c("loc.start", "start")],1,max)
     segLOH$loc.end <- apply(segLOH[,c("loc.end", "end")],1,min)
-    segLOH$chrom <- paste(segLOH$chrom, segLOH$arm, sep="")
     segLOH$size <- segLOH$loc.end-segLOH$loc.start+1
-    segLOH$fraction.arm <- round(segLOH$size/armLocations$size[match(segLOH$chrom,
-        paste(armLocations$chrom, armLocations$arm, sep=""))], digits=2)
+    segLOH$fraction.arm <- round(segLOH$size/armLocations$size[
+        match(paste(segLOH$chrom, segLOH$arm),
+        paste(armLocations$chrom, armLocations$arm))], digits=2)
     segLOH$type <- ""
     segLOH$type[segLOH$C %% 2 == 0 & segLOH$C > 1 & 
         segLOH$M == 0] <- "COPY-NEUTRAL LOH"
@@ -50,7 +50,7 @@ IRanges(start=armLocations$start, end=armLocations$end))
     segLOH$type[idx] <- paste("WHOLE ARM",
         segLOH$type)[idx]
     rownames(segLOH) <- NULL
-    segLOH <- segLOH[, c("chrom", "loc.start", "loc.end", "C", "M", "type")]
+    segLOH <- segLOH[, c("chrom", "loc.start", "loc.end", "arm", "C", "M", "type")]
     # standardize colnames
     colnames(segLOH)[1:3] <- c("chr", "start", "end")
     segLOH
