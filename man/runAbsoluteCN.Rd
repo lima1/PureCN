@@ -24,9 +24,9 @@ Provides copy number and LOH data, by both gene and genomic region. }
     iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = TRUE, gc.gene.file = NULL, 
     filter.lowhigh.gc.exons = 0.001, filter.targeted.base = 4, 
-    max.logr.sdev = 0.75, max.segments = 200, chr.hash = NULL, 
-    plot.cnv = TRUE, verbose = TRUE, post.optimize = FALSE, 
-    ...)}
+    max.logr.sdev = 0.75, max.segments = 200, prior.K = 0.999, 
+    chr.hash = NULL, plot.cnv = TRUE, verbose = TRUE, 
+    post.optimize = FALSE, ...)}
 \arguments{
   \item{gatk.normal.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
@@ -127,6 +127,11 @@ very different from the true GC content of the probes.}
 larger than this. Assay specific and needs to be calibrated.}
   \item{max.segments}{Flag noisy samples with a large number of segments. Assay 
 specific and needs to be calibrated.}
+  \item{prior.K}{This defines the prior probability that the multiplicity of
+a SNV corresponds to either the maternal or the paternal copy
+number (for somatic variants additionally a multiplicity of 1).
+For perfect segmentations, this value would be 1; values smaller
+than 1 thus may provide some robustness against segmentation errors.}
   \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
 (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
 are properly ordered.   }

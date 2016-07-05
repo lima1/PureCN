@@ -143,6 +143,12 @@ max.logr.sdev=0.75,
 max.segments=200,
 ### Flag noisy samples with a large number of segments. Assay 
 ### specific and needs to be calibrated.
+prior.K=0.999,
+### This defines the prior probability that the multiplicity of
+### a SNV corresponds to either the maternal or the paternal copy
+### number (for somatic variants additionally a multiplicity of 1).
+### For perfect segmentations, this value would be 1; values smaller
+### than 1 thus may provide some robustness against segmentation errors.
 chr.hash=NULL,
 ### Mapping of non-numerical chromsome names to numerical names
 ### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
@@ -743,8 +749,7 @@ post.optimize=FALSE,
                 list(
                     beta.model  = .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, 
                         test.num.copy, C.posterior, C, snv.model="beta", 
-                        prior.somatic, snv.lr, sampleid, 
-                        post.optimize=post.optimize)
+                        prior.somatic, snv.lr, sampleid, prior.K=prior.K)
                 )})
 
             if (post.optimize) {

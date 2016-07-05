@@ -36,7 +36,7 @@ max.exon.ratio) {
     log.ratio
 }
 
-.calcMsSegmentC <- function(yy, test.num.copy, Ci) {
+.calcMsSegmentC <- function(yy, test.num.copy, Ci, prior.K) {
     max.M <- floor(Ci/2)
     idx.germline <- test.num.copy+length(test.num.copy)+1
     idx.somatic <- test.num.copy+1
@@ -47,17 +47,18 @@ max.exon.ratio) {
             n.cases.somatic <- length(unique(c(1,Mi, Ci-Mi)))
              
             if (i!=Mi && i!=Ci - Mi) {
-                yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(0.001) - log(n.cases.germ)
+                yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(1-prior.K) - log(n.cases.germ)
 
                 # allow somatic mutations always have M=1
                 if (i==1) {
-                    yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(1 - 0.001) - log(n.cases.somatic)
+                    yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(prior.K) - log(n.cases.somatic)
                 } else {
-                    yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(0.001) - log(n.cases.somatic)
+                    yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] +
+                        log(1-prior.K) - log(n.cases.somatic)
                 }    
             } else {
-                yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(1-0.001) -log(n.cases.germ)
-                yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(1-0.001) - log(n.cases.somatic)
+                yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(prior.K) -log(n.cases.germ)
+                yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(prior.K) - log(n.cases.somatic)
             }    
         }
         yy
@@ -66,13 +67,14 @@ max.exon.ratio) {
     list(best=yys[[best]], M=test.num.copy[best])
 }
 
-.calcMsSegment <- function(xxi, test.num.copy) {
-    lapply(seq_along(xxi), function(i).calcMsSegmentC( xxi[[i]], test.num.copy, test.num.copy[i]))
+.calcMsSegment <- function(xxi, test.num.copy, prior.K) {
+    lapply(seq_along(xxi), function(i).calcMsSegmentC( xxi[[i]], test.num.copy,
+test.num.copy[i], prior.K))
 }    
 
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
     C.posterior, C, snv.model, prior.somatic, snv.lr, sampleid = NULL, 
-    cont.rate = 0.01, prior.M = NULL, post.optimize) {
+    cont.rate = 0.01, prior.K) {
 
     prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
     prior.somatic <- prior.somatic/(1 + cont.rate)
@@ -112,17 +114,10 @@ max.exon.ratio) {
 
         lapply(test.num.copy, function(Ci) {
             lr.C <- rep(Ci, length(ar_all))
-            pM <- prior.M[[as.character(i)]]
             pM.both <- list(rep(log(Ci + 1 + haploid.penalty), 
                                 length(test.num.copy)), 
                             rep(log(Ci + 1 + haploid.penalty), 
                                 length(test.num.copy)))
-            
-            if (!is.null(pM)) {
-                pM.both <- list(rep(log(Ci + 1 + haploid.penalty), 
-                                    length(test.num.copy)), 
-                                log((1 - pM) + (Ci + 1) + haploid.penalty))
-            }
             
             p.ar <- lapply(c(0, 1), function(g) 
                 lapply(seq_along(ar_all), function(j) 
@@ -168,7 +163,7 @@ max.exon.ratio) {
         
     })
     
-    tmp <- lapply(xx, .calcMsSegment, test.num.copy)
+    tmp <- lapply(xx, .calcMsSegment, test.num.copy, prior.K)
     xx <- lapply(tmp, lapply, function(x) x$best)
     
     # Get segment M's for each SNV
@@ -244,12 +239,6 @@ max.exon.ratio) {
         loh = loh, 
         llik.ignored = idx.ignore)
 
-    #if (post.optimize && is.null(prior.M)) {
-    #    ret <- .calcSNVLLik(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
-    #        C.posterior, C, snv.model, prior.somatic, snv.lr, sampleid, 
-    #        cont.rate, prior.M = .calcMpriorGermline(ret), 
-    #        post.optimize = post.optimize)
-    #}
     ret
 }
 
