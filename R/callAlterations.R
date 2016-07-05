@@ -16,6 +16,9 @@ log.ratio.cutoffs=c(-0.9,0.9),
 failed=NULL,
 ### Indicates whether sample was failed. If NULL, use available 
 ### annotation, which can be set in the curation file.
+all.genes=FALSE,
+### If FALSE, then only return amplifications and deletions 
+### passing the thresholds.
 ...) {
 
     if (class(res$results[[id]]$gene.calls) != "data.frame") {
@@ -43,10 +46,14 @@ failed=NULL,
     calls$type <- NA
     calls$type[amp.ids] <- "AMPLIFICATION"
     calls$type[del.ids] <- "DELETION"
-
-    calls[!is.na(calls$type),]
+    
+    if (!all.genes) {
+        return(calls[!is.na(calls$type),])
+    }
+    calls
 ### A data.frame with gene-level amplification and deletion calls.
 },ex=function() {
 data(purecn.example.output)
 callAlterations(purecn.example.output)
+callAlterations(purecn.example.output, all.genes=TRUE)["ESR2",]
 })        

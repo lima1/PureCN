@@ -541,50 +541,45 @@ likelihood and stored in \Rcode{ret\$results}.
 
 <<output1>>=
 names(ret)
-head(ret$results[[1]]$gene.calls, 3)
 @
 
-This data.frame also contains gene-level LOH information. It requires a mapping
-from interval to gene symbol in the \Rcode{gc.gene.file} mapping file. The SNV
-posteriors:
+We provide convenient functions to extract information from this data structure
+and show their usage in the next sections. We recommend using these functions
+instead of accessing the data directly. 
 
-<<output2>>=
-head(ret$results[[1]]$SNV.posterior$beta.model$posteriors, 3)
-@
-    
-This lists all posterior probabilities for all possible SNV states. M0 to M7 are
-multiplicity values, i.e. the number of chromosomes harboring the mutation (e.g.
-1 heterozygous, 2 homozygous if copy number C is 2). Columns with the ML prefix
-indicate maximum likelihood estimates, e.g. ML.AR is the expected allelic ratio
-of the most likely state, AR is the observed allelic ratio.  GERMLINE.CONTHIGH
-and GERMLINE.CONTLOW are the two contamination states. The former are
-homozygous germline SNPs that were not filtered out because reference alleles
-from another individual were sequenced, resulting in allelic fractions smaller
-than 1. The latter are non-reference alleles only present in the contamination. 
+\subsection{Prediction of somatic status and cellular fraction}
 
-\section{Prediction of somatic status and cellular fraction}
+To understand allelic fractions of a particular SNV, we must know the (i)
+somatic status, the (ii) tumor purity, the (iii) local copy number, as well as
+the (iv) number of chromosomes harboring the mutation or SNP. One of
+\Biocpkg{PureCN} main functions is to find the most likely combination of these
+four values. We further assign posterior probabilities to all possible
+combinations or states. Availability of matched normals reduces the search space
+by already providing somatic status. 
 
-The SNV posteriors above provide posterior probabilities for all possible
-states.  The \Rfunction{predictSomatic} function adjusts these posterior
-probabilities by excluding germline states that do not correspond to the
-maternal and paternal chromosome numbers (since \Biocpkg{PureCN} only considers
-heterozygous variants, SNPs are either from the maternal or paternal
-chromosome). For predicted somatic mutations, this function also provides
-cellular fraction estimates, i.e. the fraction of cells with mutation. Fractions
+The \Rfunction{predictSomatic} function provides access to these probabilities.
+For predicted somatic mutations, this function also provides cellular fraction
+estimates, i.e. the fraction of tumor cells with mutation. Fractions
 significantly below 1 indicate sub-clonality\footnote{This number can be above 1
 when the observed allelic fraction is higher than expected for a clonal
 mutation. This maybe due to random sampling, wrong copy number, sub-clonal copy
-number events, or wrong purity/ploidy estimates.}.
+number events, or wrong purity/ploidy estimates.}:
 
 <<output3>>=
 head(predictSomatic(ret), 3)
 @
 
-Segment 1 in this toy example has clearly copy number 2 and LOH, so
-heterozygous mutations are impossible and the posterior probabilities for
-\Rcode{GERMLINE.M1} are set to 0.
+M0 to M7 are multiplicity values, i.e. the number of chromosomes harboring the
+mutation (e.g.  1 heterozygous, 2 homozygous if copy number C is 2). Columns
+with the ML prefix indicate maximum likelihood estimates, e.g. ML.AR is the
+expected allelic ratio of the most likely state, AR is the observed allelic
+ratio.  GERMLINE.CONTHIGH and GERMLINE.CONTLOW are the two contamination states.
+The former are homozygous germline SNPs that were not filtered out because
+reference alleles from another individual were sequenced, resulting in allelic
+fractions smaller than 1. The latter are non-reference alleles only present in
+the contamination. 
 
-\section{Amplifications and deletions}
+\subsection{Amplifications and deletions}
 
 To call amplifications, we recommend using a cutoff of 6 for focal
 amplifications and a cutoff of 7 otherwise. For homozygous deletions, a cutoff
@@ -598,16 +593,6 @@ list.
 For samples that failed \Biocpkg{PureCN} calling we recommended using
 common log-ratio cutoffs to call amplifications, for example 0.9.
 
-<<calling>>=
-amp.ids <- ( ret$results[[1]]$gene.calls$focal & 
-             ret$results[[1]]$gene.calls$C >= 6 ) |
-             ret$results[[1]]$gene.calls$C >= 7 
-
-del.ids <- ret$results[[1]]$gene.calls$C < 0.5
-
-ret$results[[1]]$gene.calls[amp.ids,]
-@
-
 This strategy is implemented in the \Rfunction{callAlterations} function:
 
 <<calling2>>=
@@ -615,10 +600,10 @@ gene.calls <- callAlterations(ret)
 head(gene.calls)
 @
 
-\section{Find genomic regions in LOH}
+\subsection{Find genomic regions in LOH}
 
 The \Rcode{gene.calls} data.frame described above provides gene-level LOH
-information. To find the corresponding regions in LOH, we can use the 
+information. To find the corresponding genomic regions in LOH, we can use the
 \Rfunction{callLOH} function:
 
 <<loh>>=
