@@ -615,6 +615,17 @@ gene.calls <- callAlterations(ret)
 head(gene.calls)
 @
 
+\section{Find genomic regions in LOH}
+
+The \Rcode{gene.calls} data.frame described above provides gene-level LOH
+information. To find the corresponding regions in LOH, the \Rfunction{getLOH}
+provides a convenient way:
+
+<<loh>>=
+loh <- callLOH(ret)
+head(loh)
+@
+  
 \section{Power to detect somatic mutations}
 
 As final quality control step, we can test if coverage and tumor purity are

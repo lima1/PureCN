@@ -5,6 +5,7 @@
     - added calculateGCContentByInterval
     - added calculatePowerDetectSomatic
     - added callAlterations
+    - added callLOH
     - added getDiploid
     - added getSexFromVcf
 
