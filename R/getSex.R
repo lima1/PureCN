@@ -26,7 +26,7 @@ verbose=TRUE
         x <- gatk.coverage
     }
 
-    sex.chr <- .getSexChr(x)
+    sex.chr <- .getSexChr(x$chr)
     xx <- split(x$average.coverage, x$chr)
     
     # for small panels the median appears more robust.
@@ -69,10 +69,10 @@ verbose=TRUE
     sex <- getSexFromCoverage(gatk.tumor.file)
 })
 
-.getSexChr <- function(gatk.coverage) {
-    if ("chrX" %in% gatk.coverage$chr) {
+.getSexChr <- function(chrom) {
+    if ("chrX" %in% chrom) {
         return(c("chrX", "chrY"))
-    } else if ("X" %in% gatk.coverage$chr) {
+    } else if ("X" %in% chrom) {
         return(c("X", "Y"))
     }
     return(as.character(23:24))    
@@ -111,15 +111,20 @@ verbose=TRUE
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- names( which.min(colSums(geno(vcf)$GT=="0")) )
     }
-    chrY <- seqnames(vcf) == "chrY" | seqnames(vcf) == "24"
+    sex.chr <- .getSexChr(seqlevels(vcf))
+
+    chrY <- seqnames(vcf) == sex.chr[2]
     vcf <- vcf[!chrY]
     af <- geno(vcf)$FA[,tumor.id.in.vcf] > af.cutoff
     vcf <- vcf[af]
 
-    chrX <- seqnames(vcf) == "chrX" | seqnames(vcf) == "23"
+    chrX <- seqnames(vcf) == sex.chr[1]
+
     homozygous <- geno(vcf)$FA[,tumor.id.in.vcf] > homozygous.cutoff
     if ( sum(homozygous)/length(homozygous) < 0.001 ) {
-        if (verbose) message("No homozygous variants in VCF, provide unfiltered VCF.")
+        if (verbose) { 
+            message("No homozygous variants in VCF, provide unfiltered VCF.")
+        }    
         return(NA)
     }
     res <- fisher.test(homozygous, as.vector(chrX))
@@ -130,7 +135,12 @@ verbose=TRUE
     if (res$estimate >= min.or.na) sex <- NA
     if (res$estimate >= min.or && res$p.value > max.pv) sex <- NA
     if (res$p.value <= max.pv && res$estimate >= min.or) sex <- "M"
-    if (verbose) message("Sex from VCF: ", sex, " (Fisher's p-value: ", res$p.value, "  odds-ratio: ", res$estimate, ")")
+    if (verbose) { 
+        message("Sex from VCF: ", sex, " (Fisher's p-value: ", 
+            ifelse(res$p.value < 0.0001, " < 0.0001", 
+            round(res$p.value, digits=3)), 
+            "  odds-ratio: ", round(res$estimate, digits=2), ")")
+    }    
     return(sex)    
 ### Returns "M" for male, "F" for female, or NA if unknown.    
 }, ex=function() {

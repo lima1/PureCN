@@ -251,7 +251,7 @@ post.optimize=FALSE,
         }
     }        
     sex <- match.arg(sex)
-    sex.chr <- .getSexChr(tumor)
+    sex.chr <- .getSexChr(tumor$chr)
     if (sex != "diploid") {
         if (sex =="?") {
             sex.tumor <- getSexFromCoverage(tumor, verbose=FALSE)
