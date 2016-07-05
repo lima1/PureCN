@@ -14,10 +14,8 @@ arm.cutoff=0.9
     }
     chr.hash <- res$input$chr.hash
     armLocations <- .getArmLocations(res, 1)
-    loh <- res$results[[id]]$SNV.posterior$beta.model$loh$output
     if (!nrow(armLocations)) {
-        warning("Centromere positions not available or matching.")
-        return(loh)
+        .stopUserError("Centromere positions not available or matching.")
     }
     armLocationsGR <- GRanges(seqnames=armLocations$chrom,
 IRanges(start=armLocations$start, end=armLocations$end))
@@ -28,6 +26,7 @@ IRanges(start=armLocations$start, end=armLocations$end))
         res$results[[id]]$SNV.posterior$beta.model$posteriors$ML.M.Segment
     )
     minorChrNumber <- minorChrNumber[!duplicated(minorChrNumber[,1]),]
+    seg$M <- NA
     seg$M[minorChrNumber[,1]] <- minorChrNumber[,2]
     seg <- seg[complete.cases(seg),]
     seg$chrom <- .add.chr.name(seg$chrom, chr.hash)

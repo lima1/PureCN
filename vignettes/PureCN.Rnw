@@ -60,7 +60,7 @@ non-diploid chromosomes from the coverage data and specify
 \Biocpkg{PureCN} currently also assumes a mostly mono-clonal genome. For most
 clinical samples, this is reasonable, but very heterogenous samples are likely
 not possible to call without manual curation. Due to the lack of signal, manual
-curation is also often necessary in low purity samples or very quiet genomes. 
+curation is also recommended in low purity samples or very quiet genomes. 
 
 In the absence of matched normals, the software currently requires some normal
 contamination to infer germline genotypes. Since cell lines are rarely matched,
