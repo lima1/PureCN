@@ -618,8 +618,8 @@ head(gene.calls)
 \section{Find genomic regions in LOH}
 
 The \Rcode{gene.calls} data.frame described above provides gene-level LOH
-information. To find the corresponding regions in LOH, the \Rfunction{getLOH}
-provides a convenient way:
+information. To find the corresponding regions in LOH, we can use the 
+\Rfunction{callLOH} function:
 
 <<loh>>=
 loh <- callLOH(ret)
