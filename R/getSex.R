@@ -127,6 +127,13 @@ verbose=TRUE
         }    
         return(NA)
     }
+
+    if (!sum(chrX)) {
+        if (verbose) { 
+            message("No variants on chrX in VCF.")
+        }    
+        return(NA)
+    }    
     res <- fisher.test(homozygous, as.vector(chrX))
     if (verbose) message(sum( homozygous & as.vector(chrX)), 
         " homozygous and ", sum( !homozygous & as.vector(chrX)), 
