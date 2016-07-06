@@ -345,7 +345,7 @@ test.num.copy[i], prior.K))
 }
 
 .flagResults <- function(results, max.non.clonal = 0.2, max.logr.sdev, logr.sdev, max.segments,
-    flag = NA, flag_comment = NA) {
+    flag = NA, flag_comment = NA, dropout=FALSE) {
     results <- lapply(results, .flagResult, max.non.clonal = max.non.clonal)
     
     # ldiff <- ( results[[1]]$total.log.likelihood -
@@ -367,6 +367,14 @@ test.num.copy[i], prior.K))
             results[[i]]$flag <- TRUE
             results[[i]]$flag_comment <- .appendComment(results[[i]]$flag_comment, 
                 "NOISY SEGMENTATION")
+        }
+    }
+
+    if (dropout) {
+        for (i in seq_along(results)) {
+            results[[i]]$flag <- TRUE
+            results[[i]]$flag_comment <- .appendComment(results[[i]]$flag_comment, 
+                "HIGH AT- OR GC-DROPOUT")
         }
     }
     
@@ -702,3 +710,9 @@ test.num.copy[i], prior.K))
         packageVersion("PureCN"), ").", sep="")
     stop( paste(strwrap(msg),"\n"), call.= FALSE)
 }
+
+.calcGCmetric <- function(gc.data, coverage) { 
+    gcbins <- split(coverage$average.coverage, gc.data$gc_bias < 0.5); 
+    mean(gcbins[[1]], na.rm=TRUE)/mean(gcbins[[2]], na.rm=TRUE) 
+}
+

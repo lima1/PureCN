@@ -311,18 +311,20 @@ when matching normals are not available.
 
 # We do not download these in this vignette to avoid build failures due to 
 # internet connectivity problems.
-
-#library(rtracklayer)
-#mySession <- browserSession("UCSC")
-#genome(mySession) <- "hg19"
-#tbl.segmentalDups <- getTable( ucscTableQuery(mySession, 
-#    track="Segmental Dups", table="genomicSuperDups"))
-#tbl.simpleRepeats <- getTable( ucscTableQuery(mySession, 
-#    track="Simple Repeats", table="simpleRepeat"))
-#write.table(tbl.segmentalDups[,-1],file="hg19_segmentalDuplications.txt", 
-#    sep="\t", row.names=FALSE)
-#write.table(tbl.simpleRepeats[,-1],file="hg19_simpleRepeats.txt", 
-#    sep="\t", row.names=FALSE)
+downloadFromUCSC <- FALSE
+if (downloadFromUCSC) {
+    library(rtracklayer)
+    mySession <- browserSession("UCSC")
+    genome(mySession) <- "hg19"
+    tbl.segmentalDups <- getTable( ucscTableQuery(mySession, 
+        track="Segmental Dups", table="genomicSuperDups"))
+    tbl.simpleRepeats <- getTable( ucscTableQuery(mySession, 
+        track="Simple Repeats", table="simpleRepeat"))
+    write.table(tbl.segmentalDups[,-1],file="hg19_segmentalDuplications.txt",
+        sep="\t", row.names=FALSE)
+    write.table(tbl.simpleRepeats[,-1],file="hg19_simpleRepeats.txt", 
+        sep="\t", row.names=FALSE)
+}
 
 snp.blacklist <- c('hg19_segmentalDuplications.txt', 'hg19_simpleRepeats.txt')
 @

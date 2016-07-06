@@ -132,6 +132,11 @@ filter.lowhigh.gc.exons=0.001,
 ### Quantile q (defines lower q and upper 1-q) 
 ### for removing exons with outlier GC profile. Assuming that GC correction 
 ### might not have been worked on those. Requires gc.gene.file.
+max.dropout=c(0.9,1.1),
+### Measures GC bias as ratio of coverage in AT-rich (GC < 0.5) 
+### versus GC-rich regions (GC >= 0.5). High drop-out might indicate that
+### data was not GC-normalized or that the sample quality might be 
+### insufficient. Requires gc.gene.file.
 filter.targeted.base=4,
 ### Exclude exons with targeted base (size) smaller 
 ### than this cutoff. This is useful when the same interval file was used to
@@ -291,6 +296,7 @@ post.optimize=FALSE,
         gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
     }
 
+    dropoutWarning <- FALSE
     # clean up noisy exons, but not if the segmentation was already provided.
     if (is.null(seg.file)) {
         if (!is.null(filter.targeted.base)) {
@@ -301,7 +307,7 @@ post.optimize=FALSE,
             normal <- normal[idx,]
             tumor <- tumor[idx,]
         }    
-
+        
         if (!is.null(gc.gene.file)) {
             gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
             qq <- quantile(gc.data$gc_bias, p=c(filter.lowhigh.gc.exons, 
@@ -314,7 +320,22 @@ post.optimize=FALSE,
             log.ratio <- log.ratio[idx]    
             normal <- normal[idx,]
             tumor <- tumor[idx,]
-        }
+            gcMetricNormal <- .calcGCmetric(gc.data, normal)
+            gcMetricTumor <- .calcGCmetric(gc.data, tumor)
+            if (verbose) { 
+                message("AT/GC dropout: ", round(gcMetricTumor, digits=2),
+                " (tumor), ", round(gcMetricNormal, digits=2), " (normal).")
+            }    
+            if (gcMetricNormal < max.dropout[1] || 
+                gcMetricNormal > max.dropout[2] ||
+                gcMetricTumor  < max.dropout[1] ||
+                gcMetricTumor  > max.dropout[2]) {
+                warning("High GC-bias in normal or tumor. Is data GC-normalized?")
+                dropoutWarning <- TRUE
+            }
+        } else if (verbose) {
+            message("No gc.gene.file provided. Cannot check if data was GC-normalized. Was it?")    
+        }    
     }
     
     if (!is.null(gc.gene.file) && is.null(gc.data$Gene) ) {
@@ -801,7 +822,7 @@ post.optimize=FALSE,
     results <- .flagResults(results, max.non.clonal=max.non.clonal, 
         max.logr.sdev=max.logr.sdev, logr.sdev=sd.seg, 
         max.segments=max.segments, flag=vcf.filtering$flag, 
-        flag_comment=vcf.filtering$flag_comment)  
+        flag_comment=vcf.filtering$flag_comment, dropout=dropoutWarning)  
 
     if (!is.null(gc.gene.file)) {
         # Add LOH calls to gene level calls 

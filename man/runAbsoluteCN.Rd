@@ -23,10 +23,11 @@ Provides copy number and LOH data, by both gene and genomic region. }
     coverage.cutoff = 15, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
     iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = TRUE, gc.gene.file = NULL, 
-    filter.lowhigh.gc.exons = 0.001, filter.targeted.base = 4, 
-    max.logr.sdev = 0.75, max.segments = 200, prior.K = 0.999, 
-    chr.hash = NULL, plot.cnv = TRUE, verbose = TRUE, 
-    post.optimize = FALSE, ...)}
+    filter.lowhigh.gc.exons = 0.001, max.dropout = c(0.9, 
+        1.1), filter.targeted.base = 4, max.logr.sdev = 0.75, 
+    max.segments = 200, prior.K = 0.999, chr.hash = NULL, 
+    plot.cnv = TRUE, verbose = TRUE, post.optimize = FALSE, 
+    ...)}
 \arguments{
   \item{gatk.normal.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
@@ -119,6 +120,10 @@ Third column gene symbol.}
   \item{filter.lowhigh.gc.exons}{Quantile q (defines lower q and upper 1-q) 
 for removing exons with outlier GC profile. Assuming that GC correction 
 might not have been worked on those. Requires gc.gene.file.}
+  \item{max.dropout}{Measures GC bias as ratio of coverage in AT-rich (GC < 0.5) 
+versus GC-rich regions (GC >= 0.5). High drop-out might indicate that
+data was not GC-normalized or that the sample quality might be 
+insufficient. Requires gc.gene.file.}
   \item{filter.targeted.base}{Exclude exons with targeted base (size) smaller 
 than this cutoff. This is useful when the same interval file was used to
 calculate GC content. For such small exons, the GC content is likely 
