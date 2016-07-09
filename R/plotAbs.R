@@ -140,6 +140,12 @@ show.segment.means=c("SNV", "segments", "both"),
                 } 
             } else {
                 idx <-r$chr %in% chr
+                if (!sum(idx)) {
+                    .stopUserError(paste(chr, collapse=","), 
+                    "not valid chromosome name(s). ",
+                    "Valid names are: ",  
+                    paste(unique(r$chr), collapse=","))
+                }
                 if (germline.only) idx[r$ML.SOMATIC[idx]] <- FALSE
             }    
             mycol <- ifelse(.strip.chr.name(r[idx,1], chr.hash) %% 2, 

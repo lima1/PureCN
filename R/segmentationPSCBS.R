@@ -21,10 +21,6 @@ flavor="tcn&dh",
 ### Flavor value for PSCBS. See segmentByNonPairedPSCBS.
 tauA=0.03,
 ### tauA argument for PSCBS. See segmentByNonPairedPSCBS.
-find.large.gaps=TRUE,
-### Use the PSCBS findLargeGaps function to find large gaps.
-min.gap.length=5e+06,
-### The minLength argument of findLargeGaps in PSCBS.
 vcf=NULL,
 ### Optional VCF object with germline allelic ratios.
 tumor.id.in.vcf=1,
@@ -44,6 +40,7 @@ verbose=TRUE,
 ### Additional parameters passed to the segmentByNonPairedPSCBS function.
 ) {
     debug <- TRUE
+    .Deprecated("segmentationCBS")
         
     if (!requireNamespace("PSCBS", quietly = TRUE)) {
         .stopUserError("segmentationPSCBS requires the PSCBS package.")
@@ -85,59 +82,18 @@ verbose=TRUE,
         CT=2^(log.ratio+1)[-subjectHits(ov)], betaT=NA, betaN=NA,
         x=tumor$probe_start[-subjectHits(ov)] )
     
-    offv <- vcf[-queryHits(ov)]
-    
-    if (nrow(offv)>0) {
-        d.f.offv <- data.frame(
-            probe=paste(seqnames(offv), ":", start(offv), "-", end(offv), sep=""), 
-            chr=as.character(seqnames(offv)), 
-            probe_start=start(offv), 
-            probe_end=end(offv),
-            targeted.base=1,
-            sequenced.base=NA,
-            coverage=geno(offv)$DP[,tumor.id.in.vcf],
-            average.coverage=geno(offv)$DP[,tumor.id.in.vcf],
-            base.with..10.coverage=NA,
-            CT=NA,
-            betaT=unlist(geno(offv)$FA[,tumor.id.in.vcf]),
-            betaN=NA,
-            x=start(offv))
-
-        if (!is.null(normal.id.in.vcf)) {
-            d.f.offv$betaN <- unlist(geno(offv)$FA[,normal.id.in.vcf])
-        }
-    
-        # for off-target SNVs, require a higher cutoff until PSCBS supports weights
-        d.f.offv <- d.f.offv[d.f.offv$coverage > coverage.cutoff * 1.5,]
-        d.f.3 <- rbind(d.f, d.f.2, d.f.offv)
-    } else {
-        d.f.3 <- rbind(d.f, d.f.2)
-    }    
-    d.f.3 <- d.f.3[order(.strip.chr.name(d.f.3$chr), d.f.3$x, chr.hash),]
+    d.f.3 <- rbind(d.f, d.f.2)
+    d.f.3 <- d.f.3[order(.strip.chr.name(d.f.3$chr, chr.hash), d.f.3$x),]
     d.f <- d.f.3
     colnames(d.f)[2] <- "chromosome"
     d.f$chromosome <- .strip.chr.name(d.f$chromosome, chr.hash)
-    idx <- !is.na(d.f$CT)
-    d.f[idx,] <- PSCBS::dropSegmentationOutliers(d.f[idx,])
-    if (find.large.gaps) {
-        gaps <- PSCBS::findLargeGaps(d.f, minLength = min.gap.length)
-        knownSegments <- PSCBS::gapsToSegments(gaps)
-        if (!is.null(normal.id.in.vcf)) {
-            seg <- PSCBS::segmentByPairedPSCBS(d.f, tauA=tauA, 
-                flavor=flavor,knownSegments = knownSegments,  ...)
-        } else {
-            seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
-                flavor=flavor,knownSegments = knownSegments,  ...)
-        }    
-    } else {
-        if (!is.null(normal.id.in.vcf)) {
-            seg <- PSCBS::segmentByPairedPSCBS(d.f, tauA=tauA, 
-                flavor=flavor, ...)
-        } else {
-            seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
-                flavor=flavor, ...)
-        }    
-    }    
+    #if (!is.null(normal.id.in.vcf)) {
+    #    seg <- PSCBS::segmentByPairedPSCBS(d.f, tauA=tauA, 
+    #        flavor=flavor, ...)
+    #} else {
+        seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
+            flavor=flavor, ...)
+    #}    
     if (plot.cnv) PSCBS::plotTracks(seg)
     .PSCBSoutput2DNAcopy(seg, sampleid)
 ### A list with elements seg and size. "seg" contains the 
@@ -157,9 +113,8 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 #ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
 #    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, 
 #    genome="hg19", sampleid='Sample1', 
-#    max.candidate.solutions=2, remove.off.target.snvs=TRUE,
-#    gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS,
-#    args.segmentation=list(find.large.gaps=FALSE))
+#    max.candidate.solutions=2, 
+#    gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS)
 })    
 
     

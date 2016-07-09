@@ -12,4 +12,9 @@ test_correctCoverageBias <- function() {
     x <- readCoverageGatk("test_loess_coverage.txt")
     checkEqualsNumeric(coverage$average.coverage, x$average.coverage)
     file.remove("test_loess_coverage.txt")
+    interval.file <- system.file("extdata", "ex2_intervals.txt", 
+        package = "PureCN", mustWork = TRUE)
+    checkException(correctCoverageBias(gatk.normal.file, interval.file))
+    
+    correctCoverageBias(head(x,200), gc.gene.file)
 }

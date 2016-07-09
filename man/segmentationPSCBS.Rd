@@ -6,8 +6,7 @@ This function is called via the fun.segmentation argument of runAbsoluteCN.
 The arguments are passed via args.segmentation.}
 \usage{segmentationPSCBS(normal, tumor, log.ratio, plot.cnv, 
     coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
-    flavor = "tcn&dh", tauA = 0.03, find.large.gaps = TRUE, 
-    min.gap.length = 5e+06, vcf = NULL, tumor.id.in.vcf = 1, 
+    flavor = "tcn&dh", tauA = 0.03, vcf = NULL, tumor.id.in.vcf = 1, 
     normal.id.in.vcf = NULL, max.segments = NULL, chr.hash = NULL, 
     verbose = TRUE, ...)}
 \arguments{
@@ -20,8 +19,6 @@ The arguments are passed via args.segmentation.}
   \item{exon.weight.file}{Can be used to assign weights to exons. NOT SUPPORTED YET.}
   \item{flavor}{Flavor value for PSCBS. See segmentByNonPairedPSCBS.}
   \item{tauA}{tauA argument for PSCBS. See segmentByNonPairedPSCBS.}
-  \item{find.large.gaps}{Use the PSCBS findLargeGaps function to find large gaps.}
-  \item{min.gap.length}{The minLength argument of findLargeGaps in PSCBS.}
   \item{vcf}{Optional VCF object with germline allelic ratios.}
   \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in VCF.}
   \item{normal.id.in.vcf}{Id of normal in in VCF. If NULL, use unpaired PSCBS.}
@@ -57,7 +54,6 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 #ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
 #    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, 
 #    genome="hg19", sampleid='Sample1', 
-#    max.candidate.solutions=2, remove.off.target.snvs=TRUE,
-#    gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS,
-#    args.segmentation=list(find.large.gaps=FALSE))
+#    max.candidate.solutions=2, 
+#    gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS)
 }

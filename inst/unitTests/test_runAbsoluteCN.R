@@ -1,6 +1,9 @@
 test_runAbsoluteCN <- function() {
     gatk.normal.file <- system.file("extdata", "example_normal.txt", 
         package = "PureCN")
+    gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+        package="PureCN") 
+    gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file) 
     gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
         package = "PureCN")
     vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
@@ -10,11 +13,14 @@ test_runAbsoluteCN <- function() {
         package = "PureCN")
 
     data(purecn.example.output)
+    exon.weight.file <- "exon_weights.txt"
+    createExonWeightFile(gatk.tumor.file, gatk.normal.files, exon.weight.file)
 
     # run without a VCF
     ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
         gatk.tumor.file=gatk.tumor.file, 
         candidates=purecn.example.output$candidates, 
+        args.segmentation=list(exon.weight.file=exon.weight.file), 
         max.candidate.solutions=2)
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
@@ -111,6 +117,8 @@ test_runAbsoluteCN <- function() {
     checkEquals("AMPLIFICATION", gpnmb$type) 
     # run the plot function to catch crashes
     plotAbs(ret, 1, type="all")
+    checkException(plotAbs(ret, 1, type="BAF", chr="chr1"))
+    plotAbs(ret, 1, type="BAF", chr="1")
 
     # test with a seg.file
     ret <- runAbsoluteCN( gatk.tumor.file = gatk.tumor.file, seg.file=seg.file,

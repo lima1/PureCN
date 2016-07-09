@@ -675,14 +675,13 @@ test.num.copy[i], prior.K))
 
     data.frame(chr=as.factor(ls), number=seq_along(ls), row.names=ls)
 }
-        
-.ffpeCleanLogRatio <- function(log.ratio, window=20) {
-    dlr <- c(0, diff(log.ratio))
-    start <- seq(1,length(dlr), by=window)
-    end <- seq(window,length(dlr), by=window)
-    sds <- sapply(seq_along(end), function(i) sd(dlr[start[i]:end[i]], na.rm=TRUE))
- #   ids <- which(sds > quantile(sds, na.rm=TRUE, p=1-0.001))
-}
+#.ffpeCleanLogRatio <- function(log.ratio, window=20) {
+#   dlr <- c(0, diff(log.ratio))
+#   start <- seq(1,length(dlr), by=window)
+#   end <- seq(window,length(dlr), by=window)
+#   sds <- sapply(seq_along(end), function(i) sd(dlr[start[i]:end[i]], na.rm=TRUE))
+##   ids <- which(sds > quantile(sds, na.rm=TRUE, p=1-0.001))
+#}
 .readAndCheckVcf <- function(vcf.file, genome, check.db=TRUE, 
     check.fa=TRUE) {
     vcf <- readVcf(vcf.file, genome)
@@ -691,7 +690,7 @@ test.num.copy[i], prior.K))
     }
     if (is.null(geno(vcf)$FA) && check.fa) {
         .stopUserError(vcf.file, 
-            " has no FA genome flag containing allelic fractions.")
+            " has no FA geno flag containing allelic fractions.")
     }
     vcf     
 }    

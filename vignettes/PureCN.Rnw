@@ -57,10 +57,11 @@ chromosomes. For non-human samples, the user needs to manually remove all
 non-diploid chromosomes from the coverage data and specify 
 \Rcode{sex='diploid'} in the \Biocpkg{PureCN} call.
 
-\Biocpkg{PureCN} currently also assumes a mostly mono-clonal genome. For most
-clinical samples, this is reasonable, but very heterogenous samples are likely
-not possible to call without manual curation. Due to the lack of signal, manual
-curation is also recommended in low purity samples or very quiet genomes. 
+\Biocpkg{PureCN} currently also assumes that the large majority of somatic copy
+number alterations are mono-clonal. For most clinical samples, this is
+reasonable, but very heterogenous samples are likely not possible to call
+without manual curation. Due to the lack of signal, manual curation is also
+recommended in low purity samples or very quiet genomes. 
 
 In the absence of matched normals, the software currently requires some normal
 contamination to infer germline genotypes. Since cell lines are rarely matched,
@@ -76,8 +77,8 @@ include both single nucleotide variants and indels is planned for Bioconductor
 \subsection{Coverage data}
 
 The algorithm first needs to calculate log-ratios of tumor vs.  normal control
-coverage.  Coverage data needs to be provided in \software{GATK DepthOfCoverage}
-format:
+coverage.  Exon-level coverage data needs to be provided in \software{GATK
+DepthOfCoverage} format:
 
 \begin{footnotesize}
 \begin{verbatim}
