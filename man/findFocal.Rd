@@ -2,7 +2,7 @@
 \alias{findFocal}
 \title{Find focal amplifications}
 \description{Function to find focal amplifications in segmented data. 
-This is automatically called in runAbsoluteCN.}
+This is automatically called in \code{\link{runAbsoluteCN}}.}
 \usage{findFocal(seg, size.cutoff = 2e+06, cn.diff = 2, amp.cutoff = 6)}
 \arguments{
   \item{seg}{Segmentation data.}
@@ -18,7 +18,7 @@ amplified or not.}
 
 
 
-
+\seealso{\code{\link{runAbsoluteCN}}}
 \examples{
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

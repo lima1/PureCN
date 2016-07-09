@@ -1,6 +1,7 @@
 findFocal <- structure(function(# Find focal amplifications
 ### Function to find focal amplifications in segmented data. 
-### This is automatically called in runAbsoluteCN.
+### This is automatically called in \code{\link{runAbsoluteCN}}.
+##seealso<< \code{\link{runAbsoluteCN}}
 seg,
 ### Segmentation data.
 size.cutoff=2000000,
