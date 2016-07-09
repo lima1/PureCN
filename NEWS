@@ -20,6 +20,16 @@ Other major enhancements
 
 -------------------------------------------------------------------------------
 
+API changes
+
+- New functions: autoCurateResults, bootstrapResults, 
+    calculateBamCoverageByInterval, calculateGCContentByInterval,
+    calculatePowerDetectSomatic, callAlterations, callLOH,getDiploid
+    getSexFromVcf
+-Deprecated functions: segmentationPSCBS
+
+-------------------------------------------------------------------------------
+
 Other new features
 
 - Functions to calculate power to detect mono-clonal and sub-clonal somatic
