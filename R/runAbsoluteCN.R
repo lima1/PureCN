@@ -132,7 +132,7 @@ filter.lowhigh.gc.exons=0.001,
 ### Quantile q (defines lower q and upper 1-q) 
 ### for removing exons with outlier GC profile. Assuming that GC correction 
 ### might not have been worked on those. Requires gc.gene.file.
-max.dropout=c(0.9,1.1),
+max.dropout=c(0.95,1.1),
 ### Measures GC bias as ratio of coverage in AT-rich (GC < 0.5) 
 ### versus GC-rich regions (GC >= 0.5). High drop-out might indicate that
 ### data was not GC-normalized or that the sample quality might be 
