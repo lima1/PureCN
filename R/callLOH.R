@@ -1,9 +1,10 @@
 callLOH <- structure(function(# Get regions of LOH
 ### This function provides detailed LOH information by region.
 res, 
-### Return object of the runAbsoluteCN() function.
+### Return object of the \code{\link{runAbsoluteCN}} function.
+##seealso<< \code{\link{runAbsoluteCN}}
 id=1, 
-### Candidate solution to extract LOH from. id=1 will  
+### Candidate solution to extract LOH from. \code{id=1} will  
 ### use the maximum likelihood solution.
 arm.cutoff=0.9
 ### Min fraction LOH on a chromosome arm to call 

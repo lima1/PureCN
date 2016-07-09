@@ -3,7 +3,8 @@ structure(function(# Plots for analyzing PureCN solutions
 ### This function provides various plots for finding correct 
 ### purity and ploidy combinations in the results of a runAbsoluteCN call.
 res, 
-### Return object of the runAbsoluteCN() function.
+### Return object of the \code{\link{runAbsoluteCN}} function.
+##seealso<< \code{\link{runAbsoluteCN}}
 ids=NULL, 
 ### Candidate solutions to be plotted. ids=1 will draw the 
 ### plot for the maximum likelihood solution.

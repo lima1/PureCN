@@ -7,8 +7,8 @@ the runAbsoluteCN function.}
     ".csv", file.rds), remove.failed = FALSE, report.best.only = FALSE, 
     min.ploidy = NULL, max.ploidy = NULL)}
 \arguments{
-  \item{file.rds}{Output of the runAbsoluteCN() function, serialized with 
-saveRDS()}
+  \item{file.rds}{Output of the \code{\link{runAbsoluteCN}} function, serialized with 
+\code{saveRDS}.}
   \item{file.curation}{Filename of a curation file that points to the correct 
 tumor purity and ploidy solution.}
   \item{remove.failed}{Do not return solutions that failed.}
@@ -20,15 +20,15 @@ used to automatically ignore unlikely solutions.}
 used to automatically ignore unlikely solutions.}
 }
 
-\value{The return value of the corresponding runAbsoluteCN call, but with the
-results array manipulated according the curation CSV file and arguments
-of this function.}
+\value{The return value of the corresponding \code{\link{runAbsoluteCN}} call,
+but with the results array manipulated according the curation CSV file 
+and arguments of this function.}
 
 \author{Markus Riester}
 
 
 
-
+\seealso{\code{\link{runAbsoluteCN} \link{createCurationFile}}}
 \examples{
 data(purecn.example.output)
 file.rds <- 'Sample1_PureCN.rds'

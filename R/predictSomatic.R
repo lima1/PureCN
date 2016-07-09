@@ -1,12 +1,13 @@
 predictSomatic <-
 structure(function(#Predict germline vs. somatic status
 ### This function takes as input the output of a 
-### runAbsoluteCN run and annotates variants more correctly as germline 
-### vs. somatic by inferring maternal and paternal chromosome numbers.
+### \code{\link{runAbsoluteCN}} run and provides SNV posterior probabilities
+### for all possible states. 
 res, 
-### Return object of the runAbsoluteCN() function.
+### Return object of the \code{\link{runAbsoluteCN}} function.
+##seealso<< \code{\link{runAbsoluteCN}}
 id=1, 
-### Candidate solutions to be analyzed. id=1 will analyze the 
+### Candidate solutions to be analyzed. \code{id=1} will analyze the 
 ### maximum likelihood solution.
 cutoff=0.1
 ### Exclude maternal/paternal chromosome number in segment if 
@@ -44,7 +45,7 @@ cutoff=0.1
         (purity*pp.new$ML.C+2*(1-purity))/purity
     pp.new$Cellfraction[!pp.new$ML.SOMATIC] <- NA
     pp.new
-### A data.frame with adjusted SNV state posterior probabilities.    
+### A data.frame with SNV state posterior probabilities.    
 }, ex=function(){
 data(purecn.example.output)
 # the output data was created using a matched normal sample, but in case

@@ -6,7 +6,7 @@ variant in the provided CollapsedVCF object.}
 \usage{setPriorVcf(vcf, prior.somatic = c(0.5, 5e-04, 0.999, 
     1e-04, 0.995, 0.01), verbose = TRUE)}
 \arguments{
-  \item{vcf}{CollapsedVCF object, read in with the readVcf function 
+  \item{vcf}{CollapsedVCF object, read in with the \code{readVcf} function 
 from the VariantAnnotation package.}
   \item{prior.somatic}{Prior probabilities for somatic mutations. First value is for 
 the case when no matched normals are available and the variant is not in 

@@ -1,7 +1,8 @@
 poolCoverage <- structure(function(#Pool coverage from multiple samples
 ### Averages the coverage of a list of samples.
 all.data, 
-### List of normals, read with readCoverageGatk.
+### List of normals, read with \code{\link{readCoverageGatk}}.
+##seealso<< \code{\link{readCoverageGatk}}
 remove.chrs=c(),
 ### Remove these chromosomes from the pool.
 w=NULL

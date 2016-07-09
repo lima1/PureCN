@@ -11,7 +11,7 @@ sex when no sex marker genes on chrY (e.g. AMELY) are available.}
     min.or.na = 2.5, max.pv = 0.001, homozygous.cutoff = 0.95, 
     af.cutoff = 0.03, verbose = TRUE)}
 \arguments{
-  \item{vcf}{CollapsedVCF object, read in with the readVcf function 
+  \item{vcf}{CollapsedVCF object, read in with the \code{readVcf} function 
 from the VariantAnnotation package.}
   \item{tumor.id.in.vcf}{The tumor id in the CollapsedVCF (optional).}
   \item{min.or}{Minimum odds-ratio to call sample as male. If p-value is
@@ -33,7 +33,7 @@ specified value. }
 
 
 
-
+\seealso{\code{\link{getSexFromCoverage}}}
 \examples{
 vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")

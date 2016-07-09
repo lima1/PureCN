@@ -31,11 +31,14 @@ Provides copy number and LOH data, by both gene and genomic region. }
 \arguments{
   \item{gatk.normal.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
-exons). Should be already GC-normalized. Needs to be either a file name 
-or data read with the readCoverageGatk function.}
-  \item{gatk.tumor.file}{GATK coverage file of tumor. Should be already 
-GC-normalized. Needs to be either a file name or data read with the 
-readCoverageGatk function.}
+exons). 
+Should be already GC-normalized with \code{\link{correctCoverageBias}}. 
+Needs to be either a file name or data read with the 
+\code{\link{readCoverageGatk}} function.}
+  \item{gatk.tumor.file}{GATK coverage file of tumor. 
+Should be already GC-normalized with \code{\link{correctCoverageBias}}. 
+Needs to be either a file name or data read with the 
+\code{\link{readCoverageGatk}} function.}
   \item{log.ratio}{Copy number log-ratios for all exons in the coverage files. 
 If NULL, calculated based on coverage files.}
   \item{seg.file}{Segmented data. Optional, to support matched SNP6 data. 
@@ -44,15 +47,16 @@ If NULL, use coverage files or log.ratio to segment the data.  }
 used to model likelihood of sub-clonal copy number events.}
   \item{vcf.file}{VCF file, tested with MuTect output files.  Optional, but
 typically needed to select between local optima of similar likelihood. Can 
-also be a CollapsedVCF, read with the readVcf function. Requires a DB info 
-flag for dbSNP membership. The default fun.setPriorVcf function will also
+also be a CollapsedVCF, read with the \code{readVcf} function. 
+Requires a DB info flag for dbSNP membership. The default 
+\code{fun.setPriorVcf} function will also
 look for a Cosmic.CNT slot, containing the hits in the COSMIC database.
 Again, do not expect very useful results without a VCF file.}
-  \item{genome}{Genome version, required for the readVcf function.}
+  \item{genome}{Genome version, required for the \code{readVcf} function.}
   \item{centromeres}{Data.frame with centromere positions in first three columns. 
 If NULL, use pre-stored positions for genome versions hg18, hg19 and hg38. }
-  \item{sex}{Sex of sample. If ?, detect using getSexFromCoverage function and default
-parameters. 
+  \item{sex}{Sex of sample. If ?, detect using \code{\link{getSexFromCoverage}} 
+function and default parameters. 
 Default parameters might not work well with every assay and 
 might need to be tuned. If set to diploid, then PureCN will assume all 
 chromosomes are diploid and will not try to detect sex. }
@@ -94,12 +98,12 @@ specified number of top candidate solutions, but will also include all
 optima close to diploid, because silent genomes have often lots of local 
 optima.}
   \item{candidates}{Candidates to optimize from a previous run 
-(return.object$candidates). 
+(\code{return.object$candidates}). 
 If NULL, do 2D grid search and find local optima. }
   \item{coverage.cutoff}{Minimum exon coverage in both normal and tumor. Exons
 with lower coverage are ingored. The cutoff choice depends on the expected
 purity and overall coverage. High purity samples might need a lower cutoff
-to call homozygous deletions. If an exon.weigh.file (below) is NOT 
+to call homozygous deletions. If an \code{exon.weight.file} (below) is NOT 
 specified, it is recommended to set a higher cutoff (e.g. 20) to remove 
 noise from unreliable exon measurements. }
   \item{max.non.clonal}{Maximum genomic fraction assigned to a subclonal copy 
@@ -116,7 +120,9 @@ covered regions.}
   \item{gc.gene.file}{A mapping file that assigns GC content and gene symbols 
 to each exon in the coverage files. Used for generating gene-level calls. 
 First column in format CHR:START-END. Second column GC content (0 to 1). 
-Third column gene symbol.}
+Third column gene symbol. This file
+can be generated with the \sQuote{GATK GCContentByInterval} tool or 
+with the \code{\link{calculateGCContentByInterval}} function.}
   \item{filter.lowhigh.gc.exons}{Quantile q (defines lower q and upper 1-q) 
 for removing exons with outlier GC profile. Assuming that GC correction 
 might not have been worked on those. Requires gc.gene.file.}
@@ -159,7 +165,7 @@ purity determined via the SCNA-fit.}
 
 
 
-
+\seealso{\code{\link{correctCoverageBias} \link{segmentationCBS}}}
 \examples{
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

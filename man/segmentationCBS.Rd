@@ -2,8 +2,8 @@
 \alias{segmentationCBS}
 \title{CBS segmentation}
 \description{The default segmentation function. This function is called via the 
-fun.segmentation argument of runAbsoluteCN. The arguments are passed
-via args.segmentation.}
+\code{fun.segmentation} argument of \code{\link{runAbsoluteCN}}. 
+The arguments are passed via \code{args.segmentation}.}
 \usage{segmentationCBS(normal, tumor, log.ratio, plot.cnv, 
     coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
     alpha = 0.005, undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, 
@@ -43,7 +43,7 @@ are properly ordered.   }
 
 
 
-
+\seealso{\code{\link{runAbsoluteCN}}}
 \examples{
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

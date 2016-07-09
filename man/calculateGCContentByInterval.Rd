@@ -1,7 +1,7 @@
 \name{calculateGCContentByInterval}
 \alias{calculateGCContentByInterval}
 \title{Calculates GC content by interval}
-\description{Uses scanFa from the Rsamtools package to retrieve GC 
+\description{Uses \code{scanFa} from the Rsamtools package to retrieve GC 
 content of intervals in a reference FASTA file.}
 \usage{calculateGCContentByInterval(interval.file, reference.file, 
     output.file = NULL)}

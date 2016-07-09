@@ -9,7 +9,8 @@ getDiploid <- structure(function(# Function to extract diploid solutions.
 ### likelihood solution is diploid, it is always returned; all other solutions
 ### must pass the more stringent criteria as defined in the function arguments.
 res, 
-### Return object of the runAbsoluteCN() function.
+### Return object of the \code{\link{runAbsoluteCN}} function.
+##seealso<< \code{\link{runAbsoluteCN}}
 min.diploid=0.5, 
 ### Minimum fraction of genome with normal copy number 2.
 min.single.gain.loss=0.05,
@@ -64,7 +65,8 @@ function(# Heuristics to find the best purity/ploidy solution.
 ### may evolve over time and might produce different rankings
 ### after PureCN updates.
 res,
-### Return object of the runAbsoluteCN() function.
+### Return object of the \code{\link{runAbsoluteCN}} function.
+##seealso<< \code{\link{runAbsoluteCN}}
 bootstrap=TRUE,
 ### Try to reduce the number of local optima by using the
 ### bootstrapResults function.
@@ -102,7 +104,7 @@ verbose=TRUE
         res$results <- c(res$results[ids], res$results[-ids])        
     }
     res    
-### The provided runAbsoluteCN return object with unlikely 
+### The provided \code{\link{runAbsoluteCN}} return object with unlikely 
 ### purity and ploidy solutions filtered out.
 }, ex=function() {
 data(purecn.example.output)

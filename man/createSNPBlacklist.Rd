@@ -17,12 +17,14 @@ there must be one more sample with low AF to reach the cutoff.  }
   \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
 (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
 are properly ordered.   }
-  \item{genome}{Version of the reference genome, required for the readVcf() function.}
+  \item{genome}{Version of the reference genome, required for the \code{readVcf} 
+function.}
 }
 
-\value{A list with elements snp.black.list and segmented. 
-"snp.black.list" is just a list of SNP ids.
-"segmented" blacklists whole regions.}
+\value{A list with elements
+\item{snp.blacklist}{A data.frame with blacklisted SNPs.}
+\item{segmented}{A data.frame with blacklisted
+regions.}}
 
 \author{Markus Riester}
 

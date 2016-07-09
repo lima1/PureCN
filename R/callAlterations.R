@@ -1,11 +1,12 @@
 callAlterations <- structure(
 function(# Calling of amplifications and deletions
 ### Function to extract major copy number alterations from a 
-### runAbsoluteCN return object.
+### \code{\link{runAbsoluteCN}} return object.
 res,
-### Return object of the runAbsoluteCN() function.
+### Return object of the \code{\link{runAbsoluteCN}} function.
+##seealso<< \code{\link{runAbsoluteCN}}
 id=1,
-### Candidate solutions to be used. id=1 will use the 
+### Candidate solutions to be used. \code{id=1} will use the 
 ### maximum likelihood (or curated) solution.
 cutoffs=c(0.5,6,7),
 ### Copy numbers cutoffs to call losses, focal amplifications 

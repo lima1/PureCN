@@ -2,17 +2,18 @@
 \alias{plotBestNormal}
 \title{Plot the PCA of tumor and its best normal(s)}
 \description{This function can be used to understand how a best normal is chosen
-by the findBestNormal function. It can be also used to tune the
-best normal selection by finding good parameter values for
+by the \code{\link{findBestNormal}} function. It can be also used 
+to tune the best normal selection by finding good parameter values for
 num.normals and pcs.}
 \usage{plotBestNormal(gatk.normal.files, gatk.tumor.file, 
     normalDB, x = 1, y = 2, col.tumor = "red", col.best.normal = "blue", 
     col.other.normals = "black", ...)}
 \arguments{
   \item{gatk.normal.files}{GATK coverage file of normal files, typically identified via 
-findBestNormal.}
+\code{\link{findBestNormal}}.}
   \item{gatk.tumor.file}{GATK coverage file of a tumor sample.}
-  \item{normalDB}{Database of normal samples, created with createNormalDatabase().}
+  \item{normalDB}{Database of normal samples, created with 
+\code{\link{createNormalDatabase}}.}
   \item{x}{PC to be plotted on x-axis.}
   \item{y}{PC to be plotted on y-axis.}
   \item{col.tumor}{Color of tumor in plot.}
@@ -21,13 +22,13 @@ findBestNormal.}
   \item{\dots}{Arguments passed to the plot function.}
 }
 
-\value{Returns NULL}
+\value{Returns NULL.}
 
 \author{Markus Riester}
 
 
 
-
+\seealso{\code{\link{createNormalDatabase} \link{findBestNormal}}}
 \examples{
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

@@ -17,7 +17,8 @@ chr.hash=NULL,
 ### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
 ### are properly ordered.   
 genome="hg19"
-### Version of the reference genome, required for the readVcf() function.
+### Version of the reference genome, required for the \code{readVcf} 
+### function.
 ) {
     vcfs <- lapply(vcf.files, .readAndCheckVcf, genome)
     vcfs <- lapply(vcfs, function(x) x[info(x)$DB & 
@@ -79,11 +80,14 @@ genome="hg19"
     if (is.null(chr.hash)) chr.hash <- .getChrHash(d.f$seqnames)
 
     snp.bl.segmented <- snp.bl.segmented[order(.strip.chr.name(snp.bl.segmented$chrom, chr.hash)),]
-
-    list(snp.black.list=snp.bl, segmented=snp.bl.segmented[,-1])
-### A list with elements snp.black.list and segmented. 
-### "snp.black.list" is just a list of SNP ids.
-### "segmented" blacklists whole regions.
+    
+    ##value<< A list with elements
+    list(
+        snp.blacklist=snp.bl, ##<< A data.frame with blacklisted SNPs.
+        segmented=snp.bl.segmented[,-1] ##<< A data.frame with blacklisted
+## regions.
+    )
+##end<<
 }, ex=function() {
 # Assume VCF files of normals (for example obtained by a MuTect artifact
 # detection run) are in directory poolofnormals:

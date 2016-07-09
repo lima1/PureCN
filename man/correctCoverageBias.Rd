@@ -2,9 +2,9 @@
 \alias{correctCoverageBias}
 \title{Correct for GC bias}
 \description{Takes as input coverage data in GATK format (or data 
-read by readCoverageGatk) and a mapping file for GC content, and then uses
-a loess normalization for bias correction. Largely follows the GC 
-correction of the TitanCNA package.}
+read by \code{\link{readCoverageGatk}}) and a mapping file for 
+GC content, and then uses a loess normalization for bias correction. 
+Largely follows the GC correction of the TitanCNA package.}
 \usage{correctCoverageBias(gatk.coverage.file, gc.gene.file, 
     output.file = NULL)}
 \arguments{
@@ -13,9 +13,11 @@ or data parsed with the readCoverageGatk function.}
   \item{gc.gene.file}{File providing GC content for each exon in the coverage files.
 First column in format CHR:START-END. Second column GC content (0 to 1). 
 Third column provides gene symbols, which are optional, but used in
-runAbsoluteCN to generate gene level calls.}
+\code{\link{runAbsoluteCN}} to generate gene level calls. This file
+can be generated with GATK GCContentByInterval tool or with the
+\code{\link{calculateGCContentByInterval}} function.}
   \item{output.file}{Optionally, write file with GC corrected coverage. Can be read with
-the readCoverageGatk function.}
+the \code{\link{readCoverageGatk}} function.}
 }
 
 \value{GC normalized coverage.}
@@ -24,7 +26,7 @@ the readCoverageGatk function.}
 
 
 
-
+\seealso{\code{\link{calculateGCContentByInterval}}}
 \examples{
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

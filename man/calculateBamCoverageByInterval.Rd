@@ -2,7 +2,9 @@
 \alias{calculateBamCoverageByInterval}
 \title{Function to calculate coverage from BAM file}
 \description{Takes a BAM file and an interval file as input and 
-returns coverage for each interval.}
+returns coverage for each interval. Coverage should be GC-normalized
+using the \code{\link{correctCoverageBias}} function before determining
+purity and ploidy with \code{\link{runAbsoluteCN}}.}
 \usage{calculateBamCoverageByInterval(bam.file, interval.file, 
     output.file = NULL)}
 \arguments{
@@ -10,7 +12,7 @@ returns coverage for each interval.}
   \item{interval.file}{File specifying the intervals. Interval is expected in 
 first column in format CHR:START-END. The gc.gene.file can be used.}
   \item{output.file}{Optionally, write minimal coverage file. Can be read with the
-readCoverageGatk function.}
+\code{\link{readCoverageGatk}} function.}
 }
 
 \value{Returns total and average coverage by intervals.}
@@ -19,7 +21,8 @@ readCoverageGatk function.}
 
 
 
-
+\seealso{\code{\link{calculateGCContentByInterval} 
+\link{correctCoverageBias} \link{runAbsoluteCN}}}
 \examples{
 bam.file <- system.file("extdata", "ex1.bam", package="PureCN", 
     mustWork = TRUE)

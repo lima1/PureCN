@@ -1,9 +1,8 @@
 \name{readCoverageGatk}
 \alias{readCoverageGatk}
 \title{Read GATK coverage files}
-\description{Read coverage file produced by The Genome Analysis Toolkit.
-The three only important columns in the GATK-generated file
-are: Target, total_coverage, and average_coverage. }
+\description{Read coverage file produced by The Genome Analysis Toolkit or
+by \code{\link{calculateBamCoverageByInterval}}.}
 \usage{readCoverageGatk(file)}
 \arguments{
   \item{file}{Exon coverage file as produced by GATK.}
@@ -15,7 +14,7 @@ are: Target, total_coverage, and average_coverage. }
 
 
 
-
+\seealso{\code{\link{calculateBamCoverageByInterval}}}
 \examples{
 gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")

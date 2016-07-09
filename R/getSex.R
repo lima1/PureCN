@@ -5,7 +5,7 @@ getSexFromCoverage <- structure(function(# Get sample sex from coverage
 ### when sufficient sex marker genes such as AMELY are covered.
 ### For optimal results, parameters might need to be tuned for the assay.
 gatk.coverage, 
-### GATK coverage file or data read with readCoverageGatk.
+### GATK coverage file or data read with \code{\link{readCoverageGatk}}.
 min.ratio=25,
 ### Min chrX/chrY coverage ratio to call sample as female.
 min.ratio.na=20,
@@ -59,6 +59,7 @@ verbose=TRUE
                 " chr1-22: ",round(avg.autosome.coverage, digits=2),"."
         )
     }     
+##seealso<< \code{\link{getSexFromVcf}}
     if (XY.ratio > min.ratio) return("F")
     if (XY.ratio > min.ratio.na) return(NA)
     return("M") 
@@ -86,7 +87,7 @@ getSexFromVcf <- structure(function(# Get sample sex from a VCF file
 ### sanity check when a VCF is provided. It is also useful for determining
 ### sex when no sex marker genes on chrY (e.g. AMELY) are available.
 vcf,
-### CollapsedVCF object, read in with the readVcf function 
+### CollapsedVCF object, read in with the \code{readVcf} function 
 ### from the VariantAnnotation package.
 tumor.id.in.vcf=NULL, 
 ### The tumor id in the CollapsedVCF (optional).
@@ -142,6 +143,7 @@ verbose=TRUE
     if (res$estimate >= min.or.na) sex <- NA
     if (res$estimate >= min.or && res$p.value > max.pv) sex <- NA
     if (res$p.value <= max.pv && res$estimate >= min.or) sex <- "M"
+##seealso<< \code{\link{getSexFromCoverage}}
     if (verbose) { 
         message("Sex from VCF: ", sex, " (Fisher's p-value: ", 
             ifelse(res$p.value < 0.0001, "< 0.0001", 

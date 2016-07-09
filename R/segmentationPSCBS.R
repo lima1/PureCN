@@ -1,8 +1,7 @@
 segmentationPSCBS <-
 structure(function(# PSCBS segmentation
-### Segmentation function. Uses the PSCBS package.
-### This function is called via the fun.segmentation argument of runAbsoluteCN.
-### The arguments are passed via args.segmentation.
+### This function is deprecated and will be made defunct in the next
+### Bioconductor release. Please use segmentationCBS instead.
 normal, 
 ### GATK coverage data for normal sample.
 tumor,  

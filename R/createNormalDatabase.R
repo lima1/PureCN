@@ -1,6 +1,9 @@
 createNormalDatabase <- structure(function(#Create database of normal samples
 ### Function to create a database of normal samples, used to find 
-### a good match for tumor copy number normalization.
+### a good match for tumor copy number normalization. Internally, this 
+### function determines the sex of the samples and trains a PCA
+### that is later used for clustering a tumor file with all normal samples 
+### in the database.
 gatk.normal.files,
 ### Vector with file names pointing to GATK coverage files 
 ### of normal samples. 
@@ -8,7 +11,7 @@ sex=NULL,
 ### Vector of sex."F" for female, "M" for male. If all chromosomes are diploid, specify "diploid". 
 ### If NULL determine from coverage.
 ...
-### Arguments passed to the prcomp function.
+### Arguments passed to the \code{prcomp} function.
 ) {
     gatk.normal.files <- normalizePath(gatk.normal.files)
     normals <- lapply(gatk.normal.files, readCoverageGatk)
@@ -35,6 +38,7 @@ sex=NULL,
             }    
         }    
     }
+##seealso<< \code{\link{findBestNormal}}
     list(
         gatk.normal.files=gatk.normal.files, 
         pca=normals.pca, 
@@ -44,8 +48,8 @@ sex=NULL,
         exon.log2.sd.coverage=apply(log2(normals.m+1),1,sd, na.rm=TRUE),
         sex=sex
     )
-### A normal database that can be used in the findBestNormal function to 
-### retrieve good matching normal samples for a given tumor sample.
+### A normal database that can be used in the \code{\link{findBestNormal}} 
+### function to retrieve good matching normal samples for a given tumor sample.
 },ex=function() {
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
@@ -67,7 +71,7 @@ gatk.tumor.files,
 gatk.normal.files,
 ### A large number of GATK normal coverage samples (>20) 
 ### to estimate exon log-ratio standard deviations.
-### Should not overlap with files in gatk.tumor.files.
+### Should not overlap with files in \code{gatk.tumor.files}.
 exon.weight.file
 ### Output filename.
 ) {

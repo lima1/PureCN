@@ -1,6 +1,6 @@
 calculateGCContentByInterval <- structure(
 function(# Calculates GC content by interval
-### Uses scanFa from the Rsamtools package to retrieve GC 
+### Uses \code{scanFa} from the Rsamtools package to retrieve GC 
 ### content of intervals in a reference FASTA file.
 interval.file,
 ### File specifying the intervals. Interval is expected in 

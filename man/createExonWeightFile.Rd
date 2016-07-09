@@ -13,7 +13,7 @@ pool of normals are thus down-weighted.}
   \item{gatk.tumor.files}{A small number (1-3) of GATK tumor or normal coverage samples.}
   \item{gatk.normal.files}{A large number of GATK normal coverage samples (>20) 
 to estimate exon log-ratio standard deviations.
-Should not overlap with files in gatk.tumor.files.}
+Should not overlap with files in \code{gatk.tumor.files}.}
   \item{exon.weight.file}{Output filename.}
 }
 

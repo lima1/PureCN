@@ -1,8 +1,10 @@
 createCurationFile <- structure(function(# Create file to curate PureCN results
 ### Function to create a CSV file that can be used to mark the correct solution
-### in the output of a runAbsoluteCN() run.
+### in the output of a \code{\link{runAbsoluteCN}} run.
 file.rds,
-### Output of the runAbsoluteCN() function, serialized with saveRDS()
+### Output of the \code{\link{runAbsoluteCN}} function, serialized 
+### with \code{saveRDS}.
+##seealso<< \code{\link{runAbsoluteCN}}
 overwrite.uncurated=TRUE
 ### Overwrite existing files unless flagged as "Curated".
 ) {
@@ -37,7 +39,7 @@ overwrite.uncurated=TRUE
     }
     invisible(d.f.curation)
 ###A data.frame with the tumor purity and ploidy of the maximum likelihood
-###solution 
+###solution.
 },ex=function() {
 data(purecn.example.output)
 file.rds <- 'Sample1_PureCN.rds'

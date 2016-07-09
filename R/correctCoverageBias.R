@@ -1,8 +1,8 @@
 correctCoverageBias <- structure(function(# Correct for GC bias
 ### Takes as input coverage data in GATK format (or data 
-### read by readCoverageGatk) and a mapping file for GC content, and then uses
-### a loess normalization for bias correction. Largely follows the GC 
-### correction of the TitanCNA package.
+### read by \code{\link{readCoverageGatk}}) and a mapping file for 
+### GC content, and then uses a loess normalization for bias correction. 
+### Largely follows the GC correction of the TitanCNA package.
 gatk.coverage.file, 
 ### Exon coverage file as produced by GATK. Either a file name
 ### or data parsed with the readCoverageGatk function.
@@ -10,10 +10,13 @@ gc.gene.file,
 ### File providing GC content for each exon in the coverage files.
 ### First column in format CHR:START-END. Second column GC content (0 to 1). 
 ### Third column provides gene symbols, which are optional, but used in
-### runAbsoluteCN to generate gene level calls.
+### \code{\link{runAbsoluteCN}} to generate gene level calls. This file
+### can be generated with GATK GCContentByInterval tool or with the
+### \code{\link{calculateGCContentByInterval}} function.
+##seealso<< \code{\link{calculateGCContentByInterval}}
 output.file=NULL
 ### Optionally, write file with GC corrected coverage. Can be read with
-### the readCoverageGatk function.
+### the \code{\link{readCoverageGatk}} function.
 ) {
     if (is.character(gatk.coverage.file)) {
         tumor  <- readCoverageGatk(gatk.coverage.file)

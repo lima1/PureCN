@@ -33,7 +33,8 @@ function(# Filter unlikely purity/ploidy solutions
 ### Large-scale copy number artifacts can cause true purity/ploidy 
 ### solutions rank low.
 res,
-### Return object of the runAbsoluteCN() function.
+### Return object of the \code{\link{runAbsoluteCN}} function.
+##seealso<< \code{\link{runAbsoluteCN}}
 n=500,
 ### Number of bootstrap replicates.
 top=2
@@ -43,10 +44,10 @@ top=2
     if (length(res$results) < 2) return(res)
     res$results <- .bootstrapResults(res$results, n=n, top=top)
     res
-### Returns the runAbsoluteCN object with low likelihood solutions
-### removed. Also adds a bootstrap value to each solution. This value is
-### the fraction of bootstrap replicates in which the solution ranked
-### first.                
+### Returns the \code{\link{runAbsoluteCN}} object with low 
+### likelihood solutions removed. Also adds a bootstrap value 
+### to each solution. This value is the fraction of bootstrap replicates 
+### in which the solution ranked first.                
 }, ex=function() {
 data(purecn.example.output)
 ret.boot <- bootstrapResults(purecn.example.output, n=100)

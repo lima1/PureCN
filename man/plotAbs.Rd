@@ -9,7 +9,7 @@ purity and ploidy combinations in the results of a runAbsoluteCN call.}
     alpha = TRUE, show.segment.means = c("SNV", "segments", 
         "both"), ...)}
 \arguments{
-  \item{res}{Return object of the runAbsoluteCN() function.}
+  \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
   \item{ids}{Candidate solutions to be plotted. ids=1 will draw the 
 plot for the maximum likelihood solution.}
   \item{type}{Different types of plots. "hist" will plot a histogram, 
@@ -45,7 +45,7 @@ all SNVs. Type "AF" only.}
 
 
 
-
+\seealso{\code{\link{runAbsoluteCN}}}
 \examples{
 data(purecn.example.output)
 plotAbs(purecn.example.output, type="overview")

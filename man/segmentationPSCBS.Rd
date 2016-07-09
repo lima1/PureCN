@@ -1,9 +1,8 @@
 \name{segmentationPSCBS}
 \alias{segmentationPSCBS}
 \title{PSCBS segmentation}
-\description{Segmentation function. Uses the PSCBS package.
-This function is called via the fun.segmentation argument of runAbsoluteCN.
-The arguments are passed via args.segmentation.}
+\description{This function is deprecated and will be made defunct in the next
+Bioconductor release. Please use segmentationCBS instead.}
 \usage{segmentationPSCBS(normal, tumor, log.ratio, plot.cnv, 
     coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
     flavor = "tcn&dh", tauA = 0.03, vcf = NULL, tumor.id.in.vcf = 1, 

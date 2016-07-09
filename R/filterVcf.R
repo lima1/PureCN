@@ -1,7 +1,7 @@
 filterVcfBasic <-
 structure(function(#Basic VCF filter function
 ### Function to remove artifacts and low confidence/quality 
-### variant calls.
+### variant calls. 
 vcf, 
 ### CollapsedVCF object, read in with the readVcf function 
 ### from the VariantAnnotation package.
@@ -32,7 +32,8 @@ min.supporting.reads=NULL,
 ### of 10^-3.
 error=0.001,
 ### Estimated sequencing error rate. Used to calculate minimum
-### number of supporting reads using calculatePowerDetectSomatic.
+### number of supporting reads using \code{\link{calculatePowerDetectSomatic}}.
+##seealso<< \code{\link{calculatePowerDetectSomatic}}
 verbose=TRUE
 ) {
     flag <- NA
@@ -163,9 +164,10 @@ vcf.filtered <- filterVcfBasic(vcf)
 
 filterVcfMuTect <- structure(function(#Filter VCF MuTect
 ### Function to remove artifacts and low confidence/quality calls from
-### a MuTect generated VCF file.
+### a MuTect generated VCF file. Also applies filters defined in
+### \code{filterVcfBasic}.
 vcf, 
-### VCF object, read in with the readVcf function from the 
+### VCF object, read in with the \code{readVcf} function from the 
 ### VariantAnnotation package.
 tumor.id.in.vcf=NULL, 
 ### The tumor id in the VCF file, optional.
@@ -178,7 +180,8 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
 verbose=TRUE,
 ### Verbose output.
 ...
-### Additional arguments passed to filterVcfBasic
+### Additional arguments passed to \code{\link{filterVcfBasic}}.
+##seealso<< \code{\link{filterVcfBasic}}
 ){
     if (is.null(stats.file)) return(
         filterVcfBasic(vcf, tumor.id.in.vcf, verbose=verbose, ...))
@@ -220,7 +223,7 @@ setPriorVcf <- structure(function(# Set Somatic Prior VCF
 ### Function to set prior for somatic mutation status for each
 ### variant in the provided CollapsedVCF object.
 vcf,
-### CollapsedVCF object, read in with the readVcf function 
+### CollapsedVCF object, read in with the \code{readVcf} function 
 ### from the VariantAnnotation package.
 prior.somatic=c(0.5, 0.0005, 0.999, 0.0001, 0.995, 0.01), 
 ### Prior probabilities for somatic mutations. First value is for 

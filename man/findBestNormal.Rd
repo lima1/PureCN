@@ -9,17 +9,17 @@ tumor sample.}
 \arguments{
   \item{gatk.tumor.file}{GATK coverage file of a tumor sample.}
   \item{normalDB}{Database of normal samples, created with 
-createNormalDatabase().}
+\code{\link{createNormalDatabase}}.}
   \item{pcs}{Principal components to use for distance calculation.}
-  \item{num.normals}{Return the num.normals best normals.}
+  \item{num.normals}{Return the \code{num.normals} best normals.}
   \item{ignore.sex}{If FALSE, detects sex of sample and returns best normals
 with matching sex.}
-  \item{sex}{Sex of sample. If NULL, determine with getSexFromCoverage
+  \item{sex}{Sex of sample. If NULL, determine with \code{\link{getSexFromCoverage}}
 and default parameters.
 Valid values are "F" for female, "M" for male. If all 
 chromosomes are diploid, specify "diploid". }
   \item{gatk.normal.files}{Only consider these normal samples. If NULL, use all in 
-the database. Must match normalDB$gatk.normal.files. }
+the database. Must match \code{normalDB$gatk.normal.files}. }
   \item{verbose}{Verbose output.}
 }
 
@@ -29,7 +29,7 @@ the database. Must match normalDB$gatk.normal.files. }
 
 
 
-
+\seealso{\code{\link{createNormalDatabase} \link{getSexFromCoverage}}}
 \examples{
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

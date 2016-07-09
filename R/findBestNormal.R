@@ -5,22 +5,23 @@ gatk.tumor.file,
 ### GATK coverage file of a tumor sample.
 normalDB,
 ### Database of normal samples, created with 
-### createNormalDatabase().
+### \code{\link{createNormalDatabase}}.
+##seealso<< \code{\link{createNormalDatabase} \link{getSexFromCoverage}}
 pcs=1:3,
 ### Principal components to use for distance calculation.
 num.normals=1,
-### Return the num.normals best normals.
+### Return the \code{num.normals} best normals.
 ignore.sex=FALSE,
 ### If FALSE, detects sex of sample and returns best normals
 ### with matching sex.
 sex=NULL,
-### Sex of sample. If NULL, determine with getSexFromCoverage
+### Sex of sample. If NULL, determine with \code{\link{getSexFromCoverage}}
 ### and default parameters.
 ### Valid values are "F" for female, "M" for male. If all 
 ### chromosomes are diploid, specify "diploid". 
 gatk.normal.files=NULL,
 ### Only consider these normal samples. If NULL, use all in 
-### the database. Must match normalDB$gatk.normal.files. 
+### the database. Must match \code{normalDB$gatk.normal.files}. 
 verbose=TRUE
 ### Verbose output.
 ) {
@@ -82,16 +83,18 @@ gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 plotBestNormal <- structure(
     function(#Plot the PCA of tumor and its best normal(s)
 ### This function can be used to understand how a best normal is chosen
-### by the findBestNormal function. It can be also used to tune the
-### best normal selection by finding good parameter values for
+### by the \code{\link{findBestNormal}} function. It can be also used 
+### to tune the best normal selection by finding good parameter values for
 ### num.normals and pcs.
 gatk.normal.files,
 ### GATK coverage file of normal files, typically identified via 
-### findBestNormal.
+### \code{\link{findBestNormal}}.
 gatk.tumor.file,
 ### GATK coverage file of a tumor sample.
 normalDB,
-### Database of normal samples, created with createNormalDatabase().
+### Database of normal samples, created with 
+### \code{\link{createNormalDatabase}}.
+##seealso<< \code{\link{createNormalDatabase} \link{findBestNormal}}
 x=1,
 ### PC to be plotted on x-axis.
 y=2,
@@ -119,7 +122,7 @@ col.other.normals="black",
         ifelse( normalDB$gatk.normal.files %in% 
         gatk.normal.files, col.best.normal, col.other.normals)),
         xlab=paste("PC",x), ylab=paste("PC",y),...)
-### Returns NULL
+### Returns NULL.
 },ex=function() {
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

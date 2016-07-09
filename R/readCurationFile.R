@@ -2,8 +2,9 @@ readCurationFile <- structure(function(#Read curation file
 ### Function that can be used to read the curated output of
 ### the runAbsoluteCN function.
 file.rds,
-### Output of the runAbsoluteCN() function, serialized with 
-### saveRDS()
+### Output of the \code{\link{runAbsoluteCN}} function, serialized with 
+### \code{saveRDS}.
+##seealso<< \code{\link{runAbsoluteCN} \link{createCurationFile}}
 file.curation=gsub(".rds$", ".csv", file.rds),
 ### Filename of a curation file that points to the correct 
 ### tumor purity and ploidy solution.
@@ -50,9 +51,9 @@ max.ploidy=NULL
         res$results <- res$results[1]
     }
     res
-### The return value of the corresponding runAbsoluteCN call, but with the
-### results array manipulated according the curation CSV file and arguments
-### of this function.
+### The return value of the corresponding \code{\link{runAbsoluteCN}} call,
+### but with the results array manipulated according the curation CSV file 
+### and arguments of this function.
 },ex=function() {
 data(purecn.example.output)
 file.rds <- 'Sample1_PureCN.rds'

@@ -4,7 +4,7 @@
 \description{Averages the coverage of a list of samples.}
 \usage{poolCoverage(all.data, remove.chrs = c(), w = NULL)}
 \arguments{
-  \item{all.data}{List of normals, read with readCoverageGatk.}
+  \item{all.data}{List of normals, read with \code{\link{readCoverageGatk}}.}
   \item{remove.chrs}{Remove these chromosomes from the pool.}
   \item{w}{List of weights for each sample}
 }
@@ -15,7 +15,7 @@
 
 
 
-
+\seealso{\code{\link{readCoverageGatk}}}
 \examples{
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

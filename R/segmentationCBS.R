@@ -1,8 +1,9 @@
 segmentationCBS <-
 structure(function(# CBS segmentation
 ### The default segmentation function. This function is called via the 
-### fun.segmentation argument of runAbsoluteCN. The arguments are passed
-### via args.segmentation.
+### \code{fun.segmentation} argument of \code{\link{runAbsoluteCN}}. 
+### The arguments are passed via \code{args.segmentation}.
+##seealso<< \code{\link{runAbsoluteCN}}
 normal, 
 ### GATK coverage data for normal sample.
 tumor,  

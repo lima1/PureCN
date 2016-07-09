@@ -2,13 +2,13 @@
 \alias{callAlterations}
 \title{Calling of amplifications and deletions}
 \description{Function to extract major copy number alterations from a 
-runAbsoluteCN return object.}
+\code{\link{runAbsoluteCN}} return object.}
 \usage{callAlterations(res, id = 1, cutoffs = c(0.5, 6, 7), 
     log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, 
     all.genes = FALSE, ...)}
 \arguments{
-  \item{res}{Return object of the runAbsoluteCN() function.}
-  \item{id}{Candidate solutions to be used. id=1 will use the 
+  \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
+  \item{id}{Candidate solutions to be used. \code{id=1} will use the 
 maximum likelihood (or curated) solution.}
   \item{cutoffs}{Copy numbers cutoffs to call losses, focal amplifications 
 and broad amplifications.}
@@ -28,7 +28,7 @@ passing the thresholds.}
 
 
 
-
+\seealso{\code{\link{runAbsoluteCN}}}
 \examples{
 data(purecn.example.output)
 callAlterations(purecn.example.output)

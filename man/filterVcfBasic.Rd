@@ -2,7 +2,7 @@
 \alias{filterVcfBasic}
 \title{Basic VCF filter function}
 \description{Function to remove artifacts and low confidence/quality 
-variant calls.}
+variant calls. }
 \usage{filterVcfBasic(vcf, tumor.id.in.vcf = NULL, use.somatic.status = TRUE, 
     snp.blacklist = NULL, af.range = c(0.03, 0.97), 
     contamination.cutoff = c(0.05, 0.075), coverage.cutoff = 20, 
@@ -29,7 +29,7 @@ the second value.}
 If NULL, calculate based on coverage and assuming sequencing error 
 of 10^-3.}
   \item{error}{Estimated sequencing error rate. Used to calculate minimum
-number of supporting reads using calculatePowerDetectSomatic.}
+number of supporting reads using \code{\link{calculatePowerDetectSomatic}}.}
   \item{verbose}{
 }
 }
@@ -43,7 +43,7 @@ number of supporting reads using calculatePowerDetectSomatic.}
 
 
 
-
+\seealso{\code{\link{calculatePowerDetectSomatic}}}
 \examples{
 # This function is typically only called by runAbsolute via the 
 # fun.filterVcf and args.filterVcf comments.
