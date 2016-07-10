@@ -52,4 +52,12 @@ test_createCurationFile <- function() {
     checkEqualsNumeric( retx$results[[1]]$purity , ret$Purity)
     checkEqualsNumeric( retx$results[[1]]$ploidy , ret$Ploidy, 
         tolerance=0.1)
+
+    ret$Curated <- TRUE
+    write.csv(ret, file = filename, row.names = FALSE)
+    saveRDS(purecn.example.output, file=file.rds)
+    createCurationFile(file.rds)
+    ret <- read.csv(filename, as.is=TRUE) 
+    checkTrue(ret$Curated)
+    checkEqualsNumeric(0.8, ret$Purity)
 }    
