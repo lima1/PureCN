@@ -75,7 +75,7 @@ genome="hg19"
         chrom=d.f$seqnames, 
         maploc=d.f$start, 
         data.type="binary", 
-        presorted=FALSE))$output
+        presorted=FALSE),verbose=0)$output
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(d.f$seqnames)
 

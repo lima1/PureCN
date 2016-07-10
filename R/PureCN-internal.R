@@ -217,7 +217,7 @@ test.num.copy[i], prior.K))
             maploc = posteriors$start, 
             data.type = "binary", 
             sampleid = sampleid, 
-            presorted = TRUE))
+            presorted = TRUE),verbose=0)
     
     # these are potential artifacts with very high clonal probability and would have
     # huge impact on log-likelihood

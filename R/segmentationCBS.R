@@ -301,9 +301,12 @@ max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
         plot(segment.smoothed.CNA.obj, plot.type="w")
         abline(h=log2(c + (1-c)*c(1,3,4,5)/2), col="purple")
     }
-
+    
+    if (verbose) {
+        print(segment.smoothed.CNA.obj)
+    }
     cnv <- .get.proper.cnv.positions(normal[well.covered.exon.idx,], 
-        print(segment.smoothed.CNA.obj), chr.hash=chr.hash)
+        segment.smoothed.CNA.obj$output, chr.hash=chr.hash)
 
     return(list(cnv=cnv, cna=segment.smoothed.CNA.obj, 
         logR=norm.log.ratio))
