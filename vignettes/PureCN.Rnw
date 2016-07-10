@@ -548,12 +548,12 @@ requires an interval file to generate simulated exon-level log-ratios from a
 segmentation file.  For simplicity, this interval file is expected either in
 \software{GATK DepthOfCoverage} format and provided via the
 \Rcode{gatk.tumor.file} argument or via the \Rcode{gc.gene.file} (see
-Figure\~ref{figure/figurecustombaf-1}). 
+Figure~\ref{figure/figurecustombaf-1}). 
 
 <<customseg>>=
-retSegmented <- runAbsoluteCN( seg.file=seg.file, gc.gene.file=gc.gene.file,
-    vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19",
-    test.purity=seq(0.3,0.7, by=0.01),verbose=FALSE,plot.cnv=FALSE)
+retSegmented <- runAbsoluteCN(seg.file=seg.file, gc.gene.file=gc.gene.file,
+    vcf.file=vcf.file, max.candidate.solutions=1, genome="hg19",
+    test.purity=seq(0.3,0.7, by=0.01), verbose=FALSE, plot.cnv=FALSE)
 @
 
 <<figurecustombaf, fig.show='hide'>>=
@@ -712,9 +712,15 @@ Rscript Coverage.R --outdir ~/tmp/ --gatkcoverage example_tumor.txt \
 PureCN.R is an example script to run PureCN with basic parameters:
 
 \begin{verbatim}
+# From GC-normalized coverage data
 Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \ 
     --normal example_normal.txt --vcf example_vcf.vcf -i Sample1 \
      --genome hg19 --gcgene  example_gc.gene.file.txt
+
+# From already segmented data
+Rscript PureCN.R --outdir ~/tmp/ --segfile example_seg.txt \ 
+    --vcf example_vcf.vcf -i Sample1 --genome hg19 \
+    --gcgene  example_gc.gene.file.txt
 \end{verbatim}
 
 These R scripts can be found in the extdata directory of the installed package.
