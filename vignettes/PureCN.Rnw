@@ -115,7 +115,8 @@ It is recommended to GC-normalize coverage. GC-content is expected in
 \end{verbatim}
 
 The \Rcode{Gene} column is optional and only required for providing gene-level
-copy number and LOH calls. 
+copy number and LOH calls. A simplistic example code for annotating these
+intervals with gene symbols is given in the Appendix of this vignette.
 
 \subsection{Generating coverage data without \software{GATK}}
 \label{purecncoverage}
@@ -794,6 +795,40 @@ contact us.
 
 \bibliography{PureCN}
 
+\section*{Annotating intervals with gene symbols}
+
+A simple function that annotates intervals with the \textbf{first}
+overlapping interval from the RefSeq gene track:
+
+<<annotatesymbols>>=
+tblGenes <- NULL
+if (downloadFromUCSC) {
+    library(rtracklayer)
+    mySession <- browserSession("UCSC")
+    genome(mySession) <- "hg19"
+    tblGenes <- getTable( ucscTableQuery(mySession, 
+        track="RefSeq Genes", table="refGene"))
+}
+
+.annotateIntervals <- function(gc.gene.file, tblGenes, output.file = NULL) {
+    grGenes <- GRanges(seqnames=tblGenes$chrom, 
+        IRanges(start=tblGenes$cdsStart, end=tblGenes$cdsEnd))
+    gc <- read.delim(gc.gene.file, as.is=TRUE)
+    # misuse this function to convert interval string into data.frame
+    gc.data <- readCoverageGatk(gc.gene.file)
+    grGC <- GRanges(seqnames=gc.data$chr, 
+        IRanges(start=gc.data$probe_start, end=gc.data$probe_end))
+    ov <- findOverlaps(grGC, grGenes, select="first")
+    gc$Gene <- tblGenes$name2[ov]
+    if (!is.null(output.file)) {
+        write.table(gc, file = output.file, row.names = FALSE, 
+            quote = FALSE, sep = "\t")
+    }
+    invisible(gc)
+}
+
+if (!is.null(tblGenes)) .annotateIntervals(gc.gene.file, tblGenes)
+@
 \section*{Session Info}
 <<sessioninfo, results='asis', echo=FALSE>>=
 toLatex(sessionInfo())
