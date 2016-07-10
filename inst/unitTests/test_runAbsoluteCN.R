@@ -30,6 +30,7 @@ test_runAbsoluteCN <- function() {
     checkEqualsNumeric(1:22,chrom[!duplicated(chrom)])
 
     # test a few exceptions
+    checkException(callLOH(ret))
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file), silent=TRUE)
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, min.ploidy=0),
         silent=TRUE)
