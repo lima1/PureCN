@@ -547,7 +547,7 @@ Since its likelihood model is exon-based, \Biocpkg{PureCN} currently still
 requires an interval file to generate simulated exon-level log-ratios from a
 segmentation file.  For simplicity, this interval file is expected either in
 \software{GATK DepthOfCoverage} format and provided via the
-\Rcode{gatk.tumor.file} argument or via the \Rcode{gc.gene.file} (see
+\Rcode{gatk.tumor.file} argument or via the \Rcode{gc.gene.file} argument (see
 Figure~\ref{figure/figurecustombaf-1}). 
 
 <<customseg>>=

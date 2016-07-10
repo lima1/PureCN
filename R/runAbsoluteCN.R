@@ -431,12 +431,13 @@ post.optimize=FALSE,
         if (remove.off.target.snvs) {
             n.vcf.before.filter <- nrow(vcf)
             # make sure all SNVs are in covered exons
-            vcf <- vcf[seq_len(nrow(vcf)) %in% queryHits(findOverlaps(vcf, exon.gr))]
+            vcf <- vcf[seq_len(nrow(vcf)) %in% queryHits(findOverlaps(vcf, 
+                exon.gr))]
             if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
                 " variants outside intervals.", 
                 " Set remove.off.target.snvs=FALSE to include.")
         }        
-        args.setPriorVcf <- c(list(vcf=vcf), args.setPriorVcf) 
+        args.setPriorVcf <- c(list(vcf=vcf, verbose=verbose), args.setPriorVcf) 
         prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
         vcf.germline <- vcf[which(prior.somatic < 0.5)]
     }
