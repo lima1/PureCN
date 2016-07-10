@@ -60,4 +60,10 @@ test_createCurationFile <- function() {
     ret <- read.csv(filename, as.is=TRUE) 
     checkTrue(ret$Curated)
     checkEqualsNumeric(0.8, ret$Purity)
+    ret$Ploidy <- 5.5
+    write.csv(ret, file = filename, row.names = FALSE)
+    retx <- readCurationFile(file.rds)
+    checkEqualsNumeric( retx$results[[1]]$purity , ret$Purity, tolerance=0.2)
+    checkEqualsNumeric( retx$results[[1]]$ploidy , ret$Ploidy, 
+        tolerance=0.5)
 }    
