@@ -126,4 +126,9 @@ test_runAbsoluteCN <- function() {
         test.purity=seq(0.3,0.7, by=0.01))
     
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
+    ret <- runAbsoluteCN( seg.file=seg.file, gc.gene.file=gc.gene.file,
+        vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
+        test.purity=seq(0.3,0.7, by=0.01),verbose=FALSE)
+    
+    checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
 }    

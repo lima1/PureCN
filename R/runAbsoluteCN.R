@@ -16,8 +16,9 @@ gatk.normal.file=NULL,
 ### Needs to be either a file name or data read with the 
 ### \code{\link{readCoverageGatk}} function.
 ##seealso<< \code{\link{correctCoverageBias} \link{segmentationCBS}}
-gatk.tumor.file, 
-### GATK coverage file of tumor. 
+gatk.tumor.file=NULL, 
+### GATK coverage file of tumor. If NULL, requires \code{seg.file}
+### and an interval file via \code{gc.gene.file}.
 ### Should be already GC-normalized with \code{\link{correctCoverageBias}}. 
 ### Needs to be either a file name or data read with the 
 ### \code{\link{readCoverageGatk}} function.
@@ -215,7 +216,14 @@ post.optimize=FALSE,
         }    
     }
     
-    if (is.character(gatk.tumor.file)) {
+    if (is.null(gatk.tumor.file)) {
+        if (is.null(seg.file) || is.null(gc.gene.file)) { 
+            .stopUserError("Missing gatk.tumor.file requires seg.file",
+                " and gc.gene.file.")
+        }
+        tumor <- .gcGeneToCoverage(gc.gene.file, coverage.cutoff+1)
+        gatk.tumor.file <- tumor
+    } else if (is.character(gatk.tumor.file)) {
         gatk.tumor.file <- normalizePath(gatk.tumor.file, mustWork=TRUE)
         tumor  <- readCoverageGatk(gatk.tumor.file)
         if (is.null(sampleid)) sampleid <- basename(gatk.tumor.file)
@@ -244,7 +252,8 @@ post.optimize=FALSE,
     if (is.null(log.ratio)) {
         if (!is.null(seg.file)) {
             if (is.null(gatk.normal.file)) normal <- tumor
-            log.ratio <- .createFakeLogRatios(tumor, seg.file, chr.hash)     
+            log.ratio <- .createFakeLogRatios(tumor, seg.file, chr.hash)
+            if (is.null(sampleid)) sampleid <- read.delim(seg.file)[1,1]
         } else {
             if (is.null(gatk.normal.file)) {
                 .stopUserError(

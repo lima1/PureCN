@@ -21,6 +21,10 @@ file
         ncol = 2, byrow = TRUE)
     start <- pos[, 1]
     end <- pos[, 2]
+
+    if (is.null(gatk$total_coverage)) gatk$total_coverage <- NA
+    if (is.null(gatk$average_coverage)) gatk$average_coverage <- NA
+
     return(data.frame(probe = gatk$Target, chr = chr, probe_start = start, 
         probe_end = end, targeted.base = end - start + 1, sequenced.base = NA, 
         coverage = as.numeric(gatk$total_coverage), 

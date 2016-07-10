@@ -715,3 +715,10 @@ test.num.copy[i], prior.K))
     mean(gcbins[[1]], na.rm=TRUE)/mean(gcbins[[2]], na.rm=TRUE) 
 }
 
+.gcGeneToCoverage <- function(gc.gene.file, coverage.cutoff) {
+    gc.data <- readCoverageGatk(gc.gene.file)
+    gc.data$average.coverage <- coverage.cutoff
+    gc.data$coverage <- coverage.cutoff * gc.data$targeted.base
+    gc.data
+}
+

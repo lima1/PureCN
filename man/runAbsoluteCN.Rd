@@ -9,7 +9,7 @@ be matched (from the same patient). In case VCF does not contain somatic
 status, it should contain dbSNP and optionally COSMIC annotation.
 Returns purity and ploidy combinations, sorted by likelihood score.
 Provides copy number and LOH data, by both gene and genomic region. }
-\usage{runAbsoluteCN(gatk.normal.file = NULL, gatk.tumor.file, 
+\usage{runAbsoluteCN(gatk.normal.file = NULL, gatk.tumor.file = NULL, 
     log.ratio = NULL, seg.file = NULL, seg.file.sdev = 0.4, 
     vcf.file = NULL, genome, centromeres = NULL, sex = c("?", 
         "F", "M", "diploid"), fun.filterVcf = filterVcfMuTect, 
@@ -35,7 +35,8 @@ exons).
 Should be already GC-normalized with \code{\link{correctCoverageBias}}. 
 Needs to be either a file name or data read with the 
 \code{\link{readCoverageGatk}} function.}
-  \item{gatk.tumor.file}{GATK coverage file of tumor. 
+  \item{gatk.tumor.file}{GATK coverage file of tumor. If NULL, requires \code{seg.file}
+and an interval file via \code{gc.gene.file}.
 Should be already GC-normalized with \code{\link{correctCoverageBias}}. 
 Needs to be either a file name or data read with the 
 \code{\link{readCoverageGatk}} function.}
