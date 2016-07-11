@@ -287,9 +287,10 @@ states.
 
 <<snpblacklist>>=
 #mutect.normal.files <- dir("poolofnormals", pattern="vcf$", full.names=TRUE) 
-#snp.blacklist <- createSNPBlacklist(mutect.normal.files)
-#write.csv(snp.bl[[1]], file="SNP_blacklist.csv")
-#write.csv(snp.bl[[2]], file="SNP_blacklist_segmented.csv", row.names=FALSE, 
+#snp.blacklist <- c("SNP_blacklist.csv", "SNP_blacklist_segmented.csv")
+#snp.bl <- createSNPBlacklist(mutect.normal.files)
+#write.csv(snp.bl[[1]], file=snp.blacklist[1])
+#write.csv(snp.bl[[2]], file=snp.blacklist[2], row.names=FALSE, 
 #   quote=FALSE)
 @
 
@@ -350,7 +351,7 @@ ret <-runAbsoluteCN(gatk.normal.file=pool, gatk.tumor.file=gatk.tumor.file,
     gc.gene.file=gc.gene.file, 
 #args.filterVcf=list(snp.blacklist=snp.blacklist, stats.file=mutect.stats.file), 
     args.segmentation=list(exon.weight.file=exon.weight.file), 
-    post.optimize=FALSE, plot.cnv=FALSE)
+    post.optimize=FALSE, plot.cnv=FALSE, verbose=FALSE)
 @
 
 The post.optimize flag will increase the runtime by a lot, but might be worth
