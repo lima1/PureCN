@@ -132,4 +132,13 @@ test_runAbsoluteCN <- function() {
         test.purity=seq(0.3,0.7, by=0.01),verbose=FALSE)
     
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
+    tmp <- read.delim(seg.file,as.is=TRUE)
+    colnames(tmp)[1:4] <- c("Name", "Chromosome", "Start", "End")
+    write.table(tmp, file="seg_wrong.tmp", quote=FALSE, row.names=FALSE,
+        sep="\t")
+    checkException( runAbsoluteCN( seg.file="seg_wrong.tmp", 
+        gc.gene.file=gc.gene.file,
+        vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
+        test.purity=seq(0.3,0.7, by=0.01),verbose=FALSE))
+
 }    

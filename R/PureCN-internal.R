@@ -638,7 +638,7 @@ test.num.copy[i], prior.K))
     seg <- read.delim(seg.file)
     required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
         "seg.mean")
-    if (!all.equal(colnames(seg), required.colnames)) {
+    if (!identical(colnames(seg), required.colnames)) {
         .stopUserError(paste("Segmentation file expected with colnames", 
                 paste(required.colnames, collapse = ", ")))
     }
