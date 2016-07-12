@@ -113,10 +113,7 @@ test.num.copy[i], prior.K))
         dp_all <- unlist(geno(vcf)$DP[idx, tumor.id.in.vcf])
 
         lapply(test.num.copy, function(Ci) {
-            pM.both <- list(rep(log(Ci + 1 + haploid.penalty), 
-                                length(test.num.copy)), 
-                            rep(log(Ci + 1 + haploid.penalty), 
-                                length(test.num.copy)))
+            priorM <- log(Ci + 1 + haploid.penalty)
             
             shape1 <- ar_all * dp_all + 1
             shape2 <- (1 - ar_all) * dp_all + 1
@@ -125,29 +122,22 @@ test.num.copy[i], prior.K))
             p.ar <- lapply(c(0, 1), function(g) {
                 dbetax <- (p * test.num.copy + g * (1-p))/(p * Ci + 2 * (1-p))
                 lapply(seq_along(ar_all), function(j) {
-                vapply(seq_along(test.num.copy), function(mi) 
-                    ifelse(skip[mi], -Inf, 
-                    dbeta(x = dbetax[mi], 
-                    shape1 = shape1[j], 
-                    shape2 = shape2[j], log = TRUE) -
-                    pM.both[[g + 1]][mi]),
-                    double(1))
+                    l <- log(double(length(test.num.copy)))
+                    l[!skip] <- dbeta(x = dbetax[!skip], 
+                    shape1 = shape1[j],  
+                    shape2 = shape2[j], log = TRUE) - priorM
+                    l
                 }
             )})
             
-            p.ar.cont.1 <- lapply(seq_along(ar_all), function(j) 
-                dbeta(x = (p * Ci + 2 * (1 - p - cont.rate))/
-                    (p * Ci + 2 * (1 - p)), 
-                    shape1 = shape1[j], 
-                    shape2 = shape2[j], log = TRUE) -
-                log(Ci + 1 + haploid.penalty))
+            p.ar.cont.1 <- dbeta(x = (p * Ci + 2 * (1 - p - cont.rate))/
+                  (p * Ci + 2 * (1 - p)),shape1=shape1, shape2=shape2,log=TRUE) - 
+                                  priorM
 
-            p.ar.cont.2 <- lapply(seq_along(ar_all), function(j) 
-                dbeta(x = (cont.rate)/(p * Ci + 2 * (1 - p)), 
-                    shape1 = shape1[j], 
-                    shape2 = shape2[j], log = TRUE) -
-                log(Ci + 1 + haploid.penalty))
-            
+            p.ar.cont.2 <- dbeta(x = (cont.rate)/(p * Ci + 2 * (1 - p)), 
+                  shape1=shape1, shape2=shape2,log=TRUE) -
+                                  priorM
+
             # add prior probabilities for somatic vs germline
             p.ar[[1]] <- lapply(seq_along(p.ar[[1]]), 
                 function(j) p.ar[[1]][[j]] + log(prior.somatic[idx][j]))
@@ -159,9 +149,9 @@ test.num.copy[i], prior.K))
             # other sample)
 
             p.ar[[3]] <- lapply(seq_along(p.ar.cont.1), 
-                function(j) p.ar.cont.1[[j]] + log(prior.cont[idx][j]))
+                function(j) p.ar.cont.1[j] + log(prior.cont[idx][j]))
             p.ar[[4]] <- lapply(seq_along(p.ar.cont.2), 
-                function(j) p.ar.cont.2[[j]] + log(prior.cont[idx][j]))
+                function(j) p.ar.cont.2[j] + log(prior.cont[idx][j]))
             
             do.call(cbind, lapply(p.ar, function(x) do.call(rbind, x)))
         })
