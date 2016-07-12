@@ -118,32 +118,34 @@ test.num.copy[i], prior.K))
                             rep(log(Ci + 1 + haploid.penalty), 
                                 length(test.num.copy)))
             
-            p.ar <- lapply(c(0, 1), function(g) 
+            shape1 <- ar_all * dp_all + 1
+            shape2 <- (1 - ar_all) * dp_all + 1
+            skip <- test.num.copy > Ci | C.posterior[i, Ci + 1] <=0
+
+            p.ar <- lapply(c(0, 1), function(g) {
+                dbetax <- (p * test.num.copy + g * (1-p))/(p * Ci + 2 * (1-p))
                 lapply(seq_along(ar_all), function(j) {
-                shape1 <- ar_all[j] * dp_all[j] + 1
-                shape2 <- (1 - ar_all[j]) * dp_all[j] + 1
-                xdenom <- p * Ci + 2 * (1-p)
-                vapply(test.num.copy, function(Mi) 
-                    ifelse(Mi > Ci || C.posterior[i, Ci + 1] <=0, -Inf, 
-                    dbeta(x = (p * Mi + g * (1-p))/xdenom, 
-                    shape1 = shape1, 
-                    shape2 = shape2, log = TRUE) -
-                    pM.both[[g + 1]][which.min(abs(Mi - test.num.copy))]),
+                vapply(seq_along(test.num.copy), function(mi) 
+                    ifelse(skip[mi], -Inf, 
+                    dbeta(x = dbetax[mi], 
+                    shape1 = shape1[j], 
+                    shape2 = shape2[j], log = TRUE) -
+                    pM.both[[g + 1]][mi]),
                     double(1))
                 }
-            ))
+            )})
             
             p.ar.cont.1 <- lapply(seq_along(ar_all), function(j) 
                 dbeta(x = (p * Ci + 2 * (1 - p - cont.rate))/
                     (p * Ci + 2 * (1 - p)), 
-                    shape1 = ar_all[j] * dp_all[j] + 1, 
-                    shape2 = (1 - ar_all[j]) * dp_all[j] + 1, log = TRUE) - 
+                    shape1 = shape1[j], 
+                    shape2 = shape2[j], log = TRUE) -
                 log(Ci + 1 + haploid.penalty))
 
             p.ar.cont.2 <- lapply(seq_along(ar_all), function(j) 
                 dbeta(x = (cont.rate)/(p * Ci + 2 * (1 - p)), 
-                    shape1 = ar_all[j] * dp_all[j] + 1, 
-                    shape2 = (1 - ar_all[j]) * dp_all[j] + 1, log = TRUE) - 
+                    shape1 = shape1[j], 
+                    shape2 = shape2[j], log = TRUE) -
                 log(Ci + 1 + haploid.penalty))
             
             # add prior probabilities for somatic vs germline
