@@ -309,7 +309,8 @@ post.optimize=FALSE,
             .stopUserError("Intervals of gatk.tumor.file and gc.gene.file ",
                 "do not align.")
         }
-        gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
+        gc.data <- gc.data[match(as.character(tumor[,1]),
+            gc.data[,1]),,drop=FALSE]
     }
 
     dropoutWarning <- FALSE
