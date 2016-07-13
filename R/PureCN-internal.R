@@ -111,19 +111,19 @@ test.num.copy[i], prior.K))
         ar_all <- unlist(geno(vcf)$FA[idx, tumor.id.in.vcf])
         ar_all[ar_all > 1] <- 1
         dp_all <- unlist(geno(vcf)$DP[idx, tumor.id.in.vcf])
+        mInf_all <- log(double(length(ar_all)))
+        shape1 <- ar_all * dp_all + 1
+        shape2 <- (1 - ar_all) * dp_all + 1
 
         lapply(test.num.copy, function(Ci) {
             priorM <- log(Ci + 1 + haploid.penalty)
             
-            shape1 <- ar_all * dp_all + 1
-            shape2 <- (1 - ar_all) * dp_all + 1
             skip <- test.num.copy > Ci | C.posterior[i, Ci + 1] <=0
 
             p.ar <- lapply(c(0, 1), function(g) {
                 dbetax <- (p * test.num.copy + g * (1-p))/(p * Ci + 2 * (1-p))
                 l <- lapply(seq_along(test.num.copy), function(j) {
-                    l <- log(double(length(ar_all)))
-                    if (skip[j]) return(l)
+                    if (skip[j]) return(mInf_all)
                     dbeta(x = dbetax[j], 
                     shape1 = shape1,  
                     shape2 = shape2, log = TRUE) - priorM
