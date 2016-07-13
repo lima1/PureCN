@@ -121,14 +121,15 @@ test.num.copy[i], prior.K))
 
             p.ar <- lapply(c(0, 1), function(g) {
                 dbetax <- (p * test.num.copy + g * (1-p))/(p * Ci + 2 * (1-p))
-                lapply(seq_along(ar_all), function(j) {
-                    l <- log(double(length(test.num.copy)))
-                    l[!skip] <- dbeta(x = dbetax[!skip], 
-                    shape1 = shape1[j],  
-                    shape2 = shape2[j], log = TRUE) - priorM
-                    l
-                }
-            )})
+                l <- lapply(seq_along(test.num.copy), function(j) {
+                    l <- log(double(length(ar_all)))
+                    if (skip[j]) return(l)
+                    dbeta(x = dbetax[j], 
+                    shape1 = shape1,  
+                    shape2 = shape2, log = TRUE) - priorM
+                })
+                do.call(cbind,l)
+            })
             
             p.ar.cont.1 <- dbeta(x = (p * Ci + 2 * (1 - p - cont.rate))/
                   (p * Ci + 2 * (1 - p)),shape1=shape1, shape2=shape2,log=TRUE) - 
@@ -139,21 +140,17 @@ test.num.copy[i], prior.K))
                                   priorM
 
             # add prior probabilities for somatic vs germline
-            p.ar[[1]] <- lapply(seq_along(p.ar[[1]]), 
-                function(j) p.ar[[1]][[j]] + log(prior.somatic[idx][j]))
+            p.ar[[1]] <- p.ar[[1]] + log(prior.somatic[idx])
 
-            p.ar[[2]] <- lapply(seq_along(p.ar[[2]]), 
-                function(j) p.ar[[2]][[j]] + log(1 - prior.somatic[idx][j]))
+            p.ar[[2]] <- p.ar[[2]] + log(1 - prior.somatic[idx])
 
             # contamination (either homozygous germline, or germline from 
             # other sample)
 
-            p.ar[[3]] <- lapply(seq_along(p.ar.cont.1), 
-                function(j) p.ar.cont.1[j] + log(prior.cont[idx][j]))
-            p.ar[[4]] <- lapply(seq_along(p.ar.cont.2), 
-                function(j) p.ar.cont.2[j] + log(prior.cont[idx][j]))
+            p.ar[[3]] <- p.ar.cont.1 + log(prior.cont[idx])
+            p.ar[[4]] <- p.ar.cont.2 + log(prior.cont[idx])
             
-            do.call(cbind, lapply(p.ar, function(x) do.call(rbind, x)))
+            do.call(cbind, p.ar)
         })
         
     })
