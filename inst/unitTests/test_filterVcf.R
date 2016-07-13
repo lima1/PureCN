@@ -19,4 +19,9 @@ test_filterVcf <- function() {
     checkEqualsNumeric(0, sum(d.f$id %in% names(y$vcf)))
     checkEqualsNumeric(0, sum(d.f$id %in% names(z$vcf)))
     checkEqualsNumeric(0, sum(d.f$id %in% names(zz$vcf)))
+    gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+            package = "PureCN")
+
+    vcfMutectFilter <- filterVcfMuTect(vcf, stats.file=gc.gene.file)
+    checkEqualsNumeric(nrow(x$vcf), nrow(vcfMutectFilter$vcf))
 }    

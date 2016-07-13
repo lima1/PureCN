@@ -186,6 +186,12 @@ verbose=TRUE,
         filterVcfBasic(vcf, tumor.id.in.vcf, verbose=verbose, ...))
     
     stats <- read.delim(stats.file, as.is=TRUE, skip=1)
+
+    if (is.null(stats$failure_reasons)) {
+        warning("MuTect stats file lacks required failure_reasons column.")
+        return(filterVcfBasic(vcf, tumor.id.in.vcf, verbose=verbose, ...))
+            
+    }    
     gr.stats <- GRanges(seqnames=stats$contig, 
         IRanges(start=stats$position, end=stats$position))
     
