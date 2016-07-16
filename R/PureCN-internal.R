@@ -699,8 +699,7 @@ test.num.copy[i], prior.K))
     geno(vcf)[[field]] <- matrixDP
     vcf
 }
-.readAndCheckVcf <- function(vcf.file, genome, check.ad=TRUE, check.db=TRUE, 
-    check.fa=TRUE, check.dp=TRUE) {
+.readAndCheckVcf <- function(vcf.file, genome) {
     if (class(vcf.file) == "character") {    
         vcf <- readVcf(vcf.file, genome)
     } else if (class(vcf.file) != "CollapsedVCF") {
@@ -709,10 +708,10 @@ test.num.copy[i], prior.K))
     } else {
         vcf <- vcf.file
     } 
-    if (is.null(info(vcf)$DB) && check.db) {
+    if (is.null(info(vcf)$DB)) {
         .stopUserError(vcf.file, " has no DB info field for dbSNP membership.")
     }
-    if (is.null(geno(vcf)$AD) && check.ad) {
+    if (is.null(geno(vcf)$AD)) {
         .stopUserError(vcf.file, 
             " has no AD geno field containing read depths of ref and alt.")
     }
@@ -720,7 +719,7 @@ test.num.copy[i], prior.K))
         # try to add an FA geno field if missing
         vcf <- .addFaField(vcf)
     }
-    if (is.null(geno(vcf)$FA) && check.fa) {
+    if (is.null(geno(vcf)$FA)) {
         .stopUserError(vcf.file, 
             " has no FA geno field containing allelic fractions.")
     }
@@ -728,7 +727,7 @@ test.num.copy[i], prior.K))
         # try to add an FA geno field if missing
         vcf <- .addDpField(vcf)
     }
-    if (is.null(geno(vcf)$DP) && check.dp) {
+    if (is.null(geno(vcf)$DP)) {
         .stopUserError(vcf.file, 
             " has no DP geno field containing read depths.")
     }
