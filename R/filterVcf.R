@@ -164,7 +164,9 @@ vcf.filtered <- filterVcfBasic(vcf)
 filterVcfMuTect <- structure(function(#Filter VCF MuTect
 ### Function to remove artifacts and low confidence/quality calls from
 ### a MuTect generated VCF file. Also applies filters defined in
-### \code{filterVcfBasic}.
+### \code{filterVcfBasic}. This function will only keep variants 
+### listed in the stats file and those not matching the specified
+### failure reasons. 
 vcf, 
 ### VCF object, read in with the \code{readVcf} function from the 
 ### VariantAnnotation package.
@@ -175,7 +177,8 @@ stats.file=NULL,
 ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events", 
 "poor_mapping_region_alternate_allele_mapq", "poor_mapping_region_mapq0", 
 "possible_contamination", "strand_artifact"),
-### Failure flags that lead to exclusion of variant.
+### Failure flags that lead to exclusion of variant. Requires 
+### \code{failure_reasons} column.
 verbose=TRUE,
 ### Verbose output.
 ...
@@ -187,22 +190,29 @@ verbose=TRUE,
     
     stats <- read.delim(stats.file, as.is=TRUE, skip=1)
 
-    if (is.null(stats$failure_reasons)) {
-        warning("MuTect stats file lacks required failure_reasons column.")
+    if (is.null(stats$contig) || is.null(stats$position)) {
+        warning("MuTect stats file lacks contig and position columns.")
         return(filterVcfBasic(vcf, tumor.id.in.vcf, verbose=verbose, ...))
-            
     }    
+
     gr.stats <- GRanges(seqnames=stats$contig, 
         IRanges(start=stats$position, end=stats$position))
     
     ov <- findOverlaps(vcf, gr.stats)
      
-    if (!identical(queryHits(ov),subjectHits(ov))) {
-        warning("MuTect stats file and VCF file do not align perfectly. ",
-         "Will remove unmatched variants.")
+    if (!identical(queryHits(ov),subjectHits(ov)) || 
+            nrow(vcf) != nrow(stats)) {
+        n <- nrow(vcf)
         stats <- stats[subjectHits(ov),]
         vcf <- vcf[queryHits(ov)]
+        warning("MuTect stats file and VCF file do not align perfectly. ",
+         "Will remove ", n-nrow(vcf), " unmatched variants.")
     }    
+    if (is.null(stats$failure_reasons)) {
+        warning("MuTect stats file lacks failure_reasons column.",
+            " Keeping all variants listed in stats file.")
+        return(filterVcfBasic(vcf, tumor.id.in.vcf, verbose=verbose, ...))
+    }
 
     n <- nrow(vcf)
 

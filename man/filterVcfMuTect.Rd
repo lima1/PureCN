@@ -3,7 +3,9 @@
 \title{Filter VCF MuTect}
 \description{Function to remove artifacts and low confidence/quality calls from
 a MuTect generated VCF file. Also applies filters defined in
-\code{filterVcfBasic}.}
+\code{filterVcfBasic}. This function will only keep variants 
+listed in the stats file and those not matching the specified
+failure reasons. }
 \usage{filterVcfMuTect(vcf, tumor.id.in.vcf = NULL, stats.file = NULL, 
     ignore = c("clustered_read_position", "fstar_tumor_lod", 
         "nearby_gap_events", "poor_mapping_region_alternate_allele_mapq", 
