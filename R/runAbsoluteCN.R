@@ -379,14 +379,7 @@ post.optimize=FALSE,
 
     if (!is.null(vcf.file)) {
         if (verbose) message("Loading VCF...")
-        if (class(vcf.file) == "character") {    
-            vcf <- .readAndCheckVcf(vcf.file, genome=genome)
-        } else if (class(vcf.file) != "CollapsedVCF") {
-            .stopUserError("vcf.file neither a filename nor a CollapsedVCF ", 
-                "object.") 
-        } else {
-            vcf <- vcf.file
-        } 
+        vcf <- .readAndCheckVcf(vcf.file, genome=genome)
 
         if (length(intersect(tumor$chr,seqlevels(vcf))) < 1) {
             .stopUserError("Different chromosome names in coverage and VCF.")

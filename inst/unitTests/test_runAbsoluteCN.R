@@ -140,5 +140,20 @@ test_runAbsoluteCN <- function() {
         gc.gene.file=gc.gene.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
         test.purity=seq(0.3,0.7, by=0.01),verbose=FALSE))
-
+    
+    
+    vcf <- readVcf(vcf.file, "hg19")
+    # example vcf contains simululated allelic ratios, fix the AD column
+    gt1 <- round(geno(vcf)$DP[,1]* as.numeric(geno(vcf)$FA[,1]))
+    ad1 <- lapply(seq_along(gt1), function(i) 
+        as.numeric(c(geno(vcf)$DP[i,1]-gt1[i], gt1[i])))
+    names(ad1) <- names(geno(vcf)$DP[,1])
+    geno(vcf)$AD[,1] <- ad1
+    geno(vcf)$FA <- NULL
+    geno(vcf)$DP <- NULL
+    ret <- runAbsoluteCN( gatk.normal.file=gatk.normal.file,
+        gatk.tumor.file=gatk.tumor.file,
+        vcf.file=vcf, max.candidate.solutions=1,genome="hg19", 
+        test.purity=seq(0.3,0.7, by=0.01))
+    checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
 }    

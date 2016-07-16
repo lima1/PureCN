@@ -674,15 +674,63 @@ test.num.copy[i], prior.K))
 #   sds <- sapply(seq_along(end), function(i) sd(dlr[start[i]:end[i]], na.rm=TRUE))
 ##   ids <- which(sds > quantile(sds, na.rm=TRUE, p=1-0.001))
 #}
-.readAndCheckVcf <- function(vcf.file, genome, check.db=TRUE, 
-    check.fa=TRUE) {
-    vcf <- readVcf(vcf.file, genome)
+
+# calculate allelic fraction from read depths
+.addFaField <- function(vcf, field="FA") {
+    if (is.null(geno(vcf)$AD)) return(vcf)
+    matrixFA <- do.call(rbind, apply(geno(vcf)$AD,1, function(x) lapply(x,
+        function(y) y[2]/sum(y))))
+    newGeno <- DataFrame(
+        Number="A", Type="Float",
+        Description="Allele fraction of the alternate allele",
+        row.names=field)
+    geno(header(vcf)) <- rbind(geno(header(vcf)), newGeno)
+    geno(vcf)[[field]] <- matrixFA
+    vcf
+}
+.addDpField <- function(vcf, field="DP") {
+    if (is.null(geno(vcf)$AD)) return(vcf)
+    matrixDP <- apply(geno(vcf)$AD,2,sapply, sum)
+    newGeno <- DataFrame(
+        Number=1, Type="Integer",
+        Description="Approximate read depth",
+        row.names=field)
+    geno(header(vcf)) <- rbind(geno(header(vcf)), newGeno)
+    geno(vcf)[[field]] <- matrixDP
+    vcf
+}
+.readAndCheckVcf <- function(vcf.file, genome, check.ad=TRUE, check.db=TRUE, 
+    check.fa=TRUE, check.dp=TRUE) {
+    if (class(vcf.file) == "character") {    
+        vcf <- readVcf(vcf.file, genome)
+    } else if (class(vcf.file) != "CollapsedVCF") {
+        .stopUserError("vcf.file neither a filename nor a CollapsedVCF ", 
+            "object.") 
+    } else {
+        vcf <- vcf.file
+    } 
     if (is.null(info(vcf)$DB) && check.db) {
-        .stopUserError(vcf.file, " has no DB info flag for dbSNP membership.")
+        .stopUserError(vcf.file, " has no DB info field for dbSNP membership.")
+    }
+    if (is.null(geno(vcf)$AD) && check.ad) {
+        .stopUserError(vcf.file, 
+            " has no AD geno field containing read depths of ref and alt.")
+    }
+    if (is.null(geno(vcf)$FA)) {
+        # try to add an FA geno field if missing
+        vcf <- .addFaField(vcf)
     }
     if (is.null(geno(vcf)$FA) && check.fa) {
         .stopUserError(vcf.file, 
-            " has no FA geno flag containing allelic fractions.")
+            " has no FA geno field containing allelic fractions.")
+    }
+    if (is.null(geno(vcf)$DP)) {
+        # try to add an FA geno field if missing
+        vcf <- .addDpField(vcf)
+    }
+    if (is.null(geno(vcf)$DP) && check.dp) {
+        .stopUserError(vcf.file, 
+            " has no DP geno field containing read depths.")
     }
     vcf     
 }    
