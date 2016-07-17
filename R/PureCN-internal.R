@@ -645,6 +645,10 @@ test.num.copy[i], prior.K))
     log.ratio <- seg$seg.mean[subjectHits(ov)]
     # sanity check, so that every exon has exactly one segment log-ratio
     log.ratio <- log.ratio[match(seq_len(nrow(tumor)), queryHits(ov))]
+    mean.log.ratio <- mean(subset(log.ratio, !is.infinite(log.ratio)), 
+        na.rm = TRUE)
+    # calibrate
+    log.ratio <- log.ratio - mean.log.ratio
     log.ratio
 }
 .strip.chr.name <- function(ls, chr.hash) {
@@ -667,6 +671,16 @@ test.num.copy[i], prior.K))
 
     data.frame(chr=as.factor(ls), number=seq_along(ls), row.names=ls)
 }
+.checkChrHash <- function(chr.hash) {
+    if (!identical(colnames(chr.hash)[1:2], c("chr", "number"))) {
+        .stopUserError("Colnames of chr.hash should be 'chr' and 'number'.")
+    }
+    if (sum(duplicated(chr.hash$chr))>0) {
+        .stopUserError("Duplicate chromosome names in chr.hash.")
+    }
+    rownames(chr.hash) <- chr.hash$chr
+    chr.hash
+}
 #.ffpeCleanLogRatio <- function(log.ratio, window=20) {
 #   dlr <- c(0, diff(log.ratio))
 #   start <- seq(1,length(dlr), by=window)
@@ -677,7 +691,9 @@ test.num.copy[i], prior.K))
 
 # calculate allelic fraction from read depths
 .addFaField <- function(vcf, field="FA") {
-    if (is.null(geno(vcf)$AD)) return(vcf)
+    if (is.null(geno(vcf)$AD)) {
+        .stopRuntimeError("No AD geno field in VCF.")
+    }
     matrixFA <- do.call(rbind, apply(geno(vcf)$AD,1, function(x) lapply(x,
         function(y) y[2]/sum(y))))
     newGeno <- DataFrame(
@@ -689,7 +705,9 @@ test.num.copy[i], prior.K))
     vcf
 }
 .addDpField <- function(vcf, field="DP") {
-    if (is.null(geno(vcf)$AD)) return(vcf)
+    if (is.null(geno(vcf)$AD)) {
+        .stopRuntimeError("No AD geno field in VCF.")
+    }
     matrixDP <- apply(geno(vcf)$AD,2,sapply, sum)
     newGeno <- DataFrame(
         Number=1, Type="Integer",
@@ -719,17 +737,9 @@ test.num.copy[i], prior.K))
         # try to add an FA geno field if missing
         vcf <- .addFaField(vcf)
     }
-    if (is.null(geno(vcf)$FA)) {
-        .stopUserError(vcf.file, 
-            " has no FA geno field containing allelic fractions.")
-    }
     if (is.null(geno(vcf)$DP)) {
         # try to add an FA geno field if missing
         vcf <- .addDpField(vcf)
-    }
-    if (is.null(geno(vcf)$DP)) {
-        .stopUserError(vcf.file, 
-            " has no DP geno field containing read depths.")
     }
     vcf     
 }    

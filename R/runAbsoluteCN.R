@@ -234,7 +234,13 @@ post.optimize=FALSE,
         tumor <- gatk.tumor.file
         if (is.null(sampleid)) sampleid <- "Sample.1"
     }    
-    if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
+
+    if (is.null(chr.hash)) { 
+        chr.hash <- .getChrHash(tumor$chr)
+    } else {
+        chr.hash <- .checkChrHash(chr.hash)
+    }
+
 
     # check that normal is not the same as tumor (only if no log-ratio or 
     # segmentation is provided, in that case we wouldn't use normal anyway)
@@ -296,12 +302,24 @@ post.optimize=FALSE,
             tumor <- .removeChr(tumor, remove.chrs=sex.chr[2])
         }       
     }      
-          
+    
+      
     # NA's in log.ratio confuse the CBS function
-    idx <- !is.na(log.ratio) & !is.infinite(log.ratio)
+    idx <- !is.na(log.ratio) & !is.infinite(log.ratio) 
     log.ratio <- log.ratio[idx]    
     normal <- normal[idx,]
     tumor <- tumor[idx,]
+
+    n <- length(log.ratio)
+    idx <- tumor$chr %in% chr.hash$chr
+    log.ratio <- log.ratio[idx]    
+    normal <- normal[idx,]
+    tumor <- tumor[idx,]
+
+    if (verbose && sum(!idx)>0) { 
+        message("Removing ", n-length(log.ratio), " exons on chromosomes ",
+            "outside chr.hash.")
+    }
 
     if (!is.null(gc.gene.file)) {
         gc.data <- read.delim(gc.gene.file, as.is=TRUE)
@@ -366,8 +384,6 @@ post.optimize=FALSE,
 
     # these are not used for segmentation, so be a little bit more careful 
     # with removing (outliers will be smoothed anyways)
-    exon.well.covered.gr <- 
-        exon.gr[.getWellCoveredExons(normal, tumor, coverage.cutoff*0.75)]
 
     vcf <- NULL
     vcf.germline <- NULL
@@ -479,7 +495,7 @@ post.optimize=FALSE,
     }
     
     # get exon log-ratios for all segments 
-    ov.se <- findOverlaps(seg.gr, exon.well.covered.gr)
+    ov.se <- findOverlaps(seg.gr, exon.gr)
     exon.lrs <- lapply(seq_len(nrow(seg)), function(i) 
         log.ratio[subjectHits(ov.se)[queryHits(ov.se)==i]])
     exon.lrs <- lapply(exon.lrs, function(x) 
