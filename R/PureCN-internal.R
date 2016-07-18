@@ -763,6 +763,22 @@ test.num.copy[i], prior.K))
     gcbins <- split(coverage$average.coverage, gc.data$gc_bias < 0.5); 
     mean(gcbins[[1]], na.rm=TRUE)/mean(gcbins[[2]], na.rm=TRUE) 
 }
+.checkGCBias <- function(normal, tumor, gc.data, max.dropout, verbose) {
+    gcMetricNormal <- .calcGCmetric(gc.data, normal)
+    gcMetricTumor <- .calcGCmetric(gc.data, tumor)
+    if (verbose) { 
+        message("AT/GC dropout: ", round(gcMetricTumor, digits=2),
+        " (tumor), ", round(gcMetricNormal, digits=2), " (normal).")
+    }    
+    if (gcMetricNormal < max.dropout[1] || 
+        gcMetricNormal > max.dropout[2] ||
+        gcMetricTumor  < max.dropout[1] ||
+        gcMetricTumor  > max.dropout[2]) {
+        warning("High GC-bias in normal or tumor. Is data GC-normalized?")
+        return(TRUE)
+    }
+    return(FALSE)
+}
 
 .gcGeneToCoverage <- function(gc.gene.file, coverage.cutoff) {
     gc.data <- readCoverageGatk(gc.gene.file)
@@ -770,4 +786,65 @@ test.num.copy[i], prior.K))
     gc.data$coverage <- coverage.cutoff * gc.data$targeted.base
     gc.data
 }
+.getSex <- function(sex, normal, tumor) {
+    if (sex != "?") return(sex)
+    sex.tumor <- getSexFromCoverage(tumor, verbose=FALSE)
+    sex.normal <- getSexFromCoverage(normal, verbose=FALSE)
+    if (!identical(sex.tumor, sex.normal)) {
+        warning("Sex tumor/normal mismatch: tumor = ", sex.tumor, 
+            " normal = ", sex.normal)
+    }
+    sex <- sex.tumor    
+    if (is.na(sex)) sex = "?"
+    sex
+}
+.fixAllosomeCoverage <- function(sex, tumor) {
+    sex.chr <- .getSexChr(tumor$chr)
+    if (sex=="M" || sex=="?") {
+        tumor <- .removeChr(tumor, remove.chrs=sex.chr)
+    } else if (sex=="F") {
+        tumor <- .removeChr(tumor, remove.chrs=sex.chr[2])
+    }       
+    tumor
+}
+.filterExonsChrHash <- function(exonsUsed, tumor, chr.hash, verbose) {
+    if (is.null(chr.hash)) return(exonsUsed)
+    nBefore <- sum(exonsUsed)
+    exonsUsed <- exonsUsed & tumor$chr %in% chr.hash$chr
+    nAfter <- sum(exonsUsed)
+
+    if (verbose && nAfter < nBefore) { 
+        message("Removing ", nBefore-nAfter, " exons on chromosomes ",
+            "outside chr.hash.")
+    }
+    exonsUsed
+}
+.filterExonsTargetedBase <- function(exonsUsed, tumor, filter.targeted.base,
+    verbose) {
+    if (is.null(filter.targeted.base)) return(exonsUsed)
+    nBefore <- sum(exonsUsed)
+    exonsUsed <- exonsUsed & !is.na(tumor$targeted.base) & 
+        tumor$targeted.base >= filter.targeted.base
+    nAfter <- sum(exonsUsed)
+    if (verbose && nAfter < nBefore) message("Removing ", nBefore-nAfter, 
+        " small exons.")
+    exonsUsed
+}
+.filterExonsLohHighGC <- function(exonsUsed, tumor, gc.data,
+    filter.lowhigh.gc.exons, verbose) {
+    gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
+    qq <- quantile(gc.data$gc_bias, p=c(filter.lowhigh.gc.exons, 
+        1-filter.lowhigh.gc.exons), na.rm=TRUE)
+
+    nBefore <- sum(exonsUsed)
+    exonsUsed <- exonsUsed & !is.na(gc.data$gc_bias) & 
+        !(gc.data$gc_bias < qq[1] | gc.data$gc_bias > qq[2])
+    nAfter <- sum(exonsUsed)
+
+    if (verbose && nAfter < nBefore) message("Removing ", 
+        nBefore-nAfter, " low/high GC exons.")
+
+    exonsUsed
+}
+
 

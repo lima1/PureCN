@@ -241,7 +241,6 @@ post.optimize=FALSE,
         chr.hash <- .checkChrHash(chr.hash)
     }
 
-
     # check that normal is not the same as tumor (only if no log-ratio or 
     # segmentation is provided, in that case we wouldn't use normal anyway)
     if (!is.null(gatk.normal.file) & is.null(log.ratio) & is.null(seg.file)) {
@@ -276,51 +275,20 @@ post.optimize=FALSE,
         if (!is.null(seg.file)) {
             .stopUserError("Provide either log.ratio or seg.file, not both.") 
         }
+        if (length(log.ratio) != nrow(tumor)) {
+            .stopUserError("Length of log.ratio different from tumor ",
+                "coverage.")
+        }
     }        
-    sex <- match.arg(sex)
-    sex.chr <- .getSexChr(tumor$chr)
-    if (sex != "diploid") {
-        if (sex =="?") {
-            sex.tumor <- getSexFromCoverage(tumor, verbose=FALSE)
-            sex.normal <- getSexFromCoverage(normal, verbose=FALSE)
-            if (is.na(sex.tumor)) {
-                tumor <- .removeChr(tumor, remove.chrs=sex.chr)
-            }    
-            if (is.na(sex.normal)) {
-                normal <- .removeChr(normal, remove.chrs=sex.chr)
-            }    
-            if (!identical(sex.tumor, sex.normal)) {
-                warning("Sex tumor/normal mismatch: tumor = ", sex.tumor, 
-                    " normal = ", sex.normal)
-            }
-            sex <- sex.tumor    
-            if (is.na(sex)) sex = "?"
-        } 
-        if (sex=="M") {
-            tumor <- .removeChr(tumor, remove.chrs=sex.chr)
-        } else if (sex=="F") {
-            tumor <- .removeChr(tumor, remove.chrs=sex.chr[2])
-        }       
-    }      
     
-      
+    sex <- .getSex(match.arg(sex), normal, tumor)
+    tumor <- .fixAllosomeCoverage(sex, tumor)
+
     # NA's in log.ratio confuse the CBS function
-    idx <- !is.na(log.ratio) & !is.infinite(log.ratio) 
-    log.ratio <- log.ratio[idx]    
-    normal <- normal[idx,]
-    tumor <- tumor[idx,]
-
-    n <- length(log.ratio)
-    idx <- tumor$chr %in% chr.hash$chr
-    log.ratio <- log.ratio[idx]    
-    normal <- normal[idx,]
-    tumor <- tumor[idx,]
-
-    if (verbose && sum(!idx)>0) { 
-        message("Removing ", n-length(log.ratio), " exons on chromosomes ",
-            "outside chr.hash.")
-    }
-
+    exonsUsed <- !is.na(log.ratio) & !is.infinite(log.ratio) 
+    # Filter exons on chromosome not listed in chr.hash
+    exonsUsed <- .filterExonsChrHash(exonsUsed, tumor, chr.hash, verbose)
+    
     if (!is.null(gc.gene.file)) {
         gc.data <- read.delim(gc.gene.file, as.is=TRUE)
         if (!length(intersect(gc.data[,1], tumor[,1]))) {
@@ -334,42 +302,17 @@ post.optimize=FALSE,
     dropoutWarning <- FALSE
     # clean up noisy exons, but not if the segmentation was already provided.
     if (is.null(seg.file)) {
-        if (!is.null(filter.targeted.base)) {
-            idx <- which(tumor$targeted.base >= filter.targeted.base)
-            if (verbose) message("Removing ", nrow(tumor)-length(idx), 
-                " small exons.")
-            log.ratio <- log.ratio[idx]    
-            normal <- normal[idx,]
-            tumor <- tumor[idx,]
-        }    
+        exonsUsed <- .filterExonsTargetedBase(exonsUsed, tumor,
+            filter.targeted.base, verbose)
         
         if (!is.null(gc.gene.file)) {
-            gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
-            qq <- quantile(gc.data$gc_bias, p=c(filter.lowhigh.gc.exons, 
-                1-filter.lowhigh.gc.exons), na.rm=TRUE)
-
-            idx <- which(!(gc.data$gc_bias < qq[1] | gc.data$gc_bias > qq[2]))
-            if (verbose) message("Removing ", nrow(gc.data)-length(idx),
-                 " low/high GC exons.")
-            gc.data <- gc.data[idx,]    
-            log.ratio <- log.ratio[idx]    
-            normal <- normal[idx,]
-            tumor <- tumor[idx,]
-            gcMetricNormal <- .calcGCmetric(gc.data, normal)
-            gcMetricTumor <- .calcGCmetric(gc.data, tumor)
-            if (verbose) { 
-                message("AT/GC dropout: ", round(gcMetricTumor, digits=2),
-                " (tumor), ", round(gcMetricNormal, digits=2), " (normal).")
-            }    
-            if (gcMetricNormal < max.dropout[1] || 
-                gcMetricNormal > max.dropout[2] ||
-                gcMetricTumor  < max.dropout[1] ||
-                gcMetricTumor  > max.dropout[2]) {
-                warning("High GC-bias in normal or tumor. Is data GC-normalized?")
-                dropoutWarning <- TRUE
-            }
+            exonsUsed <- .filterExonsLohHighGC(exonsUsed, tumor,
+                gc.data, filter.lowhigh.gc.exons, verbose)
+            dropoutWarning <- .checkGCBias(normal, tumor, gc.data, max.dropout,
+                verbose)
         } else if (verbose) {
-            message("No gc.gene.file provided. Cannot check if data was GC-normalized. Was it?")    
+            message("No gc.gene.file provided. Cannot check if data was ",
+                "GC-normalized. Was it?")    
         }    
     }
     
@@ -378,7 +321,20 @@ post.optimize=FALSE,
             " You won't get gene-level calls.")
         gc.gene.file <- NULL
     }
-        
+    
+    exonsUsed <- which(exonsUsed)
+    if (nrow(tumor) != nrow(normal) ||
+        nrow(tumor) != length(log.ratio) ||
+        (!is.null(gc.gene.file) && nrow(tumor) != nrow(gc.data))) {
+        .stopRuntimeError("Mis-aligned coverage data.")
+    } 
+    tumor <- tumor[exonsUsed,]
+    normal <- normal[exonsUsed,]
+    log.ratio <- log.ratio[exonsUsed]
+    if (!is.null(gc.gene.file)) {
+        gc.data <- gc.data[exonsUsed,]
+    }
+    
     exon.gr <- GRanges(seqnames=tumor$chr, 
         IRanges(start=tumor$probe_start,end=tumor$probe_end))
 
@@ -453,7 +409,6 @@ post.optimize=FALSE,
     }
 
     if (verbose) message("Sex of sample: ", sex)
-
     if (verbose) message("Segmenting data...")
 
     args.segmentation <-  c(list(normal=normal, tumor=tumor, 
@@ -467,14 +422,12 @@ post.optimize=FALSE,
     seg.result <- do.call(fun.segmentation, args.segmentation) 
 
     seg <- seg.result$seg
-    segChrom <- seg$chrom
     seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
         IRanges(start=round(seg$loc.start), end=seg$loc.end))
     
     snv.lr <- NULL
 
     if (!is.null(vcf.file)) {
-
         ov <- findOverlaps(seg.gr, vcf)
         n.vcf.before.filter <- nrow(vcf)
         # make sure all SNVs are in covered segments
@@ -516,7 +469,7 @@ post.optimize=FALSE,
 
     # renormalize, in case segmentation function changed means
     exon.lrs <- lapply(seq_along(exon.lrs), function(i) {
-        if (length(exon.lrs[[i]]) < 5) return(exon.lrs[[i]])
+        if (length(exon.lrs[[i]]) < 3) return(exon.lrs[[i]])
         exon.lrs[[i]]-mean(exon.lrs[[i]])+seg$seg.mean[i]
     })
 
