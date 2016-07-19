@@ -72,9 +72,20 @@ test_runAbsoluteCN <- function() {
         gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
         candidates=purecn.example.output$candidates, 
         vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
-        max.candidate.solutions=2)
+        max.candidate.solutions=1)
     checkTrue(is.na( ret$results[[1]]$gene.calls ))
     checkException(callAlterations(ret))
+
+    # test that correct exons were filtered
+    tumor <- readCoverageGatk(gatk.tumor.file)
+    log.ratio <- ret$input$log.ratio
+    filtered <- cbind(tumor, gc2)[!as.character(tumor$probe) %in% log.ratio$probe,]
+    checkTrue(!sum(!(
+            filtered$average.coverage < 15 | 
+            filtered$targeted.base < 4 | 
+            filtered$gc_bias < 0.25 | 
+            filtered$gc_bias>0.8)
+    ))
 
     # test with numeric chromosome names
     .strip.chr.name <- function(ls) {
