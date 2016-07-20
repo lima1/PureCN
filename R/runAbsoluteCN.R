@@ -162,6 +162,9 @@ prior.K=0.999,
 ### number (for somatic variants additionally a multiplicity of 1).
 ### For perfect segmentations, this value would be 1; values smaller
 ### than 1 thus may provide some robustness against segmentation errors.
+prior.contamination=0.01,
+### The prior probability that a known SNP is from a different
+### individual. 
 chr.hash=NULL,
 ### Mapping of non-numerical chromsome names to numerical names
 ### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
@@ -750,7 +753,9 @@ post.optimize=FALSE,
                 list(
                     beta.model  = .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, 
                         test.num.copy, C.posterior, C, snv.model="beta", 
-                        prior.somatic, snv.lr, sampleid, prior.K=prior.K)
+                        prior.somatic, snv.lr, sampleid, 
+                        cont.rate=prior.contamination,
+                        prior.K=prior.K)
                 )})
 
             if (post.optimize) {
