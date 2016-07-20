@@ -440,6 +440,12 @@ test.num.copy[i], prior.K))
     mm <- sapply(mm, function(x) unlist(x))
     colnames(mm) <- test.purity
     rownames(mm) <- ploidy.grid
+
+    if (!sum(as.vector(is.finite(mm))) ) {
+        .stopUserError("Cannot find valid purity/ploidy solution. ", 
+            "This happens when input segmentations are garbage.")
+    }    
+
     ai <- .findLocalMinima(mm)
     candidates <- data.frame(ploidy = as.numeric(rownames(mm)[ai[, 1]]), purity = as.numeric(colnames(mm)[ai[, 
         2]]), llik = mm[ai])
