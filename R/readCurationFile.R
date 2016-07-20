@@ -21,7 +21,7 @@ max.ploidy=NULL
 ### used to automatically ignore unlikely solutions.
 ) {
     res <- readRDS(file.rds)
-    curation <- read.csv(file.curation)
+    curation <- read.csv(file.curation, as.is=TRUE)
 
     ## Mark all solutions as failed if sample is curated as failed
     if (curation$Failed) {
@@ -30,7 +30,16 @@ max.ploidy=NULL
     } else {
         for (i in seq_along(res$results)) res$results[[i]]$failed <- FALSE
     }
-
+    
+    # Make sure purity and ploidy are numeric. Stop if not, not warn.
+    curation$Purity <- suppressWarnings(as.numeric(curation$Purity))
+    curation$Ploidy <- suppressWarnings(as.numeric(curation$Ploidy))
+    
+    if (is.na(curation$Purity) || is.na( curation$Ploidy ) ||
+        curation$Purity < 0 || curation$Purity > 1 ||
+        curation$Ploidy < 0 || curation$Ploidy > 8 ) {
+        .stopUserError("Purity or Ploidy not numeric or in expected range.")
+    }    
     ## Find purity/ploidy solution most similar to curation
     diffCurated <- vapply(res$results, function(x) {
         abs(x$purity-curation$Purity) + (abs(x$ploidy-curation$Ploidy)/6)

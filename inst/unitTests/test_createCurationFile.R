@@ -66,4 +66,12 @@ test_createCurationFile <- function() {
     checkEqualsNumeric( retx$results[[1]]$purity , ret$Purity, tolerance=0.2)
     checkEqualsNumeric( retx$results[[1]]$ploidy , ret$Ploidy, 
         tolerance=0.5)
-}    
+    ret$Purity <- "2.2w"
+    write.csv(ret, file = filename, row.names = FALSE)
+    checkException( readCurationFile(file.rds) )
+    ret$Purity <- 2.2
+    ret$Failed <- TRUE
+    write.csv(ret, file = filename, row.names = FALSE)
+    retx <- readCurationFile(file.rds, remove.failed=TRUE)
+    checkTrue(is.na(retx))
+}  
