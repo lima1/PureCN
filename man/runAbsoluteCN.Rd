@@ -147,8 +147,9 @@ than 1 thus may provide some robustness against segmentation errors.}
   \item{prior.contamination}{The prior probability that a known SNP is from a different
 individual. }
   \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
-(e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
-are properly ordered.   }
+(e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromosomes
+are properly ordered (for human samples, PureCN should always output
+correct chromosome orderings if chromosomes have standard names).}
   \item{plot.cnv}{Generate segmentation plots.}
   \item{verbose}{Verbose output.}
   \item{post.optimize}{Optimize purity using final SCNA-fit and SNVs. This 

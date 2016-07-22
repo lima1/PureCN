@@ -167,8 +167,9 @@ prior.contamination=0.01,
 ### individual. 
 chr.hash=NULL,
 ### Mapping of non-numerical chromsome names to numerical names
-### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
-### are properly ordered.   
+### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromosomes
+### are properly ordered (for human samples, PureCN should always output
+### correct chromosome orderings if chromosomes have standard names).
 plot.cnv=TRUE, 
 ### Generate segmentation plots.
 verbose=TRUE, 
