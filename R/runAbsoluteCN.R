@@ -371,11 +371,11 @@ post.optimize=FALSE,
             args.filterVcf$use.somatic.status <- FALSE
         } 
 
+        tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
+        
         if (args.filterVcf$use.somatic.status) { 
-            normal.id.in.vcf <- names( which.max(colSums(geno(vcf)$GT=="0")) )
+            normal.id.in.vcf <- .getNormalIdInVcf(vcf, tumor.id.in.vcf)
         }    
-            
-        tumor.id.in.vcf <- names( which.min(colSums(geno(vcf)$GT=="0")) )
 
         if (verbose) message("Assuming ", tumor.id.in.vcf, 
             " is tumor in VCF file.")

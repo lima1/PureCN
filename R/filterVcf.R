@@ -40,7 +40,7 @@ verbose=TRUE
     flag_comment <- NA
 
     if (is.null(tumor.id.in.vcf)) {
-        tumor.id.in.vcf <- names( which.min(colSums(geno(vcf)$GT=="0")) )
+        tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
     }
     if (use.somatic.status) {
         n <- nrow(vcf)

@@ -723,6 +723,37 @@ test.num.copy[i], prior.K))
     geno(vcf)[[field]] <- matrixDP
     vcf
 }
+.getNormalIdInVcf <- function(vcf, tumor.id.in.vcf) {
+    samples(header(vcf))[-match(tumor.id.in.vcf, samples(header(vcf)))] 
+}    
+.getTumorIdInVcf <- function(vcf) {
+    .getTumorId <- function(vcf) {
+        if (ncol(vcf) == 1) return(1)
+        if (ncol(vcf) != 2) {
+            .stopUserError("VCF contains ", ncol(vcf), " samples. Should be ",
+                "either one or two.")
+        }        
+        if (!is.null(geno(vcf)$GT)) {
+            cs <- colSums(geno(vcf)$GT=="0")
+            if (max(cs) > 0) return(which.min(cs))
+            cs <- colSums(geno(vcf)$GT=="0/0")
+            if (max(cs) > 0) return(which.min(cs))
+        }
+        if (!is.null(geno(vcf)$FA)) {
+            cs <- apply(geno(vcf)$FA,2,function(x) sum(as.numeric(x)==0))
+            if (max(cs) > 0) return(which.min(cs))
+        }    
+        warning("Cannot determine tumor vs. normal in VCF. Assuming it is ",
+            "first sample.")
+        return(1)
+    }
+    tumor.id.in.vcf <- .getTumorId(vcf)
+    if (!is.numeric(tumor.id.in.vcf) || tumor.id.in.vcf < 1 ||
+         tumor.id.in.vcf > 2) {
+        .stopRuntimeError("Tumor id not in expected range.")
+    }    
+     samples(header(vcf))[tumor.id.in.vcf]    
+}
 .checkVcfFieldAvailable <- function(vcf, field) {
     if (is.null(geno(vcf)[[field]]) ||  
         sum(is.finite(as.numeric(geno(vcf)[[field]][,1])))<1) {
@@ -756,7 +787,6 @@ test.num.copy[i], prior.K))
     }
     vcf     
 }    
-
 .stopUserError <- function(...) {
     msg <- paste(c(...), collapse="")
     msg <- paste(msg, "\n\nThis is most likely a user error due to",

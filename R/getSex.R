@@ -110,7 +110,7 @@ verbose=TRUE
 ### Verbose output.
 ) {
     if (is.null(tumor.id.in.vcf)) {
-        tumor.id.in.vcf <- names( which.min(colSums(geno(vcf)$GT=="0")) )
+        tumor.id.in.vcf <- .getTumorIdInVcf(vcf) 
     }
     sex.chr <- .getSexChr(seqlevels(vcf))
 
