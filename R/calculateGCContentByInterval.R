@@ -16,6 +16,9 @@ output.file=NULL
         stringsAsFactors = FALSE)
     interval.gr <- GRanges(seqnames = pos[,1], 
         IRanges(start = as.numeric(pos[,2]), end = as.numeric(pos[,3])))
+    if (min(start(interval.gr)) < 1) {
+        .stopUserError("Interval coordinates should start at 1, not at 0.")
+    }    
     x <- scanFa(reference.file, interval.gr)
     GC.count <- letterFrequency(x,"GC")
     all.count <- letterFrequency(x,"ATGC")

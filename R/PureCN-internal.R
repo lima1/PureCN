@@ -723,6 +723,13 @@ test.num.copy[i], prior.K))
     geno(vcf)[[field]] <- matrixDP
     vcf
 }
+.checkVcfFieldAvailable <- function(vcf, field) {
+    if (is.null(geno(vcf)[[field]]) ||  
+        sum(is.finite(as.numeric(geno(vcf)[[field]][,1])))<1) {
+        return(FALSE)
+    }    
+    return(TRUE)
+}    
 .readAndCheckVcf <- function(vcf.file, genome) {
     if (class(vcf.file) == "character") {    
         vcf <- readVcf(vcf.file, genome)
@@ -739,12 +746,12 @@ test.num.copy[i], prior.K))
         .stopUserError(vcf.file, 
             " has no AD geno field containing read depths of ref and alt.")
     }
-    if (is.null(geno(vcf)$FA)) {
+    if (!.checkVcfFieldAvailable(vcf, "FA")) {
         # try to add an FA geno field if missing
         vcf <- .addFaField(vcf)
     }
-    if (is.null(geno(vcf)$DP)) {
-        # try to add an FA geno field if missing
+    if (!.checkVcfFieldAvailable(vcf, "DP")) {
+        # try to add an DP geno field if missing
         vcf <- .addDpField(vcf)
     }
     vcf     
