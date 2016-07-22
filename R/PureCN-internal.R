@@ -726,8 +726,8 @@ test.num.copy[i], prior.K))
 .getNormalIdInVcf <- function(vcf, tumor.id.in.vcf) {
     samples(header(vcf))[-match(tumor.id.in.vcf, samples(header(vcf)))] 
 }    
-.getTumorIdInVcf <- function(vcf) {
-    .getTumorId <- function(vcf) {
+.getTumorIdInVcf <- function(vcf, sampleid=NULL) {
+    .getTumorId <- function(vcf, sampleid) {
         if (ncol(vcf) == 1) return(1)
         if (ncol(vcf) != 2) {
             .stopUserError("VCF contains ", ncol(vcf), " samples. Should be ",
@@ -743,16 +743,27 @@ test.num.copy[i], prior.K))
             cs <- apply(geno(vcf)$FA,2,function(x) sum(as.numeric(x)==0))
             if (max(cs) > 0) return(which.min(cs))
         }    
-        warning("Cannot determine tumor vs. normal in VCF. Assuming it is ",
-            "first sample.")
+        if (sampleid %in% samples(header(vcf))) {
+            return(match(sampleid, samples(header(vcf))))
+        }    
+        warning("Cannot determine tumor vs. normal in VCF. ",
+            "Assuming it is first sample. Specify tumor via sampleid argument.")
         return(1)
     }
-    tumor.id.in.vcf <- .getTumorId(vcf)
+    tumor.id.in.vcf <- .getTumorId(vcf, sampleid=sampleid)
     if (!is.numeric(tumor.id.in.vcf) || tumor.id.in.vcf < 1 ||
          tumor.id.in.vcf > 2) {
         .stopRuntimeError("Tumor id not in expected range.")
     }    
-     samples(header(vcf))[tumor.id.in.vcf]    
+    tumor.id.in.vcf <- samples(header(vcf))[tumor.id.in.vcf]    
+    # check that sampleid matches tumor and not normal.
+    if (!is.null(sampleid)) {
+        if (sampleid %in% samples(header(vcf)) && 
+            sampleid != tumor.id.in.vcf) {
+            warning("Sampleid looks like a normal in VCF, not like a tumor.")
+        }    
+    }    
+    tumor.id.in.vcf
 }
 .checkVcfFieldAvailable <- function(vcf, field) {
     if (is.null(geno(vcf)[[field]]) ||  

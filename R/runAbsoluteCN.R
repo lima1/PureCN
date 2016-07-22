@@ -371,7 +371,7 @@ post.optimize=FALSE,
             args.filterVcf$use.somatic.status <- FALSE
         } 
 
-        tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
+        tumor.id.in.vcf <- .getTumorIdInVcf(vcf, sampleid=sampleid)
         
         if (args.filterVcf$use.somatic.status) { 
             normal.id.in.vcf <- .getNormalIdInVcf(vcf, tumor.id.in.vcf)
