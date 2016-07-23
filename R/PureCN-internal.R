@@ -246,19 +246,34 @@ test.num.copy[i], prior.K))
     xx
 }
 
+.checkFraction <- function(x, name) {
+    if (!is.numeric(x) || length(x) !=1 || 
+        x < 0 || x > 1) {
+        .stopUserError(name, " not within expected range or format.")
+    }
+}
+
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
-    max.non.clonal) {
+    max.non.clonal, max.homozygous.loss, sampleid, prior.K, 
+    prior.contamination, filter.lowhigh.gc.exons) {
     if (min(test.purity) <= 0 || max(test.purity) > 1) 
         .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
         .stopUserError("min.ploidy or max.ploidy not within expected range.")
-    if (max.non.clonal > 1) 
-        .stopUserError("max.non.clonal not within expected range.")
 
+    .checkFraction(max.non.clonal, "max.non.clonal")
+    .checkFraction(max.homozygous.loss, "max.homozygous.loss")
+    .checkFraction(prior.K, "prior.K")
+    .checkFraction(prior.contamination, "prior.contamination")
+    .checkFraction(filter.lowhigh.gc.exons, "filter.lowhigh.gc.exons")
+
+    if (!is.null(sampleid) && ( class(sampleid) != "character" ||
+        length(sampleid) != 1)) {
+        .stopUserError("sampleid not a character string.")
+    }
     stopifnot(is.numeric(min.ploidy))
     stopifnot(is.numeric(max.ploidy))
     stopifnot(is.numeric(test.purity))
-    stopifnot(is.numeric(max.non.clonal))
 }
 .failedNonAberrant <- function(result, cutoffs = c(0.01, 0.005)) {
     xx <- split(result$seg, result$seg$C)

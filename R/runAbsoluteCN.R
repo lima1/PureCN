@@ -199,7 +199,9 @@ post.optimize=FALSE,
         }
     }
     # argument checking
-    .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal)
+    .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
+        max.homozygous.loss, sampleid, prior.K, prior.contamination, 
+        filter.lowhigh.gc.exons)
    
     test.num.copy <- sort(test.num.copy)
 

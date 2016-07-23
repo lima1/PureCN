@@ -31,24 +31,50 @@ test_runAbsoluteCN <- function() {
 
     # test a few exceptions
     checkException(callLOH(ret))
-    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file), silent=TRUE)
+    checkTrue(grepl("runAbsoluteCN was run without a VCF file", 
+        geterrmessage()))
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, 
-        min.ploidy=0), silent=TRUE)
+        genome="hg19"))
+    checkTrue(grepl("Need a normal coverage file if log.ratio and seg.file", 
+        geterrmessage()))
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, 
-        max.ploidy=0), silent=TRUE)
+        min.ploidy=0, genome="hg19"))
+    checkTrue(grepl("min.ploidy or max.ploidy not within expected range", 
+        geterrmessage()))
+
+    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, 
+        max.ploidy=0, genome="hg19"))
+    checkTrue(grepl("min.ploidy or max.ploidy not within expected range", 
+        geterrmessage()))
+
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
-        gatk.normal.file=gatk.normal.file, max.ploidy="a"), silent=FALSE)
+        gatk.normal.file=gatk.normal.file, max.ploidy="a", genome="hg19"))
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
-        gatk.normal.file=gatk.normal.file, max.ploidy="a"), silent=FALSE)
+        gatk.normal.file=gatk.normal.file, max.ploidy="a", genome="hg19"))
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
-        gatk.normal.file=gatk.normal.file, test.purity="a"), silent=FALSE)
+        gatk.normal.file=gatk.normal.file, test.purity="a", genome="hg19"))
     checkException(runAbsoluteCN(gatk.tumor.file, gatk.tumor.file, 
-        genome="hg19"), silent=TRUE)
+        genome="hg19"))
+    checkTrue(grepl("Tumor and normal are identical", 
+        geterrmessage()))
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
         log.ratio=head(purecn.example.output$input$log.ratio[,2]), 
         genome="hg19"))
     checkTrue(grepl("Length of log.ratio different from tumor coverage",
         geterrmessage()))
+    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,genome="hg19",
+        max.homozygous.loss=1.1))
+    checkTrue(grepl("max.homozygous.loss not within expected range",
+        geterrmessage()))
+    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,genome="hg19",
+        prior.K=-1.1))
+    checkTrue(grepl("prior.K not within expected range",
+        geterrmessage()))
+    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,genome="hg19",
+        prior.contamination=c(0.1,-1.1)))
+    checkTrue(grepl("prior.contamination not within expected range",
+        geterrmessage()))
+
     # run with a VCF
     ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
         gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
