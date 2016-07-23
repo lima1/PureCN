@@ -64,6 +64,10 @@ data(purecn.example.output)
 # no matched normal is available, this will help predicting somatic vs. 
 # germline status
 purecn.snvs <- predictSomatic(purecn.example.output)
+
+# write a VCF file
+purecn.vcf <- predictSomatic(purecn.example.output, return.vcf=TRUE)
+writeVcf(purecn.vcf, file="Sample1_PureCN.vcf")
 })
     
 .calcMpriorGermline <- function(model) {

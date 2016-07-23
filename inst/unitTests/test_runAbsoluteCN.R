@@ -32,19 +32,23 @@ test_runAbsoluteCN <- function() {
     # test a few exceptions
     checkException(callLOH(ret))
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file), silent=TRUE)
-    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, min.ploidy=0),
-        silent=TRUE)
-    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, max.ploidy=0),
-        silent=TRUE)
+    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, 
+        min.ploidy=0), silent=TRUE)
+    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, 
+        max.ploidy=0), silent=TRUE)
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
         gatk.normal.file=gatk.normal.file, max.ploidy="a"), silent=FALSE)
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
         gatk.normal.file=gatk.normal.file, max.ploidy="a"), silent=FALSE)
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
         gatk.normal.file=gatk.normal.file, test.purity="a"), silent=FALSE)
-    checkException(runAbsoluteCN(gatk.tumor.file, gatk.tumor.file, genome="hg19"),
-        silent=TRUE)
-
+    checkException(runAbsoluteCN(gatk.tumor.file, gatk.tumor.file, 
+        genome="hg19"), silent=TRUE)
+    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
+        log.ratio=head(purecn.example.output$input$log.ratio[,2]), 
+        genome="hg19"))
+    checkTrue(grepl("Length of log.ratio different from tumor coverage",
+        geterrmessage()))
     # run with a VCF
     ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
         gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
@@ -102,14 +106,23 @@ test_runAbsoluteCN <- function() {
     tumorCov <- readCoverageGatk( gatk.tumor.file )
     normCov$chr <- .strip.chr.name(normCov$chr)
     tumorCov$chr <- .strip.chr.name(tumorCov$chr)
-    normCov$probe <- paste(normCov$chr, ":", normCov$probe_start, "-", normCov$probe_end, sep="")
-    tumorCov$probe <- paste(tumorCov$chr, ":", tumorCov$probe_start, "-", tumorCov$probe_end, sep="")
+    normCov$probe <- paste(normCov$chr, ":", normCov$probe_start, "-", 
+        normCov$probe_end, sep="")
+    tumorCov$probe <- paste(tumorCov$chr, ":", tumorCov$probe_start, "-",
+        tumorCov$probe_end, sep="")
+    
+    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file, 
+        genome="hg19", vcf.file=vcf))
+    checkTrue(grepl("Different chromosome names in coverage and VCF",
+        geterrmessage()))
 
     checkException(runAbsoluteCN(gatk.normal.file=normCov, 
         gatk.tumor.file=tumorCov, remove.off.target.snvs=TRUE,
         gc.gene.file=gc.gene.file,
         vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
         max.candidate.solutions=2))
+    checkTrue(grepl("Intervals of gatk.tumor.file and gc.gene.file do not",
+        geterrmessage()))
 
     gc3 <- read.delim(gc.gene.file, as.is=TRUE)
     gc3[,1] <- tumorCov$probe
