@@ -9,4 +9,10 @@ test_predictSomatic <- function() {
     checkEquals("chr14", as.character(esr2$chr))
     checkTrue(esr2$start > 64699747)
     checkTrue(esr2$end < 64761128)
-}    
+    ret <- predictSomatic(purecn.example.output)
+    ret.vcf <- predictSomatic(purecn.example.output, return.vcf=TRUE)
+    checkEqualsNumeric(ret$start, start(ret.vcf))
+    checkEqualsNumeric(ret$end, end(ret.vcf))
+    checkEquals(as.character(ret$chr), as.character(seqnames(ret.vcf)))
+    checkEqualsNumeric(ret$SOMATIC.M1, info(ret.vcf)$SM1, tol=0.001)
+}
