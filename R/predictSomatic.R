@@ -102,11 +102,20 @@ purecn.snvs <- predictSomatic(purecn.example.output)
     colnames(pp)[idxColsPp] <- gsub("OMATIC\\.|ERMLINE\\.", "",
         colnames(pp)[idxColsPp])
 
+    descriptionPp <- paste(ifelse(grepl("^S", colnames(pp)[idxColsPp]),
+        "Somatic", "Germline"), gsub("^.*M", 
+        " posterior probability, multiplicity ", 
+            colnames(pp)[idxColsPp]), ".", sep="")
+
+    descriptionPp <- gsub("GCONTHIGH", 
+        " homozygous, reference allele contamination", descriptionPp)
+    descriptionPp <- gsub("GCONTLOW", 
+        " alt allele contamination", descriptionPp)
+
     newInfoPosterior <- DataFrame(
         Number=1, 
         Type="Float", 
-        Description=gsub("^.*M", " posterior probability, multiplicity ", 
-            colnames(pp)[idxColsPp]),
+        Description=descriptionPp, 
         row.names=colnames(pp)[idxColsPp]
     )
     idxCols <- grep("^ML", colnames(pp))
