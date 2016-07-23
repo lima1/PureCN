@@ -27,7 +27,7 @@ designed for hybrid capture sequencing data, especially with medium-sized
 targeted gene panels without matching normal samples in mind (matched whole
 exome data is of course supported). 
 
-It can be used to supplement existing normalization and segmentation algorithms
+It can be used to supplement existing normalization and segmentation algorithms.
 If the correct purity and ploidy solution was identified, \Biocpkg{PureCN} can
 also help in classifying variants as germline vs. somatic or clonal vs.
 sub-clonal.
