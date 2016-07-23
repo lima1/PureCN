@@ -16,7 +16,7 @@ return.vcf=FALSE
 ### Returns an annotated \code{CollapsedVCF} object. Note that 
 ### this VCF will only contain variants not filtered out by the 
 ### \code{filterVcf} functions. Variants outside segments or intervals
-### might be included or not depending on \code{runAbsoluteCN}
+### might be included or not depending on \code{\link{runAbsoluteCN}}
 ### arguments.
 ){
     llik <- res$results[[id]]$SNV.posterior$beta.model$likelihoods

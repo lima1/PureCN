@@ -1,7 +1,8 @@
 plotAbs <-
 structure(function(# Plots for analyzing PureCN solutions
 ### This function provides various plots for finding correct 
-### purity and ploidy combinations in the results of a runAbsoluteCN call.
+### purity and ploidy combinations in the results of a 
+### \code{\link{runAbsoluteCN}} call.
 res, 
 ### Return object of the \code{\link{runAbsoluteCN}} function.
 ##seealso<< \code{\link{runAbsoluteCN}}
