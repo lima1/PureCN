@@ -564,6 +564,9 @@ retSegmented <- runAbsoluteCN(seg.file=seg.file, gc.gene.file=gc.gene.file,
     test.purity=seq(0.3,0.7, by=0.01), verbose=FALSE, plot.cnv=FALSE)
 @
 
+The \Rcode{max.candidate.solutions} and \Rcode{test.purity} arguments are set
+to non-default values only to reduce the runtime of this vignette.
+
 <<figurecustombaf, fig.show='hide'>>=
 plotAbs(retSegmented, 1, type="BAF")
 @

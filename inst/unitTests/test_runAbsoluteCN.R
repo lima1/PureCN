@@ -62,6 +62,13 @@ test_runAbsoluteCN <- function() {
         genome="hg19"))
     checkTrue(grepl("Length of log.ratio different from tumor coverage",
         geterrmessage()))
+
+    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
+        log.ratio=purecn.example.output$input$log.ratio[,2], 
+        seg.file=seg.file,
+        genome="hg19"))
+    checkTrue(grepl("Provide either log.ratio or seg.file, not both",
+        geterrmessage()))
     checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,genome="hg19",
         max.homozygous.loss=1.1))
     checkTrue(grepl("max.homozygous.loss not within expected range",
