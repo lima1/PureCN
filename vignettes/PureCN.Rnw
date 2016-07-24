@@ -635,11 +635,6 @@ To call amplifications, we recommend using a cutoff of 6 for focal
 amplifications and a cutoff of 7 otherwise. For homozygous deletions, a cutoff
 of 0.5 is useful to allow some heterogeneity in copy number.
 
-It is also often useful to filter the list further by known biology, for example
-to exclude amplifications of tumor suppressor genes or deletion of oncogenes.
-The Sanger Cancer Gene Census \cite{Futreal2004} for example provides such a
-list.
-
 For samples that failed \Biocpkg{PureCN} calling we recommended using
 common log-ratio cutoffs to call amplifications, for example 0.9.
 
@@ -649,6 +644,11 @@ This strategy is implemented in the \Rfunction{callAlterations} function:
 gene.calls <- callAlterations(ret)
 head(gene.calls)
 @
+
+It is also often useful to filter the list further by known biology, for example
+to exclude amplifications of tumor suppressor genes or deletion of oncogenes.
+The Sanger Cancer Gene Census \cite{Futreal2004} for example provides such a
+list.
 
 \subsection{Find genomic regions in LOH}
 

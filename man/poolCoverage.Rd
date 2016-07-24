@@ -6,10 +6,10 @@
 \arguments{
   \item{all.data}{List of normals, read with \code{\link{readCoverageGatk}}.}
   \item{remove.chrs}{Remove these chromosomes from the pool.}
-  \item{w}{List of weights for each sample}
+  \item{w}{List of weights for each sample.}
 }
 
-\value{A data.frame with the averaged coverage over all normals.}
+\value{A \code{data.frame} with the averaged coverage over all normals.}
 
 \author{Markus Riester}
 

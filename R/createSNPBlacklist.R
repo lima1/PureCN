@@ -14,7 +14,7 @@ high.af=0.1,
 ### there must be one more sample with low AF to reach the cutoff.  
 chr.hash=NULL,
 ### Mapping of non-numerical chromsome names to numerical names
-### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
+### (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes
 ### are properly ordered.   
 genome="hg19"
 ### Version of the reference genome, required for the \code{readVcf} 
@@ -83,9 +83,9 @@ genome="hg19"
     
     ##value<< A list with elements
     list(
-        snp.blacklist=snp.bl, ##<< A data.frame with blacklisted SNPs.
-        segmented=snp.bl.segmented[,-1] ##<< A data.frame with blacklisted
-## regions.
+        snp.blacklist=snp.bl, ##<< A \code{data.frame} with blacklisted SNPs.
+        segmented=snp.bl.segmented[,-1] ##<< A \code{data.frame} with 
+## blacklisted regions.
     )
 ##end<<
 }, ex=function() {

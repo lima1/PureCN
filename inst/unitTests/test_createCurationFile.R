@@ -74,4 +74,8 @@ test_createCurationFile <- function() {
     write.csv(ret, file = filename, row.names = FALSE)
     retx <- readCurationFile(file.rds, remove.failed=TRUE)
     checkTrue(is.na(retx))
+    ret$Failed <- "true"
+    write.csv(ret, file = filename, row.names = FALSE)
+    checkException(readCurationFile(file.rds, remove.failed=TRUE))
+    checkTrue(grepl("logical", geterrmessage()))
 }  

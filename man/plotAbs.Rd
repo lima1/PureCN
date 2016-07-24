@@ -11,36 +11,36 @@ purity and ploidy combinations in the results of a
         "both"), ...)}
 \arguments{
   \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
-  \item{ids}{Candidate solutions to be plotted. ids=1 will draw the 
+  \item{ids}{Candidate solutions to be plotted. \code{ids=1} will draw the 
 plot for the maximum likelihood solution.}
-  \item{type}{Different types of plots. "hist" will plot a histogram, 
-assigning log-ratio peaks to integer values. "overview" will plot all 
-local optima, sorted by likelihood. "BAF" plots something like a B-allele
-frequency plot known from SNP arrays: it plots allele frequencies of 
-germline variants (or most likely germline when status is not available) 
-against copy number. AF plots observed allelic fractions against expected
-(purity), maximum likelihood (optimal multiplicity) allelic fractions. 
-"all" plots all, and is useful for generate a PDF for a sample for manual
-inspection.}
-  \item{chr}{If NULL, show all chromosomes, otherwise only the ones 
-specified (type=BAF only).}
-  \item{germline.only}{If TRUE, show only variants most likely being germline in 
-BAF plot. Useful to set to FALSE (in combination with chr) to study 
-potential artifacts.}
-  \item{show.contour}{For type overview, display contour plot.}
+  \item{type}{Different types of plots. \code{hist} will plot a histogram, 
+assigning log-ratio peaks to integer values. \code{overview} will plot all 
+local optima, sorted by likelihood. \code{BAF} plots something like 
+a B-allele frequency plot known from SNP arrays: it plots allele 
+frequencies of germline variants (or most likely germline when status
+is not available) against copy number. \code{AF} plots observed allelic 
+fractions against expected (purity), maximum likelihood (optimal 
+multiplicity) allelic fractions. \code{all} plots all, and is useful 
+for generate a PDF for a sample for manual inspection.}
+  \item{chr}{If \code{NULL}, show all chromosomes, otherwise only the ones 
+specified (\code{type="BAF"} only).}
+  \item{germline.only}{If \code{TRUE}, show only variants most likely being germline in 
+BAF plot. Useful to set to \code{FALSE} (in combination with 
+\code{chr}) to study potential artifacts.}
+  \item{show.contour}{For \code{type="overview"}, display contour plot.}
   \item{purity}{Display expected integer copy numbers for purity, defaults 
-to purity of the solution (type=hist only).}
+to purity of the solution (\code{type="hist"} only).}
   \item{ploidy}{Display expected integer copy numbers for ploidy, defaults 
-to ploidy of the solution (type=hist only).}
+to ploidy of the solution (\code{type="hist"} only).}
   \item{alpha}{Add transparency to the plot if VCF contains many variants 
-(>2000, type=AF and BAF only). }
+(>2000, \code{type="AF"} and \code{type="BAF"} only). }
   \item{show.segment.means}{Show segment means in germline allele frequency plot? 
-If "both", show SNVs and segment means. If "SNV" show
-all SNVs. Type "AF" only.}
-  \item{\dots}{Additonal parameters passed to the plot() function. }
+If \code{both}, show SNVs and segment means. If \code{SNV} show
+all SNVs. Only for \code{type="AF"}.}
+  \item{\dots}{Additonal parameters passed to the \code{plot} function. }
 }
 
-\value{Returns NULL}
+\value{Returns \code{NULL}.}
 
 \author{Markus Riester}
 

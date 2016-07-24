@@ -7,11 +7,11 @@ in the output of a \code{\link{runAbsoluteCN}} run.}
 \arguments{
   \item{file.rds}{Output of the \code{\link{runAbsoluteCN}} function, serialized 
 with \code{saveRDS}.}
-  \item{overwrite.uncurated}{Overwrite existing files unless flagged as "Curated".}
+  \item{overwrite.uncurated}{Overwrite existing files unless flagged as \sQuote{Curated}.}
 }
 
-\value{A data.frame with the tumor purity and ploidy of the maximum likelihood
-solution.}
+\value{A \code{data.frame} with the tumor purity and ploidy of the 
+maximum likelihood solution.}
 
 \author{Markus Riester}
 

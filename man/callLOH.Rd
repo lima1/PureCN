@@ -11,7 +11,7 @@ use the maximum likelihood solution.}
 whole arm events.}
 }
 
-\value{Returns data.frame with LOH regions.    }
+\value{Returns \code{data.frame} with LOH regions.    }
 
 \author{Markus Riester}
 

@@ -12,8 +12,8 @@ failure reasons. }
         "poor_mapping_region_mapq0", "possible_contamination", 
         "strand_artifact"), verbose = TRUE, ...)}
 \arguments{
-  \item{vcf}{VCF object, read in with the \code{readVcf} function from the 
-VariantAnnotation package.}
+  \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf} function 
+from the VariantAnnotation package.}
   \item{tumor.id.in.vcf}{The tumor id in the VCF file, optional.}
   \item{stats.file}{MuTect stats file}
   \item{ignore}{
@@ -22,9 +22,10 @@ VariantAnnotation package.}
   \item{\dots}{Additional arguments passed to \code{\link{filterVcfBasic}}.}
 }
 
-\value{A list with elements vcf, flag and flag_comment. "vcf" contains the 
-filtered CollapsedVCF, "flag" a flag if problems were identified, further 
-described in "flag_comment".    }
+\value{A list with elements \code{vcf}, \code{flag} and \code{flag_comment}. 
+\code{vcf} contains the 
+filtered \code{CollapsedVCF}, \code{flag} a \code{logical(1)} flag if 
+problems were identified, further described in \code{flag_comment}.    }
 
 \author{Markus Riester}
 

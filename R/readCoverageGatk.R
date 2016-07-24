@@ -30,7 +30,7 @@ file
         coverage = as.numeric(gatk$total_coverage), 
         average.coverage = as.numeric(gatk$average_coverage), 
         base.with..10.coverage = NA))
-### A data.frame with the parsed coverage information. 
+### A \code{data.frame} with the parsed coverage information. 
 },ex=function() {
 gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")

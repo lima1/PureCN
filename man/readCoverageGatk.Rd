@@ -8,7 +8,7 @@ by \code{\link{calculateBamCoverageByInterval}}.}
   \item{file}{Exon coverage file as produced by GATK.}
 }
 
-\value{A data.frame with the parsed coverage information. }
+\value{A \code{data.frame} with the parsed coverage information. }
 
 \author{Markus Riester}
 

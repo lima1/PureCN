@@ -20,12 +20,15 @@ must pass the more stringent criteria as defined in the function arguments.}
 low purity samples are not confused with quiet samples.}
   \item{max.non.single.gain.loss}{Maximum fraction of genome with copy number smaller 1 or more than 3.}
   \item{max.loh}{Maximum fraction of genome in LOH. }
-  \item{min.log.likelihood}{Minimum copy number log-likelihood to consider sample. If NULL, not tested.}
+  \item{min.log.likelihood}{Minimum copy number log-likelihood to consider sample. If 
+\code{NULL}, not tested.}
 }
 
 \value{A list with elements
-\item{ids}{The ids of diploid solutions (res$results[ids]).}
-\item{fraction.non.single}{The fraction of the genome with copy number <1 or >3.}}
+\item{ids}{The ids of diploid solutions
+(\code{res$results[ids]}).}
+\item{fraction.non.single}{The fraction of the genome
+with copy number <1 or >3.}}
 
 \author{Markus Riester}
 

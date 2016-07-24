@@ -7,42 +7,42 @@ res,
 ### Return object of the \code{\link{runAbsoluteCN}} function.
 ##seealso<< \code{\link{runAbsoluteCN}}
 ids=NULL, 
-### Candidate solutions to be plotted. ids=1 will draw the 
+### Candidate solutions to be plotted. \code{ids=1} will draw the 
 ### plot for the maximum likelihood solution.
 type=c("hist", "overview", "BAF", "AF", "all"),
-### Different types of plots. "hist" will plot a histogram, 
-### assigning log-ratio peaks to integer values. "overview" will plot all 
-### local optima, sorted by likelihood. "BAF" plots something like a B-allele
-### frequency plot known from SNP arrays: it plots allele frequencies of 
-### germline variants (or most likely germline when status is not available) 
-### against copy number. AF plots observed allelic fractions against expected
-### (purity), maximum likelihood (optimal multiplicity) allelic fractions. 
-### "all" plots all, and is useful for generate a PDF for a sample for manual
-### inspection.
+### Different types of plots. \code{hist} will plot a histogram, 
+### assigning log-ratio peaks to integer values. \code{overview} will plot all 
+### local optima, sorted by likelihood. \code{BAF} plots something like 
+### a B-allele frequency plot known from SNP arrays: it plots allele 
+### frequencies of germline variants (or most likely germline when status
+### is not available) against copy number. \code{AF} plots observed allelic 
+### fractions against expected (purity), maximum likelihood (optimal 
+### multiplicity) allelic fractions. \code{all} plots all, and is useful 
+### for generate a PDF for a sample for manual inspection.
 chr=NULL,
-### If NULL, show all chromosomes, otherwise only the ones 
-### specified (type=BAF only).
+### If \code{NULL}, show all chromosomes, otherwise only the ones 
+### specified (\code{type="BAF"} only).
 germline.only=TRUE,
-### If TRUE, show only variants most likely being germline in 
-### BAF plot. Useful to set to FALSE (in combination with chr) to study 
-### potential artifacts.
+### If \code{TRUE}, show only variants most likely being germline in 
+### BAF plot. Useful to set to \code{FALSE} (in combination with 
+### \code{chr}) to study potential artifacts.
 show.contour=FALSE,
-### For type overview, display contour plot.
+### For \code{type="overview"}, display contour plot.
 purity=NULL,
 ### Display expected integer copy numbers for purity, defaults 
-### to purity of the solution (type=hist only).
+### to purity of the solution (\code{type="hist"} only).
 ploidy=NULL,
 ### Display expected integer copy numbers for ploidy, defaults 
-### to ploidy of the solution (type=hist only).
+### to ploidy of the solution (\code{type="hist"} only).
 alpha=TRUE,
 ### Add transparency to the plot if VCF contains many variants 
-### (>2000, type=AF and BAF only). 
+### (>2000, \code{type="AF"} and \code{type="BAF"} only). 
 show.segment.means=c("SNV", "segments", "both"),
 ### Show segment means in germline allele frequency plot? 
-### If "both", show SNVs and segment means. If "SNV" show
-### all SNVs. Type "AF" only.
+### If \code{both}, show SNVs and segment means. If \code{SNV} show
+### all SNVs. Only for \code{type="AF"}.
 ...
-### Additonal parameters passed to the plot() function. 
+### Additonal parameters passed to the \code{plot} function. 
 ) {
     chr.hash <- res$input$chr.hash
     if (is.null(chr.hash)) {
@@ -406,7 +406,7 @@ show.segment.means=c("SNV", "segments", "both"),
             seq_along(res$results), col=mycol, cex=2,font=myfont)
         par(mar=parm)
     }
-### Returns NULL
+### Returns \code{NULL}.
 },ex=function() {
 data(purecn.example.output)
 plotAbs(purecn.example.output, type="overview")

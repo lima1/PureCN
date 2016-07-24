@@ -6,7 +6,7 @@ interval.file,
 ### File specifying the intervals. Interval is expected in 
 ### first column in format CHR:START-END.
 reference.file,
-### Reference Fasta file.
+### Reference FASTA file.
 output.file=NULL
 ### Optionally, write GC content file. 
 ) {

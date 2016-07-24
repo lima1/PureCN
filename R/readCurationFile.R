@@ -1,6 +1,6 @@
 readCurationFile <- structure(function(#Read curation file
 ### Function that can be used to read the curated output of
-### the runAbsoluteCN function.
+### the \code{\link{runAbsoluteCN}} function.
 file.rds,
 ### Output of the \code{\link{runAbsoluteCN}} function, serialized with 
 ### \code{saveRDS}.
@@ -14,14 +14,23 @@ report.best.only=FALSE,
 ### Only return correct/best solution (useful on low memory
 ### machines when lots of samples are loaded).
 min.ploidy=NULL,
-### Minimum ploidy to be considered. If NULL, all. Can be 
+### Minimum ploidy to be considered. If \code{NULL}, all. Can be 
 ### used to automatically ignore unlikely solutions.
 max.ploidy=NULL
-### Maximum ploidy to be considered. If NULL, all. Can be 
+### Maximum ploidy to be considered. If \code{NULL}, all. Can be 
 ### used to automatically ignore unlikely solutions.
 ) {
     res <- readRDS(file.rds)
-    curation <- read.csv(file.curation, as.is=TRUE)
+    curation <- read.csv(file.curation, as.is=TRUE, nrows=1)
+    .checkLogical <- function(field) {
+        if (!is.logical(curation[[field]])) {
+            .stopUserError("'", field, "' column in ", file.curation, 
+                " not logical(1).")
+        }
+    }
+    .checkLogical("Failed")
+    .checkLogical("Curated")
+    .checkLogical("Flagged")
 
     ## Mark all solutions as failed if sample is curated as failed
     if (curation$Failed) {
@@ -70,4 +79,4 @@ createCurationFile(file.rds)
 # User can change the maximum likelihood solution manually in the generated 
 # CSV file. The correct solution is then loaded with readCurationFile.
 purecn.curated.example.output <-readCurationFile(file.rds) 
-})    
+})

@@ -4,7 +4,7 @@
 \description{This function can be used to understand how a best normal is chosen
 by the \code{\link{findBestNormal}} function. It can be also used 
 to tune the best normal selection by finding good parameter values for
-num.normals and pcs.}
+\code{num.normals} and \code{pcs}.}
 \usage{plotBestNormal(gatk.normal.files, gatk.tumor.file, 
     normalDB, x = 1, y = 2, col.tumor = "red", col.best.normal = "blue", 
     col.other.normals = "black", ...)}
@@ -14,15 +14,15 @@ num.normals and pcs.}
   \item{gatk.tumor.file}{GATK coverage file of a tumor sample.}
   \item{normalDB}{Database of normal samples, created with 
 \code{\link{createNormalDatabase}}.}
-  \item{x}{PC to be plotted on x-axis.}
+  \item{x}{Principal component (PC) to be plotted on x-axis.}
   \item{y}{PC to be plotted on y-axis.}
   \item{col.tumor}{Color of tumor in plot.}
   \item{col.best.normal}{Color of best normals in plot.}
-  \item{col.other.normals}{Color of best normals in plot.}
-  \item{\dots}{Arguments passed to the plot function.}
+  \item{col.other.normals}{Color of other normals in plot.}
+  \item{\dots}{Arguments passed to the \code{plot} function.}
 }
 
-\value{Returns NULL.}
+\value{Returns \code{NULL}.}
 
 \author{Markus Riester}
 

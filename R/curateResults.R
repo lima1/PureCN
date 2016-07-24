@@ -21,7 +21,8 @@ max.non.single.gain.loss=0.10,
 max.loh=0.5,
 ### Maximum fraction of genome in LOH. 
 min.log.likelihood=NULL
-### Minimum copy number log-likelihood to consider sample. If NULL, not tested.
+### Minimum copy number log-likelihood to consider sample. If 
+### \code{NULL}, not tested.
 ) {
     if (length(res$results) < 2) return(res)
 
@@ -47,8 +48,10 @@ min.log.likelihood=NULL
 
     ##value<< A list with elements
     list(
-        ids=which(idx), ##<< The ids of diploid solutions (res$results[ids]).
-        fraction.non.single=fraction.non.single ##<< The fraction of the genome with copy number <1 or >3.
+        ids=which(idx), ##<< The ids of diploid solutions 
+## (\code{res$results[ids]}).
+        fraction.non.single=fraction.non.single ##<< The fraction of the genome
+## with copy number <1 or >3.
     )    
 ##end<<    
 }, ex=function() {

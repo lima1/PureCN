@@ -8,7 +8,7 @@ content of intervals in a reference FASTA file.}
 \arguments{
   \item{interval.file}{File specifying the intervals. Interval is expected in 
 first column in format CHR:START-END.}
-  \item{reference.file}{Reference Fasta file.}
+  \item{reference.file}{Reference FASTA file.}
   \item{output.file}{Optionally, write GC content file. }
 }
 

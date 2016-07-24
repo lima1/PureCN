@@ -15,10 +15,10 @@ log.ratio.cutoffs=c(-0.9,0.9),
 ### Copy numbers log-ratio cutoffs to call losses and amplifications 
 ### in failed samples.
 failed=NULL,
-### Indicates whether sample was failed. If NULL, use available 
+### Indicates whether sample was failed. If \code{NULL}, use available 
 ### annotation, which can be set in the curation file.
 all.genes=FALSE,
-### If FALSE, then only return amplifications and deletions 
+### If \code{FALSE}, then only return amplifications and deletions 
 ### passing the thresholds.
 ...) {
 
@@ -52,7 +52,8 @@ all.genes=FALSE,
         return(calls[!is.na(calls$type),])
     }
     calls
-### A data.frame with gene-level amplification and deletion calls.
+### A \code{data.frame} with gene-level amplification and 
+### deletion calls.
 },ex=function() {
 data(purecn.example.output)
 callAlterations(purecn.example.output)

@@ -14,15 +14,16 @@ maximum likelihood (or curated) solution.}
 and broad amplifications.}
   \item{log.ratio.cutoffs}{Copy numbers log-ratio cutoffs to call losses and amplifications 
 in failed samples.}
-  \item{failed}{Indicates whether sample was failed. If NULL, use available 
+  \item{failed}{Indicates whether sample was failed. If \code{NULL}, use available 
 annotation, which can be set in the curation file.}
-  \item{all.genes}{If FALSE, then only return amplifications and deletions 
+  \item{all.genes}{If \code{FALSE}, then only return amplifications and deletions 
 passing the thresholds.}
   \item{\dots}{
 }
 }
 
-\value{A data.frame with gene-level amplification and deletion calls.}
+\value{A \code{data.frame} with gene-level amplification and 
+deletion calls.}
 
 \author{Markus Riester}
 

@@ -18,20 +18,20 @@ The arguments are passed via \code{args.segmentation}.}
   \item{coverage.cutoff}{Minimum coverage in both normal and tumor.}
   \item{sampleid}{Sample id, used in output files.}
   \item{exon.weight.file}{Can be used to assign weights to exons.}
-  \item{alpha}{Alpha value for CBS, see documentation for the segment function.}
-  \item{undo.SD}{undo.SD for CBS, see documentation of the segment function.}
-  \item{vcf}{Optional VCF object with germline allelic ratios.}
+  \item{alpha}{Alpha value for CBS, see documentation for the \code{segment} function.}
+  \item{undo.SD}{\code{undo.SD} for CBS, see documentation of the \code{segment} function.}
+  \item{vcf}{Optional \code{CollapsedVCF} object with germline allelic ratios.}
   \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in VCF.}
   \item{normal.id.in.vcf}{Id of normal in in VCF. Currently not used.}
-  \item{max.segments}{If not NULL, try a higher undo.SD parameter if number of
-segments exceeds the threshold.}
-  \item{prune.hclust.h}{Height in the hclust pruning step. Increasing this value 
+  \item{max.segments}{If not \code{NULL}, try a higher \code{undo.SD} parameter 
+if number of segments exceeds the threshold.}
+  \item{prune.hclust.h}{Height in the \code{hclust} pruning step. Increasing this value 
 will merge segments more aggressively.}
-  \item{prune.hclust.method}{Cluster method used in the hclust pruning step. See
-documentation for the hclust function.}
+  \item{prune.hclust.method}{Cluster method used in the \code{hclust} pruning step. See
+documentation for the \code{hclust} function.}
   \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
-(e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
-are properly ordered.   }
+(e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes
+are properly ordered.}
   \item{verbose}{Verbose output.}
 }
 

@@ -9,11 +9,12 @@ error rather than a true (mono-)clonal mutation. }
     fpr = 5e-07, verbose = TRUE)}
 \arguments{
   \item{coverage}{Mean sequencing coverage.}
-  \item{f}{Mean expected allelic fraction. If NULL, requires purity
+  \item{f}{Mean expected allelic fraction. If \code{NULL}, requires purity
 and ploidy and then calculates the expected fraction.}
-  \item{purity}{Purity of sample. Only required when f is NULL.}
-  \item{ploidy}{Ploidy of sample. Only required when f is NULL.}
-  \item{cell.fraction}{Fraction of cells harboring mutation. Ignored if f is not NULL.}
+  \item{purity}{Purity of sample. Only required when \code{f} is \code{NULL}.}
+  \item{ploidy}{Ploidy of sample. Only required when \code{f} is \code{NULL}.}
+  \item{cell.fraction}{Fraction of cells harboring mutation. Ignored if \code{f} 
+is not \code{NULL}.}
   \item{error}{Estimated sequencing error rate.}
   \item{fpr}{Required false positive rate for mutation vs. sequencing error.}
   \item{verbose}{Verbose output.}

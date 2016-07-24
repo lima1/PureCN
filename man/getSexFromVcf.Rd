@@ -18,7 +18,7 @@ from the VariantAnnotation package.}
 not significant due to a small number of SNPs on chromosome X,
 sample will be called as NA even when odds-ratio exceeds this cutoff.}
   \item{min.or.na}{Minimum odds-ratio to not call a sample. Odds-ratios in the
-range min.or.na to min.or define a grey area in which samples
+range \code{min.or.na} to \code{min.or} define a grey area in which samples
 are not called. Contamination can be a source of ambiguous calls.}
   \item{max.pv}{Maximum Fisher's exact p-value to call sample as male.}
   \item{homozygous.cutoff}{Minimum allelic fraction to call position homozygous.}
@@ -27,7 +27,8 @@ specified value. }
   \item{verbose}{Verbose output.}
 }
 
-\value{Returns "M" for male, "F" for female, or NA if unknown.    }
+\value{Returns a \code{character(1)} with \code{M} for male, \code{F} 
+for female, or \code{NA} if unknown.    }
 
 \author{Markus Riester}
 

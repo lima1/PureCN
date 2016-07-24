@@ -38,7 +38,7 @@ res,
 n=500,
 ### Number of bootstrap replicates.
 top=2
-### Include solution if it appears in the top n solutions of
+### Include solution if it appears in the top \code{n} solutions of
 ### any bootstrap replicate.
 ) {
     if (length(res$results) < 2) return(res)

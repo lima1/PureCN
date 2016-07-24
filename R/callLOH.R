@@ -67,7 +67,7 @@ IRanges(start=armLocations$start, end=armLocations$end))
     # standardize colnames
     colnames(segLOH)[1:3] <- c("chr", "start", "end")
     segLOH
-### Returns data.frame with LOH regions.    
+### Returns \code{data.frame} with LOH regions.    
 }, ex=function() {
 data(purecn.example.output)
 head(callLOH(purecn.example.output))

@@ -19,28 +19,28 @@ sampleid=sampleid,
 exon.weight.file=NULL,
 ### Can be used to assign weights to exons.
 alpha=0.005,
-### Alpha value for CBS, see documentation for the segment function.
+### Alpha value for CBS, see documentation for the \code{segment} function.
 undo.SD=NULL,
-### undo.SD for CBS, see documentation of the segment function.
+### \code{undo.SD} for CBS, see documentation of the \code{segment} function.
 vcf=NULL,
-### Optional VCF object with germline allelic ratios.
+### Optional \code{CollapsedVCF} object with germline allelic ratios.
 tumor.id.in.vcf=1,
 ### Id of tumor in case multiple samples are stored in VCF.
 normal.id.in.vcf=NULL,
 ### Id of normal in in VCF. Currently not used.
 max.segments=NULL,
-### If not NULL, try a higher undo.SD parameter if number of
-### segments exceeds the threshold.
+### If not \code{NULL}, try a higher \code{undo.SD} parameter 
+### if number of segments exceeds the threshold.
 prune.hclust.h=0.1,
-### Height in the hclust pruning step. Increasing this value 
+### Height in the \code{hclust} pruning step. Increasing this value 
 ### will merge segments more aggressively.
 prune.hclust.method="ward.D",
-### Cluster method used in the hclust pruning step. See
-### documentation for the hclust function.
+### Cluster method used in the \code{hclust} pruning step. See
+### documentation for the \code{hclust} function.
 chr.hash=NULL,
 ### Mapping of non-numerical chromsome names to numerical names
-### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
-### are properly ordered.   
+### (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes
+### are properly ordered.
 verbose=TRUE
 ### Verbose output.
 ) {

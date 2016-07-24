@@ -10,7 +10,7 @@ solutions rank low.}
 \arguments{
   \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
   \item{n}{Number of bootstrap replicates.}
-  \item{top}{Include solution if it appears in the top n solutions of
+  \item{top}{Include solution if it appears in the top \code{n} solutions of
 any bootstrap replicate.}
 }
 

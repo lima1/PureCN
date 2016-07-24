@@ -11,8 +11,9 @@ For optimal results, parameters might need to be tuned for the assay.}
 \arguments{
   \item{gatk.coverage}{GATK coverage file or data read with \code{\link{readCoverageGatk}}.}
   \item{min.ratio}{Min chrX/chrY coverage ratio to call sample as female.}
-  \item{min.ratio.na}{Min chrX/chrY coverage ratio to call sample as NA. This ratio defines a 
-grey zone from min.ratio.na to min.ratio in which samples are not called.
+  \item{min.ratio.na}{Min chrX/chrY coverage ratio to call sample as \code{NA}. 
+This ratio defines a grey zone from \code{min.ratio.na} to 
+\code{min.ratio} in which samples are not called.
 The default is set to a copy number ratio that would be rare in male 
 samples, but lower than expected in female samples. Contamination can be a 
 source of ambiguous calls. Mappability issues on chromosome Y resulting in 
@@ -21,7 +22,8 @@ low coverage need to be considered when setting cutoffs.}
   \item{verbose}{Verbose output.}
 }
 
-\value{Returns "M" for male, "F" for female, or NA if unknown.    }
+\value{Returns a \code{character(1)} with \code{M} for male, \code{F} 
+for female, or \code{NA} if unknown.    }
 
 \author{Markus Riester}
 

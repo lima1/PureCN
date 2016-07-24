@@ -17,24 +17,24 @@ gatk.normal.file=NULL,
 ### \code{\link{readCoverageGatk}} function.
 ##seealso<< \code{\link{correctCoverageBias} \link{segmentationCBS}}
 gatk.tumor.file=NULL, 
-### GATK coverage file of tumor. If NULL, requires \code{seg.file}
+### GATK coverage file of tumor. If \code{NULL}, requires \code{seg.file}
 ### and an interval file via \code{gc.gene.file}.
 ### Should be already GC-normalized with \code{\link{correctCoverageBias}}. 
 ### Needs to be either a file name or data read with the 
 ### \code{\link{readCoverageGatk}} function.
 log.ratio=NULL, 
 ### Copy number log-ratios for all exons in the coverage files. 
-### If NULL, calculated based on coverage files.
+### If \code{NULL}, calculated based on coverage files.
 seg.file=NULL,
 ### Segmented data. Optional, to support matched SNP6 data. 
-### If NULL, use coverage files or log.ratio to segment the data.  
+### If \code{NULL}, use coverage files or log.ratio to segment the data.  
 seg.file.sdev=0.4,
-### If seg.file provided, the log-ratio standard deviation, 
+### If \code{seg.file} provided, the log-ratio standard deviation, 
 ### used to model likelihood of sub-clonal copy number events.
 vcf.file=NULL, 
-### VCF file, tested with MuTect output files.  Optional, but
+### VCF file, tested with \sQuote{MuTect 1} output files.  Optional, but
 ### typically needed to select between local optima of similar likelihood. Can 
-### also be a CollapsedVCF, read with the \code{readVcf} function. 
+### also be a \code{CollapsedVCF}, read with the \code{readVcf} function. 
 ### Requires a DB info flag for dbSNP membership. The default 
 ### \code{fun.setPriorVcf} function will also
 ### look for a Cosmic.CNT slot, containing the hits in the COSMIC database.
@@ -42,18 +42,20 @@ vcf.file=NULL,
 genome,
 ### Genome version, required for the \code{readVcf} function.
 centromeres=NULL,
-### Data.frame with centromere positions in first three columns. 
-### If NULL, use pre-stored positions for genome versions hg18, hg19 and hg38. 
+### A \code{data.frame} with centromere positions in first three columns. 
+### If \code{NULL}, use pre-stored positions for genome versions 
+### hg18, hg19 and hg38. 
 sex=c("?","F","M","diploid"),
-### Sex of sample. If ?, detect using \code{\link{getSexFromCoverage}} 
+### Sex of sample. If \code{?}, detect using \code{\link{getSexFromCoverage}} 
 ### function and default parameters. 
 ### Default parameters might not work well with every assay and 
 ### might need to be tuned. If set to diploid, then PureCN will assume all 
 ### chromosomes are diploid and will not try to detect sex. 
 fun.filterVcf=filterVcfMuTect, 
 ### Function for filtering variants. Expected output is a 
-### list with elements vcf (CollapsedVCF), flag (TRUE/FALSE) and flag_comment 
-### (string). The flags will be added to the output data and can be used to 
+### list with elements \code{vcf} (\code{CollapsedVCF}), 
+### flag (\code{logical(1)}) and \code{flag_comment} (\code{character(1)}).
+### The flags will be added to the output data and can be used to 
 ### warn users, for example when samples look too noisy. Default filter will 
 ### remove variants flagged by MuTect, but will keep germline variants. If 
 ### ran in matched normal mode, it will by default use somatic status of 
@@ -61,7 +63,8 @@ fun.filterVcf=filterVcfMuTect,
 ### different from 0.5 in normal. 
 args.filterVcf=list(),
 ### Arguments for variant filtering function. Arguments 
-### vcf, tumor.id.in.vcf, coverage.cutoff and verbose are required in the 
+### \code{vcf}, \code{tumor.id.in.vcf}, \code{coverage.cutoff} and 
+### \code{verbose} are required in the 
 ### filter function and are automatically set (do NOT set them here again).
 fun.setPriorVcf=setPriorVcf,
 ### Function to set prior for somatic status for each 
@@ -70,13 +73,14 @@ args.setPriorVcf=list(),
 ### Arguments for somatic prior function.
 fun.segmentation=segmentationCBS, 
 ### Function for segmenting the copy number log-ratios. 
-### Expected return value is a list with elements seg (the segmentation) and 
-### size (the size in bp for all segments).
+### Expected return value is a list with elements \code{seg} (the 
+### segmentation) and \code{size} (the size in bp for all segments).
 args.segmentation=list(),
 ### Arguments for segmentation function. Arguments 
-### normal, tumor, log.ratio, plot.cnv, coverage.cutoff, sampleid, vcf, 
-### tumor.id.in.vcf, verbose are required in the segmentation function and 
-### automatically set (do NOT set them here again).
+### \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv}, 
+### \code{coverage.cutoff}, \code{sampleid}, \code{vcf}, 
+### \code{tumor.id.in.vcf}, \code{verbose} are required in the 
+### segmentation function and automatically set (do NOT set them here again).
 fun.focal=findFocal,
 ### Function for identifying focal amplifications.
 args.focal=list(),
@@ -105,7 +109,7 @@ max.candidate.solutions=20,
 candidates=NULL, 
 ### Candidates to optimize from a previous run 
 ### (\code{return.object$candidates}). 
-### If NULL, do 2D grid search and find local optima. 
+### If \code{NULL}, do 2D grid search and find local optima. 
 coverage.cutoff=15, 
 ### Minimum exon coverage in both normal and tumor. Exons
 ### with lower coverage are ingored. The cutoff choice depends on the expected
@@ -125,7 +129,7 @@ iterations=30,
 ### number fit optimization.
 log.ratio.calibration=0.25,
 ### Re-calibrate log-ratios in the window 
-### sd(log.ratio)*log.ratio.calibration.
+### \code{sd(log.ratio)*log.ratio.calibration}.
 remove.off.target.snvs=TRUE,
 ### If set to a true value, will remove all SNVs outside the 
 ### covered regions.
@@ -139,12 +143,12 @@ gc.gene.file=NULL,
 filter.lowhigh.gc.exons=0.001,
 ### Quantile q (defines lower q and upper 1-q) 
 ### for removing exons with outlier GC profile. Assuming that GC correction 
-### might not have been worked on those. Requires gc.gene.file.
+### might not have been worked on those. Requires \code{gc.gene.file}.
 max.dropout=c(0.95,1.1),
 ### Measures GC bias as ratio of coverage in AT-rich (GC < 0.5) 
 ### versus GC-rich regions (GC >= 0.5). High drop-out might indicate that
 ### data was not GC-normalized or that the sample quality might be 
-### insufficient. Requires gc.gene.file.
+### insufficient. Requires \code{gc.gene.file}.
 filter.targeted.base=4,
 ### Exclude exons with targeted base (size) smaller 
 ### than this cutoff. This is useful when the same interval file was used to
@@ -167,7 +171,7 @@ prior.contamination=0.01,
 ### individual. 
 chr.hash=NULL,
 ### Mapping of non-numerical chromsome names to numerical names
-### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromosomes
+### (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromosomes
 ### are properly ordered (for human samples, PureCN should always output
 ### correct chromosome orderings if chromosomes have standard names).
 plot.cnv=TRUE, 

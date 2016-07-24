@@ -17,7 +17,7 @@ Should not overlap with files in \code{gatk.tumor.files}.}
   \item{exon.weight.file}{Output filename.}
 }
 
-\value{A data.frame with exon weights.}
+\value{A \code{data.frame} with exon weights.}
 
 \author{Markus Riester}
 

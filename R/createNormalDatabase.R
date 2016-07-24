@@ -8,8 +8,9 @@ gatk.normal.files,
 ### Vector with file names pointing to GATK coverage files 
 ### of normal samples. 
 sex=NULL,
-### Vector of sex."F" for female, "M" for male. If all chromosomes are diploid, specify "diploid". 
-### If NULL determine from coverage.
+### \code{character(length(gatk.normal.files))} with sex for all files. 
+### \code{F} for female, \code{M} for male. If all chromosomes are diploid, 
+### specify \code{diploid}. If \code{NULL}, determine from coverage.
 ...
 ### Arguments passed to the \code{prcomp} function.
 ) {
@@ -95,7 +96,7 @@ exon.weight.file
     write.table(ret, file=exon.weight.file,row.names=FALSE, quote=FALSE, 
         sep="\t")
     invisible(ret)
-###A data.frame with exon weights.
+###A \code{data.frame} with exon weights.
 }, ex=function() {
 exon.weight.file <- "exon_weights.txt"
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 

@@ -6,7 +6,7 @@ file.rds,
 ### with \code{saveRDS}.
 ##seealso<< \code{\link{runAbsoluteCN}}
 overwrite.uncurated=TRUE
-### Overwrite existing files unless flagged as "Curated".
+### Overwrite existing files unless flagged as \sQuote{Curated}.
 ) {
     res <- readRDS(file.rds)$results[[1]]
 
@@ -38,8 +38,8 @@ overwrite.uncurated=TRUE
         write.csv(d.f.curation, file=filename, row.names=FALSE)
     }
     invisible(d.f.curation)
-###A data.frame with the tumor purity and ploidy of the maximum likelihood
-###solution.
+### A \code{data.frame} with the tumor purity and ploidy of the 
+### maximum likelihood solution.
 },ex=function() {
 data(purecn.example.output)
 file.rds <- 'Sample1_PureCN.rds'

@@ -12,13 +12,13 @@ tumor sample.}
 \code{\link{createNormalDatabase}}.}
   \item{pcs}{Principal components to use for distance calculation.}
   \item{num.normals}{Return the \code{num.normals} best normals.}
-  \item{ignore.sex}{If FALSE, detects sex of sample and returns best normals
+  \item{ignore.sex}{If \code{FALSE}, detects sex of sample and returns best normals
 with matching sex.}
-  \item{sex}{Sex of sample. If NULL, determine with \code{\link{getSexFromCoverage}}
-and default parameters.
-Valid values are "F" for female, "M" for male. If all 
-chromosomes are diploid, specify "diploid". }
-  \item{gatk.normal.files}{Only consider these normal samples. If NULL, use all in 
+  \item{sex}{Sex of sample. If \code{NULL}, determine with 
+\code{\link{getSexFromCoverage}} and default parameters.
+Valid values are \code{F} for female, \code{M} for male. If all 
+chromosomes are diploid, specify \code{diploid}. }
+  \item{gatk.normal.files}{Only consider these normal samples. If \code{NULL}, use all in 
 the database. Must match \code{normalDB$gatk.normal.files}. }
   \item{verbose}{Verbose output.}
 }

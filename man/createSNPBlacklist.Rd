@@ -15,16 +15,16 @@ blacklist a SNP id. }
   \item{high.af}{Defines a high AF p-value. For every sample with high AF p-value, 
 there must be one more sample with low AF to reach the cutoff.  }
   \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
-(e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
+(e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes
 are properly ordered.   }
   \item{genome}{Version of the reference genome, required for the \code{readVcf} 
 function.}
 }
 
 \value{A list with elements
-\item{snp.blacklist}{A data.frame with blacklisted SNPs.}
-\item{segmented}{A data.frame with blacklisted
-regions.}}
+\item{snp.blacklist}{A \code{data.frame} with blacklisted SNPs.}
+\item{segmented}{A \code{data.frame} with
+blacklisted regions.}}
 
 \author{Markus Riester}
 

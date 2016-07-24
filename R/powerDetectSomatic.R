@@ -6,14 +6,15 @@ function(# Power calculation for detecting somatic mutations
 coverage, 
 ### Mean sequencing coverage.
 f=NULL,
-### Mean expected allelic fraction. If NULL, requires purity
+### Mean expected allelic fraction. If \code{NULL}, requires purity
 ### and ploidy and then calculates the expected fraction.
 purity=NULL, 
-### Purity of sample. Only required when f is NULL.
+### Purity of sample. Only required when \code{f} is \code{NULL}.
 ploidy=NULL, 
-### Ploidy of sample. Only required when f is NULL.
+### Ploidy of sample. Only required when \code{f} is \code{NULL}.
 cell.fraction=1,
-### Fraction of cells harboring mutation. Ignored if f is not NULL.
+### Fraction of cells harboring mutation. Ignored if \code{f} 
+### is not \code{NULL}.
 error=0.001, 
 ### Estimated sequencing error rate.
 fpr=5e-07, 

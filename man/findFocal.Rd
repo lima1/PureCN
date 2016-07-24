@@ -11,7 +11,7 @@ This is automatically called in \code{\link{runAbsoluteCN}}.}
   \item{amp.cutoff}{Minimum amplification integer copy number.}
 }
 
-\value{Boolean vector for each segment wether it is focally 
+\value{\code{logical(n)}, indicating for all n segments wether they are focally 
 amplified or not.}
 
 \author{Markus Riester}
@@ -39,6 +39,6 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     gatk.tumor.file=gatk.tumor.file, 
     vcf.file=vcf.file, genome="hg19", sampleid='Sample1', 
     gc.gene.file=gc.gene.file,
-    candidates=purecn.example.output$candidates, max.candidate.solutions=2,
+    candidates=purecn.example.output$candidates, max.candidate.solutions=1,
     args.focal=list(size.cutoff = 2e+06), fun.focal=findFocal)
 }

@@ -9,8 +9,9 @@ gatk.coverage,
 min.ratio=25,
 ### Min chrX/chrY coverage ratio to call sample as female.
 min.ratio.na=20,
-### Min chrX/chrY coverage ratio to call sample as NA. This ratio defines a 
-### grey zone from min.ratio.na to min.ratio in which samples are not called.
+### Min chrX/chrY coverage ratio to call sample as \code{NA}. 
+### This ratio defines a grey zone from \code{min.ratio.na} to 
+### \code{min.ratio} in which samples are not called.
 ### The default is set to a copy number ratio that would be rare in male 
 ### samples, but lower than expected in female samples. Contamination can be a 
 ### source of ambiguous calls. Mappability issues on chromosome Y resulting in 
@@ -63,7 +64,8 @@ verbose=TRUE
     if (XY.ratio > min.ratio) return("F")
     if (XY.ratio > min.ratio.na) return(NA)
     return("M") 
-### Returns "M" for male, "F" for female, or NA if unknown.    
+### Returns a \code{character(1)} with \code{M} for male, \code{F} 
+### for female, or \code{NA} if unknown.    
 }, ex=function(){
     gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
         package="PureCN")
@@ -97,7 +99,7 @@ min.or=4,
 ### sample will be called as NA even when odds-ratio exceeds this cutoff.
 min.or.na=2.5,
 ### Minimum odds-ratio to not call a sample. Odds-ratios in the
-### range min.or.na to min.or define a grey area in which samples
+### range \code{min.or.na} to \code{min.or} define a grey area in which samples
 ### are not called. Contamination can be a source of ambiguous calls.
 max.pv=0.001,
 ### Maximum Fisher's exact p-value to call sample as male.
@@ -151,7 +153,8 @@ verbose=TRUE
             "  odds-ratio: ", round(res$estimate, digits=2), ")")
     }    
     return(sex)    
-### Returns "M" for male, "F" for female, or NA if unknown.    
+### Returns a \code{character(1)} with \code{M} for male, \code{F} 
+### for female, or \code{NA} if unknown.    
 }, ex=function() {
 vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")

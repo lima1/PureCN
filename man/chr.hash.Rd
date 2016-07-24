@@ -16,9 +16,6 @@ This is needed because DNAcopy requires numerical chromosome names.
         \item{\code{number}}{a numeric vector}
     }
 }
-\references{
-https://secure.genome.ucla.edu/index.php/ExomeCNV_User_Guide
-}
 \examples{
 data(chr.hash)
 }

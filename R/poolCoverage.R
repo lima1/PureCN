@@ -6,7 +6,7 @@ all.data,
 remove.chrs=c(),
 ### Remove these chromosomes from the pool.
 w=NULL
-### List of weights for each sample
+### List of weights for each sample.
 ) { 
     pool = all.data[[1]]
     if (length(all.data) == 1) {
@@ -25,7 +25,7 @@ w=NULL
             (w[i] * all.data[[i]]$base.with..10.coverage)
     }
     return(.removeChr(pool, remove.chrs))
-### A data.frame with the averaged coverage over all normals.
+### A \code{data.frame} with the averaged coverage over all normals.
 },ex=function() {
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

@@ -2,11 +2,11 @@
 \alias{setPriorVcf}
 \title{Set Somatic Prior VCF}
 \description{Function to set prior for somatic mutation status for each
-variant in the provided CollapsedVCF object.}
+variant in the provided \code{CollapsedVCF} object.}
 \usage{setPriorVcf(vcf, prior.somatic = c(0.5, 5e-04, 0.999, 
     1e-04, 0.995, 0.01), verbose = TRUE)}
 \arguments{
-  \item{vcf}{CollapsedVCF object, read in with the \code{readVcf} function 
+  \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf} function 
 from the VariantAnnotation package.}
   \item{prior.somatic}{Prior probabilities for somatic mutations. First value is for 
 the case when no matched normals are available and the variant is not in 
@@ -21,8 +21,8 @@ Final value is for the case that variant is in both dbSNP and COSMIC > 2. }
   \item{verbose}{Verbose output.}
 }
 
-\value{A vector with the prior probability of somatic status for each 
-variant in the CollapsedVCF.}
+\value{A \code{numeric(nrow(vcf))} vector with the prior probability of 
+somatic status for each variant in the \code{CollapsedVCF}.}
 
 \author{Markus Riester}
 

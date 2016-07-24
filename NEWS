@@ -19,6 +19,7 @@ Other major enhancements
   (remove.off.target.snvs=FALSE).   
 - Improved segmentation and log-ratio normalization.  
 - Support for non-human samples.
+- Support for 100% pure samples (matched normal mode only).
 - Faster SNV fitting.
 
 -------------------------------------------------------------------------------
@@ -27,7 +28,7 @@ API changes
 
 - New functions: autoCurateResults, bootstrapResults, 
     calculateBamCoverageByInterval, calculateGCContentByInterval,
-    calculatePowerDetectSomatic, callAlterations, callLOH,getDiploid
+    calculatePowerDetectSomatic, callAlterations, callLOH, getDiploid
     getSexFromVcf
 - Deprecated functions: segmentationPSCBS
 
