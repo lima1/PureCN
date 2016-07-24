@@ -545,8 +545,6 @@ post.optimize=FALSE,
                     candidate.solutions$candidates$tumor.ploidy < 2.6 ))))
         candidate.solutions$candidates <- 
             candidate.solutions$candidates[idx.keep,]
-        warning("Too many candidate solutions! ",
-            "Trying optimizing the top candidates.")
     }    
     
     if(verbose) message(paste(strwrap(paste("Local optima:", 
