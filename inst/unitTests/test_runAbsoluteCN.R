@@ -81,7 +81,13 @@ test_runAbsoluteCN <- function() {
         prior.contamination=c(0.1,-1.1)))
     checkTrue(grepl("prior.contamination not within expected range",
         geterrmessage()))
-
+    
+    normalCov <- readCoverageGatk(gatk.normal.file)
+    checkException(runAbsoluteCN(normalCov[sample(nrow(normalCov)),], 
+        gatk.tumor.file, genome="hg19"))
+    checkTrue(grepl("Interval files in normal and tumor different",
+        geterrmessage()))
+    
     # run with a VCF
     ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
         gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
@@ -100,7 +106,7 @@ test_runAbsoluteCN <- function() {
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     checkEqualsNumeric(seq(0.3,0.7,by=1/30),
         as.numeric(colnames(ret$candidates$all)))
-
+    
     # test with gc.gene.file without symbols
     gc2 <- read.delim(gc.gene.file, as.is=TRUE)[,-3]
     write.table(gc2, file="tmp.gc", row.names=FALSE, sep="\t", quote=FALSE)
@@ -178,12 +184,23 @@ test_runAbsoluteCN <- function() {
     checkException(plotAbs(ret, 1, type="BAF", chr="chr1"))
     plotAbs(ret, 1, type="BAF", chr="1")
 
+    data(chr.hash)
+    chr.hash2 <- chr.hash[-23,]
+
     # test with a seg.file
     ret <- runAbsoluteCN( gatk.tumor.file = gatk.tumor.file, seg.file=seg.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
+        chr.hash=chr.hash2,
         test.purity=seq(0.3,0.7, by=0.01))
-    
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
+
+    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,
+        chr.hash=normalCov))
+    checkTrue(grepl("Colnames of chr.hash should be", geterrmessage()))
+    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,
+        chr.hash=rbind(chr.hash2, chr.hash)))
+    checkTrue(grepl("Duplicate chromosome names in chr.hash", geterrmessage()))
+
     ret <- runAbsoluteCN( seg.file=seg.file, gc.gene.file=gc.gene.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
         test.purity=seq(0.3,0.7, by=0.01),verbose=FALSE)
@@ -209,7 +226,7 @@ test_runAbsoluteCN <- function() {
     geno(vcf)$FA <- NULL
     geno(vcf)$DP <- NULL
     ret <- runAbsoluteCN( gatk.normal.file=gatk.normal.file,
-        gatk.tumor.file=gatk.tumor.file,
+        gatk.tumor.file=gatk.tumor.file, sampleid="LIB-02252e4",
         vcf.file=vcf, max.candidate.solutions=1,genome="hg19", 
         test.purity=seq(0.3,0.7, by=0.01))
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
