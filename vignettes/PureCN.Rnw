@@ -42,26 +42,23 @@ library(PureCN)
 
 \section{Limitations}
 
-\Biocpkg{PureCN} currently assumes a completely diploid normal genome. For human samples, 
-it tries to detect the sex of samples by calculating the coverage ratio of chromosomes X
-and Y and will then remove any non-diploid chromosomes (i.e. XY for males and Y
-for females)\footnote{Loss of Y chromosome (LOY) can result in wrong female
-calls, especially in high purity samples or if LOY is in both tumor and
-contaminating normal cells.  Since homozygous germline SNPs on the X
-chromosome are removed, this will not affect purity/ploidy selection. 
-The software throws a warning in this case when germline SNPs are
-provided.`}. Non-diploid chromosomes provide only limited information for
-purity and ploidy selection, but are of interest for copy number calling.
-Future versions might support full copy number calling on the XY
-chromosomes. For non-human samples, the user needs to manually remove all 
-non-diploid chromosomes from the coverage data and specify 
-\Rcode{sex='diploid'} in the \Biocpkg{PureCN} call.
+\Biocpkg{PureCN} currently assumes a completely diploid normal genome. For human
+samples, it tries to detect the sex of samples by calculating the coverage ratio
+of chromosomes X and Y and will then remove any non-diploid chromosomes (i.e. XY
+for males and Y for females)\footnote{Loss of Y chromosome (LOY) can result in
+wrong female calls, especially in high purity samples or if LOY is in both tumor
+and contaminating normal cells.  Since homozygous germline SNPs on the X
+chromosome are removed, this will not affect purity/ploidy selection.  The
+software throws a warning in this case when germline SNPs are provided.}.  For
+non-human samples, the user needs to manually remove all non-diploid chromosomes
+from the coverage data and specify \Rcode{sex='diploid'} in the \Biocpkg{PureCN}
+call.
 
-\Biocpkg{PureCN} currently also assumes that the large majority of somatic copy
-number alterations are mono-clonal. For most clinical samples, this is
-reasonable, but very heterogenous samples are likely not possible to call
-without manual curation. Due to the lack of signal, manual curation is also
-recommended in low purity samples or very quiet genomes. 
+\Biocpkg{PureCN} currently also assumes that the majority of somatic copy number
+alterations are mono-clonal. For most clinical samples, this is reasonable, but
+very heterogenous samples are likely not possible to call without manual
+curation. Due to the lack of signal, manual curation is also recommended in low
+purity samples or very quiet genomes. 
 
 In the absence of matched normals, the software currently requires some normal
 contamination to infer germline genotypes. Since cell lines are rarely matched,
@@ -84,7 +81,8 @@ by \software{MuTect} \cite{Cibulskis2013} should work well and in general
 require no post-processing. \Biocpkg{PureCN} can handle \software{MuTect} VCF
 files generated in both single and matched normal mode. If a matched normal is
 available, then somatic status information is currently expected in a SOMATIC
-info flag in the VCF. 
+info flag in the VCF. The \Biocpkg{VariantAnnotation} package provides examples
+how to add info fields to a VCF.
 
 \subsection{Coverage data}
 
@@ -148,7 +146,7 @@ calculateGCContentByInterval(interval.file, reference.file,
     output.file = "ex2_gc_file.txt")
 @
 
-\subsection{Third party segmentation tools}
+\subsection{Third-party segmentation tools}
 
 \Biocpkg{PureCN} integrates well with existing copy number pipelines. Instead of
 coverage data, the user then needs to provide either already segmented data or a
@@ -176,13 +174,9 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 \section{GC-bias}
 
 The algorithm works best when the coverage data is GC-normalized. The steps
-below will not GC-normalize, since the example data is already normalized.  The
-function \Rfunction{correctCoverageBias}, which borrows normalization code from
-the \Biocpkg{TitanCNA} package \cite{Ha2014}, can be used to correct for
-GC-bias.  We recommend correcting for GC bias, storing the corrected coverage
-files and then do the following steps on GC corrected data. All other
-assay-specific biases such as mappability or exon length are mitigated by using
-a control sample (GC-bias is commonly library-specific).
+below will not GC-normalize, since the example data is already normalized. 
+We recommend correcting for GC bias, storing the corrected coverage
+files and then do the following steps on GC corrected data:
 
 <<gccorrect>>=
 correctCoverageBias(gatk.normal.file, gc.gene.file, 
@@ -246,11 +240,11 @@ will return only normal samples with matching sex.
 It is important to remove as many artifacts as possible, since low ploidy
 solutions are typically punished more by artifacts than high ploidy solutions.
 High ploidy solutions are complex and usually find ways of explaining artifacts
-reasonably well. A large selection of normal files is helpful for the
-identification and removal of artifacts. We can for example use the normal
-coverage data to estimate the expected variance in coverage per exon. This will
-help the segmentation algorithm to filter noise. This step is optional, but
-recommended with the default segmentation function and large pool of normals.
+reasonably well. This following steps are optional, but recommended especially
+when matched normals are not available.
+
+We first use coverage data of normal samples to estimate the expected variance
+in coverage per exon:
 
 <<exonweightfile1>>=
 exon.weight.file <- "exon_weights.txt"
@@ -259,23 +253,15 @@ createExonWeightFile(gatk.tumor.file, gatk.normal.files, exon.weight.file)
 
 This function calculates exon-level copy number log-ratios for all normal
 samples provided in the \Rcode{gatk.normal.files} argument.  Assuming that all
-normal samples are in general diploid, an unusual high variance in log-ratio
-is indicative of an exon with either common germline alterations or frequent
+normal samples are in general diploid, an unusual high variance in log-ratio is
+indicative of an exon with either common germline alterations or frequent
 artifacts; high or low copy number log-ratios in those exons are unlikely
-measuring somatic copy number events. 
-
-For the log-ratio calculation, we provide a coverage file that is used as tumor
-in the log-ratio calculation. The corresponding \Rcode{gatk.tumor.file}
-argument can also be an array of coverage files, in which case the exon
-coverage variance is averaged over all provided tumor files. As long as the
-coverage of the tumor files is even, only 1 or 2 tumor files are necessary,
-however. It is also safe to use a high coverage normal file instead of a tumor
-file in this step:
-
-<<exonweightfile2>>=
-#createExonWeightFile(gatk.normal.files[1], gatk.normal.files[-1], 
-#   "exon_weights.txt")
-@
+measuring somatic copy number events.  For the log-ratio calculation, we provide
+a coverage file that is used as tumor in the log-ratio calculation. The
+corresponding \Rcode{gatk.tumor.file} argument can also be an array of coverage
+files, in which case the exon coverage variance is averaged over all provided
+tumor files. As long as the coverage of the tumor files is even, only 1 or 2
+tumor files are necessary, however. 
 
 We can also use the pool of normals to find SNPs with biased allelic fractions
 in low quality regions (very significantly different from 0.5 for heterozygous
@@ -288,12 +274,17 @@ leading in expected allelic ratio only slightly below 0.5 (typically around
 states.
 
 <<snpblacklist>>=
-#mutect.normal.files <- dir("poolofnormals", pattern="vcf$", full.names=TRUE) 
-#snp.blacklist <- c("SNP_blacklist.csv", "SNP_blacklist_segmented.csv")
-#snp.bl <- createSNPBlacklist(mutect.normal.files)
-#write.csv(snp.bl[[1]], file=snp.blacklist[1])
-#write.csv(snp.bl[[2]], file=snp.blacklist[2], row.names=FALSE, 
-#   quote=FALSE)
+snp.blacklist <- c("SNP_blacklist.csv", "SNP_blacklist_segmented.csv")
+recreateBlacklists <- FALSE
+
+if (recreateBlacklists) {
+    mutect.normal.files <- dir("poolofnormals", pattern="vcf$", 
+        full.names=TRUE)
+    snp.bl <- createSNPBlacklist(mutect.normal.files)
+    write.csv(snp.bl[[1]], file=snp.blacklist[1])
+    write.csv(snp.bl[[2]], file=snp.blacklist[2], row.names=FALSE, 
+       quote=FALSE)
+}
 @
 
 Finally, we recommend running \software{MuTect} with a pool of normal samples 
@@ -308,7 +299,7 @@ applies more sophisticated artifact tests and flags suspicious variants. If
 \software{MuTect} was run in matched normal mode, then both potential artifacts
 and germline variants are rejected, that means we cannot just filter by the
 PASS/REJECT \software{MuTect} flags. The \Rfunction{filterVcfMuTect} function
-optionally reads the \software{MuTect} stats file and will keep germline
+optionally reads the \software{MuTect 1.1.7} stats file and will keep germline
 variants, while removing potential artifacts.  Without the stats file,
 \Biocpkg{PureCN} will use only the filters based on read depths as defined in
 \Rfunction{filterVcfBasic}.  Both functions are automatically called by
@@ -356,13 +347,13 @@ ret <-runAbsoluteCN(gatk.normal.file=pool, gatk.tumor.file=gatk.tumor.file,
     post.optimize=FALSE, plot.cnv=FALSE, verbose=FALSE)
 @
 
-The post.optimize flag will increase the runtime by a lot, but might be worth
-it if the copy number profile is not very clean. This is recommended with lower
-coverage datasets or if there are significant capture biases. For high quality
-whole exome data, this is typically not necessary. Note the uncommented line,
-which is recommended, but not used here for simplicity.  The \Rcode{plot.cnv}
-argument is set to \Rcode{FALSE} for this vignette, but generates often helpful
-additional plots provided by the segmentation function.
+The \Rcode{post.optimize} flag will increase the runtime by a lot, but might be
+worth it if the copy number profile is not very clean. This is recommended with
+lower coverage datasets or if there are significant capture biases. For high
+quality whole exome data, this is typically not necessary. Note the uncommented
+line, which is recommended, but not used here for simplicity. The
+\Rcode{plot.cnv} argument is set to \Rcode{FALSE} for this vignette, but
+generates often helpful additional plots provided by the segmentation function.
 
 We also need to create a few output files:
 
@@ -415,12 +406,11 @@ copy number log-ratios, the third panel the integer copy numbers.}
 
 Germline variant data are informative for calculating integer copy number,
 because unbalanced maternal and paternal chromosome numbers in the tumor portion
-of the sample lead to unbalanced germline allelic fractions.  Equations for
-calculating expected allelic fractions are given in the Supplemental Information
-of the \Biocpkg{PureCN} manuscript.  Figure~\ref{figure/figureexample3-1} shows
-the allelic fractions of predicted germline SNPs.  In the middle panel, the
-corresponding copy number log-ratios are shown. The lower panel displays the
-calculated integer copy numbers, corrected for purity and ploidy. 
+of the sample lead to unbalanced germline allelic fractions.
+Figure~\ref{figure/figureexample3-1} shows the allelic fractions of predicted
+germline SNPs.  In the middle panel, the corresponding copy number log-ratios
+are shown. The lower panel displays the calculated integer copy numbers,
+corrected for purity and ploidy. 
 
 <<figureexample4, fig.show='hide'>>=
 plotAbs(ret, 1, type="AF")
@@ -535,7 +525,7 @@ log-ratio. It is straightforward to replace the default with other methods and
 the \Rfunction{segmentationCBS} function can serve as an example. 
 
 It is also possible to provide already segmented data, which is especially
-recommended when matched SNP6 data is available or when third party segmentation
+recommended when matched SNP6 data is available or when third-party segmentation
 tools are not written in R. Otherwise it is usually however better to customize
 the segmentation function as described above, since the algorithm then has
 access to the raw log-ratio distribution. The expected file format for already
@@ -690,8 +680,8 @@ legend("bottomright", legend=paste("Purity", purity),
 \incfig{figure/power1-1}{0.95\textwidth}{Power to detect mono-clonal somatic
 mutations.}{Reproduced from \cite{Carter2012}.}
 
-Figure~\ref{figure/power2-1} then shows the same plot for sub-clonal mutations present in 20\%
-of all cells: 
+Figure~\ref{figure/power2-1} then shows the same plot for sub-clonal mutations
+present in 20\% of all cells: 
 
 <<power2, fig.show='hide'>>=
 coverage <- seq(5,350,1)
@@ -750,12 +740,12 @@ These R scripts can be found in the extdata directory of the installed package.
     \item Does the log-ratio histogram (Figure~\ref{figure/figureexample2-1})
 look noisy? If yes, then
     \begin{itemize}
-    \item Is the coverage sufficient? Coverages below 80X can be difficult.
+    \item Is the coverage sufficient? Tumor coverages below 80X can be
+difficult, especially in low purity samples. Normal coverages below 50X might
+result in high variance of log-ratios. See Section~\ref{bestnormal} for finding
+a good normal sample for log-ratio calculation.
     \item Is the coverage data of both tumor and normal GC-normalized? If not, 
     see \Rfunction{correctCoverageBias}.
-    \item Is the coverage of the normal sample sufficient? Coverages below 50X
-might result in high variance of log-ratios. See Section~\ref{bestnormal} for
-finding a good normal sample for log-ratio calculation.
     \item Is the quality of both tumor and normal sufficient? A high AT or
 GC-dropout might result in high variance of log-ratios. Challenging FFPE samples
 also might need parameter tuning of the segmentation function. See 
@@ -797,9 +787,6 @@ provided in addition to the required VCF file via
 \Rcode{args.filterVcf=list(stats.file='Sample1\_bwa\_mutect\_stats.txt')} in
 \Rfunction{runAbsoluteCN}. If provided, it may help \Biocpkg{PureCN} filter
 artifacts. This requires \software{MuTect} in version 1.1.7. 
-
-If you think your VCF file format should be supported out-of-the-box, please
-contact us.
 
 \end{itemize}
 
