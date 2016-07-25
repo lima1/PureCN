@@ -1,18 +1,19 @@
 library('getopt')
 
 spec <- matrix(c(
-'help' , 'h', 0, "logical",
-'normal', 'n', 1, "character",
-'tumor', 't', 1, "character",
-'vcf', 'v', 1, "character",
-'genome' , 'g', 1, "character",
-'gcgene' , 'c', 1, "character",
-'segfile' , 'f', 1, "character",
-'snpblacklist' , 's', 1, "character",
-'exonweightfile' , 'e', 1, "character",
-'normaldb' , 'd', 1, "character",
-'outdir' , 'o', 1, "character",
-'sampleid' , 'i', 1, "character"
+'help',           'h', 0, "logical",
+'normal',         'n', 1, "character",
+'tumor',          't', 1, "character",
+'vcf',            'v', 1, "character",
+'genome',         'g', 1, "character",
+'gcgene',         'c', 1, "character",
+'segfile',        'f', 1, "character",
+'snpblacklist',   's', 1, "character",
+'statsfile',      'a', 1, "character",
+'exonweightfile', 'e', 1, "character",
+'normaldb',       'd', 1, "character",
+'outdir',         'o', 1, "character",
+'sampleid',       'i', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
 
@@ -27,6 +28,7 @@ tumor.vcf <- opt$vcf
 genome <- opt$genome
 gc.gene.file <- opt$gcgene
 snp.blacklist <- opt$snpblacklist
+stats.file <- opt$statsfile
 seg.file <- opt$segfile
 exon.weight.file <- opt$exonweightfile
 normalDB <- opt$normaldb
@@ -35,9 +37,8 @@ outdir <- opt$outdir
 
 PureCN <- function(
 gatk.tumor.file, gatk.normal.file=NULL, tumor.vcf, genome,
-gc.gene.file=NULL, seg.file=NULL, snp.blacklist=NULL, exon.weight.file=NULL, normalDB=NULL, 
-sampleid, outdir
-) {
+gc.gene.file=NULL, seg.file=NULL, snp.blacklist=NULL, stats.file=NULL,
+exon.weight.file=NULL, normalDB=NULL, sampleid, outdir) {
 
     file.rds <- paste(outdir,"/",  sampleid, '_abs.rds', sep='')
 
@@ -56,7 +57,8 @@ sampleid, outdir
             gatk.tumor.file=gatk.tumor.file, vcf.file=tumor.vcf,
             sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=TRUE,
             genome=genome, seg.file=seg.file,
-            args.filterVcf=list(snp.blacklist=snp.blacklist), 
+            args.filterVcf=list(snp.blacklist=snp.blacklist, 
+                stats.file=stats.file), 
             args.segmentation=list(exon.weight.file=exon.weight.file), 
             post.optimize=FALSE)
     dev.off()
@@ -82,6 +84,6 @@ library(PureCN)
 
 PureCN(gatk.tumor.file, gatk.normal.file, tumor.vcf, genome,
 gc.gene.file, seg.file=seg.file, snp.blacklist=snp.blacklist, 
-exon.weight.file=exon.weight.file, normalDB=normalDB, 
-sampleid, outdir) 
+stats.file=stats.file, exon.weight.file=exon.weight.file, 
+normalDB=normalDB, sampleid=sampleid, outdir=outdir) 
 

@@ -348,9 +348,6 @@ post.optimize=FALSE,
     exon.gr <- GRanges(seqnames=tumor$chr, 
         IRanges(start=tumor$probe_start,end=tumor$probe_end))
 
-    # these are not used for segmentation, so be a little bit more careful 
-    # with removing (outliers will be smoothed anyways)
-
     vcf <- NULL
     vcf.germline <- NULL
     tumor.id.in.vcf <- NULL
