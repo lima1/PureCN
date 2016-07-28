@@ -173,15 +173,18 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 
 \section{GC-bias}
 
-The algorithm works best when the coverage data is GC-normalized. The steps
-below will not GC-normalize, since the example data is already normalized. 
-We recommend correcting for GC bias, storing the corrected coverage
-files and then do the following steps on GC corrected data:
+The algorithm works best when the coverage data is GC-normalized.  We recommend
+correcting all coverage files, tumor and normal, for GC bias and storing the
+corrected coverage files:
 
 <<gccorrect>>=
 correctCoverageBias(gatk.normal.file, gc.gene.file, 
     "example_normal_loess.txt")
 @
+
+\textbf{All the following steps in this vignette assume that the coverage data
+is GC-normalized.} The example coverage data is already GC-normalized. 
+
 
 \section{Pool of normals}
 
@@ -240,8 +243,8 @@ will return only normal samples with matching sex.
 It is important to remove as many artifacts as possible, since low ploidy
 solutions are typically punished more by artifacts than high ploidy solutions.
 High ploidy solutions are complex and usually find ways of explaining artifacts
-reasonably well. This following steps are optional, but recommended especially
-when matched normals are not available.
+reasonably well. This following steps in this section are optional, but
+recommended especially when matched normals are not available.
 
 We first use coverage data of normal samples to estimate the expected variance
 in coverage per exon:
@@ -443,7 +446,7 @@ correct. We provide functionality for curating results:
 createCurationFile(file.rds) 
 @
 
-This will generate a CSV file, in which the correct purity and ploidy values
+This will generate a CSV file in which the correct purity and ploidy values
 can be manually entered. It also contains a column "Curated", which should be
 set to TRUE, otherwise the file will be overwritten when re-run.
 
@@ -555,7 +558,7 @@ retSegmented <- runAbsoluteCN(seg.file=seg.file, gc.gene.file=gc.gene.file,
 @
 
 The \Rcode{max.candidate.solutions} and \Rcode{test.purity} arguments are set
-to non-default values only to reduce the runtime of this vignette.
+to non-default values to reduce the runtime of this vignette. 
 
 <<figurecustombaf, fig.show='hide'>>=
 plotAbs(retSegmented, 1, type="BAF")

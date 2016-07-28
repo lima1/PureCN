@@ -98,10 +98,12 @@ test_runAbsoluteCN <- function() {
     checkEqualsNumeric(seq(0.3,0.7,by=1/30),
         as.numeric(colnames(ret$candidates$all)))
 
+    vcf <- readVcf(vcf.file, "hg19", param=ScanVcfParam(samples="LIB-02240e4"))
+
     ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
         gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=FALSE,
-        vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
-        max.candidate.solutions=2)
+        vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
+        max.candidate.solutions=1)
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     checkEqualsNumeric(seq(0.3,0.7,by=1/30),

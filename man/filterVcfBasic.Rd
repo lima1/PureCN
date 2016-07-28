@@ -21,7 +21,10 @@ appropriate black lists. Can also be a BED file (either tab or
 comma separated) of  blacklisted genomic regions (columns 1-3: 
 chromosome, start, end).}
   \item{af.range}{Exclude SNPs with allelic fraction smaller or greater than the 
-two values, respectively.}
+two values, respectively. The higher value removes homozygous SNPs,
+which potentially have allelic fractions smaller than 1 due to artifacts
+or contamination. If a matched normal is available, this is value ignored,
+because homozygosity can be confirmed in the normal.}
   \item{contamination.cutoff}{Count SNPs in dbSNP with allelic fraction smaller than the 
 first value, if found on most chromosomes, remove all with AF smaller than
 the second value.}
