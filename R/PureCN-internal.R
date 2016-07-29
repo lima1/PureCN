@@ -23,6 +23,13 @@ max.exon.ratio) {
     if (!identical(as.character(normal[, 1]), as.character(tumor[, 1]))) {
         .stopUserError("Interval files in normal and tumor different.")
     }
+    if (verbose) {
+        message("Average coverage: ", 
+            round(mean(tumor$average.coverage, na.rm=TRUE), digits=0), 
+            "X (tumor), ",
+            round(mean(normal$average.coverage, na.rm=TRUE), digits=0),
+            "X (normal control).")
+    }    
     total.cov.normal <- sum(as.numeric(normal$coverage), na.rm = TRUE)
     total.cov.tumor <- sum(as.numeric(tumor$coverage), na.rm = TRUE)
 

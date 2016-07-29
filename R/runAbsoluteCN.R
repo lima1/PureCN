@@ -275,7 +275,7 @@ post.optimize=FALSE,
                 "Need a normal coverage file if log.ratio and seg.file are not",
                 " provided.")
             }
-            log.ratio <- .calcLogRatio(normal, tumor, verbose=debug)
+            log.ratio <- .calcLogRatio(normal, tumor, verbose=verbose)
         }
     } else {
         # the segmentation algorithm will remove exons with low coverage in 
