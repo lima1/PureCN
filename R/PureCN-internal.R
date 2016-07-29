@@ -474,12 +474,15 @@ test.num.copy[i], prior.K))
         t1 <- which.min(abs(as.numeric(colnames(mm)) - grid[i]))
         t2 <- which.min(abs(as.numeric(colnames(mm)) - grid[i+1]))
         if (t2-t1 < 2) next
+        
+        if ( sum(candidates$purity>grid[i] & 
+            candidates$purity< grid[i+1], na.rm=TRUE) < 1) next
 
         # Nothing close to diplod in this range? Then add.
         if (min(abs(2 - candidates$tumor.ploidy[candidates$purity>grid[i] & 
             candidates$purity< grid[i+1] ])) > 0.3) {
 
-            mm.05 <- mm[,(t1+1):t2,drop=FALSE]
+            mm.05 <- mm[,seq(t1+1,t2),drop=FALSE]
             candidates <- rbind(candidates, 
                 c(2, as.numeric(names(which.max(mm.05["2", ]))), 
                 max(mm.05["2", ]), 2))
