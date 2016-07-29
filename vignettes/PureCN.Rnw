@@ -353,11 +353,11 @@ ret <-runAbsoluteCN(gatk.normal.file=pool, gatk.tumor.file=gatk.tumor.file,
 The \Rcode{post.optimize} flag will increase the runtime typically by one order
 of magnitude, but might return slightly more accurate purity estimates. For
 high quality whole exome data, this is typically not necessary.  The files specified in
-\Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering SNVs more
-efficiently for artifacts as described in Sections~\ref{artifactfiltering} and
+\Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering SNVs more efficiently for
+artifacts as described in Sections~\ref{artifactfiltering} and
 \ref{artifactfiltering2}. If possible, these files should be generated and
-provided. \Rcode{plot.cnv} argument generates additional plots provided by the
-segmentation function if set tp \Rcode{TRUE}.  
+provided. The \Rcode{plot.cnv} argument allows the segmentation function to
+generate additional plots if set to \Rcode{TRUE}.  
 
 We now create a few output files:
 
