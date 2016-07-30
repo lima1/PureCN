@@ -22,13 +22,13 @@ af.range=c(0.03, 0.97),
 ### Exclude SNPs with allelic fraction smaller or greater than the 
 ### two values, respectively. The higher value removes homozygous SNPs,
 ### which potentially have allelic fractions smaller than 1 due to artifacts
-### or contamination. If a matched normal is available, this is value ignored,
+### or contamination. If a matched normal is available, this value is ignored,
 ### because homozygosity can be confirmed in the normal.
 contamination.cutoff=c(0.05,0.075),
 ### Count SNPs in dbSNP with allelic fraction smaller than the 
 ### first value, if found on most chromosomes, remove all with AF smaller than
 ### the second value.
-coverage.cutoff=20,
+coverage.cutoff=15,
 ### Minimum coverage in tumor. Variants with lower coverage are ignored.
 min.supporting.reads=NULL,
 ### Minimum number of reads supporting the alt allele. 

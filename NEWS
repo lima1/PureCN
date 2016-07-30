@@ -7,6 +7,8 @@ Focus on PureCN 1.2 was to dramatically improve user-friendliness:
 - Output plots were polished.
 - Both numerical and non-numerical chromosome names (1 vs. chr1) supported.
 - Better integration into existing copy number pipelines.
+- Automatic COSMIC annotation.
+- Documentation improvements.
 
 -------------------------------------------------------------------------------
 

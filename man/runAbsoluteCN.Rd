@@ -26,8 +26,8 @@ Provides copy number and LOH data, by both gene and genomic region. }
     filter.lowhigh.gc.exons = 0.001, max.dropout = c(0.95, 
         1.1), filter.targeted.base = 4, max.logr.sdev = 0.75, 
     max.segments = 200, prior.K = 0.999, prior.contamination = 0.01, 
-    chr.hash = NULL, plot.cnv = TRUE, verbose = TRUE, 
-    post.optimize = FALSE, ...)}
+    chr.hash = NULL, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
+    verbose = TRUE, post.optimize = FALSE, ...)}
 \arguments{
   \item{gatk.normal.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
@@ -155,6 +155,10 @@ individual. }
 are properly ordered (for human samples, PureCN should always output
 correct chromosome orderings if chromosomes have standard names).}
   \item{plot.cnv}{Generate segmentation plots.}
+  \item{cosmic.vcf.file}{Add a \code{Cosmic.CNT} info field to the provided 
+\code{vcf.file} using a VCF file containing the COSMIC database.
+The default \code{fun.setPriorVcf} function will give SNVs
+found in the COSMIC database a higher prior probability of being somatic.}
   \item{verbose}{Verbose output.}
   \item{post.optimize}{Optimize purity using final SCNA-fit and SNVs. This 
 might take a long time when lots of SNVs need to be fitted, but will 

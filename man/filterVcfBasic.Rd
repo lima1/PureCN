@@ -5,7 +5,7 @@
 variant calls. }
 \usage{filterVcfBasic(vcf, tumor.id.in.vcf = NULL, use.somatic.status = TRUE, 
     snp.blacklist = NULL, af.range = c(0.03, 0.97), 
-    contamination.cutoff = c(0.05, 0.075), coverage.cutoff = 20, 
+    contamination.cutoff = c(0.05, 0.075), coverage.cutoff = 15, 
     min.supporting.reads = NULL, error = 0.001, verbose = TRUE)}
 \arguments{
   \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf} 
@@ -23,7 +23,7 @@ chromosome, start, end).}
   \item{af.range}{Exclude SNPs with allelic fraction smaller or greater than the 
 two values, respectively. The higher value removes homozygous SNPs,
 which potentially have allelic fractions smaller than 1 due to artifacts
-or contamination. If a matched normal is available, this is value ignored,
+or contamination. If a matched normal is available, this value is ignored,
 because homozygosity can be confirmed in the normal.}
   \item{contamination.cutoff}{Count SNPs in dbSNP with allelic fraction smaller than the 
 first value, if found on most chromosomes, remove all with AF smaller than

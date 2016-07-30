@@ -176,6 +176,11 @@ chr.hash=NULL,
 ### correct chromosome orderings if chromosomes have standard names).
 plot.cnv=TRUE, 
 ### Generate segmentation plots.
+cosmic.vcf.file=NULL,
+### Add a \code{Cosmic.CNT} info field to the provided 
+### \code{vcf.file} using a VCF file containing the COSMIC database.
+### The default \code{fun.setPriorVcf} function will give SNVs
+### found in the COSMIC database a higher prior probability of being somatic.
 verbose=TRUE, 
 ### Verbose output.
 post.optimize=FALSE,
@@ -362,7 +367,11 @@ post.optimize=FALSE,
 
         if (length(intersect(tumor$chr,seqlevels(vcf))) < 1) {
             .stopUserError("Different chromosome names in coverage and VCF.")
-        }    
+        }
+        
+        if (!is.null(cosmic.vcf.file)) {
+            vcf <- .addCosmicCNT(vcf, cosmic.vcf.file, verbose=verbose) 
+        }
 
         if (is.null(args.filterVcf$use.somatic.status)) {
             args.filterVcf$use.somatic.status <- TRUE
