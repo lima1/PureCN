@@ -158,7 +158,9 @@ correct chromosome orderings if chromosomes have standard names).}
   \item{cosmic.vcf.file}{Add a \code{Cosmic.CNT} info field to the provided 
 \code{vcf.file} using a VCF file containing the COSMIC database.
 The default \code{fun.setPriorVcf} function will give SNVs
-found in the COSMIC database a higher prior probability of being somatic.}
+found in the COSMIC database a higher prior probability of being somatic.
+Not used in likelhood model when matched normal is available in 
+\code{vcf.file}.}
   \item{verbose}{Verbose output.}
   \item{post.optimize}{Optimize purity using final SCNA-fit and SNVs. This 
 might take a long time when lots of SNVs need to be fitted, but will 

@@ -933,17 +933,17 @@ test.num.copy[i], prior.K))
     }
     cosmicSeqs <- headerTabix(TabixFile(cosmic.vcf.file))$seqnames
     if (!length(intersect(seqlevels(vcf), cosmicSeqs))) {
-        if (length(intersect(gsub("chr","",seqlevels(vcf)), cosmicSeqs))>=24) {
-            vcf <- renameSeqlevels(vcf, gsub("chr","",seqlevels(vcf)))
+        if (length(intersect(gsub("chr","",seqlevels(vcf)), cosmicSeqs))>=20) {
+            vcfRenamedSL <- renameSeqlevels(vcf, gsub("chr","",seqlevels(vcf)))
         } else {
             warning("Cannot match chromosome names in cosmic.vcf.file with the ",
                 "ones in vcf.file. Giving up COSMIC annotation.")
             return(vcf)
-        }    
+        }
     }    
     cosmic.vcf <- readVcf(cosmic.vcf.file, genome=genome(vcf)[1],  
-        ScanVcfParam(which = rowRanges(vcf)))
-    ov <- findOverlaps(vcf, cosmic.vcf, type="equal")
+        ScanVcfParam(which = rowRanges(vcfRenamedSL)))
+    ov <- findOverlaps(vcfRenamedSL, cosmic.vcf, type="equal")
     idx <- as.logical(alt(vcf[queryHits(ov)]) ==
         alt(cosmic.vcf[subjectHits(ov)]))
     ov <- ov[idx]

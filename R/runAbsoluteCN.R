@@ -181,6 +181,8 @@ cosmic.vcf.file=NULL,
 ### \code{vcf.file} using a VCF file containing the COSMIC database.
 ### The default \code{fun.setPriorVcf} function will give SNVs
 ### found in the COSMIC database a higher prior probability of being somatic.
+### Not used in likelhood model when matched normal is available in 
+### \code{vcf.file}.
 verbose=TRUE, 
 ### Verbose output.
 post.optimize=FALSE,
