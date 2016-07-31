@@ -163,7 +163,7 @@ max.segments=200,
 prior.K=0.999,
 ### This defines the prior probability that the multiplicity of
 ### a SNV corresponds to either the maternal or the paternal copy
-### number (for somatic variants additionally a multiplicity of 1).
+### number (for somatic variants additionally to a multiplicity of 1).
 ### For perfect segmentations, this value would be 1; values smaller
 ### than 1 thus may provide some robustness against segmentation errors.
 prior.contamination=0.01,
