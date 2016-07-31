@@ -25,7 +25,7 @@ capture sequencing data}
 samples inspired by the \software{ABSOLUTE} algorithm \cite{Carter2012}.  It was
 designed for hybrid capture sequencing data, especially with medium-sized
 targeted gene panels without matching normal samples in mind (matched whole
-exome data is of course supported). 
+exome is of course supported). 
 
 It can be used to supplement existing normalization and segmentation algorithms.
 If the correct purity and ploidy solution was identified, \Biocpkg{PureCN} can
@@ -173,9 +173,8 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 
 \section{GC-bias}
 
-The algorithm works best when the coverage data is GC-normalized.  We recommend
-correcting all coverage files, tumor and normal, for GC bias and storing the
-corrected coverage files:
+The algorithm works best when the coverage files are GC-normalized. We can
+easily create GC-normalized coverage files:
 
 <<gccorrect>>=
 correctCoverageBias(gatk.normal.file, gc.gene.file, 
@@ -183,7 +182,7 @@ correctCoverageBias(gatk.normal.file, gc.gene.file,
 @
 
 \textbf{All the following steps in this vignette assume that the coverage data
-is GC-normalized.} The example coverage data is already GC-normalized. 
+is GC-normalized.} The example coverage files are already GC-normalized. 
 
 
 \section{Pool of normals}
@@ -527,7 +526,7 @@ log-ratio. It is straightforward to replace the default with other methods and
 the \Rfunction{segmentationCBS} function can serve as an example. 
 
 It is also possible to provide already segmented data, which is especially
-recommended when matched SNP6 data is available or when third-party segmentation
+recommended when matched SNP6 data are available or when third-party segmentation
 tools are not written in R. Otherwise it is usually however better to customize
 the segmentation function as described above, since the algorithm then has
 access to the raw log-ratio distribution. The expected file format for already
@@ -564,7 +563,7 @@ plotAbs(retSegmented, 1, type="BAF")
 @
 \incfig{figure/figurecustombaf-1}{0.95\textwidth}{B-allele frequency plot for
 segmented data.}{This plot shows the maximum likelihood solution for an example
-where segmented data is provided instead of coverage data. Note that the middle
+where segmented data are provided instead of coverage data. Note that the middle
 panel shows no variance in log-ratios, since only segment-level log-ratios are
 available.}
 

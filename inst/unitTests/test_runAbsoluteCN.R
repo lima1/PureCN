@@ -11,6 +11,8 @@ test_runAbsoluteCN <- function() {
         package = "PureCN")
     seg.file <- system.file("extdata", "example_seg.txt", 
         package = "PureCN")
+    cosmic.vcf.file <- system.file("extdata", "example_cosmic.vcf.gz", 
+        package = "PureCN")
 
     data(purecn.example.output)
     exon.weight.file <- "exon_weights.txt"
@@ -230,6 +232,7 @@ test_runAbsoluteCN <- function() {
     ret <- runAbsoluteCN( gatk.normal.file=gatk.normal.file,
         gatk.tumor.file=gatk.tumor.file, sampleid="LIB-02252e4",
         vcf.file=vcf, max.candidate.solutions=1,genome="hg19", 
+        cosmic.vcf.file=cosmic.vcf.file,
         test.purity=seq(0.3,0.7, by=0.01))
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
 }    

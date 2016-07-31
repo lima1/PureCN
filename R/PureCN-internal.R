@@ -932,6 +932,8 @@ test.num.copy[i], prior.K))
         return(vcf)        
     }
     cosmicSeqs <- headerTabix(TabixFile(cosmic.vcf.file))$seqnames
+    # If chromosome names are different, try if a simple gsub("chr") works
+    vcfRenamedSL <- vcf
     if (!length(intersect(seqlevels(vcf), cosmicSeqs))) {
         if (length(intersect(gsub("chr","",seqlevels(vcf)), cosmicSeqs))>=20) {
             vcfRenamedSL <- renameSeqlevels(vcf, gsub("chr","",seqlevels(vcf)))
@@ -940,15 +942,23 @@ test.num.copy[i], prior.K))
                 "ones in vcf.file. Giving up COSMIC annotation.")
             return(vcf)
         }
-    }    
+    }
+    # look-up the variants in COSMIC
     cosmic.vcf <- readVcf(cosmic.vcf.file, genome=genome(vcf)[1],  
         ScanVcfParam(which = rowRanges(vcfRenamedSL)))
     ov <- findOverlaps(vcfRenamedSL, cosmic.vcf, type="equal")
+    # make sure that alt alleles match
     idx <- as.logical(alt(vcf[queryHits(ov)]) ==
         alt(cosmic.vcf[subjectHits(ov)]))
     ov <- ov[idx]
 
     if (!length(ov)) return(vcf)
+
+    if (is.null(info(cosmic.vcf)$CNT)) {
+        warning("Cosmic VCF has no CNT info field. ",
+            "Giving up COSMIC annotation.")
+        return(vcf)
+    }
     
     newInfo <- DataFrame(
         Number=1, Type="Integer",
