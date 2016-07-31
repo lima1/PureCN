@@ -31,7 +31,8 @@ import(DNAcopy)
 import(IRanges)
 import(VariantAnnotation)
 importFrom("Biostrings", "letterFrequency")
-importFrom("GenomeInfoDb", "seqnames", "seqlevelsStyle", "seqlevelsStyle<-")
+importFrom("GenomeInfoDb", "seqnames", "seqlevelsStyle", "seqlevelsStyle<-", 
+    "genomeStyles")
 importFrom("GenomicRanges", "GRanges")
 importFrom("RColorBrewer", "brewer.pal")
 importFrom("Rsamtools", "headerTabix", "ScanBamParam", "scanBamFlag", 

@@ -169,11 +169,6 @@ prior.K=0.999,
 prior.contamination=0.01,
 ### The prior probability that a known SNP is from a different
 ### individual. 
-chr.hash=NULL,
-### Mapping of non-numerical chromsome names to numerical names
-### (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromosomes
-### are properly ordered (for human samples, PureCN should always output
-### correct chromosome orderings if chromosomes have standard names).
 plot.cnv=TRUE, 
 ### Generate segmentation plots.
 cosmic.vcf.file=NULL,
@@ -252,11 +247,7 @@ post.optimize=FALSE,
         if (is.null(sampleid)) sampleid <- "Sample.1"
     }    
 
-    if (is.null(chr.hash)) { 
-        chr.hash <- .getChrHash(tumor$chr)
-    } else {
-        chr.hash <- .checkChrHash(chr.hash)
-    }
+    chr.hash <- .getChrHash(tumor$chr)
 
     # check that normal is not the same as tumor (only if no log-ratio or 
     # segmentation is provided, in that case we wouldn't use normal anyway)

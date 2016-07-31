@@ -134,21 +134,14 @@ test_runAbsoluteCN <- function() {
             filtered$gc_bias>0.8)
     ))
 
-    # test with numeric chromosome names
-    .strip.chr.name <- function(ls) {
-        chr.hash <- NULL
-        data(chr.hash, envir = environment())
-        x <- chr.hash[as.character(ls), 2]
-        x[is.na(x)] <- as.numeric(ls[is.na(x)])
-        x[is.na(x)] <- max(x, na.rm=TRUE)+1
-        x
-    }
     vcf <- readVcf(vcf.file, "hg19") 
-    vcf <- renameSeqlevels(vcf,as.character( .strip.chr.name(seqlevels(vcf))))
+    seqlevelsStyle(vcf) <- "ENSEMBL"
     normCov <- readCoverageGatk( gatk.normal.file )
     tumorCov <- readCoverageGatk( gatk.tumor.file )
-    normCov$chr <- .strip.chr.name(normCov$chr)
-    tumorCov$chr <- .strip.chr.name(tumorCov$chr)
+    normCov$chr <- as.character(normCov$chr) 
+    tumorCov$chr <- as.character(tumorCov$chr) 
+    seqlevelsStyle(normCov$chr) <- "ENSEMBL"
+    seqlevelsStyle(tumorCov$chr) <- "ENSEMBL"
     normCov$probe <- paste(normCov$chr, ":", normCov$probe_start, "-", 
         normCov$probe_end, sep="")
     tumorCov$probe <- paste(tumorCov$chr, ":", tumorCov$probe_start, "-",
@@ -188,22 +181,11 @@ test_runAbsoluteCN <- function() {
     checkException(plotAbs(ret, 1, type="BAF", chr="chr1"))
     plotAbs(ret, 1, type="BAF", chr="1")
 
-    data(chr.hash)
-    chr.hash2 <- chr.hash[-23,]
-
     # test with a seg.file
     ret <- runAbsoluteCN( gatk.tumor.file = gatk.tumor.file, seg.file=seg.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
-        chr.hash=chr.hash2,
         test.purity=seq(0.3,0.7, by=0.01))
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
-
-    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,
-        chr.hash=normalCov))
-    checkTrue(grepl("Colnames of chr.hash should be", geterrmessage()))
-    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,
-        chr.hash=rbind(chr.hash2, chr.hash)))
-    checkTrue(grepl("Duplicate chromosome names in chr.hash", geterrmessage()))
 
     ret <- runAbsoluteCN( seg.file=seg.file, gc.gene.file=gc.gene.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 

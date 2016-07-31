@@ -694,23 +694,13 @@ test.num.copy[i], prior.K))
 }
 .getChrHash <- function(ls) {
     ls <- unique(ls)
-    ls <- ls[!ls %in% "chrM"]
-    chr.hash <- NULL
-    data(chr.hash, envir = environment())
-
+    chr.hash <- genomeStyles(species="Homo_sapiens")
+    chr.hash <- chr.hash[!chr.hash$circular,]
+    id <- which.max(apply(chr.hash[,-(1:3)],2,function(x) sum(ls %in%x)))+3
+    chr.hash <- data.frame(chr=chr.hash[,id], number=seq_len(nrow(chr.hash)),
+        row.names=chr.hash[,id])
     if (sum(!ls %in% chr.hash[,1]) == 0) return(chr.hash)
-
     data.frame(chr=as.factor(ls), number=seq_along(ls), row.names=ls)
-}
-.checkChrHash <- function(chr.hash) {
-    if (!identical(colnames(chr.hash)[1:2], c("chr", "number"))) {
-        .stopUserError("Colnames of chr.hash should be 'chr' and 'number'.")
-    }
-    if (sum(duplicated(chr.hash$chr))>0) {
-        .stopUserError("Duplicate chromosome names in chr.hash.")
-    }
-    rownames(chr.hash) <- chr.hash$chr
-    chr.hash
 }
 #.ffpeCleanLogRatio <- function(log.ratio, window=20) {
 #   dlr <- c(0, diff(log.ratio))
