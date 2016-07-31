@@ -931,17 +931,12 @@ test.num.copy[i], prior.K))
         if (verbose) message("VCF already COSMIC annotated. Skipping.")
         return(vcf)        
     }
-    cosmicSeqs <- headerTabix(TabixFile(cosmic.vcf.file))$seqnames
-    # If chromosome names are different, try if a simple gsub("chr") works
+    cosmicSeqStyle <- seqlevelsStyle(headerTabix(
+        TabixFile(cosmic.vcf.file))$seqnames)
+
     vcfRenamedSL <- vcf
-    if (!length(intersect(seqlevels(vcf), cosmicSeqs))) {
-        if (length(intersect(gsub("chr","",seqlevels(vcf)), cosmicSeqs))>=20) {
-            vcfRenamedSL <- renameSeqlevels(vcf, gsub("chr","",seqlevels(vcf)))
-        } else {
-            warning("Cannot match chromosome names in cosmic.vcf.file with the ",
-                "ones in vcf.file. Giving up COSMIC annotation.")
-            return(vcf)
-        }
+    if (!length(intersect(seqlevelsStyle(vcf), cosmicSeqStyle))) {
+        seqlevelsStyle(vcfRenamedSL) <- cosmicSeqStyle[1]
     }
     # look-up the variants in COSMIC
     cosmic.vcf <- readVcf(cosmic.vcf.file, genome=genome(vcf)[1],  
