@@ -162,3 +162,24 @@ vcf <- readVcf(vcf.file, "hg19")
 # which are necessary for determining sex from chromosome X.
 getSexFromVcf(vcf)
 })    
+.getSex <- function(sex, normal, tumor) {
+    if (sex != "?") return(sex)
+    sex.tumor <- getSexFromCoverage(tumor, verbose=FALSE)
+    sex.normal <- getSexFromCoverage(normal, verbose=FALSE)
+    if (!identical(sex.tumor, sex.normal)) {
+        warning("Sex tumor/normal mismatch: tumor = ", sex.tumor, 
+            " normal = ", sex.normal)
+    }
+    sex <- sex.tumor    
+    if (is.na(sex)) sex = "?"
+    sex
+}
+.fixAllosomeCoverage <- function(sex, tumor) {
+    sex.chr <- .getSexChr(tumor$chr)
+    if (sex=="M" || sex=="?") {
+        tumor <- .removeChr(tumor, remove.chrs=sex.chr)
+    } else if (sex=="F") {
+        tumor <- .removeChr(tumor, remove.chrs=sex.chr[2])
+    }       
+    tumor
+}

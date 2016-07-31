@@ -74,6 +74,7 @@ max.exon.ratio) {
     list(best=yys[[best]], M=test.num.copy[best])
 }
 
+# calculate likelihood scores for all possible minor copy numbers
 .calcMsSegment <- function(xxi, test.num.copy, prior.K) {
     lapply(seq_along(xxi), function(i).calcMsSegmentC( xxi[[i]], test.num.copy,
 test.num.copy[i], prior.K))
@@ -653,7 +654,6 @@ test.num.copy[i], prior.K))
     
     g
 }
-
 .calcPuritySomaticVariants <- function(vcf, prior.somatic, tumor.id.in.vcf) {
     median(unlist(geno(vcf[prior.somatic > 0.5])$FA[, tumor.id.in.vcf]), na.rm = TRUE)/0.48
 }
@@ -710,109 +710,6 @@ test.num.copy[i], prior.K))
 ##   ids <- which(sds > quantile(sds, na.rm=TRUE, p=1-0.001))
 #}
 
-# calculate allelic fraction from read depths
-.addFaField <- function(vcf, field="FA") {
-    if (is.null(geno(vcf)$AD)) {
-        .stopRuntimeError("No AD geno field in VCF.")
-    }
-    matrixFA <- do.call(rbind, apply(geno(vcf)$AD,1, function(x) lapply(x,
-        function(y) y[2]/sum(y))))
-    newGeno <- DataFrame(
-        Number="A", Type="Float",
-        Description="Allele fraction of the alternate allele",
-        row.names=field)
-    geno(header(vcf)) <- rbind(geno(header(vcf)), newGeno)
-    geno(vcf)[[field]] <- matrixFA
-    vcf
-}
-.addDpField <- function(vcf, field="DP") {
-    if (is.null(geno(vcf)$AD)) {
-        .stopRuntimeError("No AD geno field in VCF.")
-    }
-    matrixDP <- apply(geno(vcf)$AD,2,sapply, sum)
-    newGeno <- DataFrame(
-        Number=1, Type="Integer",
-        Description="Approximate read depth",
-        row.names=field)
-    geno(header(vcf)) <- rbind(geno(header(vcf)), newGeno)
-    geno(vcf)[[field]] <- matrixDP
-    vcf
-}
-.getNormalIdInVcf <- function(vcf, tumor.id.in.vcf) {
-    samples(header(vcf))[-match(tumor.id.in.vcf, samples(header(vcf)))] 
-}    
-.getTumorIdInVcf <- function(vcf, sampleid=NULL) {
-    .getTumorId <- function(vcf, sampleid) {
-        if (ncol(vcf) == 1) return(1)
-        if (ncol(vcf) != 2) {
-            .stopUserError("VCF contains ", ncol(vcf), " samples. Should be ",
-                "either one or two.")
-        }        
-        if (!is.null(geno(vcf)$GT)) {
-            cs <- colSums(geno(vcf)$GT=="0")
-            if (max(cs) > 0) return(which.min(cs))
-            cs <- colSums(geno(vcf)$GT=="0/0")
-            if (max(cs) > 0) return(which.min(cs))
-        }
-        if (!is.null(geno(vcf)$FA)) {
-            cs <- apply(geno(vcf)$FA,2,function(x) sum(as.numeric(x)==0))
-            if (max(cs) > 0) return(which.min(cs))
-        }    
-        if (sampleid %in% samples(header(vcf))) {
-            return(match(sampleid, samples(header(vcf))))
-        }    
-        warning("Cannot determine tumor vs. normal in VCF. ",
-            "Assuming it is first sample. Specify tumor via sampleid argument.")
-        return(1)
-    }
-    tumor.id.in.vcf <- .getTumorId(vcf, sampleid=sampleid)
-    if (!is.numeric(tumor.id.in.vcf) || tumor.id.in.vcf < 1 ||
-         tumor.id.in.vcf > 2) {
-        .stopRuntimeError("Tumor id not in expected range.")
-    }    
-    tumor.id.in.vcf <- samples(header(vcf))[tumor.id.in.vcf]    
-    # check that sampleid matches tumor and not normal.
-    if (!is.null(sampleid)) {
-        if (sampleid %in% samples(header(vcf)) && 
-            sampleid != tumor.id.in.vcf) {
-            warning("Sampleid looks like a normal in VCF, not like a tumor.")
-        }    
-    }    
-    tumor.id.in.vcf
-}
-.checkVcfFieldAvailable <- function(vcf, field) {
-    if (is.null(geno(vcf)[[field]]) ||  
-        sum(is.finite(as.numeric(geno(vcf)[[field]][,1])))<1) {
-        return(FALSE)
-    }    
-    return(TRUE)
-}    
-.readAndCheckVcf <- function(vcf.file, genome) {
-    if (class(vcf.file) == "character") {    
-        vcf <- readVcf(vcf.file, genome)
-    } else if (class(vcf.file) != "CollapsedVCF") {
-        .stopUserError("vcf.file neither a filename nor a CollapsedVCF ", 
-            "object.") 
-    } else {
-        vcf <- vcf.file
-    } 
-    if (is.null(info(vcf)$DB)) {
-        .stopUserError(vcf.file, " has no DB info field for dbSNP membership.")
-    }
-    if (is.null(geno(vcf)$AD)) {
-        .stopUserError(vcf.file, 
-            " has no AD geno field containing read depths of ref and alt.")
-    }
-    if (!.checkVcfFieldAvailable(vcf, "FA")) {
-        # try to add an FA geno field if missing
-        vcf <- .addFaField(vcf)
-    }
-    if (!.checkVcfFieldAvailable(vcf, "DP")) {
-        # try to add an DP geno field if missing
-        vcf <- .addDpField(vcf)
-    }
-    vcf     
-}    
 .stopUserError <- function(...) {
     msg <- paste(c(...), collapse="")
     msg <- paste(msg, "\n\nThis is most likely a user error due to",
@@ -855,27 +752,6 @@ test.num.copy[i], prior.K))
     gc.data$coverage <- coverage.cutoff * gc.data$targeted.base
     gc.data
 }
-.getSex <- function(sex, normal, tumor) {
-    if (sex != "?") return(sex)
-    sex.tumor <- getSexFromCoverage(tumor, verbose=FALSE)
-    sex.normal <- getSexFromCoverage(normal, verbose=FALSE)
-    if (!identical(sex.tumor, sex.normal)) {
-        warning("Sex tumor/normal mismatch: tumor = ", sex.tumor, 
-            " normal = ", sex.normal)
-    }
-    sex <- sex.tumor    
-    if (is.na(sex)) sex = "?"
-    sex
-}
-.fixAllosomeCoverage <- function(sex, tumor) {
-    sex.chr <- .getSexChr(tumor$chr)
-    if (sex=="M" || sex=="?") {
-        tumor <- .removeChr(tumor, remove.chrs=sex.chr)
-    } else if (sex=="F") {
-        tumor <- .removeChr(tumor, remove.chrs=sex.chr[2])
-    }       
-    tumor
-}
 .filterExonsChrHash <- function(exonsUsed, tumor, chr.hash, verbose) {
     if (is.null(chr.hash)) return(exonsUsed)
     nBefore <- sum(exonsUsed)
@@ -915,43 +791,3 @@ test.num.copy[i], prior.K))
 
     exonsUsed
 }
-
-.addCosmicCNT <- function(vcf, cosmic.vcf.file, verbose=TRUE) {
-    if (!is.null(info(vcf)$Cosmic.CNT)) {
-        if (verbose) message("VCF already COSMIC annotated. Skipping.")
-        return(vcf)        
-    }
-    cosmicSeqStyle <- seqlevelsStyle(headerTabix(
-        TabixFile(cosmic.vcf.file))$seqnames)
-
-    vcfRenamedSL <- vcf
-    if (!length(intersect(seqlevelsStyle(vcf), cosmicSeqStyle))) {
-        seqlevelsStyle(vcfRenamedSL) <- cosmicSeqStyle[1]
-    }
-    # look-up the variants in COSMIC
-    cosmic.vcf <- readVcf(cosmic.vcf.file, genome=genome(vcf)[1],  
-        ScanVcfParam(which = rowRanges(vcfRenamedSL)))
-    ov <- findOverlaps(vcfRenamedSL, cosmic.vcf, type="equal")
-    # make sure that alt alleles match
-    idx <- as.logical(alt(vcf[queryHits(ov)]) ==
-        alt(cosmic.vcf[subjectHits(ov)]))
-    ov <- ov[idx]
-
-    if (!length(ov)) return(vcf)
-
-    if (is.null(info(cosmic.vcf)$CNT)) {
-        warning("Cosmic VCF has no CNT info field. ",
-            "Giving up COSMIC annotation.")
-        return(vcf)
-    }
-    
-    newInfo <- DataFrame(
-        Number=1, Type="Integer",
-        Description="How many samples in Cosmic have this mutation",
-        row.names="Cosmic.CNT")
-    info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
-    info(vcf)$Cosmic.CNT <- NA
-    info(vcf)$Cosmic.CNT[queryHits(ov)] <- info(cosmic.vcf[subjectHits(ov)])$CNT
-    vcf
-}
-
