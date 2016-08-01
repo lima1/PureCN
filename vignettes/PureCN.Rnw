@@ -7,7 +7,7 @@
 \documentclass{article}
 
 <<style-knitr, eval=TRUE, echo=FALSE, results="asis">>=
-BiocStyle::latex()
+BiocStyle::latex2()
 @ 
 
 \title{PureCN: Estimating tumor purity, ploidy, LOH and SNV status using hybrid
@@ -17,10 +17,8 @@ capture sequencing data}
 \begin{document}
 
 \maketitle
-\tableofcontents
 
-\section{Background}
-
+\begin{abstract}
 \Biocpkg{PureCN} is a purity and ploidy aware copy number caller for cancer
 samples inspired by the \software{ABSOLUTE} algorithm \cite{Carter2012}.  It was
 designed for hybrid capture sequencing data, especially with medium-sized
@@ -35,6 +33,12 @@ sub-clonal.
 \Biocpkg{PureCN} was further designed to integrate well with industry standard
 pipelines \cite{McKenna2010}, but it is straightforward to generate input data
 from other pipelines.
+\end{abstract}
+
+\packageVersion{\Sexpr{BiocStyle::pkg_ver("PureCN")}}
+
+\tableofcontents
+\newpage
 
 <<load-purecn, echo=FALSE, message=FALSE>>=
 library(PureCN)
@@ -89,20 +93,15 @@ how to add info fields to a VCF.
 For the default segmentation function provided by \Biocpkg{PureCN}, the
 algorithm first needs to calculate log-ratios of tumor vs.  normal control
 coverage.  Exon-level coverage data needs to be provided in \software{GATK
-DepthOfCoverage} format:
+DepthOfCoverage} format\footnote{\software{GATK} will generate additional
+columns and \Biocpkg{PureCN} will ignore these when provided}:
 
-\begin{footnotesize}
 \begin{verbatim}
-    Target  total_coverage  average_coverage    Sample1_total_cvg   Sample1_mean_cvg   
-    Sample1_granular_Q1 Sample1_granular_median Sample1_granular_Q3 Sample1_._above_15
-    chr1:69091-70009    0   0   0   0   1   1   1   0
-    chr1:367659-368598  6358    9.25121153819759    6358    9.25121153819759    1   7   13  11.6
-    chr1:621096-622035  6294    9.16910019318401    6294    9.16910019318401    1   7   12  9.5
+    Target  total_coverage  average_coverage    
+    chr1:69091-70009    0   0   0   
+    chr1:367659-368598  6358    9.25    
+    chr1:621096-622035  6294    9.16    
 \end{verbatim}
-\end{footnotesize}
-
-\Biocpkg{PureCN} will only use data from the columns "Target",
-"total\_coverage", and "average\_coverage", all other columns are optional. 
 
 It is recommended to GC-normalize coverage. GC-content is expected in
 \software{GATK GCContentByInterval} format:
@@ -250,7 +249,8 @@ in coverage per exon:
 
 <<exonweightfile1>>=
 exon.weight.file <- "exon_weights.txt"
-createExonWeightFile(gatk.tumor.file, gatk.normal.files, exon.weight.file)
+createExonWeightFile(gatk.tumor.file, gatk.normal.files, 
+    exon.weight.file)
 @
 
 This function calculates exon-level copy number log-ratios for all normal
@@ -316,8 +316,8 @@ when matching normals are not available.
 # Instead of using a pool of normals to find low quality regions,
 # we use suitable BED files, for example from the UCSC genome browser.
 
-# We do not download these in this vignette to avoid build failures due to 
-# internet connectivity problems.
+# We do not download these in this vignette to avoid build failures 
+# due to internet connectivity problems.
 downloadFromUCSC <- FALSE
 if (downloadFromUCSC) {
     library(rtracklayer)
@@ -327,13 +327,16 @@ if (downloadFromUCSC) {
         track="Segmental Dups", table="genomicSuperDups"))
     tbl.simpleRepeats <- getTable( ucscTableQuery(mySession, 
         track="Simple Repeats", table="simpleRepeat"))
-    write.table(tbl.segmentalDups[,-1],file="hg19_segmentalDuplications.txt",
-        sep="\t", row.names=FALSE)
-    write.table(tbl.simpleRepeats[,-1],file="hg19_simpleRepeats.txt", 
-        sep="\t", row.names=FALSE)
+    write.table(tbl.segmentalDups[,-1],
+        file="hg19_segmentalDuplications.txt", sep="\t", 
+        row.names=FALSE)
+    write.table(tbl.simpleRepeats[,-1],
+        file="hg19_simpleRepeats.txt", sep="\t", 
+        row.names=FALSE)
 }
 
-snp.blacklist <- c('hg19_segmentalDuplications.txt', 'hg19_simpleRepeats.txt')
+snp.blacklist <- c('hg19_segmentalDuplications.txt', 
+    'hg19_simpleRepeats.txt')
 @
 
 \section{Recommended run}
@@ -341,19 +344,21 @@ snp.blacklist <- c('hg19_segmentalDuplications.txt', 'hg19_simpleRepeats.txt')
 Finally, we can run \Biocpkg{PureCN} with all that information:
 
 <<runpurecn>>=
-ret <-runAbsoluteCN(gatk.normal.file=pool, gatk.tumor.file=gatk.tumor.file, 
-    vcf.file=vcf.file, genome="hg19", sampleid='Sample1', 
+ret <-runAbsoluteCN(gatk.normal.file=pool, 
+    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, 
+    genome="hg19", sampleid='Sample1', 
     gc.gene.file=gc.gene.file, 
-#args.filterVcf=list(snp.blacklist=snp.blacklist, stats.file=mutect.stats.file), 
+# args.filterVcf=list(snp.blacklist=snp.blacklist, 
+# stats.file=mutect.stats.file), 
     args.segmentation=list(exon.weight.file=exon.weight.file), 
     post.optimize=FALSE, plot.cnv=FALSE, verbose=FALSE)
 @
 
 The \Rcode{post.optimize} flag will increase the runtime typically by one order
-of magnitude, but might return slightly more accurate purity estimates. For
-high quality whole exome data, this is typically not necessary.  The files specified in
-\Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering SNVs more efficiently for
-artifacts as described in Sections~\ref{artifactfiltering} and
+of magnitude, but might return slightly more accurate purity estimates. For high
+quality whole exome data, this is typically not necessary.  The files specified
+in \Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering SNVs more efficiently
+for artifacts as described in Sections~\ref{artifactfiltering} and
 \ref{artifactfiltering2}. If possible, these files should be generated and
 provided. The \Rcode{plot.cnv} argument allows the segmentation function to
 generate additional plots if set to \Rcode{TRUE}.  
@@ -371,7 +376,8 @@ dev.off()
 The first plot shows the purity and ploidy local optima, sorted by final
 likelihood score after fitting both copy number and allelic fractions:
 
-<<figureexample1, fig.show='hide'>>=
+
+<<figureexample1, fig.show='hide', fig.width=6, fig.height=6>>=
 plotAbs(ret, type="overview")
 @
 \incfig{figure/figureexample1-1}{0.75\textwidth}{Overview.}
@@ -380,7 +386,7 @@ plotAbs(ret, type="overview")
 
 We now look at the main plots of the maximum likelihood solution in more detail.
 
-<<figureexample2, fig.show='hide'>>=
+<<figureexample2, fig.show='hide', fig.width=6, fig.height=6>>=
 plotAbs(ret, 1, type="hist")
 @
 \incfig{figure/figureexample2-1}{0.75\textwidth}{Log-ratio histogram.}
@@ -395,7 +401,7 @@ integer copy numbers from 0 to 7. It can be seen that most of the log-ratios of
 the maximum likelihood solution align well to expected values for copy numbers
 of 0, 1 and 2. 
 
-<<figureexample3, fig.show='hide'>>=
+<<figureexample3, fig.show='hide', fig.width=8, fig.height=8>>=
 plotAbs(ret, 1, type="BAF")
 @
 \incfig{figure/figureexample3-1}{0.95\textwidth}{B-allele frequency plot.}{Each
@@ -414,7 +420,7 @@ germline SNPs.  In the middle panel, the corresponding copy number log-ratios
 are shown. The lower panel displays the calculated integer copy numbers,
 corrected for purity and ploidy. 
 
-<<figureexample4, fig.show='hide'>>=
+<<figureexample4, fig.show='hide', fig.width=8, fig.height=8>>=
 plotAbs(ret, 1, type="AF")
 @
 \incfig{figure/figureexample4-1}{0.95\textwidth}{Allele fraction plots.}{Each
@@ -500,7 +506,7 @@ are then moved to the top of the ranking. If multiple diploid solutions exist,
 additional heuristics try to guess the correct one (for example the diploid
 purity should not be too different from the maximum likelihood purity).
 
-<<figureexample1b, fig.show='hide'>>=
+<<figureexample1b, fig.show='hide', fig.width=6, fig.height=6>>=
 ret <- autoCurateResults(ret)
 plotAbs(ret, type="overview")
 @
@@ -550,15 +556,17 @@ copy-number neutral LOH and to cluster segments with similar allelic imbalance
 and log-ratio.  
 
 <<customseg>>=
-retSegmented <- runAbsoluteCN(seg.file=seg.file, gc.gene.file=gc.gene.file,
-    vcf.file=vcf.file, max.candidate.solutions=1, genome="hg19",
-    test.purity=seq(0.3,0.7, by=0.01), verbose=FALSE, plot.cnv=FALSE)
+retSegmented <- runAbsoluteCN(seg.file=seg.file, 
+    gc.gene.file=gc.gene.file, vcf.file=vcf.file, 
+    max.candidate.solutions=1, genome="hg19",
+    test.purity=seq(0.3,0.7, by=0.01), verbose=FALSE, 
+    plot.cnv=FALSE)
 @
 
 The \Rcode{max.candidate.solutions} and \Rcode{test.purity} arguments are set
 to non-default values to reduce the runtime of this vignette. 
 
-<<figurecustombaf, fig.show='hide'>>=
+<<figurecustombaf, fig.show='hide', fig.width=8, fig.height=8>>=
 plotAbs(retSegmented, 1, type="BAF")
 @
 \incfig{figure/figurecustombaf-1}{0.95\textwidth}{B-allele frequency plot for
@@ -666,7 +674,7 @@ The following Figure~\ref{figure/power1-1} shows the power to detect mono-clonal
 somatic mutations as a function of tumor purity and sequencing coverage
 (reproduced from \cite{Carter2012}):
 
-<<power1, fig.show='hide'>>=
+<<power1, fig.show='hide', fig.width=6, fig.height=6>>=
 purity <- c(0.1,0.15,0.2,0.25,0.4,0.6,1)
 coverage <- seq(5,35,1)
 power <- lapply(purity, function(p) sapply(coverage, function(cv) 
@@ -686,9 +694,9 @@ legend("bottomright", legend=paste("Purity", purity),
 mutations.}{Reproduced from \cite{Carter2012}.}
 
 Figure~\ref{figure/power2-1} then shows the same plot for sub-clonal mutations
-present in 20\% of all cells: 
+present in 20\% of all tumor cells: 
 
-<<power2, fig.show='hide'>>=
+<<power2, fig.show='hide', fig.width=6, fig.height=6>>=
 coverage <- seq(5,350,1)
 power <- lapply(purity, function(p) sapply(coverage, function(cv) 
     calculatePowerDetectSomatic(coverage=cv, purity=p, ploidy=2, 
@@ -702,7 +710,7 @@ legend("bottomright", legend=paste("Purity", purity),
     fill=seq_along(purity))
 @
 \incfig{figure/power2-1}{0.95\textwidth}{Power to detect sub-clonal somatic
-mutations with cellular fraction of 0.2.}{Reproduced from \cite{Carter2012}.}
+mutations present in 20\% of all tumor cells.}{Reproduced from \cite{Carter2012}.}
 
 \clearpage
 
@@ -788,10 +796,9 @@ supported and well tested. A minimal example \software{MuTect} call would be:
     -vcf $OUT/${ID}_bwa_mutect.vcf
     \end{verbatim}
     The default output file is the stats or call-stats file; this can be
-provided in addition to the required VCF file via
-\Rcode{args.filterVcf=list(stats.file='Sample1\_bwa\_mutect\_stats.txt')} in
+provided in addition to the required VCF file via \Rcode{args.filterVcf} in
 \Rfunction{runAbsoluteCN}. If provided, it may help \Biocpkg{PureCN} filter
-artifacts. This requires \software{MuTect} in version 1.1.7. 
+artifacts. This requires \software{MuTect} in version 1.1.7.  
 \end{itemize}
 
 \paragraph{Questions related to manual curation.}
@@ -844,7 +851,8 @@ if (downloadFromUCSC) {
         track="RefSeq Genes", table="refGene"))
 }
 
-.annotateIntervals <- function(gc.gene.file, tblGenes, output.file = NULL) {
+.annotateIntervals <- function(gc.gene.file, tblGenes, 
+    output.file = NULL) {
     grGenes <- GRanges(seqnames=tblGenes$chrom, 
         IRanges(start=tblGenes$cdsStart, end=tblGenes$cdsEnd))
     gc <- read.delim(gc.gene.file, as.is=TRUE)
