@@ -37,10 +37,11 @@ vcf.file=NULL,
 ### also be a \code{CollapsedVCF}, read with the \code{readVcf} function. 
 ### Requires a DB info flag for dbSNP membership. The default 
 ### \code{fun.setPriorVcf} function will also
-### look for a Cosmic.CNT slot, containing the hits in the COSMIC database.
+### look for a Cosmic.CNT slot (see \code{cosmic.vcf.file}), containing 
+### the hits in the COSMIC database.
 ### Again, do not expect very useful results without a VCF file.
 genome,
-### Genome version, required for the \code{readVcf} function.
+### Genome version, for example hg19.
 centromeres=NULL,
 ### A \code{data.frame} with centromere positions in first three columns. 
 ### If \code{NULL}, use pre-stored positions for genome versions 
@@ -177,7 +178,8 @@ cosmic.vcf.file=NULL,
 ### The default \code{fun.setPriorVcf} function will give SNVs
 ### found in the COSMIC database a higher prior probability of being somatic.
 ### Not used in likelhood model when matched normal is available in 
-### \code{vcf.file}.
+### \code{vcf.file}. Should be compressed and indexed with bgzip and tabix,
+### respectively.
 verbose=TRUE, 
 ### Verbose output.
 post.optimize=FALSE,

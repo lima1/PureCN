@@ -872,7 +872,7 @@ unbalanced (a complete loss would result in balanced germline allele
 frequencies, since only normal DNA is left). Future versions might improve
 calling in these cases by underweighting uninformative genomic regions.
     \item The third problem is that tumor evolution is fast and complex and very
-difficult to incorporate in general likelihood models. Sometimes multiple
+difficult to incorporate into general likelihood models. Sometimes multiple
 solutions explain the data equally well, but one solution is then often clearly
 more consistent with known biology, for example LOH in tumor suppressor genes
 such as \textit{TP53}.  A basic understanding of both the algorithm and the
