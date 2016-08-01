@@ -10,9 +10,12 @@
 BiocStyle::latex2()
 @ 
 
+\usepackage{booktabs} % book-quality tables
+
 \title{PureCN: Estimating tumor purity, ploidy, LOH and SNV status using hybrid
 capture sequencing data}
-\author{Markus Riester}
+\author[1]{Markus Riester}
+\affil[1]{Novartis Institutes for BioMedical Research, Cambridge, MA}
 
 \begin{document}
 
@@ -716,6 +719,8 @@ mutations present in 20\% of all tumor cells.}{Reproduced from \cite{Carter2012}
 
 \section{Command line scripts}
 
+\subsection{Coverage}
+
 We provide a basic template for GC-normalizing BAM or \software{GATK
 DepthOfCoverage} files from the command line. For example:
 
@@ -728,6 +733,24 @@ Rscript Coverage.R --outdir ~/tmp/ --bam ex1.bam \
 Rscript Coverage.R --outdir ~/tmp/ --gatkcoverage example_tumor.txt \ 
     --gcgene  example_gc.gene.file.txt     
 \end{verbatim}
+
+\begin{table*}
+\caption{Coverage command line script.}
+\centering
+\begin{tabular}{lll}
+\toprule
+Argument name       & Corresponding PureCN argument & PureCN function \\
+\midrule
+--help -h           & & \\
+--bam -b            & bam.file & \Rfunction{calculateBamCoverageByInterval} \\
+--gatkcoverage -g   & gatk.coverage.file & \Rfunction{correctCoverageBias} \\
+--gcgene -c         & gc.gene.file  & \Rfunction{correctCoverageBias} \\
+--outdir -o         & & \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{PureCN}
 
 PureCN.R is an example script to run PureCN with basic parameters:
 
@@ -743,6 +766,31 @@ Rscript PureCN.R --outdir ~/tmp/ --segfile example_seg.txt \
     --gcgene  example_gc.gene.file.txt
 \end{verbatim}
 
+
+\begin{table*}
+\caption{PureCN command line script.}
+\centering
+\begin{tabular}{lll}
+\toprule
+Argument name       & Corresponding PureCN argument & PureCN function \\
+\midrule
+--help -h           & & \\
+--normal -n         & gatk.normal.file   & \Rfunction{runAbsoluteCN}  \\
+--tumor -t          & gatk.tumor.file     & \Rfunction{runAbsoluteCN} \\
+--vcf -v            & vcf.file          & \Rfunction{runAbsoluteCN}   \\
+--genome -g         & genome             & \Rfunction{runAbsoluteCN}  \\
+--gcgene -c         & gc.gene.file      & \Rfunction{runAbsoluteCN}   \\
+--segfile -f        & seg.file           & \Rfunction{runAbsoluteCN}  \\
+--snpblacklist -s   & snp.blacklist & \Rfunction{filterVcfBasic}     \\
+--statsfile -a      & stats.file & \Rfunction{filterVcfMuTect}        \\
+--exonweightfile -e & exon.weight.file & \Rfunction{segmentationCBS} \\
+--normaldb -d       & normalDB & \Rfunction{findBestNormal}      \\
+--outdir -o         &          &                            \\
+--sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
+\bottomrule
+\end{tabular}
+\end{table*}
+ 
 These R scripts can be found in the extdata directory of the installed package.
 
 \section{FAQ}
