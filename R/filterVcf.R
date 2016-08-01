@@ -442,15 +442,20 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     if (!length(intersect(seqlevelsStyle(vcf), cosmicSeqStyle))) {
         seqlevelsStyle(vcfRenamedSL) <- cosmicSeqStyle[1]
     }
+    if (verbose) message("Reading COSMIC VCF...")
     # look-up the variants in COSMIC
     cosmic.vcf <- readVcf(cosmic.vcf.file, genome=genome(vcf)[1],  
-        ScanVcfParam(which = rowRanges(vcfRenamedSL)))
+        ScanVcfParam(which = rowRanges(vcfRenamedSL),
+            info="CNT",
+            fixed="ALT",
+            geno=NA
+        )
+    )
     ov <- findOverlaps(vcfRenamedSL, cosmic.vcf, type="equal")
     # make sure that alt alleles match
     idx <- as.logical(alt(vcf[queryHits(ov)]) ==
         alt(cosmic.vcf[subjectHits(ov)]))
     ov <- ov[idx]
-
     if (!length(ov)) return(vcf)
 
     if (is.null(info(cosmic.vcf)$CNT)) {

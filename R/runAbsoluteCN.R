@@ -362,10 +362,6 @@ post.optimize=FALSE,
             .stopUserError("Different chromosome names in coverage and VCF.")
         }
         
-        if (!is.null(cosmic.vcf.file)) {
-            vcf <- .addCosmicCNT(vcf, cosmic.vcf.file, verbose=verbose) 
-        }
-
         if (is.null(args.filterVcf$use.somatic.status)) {
             args.filterVcf$use.somatic.status <- TRUE
         }
@@ -412,6 +408,11 @@ post.optimize=FALSE,
                 " variants outside intervals.", 
                 " Set remove.off.target.snvs=FALSE to include.")
         }        
+
+        if (!is.null(cosmic.vcf.file)) {
+            vcf <- .addCosmicCNT(vcf, cosmic.vcf.file, verbose=verbose) 
+        }
+
         args.setPriorVcf <- c(list(vcf=vcf, verbose=verbose), args.setPriorVcf) 
         prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
         vcf.germline <- vcf[which(prior.somatic < 0.5)]
