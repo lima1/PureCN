@@ -22,6 +22,7 @@ alpha=0.005,
 ### Alpha value for CBS, see documentation for the \code{segment} function.
 undo.SD=NULL,
 ### \code{undo.SD} for CBS, see documentation of the \code{segment} function.
+### If NULL, try to find a sensible default.
 vcf=NULL,
 ### Optional \code{CollapsedVCF} object with germline allelic ratios.
 tumor.id.in.vcf=1,
@@ -31,9 +32,10 @@ normal.id.in.vcf=NULL,
 max.segments=NULL,
 ### If not \code{NULL}, try a higher \code{undo.SD} parameter 
 ### if number of segments exceeds the threshold.
-prune.hclust.h=0.1,
+prune.hclust.h=NULL,
 ### Height in the \code{hclust} pruning step. Increasing this value 
-### will merge segments more aggressively.
+### will merge segments more aggressively. If NULL, try to find a sensible
+### default.
 prune.hclust.method="ward.D",
 ### Cluster method used in the \code{hclust} pruning step. See
 ### documentation for the \code{hclust} function.
@@ -62,15 +64,15 @@ verbose=TRUE
         x <- .findCNNLOH(x, vcf, tumor.id.in.vcf, alpha=alpha, 
             chr.hash=chr.hash)
         x <- .pruneByHclust(x, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
-            method=prune.hclust.method, chr.hash=chr.hash)
+            method=prune.hclust.method, chr.hash=chr.hash, verbose=verbose)
     }
     idx.enough.markers <- x$cna$output$num.mark > 1
-    ##value<< A list with elements
-    xx <- list(
-        seg=x$cna$output[idx.enough.markers,], ##<< The segmentation.
-        size=x$cnv$size[idx.enough.markers]  ##<< The size of all segments (in base pairs).
-    )
-##end<<
+    rownames(x$cna$output) <- NULL
+    if (verbose) {
+        print(x$cna$output[idx.enough.markers,])
+    }
+    x$cna$output[idx.enough.markers,]
+### \code{data.frame} containing the segmentation.    
 },ex=function() {
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
@@ -106,7 +108,6 @@ iterations=2, chr.hash ) {
         ar.r <- ifelse(ar>0.5, 1-ar, ar)
 
         segs <- split(seg, seq_len(nrow(seg)) )
-        sizes <- split(x$cnv$size, seq_len(nrow(seg)) )
 
         for (i in seq_len(nrow(seg)) ) {
             sar <-ar.r[subjectHits(ov)][queryHits(ov)==i]
@@ -123,20 +124,28 @@ iterations=2, chr.hash ) {
                 bpPosition <-  start(vcf[subjectHits(ov)][queryHits(ov)==i])[bp]
                 segs[[i]]$loc.end[1] <- bpPosition
                 segs[[i]]$loc.start[2] <- bpPosition+1
-                sizes[[i]] <- c(bpPosition, sizes[[i]]-bpPosition)
-                segs[[i]]$num.mark <- round(sizes[[i]]/sum(sizes[[i]]) * 
-                    segs[[i]]$num.mark)
                 #message("Iteration: ", iter, " Found CNNLOH on ", seg$chrom[i]) 
             }
         }
-        x$cna$output <- do.call(rbind, segs)
-        x$cnv <- list(size=as.vector(do.call(c, sizes)))
+        x$cna$output <- .updateNumMark(do.call(rbind, segs), x)
     }
     x
 }
-    
-.pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=0.1, method="ward.D", 
-    min.variants=5, chr.hash) {
+
+# After merging, we need to figure out how many exons are covering the new 
+# segments
+.updateNumMark <- function(seg, x) {
+    segGR <- GRanges(seqnames=seg$chrom, IRanges(start=seg$loc.start, 
+        end=seg$loc.end))
+    probeGR <- GRanges(seqnames=as.character(x$cna$data$chrom), 
+        IRanges(start=x$cna$data$maploc, end=x$cna$data$maploc))
+    ov <- findOverlaps(segGR, probeGR)
+    seg$num.mark <- table(queryHits(ov))
+    seg
+}
+        
+.pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=NULL, method="ward.D", 
+    min.variants=5, chr.hash, verbose=TRUE) {
     seg <- x$cna$output
     seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
         IRanges(start=seg$loc.start, end=seg$loc.end))
@@ -152,6 +161,12 @@ iterations=2, chr.hash ) {
             w=sqrt(dp[subjectHits(ov)][queryHits(ov) == i]),
             na.rm=TRUE)
     })
+
+    if (is.null(h)) {
+        h <- .getPruneH(seg)
+        if (verbose) message("Setting prune.hclust.h parameter to ", h)
+    }   
+
     numVariants <- sapply(seq_len(nrow(seg)), function(i) sum(queryHits(ov) == i))
     dx <- cbind(seg$seg.mean,xx)
     hc <- hclust(dist(dx), method=method)
@@ -202,7 +217,6 @@ iterations=2, chr.hash ) {
                     c(seg$seg.mean[i],seg$seg.mean[i-1]),
                     w=c(seg$num.mark[i],seg$num.mark[i-1]))
 
-                x$cnv$size[i-1] <- x$cnv$size[i]+x$cnv$size[i-1]
                 x$cna$output$num.mark[i-1] <- seg$num.mark[i]+seg$num.mark[i-1]
                 x$cna$output$loc.end[i-1] <- seg$loc.end[i]
                 seg$pval[i-1] <- seg$pval[i]
@@ -213,7 +227,6 @@ iterations=2, chr.hash ) {
                 "Merged:", merged[i],"\n", sep=" "))
         }
         x$cna$output <- x$cna$output[!merged,]
-        x$cnv <- x$cnv[!merged,]
         seg <- seg[!merged,]
     }
     x
@@ -225,6 +238,17 @@ iterations=2, chr.hash ) {
     if (q.diff < 1) return(0.5)
     if (q.diff < 1.5) return(0.75)
     return(1)
+}    
+
+.getPruneH <- function(seg) {
+    seg <- seg[seg$num.mark>=1,]
+    log.ratio <- unlist(lapply(seq_len(nrow(seg)), function(i) 
+        rep(seg$seg.mean[i], seg$num.mark[i])))
+    q <- quantile(log.ratio,p=c(0.1, 0.9))
+    q.diff <- abs(q[1] - q[2])
+    if (q.diff < 1) return(0.1)
+    if (q.diff < 1.5) return(0.2)
+    return(0.3)
 }    
 
 .getWellCoveredExons <- function(normal, tumor, coverage.cutoff) {
@@ -302,38 +326,11 @@ max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
         abline(h=log2(c + (1-c)*c(1,3,4,5)/2), col="purple")
     }
     
-    if (verbose) {
-        print(segment.smoothed.CNA.obj)
-    }
-    cnv <- .get.proper.cnv.positions(normal[well.covered.exon.idx,], 
-        segment.smoothed.CNA.obj$output, chr.hash=chr.hash)
 
-    return(list(cnv=cnv, cna=segment.smoothed.CNA.obj, 
-        logR=norm.log.ratio))
+    return(list(cna=segment.smoothed.CNA.obj, logR=norm.log.ratio))
 }
 
-.get.proper.cnv.positions <- function (exons, cnv, chr.hash) 
-{
-    `%+%` <- function(x, y) paste(x, y, sep = "")
-    order.by.chr = order(.strip.chr.name(exons$chr, chr.hash))
-    exons = exons[order.by.chr, ]
-    cnv$chr = as.character(chr.hash[cnv$chrom, "chr"])
-    cnv$probe = "cnv" %+% as.character(1:nrow(cnv))
-    end.idx = cumsum(cnv$num.mark)
-    start.idx = c(1, 1 + end.idx[-length(end.idx)])
-    cnv$probe_start = exons$probe_start[start.idx]
-    cnv$probe_end = exons$probe_end[end.idx]
-    cnv$size = cnv$probe_end - cnv$probe_start + 1
-    sum.chunk = function(i, colName) {
-        sum(exons[start.idx[i]:end.idx[i], colName])
-    }
-    cnv$targeted.base = sapply(1:nrow(cnv), sum.chunk, 
-        colName = "targeted.base")
-    cnv$sequenced.base = sapply(1:nrow(cnv), sum.chunk, 
-        colName = "sequenced.base")
-    cnv$coverage = sapply(1:nrow(cnv), sum.chunk, colName = "coverage")
-    cnv$average.coverage = cnv$coverage/cnv$targeted.base
-    cnv$base.with..10.coverage = sapply(1:nrow(cnv), sum.chunk, 
-        colName = "base.with..10.coverage")
-    return(cnv)
+.getSegSizes <- function(seg) {
+    round(seg$loc.end-seg$loc.start+1)
 }
+

@@ -7,7 +7,7 @@ The arguments are passed via \code{args.segmentation}.}
 \usage{segmentationCBS(normal, tumor, log.ratio, plot.cnv, 
     coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
     alpha = 0.005, undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, 
-    normal.id.in.vcf = NULL, max.segments = NULL, prune.hclust.h = 0.1, 
+    normal.id.in.vcf = NULL, max.segments = NULL, prune.hclust.h = NULL, 
     prune.hclust.method = "ward.D", chr.hash = NULL, 
     verbose = TRUE)}
 \arguments{
@@ -19,14 +19,16 @@ The arguments are passed via \code{args.segmentation}.}
   \item{sampleid}{Sample id, used in output files.}
   \item{exon.weight.file}{Can be used to assign weights to exons.}
   \item{alpha}{Alpha value for CBS, see documentation for the \code{segment} function.}
-  \item{undo.SD}{\code{undo.SD} for CBS, see documentation of the \code{segment} function.}
+  \item{undo.SD}{\code{undo.SD} for CBS, see documentation of the \code{segment} function.
+If NULL, try to find a sensible default.}
   \item{vcf}{Optional \code{CollapsedVCF} object with germline allelic ratios.}
   \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in VCF.}
   \item{normal.id.in.vcf}{Id of normal in in VCF. Currently not used.}
   \item{max.segments}{If not \code{NULL}, try a higher \code{undo.SD} parameter 
 if number of segments exceeds the threshold.}
   \item{prune.hclust.h}{Height in the \code{hclust} pruning step. Increasing this value 
-will merge segments more aggressively.}
+will merge segments more aggressively. If NULL, try to find a sensible
+default.}
   \item{prune.hclust.method}{Cluster method used in the \code{hclust} pruning step. See
 documentation for the \code{hclust} function.}
   \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
@@ -35,9 +37,7 @@ are properly ordered.}
   \item{verbose}{Verbose output.}
 }
 
-\value{A list with elements
-\item{seg}{The segmentation.}
-\item{size}{The size of all segments (in base pairs).}}
+\value{\code{data.frame} containing the segmentation.    }
 
 \author{Markus Riester}
 

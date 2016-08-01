@@ -74,8 +74,8 @@ args.setPriorVcf=list(),
 ### Arguments for somatic prior function.
 fun.segmentation=segmentationCBS, 
 ### Function for segmenting the copy number log-ratios. 
-### Expected return value is a list with elements \code{seg} (the 
-### segmentation) and \code{size} (the size in bp for all segments).
+### Expected return value is a \code{data.frame} representation of the 
+### segmentation.
 args.segmentation=list(),
 ### Arguments for segmentation function. Arguments 
 ### \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv}, 
@@ -431,9 +431,8 @@ post.optimize=FALSE,
         chr.hash=chr.hash, verbose=verbose,...), args.segmentation)
 
     vcf.germline <- NULL
-    seg.result <- do.call(fun.segmentation, args.segmentation) 
+    seg <- do.call(fun.segmentation, args.segmentation) 
 
-    seg <- seg.result$seg
     seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
         IRanges(start=round(seg$loc.start), end=seg$loc.end))
     
@@ -505,7 +504,7 @@ post.optimize=FALSE,
 
     # initialize variables
     llik <- -Inf
-    li <- seg.result$size
+    li <- .getSegSizes(seg)
     C <- rep(2, length(li))
 
     if (sum(li < 0) > 0) .stopRuntimeError("Some segments have negative size.")
@@ -571,7 +570,7 @@ post.optimize=FALSE,
         if (verbose) message("Testing local optimum ", cpi, "/", 
             nrow(candidate.solutions$candidates),
             " at purity ", round(p, digits=2), " and total ploidy ", 
-            round(total.ploidy, digits=2), ".")
+            round(total.ploidy, digits=2), "...")
 
         subclonal <- rep(FALSE, nrow(seg))
         old.llik <- -1; cnt.llik.equal <- 0;

@@ -80,8 +80,8 @@ filter function and are automatically set (do NOT set them here again).}
 variant in the VCF.}
   \item{args.setPriorVcf}{Arguments for somatic prior function.}
   \item{fun.segmentation}{Function for segmenting the copy number log-ratios. 
-Expected return value is a list with elements \code{seg} (the 
-segmentation) and \code{size} (the size in bp for all segments).}
+Expected return value is a \code{data.frame} representation of the 
+segmentation.}
   \item{args.segmentation}{Arguments for segmentation function. Arguments 
 \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv}, 
 \code{coverage.cutoff}, \code{sampleid}, \code{vcf}, 

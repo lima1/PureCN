@@ -283,7 +283,7 @@ verbose=TRUE
             prior.somatic[2], prior.somatic[1])
          if (!is.null(info(vcf)$Cosmic.CNT)) {
              if (verbose) message("Found COSMIC annotation in VCF. ",
-                "Setting somatic prior probabilities for hits to ", tmp[5],
+                "Setting somatic prior probabilities for hits to\n", tmp[5],
                 " or to ", tmp[6], " if in both COSMIC and dbSNP.")
 
              prior.somatic[which(info(vcf)$Cosmic.CNT>2)] <- tmp[5]
