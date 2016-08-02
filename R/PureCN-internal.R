@@ -491,9 +491,16 @@ test.num.copy[i], prior.K))
             candidates$purity< grid[i+1] ])) > 0.3) {
 
             mm.05 <- mm[,seq(t1+1,t2),drop=FALSE]
+            
+            # Find row most similar to normal diploid
+            diploidRowId <- which.min(abs(2-as.numeric(row.names(mm.05))))
+            # assert that rownames are still what they should be
+            if (diploidRowId != which.min(abs(2-ploidy.grid))) {
+                .stopRuntimeError("Cannot find diploid row in grid search.")
+            }
             candidates <- rbind(candidates, 
-                c(2, as.numeric(names(which.max(mm.05["2", ]))), 
-                max(mm.05["2", ]), 2))
+                c(2, as.numeric(names(which.max(mm.05[diploidRowId, ]))), 
+                max(mm.05[diploidRowId, ]), 2))
 
             # Remove again if too similar with existing candidate
             if (nrow(candidates) > 2 && 

@@ -217,4 +217,11 @@ test_runAbsoluteCN <- function() {
         cosmic.vcf.file=cosmic.vcf.file,
         test.purity=seq(0.3,0.7, by=0.01))
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
+    # test min.ploidy bug
+    ret <- runAbsoluteCN(gatk.normal.file, gatk.tumor.file, min.ploidy=2.2, 
+        max.ploidy=4, genome="hg19", test.purity=seq(0.3,0.7, by=0.05), 
+        plot.cnv=FALSE, max.candidate.solutions=1)
+
+    checkTrue(ret$results[[1]]$ploidy > 2)
+    checkTrue(ret$results[[1]]$ploidy < 4)
 }    
