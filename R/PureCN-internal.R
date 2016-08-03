@@ -361,6 +361,8 @@ test.num.copy[i], prior.K))
 
 .flagResults <- function(results, max.non.clonal = 0.2, max.logr.sdev, logr.sdev, max.segments,
     flag = NA, flag_comment = NA, dropout=FALSE) {
+    if (length(results) < 1) return(results)
+
     results <- lapply(results, .flagResult, max.non.clonal = max.non.clonal)
     
     # ldiff <- ( results[[1]]$total.log.likelihood -
@@ -537,7 +539,7 @@ test.num.copy[i], prior.K))
 }
 
 .rankResults <- function(results) {
-    
+    if (length(results) < 1) return(results)  
     # max.ll <- max(sapply(results, function(z) z$log.likelihood)) max.snv.ll <-
     # max(sapply(results, function(z) z$SNV.posterior$beta.model$llik))
     complexity <- .calcComplexityCopyNumber(results) 

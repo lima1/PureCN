@@ -184,7 +184,7 @@ correctCoverageBias(gatk.normal.file, gc.gene.file,
 @
 
 \textbf{All the following steps in this vignette assume that the coverage data
-is GC-normalized.} The example coverage files are already GC-normalized. 
+are GC-normalized.} The example coverage files are already GC-normalized. 
 
 
 \section{Pool of normals}
@@ -270,13 +270,11 @@ tumor files are necessary, however.
 
 We can also use the pool of normals to find SNPs with biased allelic fractions
 in low quality regions (very significantly different from 0.5 for heterozygous
-SNPs). We do not do this here for simplicity. This step is recommended for
-unpaired samples and optional for paired samples. If a matching normal is
-provided, most variants in low quality regions with biased allelic fractions are
-automatically ignored. Note that this is not meant to model non-reference bias
-leading in expected allelic ratio only slightly below 0.5 (typically around
-0.48). This bias is typically not strong enough to influence selection of SNV
-states.
+SNPs). If a matching normal is provided, most variants in low quality regions
+with biased allelic fractions should be automatically ignored. Note that this
+is not meant to model non-reference bias leading in expected allelic ratio only
+slightly below 0.5 (typically around 0.48). This bias is typically not strong
+enough to influence selection of SNV states.
 
 <<snpblacklist>>=
 snp.blacklist <- c("SNP_blacklist.csv", "SNP_blacklist_segmented.csv")

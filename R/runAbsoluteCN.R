@@ -807,7 +807,7 @@ post.optimize=FALSE,
         .optimizeSolution)
     if (verbose) message(
         "Remember, posterior probabilities assume a correct SCNA fit.")
-
+    
     results <- .rankResults(results)
     results <- .filterDuplicatedResults(results)
     results <- .flagResults(results, max.non.clonal=max.non.clonal, 
@@ -828,6 +828,9 @@ post.optimize=FALSE,
                 .getVariantCallsLOH( results[[i]] )
         }
     }
+    if (length(results) < 1) {
+        warning("Could not find valid purity and ploidy solution.")
+    }    
     ##value<< A list with elements
     list(
         candidates=candidate.solutions, ##<< Results of the grid search.
