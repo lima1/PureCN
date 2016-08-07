@@ -72,10 +72,14 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
 .filterTargetsNormalDB <- function(targetsUsed, tumor, normalDB,
 normalDB.min.coverage, verbose) {
     if (is.null(normalDB)) return(targetsUsed)
+    if (nrow(tumor) != length(normalDB$exon.median.coverage)) {
+        warning("normalDB does not align with coverage. Ignoring normalDB.")
+        return(targetsUsed)
+    }
     nBefore <- sum(targetsUsed)
     min.coverage <- (sapply(split(normalDB$exon.median.coverage, 
         tumor$chr), median, na.rm=TRUE)*normalDB.min.coverage)[tumor$chr]
-    targetsUsed <- targetsUsed & tumor$average.coverage >= min.coverage
+    targetsUsed <- targetsUsed & normalDB$exon.median.coverage >= min.coverage
     nAfter <- sum(targetsUsed)
 
     if (verbose && nAfter < nBefore) { 
