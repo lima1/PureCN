@@ -71,30 +71,32 @@ warn users, for example when samples look too noisy. Default filter will
 remove variants flagged by MuTect, but will keep germline variants. If 
 ran in matched normal mode, it will by default use somatic status of 
 variants and filter non-somatic calls with allelic fraction significantly 
-different from 0.5 in normal. }
+different from 0.5 in normal. Defaults to \code{\link{filterVcfMuTect}}, 
+which in turn also calls \code{\link{filterVcfBasic}}.}
   \item{args.filterVcf}{Arguments for variant filtering function. Arguments 
 \code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage} and 
 \code{verbose} are required in the 
 filter function and are automatically set (do NOT set them here again).}
   \item{fun.setPriorVcf}{Function to set prior for somatic status for each 
-variant in the VCF.}
+variant in the VCF. Defaults to \code{\link{setPriorVcf}}.}
   \item{args.setPriorVcf}{Arguments for somatic prior function.}
   \item{fun.filterTargets}{Function for filtering low-quality targets in the coverage 
 files. Needs to return a \code{logical} vector whether an interval
-should be used for segmentation.}
+should be used for segmentation. Defaults to \code{\link{filterTargets}}.}
   \item{args.filterTargets}{Arguments for target filtering function. Arguments
 \code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
 \code{verbose} are required and automatically set (do NOT set 
 them here again).}
   \item{fun.segmentation}{Function for segmenting the copy number log-ratios. 
 Expected return value is a \code{data.frame} representation of the 
-segmentation.}
+segmentation. Defaults to \code{\link{segmentationCBS}}.}
   \item{args.segmentation}{Arguments for segmentation function. Arguments 
 \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv}, 
 \code{min.coverage}, \code{sampleid}, \code{vcf}, 
 \code{tumor.id.in.vcf}, \code{verbose} are required in the 
 segmentation function and automatically set (do NOT set them here again).}
-  \item{fun.focal}{Function for identifying focal amplifications.}
+  \item{fun.focal}{Function for identifying focal amplifications. Defaults to 
+\code{\link{findFocal}}.}
   \item{args.focal}{Arguments for focal amplification function.}
   \item{sampleid}{Sample id, provided in output files etc.}
   \item{min.ploidy}{Minimum ploidy to be considered.}

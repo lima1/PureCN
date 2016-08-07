@@ -6,7 +6,8 @@
 \arguments{
   \item{all.data}{List of normals, read with \code{\link{readCoverageGatk}}.}
   \item{remove.chrs}{Remove these chromosomes from the pool.}
-  \item{w}{List of weights for each sample.}
+  \item{w}{\code{numeric(length(all.data))} vector of weights. If 
+\code{NULL}, weight all samples equally.}
 }
 
 \value{A \code{data.frame} with the averaged coverage over all normals.}

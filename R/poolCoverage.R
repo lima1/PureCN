@@ -6,7 +6,8 @@ all.data,
 remove.chrs=c(),
 ### Remove these chromosomes from the pool.
 w=NULL
-### List of weights for each sample.
+### \code{numeric(length(all.data))} vector of weights. If 
+### \code{NULL}, weight all samples equally.
 ) { 
     pool = all.data[[1]]
     if (length(all.data) == 1) {

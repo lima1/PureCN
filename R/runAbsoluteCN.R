@@ -61,7 +61,8 @@ fun.filterVcf=filterVcfMuTect,
 ### remove variants flagged by MuTect, but will keep germline variants. If 
 ### ran in matched normal mode, it will by default use somatic status of 
 ### variants and filter non-somatic calls with allelic fraction significantly 
-### different from 0.5 in normal. 
+### different from 0.5 in normal. Defaults to \code{\link{filterVcfMuTect}}, 
+### which in turn also calls \code{\link{filterVcfBasic}}.
 args.filterVcf=list(),
 ### Arguments for variant filtering function. Arguments 
 ### \code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage} and 
@@ -69,13 +70,13 @@ args.filterVcf=list(),
 ### filter function and are automatically set (do NOT set them here again).
 fun.setPriorVcf=setPriorVcf,
 ### Function to set prior for somatic status for each 
-### variant in the VCF.
+### variant in the VCF. Defaults to \code{\link{setPriorVcf}}.
 args.setPriorVcf=list(),
 ### Arguments for somatic prior function.
 fun.filterTargets=filterTargets,
 ### Function for filtering low-quality targets in the coverage 
 ### files. Needs to return a \code{logical} vector whether an interval
-### should be used for segmentation.
+### should be used for segmentation. Defaults to \code{\link{filterTargets}}.
 args.filterTargets=list(),
 ### Arguments for target filtering function. Arguments
 ### \code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
@@ -84,7 +85,7 @@ args.filterTargets=list(),
 fun.segmentation=segmentationCBS, 
 ### Function for segmenting the copy number log-ratios. 
 ### Expected return value is a \code{data.frame} representation of the 
-### segmentation.
+### segmentation. Defaults to \code{\link{segmentationCBS}}.
 args.segmentation=list(),
 ### Arguments for segmentation function. Arguments 
 ### \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv}, 
@@ -92,7 +93,8 @@ args.segmentation=list(),
 ### \code{tumor.id.in.vcf}, \code{verbose} are required in the 
 ### segmentation function and automatically set (do NOT set them here again).
 fun.focal=findFocal,
-### Function for identifying focal amplifications.
+### Function for identifying focal amplifications. Defaults to 
+### \code{\link{findFocal}}.
 args.focal=list(),
 ### Arguments for focal amplification function.
 sampleid=NULL, 
