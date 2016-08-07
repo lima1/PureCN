@@ -16,6 +16,14 @@ sex=NULL,
 ) {
     gatk.normal.files <- normalizePath(gatk.normal.files)
     normals <- lapply(gatk.normal.files, readCoverageGatk)
+
+    # check that all files used the same interval file.
+    for (i in seq_along(normals)) {
+        if (!identical(normals[[i]]$probe, normals[[1]]$probe)) {
+            .stopUserError("All gatk.normal.files must have the same ",
+                "intervals. ", gatk.normal.files[i], " is different.")
+        }
+    }
     normals.m <- do.call(cbind, 
         lapply(normals, function(x) x$average.coverage))
     idx <- complete.cases(normals.m)

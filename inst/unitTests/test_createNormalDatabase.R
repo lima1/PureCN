@@ -21,4 +21,16 @@ test_createNormalDatabase <- function() {
         normalDB$gatk.normal.files, checkNames=FALSE)
 
     checkException(createNormalDatabase(gatk.normal.files, sex="A"), silent=TRUE) 
+
+    # create a GATK file with shuffled probes
+    gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+        package = "PureCN")
+    normal <- readCoverageGatk(gatk.normal.file)
+    correctCoverageBias(normal, gc.gene.file)
+    suppressWarnings(correctCoverageBias(normal[sample(nrow(normal)),], 
+        gc.gene.file, "shuffled_gatk.txt"))
+    checkException(createNormalDatabase(c(gatk.normal.files, 
+        "shuffled_gatk.txt")))
+    checkTrue(grepl("shuffled_gatk.txt is different", 
+        geterrmessage()))
 }    
