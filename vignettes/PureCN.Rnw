@@ -353,7 +353,7 @@ ret <-runAbsoluteCN(gatk.normal.file=pool,
     gc.gene.file=gc.gene.file, 
 # args.filterVcf=list(snp.blacklist=snp.blacklist, 
 # stats.file=mutect.stats.file), 
-# args.filterTargets=list(normalDB=normalDB),
+    args.filterTargets=list(normalDB=normalDB),
     args.segmentation=list(target.weight.file=target.weight.file), 
     post.optimize=FALSE, plot.cnv=FALSE, verbose=FALSE)
 @
@@ -564,7 +564,7 @@ and log-ratio.
 retSegmented <- runAbsoluteCN(seg.file=seg.file, 
     gc.gene.file=gc.gene.file, vcf.file=vcf.file, 
     max.candidate.solutions=1, genome="hg19",
-    test.purity=seq(0.3,0.7, by=0.01), verbose=FALSE, 
+    test.purity=seq(0.3,0.7,by=0.05), verbose=FALSE, 
     plot.cnv=FALSE)
 @
 

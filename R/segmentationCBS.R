@@ -92,17 +92,13 @@ vcf.file <- system.file("extdata", "example_vcf.vcf",
 gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
     package="PureCN")
 
-# speed-up the runAbsoluteCN by using the stored grid-search.
-# (purecn.example.output$candidates).
-data(purecn.example.output)
-
-# The max.candidate.solutions argument is set to a very low value only to 
-# speed-up this example. This is not a good idea for real samples.
+# The max.candidate.solutions, max.ploidy and test.purity parameters are set to
+# non-default values to speed-up this example.  This is not a good idea for real
+# samples.
 ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, 
-    vcf.file=vcf.file, genome="hg19",
+    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, genome="hg19", 
     sampleid='Sample1', gc.gene.file=gc.gene.file, 
-    candidates=purecn.example.output$candidates, max.candidate.solutions=2,
+    max.candidate.solutions=1, max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), 
     fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))
 })    
 

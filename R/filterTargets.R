@@ -37,7 +37,7 @@ verbose
 
     if (!is.null(gc.data)) {
         .checkFraction(filter.lowhigh.gc, "filter.lowhigh.gc")
-        targetsUsed <- .filterTargetsLohHighGC(targetsUsed, tumor,
+        targetsUsed <- .filterTargetsLowHighGC(targetsUsed, tumor,
             gc.data, filter.lowhigh.gc, verbose)
     }
     targetsUsed <- .filterTargetsNormalDB(targetsUsed, tumor, normalDB,
@@ -59,22 +59,14 @@ vcf.file <- system.file("extdata", "example_vcf.vcf",
 gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
     package="PureCN")
 
-# Speed-up the runAbsoluteCN call by using the stored grid-search 
-# (purecn.example.output$candidates).
-data(purecn.example.output)
-
-# The max.candidate.solutions, candidates, max.ploidy and test.purity 
-# parameters are set to non-default values to speed-up this example.  
-# This is not a good idea for real samples.
-
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, 
-    genome="hg19", vcf.file=vcf.file, sampleid='Sample1', 
-    gc.gene.file=gc.gene.file,
-    args.filterTargets=list(normalDB=normalDB),
-    candidates=purecn.example.output$candidates, 
-    max.ploidy=4, test.purity=seq(0.3, 0.7, by=0.05),
-    max.candidate.solutions=1)
+# The max.candidate.solutions, max.ploidy and test.purity parameters are set to
+# non-default values to speed-up this example.  This is not a good idea for real
+# samples.
+ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
+    gatk.tumor.file=gatk.tumor.file, genome="hg19", vcf.file=vcf.file,
+    sampleid='Sample1', gc.gene.file=gc.gene.file,
+    args.filterTargets=list(normalDB=normalDB), max.ploidy=4, 
+    test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 })
 
 .filterTargetsNormalDB <- function(targetsUsed, tumor, normalDB,
@@ -116,7 +108,7 @@ normalDB.min.coverage, verbose) {
         " small exons.")
     targetsUsed
 }
-.filterTargetsLohHighGC <- function(targetsUsed, tumor, gc.data,
+.filterTargetsLowHighGC <- function(targetsUsed, tumor, gc.data,
     filter.lowhigh.gc, verbose) {
     gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
     qq <- quantile(gc.data$gc_bias, p=c(filter.lowhigh.gc, 

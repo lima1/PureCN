@@ -107,15 +107,15 @@ vcf.file <- system.file("extdata", "example_vcf.vcf",
 gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
     package="PureCN")
 
-# The max.candidate.solutions argument is set to a very low value only to 
-# speed-up this example. This is not a good idea for real samples.
-#ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-#    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, 
-#    genome="hg19", sampleid='Sample1', 
-#    max.candidate.solutions=2, 
-#    gc.gene.file=gc.gene.file, fun.segmentation=segmentationPSCBS)
+# The max.candidate.solutions, max.ploidy and test.purity parameters are set to
+# non-default values to speed-up this example.  This is not a good idea for real
+# samples.
+ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
+    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, genome="hg19",
+    sampleid='Sample1', gc.gene.file=gc.gene.file,
+    fun.segmentation=segmentationPSCBS, max.ploidy=4,
+    test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 })    
-
     
 .PSCBSoutput2DNAcopy <- function(seg, sampleid) {
     sx <- cbind(ID=sampleid, seg$output[!is.na(seg$output$tcnMean),])
@@ -124,5 +124,5 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
     colnames(sx) <- c("ID", "chrom", "loc.start",  "loc.end", "num.mark", 
         "seg.mean")
     sx$seg.mean <- log2(sx$seg.mean/2)
-    list(seg=sx, size=sx$loc.end-sx$loc.start+1)
+    sx
 }
