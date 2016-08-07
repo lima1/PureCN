@@ -433,7 +433,8 @@ plotAbs(ret, 1, type="AF")
 @
 \incfig{figure/figureexample4-1}{0.95\textwidth}{Allele fraction plots.}{Each
 dot is again a (predicted) germline SNP. This plot normally also shows somatic
-mutations in two additional panels.}
+mutations in two additional panels. This toy example contains only germline
+SNPs however.}
 
 Finally, Figure~\ref{figure/figureexample4-1} provides a little bit more
 insight into how well the variants fit the expected values. The left panel
