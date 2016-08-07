@@ -64,7 +64,7 @@ fun.filterVcf=filterVcfMuTect,
 ### different from 0.5 in normal. 
 args.filterVcf=list(),
 ### Arguments for variant filtering function. Arguments 
-### \code{vcf}, \code{tumor.id.in.vcf}, \code{coverage.cutoff} and 
+### \code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage} and 
 ### \code{verbose} are required in the 
 ### filter function and are automatically set (do NOT set them here again).
 fun.setPriorVcf=setPriorVcf,
@@ -88,7 +88,7 @@ fun.segmentation=segmentationCBS,
 args.segmentation=list(),
 ### Arguments for segmentation function. Arguments 
 ### \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv}, 
-### \code{coverage.cutoff}, \code{sampleid}, \code{vcf}, 
+### \code{min.coverage}, \code{sampleid}, \code{vcf}, 
 ### \code{tumor.id.in.vcf}, \code{verbose} are required in the 
 ### segmentation function and automatically set (do NOT set them here again).
 fun.focal=findFocal,
@@ -120,7 +120,9 @@ candidates=NULL,
 ### Candidates to optimize from a previous run 
 ### (\code{return.object$candidates}). 
 ### If \code{NULL}, do 2D grid search and find local optima. 
-coverage.cutoff=15, 
+coverage.cutoff=NULL,
+### Deprecated, use min.coverage instead. 
+min.coverage=15, 
 ### Minimum coverage in both normal and tumor. Targets
 ### with lower coverage are ingored. 
 max.non.clonal=0.2, 
@@ -224,13 +226,16 @@ post.optimize=FALSE,
             normal <- gatk.normal.file
         }    
     }
-    
+    if (!is.null(coverage.cutoff)) {
+        message("coverage.cutoff is deprecated. Use min.coverage instead.")
+        min.coverage <- coverage.cutoff
+    } 
     if (is.null(gatk.tumor.file)) {
         if (is.null(seg.file) || is.null(gc.gene.file)) { 
             .stopUserError("Missing gatk.tumor.file requires seg.file",
                 " and gc.gene.file.")
         }
-        tumor <- .gcGeneToCoverage(gc.gene.file, coverage.cutoff+1)
+        tumor <- .gcGeneToCoverage(gc.gene.file, min.coverage+1)
         gatk.tumor.file <- tumor
     } else if (is.character(gatk.tumor.file)) {
         gatk.tumor.file <- normalizePath(gatk.tumor.file, mustWork=TRUE)
@@ -392,7 +397,7 @@ post.optimize=FALSE,
             " variants in VCF file.")
         
         args.filterVcf <- c(list(vcf=vcf, tumor.id.in.vcf=tumor.id.in.vcf, 
-            coverage.cutoff=coverage.cutoff, verbose=verbose), args.filterVcf)
+            min.coverage=min.coverage, verbose=verbose), args.filterVcf)
         vcf.filtering <- do.call(fun.filterVcf, args.filterVcf)
 
         vcf <- vcf.filtering$vcf
@@ -421,7 +426,7 @@ post.optimize=FALSE,
 
     args.segmentation <-  c(list(normal=normal, tumor=tumor, 
         log.ratio=log.ratio, plot.cnv=plot.cnv, 
-        coverage.cutoff=ifelse(is.null(seg.file), coverage.cutoff, -1), 
+        min.coverage=ifelse(is.null(seg.file), min.coverage, -1), 
         sampleid=sampleid, vcf=vcf.germline, tumor.id.in.vcf=tumor.id.in.vcf,
         normal.id.in.vcf=normal.id.in.vcf, max.segments=max.segments,
         chr.hash=chr.hash, verbose=verbose,...), args.segmentation)

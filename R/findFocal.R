@@ -4,17 +4,29 @@ findFocal <- structure(function(# Find focal amplifications
 ##seealso<< \code{\link{runAbsoluteCN}}
 seg,
 ### Segmentation data.
-size.cutoff=2000000,
+size.cutoff=NULL,
+### Deprecated, use \code{max.size} instead.
+max.size=2000000,
 ### Cutoff for focal in base pairs.
 cn.diff=2, 
 ### Minimum copy number delta between neighboring segments.
-amp.cutoff=6
+amp.cutoff=NULL,
+### Deprectated, use \code{min.amp.cn} instead.
+min.amp.cn=6
 ### Minimum amplification integer copy number.
 ) {
+    if (!is.null(size.cutoff)) {
+        message("size.cutoff is deprecated, use max.size instead.")
+        max.size <- size.cutoff
+    }
+    if (!is.null(amp.cutoff)) {
+        message("amp.cutoff is deprecated, use min.amp.cn instead.")
+        min.amp.cn <- amp.cutoff
+    }
     focal <- rep(FALSE, nrow(seg))
     for (i in seq_len(nrow(seg))) {
-        if (seg$C[i] < amp.cutoff) next
-        if (seg$size[i] > size.cutoff) next
+        if (seg$C[i] < min.amp.cn) next
+        if (seg$size[i] > max.size) next
         size <- seg$size[i]
         if (i>1) {
             for (j in (i-1):1) {
@@ -32,7 +44,7 @@ amp.cutoff=6
                 size <- size + seg$size[j]    
             }        
         }    
-        focal[i] <- size < size.cutoff        
+        focal[i] <- size < max.size        
     }
     focal    
 ### \code{logical(n)}, indicating for all n segments wether they are focally 
@@ -54,5 +66,5 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, genome="hg19", 
     sampleid='Sample1', gc.gene.file=gc.gene.file,
     max.candidate.solutions=1, max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), 
-    args.focal=list(size.cutoff = 2e+06), fun.focal=findFocal)
+    args.focal=list(max.size = 2e+06), fun.focal=findFocal)
 })

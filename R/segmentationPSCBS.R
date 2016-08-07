@@ -10,7 +10,7 @@ log.ratio,
 ### Copy number log-ratios, one for each exon in coverage file.
 plot.cnv, 
 ### Segmentation plots.
-coverage.cutoff, 
+min.coverage, 
 ### Minimum coverage in both normal and tumor.
 sampleid=sampleid,
 ### Sample id, used in output files.
@@ -55,10 +55,10 @@ verbose=TRUE,
         if (verbose) message(
             "Exon weights found, but currently not supported by PSCBS.")
     }
-    well.covered.exon.idx <- ((normal$average.coverage > coverage.cutoff) &
-        (tumor$average.coverage > coverage.cutoff)) | 
-        ((normal$average.coverage > 1.5 * coverage.cutoff) &  
-        (tumor$average.coverage > 0.5 * coverage.cutoff))
+    well.covered.exon.idx <- ((normal$average.coverage > min.coverage) &
+        (tumor$average.coverage > min.coverage)) | 
+        ((normal$average.coverage > 1.5 * min.coverage) &  
+        (tumor$average.coverage > 0.5 * min.coverage))
 
     #MR: fix for missing chrX/Y 
     well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE

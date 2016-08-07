@@ -5,7 +5,7 @@
 \code{fun.segmentation} argument of \code{\link{runAbsoluteCN}}. 
 The arguments are passed via \code{args.segmentation}.}
 \usage{segmentationCBS(normal, tumor, log.ratio, plot.cnv, 
-    coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
+    min.coverage, sampleid = sampleid, exon.weight.file = NULL, 
     target.weight.file = NULL, alpha = 0.005, undo.SD = NULL, 
     vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, 
     max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D", 
@@ -15,7 +15,7 @@ The arguments are passed via \code{args.segmentation}.}
   \item{tumor}{GATK coverage data for tumor sample.}
   \item{log.ratio}{Copy number log-ratios, one for each target in the coverage files.}
   \item{plot.cnv}{Segmentation plots.}
-  \item{coverage.cutoff}{Minimum coverage in both normal and tumor.}
+  \item{min.coverage}{Minimum coverage in both normal and tumor.}
   \item{sampleid}{Sample id, used in output files.}
   \item{exon.weight.file}{Can be used to assign weights to targets. Deprecated, use 
 \code{target.weight.file} instead.}

@@ -754,9 +754,9 @@ test.num.copy[i], prior.K))
     return(FALSE)
 }
 
-.gcGeneToCoverage <- function(gc.gene.file, coverage.cutoff) {
+.gcGeneToCoverage <- function(gc.gene.file, min.coverage) {
     gc.data <- readCoverageGatk(gc.gene.file)
-    gc.data$average.coverage <- coverage.cutoff
-    gc.data$coverage <- coverage.cutoff * gc.data$targeted.base
+    gc.data$average.coverage <- min.coverage
+    gc.data$coverage <- min.coverage * gc.data$targeted.base
     gc.data
 }

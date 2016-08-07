@@ -12,7 +12,7 @@ log.ratio,
 ### Copy number log-ratios, one for each target in the coverage files.
 plot.cnv, 
 ### Segmentation plots.
-coverage.cutoff, 
+min.coverage, 
 ### Minimum coverage in both normal and tumor.
 sampleid=sampleid,
 ### Sample id, used in output files.
@@ -65,7 +65,7 @@ verbose=TRUE
         if (verbose) message("Target weights found, will use weighted CBS.")
     }
     x <- .CNV.analyze2(normal, tumor, logR=log.ratio, plot.cnv=plot.cnv, 
-        coverage.cutoff=coverage.cutoff, sampleid=sampleid, alpha=alpha, 
+        min.coverage=min.coverage, sampleid=sampleid, alpha=alpha, 
         weights=target.weights, sdundo=undo.SD, max.segments=max.segments,
         chr.hash=chr.hash, verbose=verbose) 
     if (!is.null(vcf)) {
@@ -256,11 +256,11 @@ iterations=2, chr.hash ) {
     return(0.3)
 }    
 
-.getWellCoveredExons <- function(normal, tumor, coverage.cutoff) {
-    well.covered.exon.idx <- ((normal$average.coverage > coverage.cutoff) & 
-        (tumor$average.coverage > coverage.cutoff)) | 
-        ((normal$average.coverage > 1.5 * coverage.cutoff) &  
-        (tumor$average.coverage > 0.5 * coverage.cutoff))
+.getWellCoveredExons <- function(normal, tumor, min.coverage) {
+    well.covered.exon.idx <- ((normal$average.coverage > min.coverage) & 
+        (tumor$average.coverage > min.coverage)) | 
+        ((normal$average.coverage > 1.5 * min.coverage) &  
+        (tumor$average.coverage > 0.5 * min.coverage))
     #MR: fix for missing chrX/Y 
     well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
 
@@ -269,21 +269,16 @@ iterations=2, chr.hash ) {
         
 # ExomeCNV version without the x11() calls 
 .CNV.analyze2 <-
-function(normal, tumor, logR=NULL, coverage.cutoff=15, normal.chrs=c("chr1",
-"chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11",
-"chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19","chr20",
-"chr21","chr22","chrX","chrY"), normal.chr=normal.chrs, c=0.5, 
-weights=NULL, sdundo=NULL, 
-undo.splits="sdundo", smooth=TRUE, alpha=0.01, sampleid=NULL, plot.cnv=TRUE, 
+function(normal, tumor, logR=NULL, min.coverage=15, weights=NULL, sdundo=NULL,
+undo.splits="sdundo", smooth=TRUE, alpha=0.01, sampleid=NULL, plot.cnv=TRUE,
 max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
     `%+%` <- function(x,y) paste(x,y,sep="")
-    normal.chrs = intersect(levels(normal$chr), normal.chrs)
 
     # first, do it for exons with enough coverage. MR: added less stringent 
     # cutoff in case normal looks great. these could be homozygous deletions 
     # in high purity samples
     well.covered.exon.idx <- .getWellCoveredExons(normal, tumor, 
-        coverage.cutoff)
+        min.coverage)
 
     if (verbose) message("Removing ", sum(!well.covered.exon.idx), 
         " low coverage exons.")
@@ -328,9 +323,7 @@ max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
     if (plot.cnv) {
         plot(segment.smoothed.CNA.obj, plot.type="s")
         plot(segment.smoothed.CNA.obj, plot.type="w")
-        abline(h=log2(c + (1-c)*c(1,3,4,5)/2), col="purple")
     }
-    
 
     return(list(cna=segment.smoothed.CNA.obj, logR=norm.log.ratio))
 }

@@ -5,7 +5,7 @@
 variant calls. }
 \usage{filterVcfBasic(vcf, tumor.id.in.vcf = NULL, use.somatic.status = TRUE, 
     snp.blacklist = NULL, af.range = c(0.03, 0.97), 
-    contamination.cutoff = c(0.05, 0.075), coverage.cutoff = 15, 
+    contamination.cutoff = c(0.05, 0.075), min.coverage = 15, 
     min.supporting.reads = NULL, error = 0.001, verbose = TRUE)}
 \arguments{
   \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf} 
@@ -28,7 +28,7 @@ because homozygosity can be confirmed in the normal.}
   \item{contamination.cutoff}{Count SNPs in dbSNP with allelic fraction smaller than the 
 first value, if found on most chromosomes, remove all with AF smaller than
 the second value.}
-  \item{coverage.cutoff}{Minimum coverage in tumor. Variants with lower coverage are ignored.}
+  \item{min.coverage}{Minimum coverage in tumor. Variants with lower coverage are ignored.}
   \item{min.supporting.reads}{Minimum number of reads supporting the alt allele. 
 If \code{NULL}, calculate based on coverage and assuming sequencing error 
 of 10^-3.}

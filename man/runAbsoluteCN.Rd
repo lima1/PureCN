@@ -21,8 +21,8 @@ Provides copy number and LOH data, by both gene and genomic region. }
     max.ploidy = 6, test.num.copy = 0:7, test.purity = seq(0.15, 
         0.95, by = 0.01), prior.purity = rep(1, length(test.purity))/length(test.purity), 
     max.candidate.solutions = 20, candidates = NULL, 
-    coverage.cutoff = 15, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
-    iterations = 30, log.ratio.calibration = 0.25, 
+    coverage.cutoff = NULL, min.coverage = 15, max.non.clonal = 0.2, 
+    max.homozygous.loss = 0.1, iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = TRUE, gc.gene.file = NULL, 
     max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
     max.segments = 200, prior.K = 0.999, prior.contamination = 0.01, 
@@ -73,7 +73,7 @@ ran in matched normal mode, it will by default use somatic status of
 variants and filter non-somatic calls with allelic fraction significantly 
 different from 0.5 in normal. }
   \item{args.filterVcf}{Arguments for variant filtering function. Arguments 
-\code{vcf}, \code{tumor.id.in.vcf}, \code{coverage.cutoff} and 
+\code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage} and 
 \code{verbose} are required in the 
 filter function and are automatically set (do NOT set them here again).}
   \item{fun.setPriorVcf}{Function to set prior for somatic status for each 
@@ -91,7 +91,7 @@ Expected return value is a \code{data.frame} representation of the
 segmentation.}
   \item{args.segmentation}{Arguments for segmentation function. Arguments 
 \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv}, 
-\code{coverage.cutoff}, \code{sampleid}, \code{vcf}, 
+\code{min.coverage}, \code{sampleid}, \code{vcf}, 
 \code{tumor.id.in.vcf}, \code{verbose} are required in the 
 segmentation function and automatically set (do NOT set them here again).}
   \item{fun.focal}{Function for identifying focal amplifications.}
@@ -113,7 +113,8 @@ optima.}
   \item{candidates}{Candidates to optimize from a previous run 
 (\code{return.object$candidates}). 
 If \code{NULL}, do 2D grid search and find local optima. }
-  \item{coverage.cutoff}{Minimum coverage in both normal and tumor. Targets
+  \item{coverage.cutoff}{Deprecated, use min.coverage instead. }
+  \item{min.coverage}{Minimum coverage in both normal and tumor. Targets
 with lower coverage are ingored. }
   \item{max.non.clonal}{Maximum genomic fraction assigned to a subclonal copy 
 number state.}

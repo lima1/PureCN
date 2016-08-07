@@ -28,7 +28,7 @@ contamination.cutoff=c(0.05,0.075),
 ### Count SNPs in dbSNP with allelic fraction smaller than the 
 ### first value, if found on most chromosomes, remove all with AF smaller than
 ### the second value.
-coverage.cutoff=15,
+min.coverage=15,
 ### Minimum coverage in tumor. Variants with lower coverage are ignored.
 min.supporting.reads=NULL,
 ### Minimum number of reads supporting the alt allele. 
@@ -79,7 +79,7 @@ verbose=TRUE
             geno(vcf)$AD[,tumor.id.in.vcf])[,1] >= min.supporting.reads]
     }
 
-    vcf <- vcf[unlist(geno(vcf)$DP[,tumor.id.in.vcf]) >= coverage.cutoff]
+    vcf <- vcf[unlist(geno(vcf)$DP[,tumor.id.in.vcf]) >= min.coverage]
     vcf <- vcf[unlist(geno(vcf)$FA[,tumor.id.in.vcf]) >= af.range[1]]
     # remove homozygous germline
     vcf <- vcf[!info(vcf)$DB | geno(vcf)$FA[,tumor.id.in.vcf] < af.range[2]]
@@ -88,7 +88,7 @@ verbose=TRUE
         " or AF >= ", af.range[2], 
         " or less than ", min.supporting.reads, 
         " supporting reads or depth < ",
-        coverage.cutoff, ".")
+        min.coverage, ".")
 
     if (!is.null(snp.blacklist)) {
         for (i in seq_along(snp.blacklist)) {

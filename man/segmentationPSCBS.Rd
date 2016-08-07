@@ -4,7 +4,7 @@
 \description{This function is deprecated and will be made defunct in the next
 Bioconductor release. Please use segmentationCBS instead.}
 \usage{segmentationPSCBS(normal, tumor, log.ratio, plot.cnv, 
-    coverage.cutoff, sampleid = sampleid, exon.weight.file = NULL, 
+    min.coverage, sampleid = sampleid, exon.weight.file = NULL, 
     flavor = "tcn&dh", tauA = 0.03, vcf = NULL, tumor.id.in.vcf = 1, 
     normal.id.in.vcf = NULL, max.segments = NULL, chr.hash = NULL, 
     verbose = TRUE, ...)}
@@ -13,7 +13,7 @@ Bioconductor release. Please use segmentationCBS instead.}
   \item{tumor}{GATK coverage data for tumor sample.}
   \item{log.ratio}{Copy number log-ratios, one for each exon in coverage file.}
   \item{plot.cnv}{Segmentation plots.}
-  \item{coverage.cutoff}{Minimum coverage in both normal and tumor.}
+  \item{min.coverage}{Minimum coverage in both normal and tumor.}
   \item{sampleid}{Sample id, used in output files.}
   \item{exon.weight.file}{Can be used to assign weights to exons. NOT SUPPORTED YET.}
   \item{flavor}{Flavor value for PSCBS. See segmentByNonPairedPSCBS.}
