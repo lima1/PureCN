@@ -6,7 +6,7 @@ be included or excluded in the segmentation. It is called via the
 \code{fun.filterTargets} argument of \code{\link{runAbsoluteCN}}. The 
 arguments are passed via \code{args.filterTargets}.}
 \usage{filterTargets(log.ratio, tumor, gc.data, seg.file, 
-    filter.lowhigh.gc = 0.001, filter.targeted.base = 4, 
+    filter.lowhigh.gc = 0.001, min.targeted.base = 4, 
     normalDB = NULL, normalDB.min.coverage = 0.2, verbose)}
 \arguments{
   \item{log.ratio}{Copy number log-ratios, one for each target or interval
@@ -18,7 +18,7 @@ already segmented via the provided segmentation file.}
   \item{filter.lowhigh.gc}{Quantile q (defines lower q and upper 1-q) 
 for removing targets with outlier GC profile. Assuming that GC correction 
 might not have been worked on those. Requires \code{gc.gene.file}.}
-  \item{filter.targeted.base}{Exclude exons with targeted base (size) smaller 
+  \item{min.targeted.base}{Exclude intervals with targeted base (size in bp) smaller 
 than this cutoff. This is useful when the same interval file was used to
 calculate GC content. For such small exons, the GC content is likely 
 very different from the true GC content of the probes.}
