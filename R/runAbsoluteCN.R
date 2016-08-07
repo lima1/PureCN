@@ -62,6 +62,15 @@ fun.filterVcf=filterVcfMuTect,
 ### ran in matched normal mode, it will by default use somatic status of 
 ### variants and filter non-somatic calls with allelic fraction significantly 
 ### different from 0.5 in normal. 
+fun.filterTargets=filterTargets,
+### Function for filtering low-quality targets in the coverage 
+### files. Needs to return a \code{logical} vector whether an interval
+### should be used for segmentation.
+args.filterTargets=list(),
+### Arguments for target filtering function. Arguments
+### \code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
+### \code{verbose} are required and automatically set (do NOT set 
+### them here again).
 args.filterVcf=list(),
 ### Arguments for variant filtering function. Arguments 
 ### \code{vcf}, \code{tumor.id.in.vcf}, \code{coverage.cutoff} and 
@@ -141,20 +150,11 @@ gc.gene.file=NULL,
 ### Third column gene symbol. This file
 ### can be generated with the \sQuote{GATK GCContentByInterval} tool or 
 ### with the \code{\link{calculateGCContentByInterval}} function.
-filter.lowhigh.gc.exons=0.001,
-### Quantile q (defines lower q and upper 1-q) 
-### for removing exons with outlier GC profile. Assuming that GC correction 
-### might not have been worked on those. Requires \code{gc.gene.file}.
 max.dropout=c(0.95,1.1),
 ### Measures GC bias as ratio of coverage in AT-rich (GC < 0.5) 
 ### versus GC-rich regions (GC >= 0.5). High drop-out might indicate that
 ### data was not GC-normalized or that the sample quality might be 
 ### insufficient. Requires \code{gc.gene.file}.
-filter.targeted.base=4,
-### Exclude exons with targeted base (size) smaller 
-### than this cutoff. This is useful when the same interval file was used to
-### calculate GC content. For such small exons, the GC content is likely 
-### very different from the true GC content of the probes.
 max.logr.sdev=0.75,
 ### Flag noisy samples with segment log-ratio standard deviation 
 ### larger than this. Assay specific and needs to be calibrated.
@@ -208,8 +208,7 @@ post.optimize=FALSE,
     }
     # argument checking
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
-        max.homozygous.loss, sampleid, prior.K, prior.contamination, 
-        filter.lowhigh.gc.exons)
+        max.homozygous.loss, sampleid, prior.K, prior.contamination)
    
     test.num.copy <- sort(test.num.copy)
 
@@ -293,12 +292,8 @@ post.optimize=FALSE,
     
     sex <- .getSex(match.arg(sex), normal, tumor)
     tumor <- .fixAllosomeCoverage(sex, tumor)
-
-    # NA's in log.ratio confuse the CBS function
-    exonsUsed <- !is.na(log.ratio) & !is.infinite(log.ratio) 
-    # Filter exons on chromosome not listed in chr.hash
-    exonsUsed <- .filterExonsChrHash(exonsUsed, tumor, chr.hash, verbose)
     
+    gc.data <- NULL 
     if (!is.null(gc.gene.file)) {
         gc.data <- read.delim(gc.gene.file, as.is=TRUE)
         if (!length(intersect(gc.data[,1], tumor[,1]))) {
@@ -309,29 +304,15 @@ post.optimize=FALSE,
             gc.data[,1]),,drop=FALSE]
     }
 
-    dropoutWarning <- FALSE
-    # clean up noisy exons, but not if the segmentation was already provided.
-    if (is.null(seg.file)) {
-        exonsUsed <- .filterExonsTargetedBase(exonsUsed, tumor,
-            filter.targeted.base, verbose)
-        
-        if (!is.null(gc.gene.file)) {
-            exonsUsed <- .filterExonsLohHighGC(exonsUsed, tumor,
-                gc.data, filter.lowhigh.gc.exons, verbose)
-            dropoutWarning <- .checkGCBias(normal, tumor, gc.data, max.dropout,
-                verbose)
-        } else if (verbose) {
-            message("No gc.gene.file provided. Cannot check if data was ",
-                "GC-normalized. Was it?")    
-        }    
-    }
+    args.filterTargets <-  c(list(log.ratio=log.ratio, tumor=tumor, 
+        gc.data=gc.data, seg.file=seg.file, 
+        verbose=verbose), args.filterTargets)
     
-    if (!is.null(gc.gene.file) && is.null(gc.data$Gene) ) {
-        if (verbose) message("No Gene column in gc.gene.file.",
-            " You won't get gene-level calls.")
-        gc.gene.file <- NULL
-    }
+    exonsUsed <- do.call(fun.filterTargets, args.filterTargets)
     
+    # chr.hash is an internal data structure, so we need to do this
+    # separately.
+    exonsUsed <- .filterTargetsChrHash(exonsUsed, tumor, chr.hash, verbose)
     exonsUsed <- which(exonsUsed)
     if (nrow(tumor) != nrow(normal) ||
         nrow(tumor) != length(log.ratio) ||
@@ -344,6 +325,25 @@ post.optimize=FALSE,
     if (!is.null(gc.gene.file)) {
         gc.data <- gc.data[exonsUsed,]
     }
+
+    dropoutWarning <- FALSE
+    # clean up noisy exons, but not if the segmentation was already provided.
+    if (is.null(seg.file)) {
+        if (!is.null(gc.gene.file)) {
+            dropoutWarning <- .checkGCBias(normal, tumor, gc.data, max.dropout,
+                verbose)
+        } else if (verbose) {
+            message("No gc.gene.file provided. Cannot check if data was ",
+                "GC-normalized. Was it?")    
+        }    
+    }
+ 
+    if (!is.null(gc.gene.file) && is.null(gc.data$Gene) ) {
+        if (verbose) message("No Gene column in gc.gene.file.",
+            " You won't get gene-level calls.")
+        gc.gene.file <- NULL
+    }
+    
     
     exon.gr <- GRanges(seqnames=tumor$chr, 
         IRanges(start=tumor$probe_start,end=tumor$probe_end))
@@ -862,13 +862,15 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # (purecn.example.output$candidates).
 data(purecn.example.output)
 
-# The max.candidate.solutions parameter is set to a very low value only to
-# speed-up this example.  This is not a good idea for real samples.
-# We also remove off target snvs, also only to speed-up the example.
+# The max.candidate.solutions, candidates, max.ploidy and test.purity 
+# parameters are set to non-default values to speed-up this example.  
+# This is not a good idea for real samples.
 
 ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
-    genome="hg19", candidates=purecn.example.output$candidates, 
-    max.candidate.solutions=2, vcf.file=vcf.file, sampleid='Sample1', 
-    gc.gene.file=gc.gene.file)
+    gatk.tumor.file=gatk.tumor.file, 
+    genome="hg19", vcf.file=vcf.file, sampleid='Sample1', 
+    gc.gene.file=gc.gene.file,
+    candidates=purecn.example.output$candidates, 
+    max.ploidy=4, test.purity=seq(0.3, 0.7, by=0.05),
+    max.candidate.solutions=1)
 })    

@@ -15,14 +15,14 @@ test_runAbsoluteCN <- function() {
         package = "PureCN")
 
     data(purecn.example.output)
-    exon.weight.file <- "exon_weights.txt"
-    createExonWeightFile(gatk.tumor.file, gatk.normal.files, exon.weight.file)
+    target.weight.file <- "exon_weights.txt"
+    createTargetWeights(gatk.tumor.file, gatk.normal.files, target.weight.file)
 
     # run without a VCF
     ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
         gatk.tumor.file=gatk.tumor.file, 
         candidates=purecn.example.output$candidates, 
-        args.segmentation=list(exon.weight.file=exon.weight.file), 
+        args.segmentation=list(target.weight.file=target.weight.file), 
         max.candidate.solutions=2)
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)

@@ -28,7 +28,7 @@ max.exon.ratio) {
             round(mean(tumor$average.coverage, na.rm=TRUE), digits=0), 
             "X (tumor), ",
             round(mean(normal$average.coverage, na.rm=TRUE), digits=0),
-            "X (normal control).")
+            "X (normal).")
     }    
     total.cov.normal <- sum(as.numeric(normal$coverage), na.rm = TRUE)
     total.cov.tumor <- sum(as.numeric(tumor$coverage), na.rm = TRUE)
@@ -263,7 +263,7 @@ test.num.copy[i], prior.K))
 
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
     max.non.clonal, max.homozygous.loss, sampleid, prior.K, 
-    prior.contamination, filter.lowhigh.gc.exons) {
+    prior.contamination) {
     if (min(test.purity) <= 0 || max(test.purity) > 1) 
         .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
@@ -273,7 +273,6 @@ test.num.copy[i], prior.K))
     .checkFraction(max.homozygous.loss, "max.homozygous.loss")
     .checkFraction(prior.K, "prior.K")
     .checkFraction(prior.contamination, "prior.contamination")
-    .checkFraction(filter.lowhigh.gc.exons, "filter.lowhigh.gc.exons")
 
     if (!is.null(sampleid) && ( class(sampleid) != "character" ||
         length(sampleid) != 1)) {
@@ -760,43 +759,4 @@ test.num.copy[i], prior.K))
     gc.data$average.coverage <- coverage.cutoff
     gc.data$coverage <- coverage.cutoff * gc.data$targeted.base
     gc.data
-}
-.filterExonsChrHash <- function(exonsUsed, tumor, chr.hash, verbose) {
-    if (is.null(chr.hash)) return(exonsUsed)
-    nBefore <- sum(exonsUsed)
-    exonsUsed <- exonsUsed & tumor$chr %in% chr.hash$chr
-    nAfter <- sum(exonsUsed)
-
-    if (verbose && nAfter < nBefore) { 
-        message("Removing ", nBefore-nAfter, " exons on chromosomes ",
-            "outside chr.hash.")
-    }
-    exonsUsed
-}
-.filterExonsTargetedBase <- function(exonsUsed, tumor, filter.targeted.base,
-    verbose) {
-    if (is.null(filter.targeted.base)) return(exonsUsed)
-    nBefore <- sum(exonsUsed)
-    exonsUsed <- exonsUsed & !is.na(tumor$targeted.base) & 
-        tumor$targeted.base >= filter.targeted.base
-    nAfter <- sum(exonsUsed)
-    if (verbose && nAfter < nBefore) message("Removing ", nBefore-nAfter, 
-        " small exons.")
-    exonsUsed
-}
-.filterExonsLohHighGC <- function(exonsUsed, tumor, gc.data,
-    filter.lowhigh.gc.exons, verbose) {
-    gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
-    qq <- quantile(gc.data$gc_bias, p=c(filter.lowhigh.gc.exons, 
-        1-filter.lowhigh.gc.exons), na.rm=TRUE)
-
-    nBefore <- sum(exonsUsed)
-    exonsUsed <- exonsUsed & !is.na(gc.data$gc_bias) & 
-        !(gc.data$gc_bias < qq[1] | gc.data$gc_bias > qq[2])
-    nAfter <- sum(exonsUsed)
-
-    if (verbose && nAfter < nBefore) message("Removing ", 
-        nBefore-nAfter, " low/high GC exons.")
-
-    exonsUsed
 }

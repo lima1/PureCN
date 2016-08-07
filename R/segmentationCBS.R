@@ -9,7 +9,7 @@ normal,
 tumor,  
 ### GATK coverage data for tumor sample.
 log.ratio, 
-### Copy number log-ratios, one for each exon in coverage file.
+### Copy number log-ratios, one for each target in the coverage files.
 plot.cnv, 
 ### Segmentation plots.
 coverage.cutoff, 
@@ -17,7 +17,10 @@ coverage.cutoff,
 sampleid=sampleid,
 ### Sample id, used in output files.
 exon.weight.file=NULL,
-### Can be used to assign weights to exons.
+### Can be used to assign weights to targets. Deprecated, use 
+### \code{target.weight.file} instead.
+target.weight.file=NULL,
+### Can be used to assign weights to targets. 
 alpha=0.005,
 ### Alpha value for CBS, see documentation for the \code{segment} function.
 undo.SD=NULL,
@@ -47,17 +50,23 @@ verbose=TRUE
 ### Verbose output.
 ) {
     if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
-
-    exon.weights <- NULL
+    
     if (!is.null(exon.weight.file)) {
-        exon.weights <- read.delim(exon.weight.file, as.is=TRUE)
-        exon.weights <- exon.weights[match(as.character(tumor[,1]), 
-            exon.weights[,1]),2]
-        if (verbose) message("Exon weights found, will use weighted CBS.")
+        message("exon.weight.file is deprecated, use ",
+            "target.weight.file instead.")
+        target.weight.file <- exon.weight.file
+    }
+
+    target.weights <- NULL
+    if (!is.null(target.weight.file)) {
+        target.weights <- read.delim(target.weight.file, as.is=TRUE)
+        target.weights <- target.weights[match(as.character(tumor[,1]), 
+            target.weights[,1]),2]
+        if (verbose) message("Target weights found, will use weighted CBS.")
     }
     x <- .CNV.analyze2(normal, tumor, logR=log.ratio, plot.cnv=plot.cnv, 
         coverage.cutoff=coverage.cutoff, sampleid=sampleid, alpha=alpha, 
-        weights=exon.weights, sdundo=undo.SD, max.segments=max.segments,
+        weights=target.weights, sdundo=undo.SD, max.segments=max.segments,
         chr.hash=chr.hash, verbose=verbose) 
     if (!is.null(vcf)) {
         x <- .pruneByVCF(x, vcf, tumor.id.in.vcf, chr.hash=chr.hash)
@@ -132,7 +141,7 @@ iterations=2, chr.hash ) {
     x
 }
 
-# After merging, we need to figure out how many exons are covering the new 
+# After merging, we need to figure out how many targets are covering the new 
 # segments
 .updateNumMark <- function(seg, x) {
     segGR <- GRanges(seqnames=seg$chrom, IRanges(start=seg$loc.start, 

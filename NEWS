@@ -34,6 +34,7 @@ API changes
     calculatePowerDetectSomatic, callAlterations, callLOH, getDiploid
     getSexFromVcf
 - Deprecated functions: segmentationPSCBS
+- Renamed functions: createExonWeightFile to createTargetWeights
 
 -------------------------------------------------------------------------------
 

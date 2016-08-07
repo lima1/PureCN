@@ -10,7 +10,7 @@ spec <- matrix(c(
 'segfile',        'f', 1, "character",
 'snpblacklist',   's', 1, "character",
 'statsfile',      'a', 1, "character",
-'exonweightfile', 'e', 1, "character",
+'targetweightfile', 'e', 1, "character",
 'normaldb',       'd', 1, "character",
 'outdir',         'o', 1, "character",
 'sampleid',       'i', 1, "character"
@@ -30,7 +30,7 @@ gc.gene.file <- opt$gcgene
 snp.blacklist <- opt$snpblacklist
 stats.file <- opt$statsfile
 seg.file <- opt$segfile
-exon.weight.file <- opt$exonweightfile
+target.weight.file <- opt$targetweightfile
 normalDB <- opt$normaldb
 sampleid <- opt$sampleid
 outdir <- opt$outdir
@@ -38,7 +38,7 @@ outdir <- opt$outdir
 PureCN <- function(
 gatk.tumor.file, gatk.normal.file=NULL, tumor.vcf, genome,
 gc.gene.file=NULL, seg.file=NULL, snp.blacklist=NULL, stats.file=NULL,
-exon.weight.file=NULL, normalDB=NULL, sampleid, outdir) {
+target.weight.file=NULL, normalDB=NULL, sampleid, outdir) {
 
     file.rds <- paste(outdir,"/",  sampleid, '_abs.rds', sep='')
 
@@ -59,7 +59,7 @@ exon.weight.file=NULL, normalDB=NULL, sampleid, outdir) {
             genome=genome, seg.file=seg.file,
             args.filterVcf=list(snp.blacklist=snp.blacklist, 
                 stats.file=stats.file), 
-            args.segmentation=list(exon.weight.file=exon.weight.file), 
+            args.segmentation=list(target.weight.file=target.weight.file), 
             post.optimize=FALSE)
     dev.off()
 
@@ -84,6 +84,6 @@ library(PureCN)
 
 PureCN(gatk.tumor.file, gatk.normal.file, tumor.vcf, genome,
 gc.gene.file, seg.file=seg.file, snp.blacklist=snp.blacklist, 
-stats.file=stats.file, exon.weight.file=exon.weight.file, 
+stats.file=stats.file, target.weight.file=target.weight.file, 
 normalDB=normalDB, sampleid=sampleid, outdir=outdir) 
 

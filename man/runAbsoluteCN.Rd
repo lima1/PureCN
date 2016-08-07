@@ -13,6 +13,7 @@ Provides copy number and LOH data, by both gene and genomic region. }
     log.ratio = NULL, seg.file = NULL, seg.file.sdev = 0.4, 
     vcf.file = NULL, genome, centromeres = NULL, sex = c("?", 
         "F", "M", "diploid"), fun.filterVcf = filterVcfMuTect, 
+    fun.filterTargets = filterTargets, args.filterTargets = list(), 
     args.filterVcf = list(), fun.setPriorVcf = setPriorVcf, 
     args.setPriorVcf = list(), fun.segmentation = segmentationCBS, 
     args.segmentation = list(), fun.focal = findFocal, 
@@ -23,8 +24,7 @@ Provides copy number and LOH data, by both gene and genomic region. }
     coverage.cutoff = 15, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
     iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = TRUE, gc.gene.file = NULL, 
-    filter.lowhigh.gc.exons = 0.001, max.dropout = c(0.95, 
-        1.1), filter.targeted.base = 4, max.logr.sdev = 0.75, 
+    max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
     max.segments = 200, prior.K = 0.999, prior.contamination = 0.01, 
     plot.cnv = TRUE, cosmic.vcf.file = NULL, verbose = TRUE, 
     post.optimize = FALSE, ...)}
@@ -72,6 +72,13 @@ remove variants flagged by MuTect, but will keep germline variants. If
 ran in matched normal mode, it will by default use somatic status of 
 variants and filter non-somatic calls with allelic fraction significantly 
 different from 0.5 in normal. }
+  \item{fun.filterTargets}{Function for filtering low-quality targets in the coverage 
+files. Needs to return a \code{logical} vector whether an interval
+should be used for segmentation.}
+  \item{args.filterTargets}{Arguments for target filtering function. Arguments
+\code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
+\code{verbose} are required and automatically set (do NOT set 
+them here again).}
   \item{args.filterVcf}{Arguments for variant filtering function. Arguments 
 \code{vcf}, \code{tumor.id.in.vcf}, \code{coverage.cutoff} and 
 \code{verbose} are required in the 
@@ -129,17 +136,10 @@ First column in format CHR:START-END. Second column GC content (0 to 1).
 Third column gene symbol. This file
 can be generated with the \sQuote{GATK GCContentByInterval} tool or 
 with the \code{\link{calculateGCContentByInterval}} function.}
-  \item{filter.lowhigh.gc.exons}{Quantile q (defines lower q and upper 1-q) 
-for removing exons with outlier GC profile. Assuming that GC correction 
-might not have been worked on those. Requires \code{gc.gene.file}.}
   \item{max.dropout}{Measures GC bias as ratio of coverage in AT-rich (GC < 0.5) 
 versus GC-rich regions (GC >= 0.5). High drop-out might indicate that
 data was not GC-normalized or that the sample quality might be 
 insufficient. Requires \code{gc.gene.file}.}
-  \item{filter.targeted.base}{Exclude exons with targeted base (size) smaller 
-than this cutoff. This is useful when the same interval file was used to
-calculate GC content. For such small exons, the GC content is likely 
-very different from the true GC content of the probes.}
   \item{max.logr.sdev}{Flag noisy samples with segment log-ratio standard deviation 
 larger than this. Assay specific and needs to be calibrated.}
   \item{max.segments}{Flag noisy samples with a large number of segments. Assay 
@@ -192,13 +192,15 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # (purecn.example.output$candidates).
 data(purecn.example.output)
 
-# The max.candidate.solutions parameter is set to a very low value only to
-# speed-up this example.  This is not a good idea for real samples.
-# We also remove off target snvs, also only to speed-up the example.
+# The max.candidate.solutions, candidates, max.ploidy and test.purity 
+# parameters are set to non-default values to speed-up this example.  
+# This is not a good idea for real samples.
 
 ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
-    genome="hg19", candidates=purecn.example.output$candidates, 
-    max.candidate.solutions=2, vcf.file=vcf.file, sampleid='Sample1', 
-    gc.gene.file=gc.gene.file)
+    gatk.tumor.file=gatk.tumor.file, 
+    genome="hg19", vcf.file=vcf.file, sampleid='Sample1', 
+    gc.gene.file=gc.gene.file,
+    candidates=purecn.example.output$candidates, 
+    max.ploidy=4, test.purity=seq(0.3, 0.7, by=0.05),
+    max.candidate.solutions=1)
 }

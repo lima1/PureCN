@@ -12,5 +12,6 @@
   the replacement indicated below:
   \itemize{
     \item{segmentationPSCBS: \code{\link{segmentationCBS}}}
+    \item{createExonWeightFile: \code{\link{createTargetWeights}}}
   }
 }

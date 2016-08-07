@@ -250,23 +250,23 @@ reasonably well. This following steps in this section are optional, but
 recommended especially when matched normals are not available.
 
 We first use coverage data of normal samples to estimate the expected variance
-in coverage per exon:
+in coverage per target:
 
-<<exonweightfile1>>=
-exon.weight.file <- "exon_weights.txt"
-createExonWeightFile(gatk.tumor.file, gatk.normal.files, 
-    exon.weight.file)
+<<targetweightfile1>>=
+target.weight.file <- "target_weights.txt"
+createTargetWeights(gatk.tumor.file, gatk.normal.files, 
+    target.weight.file)
 @
 
-This function calculates exon-level copy number log-ratios for all normal
+This function calculates target-level copy number log-ratios for all normal
 samples provided in the \Rcode{gatk.normal.files} argument.  Assuming that all
 normal samples are in general diploid, an unusual high variance in log-ratio is
-indicative of an exon with either common germline alterations or frequent
-artifacts; high or low copy number log-ratios in these exons are unlikely
+indicative of an target with either common germline alterations or frequent
+artifacts; high or low copy number log-ratios in these targets are unlikely
 measuring somatic copy number events.  For the log-ratio calculation, we provide
 a coverage file that is used as tumor in the log-ratio calculation. The
 corresponding \Rcode{gatk.tumor.file} argument can also be an array of coverage
-files, in which case the exon coverage variance is averaged over all provided
+files, in which case the target coverage variance is averaged over all provided
 tumor files. As long as the coverage of the tumor files is even, only 1 or 2
 tumor files are necessary, however. 
 
@@ -298,7 +298,7 @@ to filter common sequencing errors and alignment artifacts from the VCF.
 \subsection{Artifact filtering without a pool of normals}
 \label{artifactfiltering2}
 
-By default, \Biocpkg{PureCN} will exclude exons with coverage below 15X from
+By default, \Biocpkg{PureCN} will exclude targets with coverage below 15X from
 segmentation. For SNVs, the same 15X cutoff is applied. \software{MuTect}
 applies more sophisticated artifact tests and flags suspicious variants. If
 \software{MuTect} was run in matched normal mode, then both potential artifacts
@@ -353,18 +353,21 @@ ret <-runAbsoluteCN(gatk.normal.file=pool,
     gc.gene.file=gc.gene.file, 
 # args.filterVcf=list(snp.blacklist=snp.blacklist, 
 # stats.file=mutect.stats.file), 
-    args.segmentation=list(exon.weight.file=exon.weight.file), 
+# args.filterTargets=list(normalDB=normalDB),
+    args.segmentation=list(target.weight.file=target.weight.file), 
     post.optimize=FALSE, plot.cnv=FALSE, verbose=FALSE)
 @
 
-The \Rcode{post.optimize} flag will increase the runtime by about one order
-of magnitude, but might return slightly more accurate purity estimates. For high
+The \Rcode{post.optimize} flag will increase the runtime by about one order of
+magnitude, but might return slightly more accurate purity estimates. For high
 quality whole exome data, this is typically not necessary.  The files specified
 in \Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering SNVs more efficiently
 for artifacts as described in Sections~\ref{artifactfiltering} and
-\ref{artifactfiltering2}. If possible, these files should be generated and
-provided. The \Rcode{plot.cnv} argument allows the segmentation function to
-generate additional plots if set to \Rcode{TRUE}.  
+\ref{artifactfiltering2}. The \Rcode{normalDB} argument
+(Section~\ref{bestnormal}) allows the segmentation function to skip targets with
+low coverage in the pool of normals. If possible, these files should be
+generated and provided. The \Rcode{plot.cnv} argument allows the segmentation
+function to generate additional plots if set to \Rcode{TRUE}.  
 
 We now create a few output files:
 
@@ -793,7 +796,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --segfile -f        & seg.file           & \Rfunction{runAbsoluteCN}  \\
 --snpblacklist -s   & snp.blacklist & \Rfunction{filterVcfBasic}     \\
 --statsfile -a      & stats.file & \Rfunction{filterVcfMuTect}        \\
---exonweightfile -e & exon.weight.file & \Rfunction{segmentationCBS} \\
+--targetweightfile -e & target.weight.file & \Rfunction{segmentationCBS} \\
 --normaldb -d       & normalDB & \Rfunction{findBestNormal}      \\
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
 \bottomrule

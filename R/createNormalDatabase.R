@@ -60,13 +60,9 @@ gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
 normalDB <- createNormalDatabase(gatk.normal.files)
 })    
 
-createExonWeightFile <- structure(function(# Calculate exon weights
-### Creates an exon weight file useful for segmentation. Requires a
-### set of GATK coverage files from normal samples. A small number of 
-### tumor (or other normal) samples is then tested against all normals. Exon
-### weights will be set proportional to the inverse of coverage standard
-### deviation across all normals. Exons with high variance in coverage in the
-### pool of normals are thus down-weighted.
+createExonWeightFile <- function(# Calculate exon weights
+### This function has been renamed to \code{\link{createTargetWeights}} 
+### and will be made defunct in the next Bioconductor release.
 gatk.tumor.files, 
 ### A small number (1-3) of GATK tumor or normal coverage samples.
 gatk.normal.files,
@@ -74,6 +70,26 @@ gatk.normal.files,
 ### to estimate exon log-ratio standard deviations.
 ### Should not overlap with files in \code{gatk.tumor.files}.
 exon.weight.file
+### Output filename.
+) {
+    .Deprecated("createTargetWeights")
+    createTargetWeights(gatk.tumor.files, gatk.normal.files, exon.weight.file)
+}
+
+createTargetWeights <- structure(function(# Calculate target weights
+### Creates a target weight file useful for segmentation. Requires a
+### set of GATK coverage files from normal samples. A small number of 
+### tumor (or other normal) samples is then tested against all normals. Target
+### weights will be set proportional to the inverse of coverage standard
+### deviation across all normals. Targets with high variance in coverage in the
+### pool of normals are thus down-weighted.
+gatk.tumor.files, 
+### A small number (1-3) of GATK tumor or normal coverage samples.
+gatk.normal.files,
+### A large number of GATK normal coverage samples (>20) 
+### to estimate target log-ratio standard deviations.
+### Should not overlap with files in \code{gatk.tumor.files}.
+target.weight.file
 ### Output filename.
 ) {
     tumor.coverage <- lapply(gatk.tumor.files,  readCoverageGatk)
@@ -93,12 +109,12 @@ exon.weight.file
     zz[idx] <- min(zz, na.rm=TRUE)
     ret <- data.frame(Target=tumor.coverage[[1]][,1], Weights=zz)
 
-    write.table(ret, file=exon.weight.file,row.names=FALSE, quote=FALSE, 
+    write.table(ret, file=target.weight.file,row.names=FALSE, quote=FALSE, 
         sep="\t")
     invisible(ret)
-###A \code{data.frame} with exon weights.
+###A \code{data.frame} with target weights.
 }, ex=function() {
-exon.weight.file <- "exon_weights.txt"
+target.weight.file <- "target_weights.txt"
 gatk.normal.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
 gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
@@ -107,5 +123,5 @@ gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
 gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
 
-createExonWeightFile(gatk.tumor.file, gatk.normal.files, exon.weight.file)
+createTargetWeights(gatk.tumor.file, gatk.normal.files, target.weight.file)
 })
