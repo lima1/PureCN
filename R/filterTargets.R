@@ -1,5 +1,5 @@
 filterTargets <- structure(function(# Remove low quality targets
-### This function determines which intervals in the coverage file should
+### This function determines which intervals in the coverage files should
 ### be included or excluded in the segmentation. It is called via the
 ### \code{fun.filterTargets} argument of \code{\link{runAbsoluteCN}}. The 
 ### arguments are passed via \code{args.filterTargets}.

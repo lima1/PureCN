@@ -13,9 +13,9 @@ Provides copy number and LOH data, by both gene and genomic region. }
     log.ratio = NULL, seg.file = NULL, seg.file.sdev = 0.4, 
     vcf.file = NULL, genome, centromeres = NULL, sex = c("?", 
         "F", "M", "diploid"), fun.filterVcf = filterVcfMuTect, 
-    fun.filterTargets = filterTargets, args.filterTargets = list(), 
     args.filterVcf = list(), fun.setPriorVcf = setPriorVcf, 
-    args.setPriorVcf = list(), fun.segmentation = segmentationCBS, 
+    args.setPriorVcf = list(), fun.filterTargets = filterTargets, 
+    args.filterTargets = list(), fun.segmentation = segmentationCBS, 
     args.segmentation = list(), fun.focal = findFocal, 
     args.focal = list(), sampleid = NULL, min.ploidy = 1, 
     max.ploidy = 6, test.num.copy = 0:7, test.purity = seq(0.15, 
@@ -72,13 +72,6 @@ remove variants flagged by MuTect, but will keep germline variants. If
 ran in matched normal mode, it will by default use somatic status of 
 variants and filter non-somatic calls with allelic fraction significantly 
 different from 0.5 in normal. }
-  \item{fun.filterTargets}{Function for filtering low-quality targets in the coverage 
-files. Needs to return a \code{logical} vector whether an interval
-should be used for segmentation.}
-  \item{args.filterTargets}{Arguments for target filtering function. Arguments
-\code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
-\code{verbose} are required and automatically set (do NOT set 
-them here again).}
   \item{args.filterVcf}{Arguments for variant filtering function. Arguments 
 \code{vcf}, \code{tumor.id.in.vcf}, \code{coverage.cutoff} and 
 \code{verbose} are required in the 
@@ -86,6 +79,13 @@ filter function and are automatically set (do NOT set them here again).}
   \item{fun.setPriorVcf}{Function to set prior for somatic status for each 
 variant in the VCF.}
   \item{args.setPriorVcf}{Arguments for somatic prior function.}
+  \item{fun.filterTargets}{Function for filtering low-quality targets in the coverage 
+files. Needs to return a \code{logical} vector whether an interval
+should be used for segmentation.}
+  \item{args.filterTargets}{Arguments for target filtering function. Arguments
+\code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
+\code{verbose} are required and automatically set (do NOT set 
+them here again).}
   \item{fun.segmentation}{Function for segmenting the copy number log-ratios. 
 Expected return value is a \code{data.frame} representation of the 
 segmentation.}
@@ -113,12 +113,8 @@ optima.}
   \item{candidates}{Candidates to optimize from a previous run 
 (\code{return.object$candidates}). 
 If \code{NULL}, do 2D grid search and find local optima. }
-  \item{coverage.cutoff}{Minimum exon coverage in both normal and tumor. Exons
-with lower coverage are ingored. The cutoff choice depends on the expected
-purity and overall coverage. High purity samples might need a lower cutoff
-to call homozygous deletions. If an \code{exon.weight.file} (below) is NOT 
-specified, it is recommended to set a higher cutoff (e.g. 20) to remove 
-noise from unreliable exon measurements. }
+  \item{coverage.cutoff}{Minimum coverage in both normal and tumor. Targets
+with lower coverage are ingored. }
   \item{max.non.clonal}{Maximum genomic fraction assigned to a subclonal copy 
 number state.}
   \item{max.homozygous.loss}{Maximum genomic fraction assigned to homozygous loss. 

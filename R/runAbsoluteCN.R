@@ -62,15 +62,6 @@ fun.filterVcf=filterVcfMuTect,
 ### ran in matched normal mode, it will by default use somatic status of 
 ### variants and filter non-somatic calls with allelic fraction significantly 
 ### different from 0.5 in normal. 
-fun.filterTargets=filterTargets,
-### Function for filtering low-quality targets in the coverage 
-### files. Needs to return a \code{logical} vector whether an interval
-### should be used for segmentation.
-args.filterTargets=list(),
-### Arguments for target filtering function. Arguments
-### \code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
-### \code{verbose} are required and automatically set (do NOT set 
-### them here again).
 args.filterVcf=list(),
 ### Arguments for variant filtering function. Arguments 
 ### \code{vcf}, \code{tumor.id.in.vcf}, \code{coverage.cutoff} and 
@@ -81,6 +72,15 @@ fun.setPriorVcf=setPriorVcf,
 ### variant in the VCF.
 args.setPriorVcf=list(),
 ### Arguments for somatic prior function.
+fun.filterTargets=filterTargets,
+### Function for filtering low-quality targets in the coverage 
+### files. Needs to return a \code{logical} vector whether an interval
+### should be used for segmentation.
+args.filterTargets=list(),
+### Arguments for target filtering function. Arguments
+### \code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
+### \code{verbose} are required and automatically set (do NOT set 
+### them here again).
 fun.segmentation=segmentationCBS, 
 ### Function for segmenting the copy number log-ratios. 
 ### Expected return value is a \code{data.frame} representation of the 
@@ -121,12 +121,8 @@ candidates=NULL,
 ### (\code{return.object$candidates}). 
 ### If \code{NULL}, do 2D grid search and find local optima. 
 coverage.cutoff=15, 
-### Minimum exon coverage in both normal and tumor. Exons
-### with lower coverage are ingored. The cutoff choice depends on the expected
-### purity and overall coverage. High purity samples might need a lower cutoff
-### to call homozygous deletions. If an \code{exon.weight.file} (below) is NOT 
-### specified, it is recommended to set a higher cutoff (e.g. 20) to remove 
-### noise from unreliable exon measurements. 
+### Minimum coverage in both normal and tumor. Targets
+### with lower coverage are ingored. 
 max.non.clonal=0.2, 
 ### Maximum genomic fraction assigned to a subclonal copy 
 ### number state.
@@ -308,22 +304,22 @@ post.optimize=FALSE,
         gc.data=gc.data, seg.file=seg.file, 
         verbose=verbose), args.filterTargets)
     
-    exonsUsed <- do.call(fun.filterTargets, args.filterTargets)
+    targetsUsed <- do.call(fun.filterTargets, args.filterTargets)
     
     # chr.hash is an internal data structure, so we need to do this
     # separately.
-    exonsUsed <- .filterTargetsChrHash(exonsUsed, tumor, chr.hash, verbose)
-    exonsUsed <- which(exonsUsed)
+    targetsUsed <- .filterTargetsChrHash(targetsUsed, tumor, chr.hash, verbose)
+    targetsUsed <- which(targetsUsed)
     if (nrow(tumor) != nrow(normal) ||
         nrow(tumor) != length(log.ratio) ||
         (!is.null(gc.gene.file) && nrow(tumor) != nrow(gc.data))) {
         .stopRuntimeError("Mis-aligned coverage data.")
     } 
-    tumor <- tumor[exonsUsed,]
-    normal <- normal[exonsUsed,]
-    log.ratio <- log.ratio[exonsUsed]
+    tumor <- tumor[targetsUsed,]
+    normal <- normal[targetsUsed,]
+    log.ratio <- log.ratio[targetsUsed]
     if (!is.null(gc.gene.file)) {
-        gc.data <- gc.data[exonsUsed,]
+        gc.data <- gc.data[targetsUsed,]
     }
 
     dropoutWarning <- FALSE
