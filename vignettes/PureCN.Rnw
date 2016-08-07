@@ -207,6 +207,8 @@ files:
 
 <<normaldb>>=
 normalDB <- createNormalDatabase(gatk.normal.files)
+# serialize, so that we need to do this only once for each assay
+saveRDS(normalDB, file="normalDB.rds")
 @
 
 Internally, this function determines the sex of the samples and trains a PCA
@@ -214,6 +216,7 @@ that is later used for clustering a tumor file with all normal samples in the
 database. This clustering is performed by the \Rfunction{findBestNormal} function:
 
 <<normaldbpca>>=
+normalDB <- readRDS("normalDB.rds")
 # get the best normal
 gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
 @
@@ -430,9 +433,7 @@ plotAbs(ret, 1, type="AF")
 @
 \incfig{figure/figureexample4-1}{0.95\textwidth}{Allele fraction plots.}{Each
 dot is again a (predicted) germline SNP. This plot normally also shows somatic
-mutations in two additional panels. This toy example contains only germline
-SNPs however. For one SNP, the allelic fractions did not fit the expected
-fraction well and it is predicted as a somatic alteration instead.}
+mutations in two additional panels.}
 
 Finally, Figure~\ref{figure/figureexample4-1} provides a little bit more
 insight into how well the variants fit the expected values. The left panel
@@ -797,7 +798,8 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --snpblacklist -s   & snp.blacklist & \Rfunction{filterVcfBasic}     \\
 --statsfile -a      & stats.file & \Rfunction{filterVcfMuTect}        \\
 --targetweightfile -e & target.weight.file & \Rfunction{segmentationCBS} \\
---normaldb -d       & normalDB & \Rfunction{findBestNormal}      \\
+--normaldb -d       & normalDB (serialized with \Rfunction{saveRDS}) & 
+    \Rfunction{findBestNormal} \\
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
 \bottomrule
 \end{tabular}

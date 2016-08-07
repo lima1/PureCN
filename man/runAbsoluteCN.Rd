@@ -113,7 +113,7 @@ optima.}
   \item{candidates}{Candidates to optimize from a previous run 
 (\code{return.object$candidates}). 
 If \code{NULL}, do 2D grid search and find local optima. }
-  \item{coverage.cutoff}{Deprecated, use min.coverage instead. }
+  \item{coverage.cutoff}{Deprecated, use \code{min.coverage} instead. }
   \item{min.coverage}{Minimum coverage in both normal and tumor. Targets
 with lower coverage are ingored. }
   \item{max.non.clonal}{Maximum genomic fraction assigned to a subclonal copy 

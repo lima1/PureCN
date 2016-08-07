@@ -121,7 +121,7 @@ candidates=NULL,
 ### (\code{return.object$candidates}). 
 ### If \code{NULL}, do 2D grid search and find local optima. 
 coverage.cutoff=NULL,
-### Deprecated, use min.coverage instead. 
+### Deprecated, use \code{min.coverage} instead. 
 min.coverage=15, 
 ### Minimum coverage in both normal and tumor. Targets
 ### with lower coverage are ingored. 
