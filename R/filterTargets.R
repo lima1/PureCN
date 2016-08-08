@@ -69,13 +69,27 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 })
 
+.checkNormalDB <- function(tumor, normalDB) {
+    if (!class(normalDB) == "list") {
+        .stopUserError("normalDB not a valid normalDB object. ",
+            "Use createNormalDatabase to create one.")
+    }    
+    if (is.null(normalDB$gatk.normal.files) ||
+        !length(normalDB$gatk.normal.files)) {
+        .stopUserError("normalDB appears to be empty.")
+    }    
+    tmp <- readCoverageGatk(normalDB$gatk.normal.files[1])
+    return(identical(tmp$Target, tumor$Target))
+}
+    
 .filterTargetsNormalDB <- function(targetsUsed, tumor, normalDB,
 normalDB.min.coverage, verbose) {
     if (is.null(normalDB)) return(targetsUsed)
-    if (nrow(tumor) != length(normalDB$exon.median.coverage)) {
+    # make sure that normalDB matches tumor
+    if (!.checkNormalDB(tumor, normalDB)) {
         warning("normalDB does not align with coverage. Ignoring normalDB.")
         return(targetsUsed)
-    }
+    }    
     nBefore <- sum(targetsUsed)
     min.coverage <- (sapply(split(normalDB$exon.median.coverage, 
         tumor$chr), median, na.rm=TRUE)*normalDB.min.coverage)[tumor$chr]

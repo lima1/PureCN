@@ -19,15 +19,15 @@ Provides copy number and LOH data, by both gene and genomic region. }
     args.segmentation = list(), fun.focal = findFocal, 
     args.focal = list(), sampleid = NULL, min.ploidy = 1, 
     max.ploidy = 6, test.num.copy = 0:7, test.purity = seq(0.15, 
-        0.95, by = 0.01), prior.purity = rep(1, length(test.purity))/length(test.purity), 
-    max.candidate.solutions = 20, candidates = NULL, 
-    coverage.cutoff = NULL, min.coverage = 15, max.non.clonal = 0.2, 
-    max.homozygous.loss = 0.1, iterations = 30, log.ratio.calibration = 0.25, 
+        0.95, by = 0.01), prior.purity = NULL, prior.K = 0.999, 
+    prior.contamination = 0.01, max.candidate.solutions = 20, 
+    candidates = NULL, coverage.cutoff = NULL, min.coverage = 15, 
+    max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
+    iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = TRUE, gc.gene.file = NULL, 
     max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
-    max.segments = 200, prior.K = 0.999, prior.contamination = 0.01, 
-    plot.cnv = TRUE, cosmic.vcf.file = NULL, verbose = TRUE, 
-    post.optimize = FALSE, ...)}
+    max.segments = 200, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
+    verbose = TRUE, post.optimize = FALSE, ...)}
 \arguments{
   \item{gatk.normal.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
@@ -105,8 +105,15 @@ segmentation function and automatically set (do NOT set them here again).}
 amplifications can have much higher copy numbers, but they will be labeled
 as subclonal (because they do not fit the integer copy numbers).}
   \item{test.purity}{Considered tumor purity values. }
-  \item{prior.purity}{Priors for purity if they are available. Only change 
-when you know what you are doing.}
+  \item{prior.purity}{Priors for purity if they are available. If \code{NULL}, 
+use flat priors. Only change when you know what you are doing.}
+  \item{prior.K}{This defines the prior probability that the multiplicity of
+a SNV corresponds to either the maternal or the paternal copy
+number (for somatic variants additionally to a multiplicity of 1).
+For perfect segmentations, this value would be 1; values smaller
+than 1 thus may provide some robustness against segmentation errors.}
+  \item{prior.contamination}{The prior probability that a known SNP is from a different
+individual. }
   \item{max.candidate.solutions}{Number of local optima considered in optimization 
 and variant fitting steps. If there are too many local optima, it will use
 specified number of top candidate solutions, but will also include all 
@@ -143,13 +150,6 @@ insufficient. Requires \code{gc.gene.file}.}
 larger than this. Assay specific and needs to be calibrated.}
   \item{max.segments}{Flag noisy samples with a large number of segments. Assay 
 specific and needs to be calibrated.}
-  \item{prior.K}{This defines the prior probability that the multiplicity of
-a SNV corresponds to either the maternal or the paternal copy
-number (for somatic variants additionally to a multiplicity of 1).
-For perfect segmentations, this value would be 1; values smaller
-than 1 thus may provide some robustness against segmentation errors.}
-  \item{prior.contamination}{The prior probability that a known SNP is from a different
-individual. }
   \item{plot.cnv}{Generate segmentation plots.}
   \item{cosmic.vcf.file}{Add a \code{Cosmic.CNT} info field to the provided 
 \code{vcf.file} using a VCF file containing the COSMIC database.

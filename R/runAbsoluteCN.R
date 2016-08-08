@@ -109,9 +109,18 @@ test.num.copy=0:7,
 ### as subclonal (because they do not fit the integer copy numbers).
 test.purity=seq(0.15,0.95,by=0.01), 
 ### Considered tumor purity values. 
-prior.purity=rep(1,length(test.purity))/length(test.purity), 
-### Priors for purity if they are available. Only change 
-### when you know what you are doing.
+prior.purity=NULL, 
+### Priors for purity if they are available. If \code{NULL}, 
+### use flat priors. Only change when you know what you are doing.
+prior.K=0.999,
+### This defines the prior probability that the multiplicity of
+### a SNV corresponds to either the maternal or the paternal copy
+### number (for somatic variants additionally to a multiplicity of 1).
+### For perfect segmentations, this value would be 1; values smaller
+### than 1 thus may provide some robustness against segmentation errors.
+prior.contamination=0.01,
+### The prior probability that a known SNP is from a different
+### individual. 
 max.candidate.solutions=20, 
 ### Number of local optima considered in optimization 
 ### and variant fitting steps. If there are too many local optima, it will use
@@ -161,15 +170,6 @@ max.logr.sdev=0.75,
 max.segments=200,
 ### Flag noisy samples with a large number of segments. Assay 
 ### specific and needs to be calibrated.
-prior.K=0.999,
-### This defines the prior probability that the multiplicity of
-### a SNV corresponds to either the maternal or the paternal copy
-### number (for somatic variants additionally to a multiplicity of 1).
-### For perfect segmentations, this value would be 1; values smaller
-### than 1 thus may provide some robustness against segmentation errors.
-prior.contamination=0.01,
-### The prior probability that a known SNP is from a different
-### individual. 
 plot.cnv=TRUE, 
 ### Generate segmentation plots.
 cosmic.vcf.file=NULL,
@@ -206,6 +206,11 @@ post.optimize=FALSE,
             centromeres <- NULL
         }
     }
+
+    # defaults to equal priors for all tested purity values
+    if (is.null(prior.purity)) {
+        prior.purity <- rep(1,length(test.purity))/length(test.purity)
+    }    
     # argument checking
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
         max.homozygous.loss, sampleid, prior.K, prior.contamination)
