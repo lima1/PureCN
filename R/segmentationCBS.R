@@ -113,7 +113,7 @@ iterations=2, chr.hash ) {
         ar.r <- ifelse(ar>0.5, 1-ar, ar)
 
         segs <- split(seg, seq_len(nrow(seg)) )
-
+        foundCNNLOH <- FALSE
         for (i in seq_len(nrow(seg)) ) {
             sar <-ar.r[subjectHits(ov)][queryHits(ov)==i]
             if (length(sar) < 2 * min.variants) next
@@ -130,9 +130,12 @@ iterations=2, chr.hash ) {
                 segs[[i]]$loc.end[1] <- bpPosition
                 segs[[i]]$loc.start[2] <- bpPosition+1
                 #message("Iteration: ", iter, " Found CNNLOH on ", seg$chrom[i]) 
+                foundCNNLOH <- TRUE    
             }
         }
-        x$cna$output <- .updateNumMark(do.call(rbind, segs), x)
+        if (foundCNNLOH) {
+            x$cna$output <- .updateNumMark(do.call(rbind, segs), x)
+        }
     }
     x
 }
@@ -144,8 +147,9 @@ iterations=2, chr.hash ) {
         end=seg$loc.end))
     probeGR <- GRanges(seqnames=as.character(x$cna$data$chrom), 
         IRanges(start=x$cna$data$maploc, end=x$cna$data$maploc))
-    ov <- findOverlaps(segGR, probeGR)
-    seg$num.mark <- table(queryHits(ov))
+    probeToSegs <- findOverlaps(probeGR, segGR, select="first")
+    seg$num.mark <- sapply(seq_len(nrow(seg)), function(i) sum(probeToSegs==i, 
+        na.rm=TRUE))
     seg
 }
         
