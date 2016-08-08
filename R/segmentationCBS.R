@@ -135,7 +135,10 @@ iterations=2, chr.hash ) {
         }
         if (foundCNNLOH) {
             x$cna$output <- .updateNumMark(do.call(rbind, segs), x)
-        }
+        } else {
+            # no need for trying again if no CNNLOH found.
+            break
+        }   
     }
     x
 }
