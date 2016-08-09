@@ -224,4 +224,39 @@ test_runAbsoluteCN <- function() {
 
     checkTrue(ret$results[[1]]$ploidy > 2)
     checkTrue(ret$results[[1]]$ploidy < 4)
+
+    # check filterTargets
+    checkException(runAbsoluteCN(gatk.normal.file = gatk.normal.file,  
+        gatk.tumor.file = gatk.tumor.file, genome = "hg19", 
+        args.filterTargets=list(normalDB=vcf.file)))
+    checkTrue(grepl("normalDB not a valid normalDB object", 
+        geterrmessage()))
+    
+    normalDB <- createNormalDatabase(gatk.normal.files)
+
+    tmp <- normalDB
+    tmp$gatk.normal.files <- NULL
+    checkException(runAbsoluteCN(gatk.normal.file = gatk.normal.file,  
+        gatk.tumor.file = gatk.tumor.file, genome = "hg19", 
+        args.filterTargets=list(normalDB=tmp)))
+    checkTrue(grepl("normalDB appears to be empty", 
+        geterrmessage()))
+    ret <- runAbsoluteCN(gatk.normal.file = gatk.normal.file, 
+        gatk.tumor.file = gatk.tumor.file, genome = "hg19", vcf.file = vcf.file, 
+        sampleid = "Sample1", gc.gene.file = gc.gene.file, 
+        args.filterTargets = list(normalDB = normalDB,
+        filter.lowhigh.gc=0
+        ), 
+        plot.cnv=FALSE,
+        max.ploidy = 3, test.purity = seq(0.4, 0.7, by = 0.05), 
+        max.candidate.solutions = 1)
+    tumor <- readCoverageGatk(gatk.tumor.file)
+    idx <- tumor$probe %in% ret$input$log.ratio$probe
+    cutoff <- median(normalDB$exon.median.coverage)*0.3
+
+    checkEqualsNumeric(0, sum(!(normalDB$exon.median.coverage[!idx] < cutoff | 
+        tumor$targeted.base[!idx] < 4 | tumor$average.coverage[!idx] < 14)))
+
+   checkTrue( sum(!(normalDB$exon.median.coverage[idx] < cutoff | 
+    tumor$targeted.base[idx] < 4 | tumor$average.coverage[idx] < 14)) > 9000)
 }    

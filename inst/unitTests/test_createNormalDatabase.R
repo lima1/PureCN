@@ -9,6 +9,11 @@ test_createNormalDatabase <- function() {
     checkEquals(normalizePath(gatk.normal.file[1]), 
         findBestNormal(gatk.normal.files[1], normalDB))
 
+    n <- lapply(gatk.normal.files, readCoverageGatk)
+
+    checkEqualsNumeric(apply(cbind(n[[1]]$average.coverage, 
+        n[[2]]$average.coverage),1,median), normalDB$exon.median.coverage)
+
     normalDB <- createNormalDatabase(gatk.normal.files, sex=c("A", NA))
     checkEquals(as.character(c(NA, NA)), normalDB$sex)
     checkEquals(normalizePath(gatk.normal.file[1]), 
