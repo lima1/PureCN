@@ -110,8 +110,8 @@ test.num.copy=0:7,
 test.purity=seq(0.15,0.95,by=0.01), 
 ### Considered tumor purity values. 
 prior.purity=NULL, 
-### Priors for purity if they are available. If \code{NULL}, 
-### use flat priors. Only change when you know what you are doing.
+### \code{numeric(length(test.purity))} with priors for tested 
+### purity values. If \code{NULL}, use flat priors. 
 prior.K=0.999,
 ### This defines the prior probability that the multiplicity of
 ### a SNV corresponds to either the maternal or the paternal copy
@@ -213,8 +213,9 @@ post.optimize=FALSE,
     }    
     # argument checking
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
-        max.homozygous.loss, sampleid, prior.K, prior.contamination)
-   
+        max.homozygous.loss, sampleid, prior.K, prior.contamination, 
+        prior.purity)
+
     test.num.copy <- sort(test.num.copy)
 
     if (!is.null(gc.gene.file) && !file.exists(gc.gene.file)) { 

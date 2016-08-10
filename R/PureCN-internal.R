@@ -263,7 +263,7 @@ test.num.copy[i], prior.K))
 
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
     max.non.clonal, max.homozygous.loss, sampleid, prior.K, 
-    prior.contamination) {
+    prior.contamination, prior.purity) {
     if (min(test.purity) <= 0 || max(test.purity) > 1) 
         .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
@@ -273,11 +273,19 @@ test.num.copy[i], prior.K))
     .checkFraction(max.homozygous.loss, "max.homozygous.loss")
     .checkFraction(prior.K, "prior.K")
     .checkFraction(prior.contamination, "prior.contamination")
+    tmp <- sapply(prior.purity, .checkFraction, "prior.purity")
 
     if (!is.null(sampleid) && ( class(sampleid) != "character" ||
         length(sampleid) != 1)) {
         .stopUserError("sampleid not a character string.")
     }
+    if (abs(1-sum(prior.purity)) > 0.02) {
+        .stopUserError("prior.purity must add to 1. Sum is ", sum(prior.purity))
+    }    
+    if (length(prior.purity) != length(test.purity)) {
+        .stopUserError("prior.purity must have the same length as ",
+            "test.purity.")
+    }    
     stopifnot(is.numeric(min.ploidy))
     stopifnot(is.numeric(max.ploidy))
     stopifnot(is.numeric(test.purity))

@@ -105,8 +105,8 @@ segmentation function and automatically set (do NOT set them here again).}
 amplifications can have much higher copy numbers, but they will be labeled
 as subclonal (because they do not fit the integer copy numbers).}
   \item{test.purity}{Considered tumor purity values. }
-  \item{prior.purity}{Priors for purity if they are available. If \code{NULL}, 
-use flat priors. Only change when you know what you are doing.}
+  \item{prior.purity}{\code{numeric(length(test.purity))} with priors for tested 
+purity values. If \code{NULL}, use flat priors. }
   \item{prior.K}{This defines the prior probability that the multiplicity of
 a SNV corresponds to either the maternal or the paternal copy
 number (for somatic variants additionally to a multiplicity of 1).

@@ -64,6 +64,19 @@ test_runAbsoluteCN <- function() {
         genome="hg19"))
     checkTrue(grepl("Length of log.ratio different from tumor coverage",
         geterrmessage()))
+    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file, 
+        prior.purity=1, genome="hg19"))
+    checkTrue(grepl("prior.purity must have the same", 
+        geterrmessage()))
+    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file, 
+        prior.purity=c(0.6,1.1), test.purity=c(0.2, 0.6), genome="hg19"))
+    checkTrue(grepl("prior.purity not within expected range", 
+        geterrmessage()))
+    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file, 
+        prior.purity=c(0.6,0.9), test.purity=c(0.2, 0.6), genome="hg19"))
+    checkTrue(grepl("prior.purity must add to 1. Sum is 1.5", 
+        geterrmessage()))
+
 
     checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
         log.ratio=purecn.example.output$input$log.ratio[,2], 

@@ -36,6 +36,6 @@ test_createNormalDatabase <- function() {
         gc.gene.file, "shuffled_gatk.txt"))
     checkException(createNormalDatabase(c(gatk.normal.files, 
         "shuffled_gatk.txt")))
-    checkTrue(grepl("shuffled_gatk.txt is different", 
-        geterrmessage()))
+    checkTrue(grepl("shuffled_gatk.txt", 
+        geterrmessage()), msg=geterrmessage())
 }    
