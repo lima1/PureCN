@@ -6,13 +6,15 @@ returns coverage for each interval. Coverage should be then GC-normalized
 using the \code{\link{correctCoverageBias}} function before determining
 purity and ploidy with \code{\link{runAbsoluteCN}}.}
 \usage{calculateBamCoverageByInterval(bam.file, interval.file, 
-    output.file = NULL)}
+    output.file = NULL, index.file = bam.file)}
 \arguments{
   \item{bam.file}{Filename of a BAM file.}
   \item{interval.file}{File specifying the intervals. Interval is expected in 
 first column in format CHR:START-END. The \code{gc.gene.file} can be used.}
   \item{output.file}{Optionally, write minimal coverage file. Can be read with the
 \code{\link{readCoverageGatk}} function.}
+  \item{index.file}{The bai index. This is expected without the .bai file suffix, see
+\code{?scanBam}.}
 }
 
 \value{Returns total and average coverage by intervals.}

@@ -11,9 +11,12 @@ bam.file,
 interval.file,
 ### File specifying the intervals. Interval is expected in 
 ### first column in format CHR:START-END. The \code{gc.gene.file} can be used.
-output.file=NULL
+output.file=NULL,
 ### Optionally, write minimal coverage file. Can be read with the
 ### \code{\link{readCoverageGatk}} function.
+index.file=bam.file
+### The bai index. This is expected without the .bai file suffix, see
+### \code{?scanBam}.
 ) {
     interval <- read.delim(interval.file, as.is=TRUE)
     colnames(interval)[1] <- "Target"
@@ -29,7 +32,7 @@ output.file=NULL
                                  isSecondaryAlignment=FALSE,
                                  isDuplicate=FALSE))
 
-    x <- scanBam(bam.file, param=param)
+    x <- scanBam(bam.file, index=index.file, param=param)
     cvg <- sapply(seq_along(x), function(i) 
         sum(coverage(IRanges(x[[i]][["pos"]], width=x[[i]][["qwidth"]]), 
             shift=-start(interval.gr)[i], width=width(interval.gr)[i] )))
