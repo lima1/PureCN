@@ -23,7 +23,7 @@ test_runAbsoluteCN <- function() {
         gatk.tumor.file=gatk.tumor.file, 
         candidates=purecn.example.output$candidates, 
         args.segmentation=list(target.weight.file=target.weight.file), 
-        max.candidate.solutions=2)
+        max.ploidy=4, max.candidate.solutions=1)
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     
