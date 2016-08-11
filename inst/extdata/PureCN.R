@@ -45,7 +45,9 @@ target.weight.file=NULL, normalDB=NULL, sampleid, outdir) {
     if (!is.null(normalDB)) {
         message("normalDB: ", normalDB)
         normalDB <- readRDS(normalDB)
-        gatk.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
+        if (is.null(gatk.normal.file)) {
+            gatk.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
+        }
     } else if (is.null(gatk.normal.file) && is.null(seg.file)) {
         stop("Need either normalDB or gatk.normal.file")
     }    
@@ -60,6 +62,7 @@ target.weight.file=NULL, normalDB=NULL, sampleid, outdir) {
             args.filterVcf=list(snp.blacklist=snp.blacklist, 
                 stats.file=stats.file), 
             args.segmentation=list(target.weight.file=target.weight.file), 
+            args.filterTargets=list(normalDB=normalDB),
             post.optimize=FALSE)
     dev.off()
 
