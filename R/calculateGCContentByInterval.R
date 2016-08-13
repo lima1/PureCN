@@ -4,14 +4,24 @@ function(# Calculates GC content by interval
 ### content of intervals in a reference FASTA file.
 interval.file,
 ### File specifying the intervals. Interval is expected in 
-### first column in format CHR:START-END.
+### first column in format CHR:START-END. BED files with 
+### coordinates in the first three columns are supported as well.
 reference.file,
 ### Reference FASTA file.
-output.file=NULL
+output.file=NULL,
 ### Optionally, write GC content file. 
+...
+### Additional parameters passed to the \code{read.delim}
+### function that reads the \code{interval.file}.
 ) {
-    interval <- read.delim(interval.file, as.is=TRUE)
-    colnames(interval)[1] <- "Target"
+    interval <- read.delim(interval.file, as.is=TRUE, ...)
+    isBedFile <- .checkBedFile(interval)
+    if (isBedFile) {
+       interval$Target <- paste(interval[,1],":", interval[,2],"-", 
+        interval[,3], sep="")
+    } else {
+        colnames(interval)[1] <- "Target"
+    }
     pos <- as.data.frame(do.call(rbind, strsplit(interval$Target, ":|-")), 
         stringsAsFactors = FALSE)
     interval.gr <- GRanges(seqnames = pos[,1], 
@@ -40,3 +50,9 @@ interval.file <- system.file("extdata", "ex2_intervals.txt",
 calculateGCContentByInterval(interval.file, reference.file, 
     output.file="gc_file.txt")
 }) 
+
+
+.checkBedFile <- function(interval) {
+    seqStyle <- try(seqlevelsStyle(interval[,1]), silent=TRUE)
+    return(class(seqStyle) != "try-error") 
+}
