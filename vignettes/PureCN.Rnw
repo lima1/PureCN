@@ -94,9 +94,9 @@ and in general require no post-processing. \Biocpkg{PureCN} can handle
 
 For the default segmentation function provided by \Biocpkg{PureCN}, the
 algorithm first needs to calculate log-ratios of tumor vs.  normal control
-coverage.  Exon-level coverage data needs to be provided in \software{GATK
-DepthOfCoverage} format\footnote{\software{GATK} will generate additional
-columns and \Biocpkg{PureCN} will ignore these when provided}:
+coverage.  Coverage data needs to be provided in \software{GATK DepthOfCoverage}
+format\footnote{\software{GATK} will generate additional columns and
+\Biocpkg{PureCN} will ignore these when provided}:
 
 \begin{verbatim}
     Target  total_coverage  average_coverage    
@@ -105,7 +105,13 @@ columns and \Biocpkg{PureCN} will ignore these when provided}:
     chr1:621096-622035  6294    9.16    
 \end{verbatim}
 
-It is recommended to GC-normalize coverage. GC-content is expected in
+The intervals define the captured genomic regions (targets) and are provided by the
+manufacturer of your capture kit\footnote{While \software{PureCN} can use a pool
+of normal samples to learn which intervals are reliable and which not, it is
+highly recommended to provide the correct intervals. Garbage in, garbage out.}.  
+
+It is recommended to GC-normalize coverage (how this done is described later in
+Section~\ref{secgcbias}). The GC-content for each target is expected in
 \software{GATK GCContentByInterval} format:
 
 \begin{verbatim}
