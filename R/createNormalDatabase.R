@@ -11,6 +11,10 @@ sex=NULL,
 ### \code{character(length(gatk.normal.files))} with sex for all files. 
 ### \code{F} for female, \code{M} for male. If all chromosomes are diploid, 
 ### specify \code{diploid}. If \code{NULL}, determine from coverage.
+max.mean.coverage=100,
+### Assume that coverages above this value do not necessarily improve
+### copy number normalization. Internally, samples with coverage higher than
+### this value will be normalized to have mean coverage equal to this value. 
 ...
 ### Arguments passed to the \code{prcomp} function.
 ) {
@@ -27,6 +31,11 @@ sex=NULL,
     normals.m <- do.call(cbind, 
         lapply(normals, function(x) x$average.coverage))
     idx <- complete.cases(normals.m)
+
+    z <- apply(normals.m[idx,],2,mean)
+    z <- sapply(max.mean.coverage/z, min,1)
+    normals.m <- scale(normals.m, 1/z, center=FALSE)
+
     normals.pca <- prcomp(t(normals.m[idx,]), ...)
     sex.determined <- sapply(normals,getSexFromCoverage, verbose=is.null(sex))
     if (is.null(sex)) {
@@ -55,6 +64,8 @@ sex=NULL,
         coverage=apply(normals.m, 2, mean, na.rm=TRUE), 
         exon.median.coverage=apply(normals.m,1,median, na.rm=TRUE),
         exon.log2.sd.coverage=apply(log2(normals.m+1),1,sd, na.rm=TRUE),
+        fraction.missing=apply(normals.m,1,function(x) 
+            sum(is.na(x)|x<0.01))/ncol(normals.m),
         sex=sex
     )
 ### A normal database that can be used in the \code{\link{findBestNormal}} 

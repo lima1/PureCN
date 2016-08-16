@@ -93,7 +93,13 @@ normalDB.min.coverage, verbose) {
     nBefore <- sum(targetsUsed)
     min.coverage <- (sapply(split(normalDB$exon.median.coverage, 
         tumor$chr), median, na.rm=TRUE)*normalDB.min.coverage)[tumor$chr]
-    targetsUsed <- targetsUsed & normalDB$exon.median.coverage >= min.coverage
+    
+    # should not happen, but just in case
+    min.coverage[is.na(min.coverage)] <- median(min.coverage, na.rm=TRUE)
+    
+    targetsUsed <- targetsUsed & !is.na(normalDB$exon.median.coverage) & 
+        normalDB$exon.median.coverage >= min.coverage
+
     nAfter <- sum(targetsUsed)
 
     if (verbose && nAfter < nBefore) { 

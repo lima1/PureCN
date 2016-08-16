@@ -345,6 +345,10 @@ test.num.copy[i], prior.K))
         result$flag <- TRUE
         result$flag_comment <- .appendComment(result$flag_comment, "POLYGENOMIC")
     }
+    if (result$fraction.homozygous.loss > 0.05) {
+        result$flag <- TRUE
+        result$flag_comment <- .appendComment(result$flag_comment, "EXCESSIVE LOSSES")
+    }
     if (result$ploidy > 4.5 || result$ploidy < 1.5) {
         result$flag <- TRUE
         result$flag_comment <- .appendComment(result$flag_comment, "RARE KARYOTYPE")

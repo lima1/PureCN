@@ -7,13 +7,16 @@ function determines the sex of the samples and trains a PCA
 that is later used for clustering a tumor file with all normal samples 
 in the database.}
 \usage{createNormalDatabase(gatk.normal.files, sex = NULL, 
-    ...)}
+    max.mean.coverage = 100, ...)}
 \arguments{
   \item{gatk.normal.files}{Vector with file names pointing to GATK coverage files 
 of normal samples. }
   \item{sex}{\code{character(length(gatk.normal.files))} with sex for all files. 
 \code{F} for female, \code{M} for male. If all chromosomes are diploid, 
 specify \code{diploid}. If \code{NULL}, determine from coverage.}
+  \item{max.mean.coverage}{Assume that coverages above this value do not necessarily improve
+copy number normalization. Internally, samples with coverage higher than
+this value will be normalized to have mean coverage equal to this value. }
   \item{\dots}{Arguments passed to the \code{prcomp} function.}
 }
 

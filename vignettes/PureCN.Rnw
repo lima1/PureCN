@@ -91,7 +91,7 @@ and in general require no post-processing. \Biocpkg{PureCN} can handle
 \software{MuTect} VCF files generated in both single and matched normal mode. 
 
 \subsection{Coverage data}
-
+\label{gatkcoverage}
 For the default segmentation function provided by \Biocpkg{PureCN}, the
 algorithm first needs to calculate log-ratios of tumor vs.  normal control
 coverage.  Coverage data needs to be provided in \software{GATK DepthOfCoverage}
@@ -122,8 +122,10 @@ Section~\ref{secgcbias}). The GC-content for each target is expected in
 \end{verbatim}
 
 The \Rcode{Gene} column is optional and only required for providing gene-level
-copy number and LOH calls. Simplistic example code for annotating these
-intervals with gene symbols is given in the Appendix of this vignette.
+copy number and LOH calls. This information should be available in the
+technical documentation of your capture kit. Simplistic example code for
+annotating target intervals with gene symbols is given in the Appendix of this
+vignette for testing purposes.
 
 \subsection{Generating coverage data without \software{GATK}}
 \label{purecncoverage}
@@ -352,7 +354,7 @@ snp.blacklist <- c('hg19_segmentalDuplications.txt',
 @
 
 \section{Recommended run}
-
+\label{secrecommended}
 Finally, we can run \Biocpkg{PureCN} with all that information:
 
 <<runpurecn>>=
@@ -833,6 +835,12 @@ GC-dropout might result in high variance of log-ratios. Challenging FFPE samples
 also might need parameter tuning of the segmentation function. See 
 \Rfunction{segmentationCBS}. A high expected tumor purity allows more aggressive
 segmentation parameters, such as \Rcode{prune.hclust.h=0.2} or higher.
+    \item Was the correct target interval file used (genome version and capture
+    kit, see Section~\ref{gatkcoverage})? If unsure, ask the help desk of your
+    sequencing center.
+    \item Were the normal samples run with the same assay and pipeline? 
+    \item Did you provide \Rfunction{runAbsoluteCN} all the recommended files
+    as described in Section~\ref{secrecommended}?  
     \end{itemize}
     \item Otherwise, if log-ratio peaks are clean as in 
 Figure~\ref{figure/figureexample2-1}:
