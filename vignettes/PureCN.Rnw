@@ -568,7 +568,8 @@ Figure~\ref{figure/figurecustombaf-1}). Note that \Biocpkg{PureCN} will
 re-segment the simulated log-ratios using the default
 \Rfunction{segmentationCBS} function, in particular to identify regions of
 copy-number neutral LOH and to cluster segments with similar allelic imbalance
-and log-ratio.  
+and log-ratio. The provided interval file should therefore cover
+all significant copy number alterations.
 
 <<customseg>>=
 retSegmented <- runAbsoluteCN(seg.file=seg.file, 
@@ -630,7 +631,7 @@ For predicted somatic mutations, this function also provides cellular fraction
 estimates, i.e. the fraction of tumor cells with mutation. Fractions
 significantly below 1 indicate sub-clonality\footnote{This number can be above 1
 when the observed allelic fraction is higher than expected for a clonal
-mutation. This maybe due to random sampling, wrong copy number, sub-clonal copy
+mutation. This may be due to random sampling, wrong copy number, sub-clonal copy
 number events, or wrong purity/ploidy estimates.}:
 
 <<output3>>=
@@ -641,11 +642,11 @@ M0 to M7 are multiplicity values, i.e. the number of chromosomes harboring the
 mutation (e.g.  1 heterozygous, 2 homozygous if copy number C is 2). Columns
 with the ML prefix indicate maximum likelihood estimates, e.g. ML.AR is the
 expected allelic ratio of the most likely state, AR is the observed allelic
-ratio.  GERMLINE.CONTHIGH and GERMLINE.CONTLOW are the two contamination states.
-The former are homozygous germline SNPs that were not filtered out because
-reference alleles from another individual were sequenced, resulting in allelic
-fractions smaller than 1. The latter are non-reference alleles only present in
-the contamination. 
+ratio as provided in the VCF file.  GERMLINE.CONTHIGH and GERMLINE.CONTLOW are
+the two contamination states.  The former are homozygous germline SNPs that
+were not filtered out because reference alleles from another individual were
+sequenced, resulting in allelic fractions smaller than 1. The latter are
+non-reference alleles only present in the contamination. 
 
 To annotate the input VCF file with these values:
 <<output4>>=
@@ -864,7 +865,7 @@ Figure~\ref{figure/figureexample2-1}:
 supported and well tested. A minimal example \software{MuTect} call would be:
     \begin{verbatim}
     $JAVA -Xmx6g -jar $MUTECT \
-    --analysis_type MuTect -R ${REFERENCE} \
+    --analysis_type MuTect -R $REFERENCE \
     --dbsnp $DBSNP_VCF \
     --cosmic $COSMIC_VCF \
     -I:normal $BAM_NORMAL \

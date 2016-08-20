@@ -47,21 +47,24 @@ max.exon.ratio) {
     max.M <- floor(Ci/2)
     idx.germline <- test.num.copy+length(test.num.copy)+1
     idx.somatic <- test.num.copy+1
-
     yys <- lapply(0:max.M, function(Mi) {
         for (i in test.num.copy) {
             n.cases.germ <- ifelse(Mi==Ci-Mi,1,2)
-            n.cases.somatic <- length(unique(c(1,Mi, Ci-Mi)))
-             
+            tmp <- unique(c(1,Mi, Ci-Mi))
+            tmp <- tmp[tmp>0]
+            n.cases.somatic <- length(tmp)
+            Cx <- max(i,Ci)
+
             if (i!=Mi && i!=Ci - Mi) {
-                yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(1-prior.K) - log(n.cases.germ)
+                yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(1-prior.K) - log(Cx + 1 - n.cases.germ)
 
                 # allow somatic mutations always have M=1
                 if (i==1) {
                     yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(prior.K) - log(n.cases.somatic)
                 } else {
+                    #message(paste(i, Mi, Ci, max.M, n.cases.somatic, n.cases.germ, Cx))
                     yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] +
-                        log(1-prior.K) - log(n.cases.somatic)
+                        log(1-prior.K) - log(Cx + 1 - n.cases.somatic)
                 }    
             } else {
                 yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(prior.K) -log(n.cases.germ)

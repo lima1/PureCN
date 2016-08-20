@@ -122,8 +122,10 @@ iterations=2, chr.hash ) {
                     sd(sar[seq(i+1,length(sar))])))
             ))
             bp <- bp + min.variants-1
-            tt <- t.test( sar[seq_len(bp)], sar[seq(bp+1,length(sar))])
-            if ( abs(tt$estimate[1] - tt$estimate[2]) > 0.05
+            x1 <- sar[seq_len(bp)]
+            x2 <- sar[seq(bp+1,length(sar))]
+            tt <- wilcox.test(x1, x2, exact=FALSE)
+            if ( abs(mean(x1) - mean(x2)) > 0.05
                 && tt$p.value < alpha) {
                 segs[[i]] <- rbind(segs[[i]], segs[[i]])            
                 bpPosition <-  start(vcf[subjectHits(ov)][queryHits(ov)==i])[bp]
@@ -222,7 +224,7 @@ iterations=2, chr.hash ) {
             if (length(ar.i[[1]]) < min.size || length(ar.i[[2]]) < min.size) next
             if (merged[i-1]) next
             
-            p.t <- t.test(ar.i[[1]], ar.i[[2]])$p.value
+            p.t <- wilcox.test(ar.i[[1]], ar.i[[2]], exact=FALSE)$p.value
             if (p.t>0.2) {
                 merged[i] <- TRUE
                 x$cna$output$seg.mean[i-1] <- weighted.mean(
