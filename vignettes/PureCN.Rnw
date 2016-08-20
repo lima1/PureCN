@@ -675,8 +675,9 @@ head(gene.calls)
 @
 
 It is also often useful to filter the list further by known biology, for example
-to exclude amplifications of tumor suppressor genes such as \textit{GATA3}.  The
-Sanger Cancer Gene Census \cite{Futreal2004} for example provides such a list.
+to exclude non-focal amplifications of tumor suppressor genes such as
+\textit{GATA3}.  The Sanger Cancer Gene Census \cite{Futreal2004} for example
+provides such a list.
 
 \subsection{Find genomic regions in LOH}
 
@@ -809,7 +810,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --statsfile -a      & stats.file & \Rfunction{filterVcfMuTect}        \\
 --targetweightfile -e & target.weight.file & \Rfunction{segmentationCBS} \\
 --normaldb -d       & normalDB (serialized with \Rfunction{saveRDS}) & 
-    \Rfunction{findBestNormal} \\
+    \Rfunction{findBestNormal}, \Rfunction{filterTargets} \\
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
 \bottomrule
 \end{tabular}
