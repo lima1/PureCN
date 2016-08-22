@@ -124,7 +124,7 @@ iterations=2, chr.hash ) {
             bp <- bp + min.variants-1
             x1 <- sar[seq_len(bp)]
             x2 <- sar[seq(bp+1,length(sar))]
-            tt <- wilcox.test(x1, x2, exact=FALSE)
+            tt <- t.test(x1, x2, exact=FALSE)
             if ( abs(mean(x1) - mean(x2)) > 0.05
                 && tt$p.value < alpha) {
                 segs[[i]] <- rbind(segs[[i]], segs[[i]])            
@@ -159,7 +159,8 @@ iterations=2, chr.hash ) {
 }
         
 .pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=NULL, method="ward.D", 
-    min.variants=5, chr.hash, verbose=TRUE) {
+    min.variants=5, chr.hash, iterations=2, verbose=TRUE) {
+    for (iter in seq_len(iterations)) {
     seg <- x$cna$output
     seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
         IRanges(start=seg$loc.start, end=seg$loc.end))
@@ -181,7 +182,8 @@ iterations=2, chr.hash ) {
         if (verbose) message("Setting prune.hclust.h parameter to ", h)
     }   
 
-    numVariants <- sapply(seq_len(nrow(seg)), function(i) sum(queryHits(ov) == i))
+    numVariants <- sapply(seq_len(nrow(seg)), function(i) 
+        sum(queryHits(ov) == i))
     dx <- cbind(seg$seg.mean,xx)
     hc <- hclust(dist(dx), method=method)
     seg.hc <- data.frame(id=1:nrow(dx), dx, num=numVariants, 
@@ -189,12 +191,15 @@ iterations=2, chr.hash ) {
 
     # cluster only segments with at least n variants    
     seg.hc <- seg.hc[seg.hc$num>=min.variants,]
-    clusters <- lapply(unique(seg.hc$cluster), function(i) seg.hc$id[seg.hc$cluster==i])
+    clusters <- lapply(unique(seg.hc$cluster), function(i) 
+        seg.hc$id[seg.hc$cluster==i])
     clusters <- clusters[sapply(clusters, length)>1]
 
     for (i in seq_along(clusters)) {
         x$cna$output$seg.mean[clusters[[i]]] <- 
-            weighted.mean(x$cna$output$seg.mean[clusters[[i]]], x$cna$output$num.mark[clusters[[i]]])
+            weighted.mean(x$cna$output$seg.mean[clusters[[i]]], 
+            x$cna$output$num.mark[clusters[[i]]])
+    }
     }
     x
 }
@@ -224,7 +229,7 @@ iterations=2, chr.hash ) {
             if (length(ar.i[[1]]) < min.size || length(ar.i[[2]]) < min.size) next
             if (merged[i-1]) next
             
-            p.t <- wilcox.test(ar.i[[1]], ar.i[[2]], exact=FALSE)$p.value
+            p.t <- t.test(ar.i[[1]], ar.i[[2]], exact=FALSE)$p.value
             if (p.t>0.2) {
                 merged[i] <- TRUE
                 x$cna$output$seg.mean[i-1] <- weighted.mean(

@@ -1,6 +1,11 @@
+# Make CMD check happy
 globalVariables(names=c("Gene", "LR", "chrom", "seg.id", "seg.length",
 "seg.mean"))
 
+# calculates the log-likelihood of a segment, given log-ratios, the
+# log ratio standard deviation, purity, copy number and ploidy.
+# for sub-clonal alterations, it uses a uniform distribution, otherwise
+# multiple gaussians for all tested copy numbers. 
 .calcLlikSegment <- function(subclonal, lr, sd.seg, p, Ci, total.ploidy, 
 max.exon.ratio) {
     if (subclonal) {
@@ -115,6 +120,8 @@ test.num.copy[i], prior.K))
     
     seg.idx <- which(seq_len(nrow(C.posterior)) %in% queryHits(ov))
     sd.ar <- sd(unlist(geno(vcf)$FA[, tumor.id.in.vcf]))
+
+    # Fit variants in all segments
     xx <- lapply(seg.idx, function(i) {
         # classify germline vs somatic
         idx <- subjectHits(ov)[queryHits(ov) == i]

@@ -378,7 +378,9 @@ for artifacts as described in Sections~\ref{artifactfiltering} and
 (Section~\ref{bestnormal}) allows the segmentation function to skip targets with
 low coverage in the pool of normals. If possible, these files should be
 generated and provided. The \Rcode{plot.cnv} argument allows the segmentation
-function to generate additional plots if set to \Rcode{TRUE}.  
+function to generate additional plots if set to \Rcode{TRUE}.  Finally,
+\Rcode{verbose} outputs important and helpful information about all the steps
+performed and is therefore set to \Rcode{TRUE} by default.
 
 We now create a few output files:
 
@@ -390,8 +392,12 @@ plotAbs(ret, type='all')
 dev.off()
 @
 
-The first plot shows the purity and ploidy local optima, sorted by final
-likelihood score after fitting both copy number and allelic fractions:
+The RDS file now contains the serialized return object of the
+\Rfunction{runAbsoluteCN} call. The PDF contains helpful plots for all local
+minima, sorted by likelihood.  The first plot in the generated PDF is displayed
+in Figure~\ref{figure/figureexample1-1} and shows the purity and ploidy local
+optima, sorted by final likelihood score after fitting both copy number and
+allelic fractions.
 
 <<figureexample1, fig.show='hide', fig.width=6, fig.height=6>>=
 plotAbs(ret, type="overview")
