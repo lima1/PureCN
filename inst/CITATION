@@ -1,0 +1,12 @@
+bibentry(bibtype = "Article",
+         author = c(person(given = "Markus", family = "Riester"),
+                    person(given = "Angad", family = "Singh"),
+                    person(given = "A. Rose", family = "Brannon"),
+                    person(given = "Kun", family = "Yu"),
+                    person(given = "Catarina D.", family = "Campbell"),
+                    person(given = "Derek Y.", family = "Chiang"),
+                    person(given = "Michael", family = "Morrissey")),
+         title = "PureCN: Copy number calling and SNV classification using short read sequencing ",
+         year="2016",   
+         journal = "in prep."   
+         )

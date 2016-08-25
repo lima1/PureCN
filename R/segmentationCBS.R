@@ -131,7 +131,9 @@ iterations=2, chr.hash ) {
                 bpPosition <-  start(vcf[subjectHits(ov)][queryHits(ov)==i])[bp]
                 segs[[i]]$loc.end[1] <- bpPosition
                 segs[[i]]$loc.start[2] <- bpPosition+1
-                #message("Iteration: ", iter, " Found CNNLOH on ", seg$chrom[i]) 
+                #message("Iteration: ", iter, " Found CNNLOH on ", seg$chrom[i], 
+                #    " Means: ", mean(x1), " ", mean(x2), 
+                #    " Lengths: ", length(x1), " ", length(x2)) 
                 foundCNNLOH <- TRUE    
             }
         }
@@ -162,6 +164,7 @@ iterations=2, chr.hash ) {
     min.variants=5, chr.hash, iterations=2, verbose=TRUE) {
     for (iter in seq_len(iterations)) {
     seg <- x$cna$output
+    #message("HCLUST: ", iter, " Num segment LRs: ", length(table(x$cna$output$seg.mean)))
     seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
         IRanges(start=seg$loc.start, end=seg$loc.end))
     ov <- findOverlaps(seg.gr, vcf)
@@ -201,6 +204,7 @@ iterations=2, chr.hash ) {
             x$cna$output$num.mark[clusters[[i]]])
     }
     }
+    #message("HCLUST Num segment LRs: ", length(table(x$cna$output$seg.mean)))
     x
 }
     

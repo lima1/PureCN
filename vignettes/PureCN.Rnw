@@ -12,8 +12,8 @@ BiocStyle::latex2()
 
 \usepackage{booktabs} % book-quality tables
 
-\title{PureCN: Estimating tumor purity, ploidy, LOH and SNV status using hybrid
-capture sequencing data}
+\title{Copy number calling and SNV classification using 
+short read sequencing}
 \author[1]{Markus Riester}
 \affil[1]{Novartis Institutes for BioMedical Research, Cambridge, MA}
 
@@ -849,6 +849,10 @@ segmentation parameters, such as \Rcode{prune.hclust.h=0.2} or higher.
     \item Were the normal samples run with the same assay and pipeline? 
     \item Did you provide \Rfunction{runAbsoluteCN} all the recommended files
     as described in Section~\ref{secrecommended}?  
+    \item For whole-genome data, you most likely get better results using a
+    specialized third-party segmentation method as described in
+    section~\ref{customseg}, since our default is optimized for targeted
+    sequencing.
     \end{itemize}
     \item Otherwise, if log-ratio peaks are clean as in 
 Figure~\ref{figure/figureexample2-1}:
