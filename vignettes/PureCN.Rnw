@@ -13,7 +13,7 @@ BiocStyle::latex2()
 \usepackage{booktabs} % book-quality tables
 
 \title{Copy number calling and SNV classification using 
-short read sequencing}
+targeted short read sequencing}
 \author[1]{Markus Riester}
 \affil[1]{Novartis Institutes for BioMedical Research, Cambridge, MA}
 
@@ -26,7 +26,7 @@ short read sequencing}
 samples inspired by the \software{ABSOLUTE} algorithm \cite{Carter2012}.  It was
 designed for hybrid capture sequencing data, especially with medium-sized
 targeted gene panels without matching normal samples in mind (matched whole
-exome is of course supported). 
+exome data is of course supported). 
 
 It can be used to supplement existing normalization and segmentation algorithms.
 If the correct purity and ploidy solution was identified, \Biocpkg{PureCN} can
