@@ -22,7 +22,7 @@ Provides copy number and LOH data, by both gene and genomic region. }
         0.95, by = 0.01), prior.purity = NULL, prior.K = 0.999, 
     prior.contamination = 0.01, max.candidate.solutions = 20, 
     candidates = NULL, coverage.cutoff = NULL, min.coverage = 15, 
-    max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
+    max.coverage.vcf = 300, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
     iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = TRUE, gc.gene.file = NULL, 
     max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
@@ -125,6 +125,9 @@ If \code{NULL}, do 2D grid search and find local optima. }
   \item{coverage.cutoff}{Deprecated, use \code{min.coverage} instead. }
   \item{min.coverage}{Minimum coverage in both normal and tumor. Targets
 with lower coverage are ingored. }
+  \item{max.coverage.vcf}{This will set the maximum number of reads in the SNV fitting. 
+This is to avoid that small non-reference biases that come apparent only 
+at high coverages have a dramatic influence on likelihood scores.}
   \item{max.non.clonal}{Maximum genomic fraction assigned to a subclonal copy 
 number state.}
   \item{max.homozygous.loss}{Maximum genomic fraction assigned to homozygous loss. 

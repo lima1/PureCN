@@ -49,14 +49,14 @@ library(PureCN)
 
 \section{Limitations}
 
-\Biocpkg{PureCN} currently assumes a completely diploid normal genome. For human
-samples, it tries to detect sex by calculating the coverage ratio of chromosomes
-X and Y and will then remove any non-diploid chromosomes (i.e. XY for males and
-Y for females)\footnote{Loss of Y chromosome (LOY) can result in wrong female
-calls, especially in high purity samples or if LOY is in both tumor and
-contaminating normal cells.  The software throws a warning in this case when
-germline SNPs are provided.}.  For non-human samples, the user needs to manually
-remove all non-diploid chromosomes from the coverage data and specify
+\Biocpkg{PureCN} currently assumes a completely diploid normal genome. For
+human samples, it tries to detect sex by calculating the coverage ratio of
+chromosomes X and Y and will then remove sex chromosomes in male samples
+\footnote{Loss of Y chromosome (LOY) can result in wrong female calls,
+especially in high purity samples or if LOY is in both tumor and contaminating
+normal cells.  The software throws a warning in this case when germline SNPs
+are provided.}.  For non-human samples, the user needs to manually remove all
+non-diploid chromosomes from the coverage data and specify
 \Rcode{sex='diploid'} in the \Biocpkg{PureCN} call.
 
 \Biocpkg{PureCN} currently also assumes that the majority of somatic copy number

@@ -136,6 +136,10 @@ coverage.cutoff=NULL,
 min.coverage=15, 
 ### Minimum coverage in both normal and tumor. Targets
 ### with lower coverage are ingored. 
+max.coverage.vcf=300,
+### This will set the maximum number of reads in the SNV fitting. 
+### This is to avoid that small non-reference biases that come apparent only 
+### at high coverages have a dramatic influence on likelihood scores.
 max.non.clonal=0.2, 
 ### Maximum genomic fraction assigned to a subclonal copy 
 ### number state.
@@ -770,7 +774,7 @@ post.optimize=FALSE,
                         test.num.copy, C.posterior, C, snv.model="beta", 
                         prior.somatic, snv.lr, sampleid, 
                         cont.rate=prior.contamination,
-                        prior.K=prior.K)
+                        prior.K=prior.K, max.coverage.vcf=max.coverage.vcf)
                 )})
 
             if (post.optimize) {
