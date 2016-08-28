@@ -243,13 +243,11 @@ pool <- poolCoverage(lapply(gatk.best.normal.files, readCoverageGatk),
 Pooling is only recommended when the coverage in normals is significantly lower
 than in tumor.  Otherwise the PCA will typically do a good job in selecting a
 normal with decent coverage and similar biases compared to tumor. But it is
-worth experimenting with different strategies.  When pooling, it might be also
-necessary to remove certain principal components, most likely the first one, to
-avoid that coverage is the only selection criteria. The
-\Rfunction{plotBestNormal} function might be helpful in finding a good strategy.
-Note that this example removes sex chromosomes; if the normal database contains
-a sufficient number of samples with matching sex, \Rfunction{findBestNormal}
-will return only normal samples with matching sex.
+worth experimenting with different strategies using the
+\Rfunction{plotBestNormal} function.  Note that this example removes coverage
+from sex chromosomes; if the normal database contains a sufficient number of
+samples with matching sex, \Rfunction{findBestNormal} will return only normal
+samples with matching sex.
 
 \subsection{Artifact filtering}
 \label{artifactfiltering}
@@ -284,10 +282,10 @@ tumor files are necessary, however.
 We can also use the pool of normals to find SNPs with biased allelic fractions
 in low quality regions (very significantly different from 0.5 for heterozygous
 SNPs). If a matching normal is provided, most variants in low quality regions
-with biased allelic fractions should be automatically ignored. Note that this
-is not meant to model non-reference bias leading in expected allelic ratio only
-slightly below 0.5 (typically around 0.48). This bias is typically not strong
-enough to influence selection of SNV states.
+with biased allelic fractions should be automatically ignored. Note that this is
+not meant to model non-reference bias leading in expected allelic ratio only
+slightly below 0.5 (typically around 0.48 on average). This bias is typically
+not strong enough to influence selection of SNV states.
 
 <<snpblacklist>>=
 snp.blacklist <- c("SNP_blacklist.csv", "SNP_blacklist_segmented.csv")
