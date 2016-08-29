@@ -327,6 +327,21 @@ test.num.copy[i], prior.K))
     }
     results[!idx.duplicated]
 }
+.filterDuplicatedCandidates <- function(candidates) {
+    if (nrow(candidates) < 2) 
+        return(candidates)
+    idx.duplicated <- rep(FALSE, nrow(candidates))
+
+    for (i in seq_len(nrow(candidates)-1)) {
+        for (j in seq(i+1,nrow(candidates)) ) {
+            if ( abs( candidates$purity[i] - candidates$purity[j] ) < 0.075 &&
+                 abs( candidates$tumor.ploidy[i] - candidates$tumor.ploidy[j] ) / candidates$tumor.ploidy[i] < 0.075) {
+                idx.duplicated[j] <- TRUE
+            }    
+        }    
+    }
+    candidates[!idx.duplicated,]
+}
 .findLocalMinima <- function(m) {
     loc.min <- matrix(nrow = 0, ncol = 2)
     for (i in seq_len(nrow(m))) {
@@ -537,6 +552,7 @@ test.num.copy[i], prior.K))
     }
     
     candidates <- candidates[candidates$tumor.ploidy >= 0.5, ]
+    candidates <- .filterDuplicatedCandidates(candidates)
     
     list(all = mm, candidates = candidates[order(candidates$llik, decreasing = TRUE), 
         ])
