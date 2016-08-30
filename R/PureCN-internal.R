@@ -334,8 +334,8 @@ test.num.copy[i], prior.K))
 
     for (i in seq_len(nrow(candidates)-1)) {
         for (j in seq(i+1,nrow(candidates)) ) {
-            if ( abs( candidates$purity[i] - candidates$purity[j] ) < 0.075 &&
-                 abs( candidates$tumor.ploidy[i] - candidates$tumor.ploidy[j] ) / candidates$tumor.ploidy[i] < 0.075) {
+            if ( abs( candidates$purity[i] - candidates$purity[j] ) < 0.1 &&
+                 abs( candidates$tumor.ploidy[i] - candidates$tumor.ploidy[j] ) / candidates$tumor.ploidy[i] < 0.1) {
                 idx.duplicated[j] <- TRUE
             }    
         }    
