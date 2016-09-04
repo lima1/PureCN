@@ -294,9 +294,6 @@ post.optimize=FALSE,
         # both tumor and normal, so we just use tumor if there is no normal 
         # coverage file.
         if (is.null(gatk.normal.file)) normal <- tumor
-        if (!is.null(seg.file)) {
-            .stopUserError("Provide either log.ratio or seg.file, not both.") 
-        }
         if (length(log.ratio) != nrow(tumor)) {
             .stopUserError("Length of log.ratio different from tumor ",
                 "coverage.")

@@ -290,7 +290,6 @@ iterations=2, chr.hash ) {
 function(normal, tumor, logR=NULL, min.coverage=15, weights=NULL, sdundo=NULL,
 undo.splits="sdundo", smooth=TRUE, alpha=0.01, sampleid=NULL, plot.cnv=TRUE,
 max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
-    `%+%` <- function(x,y) paste(x,y,sep="")
 
     # first, do it for exons with enough coverage. MR: added less stringent 
     # cutoff in case normal looks great. these could be homozygous deletions 
@@ -309,8 +308,8 @@ max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
      
     CNA.obj <- CNA(norm.log.ratio[well.covered.exon.idx], 
         .strip.chr.name(normal$chr[well.covered.exon.idx], chr.hash), 
-        (normal$probe_start[well.covered.exon.idx] + 
-        normal$probe_end[well.covered.exon.idx])/2, data.type="logratio", 
+        floor((normal$probe_start[well.covered.exon.idx] + 
+        normal$probe_end[well.covered.exon.idx])/2), data.type="logratio", 
         sampleid=sampleid)
 
     smoothed.CNA.obj = if (smooth) smooth.CNA(CNA.obj) else CNA.obj

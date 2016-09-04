@@ -78,12 +78,6 @@ test_runAbsoluteCN <- function() {
         geterrmessage()))
 
 
-    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
-        log.ratio=purecn.example.output$input$log.ratio[,2], 
-        seg.file=seg.file,
-        genome="hg19"))
-    checkTrue(grepl("Provide either log.ratio or seg.file, not both",
-        geterrmessage()))
     checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,genome="hg19",
         max.homozygous.loss=1.1))
     checkTrue(grepl("max.homozygous.loss not within expected range",
@@ -219,6 +213,11 @@ test_runAbsoluteCN <- function() {
         readCoverageGatk(gatk.tumor.file), verbose=FALSE)
 
     ret <- runAbsoluteCN( log.ratio=log.ratio,
+        gc.gene.file=gc.gene.file,
+        vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
+        test.purity=seq(0.3,0.7, by=0.05))
+    checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
+    ret <- runAbsoluteCN( log.ratio=log.ratio, seg.file=seg.file,
         gc.gene.file=gc.gene.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
         test.purity=seq(0.3,0.7, by=0.05))

@@ -369,12 +369,14 @@ ret <-runAbsoluteCN(gatk.normal.file=pool,
     post.optimize=FALSE, plot.cnv=FALSE, verbose=FALSE)
 @
 
-The \Rcode{post.optimize} flag will increase the runtime by about one order of
-magnitude, but might return slightly more accurate purity estimates. For high
-quality whole exome data, this is typically not necessary.  The files specified
-in \Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering SNVs more efficiently
-for artifacts as described in Sections~\ref{artifactfiltering} and
-\ref{artifactfiltering2}. The \Rcode{normalDB} argument
+The \Rcode{post.optimize} flag will increase the runtime by about a factor of
+4-5, but might return slightly more accurate purity estimates. For high quality
+whole exome data, this is typically not necessary for copy number calling (but
+migh be for variant classification, see Section~\ref{predictsomatic}).  
+The files specified in \Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering
+SNVs more efficiently for artifacts as described in
+Sections~\ref{artifactfiltering} and \ref{artifactfiltering2}. The
+\Rcode{normalDB} argument
 (Section~\ref{bestnormal}) allows the segmentation function to skip targets with
 low coverage in the pool of normals. If possible, these files should be
 generated and provided. The \Rcode{plot.cnv} argument allows the segmentation
@@ -557,16 +559,19 @@ coverage log-ratios. It is straightforward to replace the default with other
 methods and the \Rfunction{segmentationCBS} function can serve as an example.
 
 The next section describes how to replace the default segmentation. For the
-probably more uncommon case that the coverage normalization is performed by
+probably more uncommon case that only the coverage normalization is performed by
 third-party tools, see Section~\ref{customnorm}.
 
 \subsection{Custom segmentation}
 It is possible to provide already segmented data, which is especially
 recommended when matched SNP6 data are available or when third-party
 segmentation tools are not written in R. Otherwise it is usually however better
-to customize the default segmentation function, since the algorithm
-then has access to the raw log-ratio distribution. The expected file format for
-already segmented copy number data is:
+to customize the default segmentation function, since the algorithm then has
+access to the raw log-ratio distribution\footnote{If the third-party tool
+provides target-level log-ratios, then these can be provided via the
+\Rcode{log.ratio} argument in addition to \Rcode{seg.file} though. See also
+Section~\ref{customnorm}.}. The expected file format for already segmented copy
+number data is:
 
 \begin{verbatim}
     ID  chrom   loc.start   loc.end num.mark    seg.mean
@@ -575,7 +580,7 @@ already segmented copy number data is:
 \end{verbatim}
 
 Since its likelihood model is exon-based, \Biocpkg{PureCN} currently still
-requires an interval file to generate simulated exon-level log-ratios from a
+requires an interval file to generate simulated target-level log-ratios from a
 segmentation file.  For simplicity, this interval file is expected either in
 \software{GATK DepthOfCoverage} format and provided via the
 \Rcode{gatk.tumor.file} argument or via the \Rcode{gc.gene.file} argument (see
@@ -664,7 +669,7 @@ instead of accessing the data directly since data structures might change in
 future versions. 
 
 \subsection{Prediction of somatic status and cellular fraction}
-
+\label{predictsomatic}
 To understand allelic fractions of particular SNVs, we must know the (i)
 somatic status, the (ii) tumor purity, the (iii) local copy number, as well as
 the (iv) number of chromosomes harboring the mutations or SNPs. One of
@@ -703,7 +708,10 @@ writeVcf(vcf, file="Sample1_PureCN.vcf")
 
 \textbf{Note that the posterior probabilities assume that the purity and ploidy
 combination is correct. Before classifying variants, it is thus important to
-manually curate samples.}
+manually curate samples.} Further note that small inaccuracies in purity can
+decrease the classification performance significantly, and we currently
+recommend the \Rcode{post.optimize} option when variant classification is
+important.
 
 \subsection{Amplifications and deletions}
 
