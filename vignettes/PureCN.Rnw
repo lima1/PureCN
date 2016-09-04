@@ -28,10 +28,12 @@ designed for hybrid capture sequencing data, especially with medium-sized
 targeted gene panels without matching normal samples in mind (matched whole
 exome data is of course supported). 
 
-It can be used to supplement existing normalization and segmentation algorithms.
-If the correct purity and ploidy solution was identified, \Biocpkg{PureCN} can
-also help in classifying variants as germline vs. somatic or clonal vs.
-sub-clonal.
+It can be used to supplement existing normalization and segmentation
+algorithms, i.e. the software can start from BAM files, from target-level
+coverage data, from normalized target log-ratios or from already segmented
+data.  If the correct purity and ploidy solution was identified,
+\Biocpkg{PureCN} can also help in classifying variants as germline vs. somatic
+or clonal vs.  sub-clonal.
 
 \Biocpkg{PureCN} was further designed to integrate well with industry standard
 pipelines \cite{McKenna2010}, but it is straightforward to generate input data
@@ -51,11 +53,11 @@ library(PureCN)
 
 \Biocpkg{PureCN} currently assumes a completely diploid normal genome. For
 human samples, it tries to detect sex by calculating the coverage ratio of
-chromosomes X and Y and will then remove sex chromosomes in male samples
-\footnote{Loss of Y chromosome (LOY) can result in wrong female calls,
+chromosomes X and Y and will then remove sex chromosomes in male 
+samples\footnote{Loss of Y chromosome (LOY) can result in wrong female calls,
 especially in high purity samples or if LOY is in both tumor and contaminating
-normal cells.  The software throws a warning in this case when germline SNPs
-are provided.}.  For non-human samples, the user needs to manually remove all
+normal cells. The software throws a warning in this case when germline SNPs
+are provided.}. For non-human samples, the user needs to manually remove all
 non-diploid chromosomes from the coverage data and specify
 \Rcode{sex='diploid'} in the \Biocpkg{PureCN} call.
 
@@ -544,18 +546,27 @@ dev.off()
 createCurationFile(file.curated.rds) 
 @
 
-\section{Custom segmentation}
+\section{Custom normalization and segmentation}
 \label{customseg}
-By default, we will use \CRANpkg{DNAcopy} \cite{Venkatraman2007} to segment the
-log-ratio. It is straightforward to replace the default with other methods and
-the \Rfunction{segmentationCBS} function can serve as an example. 
+Copy number normalization and segmentation are crucial for obtaining good
+purity and ploidy estimates. If you have a well-tested pipeline that produces
+clean results for your data, you might want (and maybe should) use
+\Biocpkg{PureCN} as add-on to your pipeline. By default, we will use
+\CRANpkg{DNAcopy} \cite{Venkatraman2007} to segment normalized target-level
+coverage log-ratios. It is straightforward to replace the default with other
+methods and the \Rfunction{segmentationCBS} function can serve as an example.
 
-It is also possible to provide already segmented data, which is especially
-recommended when matched SNP6 data are available or when third-party segmentation
-tools are not written in R. Otherwise it is usually however better to customize
-the segmentation function as described above, since the algorithm then has
-access to the raw log-ratio distribution. The expected file format for already
-segmented copy number data is:
+The next section describes how to replace the default segmentation. For the
+probably more uncommon case that the coverage normalization is performed by
+third-party tools, see Section~\ref{customnorm}.
+
+\subsection{Custom segmentation}
+It is possible to provide already segmented data, which is especially
+recommended when matched SNP6 data are available or when third-party
+segmentation tools are not written in R. Otherwise it is usually however better
+to customize the default segmentation function, since the algorithm
+then has access to the raw log-ratio distribution. The expected file format for
+already segmented copy number data is:
 
 \begin{verbatim}
     ID  chrom   loc.start   loc.end num.mark    seg.mean
@@ -573,7 +584,9 @@ re-segment the simulated log-ratios using the default
 \Rfunction{segmentationCBS} function, in particular to identify regions of
 copy-number neutral LOH and to cluster segments with similar allelic imbalance
 and log-ratio. The provided interval file should therefore cover
-all significant copy number alterations.
+all significant copy number alterations\footnote{If this behaviour is not
+wanted, because maybe the custom function already identifies CNNLOH reliably,
+\Rfunction{segmentationCBS} can be replaced with a minimal version.}.
 
 <<customseg>>=
 retSegmented <- runAbsoluteCN(seg.file=seg.file, 
@@ -594,6 +607,36 @@ segmented data.}{This plot shows the maximum likelihood solution for an example
 where segmented data are provided instead of coverage data. Note that the middle
 panel shows no variance in log-ratios, since only segment-level log-ratios are
 available.}
+
+\subsection{Custom normalization}
+\label{customnorm}
+If third-party tools such as \software{GATK4} are used to calculate
+target-level copy number log-ratios, and \Biocpkg{PureCN} should be used for
+segmentation and purity/ploidy inference only, it is possible to provide these
+log-ratios:
+
+<<customlogratio>>=
+# We still use the log-ratio exactly as normalized by PureCN for this
+# example
+log.ratio <- calculateLogRatio(readCoverageGatk(gatk.normal.file),
+    readCoverageGatk(gatk.tumor.file), verbose=FALSE)
+
+retLogRatio <- runAbsoluteCN(log.ratio=log.ratio,
+    gc.gene.file=gc.gene.file, vcf.file=vcf.file, 
+    max.candidate.solutions=1, genome="hg19",
+    test.purity=seq(0.3,0.7,by=0.05), verbose=FALSE, 
+    args.filterTargets=list(normalDB=normalDB),
+    plot.cnv=FALSE)
+@
+
+Again, the \Rcode{max.candidate.solutions} and \Rcode{test.purity} arguments
+are set to non-default values to reduce the runtime of this vignette. It is
+highly recommended to compare the log-ratios obtained by \Biocpkg{PureCN} and
+the third-party tool, since some pipelines automatically adjust log-ratios for
+a default purity value. Note that this example uses a pool of normals to filter
+low quality targets. Interval coordinates are again expected in either a
+\Rcode{gc.gene.file} or a \Rcode{gatk.tumor.file}. If a tumor coverage file is
+provided, then all targets below the coverage minimum are further excluded.
 
 \section{COSMIC annotation}
 

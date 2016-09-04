@@ -106,8 +106,8 @@ test_runAbsoluteCN <- function() {
     # run with a VCF
     ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
         gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
-        vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
-        max.candidate.solutions=2)
+        vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
+        max.candidate.solutions=1)
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     checkEqualsNumeric(seq(0.3,0.7,by=1/30),
@@ -117,7 +117,7 @@ test_runAbsoluteCN <- function() {
 
     ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
         gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=FALSE,
-        vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
+        vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1)
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
@@ -131,7 +131,7 @@ test_runAbsoluteCN <- function() {
         gc.gene.file="tmp.gc",
         gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
         candidates=purecn.example.output$candidates, 
-        vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
+        vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1)
     checkTrue(is.na( ret$results[[1]]$gene.calls ))
     checkException(callAlterations(ret))
@@ -168,8 +168,8 @@ test_runAbsoluteCN <- function() {
     checkException(runAbsoluteCN(gatk.normal.file=normCov, 
         gatk.tumor.file=tumorCov, remove.off.target.snvs=TRUE,
         gc.gene.file=gc.gene.file,
-        vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
-        max.candidate.solutions=2))
+        vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
+        max.candidate.solutions=1))
     checkTrue(grepl("Intervals of gatk.tumor.file and gc.gene.file do not",
         geterrmessage()))
 
@@ -180,8 +180,8 @@ test_runAbsoluteCN <- function() {
     ret <- runAbsoluteCN(gatk.normal.file=normCov, 
         gatk.tumor.file=tumorCov, remove.off.target.snvs=TRUE,
         gc.gene.file="tmp3.gc",
-        vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.01),
-        max.candidate.solutions=2)
+        vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
+        max.candidate.solutions=1)
 
     gpnmb <- callAlterations(ret)["GPNMB",]
     checkEquals("7", gpnmb$chr)
@@ -197,12 +197,12 @@ test_runAbsoluteCN <- function() {
     # test with a seg.file
     ret <- runAbsoluteCN( gatk.tumor.file = gatk.tumor.file, seg.file=seg.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
-        test.purity=seq(0.3,0.7, by=0.01))
+        test.purity=seq(0.3,0.7, by=0.05))
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
 
     ret <- runAbsoluteCN( seg.file=seg.file, gc.gene.file=gc.gene.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
-        test.purity=seq(0.3,0.7, by=0.01),verbose=FALSE)
+        test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE)
     
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     tmp <- read.delim(seg.file,as.is=TRUE)
@@ -212,9 +212,18 @@ test_runAbsoluteCN <- function() {
     checkException( runAbsoluteCN( seg.file="seg_wrong.tmp", 
         gc.gene.file=gc.gene.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
-        test.purity=seq(0.3,0.7, by=0.01),verbose=FALSE))
+        test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE))
     
-    
+    # test with a log.ratio and no tumor file
+    log.ratio <- calculateLogRatio(readCoverageGatk(gatk.normal.file),
+        readCoverageGatk(gatk.tumor.file), verbose=FALSE)
+
+    ret <- runAbsoluteCN( log.ratio=log.ratio,
+        gc.gene.file=gc.gene.file,
+        vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
+        test.purity=seq(0.3,0.7, by=0.05))
+    checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
+     
     vcf <- readVcf(vcf.file, "hg19")
     # example vcf contains simululated allelic ratios, fix the AD column
     gt1 <- round(geno(vcf)$DP[,1]* as.numeric(geno(vcf)$FA[,1]))

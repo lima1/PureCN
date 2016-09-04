@@ -108,12 +108,15 @@ gatk.normal.files,
 ### A large number of GATK normal coverage samples (>20) 
 ### to estimate target log-ratio standard deviations.
 ### Should not overlap with files in \code{gatk.tumor.files}.
-target.weight.file
+target.weight.file,
 ### Output filename.
+verbose=TRUE
+### Verbose output.
 ) {
     tumor.coverage <- lapply(gatk.tumor.files,  readCoverageGatk)
     lrs <- lapply(tumor.coverage, function(tc) sapply(gatk.normal.files, 
-            function(x) .calcLogRatio(readCoverageGatk(x), tc, verbose=TRUE)))
+            function(x) calculateLogRatio(readCoverageGatk(x), tc, 
+                verbose=verbose)))
 
     lrs <- do.call(cbind, lrs)
 

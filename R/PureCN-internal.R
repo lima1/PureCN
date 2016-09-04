@@ -23,31 +23,6 @@ max.exon.ratio) {
         x =  vapply(2^lr, function(y) min(y, max.exon.ratio), double(1)), 
         min = 0, max = max.exon.ratio, log = TRUE))
 }
-.calcLogRatio <- function(normal, tumor, verbose) {
-    # make sure that normal and tumor align
-    if (!identical(as.character(normal[, 1]), as.character(tumor[, 1]))) {
-        .stopUserError("Interval files in normal and tumor different.")
-    }
-    if (verbose) {
-        message("Average coverage: ", 
-            round(mean(tumor$average.coverage, na.rm=TRUE), digits=0), 
-            "X (tumor), ",
-            round(mean(normal$average.coverage, na.rm=TRUE), digits=0),
-            "X (normal).")
-    }    
-    total.cov.normal <- sum(as.numeric(normal$coverage), na.rm = TRUE)
-    total.cov.tumor <- sum(as.numeric(tumor$coverage), na.rm = TRUE)
-
-    log.ratio <- log2(tumor$average.coverage/normal$average.coverage) + 
-                 log2(total.cov.normal/total.cov.tumor)
-
-    mean.log.ratio <- mean(subset(log.ratio, !is.infinite(log.ratio)), 
-        na.rm = TRUE)
-    # calibrate
-    log.ratio <- log.ratio - mean.log.ratio
-    log.ratio
-}
-
 .calcMsSegmentC <- function(yy, test.num.copy, Ci, prior.K) {
     max.M <- floor(Ci/2)
     idx.germline <- test.num.copy+length(test.num.copy)+1

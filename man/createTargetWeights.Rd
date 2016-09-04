@@ -8,13 +8,14 @@ weights will be set proportional to the inverse of coverage standard
 deviation across all normals. Targets with high variance in coverage in the
 pool of normals are thus down-weighted.}
 \usage{createTargetWeights(gatk.tumor.files, gatk.normal.files, 
-    target.weight.file)}
+    target.weight.file, verbose = TRUE)}
 \arguments{
   \item{gatk.tumor.files}{A small number (1-3) of GATK tumor or normal coverage samples.}
   \item{gatk.normal.files}{A large number of GATK normal coverage samples (>20) 
 to estimate target log-ratio standard deviations.
 Should not overlap with files in \code{gatk.tumor.files}.}
   \item{target.weight.file}{Output filename.}
+  \item{verbose}{Verbose output.}
 }
 
 \value{A \code{data.frame} with target weights.}

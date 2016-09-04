@@ -4,7 +4,7 @@
 \description{Function to set prior for somatic mutation status for each
 variant in the provided \code{CollapsedVCF} object.}
 \usage{setPriorVcf(vcf, prior.somatic = c(0.5, 5e-04, 0.999, 
-    1e-04, 0.995, 0.01), verbose = TRUE)}
+    1e-05, 0.995, 0.01), verbose = TRUE)}
 \arguments{
   \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf} function 
 from the VariantAnnotation package.}

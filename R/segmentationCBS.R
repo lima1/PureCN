@@ -300,7 +300,7 @@ max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
 
     if (verbose) message("Removing ", sum(!well.covered.exon.idx), 
         " low coverage exons.")
-    if (is.null(logR)) norm.log.ratio = .calcLogRatio(normal, tumor, verbose)
+    if (is.null(logR)) norm.log.ratio = calculateLogRatio(normal, tumor, verbose)
     else norm.log.ratio = logR
     
     if (is.null(sdundo)) {

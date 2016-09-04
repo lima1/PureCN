@@ -27,7 +27,7 @@ log.ratio=NULL,
 ### If \code{NULL}, calculated based on coverage files.
 seg.file=NULL,
 ### Segmented data. Optional, to support matched SNP6 data. 
-### If \code{NULL}, use coverage files or log.ratio to segment the data.  
+### If \code{NULL}, use coverage files or \code{log.ratio} to segment the data.
 seg.file.sdev=0.4,
 ### If \code{seg.file} provided, the log-ratio standard deviation, 
 ### used to model likelihood of sub-clonal copy number events.
@@ -243,9 +243,9 @@ post.optimize=FALSE,
         min.coverage <- coverage.cutoff
     } 
     if (is.null(gatk.tumor.file)) {
-        if (is.null(seg.file) || is.null(gc.gene.file)) { 
-            .stopUserError("Missing gatk.tumor.file requires seg.file",
-                " and gc.gene.file.")
+        if ((is.null(seg.file) && is.null(log.ratio)) || is.null(gc.gene.file)) { 
+            .stopUserError("Missing gatk.tumor.file requires seg.file or ",
+                "log.ratio and gc.gene.file.")
         }
         tumor <- .gcGeneToCoverage(gc.gene.file, min.coverage+1)
         gatk.tumor.file <- tumor
@@ -287,7 +287,7 @@ post.optimize=FALSE,
                 "Need a normal coverage file if log.ratio and seg.file are not",
                 " provided.")
             }
-            log.ratio <- .calcLogRatio(normal, tumor, verbose=verbose)
+            log.ratio <- calculateLogRatio(normal, tumor, verbose=verbose)
         }
     } else {
         # the segmentation algorithm will remove exons with low coverage in 
@@ -301,6 +301,7 @@ post.optimize=FALSE,
             .stopUserError("Length of log.ratio different from tumor ",
                 "coverage.")
         }
+        if (is.null(sampleid)) sampleid <- "Sample.1"
     }        
     
     sex <- .getSex(match.arg(sex), normal, tumor)

@@ -256,7 +256,7 @@ setPriorVcf <- structure(function(# Set Somatic Prior VCF
 vcf,
 ### \code{CollapsedVCF} object, read in with the \code{readVcf} function 
 ### from the VariantAnnotation package.
-prior.somatic=c(0.5, 0.0005, 0.999, 0.0001, 0.995, 0.01), 
+prior.somatic=c(0.5, 0.0005, 0.999, 0.00001, 0.995, 0.01), 
 ### Prior probabilities for somatic mutations. First value is for 
 ### the case when no matched normals are available and the variant is not in 
 ### dbSNP (second value). Third value is for variants with MuTect somatic call.
@@ -274,6 +274,9 @@ verbose=TRUE
          tmp <- prior.somatic
          prior.somatic <- ifelse(info(vcf)$SOMATIC,
             prior.somatic[3],prior.somatic[4])
+#         prior.somatic[!info(vcf)$SOMATIC & info(vcf)$DB] <- prior.somatic[4]* 
+#            prior.somatic[2]
+
          if (verbose) message("Found SOMATIC annotation in VCF. ",
             "Setting somatic prior probabilities for somatic variants to ", 
             tmp[3]," or to ", tmp[4], " otherwise.")

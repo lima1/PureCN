@@ -43,7 +43,7 @@ Needs to be either a file name or data read with the
   \item{log.ratio}{Copy number log-ratios for all exons in the coverage files. 
 If \code{NULL}, calculated based on coverage files.}
   \item{seg.file}{Segmented data. Optional, to support matched SNP6 data. 
-If \code{NULL}, use coverage files or log.ratio to segment the data.  }
+If \code{NULL}, use coverage files or \code{log.ratio} to segment the data.}
   \item{seg.file.sdev}{If \code{seg.file} provided, the log-ratio standard deviation, 
 used to model likelihood of sub-clonal copy number events.}
   \item{vcf.file}{VCF file, tested with \sQuote{MuTect 1} output files.  Optional, but
