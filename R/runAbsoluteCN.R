@@ -450,21 +450,23 @@ post.optimize=FALSE,
     snv.lr <- NULL
 
     if (!is.null(vcf.file)) {
-        ov <- findOverlaps(seg.gr, vcf)
-        n.vcf.before.filter <- nrow(vcf)
-        # make sure all SNVs are in covered segments
-        vcf <- vcf[subjectHits(ov)]
+        ov <- findOverlaps(vcf, seg.gr, select="first")
         args.setPriorVcf$vcf <- vcf
         args.setPriorVcf$verbose <- FALSE
         prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
-        if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
-            " variants outside segments.")
         # Add segment log-ratio to off-target snvs. 
         # For on-target, use observed log-ratio.   
         sd.ar <- sd(unlist(geno(vcf)$FA[,tumor.id.in.vcf]))
-        snv.lr <- seg$seg.mean[queryHits(ov)]
+        snv.lr <- seg$seg.mean[ov]
         ov.vcfexon <- findOverlaps(vcf, exon.gr)
         snv.lr[queryHits(ov.vcfexon)] <- log.ratio[subjectHits(ov.vcfexon)]
+        if (sum(is.na(snv.lr)) > 0) {
+            n.vcf.before.filter <- nrow(vcf)
+            vcf <- vcf[!is.na(snv.lr)]
+            # make sure all SNVs are in covered segments
+            if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf),
+                " variants outside segments.")
+        }    
         ov <- findOverlaps(seg.gr, vcf)
         if (verbose) message("Using ", nrow(vcf), " variants.")
     }
