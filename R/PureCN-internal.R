@@ -197,14 +197,6 @@ test.num.copy[i], prior.K))
     posteriors$ML.LOH <- (posteriors$ML.M == posteriors$ML.C | 
         posteriors$ML.M == 0 | posteriors$ML.C == 1)
 
-    loh <- segment(
-        CNA(ifelse(posteriors$ML.LOH, 1, 0), 
-            chrom = posteriors$seqnames, 
-            maploc = posteriors$start, 
-            data.type = "binary", 
-            sampleid = sampleid, 
-            presorted = TRUE),verbose=0)
-    
     # these are potential artifacts with very high clonal probability and would have
     # huge impact on log-likelihood
     rm.snv.posteriors <- apply(snv.posteriors, 1, max)
@@ -222,7 +214,6 @@ test.num.copy[i], prior.K))
         posteriors = posteriors, 
         vcf.ids = vcf.ids, 
         segment.ids = queryHits(ov), 
-        loh = loh, 
         llik.ignored = idx.ignore)
 
     ret
@@ -364,11 +355,12 @@ test.num.copy[i], prior.K))
     return(result)
 }
 
-.getFractionLoh <- function(result, min.seg.mean=0.3) {
-    tmp <- result$SNV.posterior$beta.model$loh$output
-    if (is.null(tmp)) return(0)
-    tmp <- tmp[complete.cases(tmp), ]
-    sum(tmp[which(tmp$seg.mean >= min.seg.mean), "num.mark"])/sum(tmp$num.mark)
+.getFractionLoh <- function(result) {
+    if (is.null(result$SNV.posterior$beta.model)) return(0)
+    pp <- result$SNV.posterior$beta.model$posteriors
+    segids <- result$SNV.posterior$beta.model$segment.ids
+    x1 <- unique(segids[pp$ML.M.Segment==0])
+    sum(result$seg$size[x1])/sum(result$seg$size)
 }
 
 .flagResults <- function(results, max.non.clonal = 0.2, max.logr.sdev, logr.sdev, max.segments,
@@ -650,31 +642,6 @@ test.num.copy[i], prior.K))
     if (idx[length(y)]) 
         y[length(y)] <- NA
     y[!is.na(y)]
-}
-.getGeneCallsLOH <- function(result) {
-    g <- result$gene.calls
-    g.gr <- GRanges(seqnames = g$chr, IRanges(start = g$start, end = g$end))
-    l <- result$SNV.posterior$beta.model$loh$output
-    l.gr <- GRanges(seqnames = l$chrom, IRanges(start = l$loc.start, end = l$loc.end))
-    ov <- findOverlaps(g.gr, l.gr)
-    g$num.snps.loh.segment <- 0
-    g$percentage.loh.in.loh.segment <- 0
-    g$num.snps.loh.segment[queryHits(ov)] <- l[subjectHits(ov), "num.mark"]
-    g$percentage.loh.in.loh.segment[queryHits(ov)] <- l[subjectHits(ov), "seg.mean"]
-    g
-}
-.getVariantCallsLOH <- function(result) {
-    g <- result$SNV.posterior$beta.model$posteriors
-    g.gr <- GRanges(seqnames = g$chr, IRanges(start = g$start, end = g$end))
-    l <- result$SNV.posterior$beta.model$loh$output
-    l.gr <- GRanges(seqnames = l$chrom, IRanges(start = l$loc.start, end = l$loc.end))
-    ov <- findOverlaps(g.gr, l.gr)
-    g$num.snps.loh.segment <- 0
-    g$percentage.loh.in.loh.segment <- 0
-    g$num.snps.loh.segment[queryHits(ov)] <- l[subjectHits(ov), "num.mark"]
-    g$percentage.loh.in.loh.segment[queryHits(ov)] <- l[subjectHits(ov), "seg.mean"]
-    
-    g
 }
 .calcPuritySomaticVariants <- function(vcf, prior.somatic, tumor.id.in.vcf) {
     median(unlist(geno(vcf[prior.somatic > 0.5])$FA[, tumor.id.in.vcf]), na.rm = TRUE)/0.48

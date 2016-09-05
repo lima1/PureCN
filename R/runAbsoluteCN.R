@@ -828,19 +828,6 @@ post.optimize=FALSE,
         max.segments=max.segments, flag=vcf.filtering$flag, 
         flag_comment=vcf.filtering$flag_comment, dropout=dropoutWarning)  
 
-    if (!is.null(gc.gene.file)) {
-        # Add LOH calls to gene level calls 
-        for (i in seq_along(results)) {
-            results[[i]]$gene.calls <- .getGeneCallsLOH( results[[i]] )
-        }
-    }    
-
-    if (!is.null(vcf.file)) {
-        for (i in seq_along(results)) {
-            results[[i]]$SNV.posterior$beta.model$posteriors <- 
-                .getVariantCallsLOH( results[[i]] )
-        }
-    }
     if (length(results) < 1) {
         warning("Could not find valid purity and ploidy solution.")
     }    

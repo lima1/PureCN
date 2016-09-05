@@ -14,7 +14,7 @@ arm.cutoff=0.9
         .stopUserError("runAbsoluteCN was run without a VCF file.")
     }
     chr.hash <- res$input$chr.hash
-    armLocations <- .getArmLocations(res, 1)
+    armLocations <- .getArmLocations(res)
     if (!nrow(armLocations)) {
         .stopUserError("Centromere positions not available or matching.")
     }
@@ -73,14 +73,14 @@ data(purecn.example.output)
 head(callLOH(purecn.example.output))
 })
 
-.getArmLocations <- function(res, id) {
+.getArmLocations <- function(res) {
     chr.hash <- res$input$chr.hash
     centromeres <- res$input$centromeres
 
-    chromCoords <- t(vapply(split(
-        res$results[[id]]$SNV.posterior$beta.model$loh$data$maploc,
-        res$results[[id]]$SNV.posterior$beta.model$loh$data$chrom), function(x)
-        c(min(x), max(x)), c(min=double(1), max=double(1))))
+    chromCoords <- suppressWarnings(t(vapply(split(
+        start(res$input$vcf),
+        as.character(seqnames(res$input$vcf))), function(x)
+        c(min(x), max(x)), c(min=double(1), max=double(1)))))
 
     centromeres <- cbind(centromeres, chromCoords[match(centromeres$chrom,
         rownames(chromCoords)),])

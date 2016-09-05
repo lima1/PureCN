@@ -47,6 +47,14 @@ all.genes=FALSE,
     calls$type <- NA
     calls$type[amp.ids] <- "AMPLIFICATION"
     calls$type[del.ids] <- "DELETION"
+
+    bm <- res$results[[id]]$SNV.posterior$beta.model
+    if (!is.null(bm)) {
+        segids <- bm$segment.ids
+        calls$num.snps.segment <- sapply(calls$seg.id, function(i) 
+            sum(segids==i,na.rm=TRUE))
+        calls$loh <- bm$posterior$ML.M.Segment[match(calls$seg.id, segids)] == 0 
+    }
     
     if (!all.genes) {
         return(calls[!is.na(calls$type),])

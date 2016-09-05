@@ -224,9 +224,12 @@ normalDB <- createNormalDatabase(gatk.normal.files)
 saveRDS(normalDB, file="normalDB.rds")
 @
 
-Internally, this function determines the sex of the samples and trains a PCA
-that is later used for clustering a tumor file with all normal samples in the
-database. This clustering is performed by the \Rfunction{findBestNormal} function:
+Again, please make sure that all coverage files were GC-normalized prior to
+building the database (Section~\ref{secgcbias}).  Internally,
+\Rfunction{createNormalDatabase} determines the sex of the samples and trains a
+PCA that is later used for clustering a tumor file with all normal samples in
+the database. This clustering is performed by the \Rfunction{findBestNormal}
+function:
 
 <<normaldbpca>>=
 normalDB <- readRDS("normalDB.rds")
@@ -972,6 +975,19 @@ such as \textit{TP53}.  A basic understanding of both the algorithm and the
 tumor biology of the particular cancer type are thus important for curation.
 Fortunately, in most cancer types, such ambiguity is rather rare.
 \end{itemize}
+
+\paragraph{If all or most of the samples are flagged as:}
+
+\begin{description}
+    \item[Noisy segmentation:] The default of 200 for \Rcode{max.segments} is
+    calibrated for high quality and high coverage whole exome data. For whole
+    genome data or lower coverage data, this values needs to be re-calibrated.
+    In case the copy number data looks indeed noisy, please see the first FAQ.
+    \item[High AT/GC dropout:] If the data is GC-normalized, then there might
+    be issues with either the target intervals or the provided GC content.
+    Please double check that all files are correct and that all the coverage
+    files are GC-normalized (Section~\ref{secgcbias}).
+\end{description}
 
 \appendix
 
