@@ -17,7 +17,8 @@ Other major enhancements
 
 - More thorough initial grid search should minimize cases where purity/ploidy
   is wrong because the solution was not considered.
-- More robust and accurate likelihood model.  
+- More robust and accurate likelihood model that provides robust estimates of 
+  minor segment copy numbers and more accurate LOH.  
 - Support for SNVs outside the copy number interval file
   (remove.off.target.snvs=FALSE).   
 - Improved segmentation and log-ratio normalization.  

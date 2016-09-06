@@ -658,6 +658,17 @@ estimation due the sparsity of hotspot mutations, it often helps in the manual
 curation to compare how well high confidence germline (dbSNP) vs. somatic
 (COSMIC) variants fit a particular purity/ploidy combination.
 
+\section{Off-target reads}
+
+Our default segmentation function uses only on-target reads. It is however
+possible to use off-target SNPs in the SNV fitting step by running
+\software{MuTect} without interval file and then setting the
+\Rfunction{runAbsoluteCN} argument \Rcode{remove.off.target.snvs} to
+\Rcode{FALSE}. We recommend a large pool of normals in this case and then
+generating SNP blacklists as described in Sections~\ref{artifactfiltering} and
+\ref{artifactfiltering2}.  Remember to also run all the normals in
+\software{MuTect} without interval file. 
+
 \section{Output}
 
 The \Rcode{plotAbs()} call above will generate the main plots shown in the
