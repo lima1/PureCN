@@ -30,7 +30,7 @@ exome data is of course supported).
 
 It can be used to supplement existing normalization and segmentation
 algorithms, i.e. the software can start from BAM files, from target-level
-coverage data, from normalized target log-ratios or from already segmented
+coverage data, from copy number log-ratios or from already segmented
 data.  If the correct purity and ploidy solution was identified,
 \Biocpkg{PureCN} can also help in classifying variants as germline vs. somatic
 or clonal vs.  sub-clonal.
@@ -660,9 +660,8 @@ curation to compare how well high confidence germline (dbSNP) vs. somatic
 
 \section{Off-target reads}
 
-Our default segmentation function uses only on-target reads. It is however
-possible to use off-target SNPs in the SNV fitting step by running
-\software{MuTect} without interval file and then setting the
+It is possible to use SNPs in off-target reads in the SNV fitting step by
+running \software{MuTect} without interval file and then setting the
 \Rfunction{runAbsoluteCN} argument \Rcode{remove.off.target.snvs} to
 \Rcode{FALSE}. We recommend a large pool of normals in this case and then
 generating SNP blacklists as described in Sections~\ref{artifactfiltering} and
