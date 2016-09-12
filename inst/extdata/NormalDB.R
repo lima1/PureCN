@@ -2,6 +2,8 @@ library('getopt')
 
 spec <- matrix(c(
 'help' , 'h', 0, "logical",
+'intervalfile', 'i', 1, "character",
+'referencefile', '', 1, "character",
 'coveragefiles', 'c', 1, "character",
 'vcffiles', 'v', 1, "character",
 'outdir' , 'o', 1, "character"
@@ -11,6 +13,14 @@ opt <- getopt(spec)
 if ( !is.null(opt$help) ) {
     cat(getopt(spec, usage=TRUE))
     q(status=1)
+}
+
+if ( !is.null(opt$intervalfile ) {
+    if (is.null(opt$referencefile)) {
+        stop("Need reference Fasta file for creating gc.gene.file.")
+    }
+    calculateGCContentByInterval(opt$intervalfile, opt$referencefile,
+        file.path(outdir,"gc_gene.txt"))
 }
 
 .checkFileList <- function(file) {
