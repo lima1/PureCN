@@ -171,12 +171,12 @@ wrapper function. This is described in Section~\ref{customseg}.
 We now load a few example files that we will use throughout this tutorial:
 
 <<example_files, message=FALSE, warning=FALSE, results='hide'>>=
-gatk.normal.file <- system.file("extdata", "example_normal.txt",
+normal.coverage.file <- system.file("extdata", "example_normal.txt",
     package="PureCN") 
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
     package="PureCN") 
-gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file) 
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file) 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN") 
 seg.file <- system.file("extdata", "example_seg.txt",
     package = "PureCN")
@@ -191,7 +191,7 @@ The algorithm works best when the coverage files are GC-normalized. We can
 easily create GC-normalized coverage files:
 
 <<gccorrect>>=
-correctCoverageBias(gatk.normal.file, gc.gene.file, 
+correctCoverageBias(normal.coverage.file, gc.gene.file, 
     "example_normal_loess.txt")
 @
 
@@ -219,7 +219,7 @@ The \Rfunction{createNormalDatabase} function builds a database of coverage
 files:
 
 <<normaldb>>=
-normalDB <- createNormalDatabase(gatk.normal.files)
+normalDB <- createNormalDatabase(normal.coverage.files)
 # serialize, so that we need to do this only once for each assay
 saveRDS(normalDB, file="normalDB.rds")
 @
@@ -234,7 +234,7 @@ function:
 <<normaldbpca>>=
 normalDB <- readRDS("normalDB.rds")
 # get the best normal
-gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
+best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
 @
 
 This function can also return multiple normal files that can be averaged into a
@@ -242,9 +242,9 @@ single pool:
 
 <<normaldbpcapool>>=
 # get the best 2 normals and average them
-gatk.best.normal.files <- findBestNormal(gatk.tumor.file, normalDB, 
+best.normal.coverage.files <- findBestNormal(tumor.coverage.file, normalDB, 
     num.normals=2)
-pool <- poolCoverage(lapply(gatk.best.normal.files, readCoverageGatk),
+pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageGatk),
      remove.chrs=c('chrX', 'chrY'))
 @
 
@@ -271,18 +271,18 @@ in coverage per target:
 
 <<targetweightfile1>>=
 target.weight.file <- "target_weights.txt"
-createTargetWeights(gatk.tumor.file, gatk.normal.files, 
+createTargetWeights(tumor.coverage.file, normal.coverage.files, 
     target.weight.file)
 @
 
 This function calculates target-level copy number log-ratios for all normal
-samples provided in the \Rcode{gatk.normal.files} argument.  Assuming that all
+samples provided in the \Rcode{normal.coverage.files} argument.  Assuming that all
 normal samples are in general diploid, an unusual high variance in log-ratio is
 indicative of an target with either common germline alterations or frequent
 artifacts; high or low copy number log-ratios in these targets are unlikely
 measuring somatic copy number events.  For the log-ratio calculation, we provide
 a coverage file that is used as tumor in the log-ratio calculation. The
-corresponding \Rcode{gatk.tumor.file} argument can also be an array of coverage
+corresponding \Rcode{tumor.coverage.file} argument can also be an array of coverage
 files, in which case the target coverage variance is averaged over all provided
 tumor files. As long as the coverage of the tumor files is even, only 1 or 2
 tumor files are necessary, however. 
@@ -364,8 +364,8 @@ snp.blacklist <- c('hg19_segmentalDuplications.txt',
 Finally, we can run \Biocpkg{PureCN} with all that information:
 
 <<runpurecn>>=
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, 
+ret <-runAbsoluteCN(normal.coverage.file=pool, 
+    tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, 
     genome="hg19", sampleid='Sample1', 
     gc.gene.file=gc.gene.file, 
 # args.filterVcf=list(snp.blacklist=snp.blacklist, 
@@ -375,23 +375,20 @@ ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
     post.optimize=FALSE, plot.cnv=FALSE, verbose=FALSE)
 @
 
-The \Rcode{gatk.normal.file} argument points to a coverage file obtained from
-either a matched or a process-matched normal sample, but can be also a small
-pool of best normals (Section~\ref{bestnormal}).  The files specified in
-\Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering SNVs more efficiently for
-artifacts as described in Sections~\ref{artifactfiltering} and
-\ref{artifactfiltering2}. The \Rcode{normalDB} argument
-(Section~\ref{bestnormal}) in \Rcode{args.filterTargets} allows the segmentation
-function to skip targets with low coverage in the pool of normals. If possible,
-these files should be generated and provided.  The \Rcode{post.optimize} flag
-will increase the runtime by about a factor of 4-5, but might return slightly
-more accurate purity estimates. For high quality whole exome data, this is
-typically not necessary for copy number calling (but might be for variant
-classification, see Section~\ref{predictsomatic}).  The \Rcode{plot.cnv}
-argument allows the segmentation function to generate additional plots if set to
-\Rcode{TRUE}.  Finally, \Rcode{verbose} outputs important and helpful
-information about all the steps performed and is therefore set to \Rcode{TRUE}
-by default.
+The \Rcode{post.optimize} flag will increase the runtime by about a factor of
+4-5, but might return slightly more accurate purity estimates. For high quality
+whole exome data, this is typically not necessary for copy number calling (but
+might be for variant classification, see Section~\ref{predictsomatic}).  
+The files specified in \Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering
+SNVs more efficiently for artifacts as described in
+Sections~\ref{artifactfiltering} and \ref{artifactfiltering2}. The
+\Rcode{normalDB} argument
+(Section~\ref{bestnormal}) allows the segmentation function to skip targets with
+low coverage in the pool of normals. If possible, these files should be
+generated and provided. The \Rcode{plot.cnv} argument allows the segmentation
+function to generate additional plots if set to \Rcode{TRUE}.  Finally,
+\Rcode{verbose} outputs important and helpful information about all the steps
+performed and is therefore set to \Rcode{TRUE} by default.
 
 We now create a few output files:
 
@@ -592,7 +589,7 @@ Since its likelihood model is exon-based, \Biocpkg{PureCN} currently still
 requires an interval file to generate simulated target-level log-ratios from a
 segmentation file.  For simplicity, this interval file is expected either in
 \software{GATK DepthOfCoverage} format and provided via the
-\Rcode{gatk.tumor.file} argument or via the \Rcode{gc.gene.file} argument (see
+\Rcode{tumor.coverage.file} argument or via the \Rcode{gc.gene.file} argument (see
 Figure~\ref{figure/figurecustombaf-1}). Note that \Biocpkg{PureCN} will 
 re-segment the simulated log-ratios using the default
 \Rfunction{segmentationCBS} function, in particular to identify regions of
@@ -632,8 +629,8 @@ log-ratios:
 <<customlogratio>>=
 # We still use the log-ratio exactly as normalized by PureCN for this
 # example
-log.ratio <- calculateLogRatio(readCoverageGatk(gatk.normal.file),
-    readCoverageGatk(gatk.tumor.file), verbose=FALSE)
+log.ratio <- calculateLogRatio(readCoverageGatk(normal.coverage.file),
+    readCoverageGatk(tumor.coverage.file), verbose=FALSE)
 
 retLogRatio <- runAbsoluteCN(log.ratio=log.ratio,
     gc.gene.file=gc.gene.file, vcf.file=vcf.file, 
@@ -649,7 +646,7 @@ highly recommended to compare the log-ratios obtained by \Biocpkg{PureCN} and
 the third-party tool, since some pipelines automatically adjust log-ratios for
 a default purity value. Note that this example uses a pool of normals to filter
 low quality targets. Interval coordinates are again expected in either a
-\Rcode{gc.gene.file} or a \Rcode{gatk.tumor.file}. If a tumor coverage file is
+\Rcode{gc.gene.file} or a \Rcode{tumor.coverage.file}. If a tumor coverage file is
 provided, then all targets below the coverage minimum are further excluded.
 
 \section{COSMIC annotation}
@@ -842,7 +839,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --help -h           & & \\
 --outdir -o         & & \\
 --bam -b            & bam.file & \Rfunction{calculateBamCoverageByInterval} \\
---gatkcoverage -g   & gatk.coverage.file & \Rfunction{correctCoverageBias} \\
+--gatkcoverage -g   & coverage.file & \Rfunction{correctCoverageBias} \\
 --gcgene -c         & gc.gene.file  & \Rfunction{correctCoverageBias} \\
 \bottomrule
 \end{tabular}
@@ -874,8 +871,8 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 \midrule
 --help -h           & & \\
 --outdir -o         &          &                            \\
---normal -n         & gatk.normal.file   & \Rfunction{runAbsoluteCN}  \\
---tumor -t          & gatk.tumor.file     & \Rfunction{runAbsoluteCN} \\
+--normal -n         & normal.coverage.file   & \Rfunction{runAbsoluteCN}  \\
+--tumor -t          & tumor.coverage.file     & \Rfunction{runAbsoluteCN} \\
 --vcf -v            & vcf.file          & \Rfunction{runAbsoluteCN}   \\
 --genome -g         & genome             & \Rfunction{runAbsoluteCN}  \\
 --gcgene -c         & gc.gene.file      & \Rfunction{runAbsoluteCN}   \\

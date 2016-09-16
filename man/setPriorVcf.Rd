@@ -4,7 +4,7 @@
 \description{Function to set prior for somatic mutation status for each
 variant in the provided \code{CollapsedVCF} object.}
 \usage{setPriorVcf(vcf, prior.somatic = c(0.5, 5e-04, 0.999, 
-    1e-05, 0.995, 0.01), verbose = TRUE)}
+    1e-04, 0.995, 0.01), tumor.id.in.vcf = NULL, verbose = TRUE)}
 \arguments{
   \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf} function 
 from the VariantAnnotation package.}
@@ -18,6 +18,7 @@ MuTect. Last two values are optional, if vcf contains a flag Cosmic.CNT,
 it will set the prior probability for variants with CNT > 2 to the first 
 of those values in case of no matched normal available (0.995 default). 
 Final value is for the case that variant is in both dbSNP and COSMIC > 2. }
+  \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in VCF.}
   \item{verbose}{Verbose output.}
 }
 

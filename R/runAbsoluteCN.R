@@ -8,7 +8,7 @@ structure(function(# Run PureCN implementation of ABSOLUTE
 ### status, it should contain dbSNP and optionally COSMIC annotation.
 ### Returns purity and ploidy combinations, sorted by likelihood score.
 ### Provides copy number and LOH data, by both gene and genomic region. 
-gatk.normal.file=NULL, 
+normal.coverage.file=NULL, 
 ### GATK coverage file of normal control (optional if 
 ### log.ratio is provided - then it will be only used to filter low coverage 
 ### exons). 
@@ -16,7 +16,7 @@ gatk.normal.file=NULL,
 ### Needs to be either a file name or data read with the 
 ### \code{\link{readCoverageGatk}} function.
 ##seealso<< \code{\link{correctCoverageBias} \link{segmentationCBS}}
-gatk.tumor.file=NULL, 
+tumor.coverage.file=NULL, 
 ### GATK coverage file of tumor. If \code{NULL}, requires \code{seg.file}
 ### and an interval file via \code{gc.gene.file}.
 ### Should be already GC-normalized with \code{\link{correctCoverageBias}}. 
@@ -184,14 +184,18 @@ cosmic.vcf.file=NULL,
 ### Not used in likelhood model when matched normal is available in 
 ### \code{vcf.file}. Should be compressed and indexed with bgzip and tabix,
 ### respectively.
-verbose=TRUE, 
-### Verbose output.
 post.optimize=FALSE,
 ### Optimize purity using final SCNA-fit and SNVs. This 
 ### might take a long time when lots of SNVs need to be fitted, but will 
 ### typically result in a slightly more accurate purity, especially for rather
 ### silent genomes or very low purities. Otherwise, it will just use the 
 ### purity determined via the SCNA-fit.
+verbose=TRUE, 
+### Verbose output.
+gatk.tumor.file=NULL,
+### Deprecated, use tumor.coverage.file instead.
+gatk.normal.file=NULL,
+### Deprecated, use normal.coverage.file instead.
 ... 
 ### Additional parameters passed to the segmentation function.
 ) {
@@ -200,7 +204,17 @@ post.optimize=FALSE,
     if (missing(genome)) {
         genome <- "hg19"
         message("Default of genome=hg19 is deprecated. Please specify genome.")
-    }    
+    } 
+    if (!is.null(gatk.tumor.file)) {
+        tumor.coverage.file <- gatk.tumor.file
+        message("gatk.tumor.file is deprecated. Please use tumor.coverage.file instead.")
+
+    }       
+    if (!is.null(gatk.normal.file)) {
+        normal.coverage.file <- gatk.normal.file
+        message("gatk.normal.file is deprecated. Please use normal.coverage.file instead.")
+
+    }       
     
     if (is.null(centromeres)) {
         data(centromeres, envir = environment())
@@ -230,34 +244,34 @@ post.optimize=FALSE,
 
     if(verbose) message("Loading GATK coverage files...")
 
-    if (!is.null(gatk.normal.file)) {    
-        if (is.character(gatk.normal.file)) {
-            gatk.normal.file <- normalizePath(gatk.normal.file, mustWork=TRUE)
-            normal <- readCoverageGatk(gatk.normal.file)
+    if (!is.null(normal.coverage.file)) {    
+        if (is.character(normal.coverage.file)) {
+            normal.coverage.file <- normalizePath(normal.coverage.file, mustWork=TRUE)
+            normal <- readCoverageGatk(normal.coverage.file)
         } else {
-            normal <- gatk.normal.file
+            normal <- normal.coverage.file
         }    
     }
     if (!is.null(coverage.cutoff)) {
         message("coverage.cutoff is deprecated. Use min.coverage instead.")
         min.coverage <- coverage.cutoff
     } 
-    if (is.null(gatk.tumor.file)) {
+    if (is.null(tumor.coverage.file)) {
         if ((is.null(seg.file) && is.null(log.ratio)) || is.null(gc.gene.file)) { 
-            .stopUserError("Missing gatk.tumor.file requires seg.file or ",
+            .stopUserError("Missing tumor.coverage.file requires seg.file or ",
                 "log.ratio and gc.gene.file.")
         }
         tumor <- .gcGeneToCoverage(gc.gene.file, min.coverage+1)
-        gatk.tumor.file <- tumor
-    } else if (is.character(gatk.tumor.file)) {
-        gatk.tumor.file <- normalizePath(gatk.tumor.file, mustWork=TRUE)
-        tumor  <- readCoverageGatk(gatk.tumor.file)
-        if (is.null(sampleid)) sampleid <- basename(gatk.tumor.file)
+        tumor.coverage.file <- tumor
+    } else if (is.character(tumor.coverage.file)) {
+        tumor.coverage.file <- normalizePath(tumor.coverage.file, mustWork=TRUE)
+        tumor  <- readCoverageGatk(tumor.coverage.file)
+        if (is.null(sampleid)) sampleid <- basename(tumor.coverage.file)
     } else {
         if (verbose) message(
-            "gatk.tumor.file does not appear to be a filename, assuming",
+            "tumor.coverage.file does not appear to be a filename, assuming",
             " it is valid GATK coverage data.")
-        tumor <- gatk.tumor.file
+        tumor <- tumor.coverage.file
         if (is.null(sampleid)) sampleid <- "Sample.1"
     }    
 
@@ -265,7 +279,7 @@ post.optimize=FALSE,
 
     # check that normal is not the same as tumor (only if no log-ratio or 
     # segmentation is provided, in that case we wouldn't use normal anyway)
-    if (!is.null(gatk.normal.file) & is.null(log.ratio) & is.null(seg.file)) {
+    if (!is.null(normal.coverage.file) & is.null(log.ratio) & is.null(seg.file)) {
         if (identical(tumor$average.coverage, normal$average.coverage)) { 
             .stopUserError("Tumor and normal are identical. This won't give any", 
                 " meaningful results and I'm stopping here.")
@@ -278,11 +292,11 @@ post.optimize=FALSE,
     # (case 2). Otherwise we just take the provided log-ratio (case 3).
     if (is.null(log.ratio)) {
         if (!is.null(seg.file)) {
-            if (is.null(gatk.normal.file)) normal <- tumor
+            if (is.null(normal.coverage.file)) normal <- tumor
             log.ratio <- .createFakeLogRatios(tumor, seg.file, chr.hash)
             if (is.null(sampleid)) sampleid <- read.delim(seg.file)[1,1]
         } else {
-            if (is.null(gatk.normal.file)) {
+            if (is.null(normal.coverage.file)) {
                 .stopUserError(
                 "Need a normal coverage file if log.ratio and seg.file are not",
                 " provided.")
@@ -293,7 +307,7 @@ post.optimize=FALSE,
         # the segmentation algorithm will remove exons with low coverage in 
         # both tumor and normal, so we just use tumor if there is no normal 
         # coverage file.
-        if (is.null(gatk.normal.file)) normal <- tumor
+        if (is.null(normal.coverage.file)) normal <- tumor
         if (length(log.ratio) != nrow(tumor)) {
             .stopUserError("Length of log.ratio different from tumor ",
                 "coverage.")
@@ -308,7 +322,7 @@ post.optimize=FALSE,
     if (!is.null(gc.gene.file)) {
         gc.data <- read.delim(gc.gene.file, as.is=TRUE)
         if (!length(intersect(gc.data[,1], tumor[,1]))) {
-            .stopUserError("Intervals of gatk.tumor.file and gc.gene.file ",
+            .stopUserError("Intervals of tumor.coverage.file and gc.gene.file ",
                 "do not align.")
         }
         gc.data <- gc.data[match(as.character(tumor[,1]),
@@ -426,7 +440,8 @@ post.optimize=FALSE,
             vcf <- .addCosmicCNT(vcf, cosmic.vcf.file, verbose=verbose) 
         }
 
-        args.setPriorVcf <- c(list(vcf=vcf, verbose=verbose), args.setPriorVcf) 
+        args.setPriorVcf <- c(list(vcf=vcf, tumor.id.in.vcf=tumor.id.in.vcf,
+            verbose=verbose), args.setPriorVcf) 
         prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
         vcf.germline <- vcf[which(prior.somatic < 0.5)]
     }
@@ -836,8 +851,8 @@ post.optimize=FALSE,
         candidates=candidate.solutions, ##<< Results of the grid search.
         results=results, ##<< All local optima, sorted by final rank.
         input=list( ##<< The input data.
-            tumor=gatk.tumor.file, 
-            normal=gatk.normal.file, 
+            tumor=tumor.coverage.file, 
+            normal=normal.coverage.file, 
             log.ratio=data.frame(probe=normal[,1], log.ratio=log.ratio), 
             log.ratio.sdev=sd.seg, 
             vcf=vcf, 
@@ -849,9 +864,9 @@ post.optimize=FALSE,
         )
 ##end<<
 },ex=function(){
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
 vcf.file <- system.file("extdata", "example_vcf.vcf", 
     package="PureCN")
@@ -861,8 +876,8 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, genome="hg19", vcf.file=vcf.file,
+ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+    tumor.coverage.file=tumor.coverage.file, genome="hg19", vcf.file=vcf.file,
     sampleid='Sample1', gc.gene.file=gc.gene.file,
     max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 })    

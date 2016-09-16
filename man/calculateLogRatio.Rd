@@ -22,11 +22,11 @@ normally not called by the user.}
 
 
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
-normal <- readCoverageGatk(gatk.normal.file)
-tumor <- readCoverageGatk(gatk.tumor.file)
+normal <- readCoverageGatk(normal.coverage.file)
+tumor <- readCoverageGatk(tumor.coverage.file)
 log.ratio <- calculateLogRatio(normal, tumor, verbose=FALSE)
 }

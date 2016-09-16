@@ -9,7 +9,7 @@ be matched (from the same patient). In case VCF does not contain somatic
 status, it should contain dbSNP and optionally COSMIC annotation.
 Returns purity and ploidy combinations, sorted by likelihood score.
 Provides copy number and LOH data, by both gene and genomic region. }
-\usage{runAbsoluteCN(gatk.normal.file = NULL, gatk.tumor.file = NULL, 
+\usage{runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL, 
     log.ratio = NULL, seg.file = NULL, seg.file.sdev = 0.4, 
     vcf.file = NULL, genome, centromeres = NULL, sex = c("?", 
         "F", "M", "diploid"), fun.filterVcf = filterVcfMuTect, 
@@ -27,15 +27,16 @@ Provides copy number and LOH data, by both gene and genomic region. }
     remove.off.target.snvs = TRUE, gc.gene.file = NULL, 
     max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
     max.segments = 200, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
-    verbose = TRUE, post.optimize = FALSE, ...)}
+    post.optimize = FALSE, verbose = TRUE, gatk.tumor.file = NULL, 
+    gatk.normal.file = NULL, ...)}
 \arguments{
-  \item{gatk.normal.file}{GATK coverage file of normal control (optional if 
+  \item{normal.coverage.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
 exons). 
 Should be already GC-normalized with \code{\link{correctCoverageBias}}. 
 Needs to be either a file name or data read with the 
 \code{\link{readCoverageGatk}} function.}
-  \item{gatk.tumor.file}{GATK coverage file of tumor. If \code{NULL}, requires \code{seg.file}
+  \item{tumor.coverage.file}{GATK coverage file of tumor. If \code{NULL}, requires \code{seg.file}
 and an interval file via \code{gc.gene.file}.
 Should be already GC-normalized with \code{\link{correctCoverageBias}}. 
 Needs to be either a file name or data read with the 
@@ -161,12 +162,14 @@ found in the COSMIC database a higher prior probability of being somatic.
 Not used in likelhood model when matched normal is available in 
 \code{vcf.file}. Should be compressed and indexed with bgzip and tabix,
 respectively.}
-  \item{verbose}{Verbose output.}
   \item{post.optimize}{Optimize purity using final SCNA-fit and SNVs. This 
 might take a long time when lots of SNVs need to be fitted, but will 
 typically result in a slightly more accurate purity, especially for rather
 silent genomes or very low purities. Otherwise, it will just use the 
 purity determined via the SCNA-fit.}
+  \item{verbose}{Verbose output.}
+  \item{gatk.tumor.file}{Deprecated, use tumor.coverage.file instead.}
+  \item{gatk.normal.file}{Deprecated, use normal.coverage.file instead.}
   \item{\dots}{Additional parameters passed to the segmentation function.}
 }
 
@@ -181,9 +184,9 @@ purity determined via the SCNA-fit.}
 
 \seealso{\code{\link{correctCoverageBias} \link{segmentationCBS}}}
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
 vcf.file <- system.file("extdata", "example_vcf.vcf", 
     package="PureCN")
@@ -193,8 +196,8 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, genome="hg19", vcf.file=vcf.file,
+ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+    tumor.coverage.file=tumor.coverage.file, genome="hg19", vcf.file=vcf.file,
     sampleid='Sample1', gc.gene.file=gc.gene.file,
     max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 }

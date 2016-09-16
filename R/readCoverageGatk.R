@@ -32,7 +32,7 @@ file
         base.with..10.coverage = NA))
 ### A \code{data.frame} with the parsed coverage information. 
 },ex=function() {
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
-coverage <- readCoverageGatk(gatk.tumor.file)
+coverage <- readCoverageGatk(tumor.coverage.file)
 })

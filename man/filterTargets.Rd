@@ -36,14 +36,14 @@ chromosome median in the pool of normals.}
 
 
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
     package="PureCN")
-gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
-normalDB <- createNormalDatabase(gatk.normal.files)
+normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+normalDB <- createNormalDatabase(normal.coverage.files)
 
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
 vcf.file <- system.file("extdata", "example_vcf.vcf", 
     package="PureCN")
@@ -53,8 +53,8 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file,
-    gatk.tumor.file=gatk.tumor.file, genome="hg19", vcf.file=vcf.file,
+ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
+    tumor.coverage.file=tumor.coverage.file, genome="hg19", vcf.file=vcf.file,
     sampleid='Sample1', gc.gene.file=gc.gene.file,
     args.filterTargets=list(normalDB=normalDB), max.ploidy=4, 
     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)

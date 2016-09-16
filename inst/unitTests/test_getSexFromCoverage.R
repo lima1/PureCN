@@ -1,9 +1,9 @@
 test_getSexFromCoverage <- function() {
-    gatk.tumor.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
-    coverage <- readCoverageGatk(gatk.tumor.file)
+    tumor.coverage.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
+    coverage <- readCoverageGatk(tumor.coverage.file)
     sex <- getSexFromCoverage(coverage, verbose=FALSE)
     checkTrue(is.na(sex))
-    sex <- getSexFromCoverage(gatk.tumor.file, verbose=FALSE)
+    sex <- getSexFromCoverage(tumor.coverage.file, verbose=FALSE)
     checkTrue(is.na(sex))
 
     chr22 <- coverage[which(coverage$chr=="chr22"),]

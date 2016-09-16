@@ -4,7 +4,7 @@ getSexFromCoverage <- structure(function(# Get sample sex from coverage
 ### female call. For small targeted panels, this will only work 
 ### when sufficient sex marker genes such as AMELY are covered.
 ### For optimal results, parameters might need to be tuned for the assay.
-gatk.coverage, 
+coverage.file, 
 ### GATK coverage file or data read with \code{\link{readCoverageGatk}}.
 min.ratio=25,
 ### Min chrX/chrY coverage ratio to call sample as female.
@@ -21,10 +21,10 @@ remove.outliers=TRUE,
 verbose=TRUE
 ### Verbose output.
 ) {
-    if (is.character(gatk.coverage)) {
-        x <- readCoverageGatk(gatk.coverage)
+    if (is.character(coverage.file)) {
+        x <- readCoverageGatk(coverage.file)
     } else {
-        x <- gatk.coverage
+        x <- coverage.file
     }
 
     sex.chr <- .getSexChr(x$chr)
@@ -67,9 +67,9 @@ verbose=TRUE
 ### Returns a \code{character(1)} with \code{M} for male, \code{F} 
 ### for female, or \code{NA} if unknown.    
 }, ex=function(){
-    gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
         package="PureCN")
-    sex <- getSexFromCoverage(gatk.tumor.file)
+    sex <- getSexFromCoverage(tumor.coverage.file)
 })
 
 .getSexChr <- function(chrom) {

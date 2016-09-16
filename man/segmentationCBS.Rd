@@ -47,9 +47,9 @@ are properly ordered.}
 
 \seealso{\code{\link{runAbsoluteCN}}}
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
 vcf.file <- system.file("extdata", "example_vcf.vcf", 
     package="PureCN")
@@ -59,8 +59,8 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
-ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-    gatk.tumor.file=gatk.tumor.file, vcf.file=vcf.file, genome="hg19", 
+ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+    tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, genome="hg19", 
     sampleid='Sample1', gc.gene.file=gc.gene.file, 
     max.candidate.solutions=1, max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), 
     fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))

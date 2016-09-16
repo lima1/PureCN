@@ -5,13 +5,13 @@
 by the \code{\link{findBestNormal}} function. It can be also used 
 to tune the best normal selection by finding good parameter values for
 \code{num.normals} and \code{pcs}.}
-\usage{plotBestNormal(gatk.normal.files, gatk.tumor.file, 
+\usage{plotBestNormal(normal.coverage.files, tumor.coverage.file, 
     normalDB, x = 1, y = 2, col.tumor = "red", col.best.normal = "blue", 
     col.other.normals = "black", ...)}
 \arguments{
-  \item{gatk.normal.files}{GATK coverage file of normal files, typically identified via 
+  \item{normal.coverage.files}{GATK coverage file of normal files, typically identified via 
 \code{\link{findBestNormal}}.}
-  \item{gatk.tumor.file}{GATK coverage file of a tumor sample.}
+  \item{tumor.coverage.file}{GATK coverage file of a tumor sample.}
   \item{normalDB}{Database of normal samples, created with 
 \code{\link{createNormalDatabase}}.}
   \item{x}{Principal component (PC) to be plotted on x-axis.}
@@ -30,19 +30,19 @@ to tune the best normal selection by finding good parameter values for
 
 \seealso{\code{\link{createNormalDatabase} \link{findBestNormal}}}
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt",
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
      package="PureCN")
-gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
-normalDB <- createNormalDatabase(gatk.normal.files)
+normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+normalDB <- createNormalDatabase(normal.coverage.files)
 
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
-gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
-plotBestNormal(gatk.best.normal.file, gatk.tumor.file, normalDB)
+best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
+plotBestNormal(best.normal.coverage.file, tumor.coverage.file, normalDB)
 
 # Display sample sex. The first point in the plot is always tumor.
-plotBestNormal(gatk.best.normal.file, gatk.tumor.file, normalDB,  
+plotBestNormal(best.normal.coverage.file, tumor.coverage.file, normalDB,  
     pch=c(1,ifelse(normalDB$sex=="F", 1, 2)))
 }

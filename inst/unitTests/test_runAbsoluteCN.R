@@ -1,10 +1,10 @@
 test_runAbsoluteCN <- function() {
-    gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    normal.coverage.file <- system.file("extdata", "example_normal.txt", 
         package = "PureCN")
-    gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+    normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
         package="PureCN") 
-    gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file) 
-    gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+    normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file) 
+    tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
         package = "PureCN")
     vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
     gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
@@ -16,11 +16,11 @@ test_runAbsoluteCN <- function() {
 
     data(purecn.example.output)
     target.weight.file <- "exon_weights.txt"
-    createTargetWeights(gatk.tumor.file, gatk.normal.files, target.weight.file)
+    createTargetWeights(tumor.coverage.file, normal.coverage.files, target.weight.file)
 
     # run without a VCF
-    ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-        gatk.tumor.file=gatk.tumor.file, 
+    ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+        tumor.coverage.file=tumor.coverage.file, 
         candidates=purecn.example.output$candidates, 
         args.segmentation=list(target.weight.file=target.weight.file), 
         max.ploidy=4, max.candidate.solutions=1)
@@ -35,71 +35,71 @@ test_runAbsoluteCN <- function() {
     checkException(callLOH(ret))
     checkTrue(grepl("runAbsoluteCN was run without a VCF file", 
         geterrmessage()))
-    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, 
+    checkException(runAbsoluteCN(tumor.coverage.file=tumor.coverage.file, 
         genome="hg19"))
     checkTrue(grepl("Need a normal coverage file if log.ratio and seg.file", 
         geterrmessage()))
-    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, 
+    checkException(runAbsoluteCN(tumor.coverage.file=tumor.coverage.file, 
         min.ploidy=0, genome="hg19"))
     checkTrue(grepl("min.ploidy or max.ploidy not within expected range", 
         geterrmessage()))
 
-    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file, 
+    checkException(runAbsoluteCN(tumor.coverage.file=tumor.coverage.file, 
         max.ploidy=0, genome="hg19"))
     checkTrue(grepl("min.ploidy or max.ploidy not within expected range", 
         geterrmessage()))
 
-    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
-        gatk.normal.file=gatk.normal.file, max.ploidy="a", genome="hg19"))
-    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
-        gatk.normal.file=gatk.normal.file, max.ploidy="a", genome="hg19"))
-    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
-        gatk.normal.file=gatk.normal.file, test.purity="a", genome="hg19"))
-    checkException(runAbsoluteCN(gatk.tumor.file, gatk.tumor.file, 
+    checkException(runAbsoluteCN(tumor.coverage.file=tumor.coverage.file,
+        normal.coverage.file=normal.coverage.file, max.ploidy="a", genome="hg19"))
+    checkException(runAbsoluteCN(tumor.coverage.file=tumor.coverage.file,
+        normal.coverage.file=normal.coverage.file, max.ploidy="a", genome="hg19"))
+    checkException(runAbsoluteCN(tumor.coverage.file=tumor.coverage.file,
+        normal.coverage.file=normal.coverage.file, test.purity="a", genome="hg19"))
+    checkException(runAbsoluteCN(tumor.coverage.file, tumor.coverage.file, 
         genome="hg19"))
     checkTrue(grepl("Tumor and normal are identical", 
         geterrmessage()))
-    checkException(runAbsoluteCN(gatk.tumor.file=gatk.tumor.file,
+    checkException(runAbsoluteCN(tumor.coverage.file=tumor.coverage.file,
         log.ratio=head(purecn.example.output$input$log.ratio[,2]), 
         genome="hg19"))
     checkTrue(grepl("Length of log.ratio different from tumor coverage",
         geterrmessage()))
-    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file, 
+    checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
         prior.purity=1, genome="hg19"))
     checkTrue(grepl("prior.purity must have the same", 
         geterrmessage()))
-    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file, 
+    checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
         prior.purity=c(0.6,1.1), test.purity=c(0.2, 0.6), genome="hg19"))
     checkTrue(grepl("prior.purity not within expected range", 
         geterrmessage()))
-    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file, 
+    checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
         prior.purity=c(0.6,0.9), test.purity=c(0.2, 0.6), genome="hg19"))
     checkTrue(grepl("prior.purity must add to 1. Sum is 1.5", 
         geterrmessage()))
 
 
-    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,genome="hg19",
+    checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file,genome="hg19",
         max.homozygous.loss=1.1))
     checkTrue(grepl("max.homozygous.loss not within expected range",
         geterrmessage()))
-    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,genome="hg19",
+    checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file,genome="hg19",
         prior.K=-1.1))
     checkTrue(grepl("prior.K not within expected range",
         geterrmessage()))
-    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file,genome="hg19",
+    checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file,genome="hg19",
         prior.contamination=c(0.1,-1.1)))
     checkTrue(grepl("prior.contamination not within expected range",
         geterrmessage()))
     
-    normalCov <- readCoverageGatk(gatk.normal.file)
+    normalCov <- readCoverageGatk(normal.coverage.file)
     checkException(runAbsoluteCN(normalCov[sample(nrow(normalCov)),], 
-        gatk.tumor.file, genome="hg19"))
+        tumor.coverage.file, genome="hg19"))
     checkTrue(grepl("Interval files in normal and tumor different",
         geterrmessage()))
     
     # run with a VCF
-    ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-        gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
+    ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+        tumor.coverage.file=tumor.coverage.file, remove.off.target.snvs=TRUE,
         vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1)
 
@@ -109,8 +109,8 @@ test_runAbsoluteCN <- function() {
 
     vcf <- readVcf(vcf.file, "hg19", param=ScanVcfParam(samples="LIB-02240e4"))
 
-    ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-        gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=FALSE,
+    ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+        tumor.coverage.file=tumor.coverage.file, remove.off.target.snvs=FALSE,
         vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1)
 
@@ -121,9 +121,9 @@ test_runAbsoluteCN <- function() {
     # test with gc.gene.file without symbols
     gc2 <- read.delim(gc.gene.file, as.is=TRUE)[,-3]
     write.table(gc2, file="tmp.gc", row.names=FALSE, sep="\t", quote=FALSE)
-    ret <-runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
+    ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
         gc.gene.file="tmp.gc",
-        gatk.tumor.file=gatk.tumor.file, remove.off.target.snvs=TRUE,
+        tumor.coverage.file=tumor.coverage.file, remove.off.target.snvs=TRUE,
         candidates=purecn.example.output$candidates, 
         vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1)
@@ -131,7 +131,7 @@ test_runAbsoluteCN <- function() {
     checkException(callAlterations(ret))
 
     # test that correct exons were filtered
-    tumor <- readCoverageGatk(gatk.tumor.file)
+    tumor <- readCoverageGatk(tumor.coverage.file)
     log.ratio <- ret$input$log.ratio
     filtered <- cbind(tumor, gc2)[!as.character(tumor$probe) %in% log.ratio$probe,]
     checkTrue(!sum(!(
@@ -143,8 +143,8 @@ test_runAbsoluteCN <- function() {
 
     vcf <- readVcf(vcf.file, "hg19") 
     seqlevelsStyle(vcf) <- "ENSEMBL"
-    normCov <- readCoverageGatk( gatk.normal.file )
-    tumorCov <- readCoverageGatk( gatk.tumor.file )
+    normCov <- readCoverageGatk( normal.coverage.file )
+    tumorCov <- readCoverageGatk( tumor.coverage.file )
     normCov$chr <- as.character(normCov$chr) 
     tumorCov$chr <- as.character(tumorCov$chr) 
     seqlevelsStyle(normCov$chr) <- "ENSEMBL"
@@ -154,25 +154,25 @@ test_runAbsoluteCN <- function() {
     tumorCov$probe <- paste(tumorCov$chr, ":", tumorCov$probe_start, "-",
         tumorCov$probe_end, sep="")
     
-    checkException(runAbsoluteCN(gatk.normal.file, gatk.tumor.file, 
+    checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
         genome="hg19", vcf.file=vcf))
     checkTrue(grepl("Different chromosome names in coverage and VCF",
         geterrmessage()))
 
-    checkException(runAbsoluteCN(gatk.normal.file=normCov, 
-        gatk.tumor.file=tumorCov, remove.off.target.snvs=TRUE,
+    checkException(runAbsoluteCN(normal.coverage.file=normCov, 
+        tumor.coverage.file=tumorCov, remove.off.target.snvs=TRUE,
         gc.gene.file=gc.gene.file,
         vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1))
-    checkTrue(grepl("Intervals of gatk.tumor.file and gc.gene.file do not",
+    checkTrue(grepl("Intervals of tumor.coverage.file and gc.gene.file do not",
         geterrmessage()))
 
     gc3 <- read.delim(gc.gene.file, as.is=TRUE)
     gc3[,1] <- tumorCov$probe
     write.table(gc3, file="tmp3.gc", row.names=FALSE, sep="\t", quote=FALSE)
 
-    ret <- runAbsoluteCN(gatk.normal.file=normCov, 
-        gatk.tumor.file=tumorCov, remove.off.target.snvs=TRUE,
+    ret <- runAbsoluteCN(normal.coverage.file=normCov, 
+        tumor.coverage.file=tumorCov, remove.off.target.snvs=TRUE,
         gc.gene.file="tmp3.gc",
         vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1)
@@ -189,7 +189,7 @@ test_runAbsoluteCN <- function() {
     plotAbs(ret, 1, type="BAF", chr="1")
 
     # test with a seg.file
-    ret <- runAbsoluteCN( gatk.tumor.file = gatk.tumor.file, seg.file=seg.file,
+    ret <- runAbsoluteCN( tumor.coverage.file = tumor.coverage.file, seg.file=seg.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
         test.purity=seq(0.3,0.7, by=0.05))
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
@@ -209,8 +209,8 @@ test_runAbsoluteCN <- function() {
         test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE))
     
     # test with a log.ratio and no tumor file
-    log.ratio <- calculateLogRatio(readCoverageGatk(gatk.normal.file),
-        readCoverageGatk(gatk.tumor.file), verbose=FALSE)
+    log.ratio <- calculateLogRatio(readCoverageGatk(normal.coverage.file),
+        readCoverageGatk(tumor.coverage.file), verbose=FALSE)
 
     ret <- runAbsoluteCN( log.ratio=log.ratio,
         gc.gene.file=gc.gene.file,
@@ -232,14 +232,14 @@ test_runAbsoluteCN <- function() {
     geno(vcf)$AD[,1] <- ad1
     geno(vcf)$FA <- NULL
     geno(vcf)$DP <- NULL
-    ret <- runAbsoluteCN( gatk.normal.file=gatk.normal.file,
-        gatk.tumor.file=gatk.tumor.file, sampleid="LIB-02252e4",
+    ret <- runAbsoluteCN( normal.coverage.file=normal.coverage.file,
+        tumor.coverage.file=tumor.coverage.file, sampleid="LIB-02252e4",
         vcf.file=vcf, max.candidate.solutions=1,genome="hg19", 
         cosmic.vcf.file=cosmic.vcf.file,
         test.purity=seq(0.3,0.7, by=0.01))
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     # test min.ploidy bug
-    ret <- runAbsoluteCN(gatk.normal.file, gatk.tumor.file, min.ploidy=2.2, 
+    ret <- runAbsoluteCN(normal.coverage.file, tumor.coverage.file, min.ploidy=2.2, 
         max.ploidy=4, genome="hg19", test.purity=seq(0.3,0.7, by=0.05), 
         plot.cnv=FALSE, max.candidate.solutions=1)
 
@@ -247,23 +247,23 @@ test_runAbsoluteCN <- function() {
     checkTrue(ret$results[[1]]$ploidy < 4)
 
     # check filterTargets
-    checkException(runAbsoluteCN(gatk.normal.file = gatk.normal.file,  
-        gatk.tumor.file = gatk.tumor.file, genome = "hg19", 
+    checkException(runAbsoluteCN(normal.coverage.file = normal.coverage.file,  
+        tumor.coverage.file = tumor.coverage.file, genome = "hg19", 
         args.filterTargets=list(normalDB=vcf.file)))
     checkTrue(grepl("normalDB not a valid normalDB object", 
         geterrmessage()))
     
-    normalDB <- createNormalDatabase(gatk.normal.files)
+    normalDB <- createNormalDatabase(normal.coverage.files)
 
     tmp <- normalDB
-    tmp$gatk.normal.files <- NULL
-    checkException(runAbsoluteCN(gatk.normal.file = gatk.normal.file,  
-        gatk.tumor.file = gatk.tumor.file, genome = "hg19", 
+    tmp$normal.coverage.files <- NULL
+    checkException(runAbsoluteCN(normal.coverage.file = normal.coverage.file,  
+        tumor.coverage.file = tumor.coverage.file, genome = "hg19", 
         args.filterTargets=list(normalDB=tmp)))
     checkTrue(grepl("normalDB appears to be empty", 
         geterrmessage()))
-    ret <- runAbsoluteCN(gatk.normal.file = gatk.normal.file, 
-        gatk.tumor.file = gatk.tumor.file, genome = "hg19", vcf.file = vcf.file, 
+    ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
+        tumor.coverage.file = tumor.coverage.file, genome = "hg19", vcf.file = vcf.file, 
         sampleid = "Sample1", gc.gene.file = gc.gene.file, 
         args.filterTargets = list(normalDB = normalDB,
         filter.lowhigh.gc=0
@@ -271,7 +271,7 @@ test_runAbsoluteCN <- function() {
         plot.cnv=FALSE,
         max.ploidy = 3, test.purity = seq(0.4, 0.7, by = 0.05), 
         max.candidate.solutions = 1)
-    tumor <- readCoverageGatk(gatk.tumor.file)
+    tumor <- readCoverageGatk(tumor.coverage.file)
     idx <- tumor$probe %in% ret$input$log.ratio$probe
     cutoff <- median(normalDB$exon.median.coverage)*0.3
 

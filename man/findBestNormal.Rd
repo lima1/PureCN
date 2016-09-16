@@ -3,11 +3,11 @@
 \title{Find best normal sample in database}
 \description{Function to find the best matching normal for a provided 
 tumor sample.}
-\usage{findBestNormal(gatk.tumor.file, normalDB, pcs = 1:3, 
+\usage{findBestNormal(tumor.coverage.file, normalDB, pcs = 1:3, 
     num.normals = 1, ignore.sex = FALSE, sex = NULL, 
-    gatk.normal.files = NULL, verbose = TRUE)}
+    normal.coverage.files = NULL, verbose = TRUE)}
 \arguments{
-  \item{gatk.tumor.file}{GATK coverage file of a tumor sample.}
+  \item{tumor.coverage.file}{GATK coverage file of a tumor sample.}
   \item{normalDB}{Database of normal samples, created with 
 \code{\link{createNormalDatabase}}.}
   \item{pcs}{Principal components to use for distance calculation.}
@@ -18,8 +18,8 @@ with matching sex.}
 \code{\link{getSexFromCoverage}} and default parameters.
 Valid values are \code{F} for female, \code{M} for male. If all 
 chromosomes are diploid, specify \code{diploid}. }
-  \item{gatk.normal.files}{Only consider these normal samples. If \code{NULL}, use all in 
-the database. Must match \code{normalDB$gatk.normal.files}. }
+  \item{normal.coverage.files}{Only consider these normal samples. If \code{NULL}, use all in 
+the database. Must match \code{normalDB$normal.coverage.files}. }
   \item{verbose}{Verbose output.}
 }
 
@@ -31,14 +31,14 @@ the database. Must match \code{normalDB$gatk.normal.files}. }
 
 \seealso{\code{\link{createNormalDatabase} \link{getSexFromCoverage}}}
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
     package="PureCN")
-gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
-normalDB <- createNormalDatabase(gatk.normal.files)
+normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+normalDB <- createNormalDatabase(normal.coverage.files)
 
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
-gatk.best.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
+best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
 }

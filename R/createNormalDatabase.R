@@ -4,11 +4,11 @@ createNormalDatabase <- structure(function(#Create database of normal samples
 ### function determines the sex of the samples and trains a PCA
 ### that is later used for clustering a tumor file with all normal samples 
 ### in the database.
-gatk.normal.files,
+normal.coverage.files,
 ### Vector with file names pointing to GATK coverage files 
 ### of normal samples. 
 sex=NULL,
-### \code{character(length(gatk.normal.files))} with sex for all files. 
+### \code{character(length(normal.coverage.files))} with sex for all files. 
 ### \code{F} for female, \code{M} for male. If all chromosomes are diploid, 
 ### specify \code{diploid}. If \code{NULL}, determine from coverage.
 max.mean.coverage=100,
@@ -18,14 +18,14 @@ max.mean.coverage=100,
 ...
 ### Arguments passed to the \code{prcomp} function.
 ) {
-    gatk.normal.files <- normalizePath(gatk.normal.files)
-    normals <- lapply(gatk.normal.files, readCoverageGatk)
+    normal.coverage.files <- normalizePath(normal.coverage.files)
+    normals <- lapply(normal.coverage.files, readCoverageGatk)
 
     # check that all files used the same interval file.
     for (i in seq_along(normals)) {
         if (!identical(normals[[i]]$probe, normals[[1]]$probe)) {
-            .stopUserError("All gatk.normal.files must have the same ",
-                "intervals. ", gatk.normal.files[i], " is different.")
+            .stopUserError("All normal.coverage.files must have the same ",
+                "intervals. ", normal.coverage.files[i], " is different.")
         }
     }
     normals.m <- do.call(cbind, 
@@ -42,7 +42,7 @@ max.mean.coverage=100,
         sex <- sex.determined
     } else {   
         if (length(sex) != length(normals)) {
-            .stopUserError("Length of gatk.normal.files and sex different")
+            .stopUserError("Length of normal.coverage.files and sex different")
         } 
         idx.sex <- sex %in% c(NA, "F", "M", "diploid")
         sex[!idx.sex] <- NA
@@ -50,7 +50,7 @@ max.mean.coverage=100,
         for (i in seq_along(sex.determined)) {
             if (!is.na(sex.determined[i]) && sex[i] != "diploid" &&
                 sex.determined[i] != sex[i]) {
-                warning("Sex mismatch in ", gatk.normal.files[i], 
+                warning("Sex mismatch in ", normal.coverage.files[i], 
                     ". Sex provided is ", sex, ", but could be ", 
                     sex.determined[i])
             }    
@@ -58,7 +58,7 @@ max.mean.coverage=100,
     }
 ##seealso<< \code{\link{findBestNormal}}
     list(
-        gatk.normal.files=gatk.normal.files, 
+        normal.coverage.files=normal.coverage.files, 
         pca=normals.pca, 
         exons.used=idx, 
         coverage=apply(normals.m, 2, mean, na.rm=TRUE), 
@@ -71,28 +71,28 @@ max.mean.coverage=100,
 ### A normal database that can be used in the \code{\link{findBestNormal}} 
 ### function to retrieve good matching normal samples for a given tumor sample.
 },ex=function() {
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
     package="PureCN")
-gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
-normalDB <- createNormalDatabase(gatk.normal.files)
+normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+normalDB <- createNormalDatabase(normal.coverage.files)
 })    
 
 createExonWeightFile <- function(# Calculate exon weights
 ### This function has been renamed to \code{\link{createTargetWeights}} 
 ### and will be made defunct in the next Bioconductor release.
-gatk.tumor.files, 
+tumor.coverage.files, 
 ### A small number (1-3) of GATK tumor or normal coverage samples.
-gatk.normal.files,
+normal.coverage.files,
 ### A large number of GATK normal coverage samples (>20) 
 ### to estimate exon log-ratio standard deviations.
-### Should not overlap with files in \code{gatk.tumor.files}.
+### Should not overlap with files in \code{tumor.coverage.files}.
 exon.weight.file
 ### Output filename.
 ) {
     .Deprecated("createTargetWeights")
-    createTargetWeights(gatk.tumor.files, gatk.normal.files, exon.weight.file)
+    createTargetWeights(tumor.coverage.files, normal.coverage.files, exon.weight.file)
 }
 
 createTargetWeights <- structure(function(# Calculate target weights
@@ -102,19 +102,19 @@ createTargetWeights <- structure(function(# Calculate target weights
 ### weights will be set proportional to the inverse of coverage standard
 ### deviation across all normals. Targets with high variance in coverage in the
 ### pool of normals are thus down-weighted.
-gatk.tumor.files, 
+tumor.coverage.files, 
 ### A small number (1-3) of GATK tumor or normal coverage samples.
-gatk.normal.files,
+normal.coverage.files,
 ### A large number of GATK normal coverage samples (>20) 
 ### to estimate target log-ratio standard deviations.
-### Should not overlap with files in \code{gatk.tumor.files}.
+### Should not overlap with files in \code{tumor.coverage.files}.
 target.weight.file,
 ### Output filename.
 verbose=TRUE
 ### Verbose output.
 ) {
-    tumor.coverage <- lapply(gatk.tumor.files,  readCoverageGatk)
-    lrs <- lapply(tumor.coverage, function(tc) sapply(gatk.normal.files, 
+    tumor.coverage <- lapply(tumor.coverage.files,  readCoverageGatk)
+    lrs <- lapply(tumor.coverage, function(tc) sapply(normal.coverage.files, 
             function(x) calculateLogRatio(readCoverageGatk(x), tc, 
                 verbose=verbose)))
 
@@ -137,13 +137,13 @@ verbose=TRUE
 ###A \code{data.frame} with target weights.
 }, ex=function() {
 target.weight.file <- "target_weights.txt"
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
     package="PureCN")
-gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
 
-createTargetWeights(gatk.tumor.file, gatk.normal.files, target.weight.file)
+createTargetWeights(tumor.coverage.file, normal.coverage.files, target.weight.file)
 })

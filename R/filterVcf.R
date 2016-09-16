@@ -256,7 +256,7 @@ setPriorVcf <- structure(function(# Set Somatic Prior VCF
 vcf,
 ### \code{CollapsedVCF} object, read in with the \code{readVcf} function 
 ### from the VariantAnnotation package.
-prior.somatic=c(0.5, 0.0005, 0.999, 0.00001, 0.995, 0.01), 
+prior.somatic=c(0.5, 0.0005, 0.999, 0.0001, 0.995, 0.01), 
 ### Prior probabilities for somatic mutations. First value is for 
 ### the case when no matched normals are available and the variant is not in 
 ### dbSNP (second value). Third value is for variants with MuTect somatic call.
@@ -267,13 +267,23 @@ prior.somatic=c(0.5, 0.0005, 0.999, 0.00001, 0.995, 0.01),
 ### it will set the prior probability for variants with CNT > 2 to the first 
 ### of those values in case of no matched normal available (0.995 default). 
 ### Final value is for the case that variant is in both dbSNP and COSMIC > 2. 
+tumor.id.in.vcf=NULL,
+### Id of tumor in case multiple samples are stored in VCF.
 verbose=TRUE
 ### Verbose output.
 ) {
+    if (is.null(tumor.id.in.vcf)) {
+        tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
+    }
     if (!is.null(info(vcf)$SOMATIC)) {
          tmp <- prior.somatic
          prior.somatic <- ifelse(info(vcf)$SOMATIC,
             prior.somatic[3],prior.somatic[4])
+    #     normal.id.in.vcf <- .getNormalIdInVcf(vcf, tumor.id.in.vcf)
+    #     dpAll <- as.numeric(geno(vcf)$DP[,normal.id.in.vcf])
+
+    #     prior.somatic[!info(vcf)$SOMATIC] <- prior.somatic[!info(vcf)$SOMATIC]/
+    #        log2(dpAll[!info(vcf)$SOMATIC]+1)
 #         prior.somatic[!info(vcf)$SOMATIC & info(vcf)$DB] <- prior.somatic[4]* 
 #            prior.somatic[2]
 
@@ -328,6 +338,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     # non-reference bias can lead to small p-values.
     idx <- info(vcf)$SOMATIC | (pBeta > 0.025 & pBeta < 1-0.025) | 
            (arAll > 0.5-allowed & arAll < 0.5+allowed) 
+    idx <- idx & dpAll > 5       
     vcf[idx]
 }
 # calculate allelic fraction from read depths

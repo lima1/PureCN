@@ -1,40 +1,40 @@
 test_createNormalDatabase <- function() {
-    gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+    normal.coverage.file <- system.file("extdata", "example_normal.txt", 
         package = "PureCN")
-    gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+    normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
         package = "PureCN")
-    gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
-    normalDB <- createNormalDatabase(gatk.normal.files)
+    normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+    normalDB <- createNormalDatabase(normal.coverage.files)
     checkIdentical(c(NA, NA), normalDB$sex)
-    checkEquals(normalizePath(gatk.normal.file[1]), 
-        findBestNormal(gatk.normal.files[1], normalDB))
+    checkEquals(normalizePath(normal.coverage.file[1]), 
+        findBestNormal(normal.coverage.files[1], normalDB))
 
-    n <- lapply(gatk.normal.files, readCoverageGatk)
+    n <- lapply(normal.coverage.files, readCoverageGatk)
 
     checkEqualsNumeric(apply(cbind(n[[1]]$average.coverage, 
         n[[2]]$average.coverage),1,median), normalDB$exon.median.coverage)
 
-    normalDB <- createNormalDatabase(gatk.normal.files, sex=c("A", NA))
+    normalDB <- createNormalDatabase(normal.coverage.files, sex=c("A", NA))
     checkEquals(as.character(c(NA, NA)), normalDB$sex)
-    checkEquals(normalizePath(gatk.normal.file[1]), 
-        findBestNormal(gatk.normal.files[1], normalDB))
+    checkEquals(normalizePath(normal.coverage.file[1]), 
+        findBestNormal(normal.coverage.files[1], normalDB))
 
-    normalDB <- createNormalDatabase(gatk.normal.files, sex=c("A", "F"))
+    normalDB <- createNormalDatabase(normal.coverage.files, sex=c("A", "F"))
     checkEquals(c(NA, "F"), normalDB$sex)
 
-    checkEquals(sapply(gatk.normal.files, normalizePath), 
-        normalDB$gatk.normal.files, checkNames=FALSE)
+    checkEquals(sapply(normal.coverage.files, normalizePath), 
+        normalDB$normal.coverage.files, checkNames=FALSE)
 
-    checkException(createNormalDatabase(gatk.normal.files, sex="A"), silent=TRUE) 
+    checkException(createNormalDatabase(normal.coverage.files, sex="A"), silent=TRUE) 
 
     # create a GATK file with shuffled probes
     gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
         package = "PureCN")
-    normal <- readCoverageGatk(gatk.normal.file)
+    normal <- readCoverageGatk(normal.coverage.file)
     correctCoverageBias(normal, gc.gene.file)
     suppressWarnings(correctCoverageBias(normal[sample(nrow(normal)),], 
         gc.gene.file, "shuffled_gatk.txt"))
-    checkException(createNormalDatabase(c(gatk.normal.files, 
+    checkException(createNormalDatabase(c(normal.coverage.files, 
         "shuffled_gatk.txt")))
     checkTrue(grepl("shuffled_gatk.txt", 
         geterrmessage()), msg=geterrmessage())

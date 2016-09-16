@@ -6,10 +6,10 @@ ratio of chrX and chrY. Loss of chromosome Y (LOY) can result in a wrong
 female call. For small targeted panels, this will only work 
 when sufficient sex marker genes such as AMELY are covered.
 For optimal results, parameters might need to be tuned for the assay.}
-\usage{getSexFromCoverage(gatk.coverage, min.ratio = 25, min.ratio.na = 20, 
+\usage{getSexFromCoverage(coverage.file, min.ratio = 25, min.ratio.na = 20, 
     remove.outliers = TRUE, verbose = TRUE)}
 \arguments{
-  \item{gatk.coverage}{GATK coverage file or data read with \code{\link{readCoverageGatk}}.}
+  \item{coverage.file}{GATK coverage file or data read with \code{\link{readCoverageGatk}}.}
   \item{min.ratio}{Min chrX/chrY coverage ratio to call sample as female.}
   \item{min.ratio.na}{Min chrX/chrY coverage ratio to call sample as \code{NA}. 
 This ratio defines a grey zone from \code{min.ratio.na} to 
@@ -31,7 +31,7 @@ for female, or \code{NA} if unknown.    }
 
 \seealso{\code{\link{getSexFromVcf}}}
 \examples{
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
-sex <- getSexFromCoverage(gatk.tumor.file)
+sex <- getSexFromCoverage(tumor.coverage.file)
 }

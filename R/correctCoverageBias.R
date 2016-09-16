@@ -3,9 +3,9 @@ correctCoverageBias <- structure(function(# Correct for GC bias
 ### read by \code{\link{readCoverageGatk}}) and a mapping file for 
 ### GC content, and then uses a loess normalization for bias correction. 
 ### Largely follows the GC correction of the TitanCNA package.
-gatk.coverage.file, 
+coverage.file, 
 ### Exon coverage file as produced by GATK. Either a file name
-### or data parsed with the readCoverageGatk function.
+### or data parsed with the \code{\link{readCoverageGatk}} function.
 gc.gene.file,
 ### File providing GC content for each exon in the coverage files.
 ### First column in format CHR:START-END. Second column GC content (0 to 1). 
@@ -18,10 +18,10 @@ output.file=NULL
 ### Optionally, write file with GC corrected coverage. Can be read with
 ### the \code{\link{readCoverageGatk}} function.
 ) {
-    if (is.character(gatk.coverage.file)) {
-        tumor  <- readCoverageGatk(gatk.coverage.file)
+    if (is.character(coverage.file)) {
+        tumor  <- readCoverageGatk(coverage.file)
     } else {
-        tumor <- gatk.coverage.file
+        tumor <- coverage.file
     }    
     
     gc <- read.delim(gc.gene.file)
@@ -33,11 +33,11 @@ output.file=NULL
     if (!identical(as.character(gc[,1]), as.character(tumor[,1]))) {
         if (sum(!as.character(tumor[,1]) %in% as.character(gc[,1])) > 0) {
             .stopUserError(
-            "Interval files in gatk.coverage.file and gc.gene.file different.\n",
+            "Interval files in coverage.file and gc.gene.file different.\n",
             "Some intervals in coverage have no GC information.")
         }
         warning(
-        "Interval files in gatk.coverage.file and gc.gene.file different.")
+        "Interval files in coverage.file and gc.gene.file different.")
         gc <- gc[match(as.character(tumor[,1]), as.character(gc[,1])),]
     }
 
@@ -74,9 +74,9 @@ output.file=NULL
     invisible(tumor)
 ### GC normalized coverage.
 }, ex=function() {
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
 gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
     package="PureCN")
-coverage <- correctCoverageBias(gatk.normal.file, gc.gene.file)
+coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file)
 })

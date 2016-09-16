@@ -18,19 +18,19 @@
 
 \seealso{\code{\link{readCoverageGatk}}}
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
     package="PureCN")
-gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
 
-normalDB <- createNormalDatabase(gatk.normal.files)
+normalDB <- createNormalDatabase(normal.coverage.files)
 
 # get the best 2 normals and average them
-gatk.best.normal.files <- findBestNormal(gatk.tumor.file, normalDB, 
+best.normal.coverage.files <- findBestNormal(tumor.coverage.file, normalDB, 
     num.normals=2)
-pool <- poolCoverage(lapply(gatk.best.normal.files, readCoverageGatk),
+pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageGatk),
      remove.chrs=c('chrX', 'chrY'))
 }

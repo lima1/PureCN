@@ -6,12 +6,12 @@ a good match for tumor copy number normalization. Internally, this
 function determines the sex of the samples and trains a PCA
 that is later used for clustering a tumor file with all normal samples 
 in the database.}
-\usage{createNormalDatabase(gatk.normal.files, sex = NULL, 
+\usage{createNormalDatabase(normal.coverage.files, sex = NULL, 
     max.mean.coverage = 100, ...)}
 \arguments{
-  \item{gatk.normal.files}{Vector with file names pointing to GATK coverage files 
+  \item{normal.coverage.files}{Vector with file names pointing to GATK coverage files 
 of normal samples. }
-  \item{sex}{\code{character(length(gatk.normal.files))} with sex for all files. 
+  \item{sex}{\code{character(length(normal.coverage.files))} with sex for all files. 
 \code{F} for female, \code{M} for male. If all chromosomes are diploid, 
 specify \code{diploid}. If \code{NULL}, determine from coverage.}
   \item{max.mean.coverage}{Assume that coverages above this value do not necessarily improve
@@ -29,10 +29,10 @@ function to retrieve good matching normal samples for a given tumor sample.}
 
 \seealso{\code{\link{findBestNormal}}}
 \examples{
-gatk.normal.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gatk.normal2.file <- system.file("extdata", "example_normal2.txt", 
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
     package="PureCN")
-gatk.normal.files <- c(gatk.normal.file, gatk.normal2.file)
-normalDB <- createNormalDatabase(gatk.normal.files)
+normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+normalDB <- createNormalDatabase(normal.coverage.files)
 }

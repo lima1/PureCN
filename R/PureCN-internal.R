@@ -72,7 +72,7 @@ test.num.copy[i], prior.K))
     
     haploid.penalty <- 0
     
-    if (median(C) < 1.1 && p <= 0.3) {
+    if (median(C) < 1.1 && p <= 0.35) {
         haploid.penalty <- 1
     }
     

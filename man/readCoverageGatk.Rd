@@ -16,7 +16,7 @@ by \code{\link{calculateBamCoverageByInterval}}.}
 
 \seealso{\code{\link{calculateBamCoverageByInterval}}}
 \examples{
-gatk.tumor.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
-coverage <- readCoverageGatk(gatk.tumor.file)
+coverage <- readCoverageGatk(tumor.coverage.file)
 }

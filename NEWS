@@ -19,7 +19,7 @@ Other major enhancements
   is wrong because the solution was not considered.
 - More robust and accurate likelihood model that provides robust estimates of 
   minor segment copy numbers and more accurate LOH.  
-- Support for SNVs outside the copy number interval file
+- Support for SNVs outside the target interval file
   (remove.off.target.snvs=FALSE).   
 - Improved segmentation and log-ratio normalization.  
 - Support for non-human samples.
