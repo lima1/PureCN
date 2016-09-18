@@ -64,11 +64,18 @@ test.num.copy[i], prior.K))
 }    
 
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
-    C.posterior, C, snv.model, prior.somatic, snv.lr, sampleid = NULL, 
+    C.posterior, C, snv.model, prior.somatic, mapping.bias, snv.lr, sampleid = NULL, 
     cont.rate = 0.01, prior.K, max.coverage.vcf) {
 
     prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
     prior.somatic <- prior.somatic/(1 + cont.rate)
+
+    if (length(prior.somatic) != nrow(vcf)) {
+        .stopRuntimeError("prior.somatic and VCF do not align.")
+    }
+    if (length(mapping.bias) != nrow(vcf)) {
+        .stopRuntimeError("mapping.bias and VCF do not align.")
+    }
     
     haploid.penalty <- 0
     
@@ -102,7 +109,9 @@ test.num.copy[i], prior.K))
         idx <- subjectHits(ov)[queryHits(ov) == i]
         
         ar_all <- unlist(geno(vcf)$FA[idx, tumor.id.in.vcf])
+        ar_all <- ar_all/mapping.bias[idx]
         ar_all[ar_all > 1] <- 1
+        
         dp_all <- unlist(geno(vcf)$DP[idx, tumor.id.in.vcf])
         dp_all[dp_all>max.coverage.vcf] <- max.coverage.vcf
         mInf_all <- log(double(length(ar_all)))

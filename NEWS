@@ -33,9 +33,13 @@ API changes
 - New functions: autoCurateResults, bootstrapResults, 
     calculateBamCoverageByInterval, calculateGCContentByInterval,
     calculateLogRatio, calculatePowerDetectSomatic, callAlterations, callLOH, 
-    filterTargets, getDiploid, getSexFromVcf
+    filterTargets, getDiploid, getSexFromVcf, setMappingBiasVcf
 - Deprecated functions: segmentationPSCBS
 - Renamed functions: createExonWeightFile to createTargetWeights
+- Renamed function arguments: 
+    exon.weight.file to target.weight.file
+    gatk.normal.file to normal.coverage.file
+    gatk.tumor.file to tumor.coverage.file
 
 -------------------------------------------------------------------------------
 

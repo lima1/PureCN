@@ -14,7 +14,8 @@ Provides copy number and LOH data, by both gene and genomic region. }
     vcf.file = NULL, genome, centromeres = NULL, sex = c("?", 
         "F", "M", "diploid"), fun.filterVcf = filterVcfMuTect, 
     args.filterVcf = list(), fun.setPriorVcf = setPriorVcf, 
-    args.setPriorVcf = list(), fun.filterTargets = filterTargets, 
+    args.setPriorVcf = list(), fun.setMappingBiasVcf = setMappingBiasVcf, 
+    args.setMappingBiasVcf = list(), fun.filterTargets = filterTargets, 
     args.filterTargets = list(), fun.segmentation = segmentationCBS, 
     args.segmentation = list(), fun.focal = findFocal, 
     args.focal = list(), sampleid = NULL, min.ploidy = 1, 
@@ -81,6 +82,9 @@ filter function and are automatically set (do NOT set them here again).}
   \item{fun.setPriorVcf}{Function to set prior for somatic status for each 
 variant in the VCF. Defaults to \code{\link{setPriorVcf}}.}
   \item{args.setPriorVcf}{Arguments for somatic prior function.}
+  \item{fun.setMappingBiasVcf}{Function to set mapping bias for each 
+variant in the VCF. Defaults to \code{\link{setMappingBiasVcf}}.}
+  \item{args.setMappingBiasVcf}{Arguments for mapping bias function.}
   \item{fun.filterTargets}{Function for filtering low-quality targets in the coverage 
 files. Needs to return a \code{logical} vector whether an interval
 should be used for segmentation. Defaults to \code{\link{filterTargets}}.}

@@ -365,7 +365,7 @@ snp.blacklist <- c('hg19_segmentalDuplications.txt',
 Finally, we can run \Biocpkg{PureCN} with all that information:
 
 <<runpurecn>>=
-ret <-runAbsoluteCN(normal.coverage.file=pool, 
+ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, 
     genome="hg19", sampleid='Sample1', 
     gc.gene.file=gc.gene.file, 
@@ -376,20 +376,23 @@ ret <-runAbsoluteCN(normal.coverage.file=pool,
     post.optimize=FALSE, plot.cnv=FALSE, verbose=FALSE)
 @
 
-The \Rcode{post.optimize} flag will increase the runtime by about a factor of
-4-5, but might return slightly more accurate purity estimates. For high quality
-whole exome data, this is typically not necessary for copy number calling (but
-might be for variant classification, see Section~\ref{predictsomatic}).  
-The files specified in \Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering
-SNVs more efficiently for artifacts as described in
-Sections~\ref{artifactfiltering} and \ref{artifactfiltering2}. The
-\Rcode{normalDB} argument
-(Section~\ref{bestnormal}) allows the segmentation function to skip targets with
-low coverage in the pool of normals. If possible, these files should be
-generated and provided. The \Rcode{plot.cnv} argument allows the segmentation
-function to generate additional plots if set to \Rcode{TRUE}.  Finally,
-\Rcode{verbose} outputs important and helpful information about all the steps
-performed and is therefore set to \Rcode{TRUE} by default.
+The \Rcode{normal.coverage.file} argument points to a coverage file obtained from
+either a matched or a process-matched normal sample, but can be also a small
+pool of best normals (Section~\ref{bestnormal}).  The files specified in
+\Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering SNVs more efficiently for
+artifacts as described in Sections~\ref{artifactfiltering} and
+\ref{artifactfiltering2}. The \Rcode{normalDB} argument
+(Section~\ref{bestnormal}) in \Rcode{args.filterTargets} allows the segmentation
+function to skip targets with low coverage in the pool of normals. If possible,
+these files should be generated and provided.  The \Rcode{post.optimize} flag
+will increase the runtime by about a factor of 4-5, but might return slightly
+more accurate purity estimates. For high quality whole exome data, this is
+typically not necessary for copy number calling (but might be for variant
+classification, see Section~\ref{predictsomatic}).  The \Rcode{plot.cnv}
+argument allows the segmentation function to generate additional plots if set to
+\Rcode{TRUE}.  Finally, \Rcode{verbose} outputs important and helpful
+information about all the steps performed and is therefore set to \Rcode{TRUE}
+by default.
 
 We now create a few output files:
 

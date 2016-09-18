@@ -73,6 +73,11 @@ fun.setPriorVcf=setPriorVcf,
 ### variant in the VCF. Defaults to \code{\link{setPriorVcf}}.
 args.setPriorVcf=list(),
 ### Arguments for somatic prior function.
+fun.setMappingBiasVcf=setMappingBiasVcf,
+### Function to set mapping bias for each 
+### variant in the VCF. Defaults to \code{\link{setMappingBiasVcf}}.
+args.setMappingBiasVcf=list(),
+### Arguments for mapping bias function.
 fun.filterTargets=filterTargets,
 ### Function for filtering low-quality targets in the coverage 
 ### files. Needs to return a \code{logical} vector whether an interval
@@ -378,6 +383,7 @@ gatk.normal.file=NULL,
     tumor.id.in.vcf <- NULL
     normal.id.in.vcf <- NULL
     prior.somatic <- NULL
+    mapping.bias <- NULL
     vcf.filtering <-list(flag=FALSE, flag_comment="")
     sex.vcf <- NULL
 
@@ -466,9 +472,7 @@ gatk.normal.file=NULL,
 
     if (!is.null(vcf.file)) {
         ov <- findOverlaps(vcf, seg.gr, select="first")
-        args.setPriorVcf$vcf <- vcf
-        args.setPriorVcf$verbose <- FALSE
-        prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
+
         # Add segment log-ratio to off-target snvs. 
         # For on-target, use observed log-ratio.   
         sd.ar <- sd(unlist(geno(vcf)$FA[,tumor.id.in.vcf]))
@@ -484,6 +488,16 @@ gatk.normal.file=NULL,
         }    
         ov <- findOverlaps(seg.gr, vcf)
         if (verbose) message("Using ", nrow(vcf), " variants.")
+
+        # get final somatic priors
+        args.setPriorVcf$vcf <- vcf
+        args.setPriorVcf$verbose <- FALSE
+        prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
+        # get mapping bias
+        args.setMappingBiasVcf$vcf <- vcf
+        args.setMappingBiasVcf$tumor.id.in.vcf <- tumor.id.in.vcf
+        args.setMappingBiasVcf$verbose <- FALSE
+        mapping.bias <- do.call(fun.setMappingBiasVcf, args.setMappingBiasVcf)
     }
     
     # get exon log-ratios for all segments 
@@ -787,7 +801,7 @@ gatk.normal.file=NULL,
                 list(
                     beta.model  = .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, 
                         test.num.copy, C.posterior, C, snv.model="beta", 
-                        prior.somatic, snv.lr, sampleid, 
+                        prior.somatic, mapping.bias, snv.lr, sampleid, 
                         cont.rate=prior.contamination,
                         prior.K=prior.K, max.coverage.vcf=max.coverage.vcf)
                 )})
