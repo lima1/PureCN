@@ -1,4 +1,4 @@
-test_setPriorVcf <- function() {
+test_setMappingBiasVcf <- function() {
     vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
     vcf <- readVcf(vcf.file, "hg19")
     vcf.bias <- round(setMappingBiasVcf(vcf), digits=3)

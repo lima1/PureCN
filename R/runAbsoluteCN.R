@@ -496,7 +496,7 @@ gatk.normal.file=NULL,
         # get mapping bias
         args.setMappingBiasVcf$vcf <- vcf
         args.setMappingBiasVcf$tumor.id.in.vcf <- tumor.id.in.vcf
-        args.setMappingBiasVcf$verbose <- FALSE
+        args.setMappingBiasVcf$verbose <- verbose
         mapping.bias <- do.call(fun.setMappingBiasVcf, args.setMappingBiasVcf)
     }
     
