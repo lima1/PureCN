@@ -51,7 +51,7 @@ library(PureCN)
 
 \section{Quick start}
 
-This tutorial will demonstrate on a toy example how to we recommend running
+This tutorial will demonstrate on a toy example how we recommend running
 \Biocpkg{PureCN} on data obtained by targeted sequencing.  Targeted genomic
 regions (targets) are typically exons, but not necessarily. To estimate tumor
 purity, we jointly utilize both target-level coverage data and allelic fractions
@@ -71,14 +71,13 @@ sample.
 process-matched.
 \end{enumerate}
 
-To get good results, we in addition need to know a little bit more about the
-assay.  This is the annoying step, since here you need to provide some
-information.  Most importantly, we need to know the positions of all targets.
-Then we need to correct for GC-bias, for which we need GC-content for each
-target.  Optionally, if gene-level calls are wanted, we also need for each
-target a gene symbol.  To obtain best results, we can finally use a pool of
-normal samples to automatically learn more about our assay and its biases and
-common artifacts. 
+In addition, we need to know a little bit more about the assay.  This is the
+annoying step, since here you need to provide some information.  Most
+importantly, we need to know the positions of all targets.  Then we need to
+correct for GC-bias, for which we need GC-content for each target.  Optionally,
+if gene-level calls are wanted, we also need for each target a gene symbol.  To
+obtain best results, we can finally use a pool of normal samples to
+automatically learn more about our assay and its biases and common artifacts. 
 
 The next sections will show how to do all this with \Biocpkg{PureCN} alone or
 with the help of \software{GATK} and/or existing copy number pipelines. We tried
