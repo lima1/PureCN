@@ -52,20 +52,20 @@ library(PureCN)
 \section{Quick start}
 
 This tutorial will demonstrate on a toy example how we recommend running
-\Biocpkg{PureCN} on data obtained by targeted sequencing.  Targeted genomic
-regions (targets) are typically exons, but not necessarily. To estimate tumor
-purity, we jointly utilize both target-level coverage data and allelic fractions
-of single nucleotide variants (SNVs), inside - and optionally outside - the
-targeted regions.  Knowledge of purity will in turn allow us to accurately (i)
-infer integer copy number and (ii) classify variants (somatic vs. germline,
-mono-clonal vs. sub-clonal, heterozygous vs. homozygous etc.).
+\Biocpkg{PureCN} on targeted sequencing data. To estimate tumor purity, we
+jointly utilize both target-level\footnote{The captured genomic regions, e.g.
+exons.} coverage data and allelic fractions of single nucleotide
+variants (SNVs), inside - and optionally outside - the targeted regions.
+Knowledge of purity will in turn allow us to accurately (i) infer integer copy
+number and (ii) classify variants (somatic vs.  germline, mono-clonal vs.
+sub-clonal, heterozygous vs.  homozygous etc.).
 
 This requires 3 basic input files:
 
 \begin{enumerate}
-    \item A VCF file containing germline and somatic mutations. Somatic status
-is not required in case the variant caller was run without matching normal
-sample.
+    \item A VCF file containing germline SNPs and somatic mutations. Somatic
+status is not required in case the variant caller was run without matching
+normal sample.
     \item The tumor BAM file.
     \item A BAM file from a normal control sample, either matched or
 process-matched.
