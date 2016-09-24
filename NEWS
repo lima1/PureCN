@@ -25,6 +25,7 @@ Other major enhancements
 - Support for non-human samples.
 - Support for 100% pure samples (matched normal mode only).
 - Faster SNV fitting.
+- Experimental support for correcting non-reference mapping bias.
 
 -------------------------------------------------------------------------------
 

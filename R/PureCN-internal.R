@@ -197,6 +197,10 @@ test.num.copy[i], prior.K))
         (1 - p))/(p * posteriors$ML.C + 2 * (1 - p))
 
     posteriors$AR <- unlist(geno(vcf[vcf.ids])$FA[, tumor.id.in.vcf])
+    posteriors$AR.ADJUSTED <- posteriors$AR / mapping.bias[vcf.ids]
+    posteriors$AR.ADJUSTED[posteriors$AR.ADJUSTED>1] <- 1
+    posteriors$MAPPING.BIAS <- mapping.bias[vcf.ids]
+    
     posteriors$CN.Subclonal <- subclonal
     posteriors$Log.Ratio <- snv.lr[vcf.ids]
     posteriors$Prior.Somatic <- prior.somatic[vcf.ids]
