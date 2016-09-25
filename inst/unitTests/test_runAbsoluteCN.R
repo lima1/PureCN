@@ -103,21 +103,34 @@ test_runAbsoluteCN <- function() {
         vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1)
 
+    s <- predictSomatic(ret)
+    checkEqualsNumeric(s$AR.ADJUSTED, s$AR/s$MAPPING.BIAS)
+
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     checkEqualsNumeric(seq(0.3,0.7,by=1/30),
         as.numeric(colnames(ret$candidates$all)))
 
     vcf <- readVcf(vcf.file, "hg19", param=ScanVcfParam(samples="LIB-02240e4"))
-
+    
+    myMappingBiasTestFun <- function(vcf, ...) {
+         tmp <- rep(1, nrow(vcf))
+         idx <- as.logical(seqnames(vcf) == "chr9" & start(vcf)== 35811642)
+         tmp[idx] <- 0.9
+         tmp
+    }    
     ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
         tumor.coverage.file=tumor.coverage.file, remove.off.target.snvs=FALSE,
         vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
-        max.candidate.solutions=1)
+        max.candidate.solutions=1, fun.setMappingBiasVcf=myMappingBiasTestFun)
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     checkEqualsNumeric(seq(0.3,0.7,by=1/30),
         as.numeric(colnames(ret$candidates$all)))
     
+    s <- predictSomatic(ret)
+    checkEqualsNumeric(s$AR.ADJUSTED, s$AR/s$MAPPING.BIAS)
+    checkEqualsNumeric(0.9, s$MAPPING.BIAS[s$chr=="chr9" & s$start==35811642])
+
     # test with gc.gene.file without symbols
     gc2 <- read.delim(gc.gene.file, as.is=TRUE)[,-3]
     write.table(gc2, file="tmp.gc", row.names=FALSE, sep="\t", quote=FALSE)
