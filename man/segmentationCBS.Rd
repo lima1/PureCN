@@ -4,7 +4,7 @@
 \description{The default segmentation function. This function is called via the 
 \code{fun.segmentation} argument of \code{\link{runAbsoluteCN}}. 
 The arguments are passed via \code{args.segmentation}.}
-\usage{segmentationCBS(normal, tumor, log.ratio, plot.cnv, 
+\usage{segmentationCBS(normal, tumor, log.ratio, seg, plot.cnv, 
     min.coverage, sampleid = sampleid, exon.weight.file = NULL, 
     target.weight.file = NULL, alpha = 0.005, undo.SD = NULL, 
     vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, 
@@ -14,6 +14,10 @@ The arguments are passed via \code{args.segmentation}.}
   \item{normal}{GATK coverage data for normal sample.}
   \item{tumor}{GATK coverage data for tumor sample.}
   \item{log.ratio}{Copy number log-ratios, one for each target in the coverage files.}
+  \item{seg}{If segmentation was provided by the user, this data structure will contain
+this segmentation. Useful for minimal segmentation functions. Otherwise
+PureCN will re-segment the data. This segmentation function ignores this
+user provided segmentation.}
   \item{plot.cnv}{Segmentation plots.}
   \item{min.coverage}{Minimum coverage in both normal and tumor.}
   \item{sampleid}{Sample id, used in output files.}

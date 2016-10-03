@@ -204,4 +204,19 @@ ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
     tumor.coverage.file=tumor.coverage.file, genome="hg19", vcf.file=vcf.file,
     sampleid='Sample1', gc.gene.file=gc.gene.file,
     max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
+
+
+# If a high-quality segmentation was obtained with third-party tools:
+seg.file <- system.file("extdata", "example_seg.txt", 
+    package = "PureCN")
+
+# By default, PureCN will re-segment the data, for example to identify
+# regions of copy number neutral LOH. If this is not wanted, we can provide
+# a minimal segmentation function which just returns the provided one:
+funSeg <- function(seg, ...) return(seg)
+
+res <- runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
+    seg.file=seg.file, fun.segmentation=funSeg, max.ploidy = 4, 
+    test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
+    genome='hg19')
 }

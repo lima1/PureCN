@@ -293,4 +293,17 @@ test_runAbsoluteCN <- function() {
 
    checkTrue( sum(!(normalDB$exon.median.coverage[idx] < cutoff | 
     tumor$targeted.base[idx] < 4 | tumor$average.coverage[idx] < 14)) > 9000)
+    
+
+    # run with minimal segmentation function:
+    testSeg <- function(seg, ...) return(seg)
+
+    res <- runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
+        seg.file=seg.file, fun.segmentation=testSeg, max.ploidy = 4, 
+        test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
+        genome='hg19')
+
+    seg <- read.delim(seg.file)
+    checkEqualsNumeric(nrow(seg), nrow(res$results[[1]]$seg))
+    checkEquals(seg$seg.mean, res$results[[1]]$seg$seg.mean)
 }    

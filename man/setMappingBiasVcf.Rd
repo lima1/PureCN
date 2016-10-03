@@ -3,7 +3,9 @@
 \title{Set Mapping Bias VCF}
 \description{Function to set mapping  bias for each
 variant in the provided \code{CollapsedVCF} object.
-Currently, it returns the same value for all variants.}
+By default, it returns the same value for all variants, but a
+pool of normal samples can be provided for position-specific
+mapping bias calculation.}
 \usage{setMappingBiasVcf(vcf, tumor.id.in.vcf = NULL, max.bias = 1, 
     normal.panel.vcf.file = NULL, min.normals = 10, 
     verbose = TRUE)}

@@ -3,7 +3,7 @@
 \title{PSCBS segmentation}
 \description{This function is deprecated and will be made defunct in the next
 Bioconductor release. Please use segmentationCBS instead.}
-\usage{segmentationPSCBS(normal, tumor, log.ratio, plot.cnv, 
+\usage{segmentationPSCBS(normal, tumor, log.ratio, seg, plot.cnv, 
     min.coverage, sampleid = sampleid, exon.weight.file = NULL, 
     flavor = "tcn&dh", tauA = 0.03, vcf = NULL, tumor.id.in.vcf = 1, 
     normal.id.in.vcf = NULL, max.segments = NULL, chr.hash = NULL, 
@@ -12,6 +12,10 @@ Bioconductor release. Please use segmentationCBS instead.}
   \item{normal}{GATK coverage data for normal sample.}
   \item{tumor}{GATK coverage data for tumor sample.}
   \item{log.ratio}{Copy number log-ratios, one for each exon in coverage file.}
+  \item{seg}{If segmentation was provided by the user, this data structure will contain
+this segmentation. Useful for minimal segmentation functions. Otherwise
+PureCN will re-segment the data. This segmentation function ignores this
+user provided segmentation.}
   \item{plot.cnv}{Segmentation plots.}
   \item{min.coverage}{Minimum coverage in both normal and tumor.}
   \item{sampleid}{Sample id, used in output files.}

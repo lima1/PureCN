@@ -8,6 +8,11 @@ tumor,
 ### GATK coverage data for tumor sample.
 log.ratio, 
 ### Copy number log-ratios, one for each exon in coverage file.
+seg,
+### If segmentation was provided by the user, this data structure will contain
+### this segmentation. Useful for minimal segmentation functions. Otherwise
+### PureCN will re-segment the data. This segmentation function ignores this
+### user provided segmentation.
 plot.cnv, 
 ### Segmentation plots.
 min.coverage, 

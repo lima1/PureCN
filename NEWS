@@ -1,3 +1,6 @@
+Changes in version 1.2.0
+------------------------
+
 Focus on PureCN 1.2 was to dramatically improve user-friendliness:
 
 - GATK requirement was dropped: PureCN now comes with functionality to
@@ -11,9 +14,8 @@ Focus on PureCN 1.2 was to dramatically improve user-friendliness:
 - Automatic COSMIC annotation.
 - Documentation improvements.
 
--------------------------------------------------------------------------------
 
-Other major enhancements
+OTHER MAJOR ENHANCEMENTS
 
 - More thorough initial grid search should minimize cases where purity/ploidy
   is wrong because the solution was not considered.
@@ -27,9 +29,8 @@ Other major enhancements
 - Faster SNV fitting.
 - Experimental support for correcting non-reference mapping bias.
 
--------------------------------------------------------------------------------
 
-API changes
+API CHANGES
 
 - New functions: autoCurateResults, bootstrapResults, 
     calculateBamCoverageByInterval, calculateGCContentByInterval,
@@ -42,19 +43,20 @@ API changes
     gatk.normal.file to normal.coverage.file
     gatk.tumor.file to tumor.coverage.file
 
--------------------------------------------------------------------------------
 
-Other new features
+OTHER NEW FEATURES
 
 - Functions to calculate power to detect mono-clonal and sub-clonal somatic
   mutations (Carter et al., Nature Biotech, 2012) were added.
 
--------------------------------------------------------------------------------
 
-Planned features for PureCN 1.4 (Bioconductor 3.5)
+PLANNED feATURES FOR PURECN 1.4 (BIOCONDUCTOR 3.5)
 
 - Support for indels.
 - Better runtime performance by ignoring unlikely solutions early.  
-- Switch to S4 data structures.
+- Switch to S4 data structures (maybe).
+- Better support for known, small deletions and amplifications (e.g. EGFRvIII,
+  MYC)
+- Whole dataset visualizations.
+- Better support for pool of normals.
 
--------------------------------------------------------------------------------

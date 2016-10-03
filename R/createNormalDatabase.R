@@ -113,10 +113,11 @@ target.weight.file,
 verbose=TRUE
 ### Verbose output.
 ) {
+    if (verbose) message("Loading coverage data...")
     tumor.coverage <- lapply(tumor.coverage.files,  readCoverageGatk)
-    lrs <- lapply(tumor.coverage, function(tc) sapply(normal.coverage.files, 
-            function(x) calculateLogRatio(readCoverageGatk(x), tc, 
-                verbose=verbose)))
+    normal.coverage <- lapply(normal.coverage.files,  readCoverageGatk)
+    lrs <- lapply(tumor.coverage, function(tc) sapply(normal.coverage, 
+            function(nc) calculateLogRatio(nc, tc, verbose=verbose)))
 
     lrs <- do.call(cbind, lrs)
 

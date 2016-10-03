@@ -10,6 +10,11 @@ tumor,
 ### GATK coverage data for tumor sample.
 log.ratio, 
 ### Copy number log-ratios, one for each target in the coverage files.
+seg,
+### If segmentation was provided by the user, this data structure will contain
+### this segmentation. Useful for minimal segmentation functions. Otherwise
+### PureCN will re-segment the data. This segmentation function ignores this
+### user provided segmentation.
 plot.cnv, 
 ### Segmentation plots.
 min.coverage, 
@@ -323,9 +328,8 @@ max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
         if (verbose) message("Setting undo.SD parameter to ", sdundo)
         if (!is.null(weights)) { 
             weights <- weights[well.covered.exon.idx]
-            # MR: this shouldn't happen. In doubt, count them as maximum 
-            # (assuming that poorly performing exons are down-weighted)
-            weights[is.na(weights)] <- max(weights, na.rm=TRUE)
+            # MR: this shouldn't happen. In doubt, count them as median.
+            weights[is.na(weights)] <- median(weights, na.rm=TRUE)
             segment.smoothed.CNA.obj <- segment(smoothed.CNA.obj, 
                 undo.splits=undo.splits, undo.SD=sdundo, 
                 verbose=ifelse(verbose, 1, 0), alpha=alpha,weights=weights)

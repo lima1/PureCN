@@ -1,7 +1,9 @@
 setMappingBiasVcf <- structure(function(# Set Mapping Bias VCF
 ### Function to set mapping  bias for each
 ### variant in the provided \code{CollapsedVCF} object.
-### Currently, it returns the same value for all variants.
+### By default, it returns the same value for all variants, but a
+### pool of normal samples can be provided for position-specific
+### mapping bias calculation.
 vcf,
 ### \code{CollapsedVCF} object, read in with the \code{readVcf} function 
 ### from the VariantAnnotation package.

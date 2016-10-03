@@ -659,7 +659,8 @@ test.num.copy[i], prior.K))
 .calcPuritySomaticVariants <- function(vcf, prior.somatic, tumor.id.in.vcf) {
     median(unlist(geno(vcf[prior.somatic > 0.5])$FA[, tumor.id.in.vcf]), na.rm = TRUE)/0.48
 }
-.createFakeLogRatios <- function(tumor, seg.file, chr.hash) {
+.loadSegFile <- function(seg.file) {
+    if (is.null(seg.file)) return(NULL)
     seg <- read.delim(seg.file)
     required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
         "seg.mean")
@@ -667,7 +668,11 @@ test.num.copy[i], prior.K))
         .stopUserError(paste("Segmentation file expected with colnames", 
                 paste(required.colnames, collapse = ", ")))
     }
+    seg
+}
     
+.createFakeLogRatios <- function(tumor, seg.file, chr.hash) {
+    seg <- .loadSegFile(seg.file)    
     seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), 
                 IRanges(start = round(seg$loc.start), end = seg$loc.end))
 

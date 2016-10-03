@@ -24,22 +24,7 @@ output.file=NULL
         tumor <- coverage.file
     }    
     
-    gc <- read.delim(gc.gene.file)
-
-    if (is.null(gc$gc_bias)) {
-        .stopUserError("gc.gene.file header invalid.")
-    }
-    
-    if (!identical(as.character(gc[,1]), as.character(tumor[,1]))) {
-        if (sum(!as.character(tumor[,1]) %in% as.character(gc[,1])) > 0) {
-            .stopUserError(
-            "Interval files in coverage.file and gc.gene.file different.\n",
-            "Some intervals in coverage have no GC information.")
-        }
-        warning(
-        "Interval files in coverage.file and gc.gene.file different.")
-        gc <- gc[match(as.character(tumor[,1]), as.character(gc[,1])),]
-    }
+    gc <- .loadGcGeneFile(gc.gene.file, tumor)
 
     # taken from TitanCNA
     gc$valid <- TRUE
@@ -80,3 +65,24 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
     package="PureCN")
 coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file)
 })
+
+.loadGcGeneFile <- function(gc.gene.file, tumor) {
+    gc <- read.delim(gc.gene.file)
+
+    if (is.null(gc$gc_bias)) {
+        .stopUserError("gc.gene.file header invalid.")
+    }
+    
+    if (!identical(as.character(gc[,1]), as.character(tumor[,1]))) {
+        if (sum(!as.character(tumor[,1]) %in% as.character(gc[,1])) > 0) {
+            .stopUserError(
+            "Interval files in coverage.file and gc.gene.file different.\n",
+            "Some intervals in coverage have no GC information.")
+        }
+        warning(
+        "Interval files in coverage.file and gc.gene.file different.")
+        gc <- gc[match(as.character(tumor[,1]), as.character(gc[,1])),]
+    }
+    gc
+}
+    

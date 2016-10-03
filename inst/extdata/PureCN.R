@@ -22,8 +22,8 @@ if ( !is.null(opt$help) ) {
     q(status=1)
 }
 
-gatk.normal.file <- opt$normal
-gatk.tumor.file <- opt$tumor
+normal.coverage.file <- opt$normal
+tumor.coverage.file <- opt$tumor
 tumor.vcf <- opt$vcf
 genome <- opt$genome
 gc.gene.file <- opt$gcgene
@@ -36,7 +36,7 @@ sampleid <- opt$sampleid
 outdir <- opt$outdir
 
 PureCN <- function(
-gatk.tumor.file, gatk.normal.file=NULL, tumor.vcf, genome,
+tumor.coverage.file, normal.coverage.file=NULL, tumor.vcf, genome,
 gc.gene.file=NULL, seg.file=NULL, snp.blacklist=NULL, stats.file=NULL,
 target.weight.file=NULL, normalDB=NULL, sampleid, outdir) {
 
@@ -45,18 +45,18 @@ target.weight.file=NULL, normalDB=NULL, sampleid, outdir) {
     if (!is.null(normalDB)) {
         message("normalDB: ", normalDB)
         normalDB <- readRDS(normalDB)
-        if (is.null(gatk.normal.file)) {
-            gatk.normal.file <- findBestNormal(gatk.tumor.file, normalDB)
+        if (is.null(normal.coverage.file)) {
+            normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
         }
-    } else if (is.null(gatk.normal.file) && is.null(seg.file)) {
-        stop("Need either normalDB or gatk.normal.file")
+    } else if (is.null(normal.coverage.file) && is.null(seg.file)) {
+        stop("Need either normalDB or normal.coverage.file")
     }    
-    message(paste('Best Normal:', gatk.normal.file))
+    message(paste('Best Normal:', normal.coverage.file))
     pdf(paste(outdir,"/", sampleid, '_abs_segmentation.pdf', sep=''), 
         width=10, height=12)
 
-    ret <- runAbsoluteCN(gatk.normal.file=gatk.normal.file, 
-            gatk.tumor.file=gatk.tumor.file, vcf.file=tumor.vcf,
+    ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+            tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
             sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=TRUE,
             genome=genome, seg.file=seg.file,
             args.filterVcf=list(snp.blacklist=snp.blacklist, 
@@ -78,14 +78,14 @@ target.weight.file=NULL, normalDB=NULL, sampleid, outdir) {
 outdir <- normalizePath(outdir, mustWork=TRUE)
 
 if (is.null(seg.file)) {
-    gatk.tumor.file <- normalizePath(gatk.tumor.file, mustWork=TRUE)
+    tumor.coverage.file <- normalizePath(tumor.coverage.file, mustWork=TRUE)
 }
 
 if (is.null(sampleid)) stop("Need sampleid.")
 
 library(PureCN)
 
-PureCN(gatk.tumor.file, gatk.normal.file, tumor.vcf, genome,
+PureCN(tumor.coverage.file, normal.coverage.file, tumor.vcf, genome,
 gc.gene.file, seg.file=seg.file, snp.blacklist=snp.blacklist, 
 stats.file=stats.file, target.weight.file=target.weight.file, 
 normalDB=normalDB, sampleid=sampleid, outdir=outdir) 

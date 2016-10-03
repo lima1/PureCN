@@ -456,7 +456,7 @@ gatk.normal.file=NULL,
     if (verbose) message("Segmenting data...")
 
     args.segmentation <-  c(list(normal=normal, tumor=tumor, 
-        log.ratio=log.ratio, plot.cnv=plot.cnv, 
+        log.ratio=log.ratio, seg=.loadSegFile(seg.file), plot.cnv=plot.cnv, 
         min.coverage=ifelse(is.null(seg.file), min.coverage, -1), 
         sampleid=sampleid, vcf=vcf.germline, tumor.id.in.vcf=tumor.id.in.vcf,
         normal.id.in.vcf=normal.id.in.vcf, max.segments=max.segments,
@@ -894,4 +894,19 @@ ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
     tumor.coverage.file=tumor.coverage.file, genome="hg19", vcf.file=vcf.file,
     sampleid='Sample1', gc.gene.file=gc.gene.file,
     max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
+
+
+# If a high-quality segmentation was obtained with third-party tools:
+seg.file <- system.file("extdata", "example_seg.txt", 
+    package = "PureCN")
+
+# By default, PureCN will re-segment the data, for example to identify
+# regions of copy number neutral LOH. If this is not wanted, we can provide
+# a minimal segmentation function which just returns the provided one:
+funSeg <- function(seg, ...) return(seg)
+
+res <- runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
+    seg.file=seg.file, fun.segmentation=funSeg, max.ploidy = 4, 
+    test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
+    genome='hg19')
 })    
