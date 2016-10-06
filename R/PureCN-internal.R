@@ -448,7 +448,7 @@ test.num.copy[i], prior.K))
         seg.id = subjectHits(ov), seg.length = seg.adjusted$size[subjectHits(ov)], 
         focal = focal[subjectHits(ov)])
     gene.calls <- data.frame(dt[, list(chr = chrom[1], start = min(start), end = max(end), 
-        C = median(C), seg.mean = median(seg.mean), seg.id = seg.id[which.min(seg.length)], 
+        C = as.double(median(C)), seg.mean = median(seg.mean), seg.id = seg.id[which.min(seg.length)], 
         number.exons = length(start), gene.mean = mean(LR, na.rm = TRUE), gene.min = min(LR, 
             na.rm = TRUE), gene.max = max(LR, na.rm = TRUE), focal = focal[which.min(seg.length)]), 
         by = Gene], row.names = 1)
@@ -662,6 +662,9 @@ test.num.copy[i], prior.K))
 .loadSegFile <- function(seg.file) {
     if (is.null(seg.file)) return(NULL)
     seg <- read.delim(seg.file)
+    .checkSeg(seg)
+}
+.checkSeg <- function(seg) {
     required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
         "seg.mean")
     if (!identical(colnames(seg), required.colnames)) {
@@ -670,9 +673,13 @@ test.num.copy[i], prior.K))
     }
     seg
 }
-    
+       
 .createFakeLogRatios <- function(tumor, seg.file, chr.hash) {
-    seg <- .loadSegFile(seg.file)    
+    if (class(seg.file)=="character") {
+        seg <- .loadSegFile(seg.file)    
+    } else {
+        seg <-.checkSeg(seg.file)
+    }    
     seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), 
                 IRanges(start = round(seg$loc.start), end = seg$loc.end))
 

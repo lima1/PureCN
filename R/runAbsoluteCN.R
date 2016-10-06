@@ -905,8 +905,7 @@ seg.file <- system.file("extdata", "example_seg.txt",
 # a minimal segmentation function which just returns the provided one:
 funSeg <- function(seg, ...) return(seg)
 
-res <- runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
-    seg.file=seg.file, fun.segmentation=funSeg, max.ploidy = 4, 
+res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=funSeg, max.ploidy = 4,
     test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
-    genome='hg19')
+    genome='hg19', gc.gene.file=gc.gene.file)
 })    

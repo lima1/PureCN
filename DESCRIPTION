@@ -2,8 +2,8 @@ Package: PureCN
 Type: Package
 Title: Copy number calling and SNV classification using
         targeted short read sequencing 
-Version: 1.1.53
-Date: 2016-10-02
+Version: 1.1.54
+Date: 2016-10-06
 Author: Markus Riester
 Maintainer: Markus Riester <markus.riester@novartis.com>
 Description: This package estimates tumor purity, copy number, loss of
