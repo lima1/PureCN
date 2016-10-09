@@ -44,6 +44,9 @@ API CHANGES
     gatk.normal.file to normal.coverage.file
     gatk.tumor.file to tumor.coverage.file
     coverage.cutoff to min.coverage
+- Changed defaults:
+    findFocal: made defaults less stringent, now 3Mb (instead of 2Mb) and
+        minimum copy number of 5 (callAlterations still uses 6 as default).
 
 
 OTHER NEW FEATURES

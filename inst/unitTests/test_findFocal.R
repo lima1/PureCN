@@ -3,5 +3,5 @@ test_findFocal <- function() {
     ret <- findFocal(purecn.example.output$results[[1]]$seg)
     checkEquals("logical", class(ret))
     checkTrue(nrow(purecn.example.output$results[[1]]$seg)==length(ret))
-    checkTrue( min(purecn.example.output$results[[1]]$seg[ret,"C"]) >= 6)
-}    
+    checkTrue( min(purecn.example.output$results[[1]]$seg[ret,"C"]) >= 5)
+}

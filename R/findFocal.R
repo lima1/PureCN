@@ -6,14 +6,15 @@ seg,
 ### Segmentation data.
 size.cutoff=NULL,
 ### Deprecated, use \code{max.size} instead.
-max.size=2000000,
+max.size=3000000,
 ### Cutoff for focal in base pairs.
 cn.diff=2, 
 ### Minimum copy number delta between neighboring segments.
 amp.cutoff=NULL,
 ### Deprectated, use \code{min.amp.cn} instead.
-min.amp.cn=6
-### Minimum amplification integer copy number.
+min.amp.cn=5
+### Minimum amplification integer copy number. Segments with lower
+### copy number are not tested.
 ) {
     if (!is.null(size.cutoff)) {
         message("size.cutoff is deprecated, use max.size instead.")
