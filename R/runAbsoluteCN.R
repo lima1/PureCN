@@ -662,6 +662,11 @@ gatk.normal.file=NULL,
                     simulated.annealing, iter, log.ratio.calibration)
             }
 
+            if (!sum(!is.na(C))) {
+                .stopRuntimeError("Could not assign integer copy numbers",
+                    " to segments.")
+            }    
+
             # calculate the log-liklihood of purity and integer copy numbers 
             # plus clonal vs subclonal status
             llik <- sum(vapply(which(!is.na(C)), function(i) 
@@ -670,6 +675,12 @@ gatk.normal.file=NULL,
                     Ci=C[i], total.ploidy=total.ploidy, 
                     max.exon.ratio=max.exon.ratio), double(1))
             )
+
+            if (is.na(llik)) {
+                .stopRuntimeError("Could not calculate copy number ",
+                    "log-likelihood for purity ", p, " and total ploidy ",
+                    total.ploidy, ".") 
+            }    
 
             if (debug) message(paste("Iteration:", iter, 
                 " Log-likelihood: ", llik, 
