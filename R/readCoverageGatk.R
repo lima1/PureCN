@@ -14,6 +14,10 @@ file
         ":")), ncol = 2, byrow = TRUE)
     
     idx <- !grepl("-", chrpos[,2])
+
+    if (sum(idx)) {
+        warning("Coverage data contains single nucleotide intervals.")
+    }    
     chrpos[idx,2] <- paste(chrpos[idx,2], "-", chrpos[idx,2],sep="")
     chr <- factor(chrpos[, 1])
     

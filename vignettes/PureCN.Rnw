@@ -239,7 +239,8 @@ function:
 <<normaldbpca>>=
 normalDB <- readRDS("normalDB.rds")
 # get the best normal
-best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
+best.normal.coverage.file <- findBestNormal(tumor.coverage.file, 
+    normalDB)
 @
 
 This function can also return multiple normal files that can be averaged into a
@@ -247,10 +248,10 @@ single pool:
 
 <<normaldbpcapool>>=
 # get the best 2 normals and average them
-best.normal.coverage.files <- findBestNormal(tumor.coverage.file, normalDB, 
-    num.normals=2)
-pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageGatk),
-     remove.chrs=c('chrX', 'chrY'))
+best.normal.coverage.files <- findBestNormal(tumor.coverage.file, 
+    normalDB, num.normals=2)
+pool <- poolCoverage(lapply(best.normal.coverage.files, 
+    readCoverageGatk), remove.chrs=c('chrX', 'chrY'))
 @
 
 Pooling is only recommended when the coverage in normals is significantly lower

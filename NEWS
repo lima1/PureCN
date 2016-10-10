@@ -12,6 +12,8 @@ Focus on PureCN 1.2 was to dramatically improve user-friendliness:
   (1 vs. chr1) supported.
 - Better integration into existing copy number pipelines.
 - Automatic COSMIC annotation.
+- Thorough checks of input data, resulting in fewer crashes with unhelpful 
+  error messages.
 - Documentation improvements.
 
 
