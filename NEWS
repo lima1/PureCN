@@ -49,6 +49,7 @@ API CHANGES
 - Changed defaults:
     findFocal: made defaults less stringent, now 3Mb (instead of 2Mb) and
         minimum copy number of 5 (callAlterations still uses 6 as default).
+    runAbsoluteCN(genome): no default anymore (instead of 'hg19')    
 
 
 OTHER NEW FEATURES

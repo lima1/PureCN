@@ -759,10 +759,9 @@ gene.calls <- callAlterations(ret)
 head(gene.calls)
 @
 
-It is also often useful to filter the list further by known biology, for example
-to exclude non-focal amplifications of tumor suppressor genes such as
-\textit{GATA3}.  The Sanger Cancer Gene Census \cite{Futreal2004} for example
-provides such a list.
+It is also often useful to filter the list further by known biology, for
+example to exclude non-focal amplifications of tumor suppressor genes. The
+Sanger Cancer Gene Census \cite{Futreal2004} for example provides such a list.
 
 \subsection{Find genomic regions in LOH}
 
@@ -975,6 +974,26 @@ Figure~\ref{figure/figureexample2-1}:
     result in a low ranking of correct low ploidy solutions. 
     \end{itemize}
 \end{itemize} 
+
+\paragraph{Will PureCN work with my data?}
+\begin{itemize}
+    \item \Biocpkg{PureCN} was designed for medium-sized (>2-3Mb) targeted
+    panels.  The more data, the better, best results are typically achieved
+    in whole-exome data.
+    \item The same is obviously true for coverage. Coverages below 80X are
+    difficult unless purities are high and coverages are even.
+    \item The number of heterozgous SNPs is also important. Copy number probes 
+    enriched in SNPs are therefore very helpful.
+    \item While \Biocpkg{PureCN} supports to some degree uneven tiling of
+    targets, the more evenly distributed the better. Large gaps are problematic
+    and might require third-pary segmentation tools that support off-target
+    reads (Section~\ref{customseg}). 
+    \item Whole-genome data is not officially supported and specialized tools
+    will likely provide better results.  Third-party segmentation tools
+    designed for this data type would be again required.  
+    \item \Biocpkg{PureCN} also needs process-matched normal samples, again,
+    the more the better.    
+\end{itemize}
 
 \paragraph{If you have trouble generating input data PureCN accepts, please check:}
 
