@@ -982,11 +982,11 @@ Figure~\ref{figure/figureexample2-1}:
     in whole-exome data.
     \item The same is obviously true for coverage. Coverages below 80X are
     difficult unless purities are high and coverages are even.
-    \item The number of heterozgous SNPs is also important. Copy number probes 
+    \item The number of heterozygous SNPs is also important. Copy number probes 
     enriched in SNPs are therefore very helpful.
     \item While \Biocpkg{PureCN} supports to some degree uneven tiling of
     targets, the more evenly distributed the better. Large gaps are problematic
-    and might require third-pary segmentation tools that support off-target
+    and might require third-party segmentation tools that support off-target
     reads (Section~\ref{customseg}). 
     \item Whole-genome data is not officially supported and specialized tools
     will likely provide better results.  Third-party segmentation tools
