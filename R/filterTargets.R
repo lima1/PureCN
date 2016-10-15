@@ -44,6 +44,8 @@ verbose
         normalDB.min.coverage, verbose)
     targetsUsed <- .filterTargetsTargetedBase(targetsUsed, tumor,
         min.targeted.base, verbose)
+### \code{logical(length(log.ratio))} specifying which targets should
+### be used in segmentation.    
 },ex=function() {
 normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

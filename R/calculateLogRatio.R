@@ -35,6 +35,8 @@ verbose=TRUE
     # calibrate
     log.ratio <- log.ratio - mean.log.ratio
     log.ratio
+### \code{numeric(nrow(tumor))}, tumor vs. normal copy number
+### log-ratios for all targets.    
 }, ex=function() {
 normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

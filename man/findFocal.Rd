@@ -15,7 +15,7 @@ This is automatically called in \code{\link{runAbsoluteCN}}.}
 copy number are not tested.}
 }
 
-\value{\code{logical(n)}, indicating for all n segments wether they are focally 
+\value{\code{logical(n)}, indicating for all n segments whether they are focally 
 amplified or not.}
 
 \author{Markus Riester}

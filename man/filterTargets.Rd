@@ -28,7 +28,8 @@ chromosome median in the pool of normals.}
   \item{verbose}{Verbose output.}
 }
 
-
+\value{\code{logical(length(log.ratio))} specifying which targets should
+be used in segmentation.    }
 
 \author{Markus Riester}
 

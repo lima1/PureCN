@@ -14,7 +14,8 @@ normally not called by the user.}
   \item{verbose}{Verbose output.}
 }
 
-
+\value{\code{numeric(nrow(tumor))}, tumor vs. normal copy number
+log-ratios for all targets.    }
 
 \author{Markus Riester}
 

@@ -48,7 +48,7 @@ min.amp.cn=5
         focal[i] <- size < max.size        
     }
     focal    
-### \code{logical(n)}, indicating for all n segments wether they are focally 
+### \code{logical(n)}, indicating for all n segments whether they are focally 
 ### amplified or not.
 },ex=function(){
 normal.coverage.file <- system.file("extdata", "example_normal.txt", 
