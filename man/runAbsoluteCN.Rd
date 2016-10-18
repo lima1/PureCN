@@ -139,7 +139,8 @@ number state.}
 This is set to a fairly high default value to not exclude correct
 solutions, especially in noisy segmentations. }
   \item{iterations}{Maximum number of iterations in the Simulated Annealing copy 
-number fit optimization.}
+number fit optimization. Note that this an integer optimization problem
+that should converge quickly. Allowed range is 10 to 250.}
   \item{log.ratio.calibration}{Re-calibrate log-ratios in the window 
 \code{sd(log.ratio)*log.ratio.calibration}.}
   \item{remove.off.target.snvs}{If set to a true value, will remove all SNVs outside the 

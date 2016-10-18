@@ -253,7 +253,7 @@ test.num.copy[i], prior.K))
 
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
     max.non.clonal, max.homozygous.loss, sampleid, prior.K, 
-    prior.contamination, prior.purity) {
+    prior.contamination, prior.purity, iterations) {
     if (min(test.purity) <= 0 || max(test.purity) > 1) 
         .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
@@ -279,6 +279,10 @@ test.num.copy[i], prior.K))
     stopifnot(is.numeric(min.ploidy))
     stopifnot(is.numeric(max.ploidy))
     stopifnot(is.numeric(test.purity))
+    stopifnot(is.numeric(iterations))
+    if (iterations < 10 || iterations > 250) {
+        .stopUserError("Iterations not in the expected range from 10 to 250.")
+    }    
 }
 .failedNonAberrant <- function(result, cutoffs = c(0.01, 0.005)) {
     xx <- split(result$seg, result$seg$C)

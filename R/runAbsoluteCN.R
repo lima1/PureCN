@@ -154,7 +154,8 @@ max.homozygous.loss=0.1,
 ### solutions, especially in noisy segmentations. 
 iterations=30, 
 ### Maximum number of iterations in the Simulated Annealing copy 
-### number fit optimization.
+### number fit optimization. Note that this an integer optimization problem
+### that should converge quickly. Allowed range is 10 to 250.
 log.ratio.calibration=0.25,
 ### Re-calibrate log-ratios in the window 
 ### \code{sd(log.ratio)*log.ratio.calibration}.
@@ -237,7 +238,7 @@ gatk.normal.file=NULL,
     # argument checking
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
         max.homozygous.loss, sampleid, prior.K, prior.contamination, 
-        prior.purity)
+        prior.purity, iterations)
 
     test.num.copy <- sort(test.num.copy)
 
@@ -734,7 +735,8 @@ gatk.normal.file=NULL,
                 # Now Gibbs sample best fit
                 z <- runif(n=1, min=0, max=sum(p.rij))
                 if (is.na(z)) {
-                    message(paste(iter, i, ploidy))
+                    message(paste("Iter:", iter, "i:", i, "ploidy:", paste(ploidy, collapse="/"), "p.rij:", paste(p.rij)))
+                    .stopRuntimeError("Could not fit SCNAs.")
                 }    
                 id <- min(which(z <= cumsum(p.rij)))
                 old.C <- C[i]

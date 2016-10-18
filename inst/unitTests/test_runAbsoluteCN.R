@@ -90,6 +90,14 @@ test_runAbsoluteCN <- function() {
         prior.contamination=c(0.1,-1.1)))
     checkTrue(grepl("prior.contamination not within expected range",
         geterrmessage()))
+    checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file,genome="hg19",
+        iterations=1))
+    checkTrue(grepl("Iterations not in the expected range from",
+        geterrmessage()))
+    checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file,genome="hg19",
+        iterations=3000))
+    checkTrue(grepl("Iterations not in the expected range from",
+        geterrmessage()))
     
     normalCov <- readCoverageGatk(normal.coverage.file)
     checkException(runAbsoluteCN(normalCov[sample(nrow(normalCov)),], 
