@@ -283,9 +283,17 @@ iterations=2, chr.hash ) {
 }    
 
 .getWellCoveredExons <- function(normal, tumor, min.coverage) {
+    total.cov.normal <- sum(as.numeric(normal$coverage), na.rm = TRUE)
+    total.cov.tumor <- sum(as.numeric(tumor$coverage), na.rm = TRUE)
+    
+    #MR: we try to not remove homozygous deletions in very pure samples.
+    #  to distinguish low quality from low copy number, we keep if normal
+    # has good coverage. If normal coverage is very high, we adjust for that.  
+    f <- max(total.cov.normal/total.cov.tumor,1)
+
     well.covered.exon.idx <- ((normal$average.coverage > min.coverage) & 
         (tumor$average.coverage > min.coverage)) | 
-        ((normal$average.coverage > 1.5 * min.coverage) &  
+        ((normal$average.coverage > 1.5 * f * min.coverage) &  
         (tumor$average.coverage > 0.5 * min.coverage))
     #MR: fix for missing chrX/Y 
     well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE

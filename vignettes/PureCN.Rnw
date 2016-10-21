@@ -426,7 +426,11 @@ plotAbs(ret, type="overview")
 @
 \incfig{figure/figureexample1-1}{0.75\textwidth}{Overview.}
 {The colors visualize the copy number fitting score from low (blue) to high
-(red). The numbers indicate the ranks of the local optima.}
+(red). The numbers indicate the ranks of the local optima. Yellow background
+circles indicate that the corresponding solutions were flagged, which does not
+necessarily mean the solutions are wrong. The correct solution (number 1) of
+this toy example was flagged due to the low ploidy and large number of homozygous 
+losses.}
 
 We now look at the main plots of the maximum likelihood solution in more detail.
 
@@ -1056,7 +1060,7 @@ Fortunately, in most cancer types, such ambiguity is rather rare.
 \begin{description}
     \item[Noisy segmentation:] The default of 200 for \Rcode{max.segments} is
     calibrated for high quality and high coverage whole exome data. For whole
-    genome data or lower coverage data, this values needs to be re-calibrated.
+    genome data or lower coverage data, this value needs to be re-calibrated.
     In case the copy number data looks indeed noisy, please see the first FAQ.
     \item[High AT/GC dropout:] If the data is GC-normalized, then there might
     be issues with either the target intervals or the provided GC content.

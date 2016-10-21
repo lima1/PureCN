@@ -116,9 +116,11 @@ args.focal=list(),
     gc.data <- read.delim(gc.gene.file, as.is=TRUE)
     tumor <- .gcGeneToCoverage(gc.gene.file, 16)
     chr.hash <- .getChrHash(tumor$chr)
-    log.ratio <- .createFakeLogRatios(tumor, seg, chr.hash)
     segs <- split(seg.adjusted, seg$ID)
-    gene.calls <- lapply(segs, .getGeneCalls, gc.data, log.ratio, fun.focal, args.focal, chr.hash)
+    gene.calls <- lapply(segs, function(s) {
+        log.ratio <- .createFakeLogRatios(tumor, s[,1:6], chr.hash)
+        .getGeneCalls(s, gc.data, log.ratio, fun.focal, args.focal, chr.hash)
+    })
     res <- lapply(gene.calls, function(x) list(results=list(list(gene.calls=x, failed=FALSE))))
     lapply(res, callAlterations, ...)
 ### A list of \code{\link{callAlterations}} \code{data.frame} objects, 

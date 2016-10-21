@@ -381,8 +381,10 @@ show.segment.means=c("SNV", "segments", "both"),
         }    
     } else {
         mycol <-  ifelse(sapply(res$results, function(x) x$flag), "black", 
+            "white")
+        mycolBg <-  ifelse(sapply(res$results, function(x) x$flag), "yellow", 
             "black")
-        myfont <-  ifelse(sapply(res$results, function(x) x$flag), 3, 1)
+        myfont <-  ifelse(sapply(res$results, function(x) x$flag), 1, 1)
         main <- NULL
         parm <- par("mar")
         par(mar= c(5, 4, 4, 4) + 0.1)
@@ -396,14 +398,21 @@ show.segment.means=c("SNV", "segments", "both"),
         image(as.numeric(colnames(xc)), as.numeric(rownames(xc)), 
             t(xc)-max(xc), col=mycol.image, xlab = "Purity", 
             ylab = "Ploidy",main = main,...)
-        .legend.col(col=mycol.image, lev=min(xc):max(xc), ylim=quantile(as.numeric(rownames(xc)), p=c(0,1)))
+        .legend.col(col=mycol.image, lev=min(xc):max(xc), 
+            ylim=quantile(as.numeric(rownames(xc)), p=c(0,1)))
 
         if (show.contour) contour(as.numeric(colnames(xc)), 
             as.numeric(rownames(xc)), t(xc), add=TRUE)
 
+        symbols(x=sapply(res$results, function(x) min(0.9, x$purity)) - 0.02, 
+            y=sapply(res$results, function(x) x$ploidy) - 0.1, 
+            circles=rep(mean(sapply(seq_along(res$results), strwidth, 
+                cex=1.25)), length(res$results)), 
+            bg=mycolBg, inches=FALSE, add=TRUE)
+
         text( sapply(res$results, function(x) min(0.9, x$purity))-0.02,
             sapply(res$results, function(x) x$ploidy)-0.1, 
-            seq_along(res$results), col=mycol, cex=2,font=myfont)
+            seq_along(res$results), col=mycol, cex=1.2,font=myfont)
         par(mar=parm)
     }
 ### Returns \code{NULL}.
