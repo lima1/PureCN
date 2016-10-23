@@ -432,8 +432,8 @@ plotAbs(ret, type="overview")
 @
 \incfig{figure/figureexample1-1}{0.75\textwidth}{Overview.}
 {The colors visualize the copy number fitting score from low (blue) to high
-(red). The numbers indicate the ranks of the local optima. Yellow background
-circles indicate that the corresponding solutions were flagged, which does not
+(red). The numbers indicate the ranks of the local optima. Yellow fonts
+indicate that the corresponding solutions were flagged, which does not
 necessarily mean the solutions are wrong. The correct solution (number 1) of
 this toy example was flagged due to the low ploidy and large number of homozygous 
 losses.}
@@ -459,20 +459,26 @@ of 0, 1 and 2.
 plotAbs(ret, 1, type="BAF")
 @
 \incfig{figure/figureexample3-1}{0.95\textwidth}{B-allele frequency plot.}{Each
-dot is a (predicted) germline SNP. The first panel shows the allelic
-fractions.  The black lines visualize the expected (not the average!) allelic
+dot is a (predicted) germline SNP. The first panel shows the allelic fractions.
+The alternating red and blue colors visualize odd and even chromosome numbers,
+respectively. The black lines visualize the expected (not the average!) allelic
 fractions in the segment. These are calculated using the estimated purity and
-the total and minor segment copy numbers. These are visualized in black and grey,
-respectively, in the second and third panel.  The second panel shows the
+the total and minor segment copy numbers. These are visualized in black and
+grey, respectively, in the second and third panel.  The second panel shows the
 copy number log-ratios, the third panel the integer copy numbers.}
 
 Germline variant data are informative for calculating integer copy number,
-because unbalanced maternal and paternal chromosome numbers in the tumor portion
-of the sample lead to unbalanced germline allelic fractions.
+because unbalanced maternal and paternal chromosome numbers in the tumor
+portion of the sample lead to unbalanced germline allelic fractions.
 Figure~\ref{figure/figureexample3-1} shows the allelic fractions of predicted
-germline SNPs.  In the middle panel, the corresponding copy number log-ratios
-are shown. The lower panel displays the calculated integer copy numbers,
-corrected for purity and ploidy. 
+germline SNPs. The goodness of fit (GoF) is provided on an arbitrary scale in
+which 100\% corresponds to a perfect fit and 0\% to the worst possible fit.
+The latter is defined as a fit in which allelic fractions on average differ by
+0.2 from their expected fractions. Note that this does not take purity into
+account and low purity solutions are expected to have a better fit. In the
+middle panel, the corresponding copy number log-ratios are shown. The lower
+panel displays the calculated integer copy numbers, corrected for purity and
+ploidy. 
 
 <<figureexample4, fig.show='hide', fig.width=8, fig.height=8>>=
 plotAbs(ret, 1, type="AF")
