@@ -11,7 +11,6 @@
   The following functions are deprecated and will be made defunct; use
   the replacement indicated below:
   \itemize{
-    \item{segmentationPSCBS: \code{\link{segmentationCBS}}}
     \item{createExonWeightFile: \code{\link{createTargetWeights}}}
   }
 }

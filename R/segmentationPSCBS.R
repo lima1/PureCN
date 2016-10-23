@@ -1,7 +1,10 @@
 segmentationPSCBS <-
 structure(function(# PSCBS segmentation
-### This function is deprecated and will be made defunct in the next
-### Bioconductor release. Please use segmentationCBS instead.
+### Alternative segmentation function using the \code{PSCBS} package. 
+### This function is called via the 
+### \code{fun.segmentation} argument of \code{\link{runAbsoluteCN}}. 
+### The arguments are passed via \code{args.segmentation}.
+##seealso<< \code{\link{runAbsoluteCN}}
 normal, 
 ### GATK coverage data for normal sample.
 tumor,  
@@ -34,6 +37,13 @@ normal.id.in.vcf=NULL,
 max.segments=NULL,
 ### If not NULL, try a higher undo.SD parameter if number of
 ### segments exceeds the threshold.
+prune.hclust.h=NULL,
+### Height in the \code{hclust} pruning step. Increasing this value 
+### will merge segments more aggressively. If NULL, try to find a sensible
+### default.
+prune.hclust.method="ward.D",
+### Cluster method used in the \code{hclust} pruning step. See
+### documentation for the \code{hclust} function.
 chr.hash=NULL,
 ### Mapping of non-numerical chromsome names to numerical names
 ### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
@@ -44,7 +54,7 @@ verbose=TRUE,
 ### Additional parameters passed to the segmentByNonPairedPSCBS function.
 ) {
     debug <- TRUE
-    .Deprecated("segmentationCBS")
+    #.Deprecated("segmentationCBS")
         
     if (!requireNamespace("PSCBS", quietly = TRUE)) {
         .stopUserError("segmentationPSCBS requires the PSCBS package.")
@@ -99,7 +109,13 @@ verbose=TRUE,
             flavor=flavor, ...)
     #}    
     if (plot.cnv) PSCBS::plotTracks(seg)
-    .PSCBSoutput2DNAcopy(seg, sampleid)
+    x <- .PSCBSoutput2DNAcopy(seg, sampleid)
+
+    if (!is.null(vcf)) {
+        x <- .pruneByHclust(x, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
+            method=prune.hclust.method, chr.hash=chr.hash, verbose=verbose)
+    }
+    x$cna$output
 ### A list with elements seg and size. "seg" contains the 
 ### segmentation, "size" the size of all segments in base pairs.    
 },ex=function() {
@@ -115,11 +131,11 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
-# ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-#     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, genome="hg19",
-#     sampleid='Sample1', gc.gene.file=gc.gene.file,
-#     fun.segmentation=segmentationPSCBS, max.ploidy=4,
-#     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
+ ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, genome="hg19",
+     sampleid='Sample1', gc.gene.file=gc.gene.file,
+     fun.segmentation=segmentationPSCBS, max.ploidy=4,
+     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 })    
     
 .PSCBSoutput2DNAcopy <- function(seg, sampleid) {
@@ -129,5 +145,5 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
     colnames(sx) <- c("ID", "chrom", "loc.start",  "loc.end", "num.mark", 
         "seg.mean")
     sx$seg.mean <- log2(sx$seg.mean/2)
-    sx
+    list(cna=list(output=sx))
 }

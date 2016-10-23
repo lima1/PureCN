@@ -1,12 +1,15 @@
 \name{segmentationPSCBS}
 \alias{segmentationPSCBS}
 \title{PSCBS segmentation}
-\description{This function is deprecated and will be made defunct in the next
-Bioconductor release. Please use segmentationCBS instead.}
+\description{Alternative segmentation function using the \code{PSCBS} package. 
+This function is called via the 
+\code{fun.segmentation} argument of \code{\link{runAbsoluteCN}}. 
+The arguments are passed via \code{args.segmentation}.}
 \usage{segmentationPSCBS(normal, tumor, log.ratio, seg, plot.cnv, 
     min.coverage, sampleid = sampleid, exon.weight.file = NULL, 
     flavor = "tcn&dh", tauA = 0.03, vcf = NULL, tumor.id.in.vcf = 1, 
-    normal.id.in.vcf = NULL, max.segments = NULL, chr.hash = NULL, 
+    normal.id.in.vcf = NULL, max.segments = NULL, prune.hclust.h = NULL, 
+    prune.hclust.method = "ward.D", chr.hash = NULL, 
     verbose = TRUE, ...)}
 \arguments{
   \item{normal}{GATK coverage data for normal sample.}
@@ -27,6 +30,11 @@ user provided segmentation.}
   \item{normal.id.in.vcf}{Id of normal in in VCF. If NULL, use unpaired PSCBS.}
   \item{max.segments}{If not NULL, try a higher undo.SD parameter if number of
 segments exceeds the threshold.}
+  \item{prune.hclust.h}{Height in the \code{hclust} pruning step. Increasing this value 
+will merge segments more aggressively. If NULL, try to find a sensible
+default.}
+  \item{prune.hclust.method}{Cluster method used in the \code{hclust} pruning step. See
+documentation for the \code{hclust} function.}
   \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
 (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
 are properly ordered.   }
@@ -41,7 +49,7 @@ segmentation, "size" the size of all segments in base pairs.    }
 
 
 
-
+\seealso{\code{\link{runAbsoluteCN}}}
 \examples{
 normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
@@ -55,9 +63,9 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
-# ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-#     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, genome="hg19",
-#     sampleid='Sample1', gc.gene.file=gc.gene.file,
-#     fun.segmentation=segmentationPSCBS, max.ploidy=4,
-#     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
+ ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, genome="hg19",
+     sampleid='Sample1', gc.gene.file=gc.gene.file,
+     fun.segmentation=segmentationPSCBS, max.ploidy=4,
+     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 }

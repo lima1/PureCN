@@ -385,9 +385,9 @@ show.segment.means=c("SNV", "segments", "both"),
             }
         }    
     } else {
-        mycol <-  ifelse(sapply(res$results, function(x) x$flag), "black", 
+        mycol <-  ifelse(sapply(res$results, function(x) x$flag), "yellow", 
             "white")
-        mycolBg <-  ifelse(sapply(res$results, function(x) x$flag), "yellow", 
+        mycolBg <-  ifelse(sapply(res$results, function(x) x$flag), "black", 
             "black")
         myfont <-  ifelse(sapply(res$results, function(x) x$flag), 1, 1)
         main <- NULL
