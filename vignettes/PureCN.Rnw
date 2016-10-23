@@ -676,7 +676,7 @@ estimation due the sparsity of hotspot mutations, it often helps in the manual
 curation to compare how well high confidence germline (dbSNP) vs. somatic
 (COSMIC) variants fit a particular purity/ploidy combination.
 
-\section{Off-target reads}
+\section{Maximizing the number of heterozygous SNPs}
 
 It is possible to use SNPs in off-target reads in the SNV fitting step by
 running \software{MuTect} without interval file and then setting the
@@ -684,7 +684,11 @@ running \software{MuTect} without interval file and then setting the
 \Rcode{FALSE}. We recommend a large pool of normals in this case and then
 generating SNP blacklists as described in Sections~\ref{artifactfiltering} and
 \ref{artifactfiltering2}.  Remember to also run all the normals in
-\software{MuTect} without interval file. 
+\software{MuTect} without interval file. In case no large pool of normals is
+available, it is worth experimenting with different \Rcode{interval.padding}
+values. This will include SNPs in the flanking regions of targets and the
+\Rcode{interval.padding} value defines the size of the regions in bp.
+
 
 \section{Output}
 

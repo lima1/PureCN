@@ -25,11 +25,12 @@ Provides copy number and LOH data, by both gene and genomic region. }
     candidates = NULL, coverage.cutoff = NULL, min.coverage = 15, 
     max.coverage.vcf = 300, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
     iterations = 30, log.ratio.calibration = 0.25, 
-    remove.off.target.snvs = TRUE, gc.gene.file = NULL, 
-    max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
-    max.segments = 200, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
-    post.optimize = FALSE, verbose = TRUE, gatk.tumor.file = NULL, 
-    gatk.normal.file = NULL, ...)}
+    remove.off.target.snvs = TRUE, interval.padding = 50, 
+    gc.gene.file = NULL, max.dropout = c(0.95, 1.1), 
+    max.logr.sdev = 0.75, max.segments = 200, plot.cnv = TRUE, 
+    cosmic.vcf.file = NULL, post.optimize = FALSE, 
+    verbose = TRUE, gatk.tumor.file = NULL, gatk.normal.file = NULL, 
+    ...)}
 \arguments{
   \item{normal.coverage.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
@@ -145,6 +146,7 @@ that should converge quickly. Allowed range is 10 to 250.}
 \code{sd(log.ratio)*log.ratio.calibration}.}
   \item{remove.off.target.snvs}{If set to a true value, will remove all SNVs outside the 
 covered regions.}
+  \item{interval.padding}{Include variants in the interval flanking regions.}
   \item{gc.gene.file}{A mapping file that assigns GC content and gene symbols 
 to each exon in the coverage files. Used for generating gene-level calls. 
 First column in format CHR:START-END. Second column GC content (0 to 1). 

@@ -162,6 +162,8 @@ log.ratio.calibration=0.25,
 remove.off.target.snvs=TRUE,
 ### If set to a true value, will remove all SNVs outside the 
 ### covered regions.
+interval.padding=50,
+### Include variants in the interval flanking regions.
 gc.gene.file=NULL, 
 ### A mapping file that assigns GC content and gene symbols 
 ### to each exon in the coverage files. Used for generating gene-level calls. 
@@ -356,7 +358,8 @@ gatk.normal.file=NULL,
     if (!is.null(gc.gene.file)) {
         gc.data <- gc.data[targetsUsed,]
     }
-
+    if (verbose) message("Using ", nrow(tumor), " targets.")
+        
     dropoutWarning <- FALSE
     # clean up noisy exons, but not if the segmentation was already provided.
     if (is.null(seg.file)) {
@@ -432,12 +435,16 @@ gatk.normal.file=NULL,
         vcf.filtering <- do.call(fun.filterVcf, args.filterVcf)
 
         vcf <- vcf.filtering$vcf
+
+        exon.gr.padding <- GRanges(seqnames=tumor$chr, 
+            IRanges(start=tumor$probe_start-interval.padding,end=tumor$probe_end+interval.padding))
+
         
         if (remove.off.target.snvs) {
             n.vcf.before.filter <- nrow(vcf)
             # make sure all SNVs are in covered exons
             vcf <- vcf[seq_len(nrow(vcf)) %in% queryHits(findOverlaps(vcf, 
-                exon.gr))]
+                exon.gr.padding))]
             if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
                 " variants outside intervals.", 
                 " Set remove.off.target.snvs=FALSE to include.")
@@ -451,6 +458,19 @@ gatk.normal.file=NULL,
             verbose=verbose), args.setPriorVcf) 
         prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
         vcf.germline <- vcf[which(prior.somatic < 0.5)]
+
+        if (verbose) {
+            targetsWithSNVs <- !is.na(findOverlaps(exon.gr.padding, vcf.germline, 
+                select="first"))
+            percentTargetsWithSNVs <- round(sum(targetsWithSNVs,na.rm=TRUE)/
+                length(targetsWithSNVs)*100, digits=1)
+            tmp <- ""
+            if (percentTargetsWithSNVs > 15) { 
+                tmp <- " segmentationPSCBS might produce better results."
+            }
+            message(percentTargetsWithSNVs,"% of targets contain heterozygous ",
+                "SNVs.",tmp)
+        }    
     }
 
     if (verbose) message("Sex of sample: ", sex)
@@ -784,8 +804,10 @@ gatk.normal.file=NULL,
                 ML.Subclonal=subclonal), 
                 SNV.posterior=SNV.posterior, 
                 fraction.subclonal=subclonal.f, 
+                fraction.homozygous.loss=sum(li[which(C<0.01)])/sum(li), 
                 gene.calls=NA, 
-                log.ratio.offset=log.ratio.offset))
+                log.ratio.offset=log.ratio.offset,
+                SA.iterations=iter))
         }
 
         if (!is.null(gc.gene.file)) {
@@ -855,6 +877,7 @@ gatk.normal.file=NULL,
             fraction.homozygous.loss=sum(li[which(C<0.01)])/sum(li), 
             gene.calls=gene.calls, 
             log.ratio.offset=log.ratio.offset, 
+            SA.iterations=iter,
             failed=FALSE)
     }
 

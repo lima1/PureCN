@@ -122,6 +122,8 @@ show.segment.means=c("SNV", "segments", "both"),
             purity <- res$results[[i]]$purity
             ploidy <- res$results[[i]]$ploidy
             peak.ideal.means <- .idealPeaks(seg)
+            r2 <- paste(round(.getGoF(res$results[[i]]) * 100, 
+                digits=1),"%", sep="")
 
             par(mfrow=c(3,1))
             par(mar=c(c(5, 4, 5, 2) + 0.1))
@@ -130,6 +132,7 @@ show.segment.means=c("SNV", "segments", "both"),
                 " Tumor ploidy:", round( res$results[[i]]$ploidy, digits=3), 
                 " SNV log-likelihood:", 
                     round(res$results[[i]]$SNV.posterior$beta$llik, digits=2),
+                " GoF:", r2,    
                 " Mean coverage:", 
                     paste(round(apply(geno(res$input$vcf)$DP,2,mean)),
                     collapse=";") )
@@ -484,3 +487,13 @@ ss) {
     mtext("Copy number Log-Likelihood",side=4,line=2)
     par(xpd = pxpd)
 }
+
+.getGoF <- function(result) {
+    r <- result$SNV.posterior$beta.model$posterior
+    ploidy <- result$ploidy
+    e <- (r$ML.AR-r$AR)^2
+    maxDist <- 0.2^2
+    r2 <- 1-mean(e,na.rm=TRUE)/maxDist
+    #r2Adjusted <- r2-(1-r2)*(ploidy/(length(e)-ploidy-1))
+    return(r2)
+}    

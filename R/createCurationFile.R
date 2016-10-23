@@ -8,12 +8,14 @@ file.rds,
 overwrite.uncurated=TRUE
 ### Overwrite existing files unless flagged as \sQuote{Curated}.
 ) {
-    res <- readRDS(file.rds)$results[[1]]
+    rds <- readRDS(file.rds)
+    res <- rds$results[[1]]
 
     d.f.curation <- data.frame(
         Sampleid=res$seg$ID[1], 
         Purity=res$purity, 
         Ploidy=res$ploidy, 
+        Sex=.getSexFromRds(rds),
         Flagged=res$flag, 
         Failed=FALSE, 
         Curated=FALSE, 
@@ -46,3 +48,15 @@ file.rds <- 'Sample1_PureCN.rds'
 saveRDS(purecn.example.output, file=file.rds)
 createCurationFile(file.rds) 
 })
+
+.getSexFromRds <- function(rds) {
+    if (!is.na(rds$input$sex) && !is.na(rds$input$sex.vcf)) {
+        if (rds$input$sex == rds$input$sex.vcf) return(rds$input$sex)
+        return(paste("Coverage:", rds$input$sex, "VCF:", rds$input$sex.vcf))     
+    } 
+    if (!is.na(rds$input$sex)) {
+        return(rds$input$sex)
+    }    
+    return(rds$input$sex.vcf)
+}
+    
