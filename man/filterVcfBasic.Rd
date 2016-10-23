@@ -6,7 +6,9 @@ variant calls. }
 \usage{filterVcfBasic(vcf, tumor.id.in.vcf = NULL, use.somatic.status = TRUE, 
     snp.blacklist = NULL, af.range = c(0.03, 0.97), 
     contamination.cutoff = c(0.05, 0.075), min.coverage = 15, 
-    min.supporting.reads = NULL, error = 0.001, verbose = TRUE)}
+    min.base.quality = 25, min.supporting.reads = NULL, 
+    error = 0.001, target.granges = NULL, remove.off.target.snvs = TRUE, 
+    interval.padding = 50, verbose = TRUE)}
 \arguments{
   \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf} 
 function from the VariantAnnotation package.}
@@ -29,11 +31,20 @@ because homozygosity can be confirmed in the normal.}
 first value, if found on most chromosomes, remove all with AF smaller than
 the second value.}
   \item{min.coverage}{Minimum coverage in tumor. Variants with lower coverage are ignored.}
+  \item{min.base.quality}{Minimim base quality in tumor. Requires a \code{BQ} genotype field 
+in the VCF.}
   \item{min.supporting.reads}{Minimum number of reads supporting the alt allele. 
 If \code{NULL}, calculate based on coverage and assuming sequencing error 
 of 10^-3.}
   \item{error}{Estimated sequencing error rate. Used to calculate minimum
 number of supporting reads using \code{\link{calculatePowerDetectSomatic}}.}
+  \item{target.granges}{\code{GenomicRanges} object specifiying the target postions.
+Used to remove off-target reads. If \code{NULL}, do not check whether
+variants are on or off-target.}
+  \item{remove.off.target.snvs}{If set to a true value, will remove all SNVs outside the 
+covered regions.}
+  \item{interval.padding}{Include variants in the interval flanking regions of the 
+specified size in bp. Requires \code{target.granges}.}
   \item{verbose}{Verbose output.}
 }
 

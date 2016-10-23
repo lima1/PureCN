@@ -196,7 +196,9 @@ show.segment.means=c("SNV", "segments", "both"),
                 main <- paste("SCNA-fit Log-Likelihood:", 
                     round(res$results[[i]]$log.likelihood, digits=2) )
                 plot(x, r$Log.Ratio[idx], ylab="Copy Number log-ratio", 
-                    xlab="Pos (kbp)", col=mycol, main=main, pch=mypch,... )
+                    xlab="Pos (kbp)", col=mycol, main=main, pch=mypch, 
+                    ylim=quantile(segment.log.ratio,p=c(0.01,0.99)),
+                    ... )
                 segment.log.ratio.lines[,1] <- x[segment.log.ratio.lines[,1]]
                 lines(segment.log.ratio.lines, col="black", lwd=3)
                 segment.M.log.ratio.lines[,1] <- x[segment.M.log.ratio.lines[,1]]

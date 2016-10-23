@@ -159,9 +159,8 @@ iterations=30,
 log.ratio.calibration=0.25,
 ### Re-calibrate log-ratios in the window 
 ### \code{sd(log.ratio)*log.ratio.calibration}.
-remove.off.target.snvs=TRUE,
-### If set to a true value, will remove all SNVs outside the 
-### covered regions.
+remove.off.target.snvs=NULL,
+### Deprecated. Use the corresponding argument in \code{args.filterVcf}.
 interval.padding=50,
 ### Include variants in the interval flanking regions.
 gc.gene.file=NULL, 
@@ -222,6 +221,10 @@ gatk.normal.file=NULL,
         normal.coverage.file <- gatk.normal.file
         message("gatk.normal.file is deprecated. Please use normal.coverage.file instead.")
 
+    }       
+    if (!is.null(remove.off.target.snvs)) {
+        args.filterVcf$remove.off.target.snvs <- remove.off.target.snvs
+        message("remove.off.target.snvs is deprecated. Please use it in args.filterVcf instead.")
     }       
     
     if (is.null(centromeres)) {
@@ -431,24 +434,12 @@ gatk.normal.file=NULL,
             " variants in VCF file.")
         
         args.filterVcf <- c(list(vcf=vcf, tumor.id.in.vcf=tumor.id.in.vcf, 
-            min.coverage=min.coverage, verbose=verbose), args.filterVcf)
+            target.granges=exon.gr, verbose=verbose), args.filterVcf)
+        if (is.null(args.filterVcf$min.coverage)) args.filterVcf$min.coverage <- min.coverage    
+
         vcf.filtering <- do.call(fun.filterVcf, args.filterVcf)
 
         vcf <- vcf.filtering$vcf
-
-        exon.gr.padding <- GRanges(seqnames=tumor$chr, 
-            IRanges(start=tumor$probe_start-interval.padding,end=tumor$probe_end+interval.padding))
-
-        
-        if (remove.off.target.snvs) {
-            n.vcf.before.filter <- nrow(vcf)
-            # make sure all SNVs are in covered exons
-            vcf <- vcf[seq_len(nrow(vcf)) %in% queryHits(findOverlaps(vcf, 
-                exon.gr.padding))]
-            if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
-                " variants outside intervals.", 
-                " Set remove.off.target.snvs=FALSE to include.")
-        }        
 
         if (!is.null(cosmic.vcf.file)) {
             vcf <- .addCosmicCNT(vcf, cosmic.vcf.file, verbose=verbose) 
@@ -458,19 +449,6 @@ gatk.normal.file=NULL,
             verbose=verbose), args.setPriorVcf) 
         prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
         vcf.germline <- vcf[which(prior.somatic < 0.5)]
-
-        if (verbose) {
-            targetsWithSNVs <- !is.na(findOverlaps(exon.gr.padding, vcf.germline, 
-                select="first"))
-            percentTargetsWithSNVs <- round(sum(targetsWithSNVs,na.rm=TRUE)/
-                length(targetsWithSNVs)*100, digits=1)
-            tmp <- ""
-            if (percentTargetsWithSNVs > 15) { 
-                tmp <- " segmentationPSCBS might produce better results."
-            }
-            message(percentTargetsWithSNVs,"% of targets contain heterozygous ",
-                "SNVs.",tmp)
-        }    
     }
 
     if (verbose) message("Sex of sample: ", sex)

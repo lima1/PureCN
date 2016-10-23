@@ -30,6 +30,9 @@ contamination.cutoff=c(0.05,0.075),
 ### the second value.
 min.coverage=15,
 ### Minimum coverage in tumor. Variants with lower coverage are ignored.
+min.base.quality=25,
+### Minimim base quality in tumor. Requires a \code{BQ} genotype field 
+### in the VCF.
 min.supporting.reads=NULL,
 ### Minimum number of reads supporting the alt allele. 
 ### If \code{NULL}, calculate based on coverage and assuming sequencing error 
@@ -38,6 +41,16 @@ error=0.001,
 ### Estimated sequencing error rate. Used to calculate minimum
 ### number of supporting reads using \code{\link{calculatePowerDetectSomatic}}.
 ##seealso<< \code{\link{calculatePowerDetectSomatic}}
+target.granges=NULL,
+### \code{GenomicRanges} object specifiying the target postions.
+### Used to remove off-target reads. If \code{NULL}, do not check whether
+### variants are on or off-target.
+remove.off.target.snvs=TRUE,
+### If set to a true value, will remove all SNVs outside the 
+### covered regions.
+interval.padding=50,
+### Include variants in the interval flanking regions of the 
+### specified size in bp. Requires \code{target.granges}.
 verbose=TRUE
 ### Verbose output.
 ) {
@@ -161,6 +174,37 @@ verbose=TRUE
         }    
     }
 
+    if (!is.null(geno(vcf)$BQ)) {
+       vcf <- vcf[which(as.numeric(geno(vcf)$BQ[,tumor.id.in.vcf])>=min.base.quality)]
+    } 
+    
+    if (!is.null(target.granges)) {
+        target.granges.padding <- target.granges
+        start(target.granges.padding) <- start(target.granges.padding)-interval.padding
+        end(target.granges.padding) <- end(target.granges.padding)+interval.padding
+            
+        if (remove.off.target.snvs) {
+            n.vcf.before.filter <- nrow(vcf)
+            # make sure all SNVs are in covered exons
+            vcf <- vcf[!is.na(findOverlaps(vcf, 
+                target.granges.padding,select="first"))]
+            if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
+                " variants outside intervals.", 
+                " Set remove.off.target.snvs=FALSE to include.")
+        }        
+        if (verbose) {
+            targetsWithSNVs <- !is.na(findOverlaps(target.granges.padding, vcf, 
+                select="first"))
+            percentTargetsWithSNVs <- round(sum(targetsWithSNVs,na.rm=TRUE)/
+                length(targetsWithSNVs)*100, digits=1)
+            tmp <- ""
+            if (percentTargetsWithSNVs > 20) { 
+                tmp <- " segmentationPSCBS might produce better results."
+            }
+            message(percentTargetsWithSNVs,"% of targets contain heterozygous ",
+                "SNVs.",tmp)
+        }    
+    }
     ##value<< A list with elements
     list(
         vcf=vcf, ##<< The filtered \code{CollapsedVCF} object.
