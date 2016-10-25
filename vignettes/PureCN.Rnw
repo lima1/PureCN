@@ -182,6 +182,8 @@ wrapper function. This is described in Section~\ref{customseg}.
 We now load a few example files that we will use throughout this tutorial:
 
 <<example_files, message=FALSE, warning=FALSE, results='hide'>>=
+library(PureCN)
+
 normal.coverage.file <- system.file("extdata", "example_normal.txt",
     package="PureCN") 
 normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
