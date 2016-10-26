@@ -161,8 +161,6 @@ log.ratio.calibration=0.25,
 ### \code{sd(log.ratio)*log.ratio.calibration}.
 remove.off.target.snvs=NULL,
 ### Deprecated. Use the corresponding argument in \code{args.filterVcf}.
-interval.padding=50,
-### Include variants in the interval flanking regions.
 gc.gene.file=NULL, 
 ### A mapping file that assigns GC content and gene symbols 
 ### to each exon in the coverage files. Used for generating gene-level calls. 
