@@ -28,7 +28,7 @@ verbose=TRUE
     mappingBias <- 1
     if (!is.null(info(vcf)$SOMATIC) && ncol(vcf)>1) {
          normal.id.in.vcf <- .getNormalIdInVcf(vcf, tumor.id.in.vcf)
-         faAll <- as.numeric(geno(vcf)$FA[,normal.id.in.vcf])
+         faAll <- as.numeric(geno(vcf)$FA[!info(vcf)$SOMATIC,normal.id.in.vcf])
          mappingBias <- mean(faAll, na.rm=TRUE)*2
          if (verbose) message("Found SOMATIC annotation in VCF. ",
             "Setting mapping bias to ", round(mappingBias, digits=3)) 

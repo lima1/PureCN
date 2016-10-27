@@ -30,8 +30,8 @@ max.exon.ratio) {
     yys <- lapply(0:max.M, function(Mi) {
         for (i in test.num.copy) {
             n.cases.germ <- ifelse(Mi==Ci-Mi,1,2)
-            tmp <- unique(c(1,Mi, Ci-Mi))
-            tmp <- tmp[tmp>0]
+            tmp <- unique(c(0, 1,Mi, Ci-Mi))
+            #tmp <- tmp[tmp>0]
             n.cases.somatic <- length(tmp)
             Cx <- max(i,Ci)
 
@@ -39,7 +39,7 @@ max.exon.ratio) {
                 yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(1-prior.K) - log(Cx + 1 - n.cases.germ)
 
                 # allow somatic mutations always have M=1
-                if (i==1) {
+                if (i<=1) {
                     yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(prior.K) - log(n.cases.somatic)
                 } else {
                     #message(paste(i, Mi, Ci, max.M, n.cases.somatic, n.cases.germ, Cx))
@@ -124,7 +124,9 @@ test.num.copy[i], prior.K))
             skip <- test.num.copy > Ci | C.posterior[i, Ci + 1] <=0
 
             p.ar <- lapply(c(0, 1), function(g) {
-                dbetax <- (p * test.num.copy + g * (1-p))/(p * Ci + 2 * (1-p))
+                cns <- test.num.copy
+                if (!g) cns[1] <- 1/3
+                dbetax <- (p * cns + g * (1-p))/(p * Ci + 2 * (1-p))
                 l <- lapply(seq_along(test.num.copy), function(j) {
                     if (skip[j]) return(mInf_all)
                     dbeta(x = dbetax[j], 
@@ -241,6 +243,8 @@ test.num.copy[i], prior.K))
     xx[, 1] <- as.logical(xx[, 1])
     xx[, 2] <- suppressWarnings(as.numeric(xx[, 2]))
     colnames(xx) <- c("ML.SOMATIC", "ML.M")
+    # set sub-clonal (ML.M=0) to 1
+    xx$ML.M[xx$ML.SOMATIC & !xx$ML.M] <- 1
     xx
 }
 

@@ -175,7 +175,10 @@ verbose=TRUE
     }
 
     if (!is.null(geno(vcf)$BQ)) {
+       n.vcf.before.filter <- nrow(vcf)
        vcf <- vcf[which(as.numeric(geno(vcf)$BQ[,tumor.id.in.vcf])>=min.base.quality)]
+       if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
+           " low quality variants with BQ<",min.base.quality,".") 
     } 
     
     if (!is.null(target.granges)) {
