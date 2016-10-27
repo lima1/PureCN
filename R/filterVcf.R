@@ -182,7 +182,16 @@ verbose=TRUE
         target.granges.padding <- target.granges
         start(target.granges.padding) <- start(target.granges.padding)-interval.padding
         end(target.granges.padding) <- end(target.granges.padding)+interval.padding
-            
+        .calcTargetedGenome <- function(granges) {
+            tmp <- reduce(granges)
+            round(sum(width(tmp))/(1000^2),digits=2)
+        }    
+        if (verbose) {
+            message("Total size of targeted genomic region: ", 
+                .calcTargetedGenome(target.granges), "Mb (",
+                .calcTargetedGenome(target.granges.padding),
+                "Mb with ", interval.padding, "bp padding)")
+        }    
         if (remove.off.target.snvs) {
             n.vcf.before.filter <- nrow(vcf)
             # make sure all SNVs are in covered exons
