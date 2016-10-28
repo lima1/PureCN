@@ -20,7 +20,7 @@ filter.lowhigh.gc=0.001,
 min.targeted.base=4,
 ### Exclude intervals with targeted base (size in bp) smaller 
 ### than this cutoff. This is useful when the same interval file was used to
-### calculate GC content. For such small exons, the GC content is likely 
+### calculate GC content. For such small targets, the GC content is likely 
 ### very different from the true GC content of the probes.
 normalDB=NULL,
 ### Normal database, created with \code{\link{createNormalDatabase}}.
@@ -113,7 +113,7 @@ normalDB.min.coverage, verbose) {
     nAfter <- sum(targetsUsed)
 
     if (verbose && nAfter < nBefore) { 
-        message("Removing ", nBefore-nAfter, " exons with low coverage ",
+        message("Removing ", nBefore-nAfter, " targets with low coverage ",
             "in normalDB.")
     }
     targetsUsed
@@ -126,7 +126,7 @@ normalDB.min.coverage, verbose) {
     nAfter <- sum(targetsUsed)
 
     if (verbose && nAfter < nBefore) { 
-        message("Removing ", nBefore-nAfter, " exons on chromosomes ",
+        message("Removing ", nBefore-nAfter, " targets on chromosomes ",
             "outside chr.hash.")
     }
     targetsUsed
@@ -139,7 +139,7 @@ normalDB.min.coverage, verbose) {
         tumor$targeted.base >= min.targeted.base
     nAfter <- sum(targetsUsed)
     if (verbose && nAfter < nBefore) message("Removing ", nBefore-nAfter, 
-        " small exons.")
+        " small targets")
     targetsUsed
 }
 .filterTargetsLowHighGC <- function(targetsUsed, tumor, gc.data,
@@ -154,7 +154,7 @@ normalDB.min.coverage, verbose) {
     nAfter <- sum(targetsUsed)
 
     if (verbose && nAfter < nBefore) message("Removing ", 
-        nBefore-nAfter, " low/high GC exons.")
+        nBefore-nAfter, " low/high GC targets")
 
     targetsUsed
 }

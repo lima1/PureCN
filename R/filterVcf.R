@@ -182,40 +182,15 @@ verbose=TRUE
     } 
     
     if (!is.null(target.granges)) {
-        target.granges.padding <- target.granges
-        start(target.granges.padding) <- start(target.granges.padding)-interval.padding
-        end(target.granges.padding) <- end(target.granges.padding)+interval.padding
-        .calcTargetedGenome <- function(granges) {
-            tmp <- reduce(granges)
-            round(sum(width(tmp))/(1000^2),digits=2)
-        }    
-        if (verbose) {
-            message("Total size of targeted genomic region: ", 
-                .calcTargetedGenome(target.granges), "Mb (",
-                .calcTargetedGenome(target.granges.padding),
-                "Mb with ", interval.padding, "bp padding)")
-        }    
+        vcf <- .annotateVcfTarget(vcf, target.granges, interval.padding, verbose)
         if (remove.off.target.snvs) {
             n.vcf.before.filter <- nrow(vcf)
             # make sure all SNVs are in covered exons
-            vcf <- vcf[!is.na(findOverlaps(vcf, 
-                target.granges.padding,select="first"))]
+            vcf <- vcf[info(vcf)$OnTarget>0]
             if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
                 " variants outside intervals.", 
                 " Set remove.off.target.snvs=FALSE to include.")
         }        
-        if (verbose) {
-            targetsWithSNVs <- !is.na(findOverlaps(target.granges.padding, vcf, 
-                select="first"))
-            percentTargetsWithSNVs <- round(sum(targetsWithSNVs,na.rm=TRUE)/
-                length(targetsWithSNVs)*100, digits=1)
-            tmp <- ""
-            if (percentTargetsWithSNVs > 20) { 
-                tmp <- " segmentationPSCBS might produce better results."
-            }
-            message(percentTargetsWithSNVs,"% of targets contain heterozygous ",
-                "SNVs.",tmp)
-        }    
     }
     ##value<< A list with elements
     list(
@@ -543,3 +518,48 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     info(vcf)$Cosmic.CNT[queryHits(ov)] <- info(cosmic.vcf[subjectHits(ov)])$CNT
     vcf
 }
+
+.annotateVcfTarget <- function(vcf, target.granges, interval.padding, verbose) {
+    target.granges.padding <- target.granges
+    start(target.granges.padding) <- start(target.granges.padding)-interval.padding
+    end(target.granges.padding) <- end(target.granges.padding)+interval.padding
+    .calcTargetedGenome <- function(granges) {
+        tmp <- reduce(granges)
+        round(sum(width(tmp))/(1000^2),digits=2)
+    }    
+    if (verbose) {
+        message("Total size of targeted genomic region: ", 
+            .calcTargetedGenome(target.granges), "Mb (",
+            .calcTargetedGenome(target.granges.padding),
+            "Mb with ", interval.padding, "bp padding)")
+    }    
+
+    idxTarget <- !is.na(findOverlaps(vcf, 
+                target.granges,select="first"))
+    idxPadding <- !is.na(findOverlaps(vcf, 
+                target.granges.padding,select="first"))
+   
+    newInfo <- DataFrame(
+        Number=1, Type="Integer",
+        Description="1: On-target; 2: Flanking region; 0: Off-target.",
+        row.names="OnTarget")
+    
+    info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
+    info(vcf)$OnTarget <- 0
+    info(vcf)$OnTarget[idxPadding] <- 2
+    info(vcf)$OnTarget[idxTarget] <- 1
+    if (verbose) {
+        targetsWithSNVs <- !is.na(findOverlaps(target.granges.padding, vcf, 
+            select="first"))
+        percentTargetsWithSNVs <- round(sum(targetsWithSNVs,na.rm=TRUE)/
+            length(targetsWithSNVs)*100, digits=1)
+        tmp <- ""
+        if (percentTargetsWithSNVs > 20) { 
+            tmp <- " segmentationPSCBS might produce better results."
+        }
+        message(percentTargetsWithSNVs,"% of targets contain heterozygous ",
+            "SNVs.",tmp)
+    }    
+    vcf
+}
+    

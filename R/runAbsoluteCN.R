@@ -313,7 +313,7 @@ gatk.normal.file=NULL,
             log.ratio <- calculateLogRatio(normal, tumor, verbose=verbose)
         }
     } else {
-        # the segmentation algorithm will remove exons with low coverage in 
+        # the segmentation algorithm will remove targets with low coverage in 
         # both tumor and normal, so we just use tumor if there is no normal 
         # coverage file.
         if (is.null(normal.coverage.file)) normal <- tumor
@@ -362,7 +362,7 @@ gatk.normal.file=NULL,
     if (verbose) message("Using ", nrow(tumor), " targets.")
         
     dropoutWarning <- FALSE
-    # clean up noisy exons, but not if the segmentation was already provided.
+    # clean up noisy targets, but not if the segmentation was already provided.
     if (is.null(seg.file)) {
         if (!is.null(gc.gene.file)) {
             dropoutWarning <- .checkGCBias(normal, tumor, gc.data, max.dropout,
@@ -497,14 +497,14 @@ gatk.normal.file=NULL,
         mapping.bias <- do.call(fun.setMappingBiasVcf, args.setMappingBiasVcf)
     }
     
-    # get exon log-ratios for all segments 
+    # get target log-ratios for all segments 
     ov.se <- findOverlaps(seg.gr, exon.gr)
     exon.lrs <- lapply(seq_len(nrow(seg)), function(i) 
         log.ratio[subjectHits(ov.se)[queryHits(ov.se)==i]])
     exon.lrs <- lapply(exon.lrs, function(x) 
         subset(x, !is.na(x) & !is.infinite(x)))
 
-    # estimate stand. dev. for exon logR within exons. this will be used as 
+    # estimate stand. dev. for target logR within targets. this will be used as 
     # proxy for sample error.
     sd.seg <- median(sapply(exon.lrs, sd), na.rm=TRUE)
     

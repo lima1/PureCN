@@ -207,6 +207,7 @@ test.num.copy[i], prior.K))
     posteriors$Log.Ratio <- snv.lr[vcf.ids]
     posteriors$Prior.Somatic <- prior.somatic[vcf.ids]
     posteriors$Prior.Contamination <- prior.cont[vcf.ids]
+    posteriors$On.Target <- info(vcf[vcf.ids])$OnTarget
     
     # Extract LOH
     posteriors$ML.LOH <- (posteriors$ML.M == posteriors$ML.C | 
