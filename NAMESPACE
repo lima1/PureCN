@@ -48,7 +48,7 @@ importFrom("data.table", "data.table")
 importFrom("grDevices", "colorRampPalette", "dev.off", "png", "adjustcolor")
 importFrom("graphics", "abline", "axis", "boxplot", "contour", "hist","image", 
     "legend", "lines", "par", "plot", "text", "mtext", "polygon","points",
-    "strwidth", "symbols")
+    "rect", "strwidth", "symbols")
 importFrom("stats", "C", "complete.cases", "dbeta", "dist", "dnorm", "dunif", 
     "loess", "pbeta", "prcomp", "predict", "runif", "t.test", "weighted.mean", 
     "dbinom", "fisher.test", "hclust", "cutree")

@@ -20,7 +20,7 @@ for removing targets with outlier GC profile. Assuming that GC correction
 might not have been worked on those. Requires \code{gc.gene.file}.}
   \item{min.targeted.base}{Exclude intervals with targeted base (size in bp) smaller 
 than this cutoff. This is useful when the same interval file was used to
-calculate GC content. For such small exons, the GC content is likely 
+calculate GC content. For such small targets, the GC content is likely 
 very different from the true GC content of the probes.}
   \item{normalDB}{Normal database, created with \code{\link{createNormalDatabase}}.}
   \item{normalDB.min.coverage}{Exclude targets with coverage lower than 20 percent of the 

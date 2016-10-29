@@ -165,7 +165,7 @@ show.segment.means=c("SNV", "segments", "both"),
             tmp <- tmp[complete.cases(tmp),,drop=FALSE]
             tmp <- tmp[order(.strip.chr.name(tmp$chr,chr.hash)),]
             tmp$end <- c(tmp[-1,2]-1, nrow(r))
-            cids <- sapply(tmp$chr, function(x) { id <- res$input$centrome[res$input$centrome$chrom==x,2]; which(r$chr[idx]==x & r$start[idx] > id)[1] })
+            cids <- sapply(tmp$chr, function(x) { id <- res$input$centrome[res$input$centrome$chrom==x,2]; which(r$chr[idx]==x & r$start[idx] >= id)[1] })
 
             segment.log.ratio <- res$results[[i]]$seg$seg.mean[
                 res$results[[i]]$SNV.posterior$beta.model$segment.ids]
@@ -216,7 +216,8 @@ show.segment.means=c("SNV", "segments", "both"),
             } else {
                 plot(r$AR[idx],ylab="B-Allele Frequency", xlab="SNV Index",
                     main=main, type="n", ...)
-                rect(tmp$start, par("usr")[3], tmp$end, par("usr")[4], col=ifelse(1:nrow(tmp) %%2, "#deebf7", "white"), border=NA)
+                rect(tmp$start, par("usr")[3], tmp$end+1, par("usr")[4], 
+                     col=ifelse(seq(nrow(tmp))%%2, "#deebf7", "white"), border=NA)
                 rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4])
                 points(r$AR[idx], col=adjustcolor(mycol, alpha.f=myalpha), pch=mypch)
                 lines(segment.b1.lines, col="black", lwd=3)
@@ -238,7 +239,8 @@ show.segment.means=c("SNV", "segments", "both"),
                 plot(r$Log.Ratio[idx], ylab="Copy Number log-ratio", 
                     xlab="SNV Index", 
                     main=main, ylim=myylim, type="n",... )
-                rect(tmp$start, par("usr")[3], tmp$end, par("usr")[4], col=ifelse(1:nrow(tmp) %%2, "#deebf7", "white"), border=NA)
+                rect(tmp$start, par("usr")[3], tmp$end+1, par("usr")[4], 
+                     col=ifelse(seq(nrow(tmp))%%2, "#deebf7", "white"), border=NA)
                 rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4])
                 points(r$Log.Ratio[idx], col=adjustcolor(mycol, alpha.f=myalpha), pch=mypch)
                 lines(segment.log.ratio.lines, col="black", lwd=3)
@@ -254,7 +256,8 @@ show.segment.means=c("SNV", "segments", "both"),
                     xlab="SNV Index", 
                     ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), col="grey",
                     type="n", ... )
-                rect(tmp$start, par("usr")[3], tmp$end, par("usr")[4], col=ifelse(1:nrow(tmp) %%2, "#deebf7", "white"), border=NA)
+                rect(tmp$start, par("usr")[3], tmp$end+1, par("usr")[4], 
+                     col=ifelse(seq(nrow(tmp))%%2, "#deebf7", "white"), border=NA)
                 rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4])
                 points(r$ML.M.Segment[idx], col="grey")
                 points(r$ML.C[idx], col="black")
