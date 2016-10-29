@@ -153,8 +153,9 @@ show.segment.means=c("SNV", "segments", "both"),
                 }
                 if (germline.only) idx[r$ML.SOMATIC[idx]] <- FALSE
             }    
-            mycol <- ifelse(.strip.chr.name(r[idx,1], chr.hash) %% 2, 
-                "#E41A1C", "#377EB8")
+            #mycol <- ifelse(.strip.chr.name(r[idx,1], chr.hash) %% 2, 
+            #    "#E41A1C", "#377EB8")
+            mycol <- "#377EB8"
             mypch <- ifelse(r$GERMLINE.CONTHIGH > 0.5, 2, 
                 ifelse(r$GERMLINE.CONTLOW>0.5, 3, 1))[idx]
             myalpha <- ifelse(alpha && nrow(r) > 2000, 2000/nrow(r), 1)
@@ -164,6 +165,10 @@ show.segment.means=c("SNV", "segments", "both"),
             tmp <- tmp[complete.cases(tmp),,drop=FALSE]
             tmp <- tmp[order(.strip.chr.name(tmp$chr,chr.hash)),]
             tmp$end <- c(tmp[-1,2]-1, nrow(r))
+            cids <- sapply(tmp$chr, function(x) { id <- res$input$centrome[res$input$centrome$chrom==x,2]; which(r$chr==x & r$start > id)[1] })
+            tmpx <- tmp
+            tmpx$start[1] <- par("usr")[1]
+            tmpx$end[nrow(tmpx)] <- par("usr")[2]
 
             segment.log.ratio <- res$results[[i]]$seg$seg.mean[
                 res$results[[i]]$SNV.posterior$beta.model$segment.ids]
@@ -176,7 +181,8 @@ show.segment.means=c("SNV", "segments", "both"),
             # calculate expected segment B-allelic fractions
             purity <- res$results[[i]]$purity
             ploidy <- res$results[[i]]$ploidy
-            b1 <- ((purity*r$ML.M.Segment[idx])+(1-purity))/((purity*r$ML.C[idx])+2*(1-purity))
+            b1 <- ((purity*r$ML.M.Segment[idx])+(1-purity))/
+                ((purity*r$ML.C[idx])+2*(1-purity))
             b2 <- 1-b1
             segment.b1.lines <- .toLines(ss=b1)
             segment.b2.lines <- .toLines(ss=b2)
@@ -212,15 +218,17 @@ show.segment.means=c("SNV", "segments", "both"),
                     ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), ... )
             } else {
                 plot(r$AR[idx],ylab="B-Allele Frequency", xlab="SNV Index",
-                    main=main, col=adjustcolor(mycol, alpha.f=myalpha), 
-                    pch=mypch, ...)
+                    main=main, ...)
+                rect(tmpx$start, par("usr")[3], tmpx$end+1, par("usr")[4], col=ifelse(1:nrow(tmpx) %%2, "#deebf7", "white"), border=NA)
+                points(r$AR[idx], col=adjustcolor(mycol, alpha.f=myalpha), pch=mypch)
                 lines(segment.b1.lines, col="black", lwd=3)
                 lines(segment.b2.lines, col="black", lwd=3)
                 axis(side=3, at=(tmp[,3]+tmp[,2])/2, 
                     labels=.strip.chr.name(tmp[,1], chr.hash), 
                     tick=FALSE, padj=1)
                 abline(h=0.5, lty=3, col="grey")
-                abline(v=tmp[,2], lty=3, col="grey")
+                #abline(v=tmp[,2], lty=3, col="grey")
+                abline(v=cids, lty=3, col="grey")
                 main <- paste("SCNA-fit Log-Likelihood:", 
                     round(res$results[[i]]$log.likelihood, digits=2) )
 
@@ -230,20 +238,25 @@ show.segment.means=c("SNV", "segments", "both"),
                 myylim[2] <- ceiling(myylim[2])
 
                 plot(r$Log.Ratio[idx], ylab="Copy Number log-ratio", 
-                    xlab="SNV Index", col=adjustcolor(mycol, alpha.f=myalpha),
-                    main=main, pch=mypch, ylim=myylim, ... )
+                    xlab="SNV Index", 
+                    main=main, ylim=myylim, type="n",... )
+                rect(tmpx$start, par("usr")[3], tmpx$end+1, par("usr")[4], col=ifelse(1:nrow(tmpx) %%2, "#deebf7", "white"), border=NA)
+                points(r$Log.Ratio[idx], col=adjustcolor(mycol, alpha.f=myalpha), pch=mypch)
                 lines(segment.log.ratio.lines, col="black", lwd=3)
                 lines(segment.M.log.ratio.lines, col="grey", lwd=3)
 
                 abline(h=0, lty=3, col="grey")
-                abline(v=tmp[,2], lty=3, col="grey")
+                abline(v=cids, lty=3, col="grey")
                 abline(h=peak.ideal.means, lty=2, col="grey")
                 axis(side=4,at=peak.ideal.means, 
                     labels=names(peak.ideal.means))
 
                 plot(r$ML.M.Segment[idx], ylab="Maximum Likelihood Copy Number", 
                     xlab="SNV Index", 
-                    ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), col="grey", ... )
+                    ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), col="grey",
+                    type="n", ... )
+                rect(tmpx$start, par("usr")[3], tmpx$end+1, par("usr")[4], col=ifelse(1:nrow(tmpx) %%2, "#deebf7", "white"), border=NA)
+                points(r$ML.M.Segment[idx], col="grey")
                 points(r$ML.C[idx], col="black")
                 abline(v=tmp[,2], lty=3, col="grey")
             } 
