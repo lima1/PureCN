@@ -119,12 +119,13 @@ provided}:
 
 The intervals define the captured genomic regions (targets) and are provided by
 the manufacturer of your capture kit\footnote{While \software{PureCN} can use a
-pool of normal samples to learn which intervals are reliable and which not, it
-is highly recommended to provide the correct intervals. Garbage in, garbage
-out.}.  Default parameters assume that these intervals do NOT include a
-"padding" to include flanking regions of targets. \software{PureCN} will
-automatically apply a 50bp padding if the variant caller was either run without
-interval file or with interval padding (See section~\ref{faqinput}). 
+pool of normal samples to learn which intervals are reliable and which not,
+it is highly recommended to provide the correct intervals. Garbage in,
+garbage out.}.  Default parameters assume that these intervals do NOT
+include a "padding" to include flanking regions of targets.
+\software{PureCN} will automatically include variants in the 50bp flanking
+regions if the variant caller was either run without interval file or with
+interval padding (See section~\ref{faqinput}). 
 
 It is recommended to GC-normalize coverage (how this done is described later in
 Section~\ref{secgcbias}). The GC-content for each target is expected in
@@ -698,11 +699,13 @@ running \software{MuTect} without interval file and then setting the
 \Rcode{FALSE}. We recommend a large pool of normals in this case and then
 generating SNP blacklists as described in Sections~\ref{artifactfiltering} and
 \ref{artifactfiltering2}.  Remember to also run all the normals in
-\software{MuTect} without interval file. In case no large pool of normals is
-available, it is worth experimenting with different \Rcode{interval.padding}
-values. This will include SNPs in the flanking regions of targets and the
-\Rcode{interval.padding} value defines the size of the regions in bp.
+\software{MuTect} without interval file. 
 
+An often better alternative to including all off-target reads is only including
+SNVs in the flanking regions of targets (between 50-100bp). This will usually
+significantly increase the number of heterozygous SNPs (see
+Section~\ref{faqinput}). These SNPs are automatically added if the variant
+caller was run without interval file or with interval padding.
 
 \section{Output}
 

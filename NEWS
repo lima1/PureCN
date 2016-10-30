@@ -1,6 +1,10 @@
 Changes in version 1.4.0
 ------------------------
 
+- Automatic 50bp interval padding.
+- Added sub-clonal SNV state (SOMATIC.M0)
+- Polished plots
+
 PLANNED FEATURES FOR PURECN 1.4 (BIOCONDUCTOR 3.5)
 
 - Support for indels.
