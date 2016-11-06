@@ -5,7 +5,7 @@
 returns coverage for each interval. Coverage should be then GC-normalized
 using the \code{\link{correctCoverageBias}} function before determining
 purity and ploidy with \code{\link{runAbsoluteCN}}.
-Uses the \code{scaBam} function and applies low quality, duplicate reads
+Uses the \code{scanBam} function and applies low quality, duplicate reads
 as well as secondary alignment filters.}
 \usage{calculateBamCoverageByInterval(bam.file, interval.file, 
     output.file = NULL, index.file = bam.file)}
