@@ -152,7 +152,12 @@ max.homozygous.loss=0.1,
 ### Maximum genomic fraction assigned to homozygous loss. 
 ### This is set to a fairly high default value to not exclude correct
 ### solutions, especially in noisy segmentations. 
-iterations=30, 
+non.clonal.M=1/3,
+### Average expected cellular fraction of sub-clonal somatic mutations.
+### This is to calculate expected allelic fractions of a single sub-clonal 
+### bin for SNVs. For all somatic variants, more accurate cellular fractions
+### are calculated.
+iterations=30,
 ### Maximum number of iterations in the Simulated Annealing copy 
 ### number fit optimization. Note that this an integer optimization problem
 ### that should converge quickly. Allowed range is 10 to 250.
@@ -814,7 +819,8 @@ gatk.normal.file=NULL,
                         test.num.copy, C.posterior, C, snv.model="beta", 
                         prior.somatic, mapping.bias, snv.lr, sampleid, 
                         cont.rate=prior.contamination,
-                        prior.K=prior.K, max.coverage.vcf=max.coverage.vcf)
+                        prior.K=prior.K, max.coverage.vcf=max.coverage.vcf,
+                        non.clonal.M=non.clonal.M)
                 )})
 
             if (post.optimize) {

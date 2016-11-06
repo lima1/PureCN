@@ -24,7 +24,7 @@ Provides copy number and LOH data, by both gene and genomic region. }
     prior.contamination = 0.01, max.candidate.solutions = 20, 
     candidates = NULL, coverage.cutoff = NULL, min.coverage = 15, 
     max.coverage.vcf = 300, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
-    iterations = 30, log.ratio.calibration = 0.25, 
+    non.clonal.M = 1/3, iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = NULL, gc.gene.file = NULL, 
     max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
     max.segments = 200, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
@@ -138,6 +138,10 @@ number state.}
   \item{max.homozygous.loss}{Maximum genomic fraction assigned to homozygous loss. 
 This is set to a fairly high default value to not exclude correct
 solutions, especially in noisy segmentations. }
+  \item{non.clonal.M}{Average expected cellular fraction of sub-clonal somatic mutations.
+This is to calculate expected allelic fractions of a single sub-clonal 
+bin for SNVs. For all somatic variants, more accurate cellular fractions
+are calculated.}
   \item{iterations}{Maximum number of iterations in the Simulated Annealing copy 
 number fit optimization. Note that this an integer optimization problem
 that should converge quickly. Allowed range is 10 to 250.}

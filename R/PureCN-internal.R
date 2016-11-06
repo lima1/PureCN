@@ -65,7 +65,7 @@ test.num.copy[i], prior.K))
 
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
     C.posterior, C, snv.model, prior.somatic, mapping.bias, snv.lr, sampleid = NULL, 
-    cont.rate = 0.01, prior.K, max.coverage.vcf) {
+    cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M) {
 
     prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
     prior.somatic <- prior.somatic/(1 + cont.rate)
