@@ -259,7 +259,7 @@ test.num.copy[i], prior.K))
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
     max.non.clonal, max.homozygous.loss, sampleid, prior.K, 
     prior.contamination, prior.purity, iterations) {
-    if (min(test.purity) <= 0 || max(test.purity) > 1) 
+    if (min(test.purity) <= 0 || max(test.purity) > 0.99) 
         .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
         .stopUserError("min.ploidy or max.ploidy not within expected range.")

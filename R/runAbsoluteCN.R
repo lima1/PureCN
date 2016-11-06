@@ -564,7 +564,7 @@ gatk.normal.file=NULL,
     } else {
         candidate.solutions <- .optimizeGrid(
             test.purity=seq( max(0.1,min(test.purity)), 
-                min(0.9, max(test.purity)),by=1/30), min.ploidy, max.ploidy, 
+                min(0.99, max(test.purity)),by=1/30), min.ploidy, max.ploidy, 
             test.num.copy=test.num.copy, exon.lrs, seg, sd.seg, li, 
             max.exon.ratio, max.non.clonal, verbose, debug)
 
