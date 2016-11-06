@@ -11,6 +11,6 @@
   The following functions are deprecated and will be made defunct; use
   the replacement indicated below:
   \itemize{
-    \item{createExonWeightFile: \code{\link{createTargetWeights}}}
+    \item{No deprecated functions in \sQuote{PureCN} 1.4}
   }
 }

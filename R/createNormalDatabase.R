@@ -79,20 +79,8 @@ normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 normalDB <- createNormalDatabase(normal.coverage.files)
 })    
 
-createExonWeightFile <- function(# Calculate exon weights
-### This function has been renamed to \code{\link{createTargetWeights}} 
-### and will be made defunct in the next Bioconductor release.
-tumor.coverage.files, 
-### A small number (1-3) of GATK tumor or normal coverage samples.
-normal.coverage.files,
-### A large number of GATK normal coverage samples (>20) 
-### to estimate exon log-ratio standard deviations.
-### Should not overlap with files in \code{tumor.coverage.files}.
-exon.weight.file
-### Output filename.
-) {
-    .Deprecated("createTargetWeights")
-    createTargetWeights(tumor.coverage.files, normal.coverage.files, exon.weight.file)
+createExonWeightFile <- function() {
+    .Defunct("createTargetWeights")
 }
 
 createTargetWeights <- structure(function(# Calculate target weights
