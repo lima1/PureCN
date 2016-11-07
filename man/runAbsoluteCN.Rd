@@ -22,14 +22,13 @@ Provides copy number and LOH data, by both gene and genomic region. }
     max.ploidy = 6, test.num.copy = 0:7, test.purity = seq(0.15, 
         0.95, by = 0.01), prior.purity = NULL, prior.K = 0.999, 
     prior.contamination = 0.01, max.candidate.solutions = 20, 
-    candidates = NULL, coverage.cutoff = NULL, min.coverage = 15, 
-    max.coverage.vcf = 300, max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
+    candidates = NULL, min.coverage = 15, max.coverage.vcf = 300, 
+    max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
     non.clonal.M = 1/3, iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = NULL, gc.gene.file = NULL, 
     max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
     max.segments = 200, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
-    post.optimize = FALSE, verbose = TRUE, gatk.tumor.file = NULL, 
-    gatk.normal.file = NULL, ...)}
+    post.optimize = FALSE, verbose = TRUE, ...)}
 \arguments{
   \item{normal.coverage.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
@@ -127,7 +126,6 @@ optima.}
   \item{candidates}{Candidates to optimize from a previous run 
 (\code{return.object$candidates}). 
 If \code{NULL}, do 2D grid search and find local optima. }
-  \item{coverage.cutoff}{Deprecated, use \code{min.coverage} instead. }
   \item{min.coverage}{Minimum coverage in both normal and tumor. Targets
 with lower coverage are ingored. }
   \item{max.coverage.vcf}{This will set the maximum number of reads in the SNV fitting. 
@@ -176,8 +174,6 @@ typically result in a slightly more accurate purity, especially for rather
 silent genomes or very low purities. Otherwise, it will just use the 
 purity determined via the SCNA-fit.}
   \item{verbose}{Verbose output.}
-  \item{gatk.tumor.file}{Deprecated, use tumor.coverage.file instead.}
-  \item{gatk.normal.file}{Deprecated, use normal.coverage.file instead.}
   \item{\dots}{Additional parameters passed to the segmentation function.}
 }
 

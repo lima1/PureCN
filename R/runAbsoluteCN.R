@@ -136,8 +136,6 @@ candidates=NULL,
 ### Candidates to optimize from a previous run 
 ### (\code{return.object$candidates}). 
 ### If \code{NULL}, do 2D grid search and find local optima. 
-coverage.cutoff=NULL,
-### Deprecated, use \code{min.coverage} instead. 
 min.coverage=15, 
 ### Minimum coverage in both normal and tumor. Targets
 ### with lower coverage are ingored. 
@@ -202,29 +200,12 @@ post.optimize=FALSE,
 ### purity determined via the SCNA-fit.
 verbose=TRUE, 
 ### Verbose output.
-gatk.tumor.file=NULL,
-### Deprecated, use tumor.coverage.file instead.
-gatk.normal.file=NULL,
-### Deprecated, use normal.coverage.file instead.
 ... 
 ### Additional parameters passed to the segmentation function.
 ) {
     debug <- FALSE
 
-    if (missing(genome)) {
-        genome <- "hg19"
-        message("Default of genome=hg19 is deprecated. Please specify genome.")
-    } 
-    if (!is.null(gatk.tumor.file)) {
-        tumor.coverage.file <- gatk.tumor.file
-        message("gatk.tumor.file is deprecated. Please use tumor.coverage.file instead.")
-
-    }       
-    if (!is.null(gatk.normal.file)) {
-        normal.coverage.file <- gatk.normal.file
-        message("gatk.normal.file is deprecated. Please use normal.coverage.file instead.")
-
-    }       
+    # TODO: remove in PureCN 1.6
     if (!is.null(remove.off.target.snvs)) {
         args.filterVcf$remove.off.target.snvs <- remove.off.target.snvs
         message("remove.off.target.snvs is deprecated. Please use it in args.filterVcf instead.")
@@ -266,10 +247,6 @@ gatk.normal.file=NULL,
             normal <- normal.coverage.file
         }    
     }
-    if (!is.null(coverage.cutoff)) {
-        message("coverage.cutoff is deprecated. Use min.coverage instead.")
-        min.coverage <- coverage.cutoff
-    } 
     if (is.null(tumor.coverage.file)) {
         if ((is.null(seg.file) && is.null(log.ratio)) || is.null(gc.gene.file)) { 
             .stopUserError("Missing tumor.coverage.file requires seg.file or ",

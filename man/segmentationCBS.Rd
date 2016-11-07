@@ -5,11 +5,11 @@
 \code{fun.segmentation} argument of \code{\link{runAbsoluteCN}}. 
 The arguments are passed via \code{args.segmentation}.}
 \usage{segmentationCBS(normal, tumor, log.ratio, seg, plot.cnv, 
-    min.coverage, sampleid = sampleid, exon.weight.file = NULL, 
-    target.weight.file = NULL, alpha = 0.005, undo.SD = NULL, 
-    vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, 
-    max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D", 
-    chr.hash = NULL, verbose = TRUE)}
+    min.coverage, sampleid = sampleid, target.weight.file = NULL, 
+    alpha = 0.005, undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, 
+    normal.id.in.vcf = NULL, max.segments = NULL, prune.hclust.h = NULL, 
+    prune.hclust.method = "ward.D", chr.hash = NULL, 
+    verbose = TRUE)}
 \arguments{
   \item{normal}{GATK coverage data for normal sample.}
   \item{tumor}{GATK coverage data for tumor sample.}
@@ -21,8 +21,6 @@ user provided segmentation.}
   \item{plot.cnv}{Segmentation plots.}
   \item{min.coverage}{Minimum coverage in both normal and tumor.}
   \item{sampleid}{Sample id, used in output files.}
-  \item{exon.weight.file}{Can be used to assign weights to targets. Deprecated, use 
-\code{target.weight.file} instead.}
   \item{target.weight.file}{Can be used to assign weights to targets. }
   \item{alpha}{Alpha value for CBS, see documentation for the \code{segment} function.}
   \item{undo.SD}{\code{undo.SD} for CBS, see documentation of the \code{segment} function.

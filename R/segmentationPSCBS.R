@@ -22,7 +22,7 @@ min.coverage,
 ### Minimum coverage in both normal and tumor.
 sampleid=sampleid,
 ### Sample id, used in output files.
-exon.weight.file=NULL,
+target.weight.file=NULL,
 ### Can be used to assign weights to exons. NOT SUPPORTED YET.
 flavor="tcn&dh",
 ### Flavor value for PSCBS. See segmentByNonPairedPSCBS.
@@ -54,7 +54,6 @@ verbose=TRUE,
 ### Additional parameters passed to the segmentByNonPairedPSCBS function.
 ) {
     debug <- TRUE
-    #.Deprecated("segmentationCBS")
         
     if (!requireNamespace("PSCBS", quietly = TRUE)) {
         .stopUserError("segmentationPSCBS requires the PSCBS package.")
@@ -62,11 +61,11 @@ verbose=TRUE,
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
 
-    exon.weights <- NULL
-    if (!is.null(exon.weight.file)) {
-        exon.weights <- read.delim(exon.weight.file, as.is=TRUE)
-        exon.weights <- exon.weights[match(as.character(tumor[,1]), 
-            exon.weights[,1]),2]
+    target.weights <- NULL
+    if (!is.null(target.weight.file)) {
+        target.weights <- read.delim(target.weight.file, as.is=TRUE)
+        target.weights <- target.weights[match(as.character(tumor[,1]), 
+            target.weights[,1]),2]
         if (verbose) message(
             "Exon weights found, but currently not supported by PSCBS.")
     }

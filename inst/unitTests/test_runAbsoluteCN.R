@@ -22,6 +22,7 @@ test_runAbsoluteCN <- function() {
     ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
         tumor.coverage.file=tumor.coverage.file, 
         candidates=purecn.example.output$candidates, 
+        genome="hg19",
         args.segmentation=list(target.weight.file=target.weight.file), 
         max.ploidy=4, max.candidate.solutions=1)
 

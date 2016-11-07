@@ -21,9 +21,6 @@ min.coverage,
 ### Minimum coverage in both normal and tumor.
 sampleid=sampleid,
 ### Sample id, used in output files.
-exon.weight.file=NULL,
-### Can be used to assign weights to targets. Deprecated, use 
-### \code{target.weight.file} instead.
 target.weight.file=NULL,
 ### Can be used to assign weights to targets. 
 alpha=0.005,
@@ -56,12 +53,6 @@ verbose=TRUE
 ) {
     if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
     
-    if (!is.null(exon.weight.file)) {
-        message("exon.weight.file is deprecated, use ",
-            "target.weight.file instead.")
-        target.weight.file <- exon.weight.file
-    }
-
     target.weights <- NULL
     if (!is.null(target.weight.file)) {
         target.weights <- read.delim(target.weight.file, as.is=TRUE)

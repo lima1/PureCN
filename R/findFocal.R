@@ -4,26 +4,14 @@ findFocal <- structure(function(# Find focal amplifications
 ##seealso<< \code{\link{runAbsoluteCN}}
 seg,
 ### Segmentation data.
-size.cutoff=NULL,
-### Deprecated, use \code{max.size} instead.
 max.size=3000000,
 ### Cutoff for focal in base pairs.
 cn.diff=2, 
 ### Minimum copy number delta between neighboring segments.
-amp.cutoff=NULL,
-### Deprectated, use \code{min.amp.cn} instead.
 min.amp.cn=5
 ### Minimum amplification integer copy number. Segments with lower
 ### copy number are not tested.
 ) {
-    if (!is.null(size.cutoff)) {
-        message("size.cutoff is deprecated, use max.size instead.")
-        max.size <- size.cutoff
-    }
-    if (!is.null(amp.cutoff)) {
-        message("amp.cutoff is deprecated, use min.amp.cn instead.")
-        min.amp.cn <- amp.cutoff
-    }
     focal <- rep(FALSE, nrow(seg))
     for (i in seq_len(nrow(seg))) {
         if (seg$C[i] < min.amp.cn) next

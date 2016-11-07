@@ -6,7 +6,7 @@ This function is called via the
 \code{fun.segmentation} argument of \code{\link{runAbsoluteCN}}. 
 The arguments are passed via \code{args.segmentation}.}
 \usage{segmentationPSCBS(normal, tumor, log.ratio, seg, plot.cnv, 
-    min.coverage, sampleid = sampleid, exon.weight.file = NULL, 
+    min.coverage, sampleid = sampleid, target.weight.file = NULL, 
     flavor = "tcn&dh", tauA = 0.03, vcf = NULL, tumor.id.in.vcf = 1, 
     normal.id.in.vcf = NULL, max.segments = NULL, prune.hclust.h = NULL, 
     prune.hclust.method = "ward.D", chr.hash = NULL, 
@@ -22,7 +22,7 @@ user provided segmentation.}
   \item{plot.cnv}{Segmentation plots.}
   \item{min.coverage}{Minimum coverage in both normal and tumor.}
   \item{sampleid}{Sample id, used in output files.}
-  \item{exon.weight.file}{Can be used to assign weights to exons. NOT SUPPORTED YET.}
+  \item{target.weight.file}{Can be used to assign weights to exons. NOT SUPPORTED YET.}
   \item{flavor}{Flavor value for PSCBS. See segmentByNonPairedPSCBS.}
   \item{tauA}{tauA argument for PSCBS. See segmentByNonPairedPSCBS.}
   \item{vcf}{Optional VCF object with germline allelic ratios.}

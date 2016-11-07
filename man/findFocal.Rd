@@ -3,14 +3,11 @@
 \title{Find focal amplifications}
 \description{Function to find focal amplifications in segmented data. 
 This is automatically called in \code{\link{runAbsoluteCN}}.}
-\usage{findFocal(seg, size.cutoff = NULL, max.size = 3e+06, 
-    cn.diff = 2, amp.cutoff = NULL, min.amp.cn = 5)}
+\usage{findFocal(seg, max.size = 3e+06, cn.diff = 2, min.amp.cn = 5)}
 \arguments{
   \item{seg}{Segmentation data.}
-  \item{size.cutoff}{Deprecated, use \code{max.size} instead.}
   \item{max.size}{Cutoff for focal in base pairs.}
   \item{cn.diff}{Minimum copy number delta between neighboring segments.}
-  \item{amp.cutoff}{Deprectated, use \code{min.amp.cn} instead.}
   \item{min.amp.cn}{Minimum amplification integer copy number. Segments with lower
 copy number are not tested.}
 }
