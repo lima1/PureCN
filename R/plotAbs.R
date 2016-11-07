@@ -122,8 +122,11 @@ show.segment.means=c("SNV", "segments", "both"),
             purity <- res$results[[i]]$purity
             ploidy <- res$results[[i]]$ploidy
             peak.ideal.means <- .idealPeaks(seg)
-            r2 <- paste(round(.getGoF(res$results[[i]]) * 100, 
-                digits=1),"%", sep="")
+            GoF <- res$results[[i]]$GOF
+            if (is.null(GoF)) {
+                GoF <- .getGoF(res$results[[i]])
+            }    
+            r2 <- paste(round(GoF * 100, digits=1),"%", sep="")
 
             par(mfrow=c(3,1))
             par(mar=c(c(5, 4, 5, 2) + 0.1))
@@ -506,12 +509,3 @@ ss) {
     par(xpd = pxpd)
 }
 
-.getGoF <- function(result) {
-    r <- result$SNV.posterior$beta.model$posterior
-    ploidy <- result$ploidy
-    e <- (r$ML.AR-r$AR)^2
-    maxDist <- 0.2^2
-    r2 <- 1-mean(e,na.rm=TRUE)/maxDist
-    #r2Adjusted <- r2-(1-r2)*(ploidy/(length(e)-ploidy-1))
-    return(r2)
-}    

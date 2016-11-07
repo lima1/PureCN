@@ -27,8 +27,9 @@ Provides copy number and LOH data, by both gene and genomic region. }
     non.clonal.M = 1/3, iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = NULL, gc.gene.file = NULL, 
     max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
-    max.segments = 200, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
-    post.optimize = FALSE, verbose = TRUE, ...)}
+    max.segments = 200, min.gof = 0.8, plot.cnv = TRUE, 
+    cosmic.vcf.file = NULL, post.optimize = FALSE, 
+    verbose = TRUE, ...)}
 \arguments{
   \item{normal.coverage.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
@@ -160,6 +161,7 @@ insufficient. Requires \code{gc.gene.file}.}
 larger than this. Assay specific and needs to be calibrated.}
   \item{max.segments}{Flag noisy samples with a large number of segments. Assay 
 specific and needs to be calibrated.}
+  \item{min.gof}{Flag purity/ploidy solutions with poor fit.}
   \item{plot.cnv}{Generate segmentation plots.}
   \item{cosmic.vcf.file}{Add a \code{Cosmic.CNT} info field to the provided 
 \code{vcf.file} using a VCF file containing the COSMIC database.

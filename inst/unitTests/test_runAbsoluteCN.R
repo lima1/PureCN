@@ -70,6 +70,9 @@ test_runAbsoluteCN <- function() {
     checkTrue(grepl("prior.purity must have the same", 
         geterrmessage()))
     checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
+        min.gof=70, genome="hg19"))
+    checkTrue(grepl("min.gof", geterrmessage()))
+    checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
         prior.purity=c(0.6,1.1), test.purity=c(0.2, 0.6), genome="hg19"))
     checkTrue(grepl("prior.purity not within expected range", 
         geterrmessage()))
@@ -116,6 +119,7 @@ test_runAbsoluteCN <- function() {
     checkEqualsNumeric(s$AR.ADJUSTED, s$AR/s$MAPPING.BIAS)
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
+    checkEqualsNumeric(ret$results[[1]]$GoF, 0.93, tolerance=0.1)
     checkEqualsNumeric(seq(0.3,0.7,by=1/30),
         as.numeric(colnames(ret$candidates$all)))
 

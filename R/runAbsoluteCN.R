@@ -182,6 +182,8 @@ max.logr.sdev=0.75,
 max.segments=200,
 ### Flag noisy samples with a large number of segments. Assay 
 ### specific and needs to be calibrated.
+min.gof=0.8,
+### Flag purity/ploidy solutions with poor fit.
 plot.cnv=TRUE, 
 ### Generate segmentation plots.
 cosmic.vcf.file=NULL,
@@ -227,7 +229,7 @@ verbose=TRUE,
     # argument checking
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
         max.homozygous.loss, sampleid, prior.K, prior.contamination, 
-        prior.purity, iterations)
+        prior.purity, iterations, min.gof)
 
     test.num.copy <- sort(test.num.copy)
 
@@ -849,7 +851,7 @@ verbose=TRUE,
     results <- .filterDuplicatedResults(results)
     results <- .flagResults(results, max.non.clonal=max.non.clonal, 
         max.logr.sdev=max.logr.sdev, logr.sdev=sd.seg, 
-        max.segments=max.segments, flag=vcf.filtering$flag, 
+        max.segments=max.segments, min.gof=min.gof, flag=vcf.filtering$flag, 
         flag_comment=vcf.filtering$flag_comment, dropout=dropoutWarning)  
 
     if (length(results) < 1) {

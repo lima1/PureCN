@@ -258,7 +258,7 @@ test.num.copy[i], prior.K))
 
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
     max.non.clonal, max.homozygous.loss, sampleid, prior.K, 
-    prior.contamination, prior.purity, iterations) {
+    prior.contamination, prior.purity, iterations, min.gof) {
     if (min(test.purity) <= 0 || max(test.purity) > 0.99) 
         .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
@@ -268,6 +268,8 @@ test.num.copy[i], prior.K))
     .checkFraction(max.homozygous.loss, "max.homozygous.loss")
     .checkFraction(prior.K, "prior.K")
     .checkFraction(prior.contamination, "prior.contamination")
+    .checkFraction(min.gof, "min.gof")
+
     tmp <- sapply(prior.purity, .checkFraction, "prior.purity")
 
     if (!is.null(sampleid) && ( class(sampleid) != "character" ||
@@ -349,7 +351,7 @@ test.num.copy[i], prior.K))
         return(b)
     paste(a, b, sep = ";")
 }
-.flagResult <- function(result, max.non.clonal = 0.2) {
+.flagResult <- function(result, max.non.clonal = 0.2, min.gof) {
     result$flag_comment <- NA
     result$flag <- .failedNonAberrant(result)
     if (result$flag) {
@@ -367,6 +369,18 @@ test.num.copy[i], prior.K))
         result$flag <- TRUE
         result$flag_comment <- .appendComment(result$flag_comment, "RARE KARYOTYPE")
     }
+    if (result$purity < 0.3) {
+        result$flag <- TRUE
+        result$flag_comment <- .appendComment(result$flag_comment, "LOW PURITY")
+    }
+    result$GoF <- .getGoF(result)
+
+    if (!is.null(result$GoF) && result$GoF < min.gof) {
+        result$flag <- TRUE
+        result$flag_comment <- .appendComment(result$flag_comment, 
+            paste("POOR GOF (", round(result$GoF,digits=1),"%)", sep="") )
+    }
+
     fraction.loh <- .getFractionLoh(result)
     # Assume that everything below 2.6 did not undergo genome duplication, which can
     # result in lots of LOH
@@ -384,19 +398,26 @@ test.num.copy[i], prior.K))
     x1 <- unique(segids[pp$ML.M.Segment==0])
     sum(result$seg$size[x1])/sum(result$seg$size)
 }
+.getGoF <- function(result) {
+    if (is.null(result$SNV.posterior$beta.model)) return(0)
+    r <- result$SNV.posterior$beta.model$posteriors
+    e <- (r$ML.AR-r$AR)^2
+    maxDist <- 0.2^2
+    r2 <- 1-mean(e,na.rm=TRUE)/maxDist
+    return(r2)
+}    
 
-.flagResults <- function(results, max.non.clonal = 0.2, max.logr.sdev, logr.sdev, max.segments,
-    flag = NA, flag_comment = NA, dropout=FALSE) {
+.flagResults <- function(results, max.non.clonal = 0.2, max.logr.sdev, 
+    logr.sdev, max.segments, min.gof, flag = NA, flag_comment = NA, 
+    dropout=FALSE) {
     if (length(results) < 1) return(results)
 
-    results <- lapply(results, .flagResult, max.non.clonal = max.non.clonal)
-    
-    # ldiff <- ( results[[1]]$total.log.likelihood -
-    # results[[2]]$total.log.likelihood ) / abs( results[[1]]$total.log.likelihood )
-    # if (ldiff < 0.1) { results[[1]]$flag <- TRUE results[[1]]$flag_comment <-
-    # 'SIMILAR TO SECOND MOST LIKELY OPTIMUM' return(results) }
+    results <- lapply(results, .flagResult, max.non.clonal=max.non.clonal, 
+        min.gof=min.gof)
+
     number.segments <- nrow(results[[1]]$seg)
     
+    # some global flags
     if (logr.sdev > max.logr.sdev) {
         for (i in seq_along(results)) {
             results[[i]]$flag <- TRUE
@@ -421,7 +442,6 @@ test.num.copy[i], prior.K))
         }
     }
     
-    # some global flags
     if (!is.na(flag) && flag) {
         for (i in seq_along(results)) {
             results[[i]]$flag <- TRUE
