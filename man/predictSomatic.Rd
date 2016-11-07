@@ -4,13 +4,11 @@
 \description{This function takes as input the output of a 
 \code{\link{runAbsoluteCN}} run and provides SNV posterior probabilities
 for all possible states. }
-\usage{predictSomatic(res, id = 1, cutoff = 0.1, return.vcf = FALSE)}
+\usage{predictSomatic(res, id = 1, return.vcf = FALSE)}
 \arguments{
   \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
   \item{id}{Candidate solutions to be analyzed. \code{id=1} will analyze the 
 maximum likelihood solution.}
-  \item{cutoff}{Exclude maternal/paternal chromosome number in segment if 
-posterior probability is lower than cutoff.}
   \item{return.vcf}{Returns an annotated \code{CollapsedVCF} object. Note that 
 this VCF will only contain variants not filtered out by the 
 \code{filterVcf} functions. Variants outside segments or intervals
