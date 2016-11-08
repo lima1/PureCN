@@ -378,7 +378,7 @@ test.num.copy[i], prior.K))
     if (!is.null(result$GoF) && result$GoF < min.gof) {
         result$flag <- TRUE
         result$flag_comment <- .appendComment(result$flag_comment, 
-            paste("POOR GOF (", round(result$GoF,digits=1),"%)", sep="") )
+            paste("POOR GOF (", round(result$GoF*100,digits=1),"%)", sep="") )
     }
 
     fraction.loh <- .getFractionLoh(result)

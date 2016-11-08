@@ -79,7 +79,10 @@ normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 normalDB <- createNormalDatabase(normal.coverage.files)
 })    
 
-createExonWeightFile <- function() {
+createExonWeightFile <- function(# Calculate exon weights
+### This function is defunct. Please use \code{\link{createTargetWeights}}
+### instead.
+) {
     .Defunct("createTargetWeights")
 }
 
