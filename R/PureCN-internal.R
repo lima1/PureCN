@@ -403,7 +403,7 @@ test.num.copy[i], prior.K))
     r <- result$SNV.posterior$beta.model$posteriors
     e <- (r$ML.AR-r$AR)^2
     maxDist <- 0.2^2
-    r2 <- 1-mean(e,na.rm=TRUE)/maxDist
+    r2 <- max(1-mean(e,na.rm=TRUE)/maxDist,0)
     return(r2)
 }    
 
