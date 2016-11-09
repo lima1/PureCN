@@ -76,8 +76,11 @@ coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file)
     if (!identical(as.character(gc[,1]), as.character(tumor[,1]))) {
         if (sum(!as.character(tumor[,1]) %in% as.character(gc[,1])) > 0) {
             .stopUserError(
-            "Interval files in coverage.file and gc.gene.file different.\n",
-            "Some intervals in coverage have no GC information.")
+            "Intervals in coverage.file and gc.gene.file different.\n",
+            "Some intervals in coverage have no GC information.\n",
+            "Please re-calculate coverage using the intervals specified ",
+            "in gc.gene.file or provide the correct gc.gene.file."
+            )
         }
         warning(
         "Interval files in coverage.file and gc.gene.file different.")
