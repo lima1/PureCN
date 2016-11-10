@@ -34,6 +34,7 @@ file
         coverage = as.numeric(gatk$total_coverage), 
         average.coverage = as.numeric(gatk$average_coverage), 
         base.with..10.coverage = NA)
+    .checkLowCoverage(tmp)
     tmp <- .checkIntervals(tmp)
     return(tmp)
 ### A \code{data.frame} with the parsed coverage information. 
@@ -67,4 +68,13 @@ coverage <- readCoverageGatk(tumor.coverage.file)
     }
     coverage     
 }
-    
+
+.checkLowCoverage <- function(coverage) {
+    chrsWithLowCoverage <- names(which(sapply(split(coverage$average.coverage, 
+        coverage$chr), mean, na.rm=TRUE) < 1))
+    if (length(chrsWithLowCoverage)>2) {
+        warning("Multiple chromosomes with very low coverage: ", 
+            paste(chrsWithLowCoverage, collapse=","))
+    }    
+}
+        
