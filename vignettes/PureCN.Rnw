@@ -119,13 +119,14 @@ provided}:
 
 The intervals define the captured genomic regions (targets) and are provided by
 the manufacturer of your capture kit\footnote{While \software{PureCN} can use a
-pool of normal samples to learn which intervals are reliable and which not,
-it is highly recommended to provide the correct intervals. Garbage in,
-garbage out.}.  Default parameters assume that these intervals do NOT
-include a "padding" to include flanking regions of targets.
-\software{PureCN} will automatically include variants in the 50bp flanking
-regions if the variant caller was either run without interval file or with
-interval padding (See section~\ref{faqinput}). 
+pool of normal samples to learn which intervals are reliable and which not, it
+is highly recommended to provide the correct intervals. Garbage in, garbage
+out.}.  Default parameters assume that these intervals do NOT include a
+"padding" to include flanking regions of targets.  \software{PureCN} will
+automatically include variants in the 50bp flanking regions if the variant
+caller was either run without interval file or with interval padding (See
+section~\ref{faqinput}). Please double check that the genome version of the
+interval file matches the reference.
 
 It is recommended to GC-normalize coverage (how this done is described later in
 Section~\ref{secgcbias}). The GC-content for each target is expected in
@@ -630,7 +631,9 @@ copy-number neutral LOH and to cluster segments with similar allelic imbalance
 and log-ratio. The provided interval file should therefore cover
 all significant copy number alterations\footnote{If this behaviour is not
 wanted, because maybe the custom function already identifies CNNLOH reliably,
-\Rfunction{segmentationCBS} can be replaced with a minimal version.}.
+\Rfunction{segmentationCBS} can be replaced with a minimal version.}. Please
+check that the log-ratios are similar to the ones obtained by the default
+\Biocpkg{PureCN} segmentation and normalization.
 
 <<customseg>>=
 retSegmented <- runAbsoluteCN(seg.file=seg.file, 
@@ -692,6 +695,7 @@ curation to compare how well high confidence germline (dbSNP) vs. somatic
 (COSMIC) variants fit a particular purity/ploidy combination.
 
 \section{Maximizing the number of heterozygous SNPs}
+\label{secmaxsnps}
 
 It is possible to use SNPs in off-target reads in the SNV fitting step by
 running \software{MuTect} without interval file and then setting the
@@ -960,8 +964,47 @@ single nucleotide variants (SNVs) and indels is planned for Bioconductor 3.5.
 Experimental support for \software{MuTect 2} VCFs generated in tumor-only mode
 is available now.
 
+\section{Support}
 
-\section{FAQ}
+If you encounter bugs or have problems running \Biocpkg{PureCN},
+please post them at
+\url{https://support.bioconductor.org/p/new/post/?tag\_val=PureCN}.
+
+If \Biocpkg{PureCN} throws user errors, then there is likely a problem with the
+input files.  The error message should be self-explanatory. If not feel free to
+seek help at the support site. But please try to fix all warnings before
+posting problems. In your report, please add the outputs of the
+\Rfunction{runAbsoluteCN} call (with \Rcode{verbose=TRUE}) and
+\Rfunction{sessionInfo()}. Please also check that your problem is not already
+covered in the following sections.
+
+For general feedback such as suggestions for improvements, feature requests,
+complaints, etc. please do not hesitate to send us an email.
+
+\subsection{Checklist}
+
+\begin{itemize}
+    \item Used the correct interval files provided by the manufacturer of the
+    capture kit and the genome version of the interval file matches the reference.
+    \item BAM files were generated following established best practices and
+    tools finished successfully.
+    \item Checked standard QC metrics such as AT dropout.
+    \item Tumor and normal data were obtained using the same capture kit and
+    pipeline.
+    \item Coverage data of tumor and normal were GC-normalized.
+    \item Maximized the number of high coverage heterozygous SNPs, for example
+    by running \software{MuTect} with a 50bp interval padding
+    (Section~\ref{secmaxsnps}).
+    \item If a pool of normal samples is available, followed the steps in
+    Section~\ref{artifactfiltering}.
+    \item Read the output of \Rfunction{runAbsoluteCN} with \Rcode{verbose=TRUE},
+    fixed all warnings.
+    \item If third-party segmentation tools are used, checked that normalized
+    log-ratios are not biased, i.e. very similar compared to \Biocpkg{PureCN}
+    log-ratios (some pipelines already adjust for default normal contamination).
+\end{itemize}
+
+\subsection{FAQ}
 
 \paragraph{If the ploidy is frequently too high, please check:}
 
@@ -1010,7 +1053,7 @@ Figure~\ref{figure/figureexample2-1}:
     \item The same is obviously true for coverage. Coverages below 80X are
     difficult unless purities are high and coverages are even.
     \item The number of heterozygous SNPs is also important. Copy number probes 
-    enriched in SNPs are therefore very helpful.
+    enriched in SNPs are therefore very helpful (see Section~\ref{secmaxsnps}).
     \item While \Biocpkg{PureCN} supports to some degree uneven tiling of
     targets, the more evenly distributed the better. Large gaps are problematic
     and might require third-party segmentation tools that support off-target
