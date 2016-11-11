@@ -50,7 +50,7 @@ library(PureCN)
 set.seed(1234)
 @
 
-\section{Quick start}
+\section{Introduction}
 
 This tutorial will demonstrate on a toy example how we recommend running
 \Biocpkg{PureCN} on targeted sequencing data. To estimate tumor purity, we
@@ -757,8 +757,9 @@ ratio as provided in the VCF file.  GERMLINE.CONTHIGH and GERMLINE.CONTLOW are
 the two contamination states.  The former are homozygous germline SNPs that
 were not filtered out because reference alleles from another individual were
 sequenced, resulting in allelic fractions smaller than 1. The latter are
-non-reference alleles only present in the contamination. SOMATIC.M0 represents a 
-sub-clonal state (somatic mutations by definition have a multiplicity larger than 0.
+non-reference alleles only present in the contamination. SOMATIC.M0 represents
+a sub-clonal state (somatic mutations by definition have a multiplicity larger
+than 0).
 
 
 To annotate the input VCF file with these values:
