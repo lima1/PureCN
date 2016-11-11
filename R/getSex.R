@@ -105,7 +105,7 @@ max.pv=0.001,
 ### Maximum Fisher's exact p-value to call sample as male.
 homozygous.cutoff=0.95,
 ### Minimum allelic fraction to call position homozygous.
-af.cutoff=0.03,
+af.cutoff=0.2,
 ### Remove all SNVs with allelic fraction lower than the
 ### specified value. 
 verbose=TRUE

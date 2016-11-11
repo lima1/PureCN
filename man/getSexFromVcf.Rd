@@ -9,7 +9,7 @@ sanity check when a VCF is provided. It is also useful for determining
 sex when no sex marker genes on chrY (e.g. AMELY) are available.}
 \usage{getSexFromVcf(vcf, tumor.id.in.vcf = NULL, min.or = 4, 
     min.or.na = 2.5, max.pv = 0.001, homozygous.cutoff = 0.95, 
-    af.cutoff = 0.03, verbose = TRUE)}
+    af.cutoff = 0.2, verbose = TRUE)}
 \arguments{
   \item{vcf}{CollapsedVCF object, read in with the \code{readVcf} function 
 from the VariantAnnotation package.}
