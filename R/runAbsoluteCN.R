@@ -65,9 +65,9 @@ fun.filterVcf=filterVcfMuTect,
 ### which in turn also calls \code{\link{filterVcfBasic}}.
 args.filterVcf=list(),
 ### Arguments for variant filtering function. Arguments 
-### \code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage} and 
-### \code{verbose} are required in the 
-### filter function and are automatically set (do NOT set them here again).
+### \code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage}, 
+### \code{model.homozygous}, \code{error} and \code{verbose} are required in
+### the filter function and are automatically set (do NOT set them here again).
 fun.setPriorVcf=setPriorVcf,
 ### Function to set prior for somatic status for each 
 ### variant in the VCF. Defaults to \code{\link{setPriorVcf}}.
@@ -164,6 +164,19 @@ log.ratio.calibration=0.25,
 ### \code{sd(log.ratio)*log.ratio.calibration}.
 remove.off.target.snvs=NULL,
 ### Deprecated. Use the corresponding argument in \code{args.filterVcf}.
+model.homozygous=FALSE,
+### Homozygous germline SNPs are uninformative and by default removed.
+### In 100 percent pure samples such as cell lines, however, heterozygous
+### germline SNPs appear homozygous in case of LOH. Setting this parameter
+### to \code{TRUE} will keep homozygous SNPs and include a homozygous SNP
+### state in the likelihood model. 
+error=0.001,
+### Estimated sequencing error rate. Used to calculate minimum
+### number of supporting reads for SNVs using 
+### \code{\link{calculatePowerDetectSomatic}}.
+### Also used to calculate the probability of homozygous SNP allelic fractions
+### (assuming non-reference reads are sequencing errors).
+##seealso<< \code{\link{calculatePowerDetectSomatic}}
 gc.gene.file=NULL, 
 ### A mapping file that assigns GC content and gene symbols 
 ### to each exon in the coverage files. Used for generating gene-level calls. 
@@ -416,9 +429,11 @@ verbose=TRUE,
             " variants in VCF file.")
         
         args.filterVcf <- c(list(vcf=vcf, tumor.id.in.vcf=tumor.id.in.vcf, 
+            model.homozygous=model.homozygous, error=error,
             target.granges=exon.gr, verbose=verbose), args.filterVcf)
-        if (is.null(args.filterVcf$min.coverage)) args.filterVcf$min.coverage <- min.coverage    
-
+        if (is.null(args.filterVcf$min.coverage)) {
+            args.filterVcf$min.coverage <- min.coverage
+        }
         vcf.filtering <- do.call(fun.filterVcf, args.filterVcf)
 
         vcf <- vcf.filtering$vcf
@@ -799,7 +814,8 @@ verbose=TRUE,
                         prior.somatic, mapping.bias, snv.lr, sampleid, 
                         cont.rate=prior.contamination,
                         prior.K=prior.K, max.coverage.vcf=max.coverage.vcf,
-                        non.clonal.M=non.clonal.M)
+                        non.clonal.M=non.clonal.M, 
+                        model.homozygous=model.homozygous,error=error)
                 )})
 
             if (post.optimize) {

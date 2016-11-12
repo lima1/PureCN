@@ -79,6 +79,8 @@ writeVcf(purecn.vcf, file="Sample1_PureCN.vcf")
         " homozygous, reference allele contamination", descriptionPp)
     descriptionPp <- gsub("GCONTLOW", 
         " alt allele contamination", descriptionPp)
+    descriptionPp <- gsub("GHOMOZYGOUS", 
+        " homozygous", descriptionPp)
 
     newInfoPosterior <- DataFrame(
         Number=1, 

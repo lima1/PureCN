@@ -111,7 +111,7 @@ test_runAbsoluteCN <- function() {
     
     # run with a VCF
     ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-        tumor.coverage.file=tumor.coverage.file, remove.off.target.snvs=TRUE,
+        tumor.coverage.file=tumor.coverage.file, 
         vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1)
 
@@ -132,7 +132,8 @@ test_runAbsoluteCN <- function() {
          tmp
     }    
     ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-        tumor.coverage.file=tumor.coverage.file, remove.off.target.snvs=FALSE,
+        tumor.coverage.file=tumor.coverage.file, 
+        args.filterVcf=list(remove.off.target.snvs=FALSE),
         vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1, fun.setMappingBiasVcf=myMappingBiasTestFun)
 
@@ -148,7 +149,7 @@ test_runAbsoluteCN <- function() {
     gc2 <- read.delim(gc.gene.file, as.is=TRUE)[,-3]
     write.table(gc2, file="tmp.gc", row.names=FALSE, sep="\t", quote=FALSE)
     ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-        gc.gene.file="tmp.gc",
+        gc.gene.file="tmp.gc", model.homozygous=TRUE,
         tumor.coverage.file=tumor.coverage.file, remove.off.target.snvs=TRUE,
         candidates=purecn.example.output$candidates, 
         vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
@@ -186,7 +187,7 @@ test_runAbsoluteCN <- function() {
         geterrmessage()))
 
     checkException(runAbsoluteCN(normal.coverage.file=normCov, 
-        tumor.coverage.file=tumorCov, remove.off.target.snvs=TRUE,
+        tumor.coverage.file=tumorCov, 
         gc.gene.file=gc.gene.file,
         vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1))
@@ -198,7 +199,7 @@ test_runAbsoluteCN <- function() {
     write.table(gc3, file="tmp3.gc", row.names=FALSE, sep="\t", quote=FALSE)
 
     ret <- runAbsoluteCN(normal.coverage.file=normCov, 
-        tumor.coverage.file=tumorCov, remove.off.target.snvs=TRUE,
+        tumor.coverage.file=tumorCov, 
         gc.gene.file="tmp3.gc",
         vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1)

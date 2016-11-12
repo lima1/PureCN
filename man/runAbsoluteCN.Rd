@@ -25,11 +25,11 @@ Provides copy number and LOH data, by both gene and genomic region. }
     candidates = NULL, min.coverage = 15, max.coverage.vcf = 300, 
     max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
     non.clonal.M = 1/3, iterations = 30, log.ratio.calibration = 0.25, 
-    remove.off.target.snvs = NULL, gc.gene.file = NULL, 
-    max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
-    max.segments = 200, min.gof = 0.8, plot.cnv = TRUE, 
-    cosmic.vcf.file = NULL, post.optimize = FALSE, 
-    verbose = TRUE, ...)}
+    remove.off.target.snvs = NULL, model.homozygous = FALSE, 
+    error = 0.001, gc.gene.file = NULL, max.dropout = c(0.95, 
+        1.1), max.logr.sdev = 0.75, max.segments = 200, 
+    min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
+    post.optimize = FALSE, verbose = TRUE, ...)}
 \arguments{
   \item{normal.coverage.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
@@ -76,9 +76,9 @@ variants and filter non-somatic calls with allelic fraction significantly
 different from 0.5 in normal. Defaults to \code{\link{filterVcfMuTect}}, 
 which in turn also calls \code{\link{filterVcfBasic}}.}
   \item{args.filterVcf}{Arguments for variant filtering function. Arguments 
-\code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage} and 
-\code{verbose} are required in the 
-filter function and are automatically set (do NOT set them here again).}
+\code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage}, 
+\code{model.homozygous}, \code{error} and \code{verbose} are required in
+the filter function and are automatically set (do NOT set them here again).}
   \item{fun.setPriorVcf}{Function to set prior for somatic status for each 
 variant in the VCF. Defaults to \code{\link{setPriorVcf}}.}
   \item{args.setPriorVcf}{Arguments for somatic prior function.}
@@ -147,6 +147,16 @@ that should converge quickly. Allowed range is 10 to 250.}
   \item{log.ratio.calibration}{Re-calibrate log-ratios in the window 
 \code{sd(log.ratio)*log.ratio.calibration}.}
   \item{remove.off.target.snvs}{Deprecated. Use the corresponding argument in \code{args.filterVcf}.}
+  \item{model.homozygous}{Homozygous germline SNPs are uninformative and by default removed.
+In 100 percent pure samples such as cell lines, however, heterozygous
+germline SNPs appear homozygous in case of LOH. Setting this parameter
+to \code{TRUE} will keep homozygous SNPs and include a homozygous SNP
+state in the likelihood model. }
+  \item{error}{Estimated sequencing error rate. Used to calculate minimum
+number of supporting reads for SNVs using 
+\code{\link{calculatePowerDetectSomatic}}.
+Also used to calculate the probability of homozygous SNP allelic fractions
+(assuming non-reference reads are sequencing errors).}
   \item{gc.gene.file}{A mapping file that assigns GC content and gene symbols 
 to each exon in the coverage files. Used for generating gene-level calls. 
 First column in format CHR:START-END. Second column GC content (0 to 1). 
@@ -188,7 +198,9 @@ purity determined via the SCNA-fit.}
 
 
 
-\seealso{\code{\link{correctCoverageBias} \link{segmentationCBS}}}
+\seealso{\code{\link{correctCoverageBias} \link{segmentationCBS}}
+
+\code{\link{calculatePowerDetectSomatic}}}
 \examples{
 normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")

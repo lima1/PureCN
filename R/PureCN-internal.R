@@ -64,8 +64,9 @@ test.num.copy[i], prior.K))
 }    
 
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
-    C.posterior, C, snv.model, prior.somatic, mapping.bias, snv.lr, sampleid = NULL, 
-    cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M) {
+    C.posterior, C, snv.model, prior.somatic, mapping.bias, snv.lr, 
+    sampleid = NULL, cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M,
+    model.homozygous=FALSE, error=0.001) {
 
     prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
     prior.somatic <- prior.somatic/(1 + cont.rate)
@@ -120,6 +121,7 @@ test.num.copy[i], prior.K))
 
         lapply(test.num.copy, function(Ci) {
             priorM <- log(Ci + 1 + haploid.penalty)
+            priorHom <- ifelse(model.homozygous, -priorM, log(0))
             
             skip <- test.num.copy > Ci | C.posterior[i, Ci + 1] <=0
 
@@ -154,7 +156,11 @@ test.num.copy[i], prior.K))
 
             p.ar[[3]] <- p.ar.cont.1 + log(prior.cont[idx])
             p.ar[[4]] <- p.ar.cont.2 + log(prior.cont[idx])
-            
+
+            # homozygous state
+            p.ar[[5]] <- dbinom(round((1-ar_all)*dp_all),size=dp_all, 
+                prob=error/3, log=TRUE) + priorHom + log(1-prior.somatic[idx])
+             
             do.call(cbind, p.ar)
         })
         
@@ -176,7 +182,7 @@ test.num.copy[i], prior.K))
 
     colnames(snv.posteriors) <- c(paste("SOMATIC.M", test.num.copy, sep = ""), 
         paste("GERMLINE.M", test.num.copy, sep = ""), "GERMLINE.CONTHIGH", 
-        "GERMLINE.CONTLOW")
+        "GERMLINE.CONTLOW", "GERMLINE.HOMOZYGOUS")
     
     vcf.ids <- do.call(c, lapply(seg.idx, function(i) 
         subjectHits(ov)[queryHits(ov) == i]))
@@ -197,6 +203,7 @@ test.num.copy[i], prior.K))
     posteriors$ML.AR <- (p * posteriors$ML.M + 
         ifelse(posteriors$ML.SOMATIC, 0, 1) * 
         (1 - p))/(p * posteriors$ML.C + 2 * (1 - p))
+    posteriors$ML.AR[ posteriors$ML.AR > 1] <- 1 
 
     posteriors$AR <- unlist(geno(vcf[vcf.ids])$FA[, tumor.id.in.vcf])
     posteriors$AR.ADJUSTED <- posteriors$AR / mapping.bias[vcf.ids]

@@ -4,6 +4,7 @@ Changes in version 1.6.0
 - Automatic 50bp interval padding.
 - Added sub-clonal SNV state (SOMATIC.M0)
 - Polished plots
+- Support for cell lines
 
 PLANNED FEATURES 
 

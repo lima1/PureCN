@@ -8,7 +8,8 @@ variant calls. }
     contamination.cutoff = c(0.05, 0.075), min.coverage = 15, 
     min.base.quality = 25, min.supporting.reads = NULL, 
     error = 0.001, target.granges = NULL, remove.off.target.snvs = TRUE, 
-    interval.padding = 50, verbose = TRUE)}
+    model.homozygous = FALSE, interval.padding = 50, 
+    verbose = TRUE)}
 \arguments{
   \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf} 
 function from the VariantAnnotation package.}
@@ -43,6 +44,8 @@ Used to remove off-target reads. If \code{NULL}, do not check whether
 variants are on or off-target.}
   \item{remove.off.target.snvs}{If set to a true value, will remove all SNVs outside the 
 covered regions.}
+  \item{model.homozygous}{If set to \code{TRUE}, does not remove homozygous SNPs. Ignored in case
+a matched normal is provided in the VCF.}
   \item{interval.padding}{Include variants in the interval flanking regions of the 
 specified size in bp. Requires \code{target.granges}.}
   \item{verbose}{Verbose output.}

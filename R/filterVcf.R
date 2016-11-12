@@ -48,6 +48,9 @@ target.granges=NULL,
 remove.off.target.snvs=TRUE,
 ### If set to a true value, will remove all SNVs outside the 
 ### covered regions.
+model.homozygous=FALSE,
+### If set to \code{TRUE}, does not remove homozygous SNPs. Ignored in case
+### a matched normal is provided in the VCF.
 interval.padding=50,
 ### Include variants in the interval flanking regions of the 
 ### specified size in bp. Requires \code{target.granges}.
@@ -85,8 +88,9 @@ verbose=TRUE
     # If we have a matched normal, we can distinguish LOH from homozygous
     # in 100% pure samples. If not we need to see a sufficient number
     # of alt alleles to believe a heterozygous normal genotype.    
-    if (use.somatic.status) {
+    if (use.somatic.status || model.homozygous) {
         af.range[2] <- 1
+        if (model.homozygous) af.range[2] <- Inf
     } else {
         vcf <- vcf[do.call(rbind, 
             geno(vcf)$AD[,tumor.id.in.vcf])[,1] >= min.supporting.reads]
@@ -156,7 +160,7 @@ verbose=TRUE
     # code finds samples which have a lot of dbSNPs between 0.95 and 0.97 on
     # almost all chromosomes.  If found, then remove everything that's in dbSNP
     # above 0.9.
-    if (!use.somatic.status) {    
+    if (!use.somatic.status && !model.homozygous) {    
         idx <- info(vcf)$DB & unlist(geno(vcf)$FA[,tumor.id.in.vcf]) > 
             (1 - contamination.cutoff[1])
 
