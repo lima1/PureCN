@@ -42,8 +42,7 @@ are properly ordered.   }
   \item{\dots}{Additional parameters passed to the segmentByNonPairedPSCBS function.}
 }
 
-\value{A list with elements seg and size. "seg" contains the 
-segmentation, "size" the size of all segments in base pairs.    }
+\value{\code{data.frame} containing the segmentation.    }
 
 \author{Markus Riester}
 

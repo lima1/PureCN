@@ -115,8 +115,7 @@ verbose=TRUE,
             method=prune.hclust.method, chr.hash=chr.hash, verbose=verbose)
     }
     x$cna$output
-### A list with elements seg and size. "seg" contains the 
-### segmentation, "size" the size of all segments in base pairs.    
+### \code{data.frame} containing the segmentation.    
 },ex=function() {
 normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
