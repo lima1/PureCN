@@ -590,18 +590,19 @@ createCurationFile(file.curated.rds)
 
 \section{Cell lines}
 
-Default parameters assume some normal contamination. In 100\% pure samples such
-as cell lines, we for example cannot distinguish homozygous SNPs from LOH by
-looking at single allelic fractions alone. It is thus necessary to keep
-homozygous variants and include this uncertainty in the likelihood model. This
-is done by setting the \Rfunction{runAbsoluteCN} argument
-\Rcode{model.homozygous=TRUE}.  Note that in 100\% pure samples, we cannot
-distinguish private germline from mono-clonal somatic mutations either.
+Default parameters assume some normal contamination. In 100\% pure samples
+without matching normal samples such as cell lines, we for example cannot
+distinguish homozygous SNPs from LOH by looking at single allelic fractions
+alone. It is thus necessary to keep homozygous variants and include this
+uncertainty in the likelihood model. This is done by setting the
+\Rfunction{runAbsoluteCN} argument \Rcode{model.homozygous=TRUE}. If matched
+normals are available, then variants homozygous in normal are automatically
+removed since they are uninformative.  Note that in 100\% pure samples, we
+cannot distinguish private germline from mono-clonal somatic mutations either.
 
 For technical reasons, the maximum purity \Biocpkg{PureCN} currently models is
 0.99. We recommend setting \Rcode{test.purity=seq(0.9,0.99,by=0.01)} in
 \Rfunction{runAbsoluteCN} for cell lines.
-
 
 \section{Custom normalization and segmentation}
 \label{customseg}

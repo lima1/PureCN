@@ -86,21 +86,6 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     
     subclonal <- apply(C.posterior[queryHits(ov), ], 1, which.max) == ncol(C.posterior)
     
-    # very high amplifications results in prior probabilities for tested copy numbers
-    # of 0. We add the subclonal posterior to the maximum copy number to fix this.
-    idx <- abs(round(C) - C) > 0.001 & C > max(test.num.copy)
-    if (length(idx) > 1) {
-        C.posterior[idx, ncol(C.posterior) - 1] <- C.posterior[idx, 
-            ncol(C.posterior) - 1] + C.posterior[idx, ncol(C.posterior)]
-    }
-
-#    # the same issue, but for subclonal alterations below < 7
-#    idx <- C.posterior[,ncol(C.posterior)] > 0.999 & C < max(test.num.copy)
-#    if (length(idx) > 1) {
-#        f <- 1/ncol(C.posterior)
-#        C.posterior[idx,] <-(C.posterior[idx,]+f)/(ncol(C.posterior)*f+1)
-#    }   
-    
     seg.idx <- which(seq_len(nrow(C.posterior)) %in% queryHits(ov))
     sd.ar <- sd(unlist(geno(vcf)$FA[, tumor.id.in.vcf]))
 
@@ -226,11 +211,11 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     # these are potential artifacts with very high clonal probability and would have
     # huge impact on log-likelihood
     rm.snv.posteriors <- apply(snv.posteriors, 1, max)
-    idx.ignore <- (posteriors$CN.Subclonal & 
-        posteriors$ML.C < max(test.num.copy) & 
-        C.posterior[queryHits(ov), ncol(C.posterior)] > 0.95) | 
-        rm.snv.posteriors == 0
-
+#    idx.ignore <- (posteriors$CN.Subclonal & 
+#        posteriors$ML.C < max(test.num.copy) & 
+#        C.posterior[queryHits(ov), ncol(C.posterior)] > 0.95) | 
+#        rm.snv.posteriors == 0
+    idx.ignore <- rm.snv.posteriors == 0
     # change seqnames to chr
     colnames(posteriors)[1] <- "chr"    
 

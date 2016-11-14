@@ -151,7 +151,8 @@ that should converge quickly. Allowed range is 10 to 250.}
 In 100 percent pure samples such as cell lines, however, heterozygous
 germline SNPs appear homozygous in case of LOH. Setting this parameter
 to \code{TRUE} will keep homozygous SNPs and include a homozygous SNP
-state in the likelihood model. }
+state in the likelihood model. Not necessary when matched normal samples
+are available.}
   \item{error}{Estimated sequencing error rate. Used to calculate minimum
 number of supporting reads for SNVs using 
 \code{\link{calculatePowerDetectSomatic}}.

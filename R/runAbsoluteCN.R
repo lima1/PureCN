@@ -169,7 +169,8 @@ model.homozygous=FALSE,
 ### In 100 percent pure samples such as cell lines, however, heterozygous
 ### germline SNPs appear homozygous in case of LOH. Setting this parameter
 ### to \code{TRUE} will keep homozygous SNPs and include a homozygous SNP
-### state in the likelihood model. 
+### state in the likelihood model. Not necessary when matched normal samples
+### are available.
 error=0.001,
 ### Estimated sequencing error rate. Used to calculate minimum
 ### number of supporting reads for SNVs using 
