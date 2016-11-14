@@ -735,11 +735,13 @@ verbose=TRUE,
                 }    
                 id <- min(which(z <= cumsum(p.rij)))
                 old.C <- C[i]
-                opt.C <- max((2^(seg$seg.mean[i])*total.ploidy)/ 
-                    p-((2*(1-p))/p),0)
+                opt.C <- (2^(seg$seg.mean+log.ratio.offset)*total.ploidy)/ 
+                    p-((2*(1-p))/p)
+                #message(opt.C[i], " seg: ", seg$seg.mean[i], " offset: ", log.ratio.offset[i], " purity: ", p)
+                opt.C[opt.C < 0] <- 0
                 if (id > length(test.num.copy)) {
                     # optimal non-integer copy number
-                    C[i] <- opt.C
+                    C[i] <- opt.C[i]
                     subclonal[i] <- TRUE
                 } else {    
                     C[i] <- test.num.copy[id]
@@ -810,7 +812,7 @@ verbose=TRUE,
 
                 list(
                     beta.model  = .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, 
-                        test.num.copy, C.posterior, C, snv.model="beta", 
+                        test.num.copy, C.posterior, C, opt.C, snv.model="beta", 
                         prior.somatic, mapping.bias, snv.lr, sampleid, 
                         cont.rate=prior.contamination,
                         prior.K=prior.K, max.coverage.vcf=max.coverage.vcf,

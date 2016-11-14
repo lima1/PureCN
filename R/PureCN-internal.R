@@ -58,13 +58,13 @@ max.exon.ratio) {
 }
 
 # calculate likelihood scores for all possible minor copy numbers
-.calcMsSegment <- function(xxi, test.num.copy, prior.K) {
+.calcMsSegment <- function(xxi, test.num.copy, opt.C, prior.K) {
     lapply(seq_along(xxi), function(i).calcMsSegmentC( xxi[[i]], test.num.copy,
-test.num.copy[i], prior.K))
+c(test.num.copy, round(opt.C))[i], prior.K))
 }    
 
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
-    C.posterior, C, snv.model, prior.somatic, mapping.bias, snv.lr, 
+    C.posterior, C, opt.C, snv.model, prior.somatic, mapping.bias, snv.lr, 
     sampleid = NULL, cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M,
     model.homozygous=FALSE, error=0.001) {
 
@@ -94,12 +94,12 @@ test.num.copy[i], prior.K))
             ncol(C.posterior) - 1] + C.posterior[idx, ncol(C.posterior)]
     }
 
-    # the same issue, but for subclonal alterations below < 7
-    idx <- C.posterior[,ncol(C.posterior)] > 0.999 & C < max(test.num.copy)
-    if (length(idx) > 1) {
-        f <- 1/ncol(C.posterior)
-        C.posterior[idx,] <-(C.posterior[idx,]+f)/(ncol(C.posterior)*f+1)
-    }   
+#    # the same issue, but for subclonal alterations below < 7
+#    idx <- C.posterior[,ncol(C.posterior)] > 0.999 & C < max(test.num.copy)
+#    if (length(idx) > 1) {
+#        f <- 1/ncol(C.posterior)
+#        C.posterior[idx,] <-(C.posterior[idx,]+f)/(ncol(C.posterior)*f+1)
+#    }   
     
     seg.idx <- which(seq_len(nrow(C.posterior)) %in% queryHits(ov))
     sd.ar <- sd(unlist(geno(vcf)$FA[, tumor.id.in.vcf]))
@@ -119,11 +119,12 @@ test.num.copy[i], prior.K))
         shape1 <- ar_all * dp_all + 1
         shape2 <- (1 - ar_all) * dp_all + 1
 
-        lapply(test.num.copy, function(Ci) {
+        lapply(seq(ncol(C.posterior)), function(k) {
+            Ci <- c(test.num.copy, opt.C[i])[k]       
             priorM <- log(Ci + 1 + haploid.penalty)
             priorHom <- ifelse(model.homozygous, -priorM, log(0))
             
-            skip <- test.num.copy > Ci | C.posterior[i, Ci + 1] <=0
+            skip <- test.num.copy > Ci | C.posterior[i, k] <=0
 
             p.ar <- lapply(c(0, 1), function(g) {
                 cns <- test.num.copy
@@ -166,7 +167,9 @@ test.num.copy[i], prior.K))
         
     })
     
-    tmp <- lapply(xx, .calcMsSegment, test.num.copy, prior.K)
+    tmp <- lapply(seq_along(xx),function(i) .calcMsSegment(xx[[i]], 
+               test.num.copy, opt.C[seg.idx[i]], prior.K))
+
     xx <- lapply(tmp, lapply, function(x) x$best)
     
     # Get segment M's for each SNV
@@ -177,8 +180,8 @@ test.num.copy[i], prior.K))
 
     snv.posteriors <- do.call(rbind, 
         lapply(seq_along(xx), function(i) Reduce("+", 
-            lapply(test.num.copy, function(Ci) 
-                exp(xx[[i]][[Ci + 1]]) * C.posterior[seg.idx[i], Ci + 1]))))
+            lapply(seq(ncol(C.posterior)), function(j) 
+                exp(xx[[i]][[j]]) * C.posterior[seg.idx[i], j]))))
 
     colnames(snv.posteriors) <- c(paste("SOMATIC.M", test.num.copy, sep = ""), 
         paste("GERMLINE.M", test.num.copy, sep = ""), "GERMLINE.CONTHIGH", 
