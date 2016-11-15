@@ -144,7 +144,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
             p.ar[[4]] <- p.ar.cont.2 + log(prior.cont[idx])
 
             # homozygous state
-            p.ar[[5]] <- dbinom(round((1-ar_all)*dp_all),size=dp_all, 
+            p.ar[[5]] <- dbinom(round((1-ar_all)*dp_all),size=round(dp_all), 
                 prob=error/3, log=TRUE) + priorHom + log(1-prior.somatic[idx])
              
             do.call(cbind, p.ar)
