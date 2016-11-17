@@ -175,17 +175,17 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     vcf.ids <- do.call(c, lapply(seg.idx, function(i) 
         subjectHits(ov)[queryHits(ov) == i]))
     rownames(snv.posteriors) <- vcf.ids
+    snv.posteriors <- snv.posteriors/rowSums(snv.posteriors)
     
     # this just adds a lot of helpful info to the SNV posteriors
     xx <- .extractMLSNVState(snv.posteriors)
     
-    posteriors <- snv.posteriors/rowSums(snv.posteriors)
     posteriors <- cbind(
         as.data.frame(rowRanges(vcf[vcf.ids]))[, 1:3], 
-        posteriors, 
+        snv.posteriors, 
         xx, 
         ML.C = C[queryHits(ov)],
-        ML.M.Segment=segment.M
+        ML.M.SEGMENT=segment.M
     )
     
     posteriors$ML.AR <- (p * posteriors$ML.M + 
@@ -197,16 +197,20 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     posteriors$AR.ADJUSTED <- posteriors$AR / mapping.bias[vcf.ids]
     posteriors$AR.ADJUSTED[posteriors$AR.ADJUSTED>1] <- 1
     posteriors$MAPPING.BIAS <- mapping.bias[vcf.ids]
+    # Extract LOH
+    posteriors$ML.LOH <- (posteriors$ML.M == posteriors$ML.C | 
+        posteriors$ML.M == 0 | posteriors$ML.C == 1)
     
-    posteriors$CN.Subclonal <- subclonal
+    posteriors$CN.SUBCLONAL <- subclonal
+    posteriors$CELLFRACTION <-  (posteriors$AR/posteriors$ML.M)*
+        (p*posteriors$ML.C+2*(1-p))/p
+    posteriors$CELLFRACTION[!posteriors$ML.SOMATIC] <- NA
+
     posteriors$Log.Ratio <- snv.lr[vcf.ids]
     posteriors$Prior.Somatic <- prior.somatic[vcf.ids]
     posteriors$Prior.Contamination <- prior.cont[vcf.ids]
     posteriors$On.Target <- info(vcf[vcf.ids])$OnTarget
     
-    # Extract LOH
-    posteriors$ML.LOH <- (posteriors$ML.M == posteriors$ML.C | 
-        posteriors$ML.M == 0 | posteriors$ML.C == 1)
 
     # these are potential artifacts with very high clonal probability and would have
     # huge impact on log-likelihood
@@ -241,7 +245,9 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     colnames(xx) <- c("ML.SOMATIC", "ML.M")
     # set sub-clonal (ML.M=0) to 1
     xx$ML.M[xx$ML.SOMATIC & !xx$ML.M] <- 1
-    xx
+    xx$POSTERIOR.SOMATIC <- apply(snv.posteriors[, grep("SOMATIC.M", 
+        colnames(snv.posteriors))], 1, sum, na.rm=TRUE)
+    xx[, c(1,3,2)]
 }
 
 .checkFraction <- function(x, name) {
@@ -390,7 +396,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     if (is.null(result$SNV.posterior$beta.model)) return(0)
     pp <- result$SNV.posterior$beta.model$posteriors
     segids <- result$SNV.posterior$beta.model$segment.ids
-    x1 <- unique(segids[pp$ML.M.Segment==0])
+    x1 <- unique(segids[pp$ML.M.SEGMENT==0])
     sum(result$seg$size[x1])/sum(result$seg$size)
 }
 .getGoF <- function(result) {

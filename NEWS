@@ -6,6 +6,11 @@ Changes in version 1.6.0
 - Polished plots
 - Support for cell lines
 
+API CHANGES
+
+ - Renamed some predictSomatic() output column names.
+ - moved remove.off.target.snvs to filterVcfBasic.
+ 
 PLANNED FEATURES 
 
 - Support for indels.

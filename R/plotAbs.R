@@ -175,13 +175,13 @@ show.segment.means=c("SNV", "segments", "both"),
             segment.log.ratio.lines <- .toLines(ss=segment.log.ratio[idx])
             segment.M.log.ratio.lines <- .toLines(
                 peak.ideal.means[as.character(
-                res$results[[i]]$SNV.posterior$beta.model$posteriors$ML.M.Segment[idx]
+                res$results[[i]]$SNV.posterior$beta.model$posteriors$ML.M.SEGMENT[idx]
             )])
             
             # calculate expected segment B-allelic fractions
             purity <- res$results[[i]]$purity
             ploidy <- res$results[[i]]$ploidy
-            b1 <- ((purity*r$ML.M.Segment[idx])+(1-purity))/
+            b1 <- ((purity*r$ML.M.SEGMENT[idx])+(1-purity))/
                 ((purity*r$ML.C[idx])+2*(1-purity))
             b2 <- 1-b1
             segment.b1.lines <- .toLines(ss=b1)
@@ -255,14 +255,14 @@ show.segment.means=c("SNV", "segments", "both"),
                 axis(side=4,at=peak.ideal.means, 
                     labels=names(peak.ideal.means))
 
-                plot(r$ML.M.Segment[idx], ylab="Maximum Likelihood Copy Number", 
+                plot(r$ML.M.SEGMENT[idx], ylab="Maximum Likelihood Copy Number", 
                     xlab="SNV Index", 
                     ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), col="grey",
                     type="n", ... )
                 rect(tmp$start, par("usr")[3], tmp$end+1, par("usr")[4], 
                      col=ifelse(seq(nrow(tmp))%%2, "#deebf7", "white"), border=NA)
                 rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4])
-                points(r$ML.M.Segment[idx], col="grey")
+                points(r$ML.M.SEGMENT[idx], col="grey")
                 points(r$ML.C[idx], col="black")
                 abline(v=cids, lty=3, col="grey")
             } 

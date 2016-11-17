@@ -765,18 +765,17 @@ number events, or wrong purity/ploidy estimates.}:
 head(predictSomatic(ret), 3)
 @
 
-M0 to M7 are multiplicity values, i.e. the number of chromosomes harboring the
-mutation (e.g.  1 heterozygous, 2 homozygous if copy number C is 2). Columns
-with the ML prefix indicate maximum likelihood estimates, e.g. ML.AR is the
-expected allelic ratio of the most likely state, AR is the observed allelic
-ratio as provided in the VCF file.  GERMLINE.CONTHIGH and GERMLINE.CONTLOW are
-the two contamination states.  The former are homozygous germline SNPs that
-were not filtered out because reference alleles from another individual were
-sequenced, resulting in allelic fractions smaller than 1. The latter are
-non-reference alleles only present in the contamination. SOMATIC.M0 represents
-a sub-clonal state (somatic mutations by definition have a multiplicity larger
-than 0).
-
+Columns in upper case are model predictions. M0 to M7 are multiplicity values,
+i.e. the number of chromosomes harboring the mutation (e.g.  1 heterozygous, 2
+homozygous if copy number C is 2). Columns with the ML prefix indicate maximum
+likelihood estimates, e.g. ML.AR is the expected allelic ratio of the most
+likely state, AR is the observed allelic ratio as provided in the VCF file.
+GERMLINE.CONTHIGH and GERMLINE.CONTLOW are the two contamination states.  The
+former are homozygous germline SNPs that were not filtered out because
+reference alleles from another individual were sequenced, resulting in allelic
+fractions smaller than 1. The latter are non-reference alleles only present in
+the contamination. SOMATIC.M0 represents a sub-clonal state (somatic mutations
+by definition have a multiplicity larger than 0).
 
 To annotate the input VCF file with these values:
 <<output4>>=

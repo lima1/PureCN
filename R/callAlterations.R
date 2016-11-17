@@ -53,7 +53,7 @@ all.genes=FALSE,
         segids <- bm$segment.ids
         calls$num.snps.segment <- sapply(calls$seg.id, function(i) 
             sum(segids==i,na.rm=TRUE))
-        calls$loh <- bm$posterior$ML.M.Segment[match(calls$seg.id, segids)] == 0 
+        calls$loh <- bm$posterior$ML.M.SEGMENT[match(calls$seg.id, segids)] == 0 
     }
     
     if (!all.genes) {

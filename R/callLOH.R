@@ -24,7 +24,7 @@ IRanges(start=armLocations$start, end=armLocations$end))
 
     minorChrNumber <- cbind(
         res$results[[id]]$SNV.posterior$beta.model$segment.ids,
-        res$results[[id]]$SNV.posterior$beta.model$posteriors$ML.M.Segment
+        res$results[[id]]$SNV.posterior$beta.model$posteriors$ML.M.SEGMENT
     )
     minorChrNumber <- minorChrNumber[!duplicated(minorChrNumber[,1]),]
     seg$M <- NA

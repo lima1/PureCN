@@ -17,11 +17,6 @@ return.vcf=FALSE
 ### arguments.
 ){
     pp   <- .addSymbols(res$results[[id]])
-    purity <- res$results[[id]]$purity
-
-    pp$Cellfraction <-  (pp$AR/pp$ML.M)*
-        (purity*pp$ML.C+2*(1-purity))/purity
-    pp$Cellfraction[!pp$ML.SOMATIC] <- NA
     if (return.vcf) {
         vcf <- res$input$vcf[
             res$results[[id]]$SNV.posterior$beta.model$vcf.ids]
@@ -98,13 +93,13 @@ ifelse(x=="logical", "Flag", ifelse(x=="integer", "Integer", "Float"))))
             colnames(pp)[idxCols]),
         row.names=colnames(pp)[idxCols]
     )
-    idxColsMisc <- c("CN.Subclonal", "Log.Ratio", "gene.symbol", 
-        "Cellfraction")
+    idxColsMisc <- c("CN.SUBCLONAL", "CELLFRACTION",
+    "Log.Ratio", "gene.symbol")
     newInfoMisc <- DataFrame(
         Number=c(0,1,1,1),
         Type=c("Flag", "Float", "String", "Float"),
-        Description=c("Sub-clonal copy number gain", "Copy number log-ratio", 
-            "Gene Symbol", "Cellular fraction"),
+        Description=c("Sub-clonal copy number gain", "Cellular fraction", 
+            "Copy number log-ratio", "Gene Symbol" ),
         row.names=idxColsMisc
     )
     info(header(vcf)) <- rbind(info(header(vcf)), newInfoPosterior, newInfoMl,
