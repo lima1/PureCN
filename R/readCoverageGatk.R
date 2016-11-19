@@ -18,7 +18,7 @@ file
     if (sum(idx)) {
         warning("Coverage data contains single nucleotide intervals.")
     }    
-    chrpos[idx,2] <- paste(chrpos[idx,2], "-", chrpos[idx,2],sep="")
+    chrpos[idx,2] <- paste0(chrpos[idx,2], "-", chrpos[idx,2])
     chr <- factor(chrpos[, 1])
     
     pos <- matrix(as.integer(unlist(strsplit(chrpos[, 2], "-"))), 

@@ -17,8 +17,8 @@ output.file=NULL,
     interval <- read.delim(interval.file, as.is=TRUE, ...)
     isBedFile <- .checkBedFile(interval)
     if (isBedFile) {
-       interval$Target <- paste(interval[,1],":", interval[,2],"-", 
-        interval[,3], sep="")
+       interval$Target <- paste0(interval[,1],":", interval[,2],"-", 
+        interval[,3])
     } else {
         colnames(interval)[1] <- "Target"
     }

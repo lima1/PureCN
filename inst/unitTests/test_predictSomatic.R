@@ -16,4 +16,6 @@ test_predictSomatic <- function() {
     checkEquals(as.character(ret$chr), as.character(seqnames(ret.vcf)))
     checkEqualsNumeric(round(ret$SOMATIC.M1, digits=4), info(ret.vcf)$SM1, tol=0.001)
     checkEqualsNumeric(round(ret$GERMLINE.M1, digits=4), info(ret.vcf)$GM1, tol=0.001)
+    checkEqualsNumeric(round(ret$POSTERIOR.SOMATIC, digits=4), info(ret.vcf)$PS, tol=0.001)
+    checkEquals(ret$gene.symbol, info(ret.vcf)$GS)
 }

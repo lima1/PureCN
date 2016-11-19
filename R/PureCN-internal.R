@@ -206,10 +206,10 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         (p*posteriors$ML.C+2*(1-p))/p
     posteriors$CELLFRACTION[!posteriors$ML.SOMATIC] <- NA
 
-    posteriors$Log.Ratio <- snv.lr[vcf.ids]
-    posteriors$Prior.Somatic <- prior.somatic[vcf.ids]
-    posteriors$Prior.Contamination <- prior.cont[vcf.ids]
-    posteriors$On.Target <- info(vcf[vcf.ids])$OnTarget
+    posteriors$log.ratio <- snv.lr[vcf.ids]
+    posteriors$prior.somatic <- prior.somatic[vcf.ids]
+    posteriors$prior.contamination <- prior.cont[vcf.ids]
+    posteriors$on.target <- info(vcf[vcf.ids])$OnTarget
     
 
     # these are potential artifacts with very high clonal probability and would have
@@ -379,7 +379,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     if (!is.null(result$GoF) && result$GoF < min.gof) {
         result$flag <- TRUE
         result$flag_comment <- .appendComment(result$flag_comment, 
-            paste("POOR GOF (", round(result$GoF*100,digits=1),"%)", sep="") )
+            paste0("POOR GOF (", round(result$GoF*100,digits=1),"%)") )
     }
 
     fraction.loh <- .getFractionLoh(result)
@@ -756,16 +756,16 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
 .stopUserError <- function(...) {
     msg <- paste(c(...), collapse="")
-    msg <- paste(msg, "\n\nThis is most likely a user error due to",
+    msg <- paste0(msg, "\n\nThis is most likely a user error due to",
         " invalid input data or parameters (PureCN ", 
-        packageVersion("PureCN"), ").", sep="")
+        packageVersion("PureCN"), ").")
     stop( paste(strwrap(msg),"\n"), call.= FALSE)
 }
 .stopRuntimeError <- function(...) {
     msg <- paste(c(...), collapse="")
-    msg <- paste(msg, "\n\nThis runtime error might be caused by",
+    msg <- paste0(msg, "\n\nThis runtime error might be caused by",
         " invalid input data or parameters. Please report bug (PureCN ", 
-        packageVersion("PureCN"), ").", sep="")
+        packageVersion("PureCN"), ").")
     stop( paste(strwrap(msg),"\n"), call.= FALSE)
 }
 

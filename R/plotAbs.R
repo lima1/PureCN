@@ -126,7 +126,7 @@ show.segment.means=c("SNV", "segments", "both"),
             if (is.null(GoF)) {
                 GoF <- .getGoF(res$results[[i]])
             }    
-            r2 <- paste(round(GoF * 100, digits=1),"%", sep="")
+            r2 <- paste0(round(GoF * 100, digits=1),"%")
 
             par(mfrow=c(3,1))
             par(mar=c(c(5, 4, 5, 2) + 0.1))
@@ -201,7 +201,7 @@ show.segment.means=c("SNV", "segments", "both"),
                 abline(h=0.5, lty=3, col="grey")
                 main <- paste("SCNA-fit Log-Likelihood:", 
                     round(res$results[[i]]$log.likelihood, digits=2) )
-                plot(x, r$Log.Ratio[idx], ylab="Copy Number log-ratio", 
+                plot(x, r$log.ratio[idx], ylab="Copy Number log-ratio", 
                     xlab="Pos (kbp)", col=mycol, main=main, pch=mypch, 
                     ylim=quantile(segment.log.ratio,p=c(0.01,0.99)),
                     ... )
@@ -234,18 +234,18 @@ show.segment.means=c("SNV", "segments", "both"),
                 main <- paste("SCNA-fit Log-Likelihood:", 
                     round(res$results[[i]]$log.likelihood, digits=2) )
 
-                myylim <- quantile(subset(r$Log.Ratio,
-                    !is.infinite(r$Log.Ratio)), p=c(0.001, 1-0.001),na.rm=TRUE)
+                myylim <- quantile(subset(r$log.ratio,
+                    !is.infinite(r$log.ratio)), p=c(0.001, 1-0.001),na.rm=TRUE)
                 myylim[1] <- floor(myylim[1])
                 myylim[2] <- ceiling(myylim[2])
 
-                plot(r$Log.Ratio[idx], ylab="Copy Number log-ratio", 
+                plot(r$log.ratio[idx], ylab="Copy Number log-ratio", 
                     xlab="SNV Index", 
                     main=main, ylim=myylim, type="n",... )
                 rect(tmp$start, par("usr")[3], tmp$end+1, par("usr")[4], 
                      col=ifelse(seq(nrow(tmp))%%2, "#deebf7", "white"), border=NA)
                 rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4])
-                points(r$Log.Ratio[idx], col=adjustcolor(mycol, alpha.f=myalpha), pch=mypch)
+                points(r$log.ratio[idx], col=adjustcolor(mycol, alpha.f=myalpha), pch=mypch)
                 lines(segment.log.ratio.lines, col="black", lwd=3)
                 lines(segment.M.log.ratio.lines, col="grey", lwd=3)
 
@@ -277,20 +277,20 @@ show.segment.means=c("SNV", "segments", "both"),
             if (is.null(r)) next
             vcf <- res$input$vcf[res$results[[i]]$SNV.posterior$beta$vcf.ids]
             # brwer.pal requires at least 3 levels
-            tmp <- I(brewer.pal(max(nlevels(as.factor(r$Prior.Somatic)),3),
+            tmp <- I(brewer.pal(max(nlevels(as.factor(r$prior.somatic)),3),
                 name="Dark2" ))
 
             mycol.palette <- data.frame(
-                priors=levels(as.factor(r$Prior.Somatic)), 
-                color=tmp[seq_len(nlevels(as.factor(r$Prior.Somatic)))] 
+                priors=levels(as.factor(r$prior.somatic)), 
+                color=tmp[seq_len(nlevels(as.factor(r$prior.somatic)))] 
             )
 
             mycol.palette$pch <- seq_len(nrow(mycol.palette))
 
             mycol <- mycol.palette$color[
-                match(as.character(r$Prior.Somatic), mycol.palette$priors)]
+                match(as.character(r$prior.somatic), mycol.palette$priors)]
             mypch <- mycol.palette$pch[
-                match(as.character(r$Prior.Somatic), mycol.palette$priors)]
+                match(as.character(r$prior.somatic), mycol.palette$priors)]
 
             main.color <- sort(table(mycol), decreasing=TRUE)[1]
 
@@ -318,11 +318,11 @@ show.segment.means=c("SNV", "segments", "both"),
                 custom.solution <- FALSE
             }    
 
-            mylogratio.xlim <- quantile(subset(r$Log.Ratio,
-                    !is.infinite(r$Log.Ratio)), p=c(0.001, 1-0.001),na.rm=TRUE)
+            mylogratio.xlim <- quantile(subset(r$log.ratio,
+                    !is.infinite(r$log.ratio)), p=c(0.001, 1-0.001),na.rm=TRUE)
 
             peak.ideal.means <- .idealPeaks(seg)
-            scatter.labels <- paste(r$ML.C,"m", r$ML.M, sep="")[!r$ML.SOMATIC]
+            scatter.labels <- paste0(r$ML.C,"m", r$ML.M)[!r$ML.SOMATIC]
             idx.labels <- !duplicated(scatter.labels) & 
                 as.character(r$ML.C[!r$ML.SOMATIC]) %in% 
                 names(peak.ideal.means)
@@ -330,13 +330,13 @@ show.segment.means=c("SNV", "segments", "both"),
 
             idx.nna <- !is.na(r$ML.M ) & !r$ML.SOMATIC
             y <- sapply(split(r$AR[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
-            x <- sapply(split(r$Log.Ratio[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
+            x <- sapply(split(r$log.ratio[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
             mlm <- sapply(split(r$ML.M[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
             mlc <- sapply(split(r$ML.C[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
             size <- sapply(split(r$ML.M[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), length)
             
             if (segment.means %in% c("both", "SNV")) {    
-                plot(r$Log.Ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
+                plot(r$log.ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
                     col=adjustcolor(mycol[!r$ML.SOMATIC], alpha.f=myalpha), pch=mypch[!r$ML.SOMATIC], 
                     xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
                     xlim=mylogratio.xlim
@@ -369,13 +369,13 @@ show.segment.means=c("SNV", "segments", "both"),
                     digits=4)) , col=mycol.palette$color, 
                     pch=mycol.palette$pch, cex=0.8)
 
-                scatter.labels <- paste(r$ML.C,"m", r$ML.M, 
-                    sep="")[r$ML.SOMATIC]
+                scatter.labels <- paste0(r$ML.C,"m", r$ML.M)[r$ML.SOMATIC]
 
                 idx.labels <- !duplicated(scatter.labels) & 
-                    as.character(r$ML.C[r$ML.SOMATIC]) %in% names(peak.ideal.means)
+                    as.character(r$ML.C[r$ML.SOMATIC]) %in% 
+                    names(peak.ideal.means)
 
-                plot(r$Log.Ratio[r$ML.SOMATIC], r$AR[r$ML.SOMATIC], 
+                plot(r$log.ratio[r$ML.SOMATIC], r$AR[r$ML.SOMATIC], 
                     col=mycol[r$ML.SOMATIC], pch=mypch[r$ML.SOMATIC], 
                     xlab="Copy Number log-ratio", 
                     ylab="Allelic fraction (somatic)",

@@ -9,18 +9,20 @@ res,
 id=1, 
 ### Candidate solutions to be analyzed. \code{id=1} will analyze the 
 ### maximum likelihood solution.
-return.vcf=FALSE
+return.vcf=FALSE,
 ### Returns an annotated \code{CollapsedVCF} object. Note that 
 ### this VCF will only contain variants not filtered out by the 
 ### \code{filterVcf} functions. Variants outside segments or intervals
 ### might be included or not depending on \code{\link{runAbsoluteCN}}
 ### arguments.
+vcf.field.prefix=""
+### Prefix all VCF info field names with this string.
 ){
     pp   <- .addSymbols(res$results[[id]])
     if (return.vcf) {
         vcf <- res$input$vcf[
             res$results[[id]]$SNV.posterior$beta.model$vcf.ids]
-        return(.annotatePosteriorsVcf(pp, vcf))
+        return(.annotatePosteriorsVcf(pp, vcf, prefix=vcf.field.prefix))
     }
     pp
 ### A \code{data.frame} or \code{CollapsedVCF} with SNV state 
@@ -57,18 +59,23 @@ writeVcf(purecn.vcf, file="Sample1_PureCN.vcf")
     result$SNV.posterior$beta.model$posteriors
 }
     
-.annotatePosteriorsVcf <- function(pp, vcf) {
+.annotatePosteriorsVcf <- function(pp, vcf, prefix="") {
     if (nrow(pp) != nrow(vcf)) {
          .stopRuntimeError("Posteriors and filtered VCF do not align.")
     }
     idxColsPp <- grep("^SOMATIC|^GERMLINE", colnames(pp))
     colnames(pp)[idxColsPp] <- gsub("OMATIC\\.|ERMLINE\\.", "",
         colnames(pp)[idxColsPp])
+    colnames(pp)[colnames(pp)=="CN.SUBCLONAL"] <- "CS" 
+    colnames(pp)[colnames(pp)=="CELLFRACTION"] <- "CF" 
+    colnames(pp)[colnames(pp)=="POSTERIOR.SOMATIC"] <- "PS" 
+    colnames(pp)[colnames(pp)=="log.ratio"] <- "LR" 
+    colnames(pp)[colnames(pp)=="gene.symbol"] <- "GS" 
 
-    descriptionPp <- paste(ifelse(grepl("^S", colnames(pp)[idxColsPp]),
+    descriptionPp <- paste0(ifelse(grepl("^S", colnames(pp)[idxColsPp]),
         "Somatic", "Germline"), gsub("^.*M", 
         " posterior probability, multiplicity ", 
-            colnames(pp)[idxColsPp]), ".", sep="")
+            colnames(pp)[idxColsPp]), ".")
 
     descriptionPp <- gsub("GCONTHIGH", 
         " homozygous, reference allele contamination", descriptionPp)
@@ -76,14 +83,14 @@ writeVcf(purecn.vcf, file="Sample1_PureCN.vcf")
         " alt allele contamination", descriptionPp)
     descriptionPp <- gsub("GHOMOZYGOUS", 
         " homozygous", descriptionPp)
-
+    idxCols <- grep("^ML", colnames(pp))
+    colnames(pp) <- paste0(prefix, colnames(pp))
     newInfoPosterior <- DataFrame(
         Number=1, 
         Type="Float", 
         Description=descriptionPp, 
         row.names=colnames(pp)[idxColsPp]
     )
-    idxCols <- grep("^ML", colnames(pp))
     infoType <- as.character(sapply(sapply(pp[idxCols], class), function(x)
 ifelse(x=="logical", "Flag", ifelse(x=="integer", "Integer", "Float"))))
     newInfoMl <- DataFrame(
@@ -93,12 +100,13 @@ ifelse(x=="logical", "Flag", ifelse(x=="integer", "Integer", "Float"))))
             colnames(pp)[idxCols]),
         row.names=colnames(pp)[idxCols]
     )
-    idxColsMisc <- c("CN.SUBCLONAL", "CELLFRACTION",
-    "Log.Ratio", "gene.symbol")
+
+    idxColsMisc <- paste0(prefix, c("CS", "CF", "PS", "LR", "GS"))
     newInfoMisc <- DataFrame(
-        Number=c(0,1,1,1),
-        Type=c("Flag", "Float", "String", "Float"),
+        Number=c(0,1,1,1,1),
+        Type=c("Flag", "Float", "Float", "Float", "String"),
         Description=c("Sub-clonal copy number gain", "Cellular fraction", 
+            "Posterior probability variant is somatic mutation.", 
             "Copy number log-ratio", "Gene Symbol" ),
         row.names=idxColsMisc
     )
@@ -106,6 +114,8 @@ ifelse(x=="logical", "Flag", ifelse(x=="integer", "Integer", "Float"))))
 newInfoMisc)
     idxColsMisc <- match(idxColsMisc, colnames(pp))
     pp[, idxColsPp] <- round( pp[, idxColsPp], digits=4)
+    pp[, idxColsMisc[2:4]] <- round( pp[, idxColsMisc[2:4]], digits=4)
+    
     info(vcf) <- cbind(info(vcf), pp[, c(idxColsPp, idxCols, idxColsMisc)])
     vcf
 }

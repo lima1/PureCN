@@ -4,7 +4,7 @@
 \description{This function takes as input the output of a 
 \code{\link{runAbsoluteCN}} run and provides SNV posterior probabilities
 for all possible states. }
-\usage{predictSomatic(res, id = 1, return.vcf = FALSE)}
+\usage{predictSomatic(res, id = 1, return.vcf = FALSE, vcf.field.prefix = "")}
 \arguments{
   \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
   \item{id}{Candidate solutions to be analyzed. \code{id=1} will analyze the 
@@ -14,6 +14,7 @@ this VCF will only contain variants not filtered out by the
 \code{filterVcf} functions. Variants outside segments or intervals
 might be included or not depending on \code{\link{runAbsoluteCN}}
 arguments.}
+  \item{vcf.field.prefix}{Prefix all VCF info field names with this string.}
 }
 
 \value{A \code{data.frame} or \code{CollapsedVCF} with SNV state 
