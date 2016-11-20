@@ -163,26 +163,26 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     segment.M <- unlist(sapply(seq_along(seg.idx), function(i) 
         rep(segment.M[i], sum(seg.idx[i]==queryHits(ov)))))
 
-    snv.posteriors <- do.call(rbind, 
+    likelihoods <- do.call(rbind, 
         lapply(seq_along(xx), function(i) Reduce("+", 
             lapply(seq(ncol(C.posterior)), function(j) 
                 exp(xx[[i]][[j]]) * C.posterior[seg.idx[i], j]))))
 
-    colnames(snv.posteriors) <- c(paste("SOMATIC.M", test.num.copy, sep = ""), 
+    colnames(likelihoods) <- c(paste("SOMATIC.M", test.num.copy, sep = ""), 
         paste("GERMLINE.M", test.num.copy, sep = ""), "GERMLINE.CONTHIGH", 
         "GERMLINE.CONTLOW", "GERMLINE.HOMOZYGOUS")
     
     vcf.ids <- do.call(c, lapply(seg.idx, function(i) 
         subjectHits(ov)[queryHits(ov) == i]))
-    rownames(snv.posteriors) <- vcf.ids
-    snv.posteriors <- snv.posteriors/rowSums(snv.posteriors)
+    rownames(likelihoods) <- vcf.ids
     
     # this just adds a lot of helpful info to the SNV posteriors
-    xx <- .extractMLSNVState(snv.posteriors)
+    posteriors <- likelihoods/rowSums(likelihoods)
+    xx <- .extractMLSNVState(posteriors)
     
     posteriors <- cbind(
         as.data.frame(rowRanges(vcf[vcf.ids]))[, 1:3], 
-        snv.posteriors, 
+        posteriors, 
         xx, 
         ML.C = C[queryHits(ov)],
         ML.M.SEGMENT=segment.M
@@ -214,7 +214,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
     # these are potential artifacts with very high clonal probability and would have
     # huge impact on log-likelihood
-    rm.snv.posteriors <- apply(snv.posteriors, 1, max)
+    rm.snv.posteriors <- apply(likelihoods, 1, max)
 #    idx.ignore <- (posteriors$CN.Subclonal & 
 #        posteriors$ML.C < max(test.num.copy) & 
 #        C.posterior[queryHits(ov), ncol(C.posterior)] > 0.95) | 
@@ -225,7 +225,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
     ret <- list(
         llik = sum(log(rm.snv.posteriors[!idx.ignore])) - sum(idx.ignore), 
-        likelihoods = snv.posteriors, 
+        likelihoods = likelihoods, 
         posteriors = posteriors, 
         vcf.ids = vcf.ids, 
         segment.ids = queryHits(ov), 
