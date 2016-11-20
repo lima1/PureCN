@@ -86,13 +86,6 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     
     subclonal <- apply(C.posterior[queryHits(ov), ], 1, which.max) == ncol(C.posterior)
     
-    # Artifacts can cause negative copy numbers. Limit the effect by giving them a prior 
-    # of homozygous loss. This is an ugly hack, but high ploidy solutions are unfairly
-    # not affected by these artifacts.
-    idx <- C.posterior[,ncol(C.posterior)] > 0.999 & C <= min(test.num.copy)
-    C.posterior[idx,1] <- 0.5
-    C.posterior[idx,ncol(C.posterior)] <- 0.5
-    
     seg.idx <- which(seq_len(nrow(C.posterior)) %in% queryHits(ov))
     sd.ar <- sd(unlist(geno(vcf)$FA[, tumor.id.in.vcf]))
 
