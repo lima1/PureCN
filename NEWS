@@ -10,6 +10,7 @@ API CHANGES
 
  - Renamed some predictSomatic() output column names.
  - moved remove.off.target.snvs to filterVcfBasic.
+ - Changed defaults: -min.normals 7 (from 10) in setMappingBiasVcf. 
  
 PLANNED FEATURES 
 
@@ -19,4 +20,4 @@ PLANNED FEATURES
   MYC)
 - Better support for pool of normals.
 - Switch to S4 data structures (maybe).
-- Whole dataset visualizations (maybe).
+- Whole dataset visualizations (maybe PureCN 1.8).

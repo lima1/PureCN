@@ -51,6 +51,6 @@ importFrom("graphics", "abline", "axis", "boxplot", "contour", "hist","image",
     "rect", "strwidth", "symbols")
 importFrom("stats", "C", "complete.cases", "dbeta", "dist", "dnorm", "dunif", 
     "loess", "pbeta", "prcomp", "predict", "runif", "t.test", "weighted.mean", 
-    "dbinom", "fisher.test", "hclust", "cutree")
+    "dbinom", "fisher.test", "hclust", "cutree", "filter")
 importFrom("utils", "data", "head", "read.csv", "read.delim", "read.table", 
     "write.csv", "write.table", "tail", "packageVersion")

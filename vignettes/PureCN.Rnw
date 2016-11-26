@@ -788,7 +788,12 @@ combination is correct. Before classifying variants, it is thus important to
 manually curate samples.} Further note that small inaccuracies in purity can
 decrease the classification performance significantly, and we currently
 recommend the \Rcode{post.optimize} option when variant classification is
-important.
+important. If a pool of normal samples is available, we also highly recommend
+providing \Rcode{args.setMappingBias} a pool of normal VCF to calculate
+position-specific mapping biases. For classifying variants, we recommend a
+somatic posterior probability cutoff of 0.8 and 0.2 for somatic and germline
+variants, respectively. This appears to be a good compromise of call rate and
+accuracy.
 
 \subsection{Amplifications and deletions}
 

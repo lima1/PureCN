@@ -7,8 +7,8 @@ By default, it returns the same value for all variants, but a
 pool of normal samples can be provided for position-specific
 mapping bias calculation.}
 \usage{setMappingBiasVcf(vcf, tumor.id.in.vcf = NULL, max.bias = 1, 
-    normal.panel.vcf.file = NULL, min.normals = 10, 
-    verbose = TRUE)}
+    normal.panel.vcf.file = NULL, min.normals = 7, 
+    smooth = TRUE, smooth.n = 5, verbose = TRUE)}
 \arguments{
   \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf} function 
 from the VariantAnnotation package.}
@@ -20,6 +20,9 @@ a lower mappability than the alt allele.}
 as FA genotype field. Should be compressed and indexed with bgzip and 
 tabix, respectively.}
   \item{min.normals}{Minimum number of normals with heterozygous SNP. }
+  \item{smooth}{Impute mapping bias of variants not found in the panel by smoothing
+of neighboring SNPs.}
+  \item{smooth.n}{Number of neighboring variants used for smoothing.}
   \item{verbose}{Verbose output.}
 }
 

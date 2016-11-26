@@ -17,8 +17,13 @@ normal.panel.vcf.file=NULL,
 ### Combined VCF file of a panel of normals, expects allelic fractions
 ### as FA genotype field. Should be compressed and indexed with bgzip and 
 ### tabix, respectively.
-min.normals=10,
+min.normals=7,
 ### Minimum number of normals with heterozygous SNP. 
+smooth=TRUE,
+### Impute mapping bias of variants not found in the panel by smoothing
+### of neighboring SNPs.
+smooth.n=5,
+### Number of neighboring variants used for smoothing.
 verbose=TRUE
 ### Verbose output.
 ) {
@@ -55,8 +60,15 @@ verbose=TRUE
     })*2
     
     ov <- findOverlaps(vcf, nvcf, select="first")
+
     tmp[!is.na(ov)] <- psMappingBias[ov][!is.na(ov)]
     tmp[tmp>max.bias] <- max.bias
+    if (smooth) {
+        tmpSmoothed <- .smoothVectorByChromosome(tmp, as.character(seqnames(vcf)), 
+            smooth.n)
+        # only smooth variants not found in database
+        tmp[is.na(ov)] <- tmpSmoothed[is.na(ov)]
+    }
     return(tmp)
 ### A \code{numeric(nrow(vcf))} vector with the mapping bias of 
 ### for each variant in the \code{CollapsedVCF}. Mapping bias is expected as
@@ -68,4 +80,16 @@ verbose=TRUE
 vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")
 vcf.bias <- setMappingBiasVcf(vcf)        
-})  
+}) 
+
+.smoothVectorByChromosome <- function(x, chr, smooth.n) {
+    .filter <- function(x, ...) {
+        if (length(x) < smooth.n*5) return(x)
+        filter(x, ...)
+    }       
+    fN <- rep(1/smooth.n, smooth.n)
+    y <- do.call(c, lapply(split(x, factor(as.character(chr), levels=unique(chr))), .filter, fN, sides=2))
+    y[is.na(y)] <- x[is.na(y)]
+    as.numeric(y)
+}
+     

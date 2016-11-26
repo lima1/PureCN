@@ -806,41 +806,46 @@ verbose=TRUE,
                 tp <- p
                 pp <- 1
             }
-            res.snvllik <- lapply(tp, function(px) {
-                if (verbose) message("Fitting SNVs for purity ", 
-                    round(px, digits=2), " and tumor ploidy ", 
-                    round( weighted.mean(C,li),digits=2), ".")
+            .fitSNV <- function(tp, pp) {
+                res.snvllik <- lapply(tp, function(px) {
+                    if (verbose) message("Fitting SNVs for purity ", 
+                        round(px, digits=2), " and tumor ploidy ", 
+                        round( weighted.mean(C,li),digits=2), ".")
 
-                list(
-                    beta.model  = .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, 
-                        test.num.copy, C.posterior, C, opt.C, snv.model="beta", 
-                        prior.somatic, mapping.bias, snv.lr, sampleid, 
-                        cont.rate=prior.contamination,
-                        prior.K=prior.K, max.coverage.vcf=max.coverage.vcf,
-                        non.clonal.M=non.clonal.M, 
-                        model.homozygous=model.homozygous,error=error)
-                )})
+                    list(
+                        beta.model  = .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, 
+                            test.num.copy, C.posterior, C, opt.C, snv.model="beta", 
+                            prior.somatic, mapping.bias, snv.lr, sampleid, 
+                            cont.rate=prior.contamination,
+                            prior.K=prior.K, max.coverage.vcf=max.coverage.vcf,
+                            non.clonal.M=non.clonal.M, 
+                            model.homozygous=model.homozygous,error=error)
+                    )})
 
-            if (post.optimize) {
-                px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), 
-                    function(i) .calcLlikSegment(subclonal=subclonal[i], 
-                    lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, p=px, 
-                    Ci=C[i], total.ploidy=px*(sum(li*(C)))/sum(li)+(1-px)*2, 
-                    max.exon.ratio=max.exon.ratio), double(1))
-                )
+                if (post.optimize) {
+                    px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), 
+                        function(i) .calcLlikSegment(subclonal=subclonal[i], 
+                        lr=exon.lrs[[i]]+log.ratio.offset[i], sd.seg=sd.seg, p=px, 
+                        Ci=C[i], total.ploidy=px*(sum(li*(C)))/sum(li)+(1-px)*2, 
+                        max.exon.ratio=max.exon.ratio), double(1))
+                    )
 
-                px.rij.s <- sapply(px.rij, sum, na.rm=TRUE) + log(pp) + 
-                    vapply(res.snvllik, function(x) x$beta.model$llik, 
-                        double(1))
-            
-                px.rij.s <- exp(px.rij.s-max(px.rij.s))
-                idx <- which.max(px.rij.s)
-            } else {
-                idx <- 1
-            }    
-            p <- tp[idx]
-            if (verbose) message("Optimized purity: ", p)
-            SNV.posterior <- res.snvllik[[idx]]
+                    px.rij.s <- sapply(px.rij, sum, na.rm=TRUE) + log(pp) + 
+                        vapply(res.snvllik, function(x) x$beta.model$llik, 
+                            double(1))
+                
+                    idx <- which.max(px.rij.s)
+                } else {
+                    idx <- 1
+                }    
+                p <- tp[idx]
+                if (verbose) message("Optimized purity: ", p)
+                SNV.posterior <- res.snvllik[[idx]]
+                list(p=p, SNV.posterior=SNV.posterior, llik=px.rij.s[idx])
+            }
+            fitRes <- .fitSNV(tp, pp)
+            p <- fitRes$p
+            SNV.posterior <- fitRes$SNV.posterior
         }
 
         list(
