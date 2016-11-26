@@ -43,11 +43,8 @@ verbose=TRUE
     if (is.null(normal.panel.vcf.file)) {
         return(tmp)
     } 
-    if (verbose) message("Loading ", normal.panel.vcf.file, "...")
-    nvcf <- readVcf(TabixFile(normal.panel.vcf.file), genome='hg19', 
-        ScanVcfParam(which = rowRanges(vcf), info=NA, fixed=NA, 
-        geno="FA"))
-
+    nvcf <- .readNormalPanelVcfLarge(vcf, normal.panel.vcf.file, 
+        verbose=verbose)
     if (nrow(nvcf) < 1) {
         warning("setMappingBiasVcf: no hits in ", normal.panel.vcf.file, ".")
         return(tmp)
@@ -92,4 +89,19 @@ vcf.bias <- setMappingBiasVcf(vcf)
     y[is.na(y)] <- x[is.na(y)]
     as.numeric(y)
 }
-     
+
+.readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file, max.file.size=1, verbose) {
+    genome <- genome(vcf)[1]    
+    if (file.size(normal.panel.vcf.file)/1000^3 > max.file.size || nrow(vcf)< 1000) {
+        if (verbose) message("Scanning ", normal.panel.vcf.file, "...")
+        nvcf <- readVcf(TabixFile(normal.panel.vcf.file), genome=genome, 
+            ScanVcfParam(which = rowRanges(vcf), info=NA, fixed=NA, 
+            geno="FA"))
+    } else {
+        if (verbose) message("Loading ", normal.panel.vcf.file, "...")
+        nvcf <- readVcf(normal.panel.vcf.file, genome=genome,
+            ScanVcfParam(info=NA, fixed=NA, geno="FA"))
+        nvcf <- subsetByOverlaps(nvcf, rowRanges(vcf))
+    }    
+    nvcf
+}    

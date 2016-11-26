@@ -39,6 +39,7 @@ importFrom("Biostrings", "letterFrequency")
 importFrom("GenomeInfoDb", "seqnames", "seqlevelsStyle", "seqlevelsStyle<-", 
     "genomeStyles")
 importFrom("GenomicRanges", "GRanges")
+importFrom("IRanges", "subsetByOverlaps")
 importFrom("RColorBrewer", "brewer.pal")
 importFrom("Rsamtools", "headerTabix", "ScanBamParam", "scanBamFlag", 
     "scanBam", "scanFa", "TabixFile")

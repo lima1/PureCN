@@ -22,6 +22,22 @@
     results <- results[unique(best)]
     results <- results[order(sapply(results, function(x) x$bootstrap.value),
         decreasing=TRUE)]
+    .flagBootstrap(results)
+}
+
+.flagBootstrap <- function(results) {
+    if (!is.null(results[[1]]$bootstrap.value)) {
+        # max should be first, but be safe 
+        maxBootstrap <- max(sapply(results, function(r) r$bootstrap.value),
+            na.rm=TRUE)
+        if (maxBootstrap < 0.95) {
+            for (i in seq_along(results)) {
+                results[[i]]$flag <- TRUE
+                results[[i]]$flag_comment <- .appendComment(results[[i]]$flag_comment, 
+                    "LOW BOOTSTRAP VALUE")
+            }
+        }
+    }
     results
 }
 
