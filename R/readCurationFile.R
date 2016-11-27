@@ -16,10 +16,13 @@ report.best.only=FALSE,
 min.ploidy=NULL,
 ### Minimum ploidy to be considered. If \code{NULL}, all. Can be 
 ### used to automatically ignore unlikely solutions.
-max.ploidy=NULL
+max.ploidy=NULL,
 ### Maximum ploidy to be considered. If \code{NULL}, all. Can be 
 ### used to automatically ignore unlikely solutions.
+verbose=FALSE
+### Verbose output.
 ) {
+    if (verbose) message("Reading ", file.rds, "...")
     res <- readRDS(file.rds)
     curation <- read.csv(file.curation, as.is=TRUE, nrows=1)
     .checkLogical <- function(field) {

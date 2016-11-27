@@ -176,7 +176,7 @@ error=0.001,
 ### number of supporting reads for SNVs using 
 ### \code{\link{calculatePowerDetectSomatic}}.
 ### Also used to calculate the probability of homozygous SNP allelic fractions
-### (assuming non-reference reads are sequencing errors).
+### (assuming reference reads are sequencing errors).
 ##seealso<< \code{\link{calculatePowerDetectSomatic}}
 gc.gene.file=NULL, 
 ### A mapping file that assigns GC content and gene symbols 

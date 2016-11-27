@@ -157,7 +157,7 @@ are available.}
 number of supporting reads for SNVs using 
 \code{\link{calculatePowerDetectSomatic}}.
 Also used to calculate the probability of homozygous SNP allelic fractions
-(assuming non-reference reads are sequencing errors).}
+(assuming reference reads are sequencing errors).}
   \item{gc.gene.file}{A mapping file that assigns GC content and gene symbols 
 to each exon in the coverage files. Used for generating gene-level calls. 
 First column in format CHR:START-END. Second column GC content (0 to 1). 
