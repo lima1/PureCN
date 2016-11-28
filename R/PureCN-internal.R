@@ -463,6 +463,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     gc.pos <- cbind(Gene = gc.data$Gene, gc.pos)
     gc.pos$start <- as.numeric(gc.pos$start)
     gc.pos$end <- as.numeric(gc.pos$end)
+    # check if genes are on multiple chromosomes
+    gc.pos <- .checkSymbolsChromosome(gc.pos)
     
     # that will otherwise mess up the log-ratio means, mins and maxs
     idx <- !is.nan(log.ratio) & !is.infinite(log.ratio)
@@ -483,6 +485,16 @@ c(test.num.copy, round(opt.C))[i], prior.K))
             na.rm = TRUE), gene.max = max(LR, na.rm = TRUE), focal = focal[which.min(seg.length)]), 
         by = Gene], row.names = 1)
 }
+
+.checkSymbolsChromosome <- function(gc.pos) {
+    chrsPerSymbol <- lapply(split(gc.pos$chr, gc.pos$Gene), unique)
+    nonUniqueSymbols <- names(chrsPerSymbol[sapply(chrsPerSymbol, length)>1])
+    idx <- gc.pos$Gene %in% nonUniqueSymbols
+    gc.pos$Gene <- as.character(gc.pos$Gene)
+    gc.pos$Gene[idx] <- paste(gc.pos$Gene, gc.pos$chr, sep=".")[idx]
+    gc.pos
+}
+    
 
 .optimizeGrid <- function(test.purity, min.ploidy, max.ploidy, test.num.copy = 0:7, 
     exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal, verbose = FALSE, debug = FALSE) {

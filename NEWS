@@ -5,6 +5,7 @@ Changes in version 1.6.0
 - Added sub-clonal SNV state (SOMATIC.M0)
 - Polished plots
 - Support for cell lines
+- Improved somatic vs. germline status calling
 
 API CHANGES
 

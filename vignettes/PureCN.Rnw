@@ -902,13 +902,13 @@ The output columns are explained in Table~\ref{tbl:callLOH}.
 \caption{\Rfunction{callLOH} output columns.}
 \begin{tabular}{lp{8cm}}
 \toprule
-Column name       & Description \\
+Column name & Description \\
 \midrule
-chr, start, end   & Segment coordinates \\
-arm         & Chromosome arm \\
-C           & Segment integer copy number \\
-M           & Minor integer copy number ($M+N=C,M\leq N$)  \\
-type        & LOH type if $M=0$ \\
+\Rcode{chr, start, end} & Segment coordinates \\
+\Rcode{arm}         & Chromosome arm \\
+\Rcode{C}           & Segment integer copy number \\
+\Rcode{M}           & Minor integer copy number ($M+N=C,M\leq N$) \\
+\Rcode{type}        & LOH type if $M=0$ \\
 \bottomrule
 \end{tabular}
 \label{tbl:callLOH}
