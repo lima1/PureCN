@@ -876,7 +876,9 @@ verbose=TRUE,
     results <- .flagResults(results, max.non.clonal=max.non.clonal, 
         max.logr.sdev=max.logr.sdev, logr.sdev=sd.seg, 
         max.segments=max.segments, min.gof=min.gof, flag=vcf.filtering$flag, 
-        flag_comment=vcf.filtering$flag_comment, dropout=dropoutWarning)  
+        flag_comment=vcf.filtering$flag_comment, dropout=dropoutWarning,
+        use.somatic.status=args.filterVcf$use.somatic.status,
+        model.homozygous=model.homozygous)  
 
     if (length(results) < 1) {
         warning("Could not find valid purity and ploidy solution.")

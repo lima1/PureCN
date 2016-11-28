@@ -352,7 +352,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         return(b)
     paste(a, b, sep = ";")
 }
-.flagResult <- function(result, max.non.clonal = 0.2, min.gof) {
+.flagResult <- function(result, max.non.clonal = 0.2, min.gof, 
+    use.somatic.status, model.homozygous) {
     result$flag_comment <- NA
     result$flag <- .failedNonAberrant(result)
     if (result$flag) {
@@ -373,6 +374,12 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     if (result$purity < 0.3) {
         result$flag <- TRUE
         result$flag_comment <- .appendComment(result$flag_comment, "LOW PURITY")
+    }
+    if (result$purity > 0.9 && !model.homozygous && 
+        (!is.null(use.somatic.status) && !use.somatic.status)) {
+        result$flag <- TRUE
+        result$flag_comment <- .appendComment(result$flag_comment, 
+            "HIGH PURITY AND model.homozygous=FALSE")
     }
     result$GoF <- .getGoF(result)
 
@@ -410,11 +417,12 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
 .flagResults <- function(results, max.non.clonal = 0.2, max.logr.sdev, 
     logr.sdev, max.segments, min.gof, flag = NA, flag_comment = NA, 
-    dropout=FALSE) {
+    dropout=FALSE, use.somatic.status=TRUE, model.homozygous=FALSE) {
     if (length(results) < 1) return(results)
 
     results <- lapply(results, .flagResult, max.non.clonal=max.non.clonal, 
-        min.gof=min.gof)
+        min.gof=min.gof, use.somatic.status=use.somatic.status, 
+        model.homozygous=model.homozygous)
 
     number.segments <- nrow(results[[1]]$seg)
     

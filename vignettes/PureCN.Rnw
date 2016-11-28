@@ -827,7 +827,7 @@ somatic (sum of all somatic state posterior probabilities) \\
 \Rcode{prior.somatic} & Prior probability of variant being somatic \\
 \Rcode{prior.contamination} & Prior probability that variant is contamination 
     from another individual \\
-\Rcode{on.target} & 1 for variant within intervals, 2 for variants in flanking
+\Rcode{on.target} & 1 for variants within intervals, 2 for variants in flanking
  regions, 0 for off-target SNVs \\
 \Rcode{gene.symbol} & Gene symbol if available \\ 
 \bottomrule
@@ -870,8 +870,8 @@ Column name       & Description \\
 (not adjusted for purity/ploidy)  \\
 \Rcode{seg.id}       & Segment id  \\
 \Rcode{number.exons} & Number of targets annotated with this symbol \\
-\Rcode{gene.*}       & Gene copy number log-ratios. Should be similar to 
-    \Rcode{seg.mean}. \\
+\Rcode{gene.*}       & Gene copy number log-ratios  
+(not adjusted for purity/ploidy)  \\
 \Rcode{focal}       & \Rcode{TRUE} for focal amplification, as defined by the 
 \Rfunction{fun.focal} argument in \Rfunction{runAbsoluteCN} \\
 \Rcode{num.snps.segment} & Number of SNPs in this segment informative for 
