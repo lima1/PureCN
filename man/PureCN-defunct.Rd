@@ -1,6 +1,6 @@
 \name{PureCN-defunct}
 \alias{PureCN-defunct}
-\title{Deprecated functions in package \sQuote{PureCN}}
+\title{Defunct functions in package \sQuote{PureCN}}
 
 \description{
   These functions are defunct and no longer available.

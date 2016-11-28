@@ -62,8 +62,8 @@ specified size in bp. Requires \code{target.granges}.}
 
 \seealso{\code{\link{calculatePowerDetectSomatic}}}
 \examples{
-# This function is typically only called by runAbsolute via the 
-# fun.filterVcf and args.filterVcf comments.
+# This function is typically only called by runAbsolute via 
+# fun.filterVcf and args.filterVcf.
 vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")
 vcf.filtered <- filterVcfBasic(vcf)        

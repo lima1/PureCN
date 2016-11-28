@@ -19,9 +19,10 @@ a lower mappability than the alt allele.}
   \item{normal.panel.vcf.file}{Combined VCF file of a panel of normals, expects allelic fractions
 as FA genotype field. Should be compressed and indexed with bgzip and 
 tabix, respectively.}
-  \item{min.normals}{Minimum number of normals with heterozygous SNP. }
+  \item{min.normals}{Minimum number of normals with heterozygous SNP for calculating
+position-specific mapping bias. Requires \code{normal.panel.vcf.file}.  }
   \item{smooth}{Impute mapping bias of variants not found in the panel by smoothing
-of neighboring SNPs.}
+of neighboring SNPs. Requires \code{normal.panel.vcf.file}.  }
   \item{smooth.n}{Number of neighboring variants used for smoothing.}
   \item{verbose}{Verbose output.}
 }
@@ -37,8 +38,8 @@ scaling factor. Adjusted allelic fraction is
 
 
 \examples{
-# This function is typically only called by runAbsoluteCN via the 
-# fun.setMappingBiasVcf and args.setMappingBiasVcf comments.
+# This function is typically only called by runAbsoluteCN via 
+# fun.setMappingBiasVcf and args.setMappingBiasVcf.
 vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")
 vcf.bias <- setMappingBiasVcf(vcf)        
