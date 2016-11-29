@@ -603,7 +603,13 @@ cannot distinguish private germline from mono-clonal somatic mutations either.
 
 For technical reasons, the maximum purity \Biocpkg{PureCN} currently models is
 0.99. We recommend setting \Rcode{test.purity=seq(0.9,0.99,by=0.01)} in
-\Rfunction{runAbsoluteCN} for cell lines.
+\Rfunction{runAbsoluteCN} for cell lines. 
+
+Setting \Rcode{model.homozygous=TRUE} is currently not recommended when the
+purity is 90\% or lower. Modelling the homozygous state will result in
+significantly longer running times. More importantly, the uninformative
+homozygous variants will dilute the signal of informative heterozygous
+variants.
 
 \section{Custom normalization and segmentation}
 \label{customseg}
