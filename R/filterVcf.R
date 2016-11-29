@@ -134,9 +134,6 @@ verbose=TRUE
             if (verbose) message("Removing ", n-nrow(vcf), 
                 " blacklisted SNPs.")
         }    
-    } else if (verbose && !use.somatic.status) {
-        message("VCF does not contain somatic status and no SNP blacklist ",
-            "provided.\nSee vignette('PureCN') how to generate blacklists.")
     }
     idx <- info(vcf)$DB & unlist(geno(vcf)$FA[,tumor.id.in.vcf]) < 
         contamination.cutoff[1]

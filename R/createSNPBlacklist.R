@@ -1,4 +1,7 @@
 createSNPBlacklist <- structure(function(# Create SNP black list
+### This function is deprecated. If a pool of normal VCF is available,
+### please use the \code{normal.panel.vcf.file} argument of the
+### \code{\link{setMappingBiasVcf}} function.
 ### Function to create a black list of germline SNPs with expected allelic
 ### fraction (AF) smaller than 0.5 in diploid genomes.  
 vcf.files, 
@@ -20,6 +23,7 @@ genome="hg19"
 ### Version of the reference genome, required for the \code{readVcf} 
 ### function.
 ) {
+    .Deprecated("setMappingBiasVcf")
     vcfs <- lapply(vcf.files, .readAndCheckVcf, genome)
     vcfs <- lapply(vcfs, function(x) x[info(x)$DB & 
         do.call(rbind, geno(x)$FA[,1, drop=FALSE])[,1]< 0.9 ,])

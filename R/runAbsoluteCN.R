@@ -155,6 +155,10 @@ non.clonal.M=1/3,
 ### This is to calculate expected allelic fractions of a single sub-clonal 
 ### bin for SNVs. For all somatic variants, more accurate cellular fractions
 ### are calculated.
+max.mapping.bias=0.8,
+### Exclude variants with high mapping bias from the likelihood score 
+### calculation. Note that bias is reported on an inverse scale; a variant 
+### with mapping bias of 1 has no bias.
 iterations=30,
 ### Maximum number of iterations in the Simulated Annealing copy 
 ### number fit optimization. Note that this an integer optimization problem
@@ -819,7 +823,8 @@ verbose=TRUE,
                             cont.rate=prior.contamination,
                             prior.K=prior.K, max.coverage.vcf=max.coverage.vcf,
                             non.clonal.M=non.clonal.M, 
-                            model.homozygous=model.homozygous,error=error)
+                            model.homozygous=model.homozygous, error=error,
+                            max.mapping.bias=max.mapping.bias)
                     )})
 
                 if (post.optimize) {

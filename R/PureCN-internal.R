@@ -66,7 +66,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
     C.posterior, C, opt.C, snv.model, prior.somatic, mapping.bias, snv.lr, 
     sampleid = NULL, cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M,
-    model.homozygous=FALSE, error=0.001) {
+    model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8) {
 
     prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
     prior.somatic <- prior.somatic/(1 + cont.rate)
@@ -210,16 +210,11 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     posteriors$prior.somatic <- prior.somatic[vcf.ids]
     posteriors$prior.contamination <- prior.cont[vcf.ids]
     posteriors$on.target <- info(vcf[vcf.ids])$OnTarget
-    
 
-    # these are potential artifacts with very high clonal probability and would have
-    # huge impact on log-likelihood
-    rm.snv.posteriors <- apply(likelihoods, 1, max)
-#    idx.ignore <- (posteriors$CN.Subclonal & 
-#        posteriors$ML.C < max(test.num.copy) & 
-#        C.posterior[queryHits(ov), ncol(C.posterior)] > 0.95) | 
-#        rm.snv.posteriors == 0
-    idx.ignore <- rm.snv.posteriors == 0
+    rm.snv.posteriors <- apply(likelihoods, 1, max) 
+    idx.ignore <- rm.snv.posteriors == 0 | 
+        posteriors$MAPPING.BIAS < max.mapping.bias
+
     # change seqnames to chr
     colnames(posteriors)[1] <- "chr"    
 

@@ -9,10 +9,6 @@ vcf,
 ### from the VariantAnnotation package.
 tumor.id.in.vcf=NULL,
 ### Id of tumor in case multiple samples are stored in VCF.
-max.bias=1,
-### Defines the maximum value for the mapping bias scaling factor.
-### The default of 1 assumes that the reference allele can never have
-### a lower mappability than the alt allele.
 normal.panel.vcf.file=NULL,
 ### Combined VCF file of a panel of normals, expects allelic fractions
 ### as FA genotype field. Should be compressed and indexed with bgzip and 
@@ -39,7 +35,15 @@ verbose=TRUE
          if (verbose) message("Found SOMATIC annotation in VCF. ",
             "Setting mapping bias to ", round(mappingBias, digits=3)) 
     }     
+    if (is.null(info(vcf)$SOMATIC) && is.null(normal.panel.vcf.file)) {
+        message("VCF does not contain somatic status and no ",
+        "normal.panel.vcf.file provided.")
+    }    
     tmp <- rep(mappingBias, nrow(vcf)) 
+    # Defines the maximum value for the mapping bias scaling factor.
+    # 1 assumes that the reference allele can never have
+    # a lower mappability than the alt allele.
+    max.bias <- 1
     tmp[tmp>max.bias] <- max.bias
     if (is.null(normal.panel.vcf.file)) {
         return(tmp)
@@ -71,7 +75,8 @@ verbose=TRUE
 ### A \code{numeric(nrow(vcf))} vector with the mapping bias of 
 ### for each variant in the \code{CollapsedVCF}. Mapping bias is expected as
 ### scaling factor. Adjusted allelic fraction is 
-### (observed allelic fraction)/(mapping bias).   
+### (observed allelic fraction)/(mapping bias). Maximum scaling factor is 1
+### and means no bias. 
 },ex=function() {
 # This function is typically only called by runAbsoluteCN via 
 # fun.setMappingBiasVcf and args.setMappingBiasVcf.

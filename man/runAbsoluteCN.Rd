@@ -24,12 +24,13 @@ Provides copy number and LOH data, by both gene and genomic region. }
     prior.contamination = 0.01, max.candidate.solutions = 20, 
     candidates = NULL, min.coverage = 15, max.coverage.vcf = 300, 
     max.non.clonal = 0.2, max.homozygous.loss = 0.1, 
-    non.clonal.M = 1/3, iterations = 30, log.ratio.calibration = 0.25, 
-    remove.off.target.snvs = NULL, model.homozygous = FALSE, 
-    error = 0.001, gc.gene.file = NULL, max.dropout = c(0.95, 
-        1.1), max.logr.sdev = 0.75, max.segments = 200, 
-    min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
-    post.optimize = FALSE, verbose = TRUE, ...)}
+    non.clonal.M = 1/3, max.mapping.bias = 0.8, iterations = 30, 
+    log.ratio.calibration = 0.25, remove.off.target.snvs = NULL, 
+    model.homozygous = FALSE, error = 0.001, gc.gene.file = NULL, 
+    max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
+    max.segments = 200, min.gof = 0.8, plot.cnv = TRUE, 
+    cosmic.vcf.file = NULL, post.optimize = FALSE, 
+    verbose = TRUE, ...)}
 \arguments{
   \item{normal.coverage.file}{GATK coverage file of normal control (optional if 
 log.ratio is provided - then it will be only used to filter low coverage 
@@ -141,6 +142,9 @@ solutions, especially in noisy segmentations. }
 This is to calculate expected allelic fractions of a single sub-clonal 
 bin for SNVs. For all somatic variants, more accurate cellular fractions
 are calculated.}
+  \item{max.mapping.bias}{Exclude variants with high mapping bias from the likelihood score 
+calculation. Note that bias is reported on an inverse scale; a variant 
+with mapping bias of 1 has no bias.}
   \item{iterations}{Maximum number of iterations in the Simulated Annealing copy 
 number fit optimization. Note that this an integer optimization problem
 that should converge quickly. Allowed range is 10 to 250.}

@@ -1,7 +1,10 @@
 \name{createSNPBlacklist}
 \alias{createSNPBlacklist}
 \title{Create SNP black list}
-\description{Function to create a black list of germline SNPs with expected allelic
+\description{This function is deprecated. If a pool of normal VCF is available,
+please use the \code{normal.panel.vcf.file} argument of the
+\code{\link{setMappingBiasVcf}} function.
+Function to create a black list of germline SNPs with expected allelic
 fraction (AF) smaller than 0.5 in diploid genomes.  }
 \usage{createSNPBlacklist(vcf.files, n = min(10, length(vcf.files)), 
     low.af = 0.025, high.af = 0.1, chr.hash = NULL, 

@@ -7,11 +7,16 @@ Changes in version 1.6.0
 - Support for cell lines
 - Improved somatic vs. germline status calling
 
+
 API CHANGES
 
- - Renamed some predictSomatic() output column names.
- - moved remove.off.target.snvs to filterVcfBasic.
- - Changed defaults: -min.normals 7 (from 10) in setMappingBiasVcf. 
+- Deprecated functions: createSNPBlacklist
+- Defunct functions: createExonWeightFile
+- Changed defaults: -min.normals 7 (from 10) in setMappingBiasVcf. 
+- Other minor changes:
+    - Renamed some predictSomatic() output column names.
+    - moved remove.off.target.snvs to filterVcfBasic.
+ 
  
 PLANNED FEATURES 
 
