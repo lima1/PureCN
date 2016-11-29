@@ -484,7 +484,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         focal = focal[subjectHits(ov)])
     gene.calls <- data.frame(dt[, list(chr = chrom[1], start = min(start), end = max(end), 
         C = as.double(median(C)), seg.mean = median(seg.mean), seg.id = seg.id[which.min(seg.length)], 
-        number.exons = length(start), gene.mean = mean(LR, na.rm = TRUE), gene.min = min(LR, 
+        number.targets = length(start), gene.mean = mean(LR, na.rm = TRUE), gene.min = min(LR, 
             na.rm = TRUE), gene.max = max(LR, na.rm = TRUE), focal = focal[which.min(seg.length)]), 
         by = Gene], row.names = 1)
 }

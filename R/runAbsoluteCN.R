@@ -450,7 +450,14 @@ verbose=TRUE,
         args.setPriorVcf <- c(list(vcf=vcf, tumor.id.in.vcf=tumor.id.in.vcf,
             verbose=verbose), args.setPriorVcf) 
         prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
-        vcf.germline <- vcf[which(prior.somatic < 0.5)]
+
+        # get mapping bias
+        args.setMappingBiasVcf$vcf <- vcf
+        args.setMappingBiasVcf$tumor.id.in.vcf <- tumor.id.in.vcf
+        args.setMappingBiasVcf$verbose <- verbose
+        mapping.bias <- do.call(fun.setMappingBiasVcf, args.setMappingBiasVcf)
+        idxHqGermline <- prior.somatic < 0.5 & mapping.bias >= max.mapping.bias
+        vcf.germline <- vcf[idxHqGermline]
     }
 
     if (verbose) message("Sex of sample: ", sex)
@@ -483,6 +490,8 @@ verbose=TRUE,
         if (sum(is.na(snv.lr)) > 0) {
             n.vcf.before.filter <- nrow(vcf)
             vcf <- vcf[!is.na(snv.lr)]
+            mapping.bias <- mapping.bias[!is.na(snv.lr)]
+
             # make sure all SNVs are in covered segments
             if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf),
                 " variants outside segments.")
@@ -494,11 +503,6 @@ verbose=TRUE,
         args.setPriorVcf$vcf <- vcf
         args.setPriorVcf$verbose <- FALSE
         prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
-        # get mapping bias
-        args.setMappingBiasVcf$vcf <- vcf
-        args.setMappingBiasVcf$tumor.id.in.vcf <- tumor.id.in.vcf
-        args.setMappingBiasVcf$verbose <- verbose
-        mapping.bias <- do.call(fun.setMappingBiasVcf, args.setMappingBiasVcf)
     }
     
     # get target log-ratios for all segments 
