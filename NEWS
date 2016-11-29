@@ -6,6 +6,7 @@ Changes in version 1.6.0
 - Polished plots
 - Support for cell lines
 - Improved somatic vs. germline status calling
+- Better mapping bias estimation and correction
 
 
 API CHANGES

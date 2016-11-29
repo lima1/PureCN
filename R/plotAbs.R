@@ -41,6 +41,11 @@ show.segment.means=c("SNV", "segments", "both"),
 ### Show segment means in germline allele frequency plot? 
 ### If \code{both}, show SNVs and segment means. If \code{SNV} show
 ### all SNVs. Only for \code{type="AF"}.
+max.mapping.bias=0.8,
+### Exclude variants with high mapping bias from plotting.
+### Note that bias is reported on an inverse scale; a variant 
+### with mapping bias of 1 has no bias.
+### (\code{type="AF"} and \code{type="BAF"} only). 
 ...
 ### Additonal parameters passed to the \code{plot} function. 
 ) {
@@ -115,7 +120,7 @@ show.segment.means=c("SNV", "segments", "both"),
         }
         if (is.null(ids)) ids <- seq_along(res$results)
         for (i in ids) {
-            r <- res$results[[i]]$SNV.posterior$beta.model$posterior
+            r <- .getVariantPosteriors(res, i, max.mapping.bias)
             if (is.null(r)) next
             seg <- res$results[[i]]$seg
 
@@ -273,8 +278,9 @@ show.segment.means=c("SNV", "segments", "both"),
         }
         if (is.null(ids)) ids <- seq_along(res$results)
         for (i in ids) {
-            r <- res$results[[i]]$SNV.posterior$beta$posterior
+            r <- .getVariantPosteriors(res, i, max.mapping.bias)
             if (is.null(r)) next
+
             vcf <- res$input$vcf[res$results[[i]]$SNV.posterior$beta$vcf.ids]
             # brwer.pal requires at least 3 levels
             tmp <- I(brewer.pal(max(nlevels(as.factor(r$prior.somatic)),3),
@@ -509,3 +515,11 @@ ss) {
     par(xpd = pxpd)
 }
 
+.getVariantPosteriors <- function(res, i, max.mapping.bias=NULL) {
+    r <- res$results[[i]]$SNV.posterior$beta$posterior
+    if (!is.null(r) && !is.null(max.mapping.bias)) {
+        r <- r[r$MAPPING.BIAS >= max.mapping.bias,]
+    }    
+    r
+}
+    

@@ -8,7 +8,7 @@ purity and ploidy combinations in the results of a
     "BAF", "AF", "all"), chr = NULL, germline.only = TRUE, 
     show.contour = FALSE, purity = NULL, ploidy = NULL, 
     alpha = TRUE, show.segment.means = c("SNV", "segments", 
-        "both"), ...)}
+        "both"), max.mapping.bias = 0.8, ...)}
 \arguments{
   \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
   \item{ids}{Candidate solutions to be plotted. \code{ids=1} will draw the 
@@ -37,6 +37,10 @@ to ploidy of the solution (\code{type="hist"} only).}
   \item{show.segment.means}{Show segment means in germline allele frequency plot? 
 If \code{both}, show SNVs and segment means. If \code{SNV} show
 all SNVs. Only for \code{type="AF"}.}
+  \item{max.mapping.bias}{Exclude variants with high mapping bias from plotting.
+Note that bias is reported on an inverse scale; a variant 
+with mapping bias of 1 has no bias.
+(\code{type="AF"} and \code{type="BAF"} only). }
   \item{\dots}{Additonal parameters passed to the \code{plot} function. }
 }
 
