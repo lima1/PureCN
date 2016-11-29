@@ -210,6 +210,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     posteriors$prior.somatic <- prior.somatic[vcf.ids]
     posteriors$prior.contamination <- prior.cont[vcf.ids]
     posteriors$on.target <- info(vcf[vcf.ids])$OnTarget
+    posteriors$seg.id <- queryHits(ov)
 
     rm.snv.posteriors <- apply(likelihoods, 1, max) 
     idx.ignore <- rm.snv.posteriors == 0 | 
@@ -223,7 +224,6 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         likelihoods = likelihoods, 
         posteriors = posteriors, 
         vcf.ids = vcf.ids, 
-        segment.ids = queryHits(ov), 
         llik.ignored = idx.ignore)
 
     ret
@@ -397,8 +397,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .getFractionLoh <- function(result) {
     if (is.null(result$SNV.posterior$beta.model)) return(0)
     pp <- result$SNV.posterior$beta.model$posteriors
-    segids <- result$SNV.posterior$beta.model$segment.ids
-    x1 <- unique(segids[pp$ML.M.SEGMENT==0])
+    x1 <- unique(pp$seg.id[pp$ML.M.SEGMENT==0])
     sum(result$seg$size[x1])/sum(result$seg$size)
 }
 .getGoF <- function(result) {

@@ -823,6 +823,7 @@ somatic (sum of all somatic state posterior probabilities) \\
     from another individual \\
 \Rcode{on.target} & 1 for variants within intervals, 2 for variants in flanking
  regions, 0 for off-target SNVs \\
+\Rcode{seg.id}       & Segment id  \\
 \Rcode{gene.symbol} & Gene symbol if available \\ 
 \bottomrule
 \end{tabular}

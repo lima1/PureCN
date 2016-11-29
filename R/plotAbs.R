@@ -120,7 +120,7 @@ max.mapping.bias=0.8,
         }
         if (is.null(ids)) ids <- seq_along(res$results)
         for (i in ids) {
-            r <- .getVariantPosteriors(res, i, max.mapping.bias)
+            r <- .getVariantPosteriors(res, i, NULL)
             if (is.null(r)) next
             seg <- res$results[[i]]$seg
 
@@ -161,6 +161,9 @@ max.mapping.bias=0.8,
                 }
                 if (germline.only) idx[r$ML.SOMATIC[idx]] <- FALSE
             }    
+            if (!is.null(max.mapping.bias)) {
+                idx <- idx & r$MAPPING.BIAS >= max.mapping.bias
+            }
             #mycol <- ifelse(.strip.chr.name(r[idx,1], chr.hash) %% 2, 
             #    "#E41A1C", "#377EB8")
             mycol <- "#377EB8"
@@ -175,8 +178,7 @@ max.mapping.bias=0.8,
             tmp$end <- c(tmp[-1,2]-1, nrow(r))
             cids <- sapply(tmp$chr, function(x) { id <- res$input$centrome[res$input$centrome$chrom==x,2]; which(r$chr[idx]==x & r$start[idx] >= id)[1] })
 
-            segment.log.ratio <- res$results[[i]]$seg$seg.mean[
-                res$results[[i]]$SNV.posterior$beta.model$segment.ids]
+            segment.log.ratio <- res$results[[i]]$seg$seg.mean[r$seg.id]
             segment.log.ratio.lines <- .toLines(ss=segment.log.ratio[idx])
             segment.M.log.ratio.lines <- .toLines(
                 peak.ideal.means[as.character(
@@ -335,11 +337,11 @@ max.mapping.bias=0.8,
             segment.means <- match.arg(show.segment.means)
 
             idx.nna <- !is.na(r$ML.M ) & !r$ML.SOMATIC
-            y <- sapply(split(r$AR[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
-            x <- sapply(split(r$log.ratio[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
-            mlm <- sapply(split(r$ML.M[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
-            mlc <- sapply(split(r$ML.C[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), mean)
-            size <- sapply(split(r$ML.M[idx.nna],  paste(r$ML.M, res$results[[i]]$SNV.posterior$beta.model$segment.ids)[idx.nna]), length)
+            y <- sapply(split(r$AR[idx.nna],  paste(r$ML.M, r$seg.id)[idx.nna]), mean)
+            x <- sapply(split(r$log.ratio[idx.nna],  paste(r$ML.M, r$seg.id)[idx.nna]), mean)
+            mlm <- sapply(split(r$ML.M[idx.nna],  paste(r$ML.M, r$seg.id)[idx.nna]), mean)
+            mlc <- sapply(split(r$ML.C[idx.nna],  paste(r$ML.M, r$seg.id)[idx.nna]), mean)
+            size <- sapply(split(r$ML.M[idx.nna],  paste(r$ML.M, r$seg.id)[idx.nna]), length)
             
             if (segment.means %in% c("both", "SNV")) {    
                 plot(r$log.ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
@@ -516,7 +518,7 @@ ss) {
 }
 
 .getVariantPosteriors <- function(res, i, max.mapping.bias=NULL) {
-    r <- res$results[[i]]$SNV.posterior$beta$posterior
+    r <- res$results[[i]]$SNV.posterior$beta.model$posterior
     if (!is.null(r) && !is.null(max.mapping.bias)) {
         r <- r[r$MAPPING.BIAS >= max.mapping.bias,]
     }    

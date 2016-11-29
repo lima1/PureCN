@@ -50,7 +50,7 @@ all.genes=FALSE,
 
     bm <- res$results[[id]]$SNV.posterior$beta.model
     if (!is.null(bm)) {
-        segids <- bm$segment.ids
+        segids <- bm$posterior$seg.id
         calls$num.snps.segment <- sapply(calls$seg.id, function(i) 
             sum(segids==i,na.rm=TRUE))
         calls$loh <- bm$posterior$ML.M.SEGMENT[match(calls$seg.id, segids)] == 0 
