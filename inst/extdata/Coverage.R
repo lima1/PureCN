@@ -2,6 +2,7 @@ library('getopt')
 
 spec <- matrix(c(
 'help' , 'h', 0, "logical",
+'force' , 'f', 0, "logical",
 'bam', 'b', 1, "character",
 'gatkcoverage', 'g', 1, "character",
 'gcgene' , 'c', 1, "character",
@@ -13,6 +14,8 @@ if ( !is.null(opt$help) ) {
     cat(getopt(spec, usage=TRUE))
     q(status=1)
 }
+
+force <- !is.null(opt$force)
 
 bam.file <- opt$bam
 gatk.coverage <- opt$gatkcoverage
@@ -28,17 +31,24 @@ if (!is.null(bam.file)) {
     output.file <- file.path(outdir,  gsub(".bam$","_coverage.txt", 
         basename(bam.file)))
 
-    calculateBamCoverageByInterval(bam.file=bam.file, 
-        interval.file=gc.gene.file, output.file)
-
+    if (file.exists(output.file) && !force) {
+        message(output.file, " exists. Skipping... (--force will overwrite)")
+    } else {
+        calculateBamCoverageByInterval(bam.file=bam.file, 
+            interval.file=gc.gene.file, output.file)
+    }
     gatk.coverage <- output.file
 }
 
 if (!is.null(gatk.coverage)) {
     library(PureCN)
-    output.file <- file.path(outdir,  gsub(".txt$","_loess.txt", 
-        basename(gatk.coverage)))
-    correctCoverageBias(gatk.coverage, gc.gene.file,
-        output.file)
+    output.file <- file.path(outdir,  gsub(".txt$|_interval_summary",
+        "_loess.txt", basename(gatk.coverage)))
+    if (file.exists(output.file) && !force) {
+        message(output.file, " exists. Skipping...")
+    } else {
+        correctCoverageBias(gatk.coverage, gc.gene.file,
+            output.file)
+   } 
 }
     

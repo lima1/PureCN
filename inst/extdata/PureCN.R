@@ -2,16 +2,19 @@ library('getopt')
 
 spec <- matrix(c(
 'help',           'h', 0, "logical",
+'force' ,         'f', 0, "logical",
 'normal',         'n', 1, "character",
 'tumor',          't', 1, "character",
 'vcf',            'v', 1, "character",
 'genome',         'g', 1, "character",
 'gcgene',         'c', 1, "character",
-'segfile',        'f', 1, "character",
+'segfile',        'l', 1, "character",
 'snpblacklist',   's', 1, "character",
+'normal_panel',   'p', 1, "character",
 'statsfile',      'a', 1, "character",
 'targetweightfile', 'e', 1, "character",
 'normaldb',       'd', 1, "character",
+'postoptimize',   'z', 0, "logical",
 'outdir',         'o', 1, "character",
 'sampleid',       'i', 1, "character"
 ), byrow=TRUE, ncol=4)
@@ -22,6 +25,8 @@ if ( !is.null(opt$help) ) {
     q(status=1)
 }
 
+force <- !is.null(opt$force)
+post.optimize <- !is.null(opt$postoptimize)
 normal.coverage.file <- opt$normal
 tumor.coverage.file <- opt$tumor
 tumor.vcf <- opt$vcf
@@ -31,6 +36,7 @@ snp.blacklist <- opt$snpblacklist
 stats.file <- opt$statsfile
 seg.file <- opt$segfile
 target.weight.file <- opt$targetweightfile
+normal.panel.vcf.file <- opt$normal_panel
 normalDB <- opt$normaldb
 sampleid <- opt$sampleid
 outdir <- opt$outdir
@@ -38,9 +44,10 @@ outdir <- opt$outdir
 PureCN <- function(
 tumor.coverage.file, normal.coverage.file=NULL, tumor.vcf, genome,
 gc.gene.file=NULL, seg.file=NULL, snp.blacklist=NULL, stats.file=NULL,
-target.weight.file=NULL, normalDB=NULL, sampleid, outdir) {
+target.weight.file=NULL, normal.panel.vcf.file=NULL, normalDB=NULL, sampleid,
+post.optimize=FALSE, outdir) {
 
-    file.rds <- paste(outdir,"/",  sampleid, '_abs.rds', sep='')
+    file.rds <- file.path(outdir, paste(sampleid, '_abs.rds', sep=''))
 
     if (!is.null(normalDB)) {
         message("normalDB: ", normalDB)
@@ -52,24 +59,30 @@ target.weight.file=NULL, normalDB=NULL, sampleid, outdir) {
         stop("Need either normalDB or normal.coverage.file")
     }    
     message(paste('Best Normal:', normal.coverage.file))
-    pdf(paste(outdir,"/", sampleid, '_abs_segmentation.pdf', sep=''), 
-        width=10, height=12)
+    
 
-    ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-            tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
-            sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=TRUE,
-            genome=genome, seg.file=seg.file,
-            args.filterVcf=list(snp.blacklist=snp.blacklist, 
-                stats.file=stats.file), 
-            args.segmentation=list(target.weight.file=target.weight.file), 
-            args.filterTargets=list(normalDB=normalDB),
-            post.optimize=FALSE)
-    dev.off()
-
-    save(ret, file=paste(outdir,"/", sampleid, '_abs.rda', sep=''))
-    saveRDS(ret, file=file.rds)
+    if (file.exists(file.rds) && !force) {
+        message(outRDS, " already exists. Skipping... (--force will overwrite)")
+        ret <- readRDS(file.rds)
+    } else {    
+        pdf(paste(outdir,"/", sampleid, '_abs_segmentation.pdf', sep=''), 
+            width=10, height=12)
+        ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+                tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
+                sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=TRUE,
+                genome=genome, seg.file=seg.file,
+                args.filterVcf=list(snp.blacklist=snp.blacklist, 
+                    stats.file=stats.file), 
+                args.segmentation=list(target.weight.file=target.weight.file), 
+                args.setMappingBiasVcf=list(normal.panel.vcf.file=normal.panel.vcf.file),
+                args.filterTargets=list(normalDB=normalDB),
+                post.optimize=post.optimize)
+        dev.off()
+        saveRDS(ret, file=file.rds)
+    }
     createCurationFile(file.rds)
-    pdf(paste(outdir,"/",sampleid, '_abs.pdf', sep=''), width=10, height=12)
+    file.pdf <- file.path(outdir, paste(sampleid, '_abs.pdf', sep=''))
+    pdf(file.pdf, width=10, height=12)
     plotAbs(ret, type='all')
     dev.off()
 }
@@ -88,5 +101,6 @@ library(PureCN)
 PureCN(tumor.coverage.file, normal.coverage.file, tumor.vcf, genome,
 gc.gene.file, seg.file=seg.file, snp.blacklist=snp.blacklist, 
 stats.file=stats.file, target.weight.file=target.weight.file, 
-normalDB=normalDB, sampleid=sampleid, outdir=outdir) 
+normalDB=normalDB, sampleid=sampleid, post.optimize=post.optimize, 
+normal.panel.vcf.file=normal.panel.vcf.file, outdir=outdir) 
 

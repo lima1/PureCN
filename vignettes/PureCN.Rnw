@@ -788,7 +788,7 @@ accuracy.
 
 \begin{table*}
 \caption{\Rfunction{predictSomatic} output columns.}
-\begin{tabular}{lp{8cm}}
+\begin{tabular}{lp{9cm}}
 \toprule
 Column name       & Description \\
 \midrule
@@ -861,7 +861,7 @@ Table~\ref{tbl:callAlterations}.
 
 \begin{table*}
 \caption{\Rfunction{callAlterations} output columns.}
-\begin{tabular}{lp{8cm}}
+\begin{tabular}{lp{9cm}}
 \toprule
 Column name       & Description \\
 \midrule
@@ -901,7 +901,7 @@ The output columns are explained in Table~\ref{tbl:callLOH}.
 
 \begin{table*}
 \caption{\Rfunction{callLOH} output columns.}
-\begin{tabular}{lp{8cm}}
+\begin{tabular}{lp{9cm}}
 \toprule
 Column name & Description \\
 \midrule
@@ -990,6 +990,7 @@ Rscript Coverage.R --outdir ~/tmp/ --gatkcoverage example_tumor.txt \
 Argument name       & Corresponding PureCN argument & PureCN function \\
 \midrule
 --help -h           & & \\
+--force -f          & & \\
 --outdir -o         & & \\
 --bam -b            & bam.file & \Rfunction{calculateBamCoverageByInterval} \\
 --gatkcoverage -g   & coverage.file & \Rfunction{correctCoverageBias} \\
@@ -1022,18 +1023,21 @@ Rscript PureCN.R --outdir ~/tmp/ --segfile example_seg.txt \
 Argument name       & Corresponding PureCN argument & PureCN function \\
 \midrule
 --help -h           & & \\
+--force -f          & & \\
 --outdir -o         &          &                            \\
 --normal -n         & normal.coverage.file   & \Rfunction{runAbsoluteCN}  \\
 --tumor -t          & tumor.coverage.file     & \Rfunction{runAbsoluteCN} \\
 --vcf -v            & vcf.file          & \Rfunction{runAbsoluteCN}   \\
 --genome -g         & genome             & \Rfunction{runAbsoluteCN}  \\
 --gcgene -c         & gc.gene.file      & \Rfunction{runAbsoluteCN}   \\
---segfile -f        & seg.file           & \Rfunction{runAbsoluteCN}  \\
+--segfile -l        & seg.file           & \Rfunction{runAbsoluteCN}  \\
 --snpblacklist -s   & snp.blacklist & \Rfunction{filterVcfBasic}     \\
+--normal\_panel -p   & normal.panel.vcf.file & \Rfunction{setMappingBiasVcf} \\
 --statsfile -a      & stats.file & \Rfunction{filterVcfMuTect}        \\
 --targetweightfile -e & target.weight.file & \Rfunction{segmentationCBS} \\
 --normaldb -d       & normalDB (serialized with \Rfunction{saveRDS}) & 
     \Rfunction{findBestNormal}, \Rfunction{filterTargets} \\
+--postoptimize -z   & post.optimize & \Rfunction{runAbsoluteCN} \\    
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
 \bottomrule
 \end{tabular}
