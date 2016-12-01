@@ -45,7 +45,7 @@ if (!is.null(gatk.coverage)) {
     output.file <- file.path(outdir,  gsub(".txt$|_interval_summary",
         "_loess.txt", basename(gatk.coverage)))
     if (file.exists(output.file) && !force) {
-        message(output.file, " exists. Skipping...")
+        message(output.file, " exists. Skipping... (--force will overwrite)")
     } else {
         correctCoverageBias(gatk.coverage, gc.gene.file,
             output.file)
