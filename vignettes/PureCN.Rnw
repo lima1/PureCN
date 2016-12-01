@@ -25,15 +25,15 @@ targeted short read sequencing}
 \Biocpkg{PureCN} is a purity and ploidy aware copy number caller for cancer
 samples inspired by the \software{ABSOLUTE} algorithm \cite{Carter2012}.  It was
 designed for hybrid capture sequencing data, especially with medium-sized
-targeted gene panels without matching normal samples in mind (matched whole
-exome data is of course supported). 
+targeted gene panels without matching normal samples in mind (matched
+whole-exome data is of course supported). 
 
 It can be used to supplement existing normalization and segmentation
 algorithms, i.e. the software can start from BAM files, from target-level
 coverage data, from copy number log-ratios or from already segmented
-data.  If the correct purity and ploidy solution was identified,
-\Biocpkg{PureCN} can also help in classifying variants as germline vs. somatic
-or clonal vs.  sub-clonal.
+data. If the correct purity and ploidy solution was identified,
+\Biocpkg{PureCN} will accurately classify variants as germline vs. somatic
+or clonal vs. sub-clonal.
 
 \Biocpkg{PureCN} was further designed to integrate well with industry standard
 pipelines \cite{McKenna2010}, but it is straightforward to generate input data
@@ -58,8 +58,8 @@ jointly utilize both target-level\footnote{The captured genomic regions, e.g.
 exons.} coverage data and allelic fractions of single nucleotide
 variants (SNVs), inside - and optionally outside - the targeted regions.
 Knowledge of purity will in turn allow us to accurately (i) infer integer copy
-number and (ii) classify variants (somatic vs.  germline, mono-clonal vs.
-sub-clonal, heterozygous vs.  homozygous etc.).
+number and (ii) classify variants (somatic vs. germline, mono-clonal vs.
+sub-clonal, heterozygous vs. homozygous etc.).
 
 This requires 3 basic input files:
 
@@ -304,21 +304,19 @@ in coverage per target:
 <<targetweightfile1>>=
 target.weight.file <- "target_weights.txt"
 createTargetWeights(tumor.coverage.file, normal.coverage.files, 
-    target.weight.file)
+    target.weight.file, verbose=FALSE)
 @
 
-This function calculates target-level copy number log-ratios for all normal
-samples provided in the \Rcode{normal.coverage.files} argument.  Assuming that all
-normal samples are in general diploid, an unusual high variance in log-ratio is
-indicative of an target with either common germline alterations or frequent
+This function calculates target-level copy number log-ratios using all normal
+samples provided in the \Rcode{normal.coverage.files} argument.  Assuming that
+all normal samples are in general diploid, a high variance in log-ratio
+is indicative of an target with either common germline alterations or frequent
 artifacts; high or low copy number log-ratios in these targets are unlikely
 measuring somatic copy number events.  For the log-ratio calculation, we provide
 a coverage file that is used as tumor in the log-ratio calculation. The
-corresponding \Rcode{tumor.coverage.file} argument can also be an array of coverage
-files, in which case the target coverage variance is averaged over all provided
-tumor files. As long as the coverage of the tumor files is even, only 1 or 2
-tumor files are necessary, however. 
-
+corresponding \Rcode{tumor.coverage.file} argument can also be an array of a
+small number of coverage files, in which case the target coverage variance is
+averaged over all provided tumor files. 
 
 \subsection{Artifact filtering without a pool of normals}
 \label{artifactfiltering2}
@@ -401,7 +399,7 @@ neither a matched normal nor a pool of normals is available.
 
 The \Rcode{post.optimize} flag will increase the runtime by about a factor of
 4-5, but might return slightly more accurate purity estimates. For high quality
-whole exome data, this is typically not necessary for copy number calling (but
+whole-exome data, this is typically not necessary for copy number calling (but
 might be for variant classification, see Section~\ref{predictsomatic}).  The
 \Rcode{plot.cnv} argument allows the segmentation function to generate
 additional plots if set to \Rcode{TRUE}.  Finally, \Rcode{verbose} outputs
@@ -766,17 +764,20 @@ vcf <- predictSomatic(ret, return.vcf=TRUE)
 writeVcf(vcf, file="Sample1_PureCN.vcf") 
 @
 
+For optimal results:
+\begin{itemize}
+    \item Set \Rcode{post.optimize=TRUE} since small inaccuracies in purity can
+decrease the classification performance significantly.
+    \item Provide \Rcode{args.setMappingBias} a pool of normal VCF to
+        obtain position-specific mapping bias information.
+    \item For classifying variants, use a somatic posterior probability
+        cutoff of 0.8 and 0.2 for somatic and germline variants, respectively.
+        This appears to be a good compromise of call rate and accuracy.
+\end{itemize}        
+
 \textbf{Note that the posterior probabilities assume that the purity and ploidy
 combination is correct. Before classifying variants, it is thus important to
-manually curate samples.} Further note that small inaccuracies in purity can
-decrease the classification performance significantly, and we currently
-recommend the \Rcode{post.optimize} option when variant classification is
-important. If a pool of normal samples is available, we also highly recommend
-providing \Rcode{args.setMappingBias} a pool of normal VCF to calculate
-position-specific mapping biases. For classifying variants, we recommend a
-somatic posterior probability cutoff of 0.8 and 0.2 for somatic and germline
-variants, respectively. This appears to be a good compromise of call rate and
-accuracy.
+manually curate samples.} 
 
 \begin{table*}
 \caption{\Rfunction{predictSomatic} output columns.}
@@ -1238,9 +1239,10 @@ Fortunately, in most cancer types, such ambiguity is rather rare.
 
 \begin{description}
     \item[Noisy segmentation:] The default of 200 for \Rcode{max.segments} is
-    calibrated for high quality and high coverage whole exome data. For whole
-    genome data or lower coverage data, this value needs to be re-calibrated.
-    In case the copy number data looks indeed noisy, please see the first FAQ.
+    calibrated for high quality and high coverage whole-exome data. For
+    whole-genome data or lower coverage data, this value needs to be
+    re-calibrated.  In case the copy number data looks indeed noisy, please see
+    the first FAQ.
     \item[High AT/GC dropout:] If the data is GC-normalized, then there might
     be issues with either the target intervals or the provided GC content.
     Please double check that all files are correct and that all the coverage
