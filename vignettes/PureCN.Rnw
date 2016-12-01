@@ -406,6 +406,10 @@ additional plots if set to \Rcode{TRUE}.  Finally, \Rcode{verbose} outputs
 important and helpful information about all the steps performed and is
 therefore set to \Rcode{TRUE} by default.
 
+\section{Output}
+
+\subsection{Plots}
+
 We now create a few output files:
 
 <<createoutput>>=
@@ -492,6 +496,195 @@ of states, so this correlation is expected to be good for high ploidy
 solutions.  The right panel plots the observed allelic fractions against copy
 number. The labels show the expected values for all called states; 2m1 would be
 diploid, heterozygous, 2m2 diploid, homozygous.  \clearpage
+
+\subsection{Data structures}
+
+The R data file (\Rcode{file.rds}) contains gene-level copy number calls,
+SNV status and LOH calls.  The purity/ploidy combinations are sorted by
+likelihood and stored in \Rcode{ret\$results}.
+
+<<output1>>=
+names(ret)
+@
+
+We provide convenient functions to extract information from this data structure
+and show their usage in the next sections. We recommend using these functions
+instead of accessing the data directly since data structures might change in
+future versions. 
+
+\subsubsection{Prediction of somatic status and cellular fraction}
+\label{predictsomatic}
+To understand allelic fractions of particular SNVs, we must know the (i)
+somatic status, the (ii) tumor purity, the (iii) local copy number, as well as
+the (iv) number of chromosomes harboring the mutations or SNPs. One of
+\Biocpkg{PureCN} main functions is to find the most likely combination of these
+four values. We further assign posterior probabilities to all possible
+combinations or states. Availability of matched normals reduces the search space
+by already providing somatic status. 
+
+The \Rfunction{predictSomatic} function provides access to these probabilities.
+For predicted somatic mutations, this function also provides cellular fraction
+estimates, i.e. the fraction of tumor cells with mutation. Fractions
+significantly below 1 indicate sub-clonality\footnote{This number can be above 1
+when the observed allelic fraction is higher than expected for a clonal
+mutation. This may be due to random sampling, wrong copy number, sub-clonal copy
+number events, or wrong purity/ploidy estimates.}:
+
+<<output3>>=
+head(predictSomatic(ret), 3)
+@
+
+The output columns are explained in Table~\ref{tbl:predictSomatic}.
+
+To annotate the input VCF file with these values:
+<<output4>>=
+vcf <- predictSomatic(ret, return.vcf=TRUE)
+writeVcf(vcf, file="Sample1_PureCN.vcf") 
+@
+
+For optimal classification results:
+\begin{itemize}
+    \item Set \Rcode{post.optimize=TRUE} since small inaccuracies in purity can
+decrease the classification performance significantly.
+    \item Provide \Rcode{args.setMappingBias} a pool of normal VCF to
+        obtain position-specific mapping bias information.
+    \item For classifying variants, use a somatic posterior probability
+        cutoff of 0.8 and 0.2 for somatic and germline variants, respectively.
+        This appears to be a good compromise of call rate and accuracy.
+\end{itemize}        
+
+\textbf{Note that the posterior probabilities assume that the purity and ploidy
+combination is correct. Before classifying variants, it is thus important to
+manually curate samples.} 
+
+\begin{table*}
+\caption{\Rfunction{predictSomatic} output columns.}
+\begin{tabular}{lp{9.5cm}}
+\toprule
+Column name       & Description \\
+\midrule
+\Rcode{chr, start, end}   & Variant coordinates \\
+\Rcode{SOMATIC.M*} & Posterior probabilities for all somatic states.  M0 to M7 
+are multiplicity values, i.e. the number of chromosomes harboring the 
+mutation (e.g.  1 heterozygous, 2 homozygous if copy number C is 2). SOMATIC.M0
+represents a sub-clonal state (somatic mutations by definition have a 
+multiplicity larger than 0). \\
+\Rcode{GERMLINE.M*} & Posterior probabilities for all heterozygous germline 
+states \\
+\Rcode{GERMLINE.CONTHIGH} & Posterior probability for contamination.  This 
+state corresponds to homozygous germline SNPs that were not filtered out 
+because reference alleles from another individual were sequenced, resulting in 
+allelic fractions smaller than 1. \\
+\Rcode{GERMLINE.CONTLOW} & Posterior probability for contamination. This state
+corresponds to non-reference alleles only present in the contamination. \\
+\Rcode{GERMLINE.HOMOZYGOUS} & Posterior probability that SNP is homozygous in 
+normal. Requires the \Rcode{model.homozygous} option in 
+\Rfunction{runAbsoluteCN}. See Section~\ref{sec:celllines}. \\
+\Rcode{ML.SOMATIC} & \Rcode{TRUE} if the maximum likelihood state is a somatic
+    state \\
+\Rcode{POSTERIOR.SOMATIC} & The posterior probability that the variant is 
+somatic (sum of all somatic state posterior probabilities) \\
+\Rcode{ML.M}  & Maximum likelihood multiplicity \\
+\Rcode{ML.C}  & Maximum likelihood integer copy number \\
+\Rcode{ML.M.SEGMENT} & Maximum likelihood minor segment copy number \\
+\Rcode{ML.AR}  & Expected allelic fraction of the maximum likelihood state \\
+\Rcode{AR}   & Observed allelic fraction (as provided in VCF) \\
+\Rcode{AR.ADJUSTED} & Observed allelic fraction adjusted for mapping bias.\\
+\Rcode{ML.LOH} & \Rcode{TRUE} if variant is most likely in LOH \\
+\Rcode{CN.SUBCLONAL} & \Rcode{TRUE} if copy number segment is sub-clonal \\
+\Rcode{CELLFRACTION} & Fraction of tumor cells harboring the somatic mutation\\
+\Rcode{log.ratio} & The copy number log-ratio (tumor vs. normal) for this 
+    variant \\
+\Rcode{prior.somatic} & Prior probability of variant being somatic \\
+\Rcode{prior.contamination} & Prior probability that variant is contamination 
+    from another individual \\
+\Rcode{on.target} & 1 for variants within intervals, 2 for variants in flanking
+ regions, 0 for off-target SNVs \\
+\Rcode{seg.id}       & Segment id  \\
+\Rcode{gene.symbol} & Gene symbol if available \\ 
+\bottomrule
+\end{tabular}
+\label{tbl:predictSomatic}
+\end{table*}
+
+\subsubsection{Amplifications and deletions}
+
+To call amplifications, we recommend using a cutoff of 6 for focal
+amplifications and a cutoff of 7 otherwise. For homozygous deletions, a cutoff
+of 0.5 is useful to allow some heterogeneity in copy number.
+
+For samples that failed \Biocpkg{PureCN} calling we recommended using
+common log-ratio cutoffs to call amplifications, for example 0.9.
+
+This strategy is implemented in the \Rfunction{callAlterations} function:
+
+<<calling2>>=
+gene.calls <- callAlterations(ret)
+head(gene.calls)
+@
+
+It is also often useful to filter the list further by known biology, for
+example to exclude non-focal amplifications of tumor suppressor genes. The
+Sanger Cancer Gene Census \cite{Futreal2004} for example provides such a list.
+
+The output columns of \Rfunction{callAlterations} are explained in
+Table~\ref{tbl:callAlterations}.
+
+\begin{table*}
+\caption{\Rfunction{callAlterations} output columns.}
+\begin{tabular}{lp{9.5cm}}
+\toprule
+Column name       & Description \\
+\midrule
+\Rcode{chr, start, end} & Gene coordinates \\
+\Rcode{C}            & Segment integer copy number \\
+\Rcode{seg.mean}     & Segment mean of copy number log-ratios 
+(not adjusted for purity/ploidy)  \\
+\Rcode{seg.id}       & Segment id  \\
+\Rcode{number.targets} & Number of targets annotated with this symbol \\
+\Rcode{gene.*}       & Gene copy number log-ratios  
+(not adjusted for purity/ploidy)  \\
+\Rcode{focal}       & \Rcode{TRUE} for focal amplification, as defined by the 
+\Rfunction{fun.focal} argument in \Rfunction{runAbsoluteCN} \\
+\Rcode{num.snps.segment} & Number of SNPs in this segment informative for 
+    LOH detection\\
+\Rcode{loh}         & \Rcode{TRUE} if segment is in LOH, \Rcode{FALSE} if not 
+    and \Rcode{NA} if number of SNPs is insufficient \\
+\Rcode{type}        & Amplification or deletion \\
+\bottomrule
+\end{tabular}
+\label{tbl:callAlterations}
+\end{table*}
+
+
+\subsubsection{Find genomic regions in LOH}
+
+The \Rcode{gene.calls} data.frame described above provides gene-level LOH
+information. To find the corresponding genomic regions in LOH, we can use the
+\Rfunction{callLOH} function:
+
+<<loh>>=
+loh <- callLOH(ret)
+head(loh)
+@
+
+The output columns are explained in Table~\ref{tbl:callLOH}.
+
+\begin{table*}
+\caption{\Rfunction{callLOH} output columns.}
+\begin{tabular}{lp{9.5cm}}
+\toprule
+Column name & Description \\
+\midrule
+\Rcode{chr, start, end} & Segment coordinates \\
+\Rcode{arm}         & Chromosome arm \\
+\Rcode{C}           & Segment integer copy number \\
+\Rcode{M}           & Minor integer copy number ($M+N=C,M\leq N$) \\
+\Rcode{type}        & LOH type if $M=0$ \\
+\bottomrule
+\end{tabular}
+\label{tbl:callLOH}
+\end{table*}
 
 \section{Curation}
 
@@ -595,7 +788,25 @@ For technical reasons, the maximum purity \Biocpkg{PureCN} currently models is
 0.99. We recommend setting \Rcode{test.purity=seq(0.9,0.99,by=0.01)} in
 \Rfunction{runAbsoluteCN} for cell lines. 
 
-\section{Custom normalization and segmentation}
+\section{Maximizing the number of heterozygous SNPs}
+\label{secmaxsnps}
+
+It is possible to use SNPs in off-target reads in the SNV fitting step by
+running \software{MuTect} without interval file and then setting the
+\Rfunction{runAbsoluteCN} argument \Rcode{remove.off.target.snvs} to
+\Rcode{FALSE}. We recommend a large pool of normals in this case and then
+generating SNP blacklists as described in Sections~\ref{artifactfiltering} and
+\ref{artifactfiltering2}.  Remember to also run all the normals in
+\software{MuTect} without interval file. 
+
+An often better alternative to including all off-target reads is only including
+SNVs in the flanking regions of targets (between 50-100bp). This will usually
+significantly increase the number of heterozygous SNPs (see
+Section~\ref{faqinput}). These SNPs are automatically added if the variant
+caller was run without interval file or with interval padding.
+
+\section{Advanced usage}
+\subsection{Custom normalization and segmentation}
 \label{customseg}
 Copy number normalization and segmentation are crucial for obtaining good
 purity and ploidy estimates. If you have a well-tested pipeline that produces
@@ -609,7 +820,7 @@ The next section describes how to replace the default segmentation. For the
 probably more uncommon case that only the coverage normalization is performed by
 third-party tools, see Section~\ref{customnorm}.
 
-\subsection{Custom segmentation}
+\subsubsection{Custom segmentation}
 It is possible to provide already segmented data, which is especially
 recommended when matched SNP6 data are available or when third-party
 segmentation tools are not written in R. Otherwise it is usually however better
@@ -661,8 +872,9 @@ segmented data.}{This plot shows the maximum likelihood solution for an example
 where segmented data are provided instead of coverage data. Note that the middle
 panel shows no variance in log-ratios, since only segment-level log-ratios are
 available.}
+  
 
-\subsection{Custom normalization}
+\subsubsection{Custom normalization}
 \label{customnorm}
 If third-party tools such as \software{GATK4} are used to calculate
 target-level copy number log-ratios, and \Biocpkg{PureCN} should be used for
@@ -692,7 +904,7 @@ low quality targets. Interval coordinates are again expected in either a
 \Rcode{gc.gene.file} or a \Rcode{tumor.coverage.file}. If a tumor coverage file is
 provided, then all targets below the coverage minimum are further excluded.
 
-\section{COSMIC annotation}
+\subsection{COSMIC annotation}
 
 If a matched normal is not available, it is also helpful to provide
 \Rfunction{runAbsoluteCN} the COSMIC database \cite{Forbes2015} via
@@ -701,214 +913,7 @@ estimation due the sparsity of hotspot mutations, it often helps in the manual
 curation to compare how well high confidence germline (dbSNP) vs. somatic
 (COSMIC) variants fit a particular purity/ploidy combination.
 
-\section{Maximizing the number of heterozygous SNPs}
-\label{secmaxsnps}
-
-It is possible to use SNPs in off-target reads in the SNV fitting step by
-running \software{MuTect} without interval file and then setting the
-\Rfunction{runAbsoluteCN} argument \Rcode{remove.off.target.snvs} to
-\Rcode{FALSE}. We recommend a large pool of normals in this case and then
-generating SNP blacklists as described in Sections~\ref{artifactfiltering} and
-\ref{artifactfiltering2}.  Remember to also run all the normals in
-\software{MuTect} without interval file. 
-
-An often better alternative to including all off-target reads is only including
-SNVs in the flanking regions of targets (between 50-100bp). This will usually
-significantly increase the number of heterozygous SNPs (see
-Section~\ref{faqinput}). These SNPs are automatically added if the variant
-caller was run without interval file or with interval padding.
-
-\section{Output}
-
-The \Rcode{plotAbs()} call above will generate the main plots shown in the
-manuscript. The R data file (file.rds) contains gene-level copy number calls,
-SNV status and LOH calls.  The purity/ploidy combinations are sorted by
-likelihood and stored in \Rcode{ret\$results}.
-
-<<output1>>=
-names(ret)
-@
-
-We provide convenient functions to extract information from this data structure
-and show their usage in the next sections. We recommend using these functions
-instead of accessing the data directly since data structures might change in
-future versions. 
-
-\subsection{Prediction of somatic status and cellular fraction}
-\label{predictsomatic}
-To understand allelic fractions of particular SNVs, we must know the (i)
-somatic status, the (ii) tumor purity, the (iii) local copy number, as well as
-the (iv) number of chromosomes harboring the mutations or SNPs. One of
-\Biocpkg{PureCN} main functions is to find the most likely combination of these
-four values. We further assign posterior probabilities to all possible
-combinations or states. Availability of matched normals reduces the search space
-by already providing somatic status. 
-
-The \Rfunction{predictSomatic} function provides access to these probabilities.
-For predicted somatic mutations, this function also provides cellular fraction
-estimates, i.e. the fraction of tumor cells with mutation. Fractions
-significantly below 1 indicate sub-clonality\footnote{This number can be above 1
-when the observed allelic fraction is higher than expected for a clonal
-mutation. This may be due to random sampling, wrong copy number, sub-clonal copy
-number events, or wrong purity/ploidy estimates.}:
-
-<<output3>>=
-head(predictSomatic(ret), 3)
-@
-
-The output columns are explained in Table~\ref{tbl:predictSomatic}.
-
-To annotate the input VCF file with these values:
-<<output4>>=
-vcf <- predictSomatic(ret, return.vcf=TRUE)
-writeVcf(vcf, file="Sample1_PureCN.vcf") 
-@
-
-For optimal results:
-\begin{itemize}
-    \item Set \Rcode{post.optimize=TRUE} since small inaccuracies in purity can
-decrease the classification performance significantly.
-    \item Provide \Rcode{args.setMappingBias} a pool of normal VCF to
-        obtain position-specific mapping bias information.
-    \item For classifying variants, use a somatic posterior probability
-        cutoff of 0.8 and 0.2 for somatic and germline variants, respectively.
-        This appears to be a good compromise of call rate and accuracy.
-\end{itemize}        
-
-\textbf{Note that the posterior probabilities assume that the purity and ploidy
-combination is correct. Before classifying variants, it is thus important to
-manually curate samples.} 
-
-\begin{table*}
-\caption{\Rfunction{predictSomatic} output columns.}
-\begin{tabular}{lp{9.5cm}}
-\toprule
-Column name       & Description \\
-\midrule
-\Rcode{chr, start, end}   & Variant coordinates \\
-\Rcode{SOMATIC.M*} & Posterior probabilities for all somatic states.  M0 to M7 
-are multiplicity values, i.e. the number of chromosomes harboring the 
-mutation (e.g.  1 heterozygous, 2 homozygous if copy number C is 2). SOMATIC.M0
-represents a sub-clonal state (somatic mutations by definition have a 
-multiplicity larger than 0). \\
-\Rcode{GERMLINE.M*} & Posterior probabilities for all heterozygous germline 
-states \\
-\Rcode{GERMLINE.CONTHIGH} & Posterior probability for contamination.  This 
-state corresponds to homozygous germline SNPs that were not filtered out 
-because reference alleles from another individual were sequenced, resulting in 
-allelic fractions smaller than 1. \\
-\Rcode{GERMLINE.CONTLOW} & Posterior probability for contamination. This state
-corresponds to non-reference alleles only present in the contamination. \\
-\Rcode{GERMLINE.HOMOZYGOUS} & Posterior probability that SNP is homozygous in 
-normal. Requires the \Rcode{model.homozygous} option in 
-\Rfunction{runAbsoluteCN}. See Section~\ref{sec:celllines}. \\
-\Rcode{ML.SOMATIC} & \Rcode{TRUE} if the maximum likelihood state is a somatic
-    state \\
-\Rcode{POSTERIOR.SOMATIC} & The posterior probability that the variant is 
-somatic (sum of all somatic state posterior probabilities) \\
-\Rcode{ML.M}  & Maximum likelihood multiplicity \\
-\Rcode{ML.C}  & Maximum likelihood integer copy number \\
-\Rcode{ML.M.SEGMENT} & Maximum likelihood minor segment copy number \\
-\Rcode{ML.AR}  & Expected allelic fraction of the maximum likelihood state \\
-\Rcode{AR}   & Observed allelic fraction (as provided in VCF) \\
-\Rcode{AR.ADJUSTED} & Observed allelic fraction adjusted for mapping bias.\\
-\Rcode{ML.LOH} & \Rcode{TRUE} if variant is most likely in LOH \\
-\Rcode{CN.SUBCLONAL} & \Rcode{TRUE} if copy number segment is sub-clonal \\
-\Rcode{CELLFRACTION} & Fraction of tumor cells harboring the somatic mutation\\
-\Rcode{log.ratio} & The copy number log-ratio (tumor vs. normal) for this 
-    variant \\
-\Rcode{prior.somatic} & Prior probability of variant being somatic \\
-\Rcode{prior.contamination} & Prior probability that variant is contamination 
-    from another individual \\
-\Rcode{on.target} & 1 for variants within intervals, 2 for variants in flanking
- regions, 0 for off-target SNVs \\
-\Rcode{seg.id}       & Segment id  \\
-\Rcode{gene.symbol} & Gene symbol if available \\ 
-\bottomrule
-\end{tabular}
-\label{tbl:predictSomatic}
-\end{table*}
-
-\subsection{Amplifications and deletions}
-
-To call amplifications, we recommend using a cutoff of 6 for focal
-amplifications and a cutoff of 7 otherwise. For homozygous deletions, a cutoff
-of 0.5 is useful to allow some heterogeneity in copy number.
-
-For samples that failed \Biocpkg{PureCN} calling we recommended using
-common log-ratio cutoffs to call amplifications, for example 0.9.
-
-This strategy is implemented in the \Rfunction{callAlterations} function:
-
-<<calling2>>=
-gene.calls <- callAlterations(ret)
-head(gene.calls)
-@
-
-It is also often useful to filter the list further by known biology, for
-example to exclude non-focal amplifications of tumor suppressor genes. The
-Sanger Cancer Gene Census \cite{Futreal2004} for example provides such a list.
-
-The output columns of \Rfunction{callAlterations} are explained in
-Table~\ref{tbl:callAlterations}.
-
-\begin{table*}
-\caption{\Rfunction{callAlterations} output columns.}
-\begin{tabular}{lp{9.5cm}}
-\toprule
-Column name       & Description \\
-\midrule
-\Rcode{chr, start, end} & Gene coordinates \\
-\Rcode{C}            & Segment integer copy number \\
-\Rcode{seg.mean}     & Segment mean of copy number log-ratios 
-(not adjusted for purity/ploidy)  \\
-\Rcode{seg.id}       & Segment id  \\
-\Rcode{number.targets} & Number of targets annotated with this symbol \\
-\Rcode{gene.*}       & Gene copy number log-ratios  
-(not adjusted for purity/ploidy)  \\
-\Rcode{focal}       & \Rcode{TRUE} for focal amplification, as defined by the 
-\Rfunction{fun.focal} argument in \Rfunction{runAbsoluteCN} \\
-\Rcode{num.snps.segment} & Number of SNPs in this segment informative for 
-    LOH detection\\
-\Rcode{loh}         & \Rcode{TRUE} if segment is in LOH, \Rcode{FALSE} if not 
-    and \Rcode{NA} if number of SNPs is insufficient \\
-\Rcode{type}        & Amplification or deletion \\
-\bottomrule
-\end{tabular}
-\label{tbl:callAlterations}
-\end{table*}
-
-
-\subsection{Find genomic regions in LOH}
-
-The \Rcode{gene.calls} data.frame described above provides gene-level LOH
-information. To find the corresponding genomic regions in LOH, we can use the
-\Rfunction{callLOH} function:
-
-<<loh>>=
-loh <- callLOH(ret)
-head(loh)
-@
-
-The output columns are explained in Table~\ref{tbl:callLOH}.
-
-\begin{table*}
-\caption{\Rfunction{callLOH} output columns.}
-\begin{tabular}{lp{9.5cm}}
-\toprule
-Column name & Description \\
-\midrule
-\Rcode{chr, start, end} & Segment coordinates \\
-\Rcode{arm}         & Chromosome arm \\
-\Rcode{C}           & Segment integer copy number \\
-\Rcode{M}           & Minor integer copy number ($M+N=C,M\leq N$) \\
-\Rcode{type}        & LOH type if $M=0$ \\
-\bottomrule
-\end{tabular}
-\label{tbl:callLOH}
-\end{table*}
-  
-\section{Power to detect somatic mutations}
+\subsection{Power to detect somatic mutations}
 
 As final quality control step, we can test if coverage and tumor purity are
 sufficent to detect mono-clonal or even sub-clonal somatic mutations. We
