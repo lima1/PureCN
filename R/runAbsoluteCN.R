@@ -924,7 +924,7 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # samples.
 ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
     tumor.coverage.file=tumor.coverage.file, genome="hg19", vcf.file=vcf.file,
-    sampleid='Sample1', gc.gene.file=gc.gene.file,
+    sampleid="Sample1", gc.gene.file=gc.gene.file,
     max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 
 
@@ -939,5 +939,5 @@ funSeg <- function(seg, ...) return(seg)
 
 res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=funSeg, max.ploidy = 4,
     test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
-    genome='hg19', gc.gene.file=gc.gene.file)
+    genome="hg19", gc.gene.file=gc.gene.file)
 })    

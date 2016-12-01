@@ -20,7 +20,7 @@ maximum likelihood solution.}
 \seealso{\code{\link{runAbsoluteCN}}}
 \examples{
 data(purecn.example.output)
-file.rds <- 'Sample1_PureCN.rds'
+file.rds <- "Sample1_PureCN.rds"
 saveRDS(purecn.example.output, file=file.rds)
 createCurationFile(file.rds) 
 }

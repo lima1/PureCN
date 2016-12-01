@@ -32,5 +32,5 @@ normalDB <- createNormalDatabase(normal.coverage.files)
 best.normal.coverage.files <- findBestNormal(tumor.coverage.file, normalDB, 
     num.normals=2)
 pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageGatk),
-     remove.chrs=c('chrX', 'chrY'))
+     remove.chrs=c("chrX", "chrY"))
 }

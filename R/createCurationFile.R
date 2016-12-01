@@ -44,7 +44,7 @@ overwrite.uncurated=TRUE
 ### maximum likelihood solution.
 },ex=function() {
 data(purecn.example.output)
-file.rds <- 'Sample1_PureCN.rds'
+file.rds <- "Sample1_PureCN.rds"
 saveRDS(purecn.example.output, file=file.rds)
 createCurationFile(file.rds) 
 })

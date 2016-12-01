@@ -262,7 +262,7 @@ single pool:
 best.normal.coverage.files <- findBestNormal(tumor.coverage.file, 
     normalDB, num.normals=2)
 pool <- poolCoverage(lapply(best.normal.coverage.files, 
-    readCoverageGatk), remove.chrs=c('chrX', 'chrY'))
+    readCoverageGatk), remove.chrs=c("chrX", "chrY"))
 @
 
 Pooling is only recommended when the coverage in normals is significantly lower
@@ -364,8 +364,8 @@ if (downloadFromUCSC) {
         row.names=FALSE)
 }
 
-snp.blacklist <- c('hg19_segmentalDuplications.txt', 
-    'hg19_simpleRepeats.txt')
+snp.blacklist <- c("hg19_segmentalDuplications.txt", 
+    "hg19_simpleRepeats.txt")
 @
 
 \section{Recommended run}
@@ -375,7 +375,7 @@ Finally, we can run \Biocpkg{PureCN} with all that information:
 <<runpurecn>>=
 ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, 
-    genome="hg19", sampleid='Sample1', 
+    genome="hg19", sampleid="Sample1", 
     gc.gene.file=gc.gene.file, 
     args.filterTargets=list(normalDB=normalDB),
 # args.setMappingBiasVcf=list(normal.panel.vcf.file=normal.panel.vcf.file),
@@ -411,10 +411,10 @@ therefore set to \Rcode{TRUE} by default.
 We now create a few output files:
 
 <<createoutput>>=
-file.rds <- 'Sample1_PureCN.rds'
+file.rds <- "Sample1_PureCN.rds"
 saveRDS(ret, file=file.rds)
-pdf('Sample1_PureCN.pdf', width=10, height=12)
-plotAbs(ret, type='all')
+pdf("Sample1_PureCN.pdf", width=10, height=12)
+plotAbs(ret, type="all")
 dev.off()
 @
 
@@ -526,7 +526,7 @@ the curated purity/ploidy combination, for example.
 The default curation file will list the maximum likelihood solution:
 
 <<curationfileshow>>=
-read.csv('Sample1_PureCN.csv')
+read.csv("Sample1_PureCN.csv")
 @
 
 \Biocpkg{PureCN} currently only flags samples with warnings, it does not mark
@@ -574,10 +574,10 @@ automatically removed.}
 These automatically curated samples can of course be manually curated as well:
 
 <<curationauto>>=
-file.curated.rds <- 'Sample1_PureCN_autocurated.rds'
+file.curated.rds <- "Sample1_PureCN_autocurated.rds"
 saveRDS(ret, file=file.curated.rds)
-pdf('Sample1_PureCN_autocurated.pdf', width=10, height=12)
-plotAbs(ret, type='all')
+pdf("Sample1_PureCN_autocurated.pdf", width=10, height=12)
+plotAbs(ret, type="all")
 dev.off()
 createCurationFile(file.curated.rds) 
 @
@@ -1047,7 +1047,7 @@ especially in high purity samples or if LOY is in both tumor and contaminating
 normal cells. The software throws a warning in this case when germline SNPs
 are provided.}. For non-human samples, the user needs to manually remove all
 non-diploid chromosomes from the coverage data and specify
-\Rcode{sex='diploid'} in the \Biocpkg{PureCN} call.
+\Rcode{sex="diploid"} in the \Biocpkg{PureCN} call.
 
 While \Biocpkg{PureCN} supports and models sub-clonal somatic copy number
 alterations, it currently assumes that the majority of alterations are

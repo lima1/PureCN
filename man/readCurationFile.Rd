@@ -32,7 +32,7 @@ and arguments of this function.}
 \seealso{\code{\link{runAbsoluteCN} \link{createCurationFile}}}
 \examples{
 data(purecn.example.output)
-file.rds <- 'Sample1_PureCN.rds'
+file.rds <- "Sample1_PureCN.rds"
 createCurationFile(file.rds) 
 # User can change the maximum likelihood solution manually in the generated 
 # CSV file. The correct solution is then loaded with readCurationFile.

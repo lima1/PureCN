@@ -35,7 +35,7 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # samples.
 ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, genome="hg19", 
-    sampleid='Sample1', gc.gene.file=gc.gene.file,
+    sampleid="Sample1", gc.gene.file=gc.gene.file,
     max.candidate.solutions=1, max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), 
     args.focal=list(max.size = 2e+06), fun.focal=findFocal)
 }
