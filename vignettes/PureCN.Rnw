@@ -81,8 +81,7 @@ obtain best results, we can finally use a pool of normal samples to
 automatically learn more about our assay and its biases and common artifacts. 
 
 The next sections will show how to do all this with \Biocpkg{PureCN} alone or
-with the help of \software{GATK} and/or existing copy number pipelines. We tried
-to make this as pain-free as possible.
+with the help of \software{GATK} and/or existing copy number pipelines. 
 
 \section{Basic input files}
 
@@ -788,7 +787,7 @@ accuracy.
 
 \begin{table*}
 \caption{\Rfunction{predictSomatic} output columns.}
-\begin{tabular}{lp{9cm}}
+\begin{tabular}{lp{9.5cm}}
 \toprule
 Column name       & Description \\
 \midrule
@@ -861,7 +860,7 @@ Table~\ref{tbl:callAlterations}.
 
 \begin{table*}
 \caption{\Rfunction{callAlterations} output columns.}
-\begin{tabular}{lp{9cm}}
+\begin{tabular}{lp{9.5cm}}
 \toprule
 Column name       & Description \\
 \midrule
@@ -901,7 +900,7 @@ The output columns are explained in Table~\ref{tbl:callLOH}.
 
 \begin{table*}
 \caption{\Rfunction{callLOH} output columns.}
-\begin{tabular}{lp{9cm}}
+\begin{tabular}{lp{9.5cm}}
 \toprule
 Column name & Description \\
 \midrule
