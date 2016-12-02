@@ -66,7 +66,7 @@ post.optimize=FALSE, outdir) {
         ret <- readRDS(file.rds)
     } else {    
         pdf(paste(outdir,"/", sampleid, '_abs_segmentation.pdf', sep=''), 
-            width=10, height=12)
+            width=10, height=11)
         ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
                 tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
                 sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=TRUE,
@@ -82,7 +82,7 @@ post.optimize=FALSE, outdir) {
     }
     createCurationFile(file.rds)
     file.pdf <- file.path(outdir, paste(sampleid, '_abs.pdf', sep=''))
-    pdf(file.pdf, width=10, height=12)
+    pdf(file.pdf, width=10, height=11)
     plotAbs(ret, type='all')
     dev.off()
 }

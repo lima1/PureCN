@@ -5,7 +5,7 @@
 purity and ploidy combinations in the results of a 
 \code{\link{runAbsoluteCN}} call.}
 \usage{plotAbs(res, ids = NULL, type = c("hist", "overview", 
-    "BAF", "AF", "all"), chr = NULL, germline.only = TRUE, 
+    "overview2", "BAF", "AF", "all"), chr = NULL, germline.only = TRUE, 
     show.contour = FALSE, purity = NULL, ploidy = NULL, 
     alpha = TRUE, show.segment.means = c("SNV", "segments", 
         "both"), max.mapping.bias = 0.8, ...)}
@@ -15,7 +15,9 @@ purity and ploidy combinations in the results of a
 plot for the maximum likelihood solution.}
   \item{type}{Different types of plots. \code{hist} will plot a histogram, 
 assigning log-ratio peaks to integer values. \code{overview} will plot all 
-local optima, sorted by likelihood. \code{BAF} plots something like 
+local optima, sorted by likelihood. \code{overview2} adds additional 
+barplots showing likelihood and goodness-of-fit scores. 
+\code{BAF} plots something like 
 a B-allele frequency plot known from SNP arrays: it plots allele 
 frequencies of germline variants (or most likely germline when status
 is not available) against copy number. \code{AF} plots observed allelic 

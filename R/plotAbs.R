@@ -9,10 +9,12 @@ res,
 ids=NULL, 
 ### Candidate solutions to be plotted. \code{ids=1} will draw the 
 ### plot for the maximum likelihood solution.
-type=c("hist", "overview", "BAF", "AF", "all"),
+type=c("hist", "overview", "overview2", "BAF", "AF", "all"),
 ### Different types of plots. \code{hist} will plot a histogram, 
 ### assigning log-ratio peaks to integer values. \code{overview} will plot all 
-### local optima, sorted by likelihood. \code{BAF} plots something like 
+### local optima, sorted by likelihood. \code{overview2} adds additional 
+### barplots showing likelihood and goodness-of-fit scores. 
+### \code{BAF} plots something like 
 ### a B-allele frequency plot known from SNP arrays: it plots allele 
 ### frequencies of germline variants (or most likely germline when status
 ### is not available) against copy number. \code{AF} plots observed allelic 
@@ -401,7 +403,7 @@ max.mapping.bias=0.8,
             }
         }
     } else if (type =="all") {
-        plotAbs(res, type="overview")
+        plotAbs(res, type="overview2")
         if (is.null(ids)) ids <- seq_along(res$results)
         for (i in ids) {
             par(mfrow=c(1,1))
@@ -419,6 +421,7 @@ max.mapping.bias=0.8,
         myfont <-  ifelse(sapply(res$results, function(x) x$flag), 1, 1)
         main <- NULL
         parm <- par("mar")
+        if (type=="overview2") par(mfrow=c(2,2))
         par(mar= c(5, 4, 4, 4) + 0.1)
         #if ("darkgrey" %in% myfont) main="Italics: SCNA-fitting flagged."
         xc <- .matrixTotalPloidyToTumorPloidy(res$candidates$all)
@@ -445,6 +448,20 @@ max.mapping.bias=0.8,
         text( sapply(res$results, function(x) min(0.9, x$purity))-0.02,
             sapply(res$results, function(x) x$ploidy)-0.1, 
             seq_along(res$results), col=mycol, cex=1.2,font=myfont)
+
+        x <- sapply(res$results, function(x) x$GoF)
+        barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
+            main="Goodness-of-fit", las=2)
+        x <- sapply(res$results, function(x) x$total.log.likelihood)
+        barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
+            main="Total likelihood (SNV+SCNA)", las=2)
+        if (!is.null(res$input$vcf)) {
+            x <- sapply(res$results, function(x) 
+                x$SNV.posterior$beta.model$llik)
+            barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
+                main="SNV likelihood score", las=2)
+        }
+
         par(mar=parm)
     }
 ### Returns \code{NULL}.
