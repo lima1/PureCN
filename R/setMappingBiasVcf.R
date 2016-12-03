@@ -13,7 +13,7 @@ normal.panel.vcf.file=NULL,
 ### Combined VCF file of a panel of normals, expects allelic fractions
 ### as FA genotype field. Should be compressed and indexed with bgzip and 
 ### tabix, respectively.
-min.normals=7,
+min.normals=5,
 ### Minimum number of normals with heterozygous SNP for calculating
 ### position-specific mapping bias. Requires \code{normal.panel.vcf.file}.  
 smooth=TRUE,

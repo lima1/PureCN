@@ -7,7 +7,7 @@ By default, it returns the same value for all variants, but a
 pool of normal samples can be provided for position-specific
 mapping bias calculation.}
 \usage{setMappingBiasVcf(vcf, tumor.id.in.vcf = NULL, normal.panel.vcf.file = NULL, 
-    min.normals = 7, smooth = TRUE, smooth.n = 5, verbose = TRUE)}
+    min.normals = 5, smooth = TRUE, smooth.n = 5, verbose = TRUE)}
 \arguments{
   \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf} function 
 from the VariantAnnotation package.}

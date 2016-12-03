@@ -295,7 +295,7 @@ It is highly recommended to provide \Biocpkg{PureCN} this combined VCF as well;
 it might help the software correcting non-reference read mapping biases. This
 is described in the \Rfunction{setMappingBiasVcf} documentation.  To reduce
 memory usuage, the normal panel VCF can be reduced to contain only variants
-present in 10 or more samples.
+present in 5 or more samples.
 
 \subsubsection{Coverage data}
 We next use coverage data of normal samples to estimate the expected variance
@@ -793,7 +793,7 @@ For technical reasons, the maximum purity \Biocpkg{PureCN} currently models is
 
 It is possible to use SNPs in off-target reads in the SNV fitting step by
 running \software{MuTect} without interval file and then setting the
-\Rfunction{runAbsoluteCN} argument \Rcode{remove.off.target.snvs} to
+\Rfunction{filterVcfBasic} argument \Rcode{remove.off.target.snvs} to
 \Rcode{FALSE}. We recommend a large pool of normals in this case and then
 generating SNP blacklists as described in Sections~\ref{artifactfiltering} and
 \ref{artifactfiltering2}.  Remember to also run all the normals in
@@ -810,11 +810,11 @@ caller was run without interval file or with interval padding.
 \label{customseg}
 Copy number normalization and segmentation are crucial for obtaining good
 purity and ploidy estimates. If you have a well-tested pipeline that produces
-clean results for your data, you might want (and maybe should) use
-\Biocpkg{PureCN} as add-on to your pipeline. By default, we will use
-\CRANpkg{DNAcopy} \cite{Venkatraman2007} to segment normalized target-level
-coverage log-ratios. It is straightforward to replace the default with other
-methods and the \Rfunction{segmentationCBS} function can serve as an example.
+clean results for your data, you might want use \Biocpkg{PureCN} as add-on to
+your pipeline. By default, we will use \CRANpkg{DNAcopy} \cite{Venkatraman2007}
+to segment normalized target-level coverage log-ratios. It is straightforward
+to replace the default with other methods and the \Rfunction{segmentationCBS}
+function can serve as an example.
 
 The next section describes how to replace the default segmentation. For the
 probably more uncommon case that only the coverage normalization is performed by
@@ -1006,12 +1006,14 @@ PureCN.R is an example script to run PureCN with basic parameters:
 # From GC-normalized coverage data
 Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \ 
     --normal example_normal.txt --vcf example_vcf.vcf -i Sample1 \
-     --genome hg19 --gcgene  example_gc.gene.file.txt
+    --genome hg19 --gcgene  example_gc.gene.file.txt \
+    --outvcf example_vcf_purecn.vcf
 
 # From already segmented data
 Rscript PureCN.R --outdir ~/tmp/ --segfile example_seg.txt \ 
     --vcf example_vcf.vcf -i Sample1 --genome hg19 \
-    --gcgene  example_gc.gene.file.txt
+    --gcgene  example_gc.gene.file.txt \
+    --outvcf example_vcf_purecn.vcf
 \end{verbatim}
 
 \begin{table*}
@@ -1037,6 +1039,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
     \Rfunction{findBestNormal}, \Rfunction{filterTargets} \\
 --postoptimize -z   & post.optimize & \Rfunction{runAbsoluteCN} \\    
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
+--outvcf -u         & return.vcf & \Rfunction{predictSomatic} \\
 \bottomrule
 \end{tabular}
 \end{table*}

@@ -32,7 +32,7 @@ verbose=TRUE
     }    
     if (!is.null(normalDB$gatk.normal.files)) {
         warning("Normal database generated with PureCN version pre 1.2. ",
-         "Please regenerate. It will stop working with 1.4.") 
+         "Please regenerate. It will stop working with 1.6.") 
         normalDB$normal.coverage.files <- normalDB$gatk.normal.files
     }    
     x <- t(tumor[normalDB$exons.used,"average.coverage", drop=FALSE])

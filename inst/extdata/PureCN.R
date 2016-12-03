@@ -16,6 +16,7 @@ spec <- matrix(c(
 'normaldb',       'd', 1, "character",
 'postoptimize',   'z', 0, "logical",
 'outdir',         'o', 1, "character",
+'outvcf',         'u', 1, "character",
 'sampleid',       'i', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
@@ -40,31 +41,32 @@ normal.panel.vcf.file <- opt$normal_panel
 normalDB <- opt$normaldb
 sampleid <- opt$sampleid
 outdir <- opt$outdir
+outvcf <- opt$outvcf
 
 PureCN <- function(
 tumor.coverage.file, normal.coverage.file=NULL, tumor.vcf, genome,
 gc.gene.file=NULL, seg.file=NULL, snp.blacklist=NULL, stats.file=NULL,
 target.weight.file=NULL, normal.panel.vcf.file=NULL, normalDB=NULL, sampleid,
-post.optimize=FALSE, outdir) {
+post.optimize=FALSE, outvcf, outdir) {
 
     file.rds <- file.path(outdir, paste(sampleid, '_abs.rds', sep=''))
 
-    if (!is.null(normalDB)) {
-        message("normalDB: ", normalDB)
-        normalDB <- readRDS(normalDB)
-        if (is.null(normal.coverage.file)) {
-            normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
-        }
-    } else if (is.null(normal.coverage.file) && is.null(seg.file)) {
-        stop("Need either normalDB or normal.coverage.file")
-    }    
-    message(paste('Best Normal:', normal.coverage.file))
-    
-
     if (file.exists(file.rds) && !force) {
-        message(outRDS, " already exists. Skipping... (--force will overwrite)")
+        message(file.rds, " already exists. Skipping... (--force will overwrite)")
         ret <- readRDS(file.rds)
     } else {    
+
+        if (!is.null(normalDB)) {
+            message("normalDB: ", normalDB)
+            normalDB <- readRDS(normalDB)
+            if (is.null(normal.coverage.file)) {
+                normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
+            }
+        } else if (is.null(normal.coverage.file) && is.null(seg.file)) {
+            stop("Need either normalDB or normal.coverage.file")
+        }    
+        message(paste('Best Normal:', normal.coverage.file))
+
         pdf(paste(outdir,"/", sampleid, '_abs_segmentation.pdf', sep=''), 
             width=10, height=11)
         ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
@@ -74,7 +76,8 @@ post.optimize=FALSE, outdir) {
                 args.filterVcf=list(snp.blacklist=snp.blacklist, 
                     stats.file=stats.file), 
                 args.segmentation=list(target.weight.file=target.weight.file), 
-                args.setMappingBiasVcf=list(normal.panel.vcf.file=normal.panel.vcf.file),
+                args.setMappingBiasVcf=
+                    list(normal.panel.vcf.file=normal.panel.vcf.file),
                 args.filterTargets=list(normalDB=normalDB),
                 post.optimize=post.optimize)
         dev.off()
@@ -85,8 +88,17 @@ post.optimize=FALSE, outdir) {
     pdf(file.pdf, width=10, height=11)
     plotAbs(ret, type='all')
     dev.off()
+    if (!is.null(outvcf)) {
+        if (basename(outvcf) != outvcf) {
+            warning(outvcf, " contains path. Will not put it in ", outdir)
+        } else {
+            outvcf <- file.path(outdir, outvcf)
+        }    
+        vcfanno <- predictSomatic(ret, return.vcf=TRUE, 
+            vcf.field.prefix="PureCN_")
+        writeVcf(vcfanno, file=outvcf)    
+    }    
 }
-
 
 outdir <- normalizePath(outdir, mustWork=TRUE)
 
@@ -102,5 +114,5 @@ PureCN(tumor.coverage.file, normal.coverage.file, tumor.vcf, genome,
 gc.gene.file, seg.file=seg.file, snp.blacklist=snp.blacklist, 
 stats.file=stats.file, target.weight.file=target.weight.file, 
 normalDB=normalDB, sampleid=sampleid, post.optimize=post.optimize, 
-normal.panel.vcf.file=normal.panel.vcf.file, outdir=outdir) 
+normal.panel.vcf.file=normal.panel.vcf.file, outvcf=outvcf, outdir=outdir) 
 
