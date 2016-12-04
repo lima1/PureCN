@@ -439,29 +439,29 @@ max.mapping.bias=0.8,
         if (show.contour) contour(as.numeric(colnames(xc)), 
             as.numeric(rownames(xc)), t(xc), add=TRUE)
 
-        symbols(x=sapply(res$results, function(x) min(0.9, x$purity)) - 0.02, 
+        symbols(x=sapply(res$results, function(x) min(0.95, x$purity)) - 0.02, 
             y=sapply(res$results, function(x) x$ploidy) - 0.1, 
             circles=rep(mean(sapply(seq_along(res$results), strwidth, 
                 cex=1.25)), length(res$results)), 
             bg=mycolBg, inches=FALSE, add=TRUE)
 
-        text( sapply(res$results, function(x) min(0.9, x$purity))-0.02,
+        text( sapply(res$results, function(x) min(0.95, x$purity))-0.02,
             sapply(res$results, function(x) x$ploidy)-0.1, 
             seq_along(res$results), col=mycol, cex=1.2,font=myfont)
-
-        x <- sapply(res$results, function(x) x$GoF)
-        barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
-            main="Goodness-of-fit", las=2)
-        x <- sapply(res$results, function(x) x$total.log.likelihood)
-        barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
-            main="Total likelihood (SNV+SCNA)", las=2)
-        if (!is.null(res$input$vcf)) {
-            x <- sapply(res$results, function(x) 
-                x$SNV.posterior$beta.model$llik)
+        if (type=="overview2") {
+            x <- sapply(res$results, function(x) x$GoF)
             barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
-                main="SNV likelihood score", las=2)
+                main="Goodness-of-fit", las=2)
+            x <- sapply(res$results, function(x) x$total.log.likelihood)
+            barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
+                main="Total likelihood (SNV+SCNA)", las=2)
+            if (!is.null(res$input$vcf)) {
+                x <- sapply(res$results, function(x) 
+                    x$SNV.posterior$beta.model$llik)
+                barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
+                    main="SNV likelihood score", las=2)
+            }
         }
-
         par(mar=parm)
     }
 ### Returns \code{NULL}.
