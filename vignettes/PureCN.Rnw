@@ -1248,11 +1248,14 @@ Fortunately, in most cancer types, such ambiguity is rather rare.
 \paragraph{If all or most of the samples are flagged as:}
 
 \begin{description}
-    \item[Noisy segmentation:] The default of 200 for \Rcode{max.segments} is
+    \item[Noisy segmentation:] The default of 300 for \Rcode{max.segments} is
     calibrated for high quality and high coverage whole-exome data. For
     whole-genome data or lower coverage data, this value needs to be
     re-calibrated.  In case the copy number data looks indeed noisy, please see
-    the first FAQ.
+    the first FAQ. Please be aware that \Biocpkg{PureCN} will apply more
+    aggressive segmentation parameters when the number of segments exceeds this
+    cutoffs. If the high segment count is real, this might confound downstream
+    analyses.
     \item[High AT/GC dropout:] If the data is GC-normalized, then there might
     be issues with either the target intervals or the provided GC content.
     Please double check that all files are correct and that all the coverage

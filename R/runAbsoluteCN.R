@@ -197,7 +197,7 @@ max.dropout=c(0.95,1.1),
 max.logr.sdev=0.75,
 ### Flag noisy samples with segment log-ratio standard deviation 
 ### larger than this. Assay specific and needs to be calibrated.
-max.segments=200,
+max.segments=300,
 ### Flag noisy samples with a large number of segments. Assay 
 ### specific and needs to be calibrated.
 min.gof=0.8,

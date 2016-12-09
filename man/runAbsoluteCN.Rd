@@ -28,7 +28,7 @@ Provides copy number and LOH data, by both gene and genomic region. }
     log.ratio.calibration = 0.25, remove.off.target.snvs = NULL, 
     model.homozygous = FALSE, error = 0.001, gc.gene.file = NULL, 
     max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
-    max.segments = 200, min.gof = 0.8, plot.cnv = TRUE, 
+    max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
     cosmic.vcf.file = NULL, post.optimize = FALSE, 
     verbose = TRUE, ...)}
 \arguments{

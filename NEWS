@@ -13,7 +13,9 @@ API CHANGES
 
 - Deprecated functions: createSNPBlacklist
 - Defunct functions: createExonWeightFile
-- Changed defaults: -min.normals 5 (from 10) in setMappingBiasVcf. 
+- Changed defaults: 
+    - min.normals 5 (from 10) in setMappingBiasVcf. 
+    - max.segments 300 (from 200) in runAbsoluteCN.               
 - Other minor changes:
     - Renamed some predictSomatic() output column names.
     - Moved remove.off.target.snvs to filterVcfBasic.
