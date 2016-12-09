@@ -1254,7 +1254,7 @@ Fortunately, in most cancer types, such ambiguity is rather rare.
     re-calibrated.  In case the copy number data looks indeed noisy, please see
     the first FAQ. Please be aware that \Biocpkg{PureCN} will apply more
     aggressive segmentation parameters when the number of segments exceeds this
-    cutoffs. If the high segment count is real, this might confound downstream
+    cutoff. If the high segment count is real, this might confound downstream
     analyses.
     \item[High AT/GC dropout:] If the data is GC-normalized, then there might
     be issues with either the target intervals or the provided GC content.
