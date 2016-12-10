@@ -73,12 +73,12 @@ process-matched.
 \end{enumerate}
 
 In addition, we need to know a little bit more about the assay.  This is the
-annoying step, since here you need to provide some information.  Most
+annoying step, since here the user needs to provide some information.  Most
 importantly, we need to know the positions of all targets.  Then we need to
 correct for GC-bias, for which we need GC-content for each target.  Optionally,
 if gene-level calls are wanted, we also need for each target a gene symbol.  To
 obtain best results, we can finally use a pool of normal samples to
-automatically learn more about our assay and its biases and common artifacts. 
+automatically learn more about the assay and its biases and common artifacts. 
 
 The next sections will show how to do all this with \Biocpkg{PureCN} alone or
 with the help of \software{GATK} and/or existing copy number pipelines. 
@@ -459,13 +459,14 @@ of 0, 1 and 2.
 plotAbs(ret, 1, type="BAF")
 @
 \incfig{figure/figureexample3-1}{0.95\textwidth}{B-allele frequency plot.}{Each
-dot is a (predicted) germline SNP. The first panel shows the allelic fractions.
-The alternating red and blue colors visualize odd and even chromosome numbers,
-respectively. The black lines visualize the expected (not the average!) allelic
-fractions in the segment. These are calculated using the estimated purity and
-the total and minor segment copy numbers. These are visualized in black and
-grey, respectively, in the second and third panel.  The second panel shows the
-copy number log-ratios, the third panel the integer copy numbers.}
+    dot is a (predicted) germline SNP. The first panel shows the allelic
+    fractions.  The alternating blue and white background colors visualize odd
+    and even chromosome numbers, respectively. The black lines visualize the
+    expected (not the average!) allelic fractions in the segment. These are
+    calculated using the estimated purity and the total and minor segment copy
+    numbers. These are visualized in black and grey, respectively, in the second
+    and third panel.  The second panel shows the copy number log-ratios, the 
+    third panel the integer copy numbers.}
 
 Germline variant data are informative for calculating integer copy number,
 because unbalanced maternal and paternal chromosome numbers in the tumor
