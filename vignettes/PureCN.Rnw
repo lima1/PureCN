@@ -1270,29 +1270,21 @@ Fortunately, in most cancer types, such ambiguity is rather rare.
 \section*{Annotating intervals with gene symbols}
 
 A simple function that annotates intervals with the \textbf{first}
-overlapping interval from the RefSeq gene track:
+overlapping interval from a given \software{TxDb} database:
 
-<<annotatesymbols>>=
-tblGenes <- NULL
-if (downloadFromUCSC) {
-    library(rtracklayer)
-    mySession <- browserSession("UCSC")
-    genome(mySession) <- "hg19"
-    tblGenes <- getTable( ucscTableQuery(mySession, 
-        track="RefSeq Genes", table="refGene"))
-}
+<<annotatesymbols, message=FALSE, warning=FALSE>>=
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db) 
 
-.annotateIntervals <- function(gc.gene.file, tblGenes, 
-    output.file = NULL) {
-    grGenes <- GRanges(seqnames=tblGenes$chrom, 
-        IRanges(start=tblGenes$cdsStart, end=tblGenes$cdsEnd))
+.annotateIntervals <- function(gc.gene.file, txdb, output.file = NULL) {
     gc <- read.delim(gc.gene.file, as.is=TRUE)
     # misuse this function to convert interval string into data.frame
     gc.data <- readCoverageGatk(gc.gene.file)
     grGC <- GRanges(seqnames=gc.data$chr, 
         IRanges(start=gc.data$probe_start, end=gc.data$probe_end))
-    ov <- findOverlaps(grGC, grGenes, select="first")
-    gc$Gene <- tblGenes$name2[ov]
+    id <- transcriptsByOverlaps(txdb, ranges=grGC, columns = "GENEID")
+    id$SYMBOL <-select(org.Hs.eg.db, as.character(id$GENEID), "SYMBOL")[,2]
+    gc$Gene <- id$SYMBOL[findOverlaps(grGC, id, select="first")]
     if (!is.null(output.file)) {
         write.table(gc, file = output.file, row.names = FALSE, 
             quote = FALSE, sep = "\t")
@@ -1300,7 +1292,7 @@ if (downloadFromUCSC) {
     invisible(gc)
 }
 
-if (!is.null(tblGenes)) .annotateIntervals(gc.gene.file, tblGenes)
+.annotateIntervals(gc.gene.file, TxDb.Hsapiens.UCSC.hg19.knownGene)
 @
 \section*{Session Info}
 <<sessioninfo, results='asis', echo=FALSE>>=

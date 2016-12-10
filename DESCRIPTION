@@ -2,8 +2,8 @@ Package: PureCN
 Type: Package
 Title: Copy number calling and SNV classification using
         targeted short read sequencing 
-Version: 1.5.15
-Date: 2016-12-03
+Version: 1.5.16
+Date: 2016-12-10
 Author: Markus Riester
 Maintainer: Markus Riester <markus.riester@novartis.com>
 Description: This package estimates tumor purity, copy number, loss of
@@ -16,7 +16,7 @@ Imports: GenomicRanges (>= 1.20.3), IRanges (>= 2.2.1), RColorBrewer,
         S4Vectors, data.table, grDevices, graphics, stats, utils,
         SummarizedExperiment, GenomeInfoDb, Rsamtools, Biostrings
 Suggests: PSCBS, RUnit, BiocStyle, BiocGenerics, knitr, getopt,
-        rtracklayer
+        rtracklayer, TxDb.Hsapiens.UCSC.hg19.knownGene, org.Hs.eg.db
 VignetteBuilder: knitr
 License: Artistic-2.0
 biocViews: CopyNumberVariation, Software, Sequencing,
