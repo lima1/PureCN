@@ -119,11 +119,11 @@ provided}:
 \end{verbatim}
 
 The intervals define the captured genomic regions (targets) and are provided by
-the manufacturer of your capture kit\footnote{While \software{PureCN} can use a
+the manufacturer of your capture kit\footnote{While \Biocpkg{PureCN} can use a
 pool of normal samples to learn which intervals are reliable and which not, it
 is highly recommended to provide the correct intervals. Garbage in, garbage
 out.}.  Default parameters assume that these intervals do NOT include a
-"padding" to include flanking regions of targets.  \software{PureCN} will
+"padding" to include flanking regions of targets.  \Biocpkg{PureCN} will
 automatically include variants in the 50bp flanking regions if the variant
 caller was either run without interval file or with interval padding (See
 section~\ref{faqinput}). Please double check that the genome version of the
@@ -1221,29 +1221,30 @@ Figure~\ref{figure/figureexample2-1}:
 simple explanation of the data. There are three major problems with this
 approach:
 \begin{itemize}
-    \item First, hybrid
-capture data can be noisy and the algorithm must distinguish signal from noise;
-if the algorithm mistakes noise for signal, then this often results in wrong
-high ploidy calls (see Sections~\ref{artifactfiltering} and
-\ref{artifactfiltering2}). If all steps in this vignette were followed,
-then \Biocpkg{PureCN} should do a good job in ignoring common artifacts. Noisy
-samples thus often have outlier ploidy values and are often automatically
-flagged by \Biocpkg{PureCN}. The correct solution is in most of these cases
-ranked second or third.
-    \item The second problem is that signal can be sparse, i.e. when the
-tumor purity is very low or when there are only few somatic events.  Manual
-curation is often easy in the latter case. For example when small losses are
-called as homozygous, but corresponding germline allele-frequencies are
-unbalanced (a complete loss would result in balanced germline allele
-frequencies, since only normal DNA is left). Future versions might improve
-calling in these cases by underweighting uninformative genomic regions.
+    \item First, hybrid capture data can be noisy and the algorithm must
+        distinguish signal from noise; if the algorithm mistakes noise for
+        signal, then this often results in wrong high ploidy calls (see
+        Sections~\ref{artifactfiltering} and \ref{artifactfiltering2}). If all
+        steps in this vignette were followed, then \Biocpkg{PureCN} should
+        ignore common artifacts. Noisy samples thus often have outlier ploidy
+        values and are often automatically flagged by \Biocpkg{PureCN}. The
+        correct solution is in most of these cases ranked second or third.
+    \item The second problem is that signal can be sparse, i.e. when the tumor
+        purity is very low or when there are only few somatic events.  Manual
+        curation is often easy in the latter case. For example when small losses
+        are called as homozygous, but corresponding germline allele-frequencies
+        are unbalanced (a complete loss would result in balanced germline allele
+        frequencies, since only normal DNA is left). Future versions might
+        improve calling in these cases by underweighting uninformative genomic
+        regions.
     \item The third problem is that tumor evolution is fast and complex and very
-difficult to incorporate into general likelihood models. Sometimes multiple
-solutions explain the data equally well, but one solution is then often clearly
-more consistent with known biology, for example LOH in tumor suppressor genes
-such as \textit{TP53}.  A basic understanding of both the algorithm and the
-tumor biology of the particular cancer type are thus important for curation.
-Fortunately, in most cancer types, such ambiguity is rather rare.
+        difficult to incorporate into general likelihood models. Sometimes
+        multiple solutions explain the data equally well, but one solution is
+        then often clearly more consistent with known biology, for example LOH
+        in tumor suppressor genes such as \textit{TP53}.  A basic understanding
+        of both the algorithm and the tumor biology of the particular cancer
+        type are thus important for curation.  Fortunately, in most cancer
+        types, such ambiguity is rather rare.
 \end{itemize}
 
 \paragraph{If all or most of the samples are flagged as:}
