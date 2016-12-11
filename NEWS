@@ -19,6 +19,8 @@ API CHANGES
 - Other minor changes:
     - Renamed some predictSomatic() output column names.
     - Moved remove.off.target.snvs to filterVcfBasic.
+    - Dropped BED file support in calculateGCContentByInterval.
+      Instead provide support for GRanges.
  
  
 PLANNED FEATURES 

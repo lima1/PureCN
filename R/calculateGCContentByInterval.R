@@ -4,8 +4,13 @@ function(# Calculates GC content by interval
 ### content of intervals in a reference FASTA file.
 interval.file,
 ### File specifying the intervals. Interval is expected in 
-### first column in format CHR:START-END. BED files with 
-### coordinates in the first three columns are supported as well.
+### first column in format CHR:START-END. 
+### Instead of a file, a \code{GRanges} object can be provided.
+### This allows the use of BED files for example. Note that
+### GATK interval files are 1-based (first position of the genome
+### is 1). Other formats like BED files are often 0-based.
+### The \code{import} function will automatically convert to 
+### 1-based \code{GRanges}.
 reference.file,
 ### Reference FASTA file.
 output.file=NULL,
@@ -14,18 +19,18 @@ output.file=NULL,
 ### Additional parameters passed to the \code{read.delim}
 ### function that reads the \code{interval.file}.
 ) {
-    interval <- read.delim(interval.file, as.is=TRUE, ...)
-    isBedFile <- .checkBedFile(interval)
-    if (isBedFile) {
-       interval$Target <- paste0(interval[,1],":", interval[,2],"-", 
-        interval[,3])
-    } else {
+    if (class(interval.file)=="GRanges") {
+        interval.gr <- interval.file
+        interval <- data.frame(Target=paste0(seqnames(interval.gr),":", 
+            start(interval.gr),"-", end(interval.gr)))
+    } else {    
+        interval <- read.delim(interval.file, as.is=TRUE, ...)
         colnames(interval)[1] <- "Target"
-    }
-    pos <- as.data.frame(do.call(rbind, strsplit(interval$Target, ":|-")), 
-        stringsAsFactors = FALSE)
-    interval.gr <- GRanges(seqnames = pos[,1], 
-        IRanges(start = as.numeric(pos[,2]), end = as.numeric(pos[,3])))
+        pos <- as.data.frame(do.call(rbind, strsplit(interval$Target, ":|-")),
+            stringsAsFactors = FALSE)
+        interval.gr <- GRanges(seqnames = pos[,1], 
+            IRanges(start = as.numeric(pos[,2]), end = as.numeric(pos[,3])))
+    }    
     if (min(start(interval.gr)) < 1) {
         .stopUserError("Interval coordinates should start at 1, not at 0.")
     }    
@@ -47,12 +52,13 @@ reference.file <- system.file("extdata", "ex2_reference.fa",
     package="PureCN", mustWork = TRUE)
 interval.file <- system.file("extdata", "ex2_intervals.txt", 
     package="PureCN", mustWork = TRUE)
+bed.file <- system.file("extdata", "ex2_intervals.bed", 
+    package="PureCN", mustWork = TRUE)
 calculateGCContentByInterval(interval.file, reference.file, 
+    output.file="gc_file.txt")
+
+intervals <- import(bed.file)
+calculateGCContentByInterval(intervals, reference.file, 
     output.file="gc_file.txt")
 }) 
 
-
-.checkBedFile <- function(interval) {
-    seqStyle <- try(seqlevelsStyle(interval[,1]), silent=TRUE)
-    return(class(seqStyle) != "try-error") 
-}
