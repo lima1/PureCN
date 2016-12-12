@@ -46,7 +46,7 @@ if (!is.null(bam.file)) {
 if (!is.null(gatk.coverage)) {
     library(PureCN)
     output.file <- file.path(outdir,  gsub(".txt$|_interval_summary",
-        "_loess.txt", basename(gatk.coverage)))
+        paste0("_", tolower(method), ".txt"), basename(gatk.coverage)))
     if (file.exists(output.file) && !force) {
         message(output.file, " exists. Skipping... (--force will overwrite)")
     } else {

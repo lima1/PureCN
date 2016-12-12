@@ -224,7 +224,7 @@ easily create GC-normalized coverage files
 
 <<figuregccorrect, fig.show='hide', fig.width=7, fig.height=4, warning=FALSE>>=
 correctCoverageBias(normal.coverage.file, gc.gene.file, 
-    "example_normal_loess.txt", plot.gc.bias=TRUE)
+    output.file="example_normal_loess.txt", plot.gc.bias=TRUE)
 @
 \incfig{figure/figuregccorrect-1}{0.95\textwidth}{Coverage before and after
 GC-normalization} {This plot shows coverage bias before and after
