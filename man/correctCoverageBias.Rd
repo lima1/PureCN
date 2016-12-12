@@ -3,9 +3,11 @@
 \title{Correct for GC bias}
 \description{Takes as input coverage data in GATK format (or data 
 read by \code{\link{readCoverageGatk}}) and a mapping file for 
-GC content, and then uses a loess normalization for bias correction. 
-Largely follows the GC correction of the TitanCNA package.}
-\usage{correctCoverageBias(coverage.file, gc.gene.file, output.file = NULL)}
+GC content, and normalize coverage data for bias correction. 
+Optionally plots the pre and post normalization GC profiles.}
+\usage{correctCoverageBias(coverage.file, gc.gene.file, output.file = NULL, 
+    method = c("LOESS", "POLYNOMIAL"), plot.gc.bias = FALSE, 
+    plot.max.density = 50000)}
 \arguments{
   \item{coverage.file}{Exon coverage file as produced by GATK. Either a file name
 or data parsed with the \code{\link{readCoverageGatk}} function.}
@@ -17,11 +19,25 @@ can be generated with GATK GCContentByInterval tool or with the
 \code{\link{calculateGCContentByInterval}} function.}
   \item{output.file}{Optionally, write file with GC corrected coverage. Can be read with
 the \code{\link{readCoverageGatk}} function.}
+  \item{method}{Two options for normalization are available: The default "LOESS" largely
+follows the GC correction of the TitanCNA package. The "POLYNOMIAL" method
+models the coverage data as a polynomial of degree three and normalizes
+using the EM approach. The "POLYNOMIAL" is expected to be more robust for
+smaller targeted panels.}
+  \item{plot.gc.bias}{Optionally, plot GC profiles of the pre-normalized and post-normalized
+coverage. Provides a quick visual check of coverage bias.}
+  \item{plot.max.density}{By default, if the number of intervals in the probe-set is > 50000, uses
+a kernel density estimate to plot the coverage distribution. This uses
+the \code{stat_density} function from the ggplot2 package. Using this
+parameter, change the threshold at which density estimation is applied.
+If the \code{plot.gc.bias} parameter is set as \code{FALSE}, this will be
+ignored.}
 }
 
 \value{GC normalized coverage.}
 
-\author{Markus Riester}
+\author{Angad Singh,
+Markus Riester}
 
 
 
@@ -31,5 +47,9 @@ normal.coverage.file <- system.file("extdata", "example_normal.txt",
     package="PureCN")
 gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
     package="PureCN")
+# normalize using default LOESS method
 coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file)
+# normalize with POLYNOMIAL method for small panels
+coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
+    method="POLYNOMIAL", plot.gc.bias=TRUE)
 }

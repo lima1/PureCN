@@ -36,8 +36,10 @@ verbose=TRUE
             "Setting mapping bias to ", round(mappingBias, digits=3)) 
     }     
     if (is.null(info(vcf)$SOMATIC) && is.null(normal.panel.vcf.file)) {
-        message("VCF does not contain somatic status and no ",
-        "normal.panel.vcf.file provided.")
+        message(
+            "VCF does not contain somatic status. For best results, consider\n",
+            "providing normal.panel.vcf.file when matched normals are not ",
+            "available.")
     }    
     tmp <- rep(mappingBias, nrow(vcf)) 
     # Defines the maximum value for the mapping bias scaling factor.

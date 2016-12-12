@@ -219,12 +219,16 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 \section{GC-bias}
 \label{secgcbias}
 The algorithm works best when the coverage files are GC-normalized. We can
-easily create GC-normalized coverage files:
+easily create GC-normalized coverage files
+(Figure~\ref{figure/figuregccorrect-1}).
 
-<<gccorrect>>=
+<<figuregccorrect, fig.show='hide', fig.width=7, fig.height=4, warning=FALSE>>=
 correctCoverageBias(normal.coverage.file, gc.gene.file, 
-    "example_normal_loess.txt")
+    "example_normal_loess.txt", plot.gc.bias=TRUE)
 @
+\incfig{figure/figuregccorrect-1}{0.95\textwidth}{Coverage before and after
+GC-normalization} {This plot shows coverage bias before and after
+normalization. The example data is already GC-normalized.}
 
 \textbf{All the following steps in this vignette assume that the coverage data
 are GC-normalized.} The example coverage files are already GC-normalized.
@@ -1009,6 +1013,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --bam -b            & bam.file & \Rfunction{calculateBamCoverageByInterval} \\
 --gatkcoverage -g   & coverage.file & \Rfunction{correctCoverageBias} \\
 --gcgene -c         & gc.gene.file  & \Rfunction{correctCoverageBias} \\
+--method -m         & method  & \Rfunction{correctCoverageBias} \\
 \bottomrule
 \end{tabular}
 \end{table*}

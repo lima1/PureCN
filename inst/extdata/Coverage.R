@@ -6,6 +6,7 @@ spec <- matrix(c(
 'bam', 'b', 1, "character",
 'gatkcoverage', 'g', 1, "character",
 'gcgene' , 'c', 1, "character",
+'method' , 'm', 1, "character",
 'outdir' , 'o', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
@@ -21,6 +22,8 @@ bam.file <- opt$bam
 gatk.coverage <- opt$gatkcoverage
 gc.gene.file <- opt$gcgene
 outdir <- opt$outdir
+
+method <- ifelse(is.null(opt$method), "LOESS", opt$method)
 
 outdir <- normalizePath(outdir, mustWork=TRUE)
 gc.gene.file <- normalizePath(gc.gene.file, mustWork=TRUE)
@@ -48,7 +51,7 @@ if (!is.null(gatk.coverage)) {
         message(output.file, " exists. Skipping... (--force will overwrite)")
     } else {
         correctCoverageBias(gatk.coverage, gc.gene.file,
-            output.file)
+            output.file=output.file, method=method)
    } 
 }
     

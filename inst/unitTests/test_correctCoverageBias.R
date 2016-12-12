@@ -17,4 +17,13 @@ test_correctCoverageBias <- function() {
     checkException(correctCoverageBias(normal.coverage.file, interval.file))
     
     correctCoverageBias(head(x,200), gc.gene.file)
+
+    png(file="test_gc_bias.png",width=960)
+    coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
+        output.file="test_norm_coverage.txt", method = "POLYNOMIAL", plot.gc.bias = TRUE)
+    dev.off()
+    file.remove("test_gc_bias.png")
+    x <- readCoverageGatk("test_norm_coverage.txt")
+    checkEqualsNumeric(coverage$average.coverage, x$average.coverage)
+    file.remove("test_norm_coverage.txt")
 }
