@@ -1187,6 +1187,7 @@ Figure~\ref{figure/figureexample2-1}:
     \item Whole-genome data is not officially supported and specialized tools
     will likely provide better results.  Third-party segmentation tools
     designed for this data type would be again required.  
+    \item Amplicon sequencing data is not supported. 
     \item \Biocpkg{PureCN} also needs process-matched normal samples, again,
     the more the better.    
 \end{itemize}
