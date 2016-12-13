@@ -22,8 +22,16 @@ sex=NULL,
 normal.coverage.files=NULL,
 ### Only consider these normal samples. If \code{NULL}, use all in 
 ### the database. Must match \code{normalDB$normal.coverage.files}. 
-verbose=TRUE
+pool=FALSE,
+### If \code{TRUE}, use \code{\link{poolCoverage}} to pool best 
+### normals.
+pool.weights=c("nnls", "equal"),
+### Either find good pooling weights by non-negative least squares
+### optimization or weight all best normals equally.
+verbose=TRUE,
 ### Verbose output.
+...
+### Additional arguments passed to \code{\link{poolCoverage}}.
 ) {
     if (is.character(tumor.coverage.file)) {
         tumor  <- readCoverageGatk(tumor.coverage.file)
@@ -69,7 +77,19 @@ verbose=TRUE
               predict(normalDB$pca)[i,idx.pcs]))[1]
     ))
 
-    normalDB$normal.coverage.files[idx.normals][head(best.match, num.normals)]
+    normal.coverage.files <- normalDB$normal.coverage.files[idx.normals][head(best.match, num.normals)]
+    if (pool) {
+      normals <- lapply(normal.coverage.files, readCoverageGatk)
+      pool.weights <- match.arg(pool.weights)
+      w <- NULL
+      if (pool.weights == "nnls") {  
+          A <- do.call(cbind, lapply(normals, function(x) x$average.coverage))
+          idx <- complete.cases(A, tumor$average.coverage)
+          w <- nnls(A[idx,], tumor$average.coverage[idx])$x
+      }
+      return(poolCoverage(normals, w=w, ...))
+    } 
+    normal.coverage.files
 ### Filename of the best matching normal.
 },ex=function() {
 normal.coverage.file <- system.file("extdata", "example_normal.txt", 
@@ -82,6 +102,9 @@ normalDB <- createNormalDatabase(normal.coverage.files)
 tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
 best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
+
+pool <- findBestNormal(tumor.coverage.file, normalDB, num.normals=2, 
+    pool=TRUE)
 })    
 
 

@@ -278,15 +278,12 @@ single pool:
 
 <<normaldbpcapool>>=
 # get the best 2 normals and average them
-best.normal.coverage.files <- findBestNormal(tumor.coverage.file, 
-    normalDB, num.normals=2)
-pool <- poolCoverage(lapply(best.normal.coverage.files, 
-    readCoverageGatk), remove.chrs=c("chrX", "chrY"))
+pool <- findBestNormal(tumor.coverage.file, normalDB, 
+    num.normals=2, pool=TRUE, remove.chrs=c("chrX", "chrY"))
 @
 
-Pooling is only recommended when the coverage in normals is significantly lower
-than in tumor.  Otherwise the PCA will typically do a good job in selecting a
-normal with decent coverage and similar biases compared to tumor. But it is
+This function will by default optimize averaging weights by a least squares
+criterion so that the pooled normal is as similar as possible to tumor.  It is
 worth experimenting with different strategies using the
 \Rfunction{plotBestNormal} function.  Note that this example removes coverage
 from sex chromosomes; if the normal database contains a sufficient number of

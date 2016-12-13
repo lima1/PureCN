@@ -5,7 +5,8 @@
 tumor sample.}
 \usage{findBestNormal(tumor.coverage.file, normalDB, pcs = 1:3, 
     num.normals = 1, ignore.sex = FALSE, sex = NULL, 
-    normal.coverage.files = NULL, verbose = TRUE)}
+    normal.coverage.files = NULL, pool = FALSE, pool.weights = c("nnls", 
+        "equal"), verbose = TRUE, ...)}
 \arguments{
   \item{tumor.coverage.file}{GATK coverage file of a tumor sample.}
   \item{normalDB}{Database of normal samples, created with 
@@ -20,7 +21,12 @@ Valid values are \code{F} for female, \code{M} for male. If all
 chromosomes are diploid, specify \code{diploid}. }
   \item{normal.coverage.files}{Only consider these normal samples. If \code{NULL}, use all in 
 the database. Must match \code{normalDB$normal.coverage.files}. }
+  \item{pool}{If \code{TRUE}, use \code{\link{poolCoverage}} to pool best 
+normals.}
+  \item{pool.weights}{Either find good pooling weights by non-negative least squares
+optimization or weight all best normals equally.}
   \item{verbose}{Verbose output.}
+  \item{\dots}{Additional arguments passed to \code{\link{poolCoverage}}.}
 }
 
 \value{Filename of the best matching normal.}
@@ -41,4 +47,7 @@ normalDB <- createNormalDatabase(normal.coverage.files)
 tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
 best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
+
+pool <- findBestNormal(tumor.coverage.file, normalDB, num.normals=2, 
+    pool=TRUE)
 }

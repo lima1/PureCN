@@ -8,8 +8,11 @@ test_createNormalDatabase <- function() {
     checkIdentical(c(NA, NA), normalDB$sex)
     checkEquals(normalizePath(normal.coverage.file[1]), 
         findBestNormal(normal.coverage.files[1], normalDB))
+    
+    pool <- findBestNormal(normal.coverage.files[1], normalDB, num.normals=2, pool=TRUE)
 
     n <- lapply(normal.coverage.files, readCoverageGatk)
+    checkEqualsNumeric(nrow(n[[1]]), nrow(pool))
 
     checkEqualsNumeric(apply(cbind(n[[1]]$average.coverage, 
         n[[2]]$average.coverage),1,median), normalDB$exon.median.coverage)
@@ -18,7 +21,7 @@ test_createNormalDatabase <- function() {
     checkEquals(as.character(c(NA, NA)), normalDB$sex)
     checkEquals(normalizePath(normal.coverage.file[1]), 
         findBestNormal(normal.coverage.files[1], normalDB))
-
+    
     normalDB <- createNormalDatabase(normal.coverage.files, sex=c("A", "F"))
     checkEquals(c(NA, "F"), normalDB$sex)
 
