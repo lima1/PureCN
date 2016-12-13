@@ -283,12 +283,16 @@ pool <- findBestNormal(tumor.coverage.file, normalDB,
 @
 
 This function will by default optimize averaging weights by a least squares
-criterion so that the pooled normal is as similar as possible to tumor.  It is
-worth experimenting with different strategies using the
-\Rfunction{plotBestNormal} function.  Note that this example removes coverage
-from sex chromosomes; if the normal database contains a sufficient number of
-samples with matching sex, \Rfunction{findBestNormal} will return only normal
-samples with matching sex.
+criterion so that the pooled normal is as similar as possible to tumor. Giving
+recommendations for optimal strategies is hard since they depend on the size,
+coverage and variance of the pool of normals. It is worth experimenting with
+different strategies and the \Rfunction{plotBestNormal} function might be
+helpful. Starting with the most simple one, i.e. using the single best normal,
+and then testing more complicated strategies, is a sound approach. 
+
+Note that this example removes coverage from sex chromosomes; if the normal
+database contains a sufficient number of samples with matching sex,
+\Rfunction{findBestNormal} will return only normal samples with matching sex.
 
 \subsection{Artifact filtering}
 \label{artifactfiltering}

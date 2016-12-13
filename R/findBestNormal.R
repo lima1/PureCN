@@ -81,11 +81,19 @@ verbose=TRUE,
     if (pool) {
       normals <- lapply(normal.coverage.files, readCoverageGatk)
       pool.weights <- match.arg(pool.weights)
+      if (verbose) {
+          message("Pooling ", paste(basename(normal.coverage.files), 
+            collapse=", "))
+      }        
       w <- NULL
       if (pool.weights == "nnls") {  
           A <- do.call(cbind, lapply(normals, function(x) x$average.coverage))
           idx <- complete.cases(A, tumor$average.coverage)
           w <- nnls(A[idx,], tumor$average.coverage[idx])$x
+          if (verbose) {
+              message("Setting normal weights to ", paste(round(w, digits=2), 
+                collapse=", "))
+          }    
       }
       return(poolCoverage(normals, w=w, ...))
     } 
