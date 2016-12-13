@@ -21,6 +21,8 @@ API CHANGES
     - Moved remove.off.target.snvs to filterVcfBasic.
     - Dropped BED file support in calculateGCContentByInterval.
       Instead provide support for GRanges.
+    - poolCoverage: w argument now used as provided, not 
+        normalized so that w[1] is 1.
  
  
 PLANNED FEATURES 

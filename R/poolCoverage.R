@@ -14,7 +14,7 @@ w=NULL
         return(.removeChr(pool, remove.chrs))
     }
     if (is.null(w)) w <- rep(1,length(all.data))
-    w <- w/w[1]
+    #w <- w/w[1]
 
     for (i in 2:length(all.data)) {
 #        pool$sequenced.base = find.max.of.2lists(pool$sequenced.base, 
