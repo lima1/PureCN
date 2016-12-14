@@ -1069,6 +1069,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
     \Rfunction{findBestNormal}, \Rfunction{filterTargets} \\
 --pool -m           & pool, num.normals & \Rfunction{findBestNormal} \\    
 --postoptimize -z   & post.optimize & \Rfunction{runAbsoluteCN} \\    
+--modelhomozygous -y & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
 --outvcf -u         & return.vcf & \Rfunction{predictSomatic} \\
 \bottomrule

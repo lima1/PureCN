@@ -16,6 +16,7 @@ spec <- matrix(c(
 'normaldb',       'd', 1, "character",
 'pool',           'm', 1, "integer",
 'postoptimize',   'z', 0, "logical",
+'modelhomozygous','y', 0, "logical",
 'outdir',         'o', 1, "character",
 'outvcf',         'u', 1, "character",
 'sampleid',       'i', 1, "character"
@@ -44,12 +45,13 @@ sampleid <- opt$sampleid
 outdir <- opt$outdir
 outvcf <- opt$outvcf
 pool <- opt$pool
+model.homozygous <- opt$modelhomozygous
 
 PureCN <- function(
 tumor.coverage.file, normal.coverage.file=NULL, tumor.vcf, genome,
 gc.gene.file=NULL, seg.file=NULL, snp.blacklist=NULL, stats.file=NULL,
 target.weight.file=NULL, normal.panel.vcf.file=NULL, normalDB=NULL, sampleid,
-post.optimize=FALSE, pool, outvcf, outdir) {
+post.optimize=FALSE, pool, model.homozygous, outvcf, outdir) {
 
     file.rds <- file.path(outdir, paste(sampleid, '_abs.rds', sep=''))
 
@@ -90,6 +92,7 @@ post.optimize=FALSE, pool, outvcf, outdir) {
                 args.setMappingBiasVcf=
                     list(normal.panel.vcf.file=normal.panel.vcf.file),
                 args.filterTargets=list(normalDB=normalDB),
+                model.homozygous=model.homozygous,
                 post.optimize=post.optimize)
         dev.off()
         saveRDS(ret, file=file.rds)
@@ -125,6 +128,7 @@ PureCN(tumor.coverage.file, normal.coverage.file, tumor.vcf, genome,
 gc.gene.file, seg.file=seg.file, snp.blacklist=snp.blacklist, 
 stats.file=stats.file, target.weight.file=target.weight.file, 
 normalDB=normalDB, sampleid=sampleid, post.optimize=post.optimize, 
-normal.panel.vcf.file=normal.panel.vcf.file, pool=pool, outvcf=outvcf, 
+normal.panel.vcf.file=normal.panel.vcf.file, pool=pool, 
+model.homozygous=model.homozygous, outvcf=outvcf, 
 outdir=outdir) 
 
