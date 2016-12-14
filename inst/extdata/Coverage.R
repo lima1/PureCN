@@ -47,11 +47,14 @@ if (!is.null(gatk.coverage)) {
     library(PureCN)
     output.file <- file.path(outdir,  gsub(".txt$|_interval_summary",
         paste0("_", tolower(method), ".txt"), basename(gatk.coverage)))
+    outpng.file <- sub("txt$","png", output.file)
     if (file.exists(output.file) && !force) {
         message(output.file, " exists. Skipping... (--force will overwrite)")
     } else {
+        png(outpng.file, width=800)
         correctCoverageBias(gatk.coverage, gc.gene.file,
-            output.file=output.file, method=method)
+            output.file=output.file, method=method, plot.gc.bias=TRUE)
+        dev.off()
    } 
 }
     

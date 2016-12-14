@@ -14,6 +14,7 @@ spec <- matrix(c(
 'statsfile',      'a', 1, "character",
 'targetweightfile', 'e', 1, "character",
 'normaldb',       'd', 1, "character",
+'pool',           'm', 1, "integer",
 'postoptimize',   'z', 0, "logical",
 'outdir',         'o', 1, "character",
 'outvcf',         'u', 1, "character",
@@ -42,17 +43,19 @@ normalDB <- opt$normaldb
 sampleid <- opt$sampleid
 outdir <- opt$outdir
 outvcf <- opt$outvcf
+pool <- opt$pool
 
 PureCN <- function(
 tumor.coverage.file, normal.coverage.file=NULL, tumor.vcf, genome,
 gc.gene.file=NULL, seg.file=NULL, snp.blacklist=NULL, stats.file=NULL,
 target.weight.file=NULL, normal.panel.vcf.file=NULL, normalDB=NULL, sampleid,
-post.optimize=FALSE, outvcf, outdir) {
+post.optimize=FALSE, pool, outvcf, outdir) {
 
     file.rds <- file.path(outdir, paste(sampleid, '_abs.rds', sep=''))
 
     if (file.exists(file.rds) && !force) {
-        message(file.rds, " already exists. Skipping... (--force will overwrite)")
+        message(file.rds, 
+            " already exists. Skipping... (--force will overwrite)")
         ret <- readRDS(file.rds)
     } else {    
 
@@ -60,12 +63,20 @@ post.optimize=FALSE, outvcf, outdir) {
             message("normalDB: ", normalDB)
             normalDB <- readRDS(normalDB)
             if (is.null(normal.coverage.file)) {
-                normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
+                if (!is.null(pool)) {
+                    num.normals <- pool
+                    pool <- TRUE
+                } else {
+                    num.normals <- 1
+                    pool <- FALSE
+                }    
+                normal.coverage.file <- findBestNormal(tumor.coverage.file, 
+                    normalDB, pool=pool, num.normals=num.normals)
+                if (!pool) message(paste('Best Normal:', normal.coverage.file))
             }
         } else if (is.null(normal.coverage.file) && is.null(seg.file)) {
             stop("Need either normalDB or normal.coverage.file")
         }    
-        message(paste('Best Normal:', normal.coverage.file))
 
         pdf(paste(outdir,"/", sampleid, '_abs_segmentation.pdf', sep=''), 
             width=10, height=11)
@@ -114,5 +125,6 @@ PureCN(tumor.coverage.file, normal.coverage.file, tumor.vcf, genome,
 gc.gene.file, seg.file=seg.file, snp.blacklist=snp.blacklist, 
 stats.file=stats.file, target.weight.file=target.weight.file, 
 normalDB=normalDB, sampleid=sampleid, post.optimize=post.optimize, 
-normal.panel.vcf.file=normal.panel.vcf.file, outvcf=outvcf, outdir=outdir) 
+normal.panel.vcf.file=normal.panel.vcf.file, pool=pool, outvcf=outvcf, 
+outdir=outdir) 
 

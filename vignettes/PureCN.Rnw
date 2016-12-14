@@ -1033,6 +1033,12 @@ Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \
     --genome hg19 --gcgene  example_gc.gene.file.txt \
     --outvcf example_vcf_purecn.vcf
 
+# without a matched normal    
+Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \ 
+    --normaldb normalDB.rds --pool 2 --vcf example_vcf.vcf -i Sample1 \
+    --genome hg19 --gcgene example_gc.gene.file.txt \
+    --outvcf example_vcf_purecn.vcf
+
 # From already segmented data
 Rscript PureCN.R --outdir ~/tmp/ --segfile example_seg.txt \ 
     --vcf example_vcf.vcf -i Sample1 --genome hg19 \
@@ -1061,6 +1067,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --targetweightfile -e & target.weight.file & \Rfunction{segmentationCBS} \\
 --normaldb -d       & normalDB (serialized with \Rfunction{saveRDS}) & 
     \Rfunction{findBestNormal}, \Rfunction{filterTargets} \\
+--pool -m           & pool, num.normals & \Rfunction{findBestNormal} \\    
 --postoptimize -z   & post.optimize & \Rfunction{runAbsoluteCN} \\    
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
 --outvcf -u         & return.vcf & \Rfunction{predictSomatic} \\
