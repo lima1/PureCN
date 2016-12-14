@@ -1,12 +1,13 @@
 Changes in version 1.6.0
 ------------------------
 
-- Automatic 50bp interval padding.
+- Automatic 50bp interval padding
 - Added sub-clonal SNV state (SOMATIC.M0)
 - Polished plots, added new GC-normalization plot
 - Support for cell lines
 - Improved somatic vs. germline status calling
 - Better mapping bias estimation and correction
+- Better copy number normalization using multiple best normals
 
 
 API CHANGES
@@ -14,23 +15,23 @@ API CHANGES
 - Deprecated functions: createSNPBlacklist
 - Defunct functions: createExonWeightFile
 - Changed defaults: 
-    - min.normals 5 (from 10) in setMappingBiasVcf. 
-    - max.segments 300 (from 200) in runAbsoluteCN.               
+    - min.normals 5 (from 10) in setMappingBiasVcf
+    - max.segments 300 (from 200) in runAbsoluteCN               
 - Other minor changes:
-    - Renamed some predictSomatic() output column names.
-    - Moved remove.off.target.snvs to filterVcfBasic.
-    - Dropped BED file support in calculateGCContentByInterval.
-      Instead provide support for GRanges.
+    - Renamed some predictSomatic() output column names
+    - Moved remove.off.target.snvs to filterVcfBasic
+    - Dropped BED file support in calculateGCContentByInterval
+      Instead provide support for GRanges
     - poolCoverage: w argument now used as provided, not 
-        normalized so that w[1] is 1.
+        normalized so that w[1] is 1
  
  
 PLANNED FEATURES 
 
-- Support for indels.
-- Better runtime performance by ignoring unlikely solutions early.  
+- Support for indels
+- Better runtime performance by ignoring unlikely solutions early
 - Better support for known, small deletions and amplifications (e.g. EGFRvIII,
   MYC)
-- Better support for pool of normals.
-- Switch to S4 data structures (maybe).
-- Whole dataset visualizations (maybe PureCN 1.8).
+- Better support for pool of normals
+- Switch to S4 data structures (maybe)
+- Whole dataset visualizations (maybe PureCN 1.8)

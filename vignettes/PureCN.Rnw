@@ -227,8 +227,10 @@ correctCoverageBias(normal.coverage.file, gc.gene.file,
     output.file="example_normal_loess.txt", plot.gc.bias=TRUE)
 @
 \incfig{figure/figuregccorrect-1}{0.95\textwidth}{Coverage before and after
-GC-normalization} {This plot shows coverage bias before and after
-normalization. The example data is already GC-normalized.}
+GC-normalization.} 
+{This plot shows coverage as a function of target GC-content before and after
+normalization. Each dot is a target interval. The example data is already
+GC-normalized; real data will show more dramatic differences.}
 
 \textbf{All the following steps in this vignette assume that the coverage data
 are GC-normalized.} The example coverage files are already GC-normalized.
