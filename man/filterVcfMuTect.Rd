@@ -10,7 +10,8 @@ failure reasons. }
     ignore = c("clustered_read_position", "fstar_tumor_lod", 
         "nearby_gap_events", "poor_mapping_region_alternate_allele_mapq", 
         "poor_mapping_region_mapq0", "possible_contamination", 
-        "strand_artifact"), verbose = TRUE, ...)}
+        "strand_artifact", "seen_in_panel_of_normals"), 
+    verbose = TRUE, ...)}
 \arguments{
   \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf} function 
 from the VariantAnnotation package.}
