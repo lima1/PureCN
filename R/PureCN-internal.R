@@ -454,20 +454,14 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     }
     results
 }
-.getGeneCalls <- function(seg.adjusted, gc.data, log.ratio, fun.focal, args.focal, chr.hash) {
+.getGeneCalls <- function(seg.adjusted, gc.data, log.ratio, fun.focal, 
+    args.focal, chr.hash) {
     args.focal <- c(list(seg = seg.adjusted), args.focal)
     focal <- do.call(fun.focal, args.focal)
     abs.gc <- GRanges(seqnames = seg.adjusted$chrom, IRanges(start = seg.adjusted$loc.start, 
         end = seg.adjusted$loc.end))
-    
-    gc.pos <- as.data.frame(do.call(rbind, strsplit(gc.data$Target, ":|-")), stringsAsFactors = FALSE)
-    colnames(gc.pos) <- c("chrom", "start", "end")
-    gc.pos <- cbind(Gene = gc.data$Gene, gc.pos)
-    gc.pos$start <- as.numeric(gc.pos$start)
-    gc.pos$end <- as.numeric(gc.pos$end)
-    # check if genes are on multiple chromosomes
-    gc.pos <- .checkSymbolsChromosome(gc.pos)
-    
+
+    gc.pos <- .gcPos(gc.data)
     # that will otherwise mess up the log-ratio means, mins and maxs
     idx <- !is.nan(log.ratio) & !is.infinite(log.ratio)
     gc.pos <- gc.pos[idx, ]
@@ -480,13 +474,82 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     dt <- data.table(gc.pos[queryHits(ov), ], C = seg.adjusted[subjectHits(ov), "C"], 
         seg.mean = seg.adjusted[subjectHits(ov), "seg.mean"], LR = log.ratio[queryHits(ov)], 
         seg.id = subjectHits(ov), seg.length = seg.adjusted$size[subjectHits(ov)], 
-        focal = focal[subjectHits(ov)])
-    gene.calls <- data.frame(dt[, list(chr = chrom[1], start = min(start), end = max(end), 
-        C = as.double(median(C)), seg.mean = median(seg.mean), seg.id = seg.id[which.min(seg.length)], 
-        number.targets = length(start), gene.mean = mean(LR, na.rm = TRUE), gene.min = min(LR, 
-            na.rm = TRUE), gene.max = max(LR, na.rm = TRUE), focal = focal[which.min(seg.length)]), 
-        by = Gene], row.names = 1)
+        focal = focal[subjectHits(ov)]
+        )
+    gene.calls <- data.frame(dt[, list(chr = chrom[1], start = min(start), 
+        end = max(end), C = as.double(median(C)), seg.mean = median(seg.mean),
+        seg.id = seg.id[which.min(seg.length)], 
+        number.targets = length(start), gene.mean = mean(LR, na.rm = TRUE), 
+        gene.min = min(LR, na.rm = TRUE), gene.max = max(LR, na.rm = TRUE), 
+        focal = focal[which.min(seg.length)]), by = Gene], row.names = 1)
+    gene.calls    
 }
+
+.addVoomToGeneCalls <- function(results, tumor.coverage.file, normalDB, 
+    gc.gene.file) {
+    y <- .voomTargets(tumor.coverage.file, normalDB, gc.gene.file, 
+        num.normals=10, plot.voom=FALSE)
+    logFC <- y$coefficients[rownames(results[[1]]$gene.calls),2]
+    p <- y$p.value[rownames(results[[1]]$gene.calls),2]
+
+    for (i in seq_along(results)) {
+        results[[i]]$gene.calls$voom.log.ratio <- logFC
+        results[[i]]$gene.calls$voom.pvalue <- p
+   }
+   results
+}
+
+.voomTargets <- function(tumor.coverage.file, normalDB, gc.gene.file, 
+    num.normals=NULL, plot.voom=FALSE) {
+    
+    countMatrix <- .voomCountMatrix(tumor.coverage.file, normalDB=normalDB, num.normals=num.normals)
+    gc.data <- read.delim(gc.gene.file, as.is=TRUE)
+    gc.pos <- .gcPos(gc.data)
+    geneCountMatrix <- do.call(rbind, lapply(split(data.frame(countMatrix), gc.pos$Gene),
+         apply, 2, sum, na.rm=TRUE))
+    
+    geneCountMatrix <- geneCountMatrix[complete.cases(geneCountMatrix),]
+    dge <- DGEList(geneCountMatrix, group=c("tumor", rep("normal", ncol(countMatrix)-1)))
+    v <- voomWithQualityWeights(dge, plot=plot.voom)
+    y <- lmFit(v, design = model.matrix(~dge$samples$group))
+    y <- eBayes(y)
+### Return object of the \code{eBayes} function from the limma package
+}
+
+.voomLogRatio <- function(tumor.coverage.file, normal.coverage.files=NULL, normalDB=NULL, num.normals=NULL, 
+    plot.voom=TRUE) {
+    countMatrix <- .voomCountMatrix(tumor.coverage.file, normal.coverage.files, normalDB, num.normals)
+    
+    idx <- complete.cases(countMatrix)
+    dge <- DGEList(countMatrix[idx,], group=c("tumor", rep("normal", ncol(countMatrix)-1)))
+    v <- voomWithQualityWeights(dge, plot=plot.voom)
+    y <- lmFit(v, design = model.matrix(~dge$samples$group))
+    y <- eBayes(y)
+    logRatio <- rep(NA, nrow(countMatrix))
+    logRatio[idx] <- y$coefficients[,2]
+    logRatio
+}
+
+.voomCountMatrix <- function(tumor.coverage.file, normal.coverage.files=NULL, normalDB, num.normals) {
+    if (is.null(normal.coverage.files)) {
+        if (!is.null(num.normals)) {
+            normal.coverage.files <- findBestNormal(tumor.coverage.file, 
+                normalDB, num.normals=num.normals)
+        } else {
+            normal.coverage.files <- normalDB[[1]]
+        }    
+    }
+    if (is.character(tumor.coverage.file)) {
+        tumor <- readCoverageGatk(tumor.coverage.file)
+    } else {
+        tumor <- tumor.coverage.file
+    }
+    normals <- .readNormals(normal.coverage.files)
+
+    countMatrix <- do.call(cbind, 
+        lapply(c(list(tumor), normals), function(x) x$average.coverage))
+}    
+
 
 .checkSymbolsChromosome <- function(gc.pos) {
     chrsPerSymbol <- lapply(split(gc.pos$chr, gc.pos$Gene), unique)
@@ -810,3 +873,14 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     gc.data$coverage <- min.coverage * gc.data$targeted.base
     gc.data
 }
+
+.gcPos <- function(gc.data) {
+    gc.pos <- as.data.frame(do.call(rbind, strsplit(gc.data$Target, ":|-")), stringsAsFactors = FALSE)
+    colnames(gc.pos) <- c("chrom", "start", "end")
+    gc.pos <- cbind(Gene = gc.data$Gene, gc.pos)
+    gc.pos$start <- as.numeric(gc.pos$start)
+    gc.pos$end <- as.numeric(gc.pos$end)
+    # check if genes are on multiple chromosomes
+    gc.pos <- .checkSymbolsChromosome(gc.pos)
+}
+    

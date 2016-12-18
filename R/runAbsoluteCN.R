@@ -514,6 +514,12 @@ verbose=TRUE,
 
     # estimate stand. dev. for target logR within targets. this will be used as 
     # proxy for sample error.
+    targetsPerSegment <- sapply(exon.lrs, length)
+
+    if (!sum(targetsPerSegment>250, na.rm=TRUE)) {
+        .stopRuntimeError("Only tiny segments.")
+    }
+
     sd.seg <- median(sapply(exon.lrs, sd), na.rm=TRUE)
     
     # if user provided seg file, then we do not have access to the log-ratios 
@@ -888,6 +894,12 @@ verbose=TRUE,
         flag_comment=vcf.filtering$flag_comment, dropout=dropoutWarning,
         use.somatic.status=args.filterVcf$use.somatic.status,
         model.homozygous=model.homozygous)  
+
+    if (!is.null(args.filterTargets$normalDB) && length(results) &&
+        !is.null(results[[1]]$gene.calls)) {
+       results <- .addVoomToGeneCalls(results, 
+            tumor.coverage.file, args.filterTargets$normalDB, gc.gene.file)
+    }    
 
     if (length(results) < 1) {
         warning("Could not find valid purity and ploidy solution.")

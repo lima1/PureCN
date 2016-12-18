@@ -163,7 +163,7 @@ test_runAbsoluteCN <- function() {
     filtered <- cbind(tumor, gc2)[!as.character(tumor$probe) %in% log.ratio$probe,]
     checkTrue(!sum(!(
             filtered$average.coverage < 15 | 
-            filtered$targeted.base < 4 | 
+            filtered$targeted.base < 5 | 
             filtered$gc_bias < 0.25 | 
             filtered$gc_bias>0.8)
     ))
@@ -301,12 +301,13 @@ test_runAbsoluteCN <- function() {
     tumor <- readCoverageGatk(tumor.coverage.file)
     idx <- tumor$probe %in% ret$input$log.ratio$probe
     cutoff <- median(normalDB$exon.median.coverage)*0.3
+    plotAbs(ret, 1, type="volcano")
 
     checkEqualsNumeric(0, sum(!(normalDB$exon.median.coverage[!idx] < cutoff | 
-        tumor$targeted.base[!idx] < 4 | tumor$average.coverage[!idx] < 14)))
+        tumor$targeted.base[!idx] < 5 | tumor$average.coverage[!idx] < 14)))
 
    checkTrue( sum(!(normalDB$exon.median.coverage[idx] < cutoff | 
-    tumor$targeted.base[idx] < 4 | tumor$average.coverage[idx] < 14)) > 9000)
+    tumor$targeted.base[idx] < 5 | tumor$average.coverage[idx] < 14)) > 9000)
     
 
     # run with minimal segmentation function:

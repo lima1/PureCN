@@ -25,9 +25,11 @@ normal.coverage.files=NULL,
 pool=FALSE,
 ### If \code{TRUE}, use \code{\link{poolCoverage}} to pool best 
 ### normals.
-pool.weights=c("nnls", "equal"),
-### Either find good pooling weights by non-negative least squares
-### optimization or weight all best normals equally.
+pool.weights=c("voom", "equal"),
+### Either find good pooling weights by optimization or weight 
+### all best normals equally.
+plot.pool=FALSE,
+### Allows the pooling function to create plots.
 verbose=TRUE,
 ### Verbose output.
 ...
@@ -86,14 +88,12 @@ verbose=TRUE,
             collapse=", "))
       }        
       w <- NULL
-      if (pool.weights == "nnls") {  
-          A <- do.call(cbind, lapply(normals, function(x) x$average.coverage))
-          idx <- complete.cases(A, tumor$average.coverage)
-          w <- nnls(A[idx,], tumor$average.coverage[idx])$x
-          if (verbose) {
-              message("Setting normal weights to ", paste(round(w, digits=2), 
-                collapse=", "))
-          }    
+      if (pool.weights == "voom" && num.normals > 1) {  
+          logRatio <- .voomLogRatio(tumor, 
+            normal.coverage.files=normal.coverage.files, plot.voom=plot.pool)
+          fakeNormal <- tumor
+          fakeNormal$average.coverage <- 2^(log2(tumor$average.coverage) - logRatio)
+          return(fakeNormal)
       }
       return(poolCoverage(normals, w=w, ...))
     } 

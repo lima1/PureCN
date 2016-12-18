@@ -17,7 +17,7 @@ filter.lowhigh.gc=0.001,
 ### Quantile q (defines lower q and upper 1-q) 
 ### for removing targets with outlier GC profile. Assuming that GC correction 
 ### might not have been worked on those. Requires \code{gc.gene.file}.
-min.targeted.base=4,
+min.targeted.base=5,
 ### Exclude intervals with targeted base (size in bp) smaller 
 ### than this cutoff. This is useful when the same interval file was used to
 ### calculate GC content. For such small targets, the GC content is likely 

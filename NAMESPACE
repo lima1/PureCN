@@ -46,6 +46,8 @@ importFrom("Rsamtools", "headerTabix", "ScanBamParam", "scanBamFlag",
 importFrom("S4Vectors", "queryHits", "subjectHits", "DataFrame")
 importFrom("SummarizedExperiment", "rowRanges")
 importFrom("data.table", "data.table")
+importFrom("edgeR", "DGEList")
+importFrom("limma", "voomWithQualityWeights", "lmFit", "eBayes")
 importFrom("ggplot2","ggplot", "aes_string", "geom_point", "geom_line", "aes",
      "xlab", "ylab", "ggtitle", "theme", "element_text", "facet_wrap",
      "stat_density2d", "scale_alpha_continuous")
@@ -53,10 +55,10 @@ importFrom("grDevices", "colorRampPalette", "dev.off", "png", "adjustcolor")
 importFrom("graphics", "abline", "axis", "boxplot", "contour", "hist","image", 
     "legend", "lines", "par", "plot", "text", "mtext", "polygon","points",
     "rect", "strwidth", "symbols", "barplot")
-importFrom("nnls", "nnls")
 importFrom("rtracklayer", "import")
 importFrom("stats", "C", "complete.cases", "dbeta", "dist", "dnorm", "dunif", 
     "loess", "pbeta", "prcomp", "predict", "runif", "t.test", "weighted.mean", 
-    "dbinom", "fisher.test", "hclust", "cutree", "filter", "lm")
+    "dbinom", "fisher.test", "hclust", "cutree", "filter", "lm", 
+    "model.matrix")
 importFrom("utils", "data", "head", "read.csv", "read.delim", "read.table", 
     "write.csv", "write.table", "tail", "packageVersion")

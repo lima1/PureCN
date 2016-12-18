@@ -284,11 +284,14 @@ pool <- findBestNormal(tumor.coverage.file, normalDB,
     num.normals=2, pool=TRUE, remove.chrs=c("chrX", "chrY"))
 @
 
-This function will by default optimize averaging weights by a least squares
-criterion so that the pooled normal is as similar as possible to tumor. Giving
-recommendations for optimal strategies is hard since they depend on the size,
-coverage and variance of the pool of normals. It is worth experimenting with
-different strategies and the \Rfunction{plotBestNormal} function might be
+This function will by default optimize averaging weights using the
+\Rfunction{voomWithQualityWeights} function of the \Biocpkg{limma} package. The
+\Rcode{num.normals} should be set to a value between 2 and 10. More than 10
+usually results in long runtimes with no significant gain in accuracy.
+
+Giving recommendations for optimal strategies is hard since they depend on the
+size, coverage and variance of the pool of normals. It is worth experimenting
+with different strategies and the \Rfunction{plotBestNormal} function might be
 helpful. Starting with the most simple one, i.e. using the single best normal,
 and then testing more complicated strategies, is a sound approach. 
 

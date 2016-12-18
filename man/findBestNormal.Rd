@@ -5,8 +5,9 @@
 tumor sample.}
 \usage{findBestNormal(tumor.coverage.file, normalDB, pcs = 1:3, 
     num.normals = 1, ignore.sex = FALSE, sex = NULL, 
-    normal.coverage.files = NULL, pool = FALSE, pool.weights = c("nnls", 
-        "equal"), verbose = TRUE, ...)}
+    normal.coverage.files = NULL, pool = FALSE, pool.weights = c("voom", 
+        "equal"), plot.pool = FALSE, verbose = TRUE, 
+    ...)}
 \arguments{
   \item{tumor.coverage.file}{GATK coverage file of a tumor sample.}
   \item{normalDB}{Database of normal samples, created with 
@@ -23,8 +24,9 @@ chromosomes are diploid, specify \code{diploid}. }
 the database. Must match \code{normalDB$normal.coverage.files}. }
   \item{pool}{If \code{TRUE}, use \code{\link{poolCoverage}} to pool best 
 normals.}
-  \item{pool.weights}{Either find good pooling weights by non-negative least squares
-optimization or weight all best normals equally.}
+  \item{pool.weights}{Either find good pooling weights by optimization or weight 
+all best normals equally.}
+  \item{plot.pool}{Allows the pooling function to create plots.}
   \item{verbose}{Verbose output.}
   \item{\dots}{Additional arguments passed to \code{\link{poolCoverage}}.}
 }

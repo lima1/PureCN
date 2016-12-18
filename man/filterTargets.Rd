@@ -6,7 +6,7 @@ be included or excluded in the segmentation. It is called via the
 \code{fun.filterTargets} argument of \code{\link{runAbsoluteCN}}. The 
 arguments are passed via \code{args.filterTargets}.}
 \usage{filterTargets(log.ratio, tumor, gc.data, seg.file, 
-    filter.lowhigh.gc = 0.001, min.targeted.base = 4, 
+    filter.lowhigh.gc = 0.001, min.targeted.base = 5, 
     normalDB = NULL, normalDB.min.coverage = 0.2, verbose)}
 \arguments{
   \item{log.ratio}{Copy number log-ratios, one for each target or interval

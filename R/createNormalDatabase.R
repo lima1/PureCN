@@ -19,15 +19,8 @@ max.mean.coverage=100,
 ### Arguments passed to the \code{prcomp} function.
 ) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
-    normals <- lapply(normal.coverage.files, readCoverageGatk)
+    normals <- .readNormals(normal.coverage.files)
 
-    # check that all files used the same interval file.
-    for (i in seq_along(normals)) {
-        if (!identical(normals[[i]]$probe, normals[[1]]$probe)) {
-            .stopUserError("All normal.coverage.files must have the same ",
-                "intervals. ", normal.coverage.files[i], " is different.")
-        }
-    }
     normals.m <- do.call(cbind, 
         lapply(normals, function(x) x$average.coverage))
     idx <- complete.cases(normals.m)
@@ -139,3 +132,17 @@ tumor.coverage.file <- system.file("extdata", "example_tumor.txt",
 
 createTargetWeights(tumor.coverage.file, normal.coverage.files, target.weight.file)
 })
+
+.readNormals <- function(normal.coverage.files) {
+    normals <- lapply(normal.coverage.files, readCoverageGatk)
+
+    # check that all files used the same interval file.
+    for (i in seq_along(normals)) {
+        if (!identical(normals[[i]]$probe, normals[[1]]$probe)) {
+            .stopUserError("All normal.coverage.files must have the same ",
+                "intervals. ", normal.coverage.files[i], " is different.")
+        }
+    }
+    normals
+}
+

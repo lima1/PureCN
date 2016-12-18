@@ -9,7 +9,8 @@ res,
 ids=NULL, 
 ### Candidate solutions to be plotted. \code{ids=1} will draw the 
 ### plot for the maximum likelihood solution.
-type=c("hist", "overview", "overview2", "BAF", "AF", "all"),
+type=c("hist", "overview", "overview2", "BAF", "AF", 
+"volcano", "all"),
 ### Different types of plots. \code{hist} will plot a histogram, 
 ### assigning log-ratio peaks to integer values. \code{overview} will plot all 
 ### local optima, sorted by likelihood. \code{overview2} adds additional 
@@ -19,7 +20,9 @@ type=c("hist", "overview", "overview2", "BAF", "AF", "all"),
 ### frequencies of germline variants (or most likely germline when status
 ### is not available) against copy number. \code{AF} plots observed allelic 
 ### fractions against expected (purity), maximum likelihood (optimal 
-### multiplicity) allelic fractions. \code{all} plots all, and is useful 
+### multiplicity) allelic fractions. \code{volcano} plots coverage
+### p-values against log-ratios on the gene-level.
+###  \code{all} plots all, and is useful 
 ### for generate a PDF for a sample for manual inspection.
 chr=NULL,
 ### If \code{NULL}, show all chromosomes, otherwise only the ones 
@@ -402,6 +405,8 @@ max.mapping.bias=0.8,
                     digits=4)), col=mycol.palette$color, pch=mycol.palette$pch)
             }
         }
+    } else if (type =="volcano") {
+        .plotVolcano(res$results[[1]]$gene.calls)
     } else if (type =="all") {
         plotAbs(res, type="overview2")
         if (is.null(ids)) ids <- seq_along(res$results)
@@ -449,12 +454,13 @@ max.mapping.bias=0.8,
             sapply(res$results, function(x) x$ploidy)-0.1, 
             seq_along(res$results), col=mycol, cex=1.2,font=myfont)
         if (type=="overview2") {
+            if (!is.null(res$results[[1]]$gene.calls) && 
+                !is.null(res$results[[1]]$gene.calls$voom.pvalue)) {
+                .plotVolcano(res$results[[1]]$gene.calls)
+            }    
             x <- sapply(res$results, function(x) x$GoF)
             barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
                 main="Goodness-of-fit", las=2)
-            x <- sapply(res$results, function(x) x$total.log.likelihood)
-            barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
-                main="Total likelihood (SNV+SCNA)", las=2)
             if (!is.null(res$input$vcf)) {
                 x <- sapply(res$results, function(x) 
                     x$SNV.posterior$beta.model$llik)
@@ -533,6 +539,19 @@ ss) {
     mtext("Copy number Log-Likelihood",side=4,line=2)
     par(xpd = pxpd)
 }
+
+.plotVolcano <- function(gene.calls, num.genes=50) {
+    if (is.null(gene.calls) || is.null(gene.calls$voom.pvalue)) {
+        .stopUserError("Type 'volcano' requires gene-level calls and a normalDB.")
+    } 
+
+    plot(gene.calls$voom.log.ratio, -log10(gene.calls$voom.pvalue), 
+        xlab="Coverage log-ratio tumor vs. normal",
+        ylab="-log10(p-value)") 
+    idx <- head(order(gene.calls$voom.pvalue),num.genes)
+    text(gene.calls$voom.log.ratio[idx], -log10(gene.calls$voom.pvalue)[idx], 
+        label=rownames(gene.calls)[idx])
+}    
 
 .getVariantPosteriors <- function(res, i, max.mapping.bias=NULL) {
     r <- res$results[[i]]$SNV.posterior$beta.model$posterior

@@ -17,6 +17,7 @@ API CHANGES
 - Changed defaults: 
     - min.normals 5 (from 10) in setMappingBiasVcf
     - max.segments 300 (from 200) in runAbsoluteCN               
+    - min.targeted.base 5 (from 4) in filterTargets
 - Other minor changes:
     - Renamed some predictSomatic() output column names
     - Moved remove.off.target.snvs to filterVcfBasic
