@@ -49,8 +49,8 @@ importFrom("data.table", "data.table")
 importFrom("edgeR", "DGEList")
 importFrom("limma", "voomWithQualityWeights", "lmFit", "eBayes")
 importFrom("ggplot2","ggplot", "aes_string", "geom_point", "geom_line", "aes",
-     "xlab", "ylab", "ggtitle", "theme", "element_text", "facet_wrap",
-     "stat_density2d", "scale_alpha_continuous")
+    "xlab", "ylab", "theme", "element_text", "facet_wrap", "stat_density2d",
+    "scale_alpha_continuous")
 importFrom("grDevices", "colorRampPalette", "dev.off", "png", "adjustcolor")
 importFrom("graphics", "abline", "axis", "boxplot", "contour", "hist","image", 
     "legend", "lines", "par", "plot", "text", "mtext", "polygon","points",
