@@ -14,8 +14,19 @@ purity and ploidy combinations in the results of a
   \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
   \item{ids}{Candidate solutions to be plotted. \code{ids=1} will draw the 
 plot for the maximum likelihood solution.}
-  \item{type}{
-}
+  \item{type}{Different types of plots. \code{hist} will plot a histogram, 
+assigning log-ratio peaks to integer values. \code{overview} will plot all 
+local optima, sorted by likelihood. \code{overview2} adds additional 
+barplots showing likelihood and goodness-of-fit scores. 
+\code{BAF} plots something like 
+a B-allele frequency plot known from SNP arrays: it plots allele 
+frequencies of germline variants (or most likely germline when status
+is not available) against copy number. \code{AF} plots observed allelic 
+fractions against expected (purity), maximum likelihood (optimal 
+multiplicity) allelic fractions. \code{volcano} plots coverage
+p-values against log-ratios on the gene-level.
+\code{all} plots all, and is useful 
+for generate a PDF for a sample for manual inspection.}
   \item{chr}{If \code{NULL}, show all chromosomes, otherwise only the ones 
 specified (\code{type="BAF"} only).}
   \item{germline.only}{If \code{TRUE}, show only variants most likely being germline in 

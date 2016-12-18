@@ -9,8 +9,7 @@ res,
 ids=NULL, 
 ### Candidate solutions to be plotted. \code{ids=1} will draw the 
 ### plot for the maximum likelihood solution.
-type=c("hist", "overview", "overview2", "BAF", "AF", 
-"volcano", "all"),
+type=c("hist", "overview", "overview2", "BAF", "AF", "volcano", "all"),
 ### Different types of plots. \code{hist} will plot a histogram, 
 ### assigning log-ratio peaks to integer values. \code{overview} will plot all 
 ### local optima, sorted by likelihood. \code{overview2} adds additional 
