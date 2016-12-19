@@ -544,11 +544,11 @@ ss) {
         .stopUserError("Type 'volcano' requires gene-level calls and a normalDB.")
     } 
 
-    plot(gene.calls$voom.log.ratio, -log10(gene.calls$voom.pvalue), 
+    plot(gene.calls$voom.gene.mean, -log10(gene.calls$voom.pvalue), 
         xlab="Coverage log-ratio tumor vs. normal",
         ylab="-log10(p-value)") 
     idx <- head(order(gene.calls$voom.pvalue),num.genes)
-    text(gene.calls$voom.log.ratio[idx], -log10(gene.calls$voom.pvalue)[idx], 
+    text(gene.calls$voom.gene.mean[idx], -log10(gene.calls$voom.pvalue)[idx], 
         label=rownames(gene.calls)[idx])
 }    
 
