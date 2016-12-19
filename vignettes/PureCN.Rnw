@@ -1117,9 +1117,8 @@ please post them at
 \url{https://support.bioconductor.org/p/new/post/?tag\_val=PureCN}.
 
 If \Biocpkg{PureCN} throws user errors, then there is likely a problem with the
-input files.  The error message should be self-explanatory. If not, feel free to
-seek help at the support site. But please try to fix all warnings before posting
-problems. In your report, please add the outputs of the
+input files.  If the error message is not self-explanatory, feel free to
+seek help at the support site. In your report, please add the outputs of the
 \Rfunction{runAbsoluteCN} call (with \Rcode{verbose=TRUE}) and
 \Rfunction{sessionInfo()}. Please also check that your problem is not already
 covered in the following sections.

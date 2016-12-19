@@ -539,14 +539,21 @@ ss) {
     par(xpd = pxpd)
 }
 
-.plotVolcano <- function(gene.calls, num.genes=50) {
+.plotVolcano <- function(gene.calls, num.genes=50, max.pvalue=0.001) {
     if (is.null(gene.calls) || is.null(gene.calls$voom.pvalue)) {
         .stopUserError("Type 'volcano' requires gene-level calls and a normalDB.")
     } 
-
+    colorLookUp <- data.frame(chr=unique(gene.calls$chr), color=NA)
+    rownames(colorLookUp) <- colorLookUp$chr
+    colorLookUp$color <- colorRampPalette(brewer.pal("Paired",n=12))(nrow(colorLookUp))
+    plotCol <- rep("black", nrow(gene.calls))
+    idx <- gene.calls$voom.pvalue < 0.001
+    plotCol[idx] <- colorLookUp[gene.calls$chr[idx],"color"]
     plot(gene.calls$voom.gene.mean, -log10(gene.calls$voom.pvalue), 
         xlab="Coverage log-ratio tumor vs. normal",
-        ylab="-log10(p-value)") 
+        ylab="-log10(p-value)", col=plotCol) 
+    legend("topleft", legend=unique(gene.calls$chr[idx]),fill=unique(plotCol[idx]))
+    abline(h=-log10(max.pvalue), lty=2, col="grey")
     idx <- head(order(gene.calls$voom.pvalue),num.genes)
     text(gene.calls$voom.gene.mean[idx], -log10(gene.calls$voom.pvalue)[idx], 
         label=rownames(gene.calls)[idx])
