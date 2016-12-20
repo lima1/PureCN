@@ -2,7 +2,7 @@ Package: PureCN
 Type: Package
 Title: Copy number calling and SNV classification using
         targeted short read sequencing 
-Version: 1.5.24
+Version: 1.5.25
 Date: 2016-12-20
 Author: Markus Riester
 Maintainer: Markus Riester <markus.riester@novartis.com>

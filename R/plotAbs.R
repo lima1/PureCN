@@ -568,7 +568,7 @@ ss) {
    
 .getAFPlotGroups <- function(r, single.mode) {
     if (single.mode) {
-        groupLevels <- c("dbSNP/germline", "dnSNP/somatic", "novel/somatic",
+        groupLevels <- c("dbSNP/germline", "dbSNP/somatic", "novel/somatic",
             "novel/germline", "COSMIC/germline", "COSMIC/somatic") 
         r$group <- groupLevels[1]
         r$group[r$prior.somatic < 0.1 & r$ML.SOMATIC] <- groupLevels[2]

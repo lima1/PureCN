@@ -510,18 +510,20 @@ ploidy.
 plotAbs(ret, 1, type="AF")
 @
 \incfig{figure/figureexample4-1}{0.95\textwidth}{Allele fraction plots.}{Each
-dot is again a (predicted) germline SNP. This plot normally also shows somatic
-mutations in two additional panels. This toy example contains only germline
-SNPs however.}
+dot is again a (predicted) germline SNP. The size of dots indicate quality,
+defined here as the product of mapping bias and coverage. The shapes visualize
+the different SNV groups based on prior and posterior probabilities. The
+relationship of allelic fraction and coverage is shown in the top right panel.
+This plot normally also shows somatic mutations in two additional panels, with
+the left panel showing the same plot as for germline SNPs and the bottom right
+panel a histogram of cellular fraction of predicted somatic mutations. This toy
+example contains only germline SNPs however.  The labels show the expected
+values for all called states; 2m1 would be diploid, heterozygous, 2m2 diploid,
+homozygous.}
 
-Finally, Figure~\ref{figure/figureexample4-1} provides a little bit more
-insight into how well the variants fit the expected values. The left panel
-shows the correlation of expected and observed allelic fractions. The expected
-value is determined by the most likely state. High ploidy solutions have a lot
-of states, so this correlation is expected to be good for high ploidy
-solutions.  The right panel plots the observed allelic fractions against copy
-number. The labels show the expected values for all called states; 2m1 would be
-diploid, heterozygous, 2m2 diploid, homozygous.  \clearpage
+Finally, Figure~\ref{figure/figureexample4-1} provides more insight into how
+well the variants fit the expected values.
+\clearpage
 
 \subsection{Data structures}
 
