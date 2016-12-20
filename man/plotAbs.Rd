@@ -9,7 +9,7 @@ purity and ploidy combinations in the results of a
     germline.only = TRUE, show.contour = FALSE, purity = NULL, 
     ploidy = NULL, alpha = TRUE, show.segment.means = c("SNV", 
         "segments", "both"), max.mapping.bias = 0.8, 
-    ...)}
+    palette.name = "Paired", ...)}
 \arguments{
   \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
   \item{ids}{Candidate solutions to be plotted. \code{ids=1} will draw the 
@@ -46,6 +46,7 @@ all SNVs. Only for \code{type="AF"}.}
 Note that bias is reported on an inverse scale; a variant 
 with mapping bias of 1 has no bias.
 (\code{type="AF"} and \code{type="BAF"} only). }
+  \item{palette.name}{The default \code{RColorBrewer} palette.}
   \item{\dots}{Additonal parameters passed to the \code{plot} function. }
 }
 

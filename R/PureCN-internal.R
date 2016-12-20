@@ -207,6 +207,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     posteriors$CELLFRACTION[!posteriors$ML.SOMATIC] <- NA
 
     posteriors$log.ratio <- snv.lr[vcf.ids]
+    posteriors$depth <-as.numeric(geno(vcf[vcf.ids])$DP[, tumor.id.in.vcf])
     posteriors$prior.somatic <- prior.somatic[vcf.ids]
     posteriors$prior.contamination <- prior.cont[vcf.ids]
     posteriors$on.target <- info(vcf[vcf.ids])$OnTarget

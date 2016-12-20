@@ -621,6 +621,7 @@ somatic (sum of all somatic state posterior probabilities) \\
 \Rcode{CELLFRACTION} & Fraction of tumor cells harboring the somatic mutation\\
 \Rcode{log.ratio} & The copy number log-ratio (tumor vs. normal) for this 
     variant \\
+\Rcode{depth} & The total sequencing depth at this position \\
 \Rcode{prior.somatic} & Prior probability of variant being somatic \\
 \Rcode{prior.contamination} & Prior probability that variant is contamination 
     from another individual \\

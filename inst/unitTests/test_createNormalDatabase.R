@@ -41,4 +41,11 @@ test_createNormalDatabase <- function() {
         "shuffled_gatk.txt")))
     checkTrue(grepl("shuffled_gatk.txt", 
         geterrmessage()), msg=geterrmessage())
+
+    tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+        package = "PureCN")
+    best.normal.coverage.file <- findBestNormal(tumor.coverage.file, 
+        normalDB)
+    plotBestNormal(best.normal.coverage.file, tumor.coverage.file, 
+        normalDB)
 }    

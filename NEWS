@@ -3,7 +3,7 @@ Changes in version 1.6.0
 
 - Automatic 50bp interval padding
 - Added sub-clonal SNV state (SOMATIC.M0)
-- Polished plots, added new GC-normalization plot
+- Polished plots, added new GC-normalization and volcano plots
 - Support for cell lines
 - Improved somatic vs. germline status calling
 - Better mapping bias estimation and correction

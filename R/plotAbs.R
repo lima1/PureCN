@@ -50,6 +50,8 @@ max.mapping.bias=0.8,
 ### Note that bias is reported on an inverse scale; a variant 
 ### with mapping bias of 1 has no bias.
 ### (\code{type="AF"} and \code{type="BAF"} only). 
+palette.name="Paired",
+### The default \code{RColorBrewer} palette.
 ...
 ### Additonal parameters passed to the \code{plot} function. 
 ) {
@@ -289,20 +291,22 @@ max.mapping.bias=0.8,
 
             vcf <- res$input$vcf[res$results[[i]]$SNV.posterior$beta$vcf.ids]
             # brwer.pal requires at least 3 levels
-            tmp <- I(brewer.pal(max(nlevels(as.factor(r$prior.somatic)),3),
-                name="Dark2" ))
+
+            r <- .getAFPlotGroups(r, is.null(info(vcf)$SOMATIC))
+            tmp <- I(brewer.pal(max(nlevels(as.factor(r$group)),3),
+                name=palette.name ))
 
             mycol.palette <- data.frame(
-                priors=levels(as.factor(r$prior.somatic)), 
-                color=tmp[seq_len(nlevels(as.factor(r$prior.somatic)))] 
+                group=levels(as.factor(r$group)), 
+                color=tmp[seq_len(nlevels(as.factor(r$group)))] 
             )
 
             mycol.palette$pch <- seq_len(nrow(mycol.palette))
 
             mycol <- mycol.palette$color[
-                match(as.character(r$prior.somatic), mycol.palette$priors)]
+                match(as.character(r$group), mycol.palette$group)]
             mypch <- mycol.palette$pch[
-                match(as.character(r$prior.somatic), mycol.palette$priors)]
+                match(as.character(r$group), mycol.palette$group)]
 
             main.color <- sort(table(mycol), decreasing=TRUE)[1]
 
@@ -313,13 +317,8 @@ max.mapping.bias=0.8,
             )
             
             myalpha <- ifelse(alpha && nrow(r) > 2000, 2000/nrow(r), 1)
-
-            plot(r$ML.AR[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC],  
-                col=adjustcolor(mycol[!r$ML.SOMATIC],alpha.f=myalpha), 
-                pch=mypch[!r$ML.SOMATIC], 
-                xlab="Expected allelic fraction", 
-                ylab="Allelic fraction (germline)", main=main,...)
-            abline(a=0, b=1, lty=3, col="grey")
+            myalpha <- 1
+            mycex <- log10(r$depth*r$MAPPING.BIAS)-1
 
             seg <- res$results[[i]]$seg
             if (is.null(purity)) { 
@@ -351,6 +350,7 @@ max.mapping.bias=0.8,
                 plot(r$log.ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
                     col=adjustcolor(mycol[!r$ML.SOMATIC], alpha.f=myalpha), pch=mypch[!r$ML.SOMATIC], 
                     xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
+                    cex=mycex[!r$ML.SOMATIC],
                     xlim=mylogratio.xlim
                     )
                 if (segment.means == "both") points(x,y,
@@ -362,24 +362,17 @@ max.mapping.bias=0.8,
                     xlim=mylogratio.xlim
                     )
             } 
-
             text(
                 x=peak.ideal.means[
                     as.character(r$ML.C[!r$ML.SOMATIC])][idx.labels], 
                 y=r$ML.AR[!r$ML.SOMATIC][idx.labels], 
                 labels=scatter.labels[idx.labels]
             )
+            plot(r$AR, log2(r$depth),col=adjustcolor(mycol, alpha.f=myalpha),
+                pch=mypch, cex=mycex,
+                xlab="Allelic fraction", ylab="Coverage (log2)")
 
             if (sum(r$ML.SOMATIC)>0) {
-                plot(r$ML.AR[r$ML.SOMATIC], r$AR[r$ML.SOMATIC], 
-                    col=mycol[r$ML.SOMATIC], pch=mypch[r$ML.SOMATIC], 
-                    xlab="Expected allelic fraction", 
-                    ylab="Allelic fraction (somatic)",...)
-                abline(a=0, b=1, lty=3, col="grey")
-                legend("bottomright", legend=paste("Prior Somatic", 
-                    round(as.numeric(as.character(mycol.palette$priors)),
-                    digits=4)) , col=mycol.palette$color, 
-                    pch=mycol.palette$pch, cex=0.8)
 
                 scatter.labels <- paste0(r$ML.C,"m", r$ML.M)[r$ML.SOMATIC]
 
@@ -389,23 +382,27 @@ max.mapping.bias=0.8,
 
                 plot(r$log.ratio[r$ML.SOMATIC], r$AR[r$ML.SOMATIC], 
                     col=mycol[r$ML.SOMATIC], pch=mypch[r$ML.SOMATIC], 
+                    cex=mycex[r$ML.SOMATIC],
                     xlab="Copy Number log-ratio", 
                     ylab="Allelic fraction (somatic)",
                     xlim=mylogratio.xlim
                     )
+                legend("topright", legend=as.character(mycol.palette$group),
+                    col=mycol.palette$color, 
+                    pch=mycol.palette$pch, cex=0.8)
 
                 text(x=peak.ideal.means[
                     as.character(r$ML.C[r$ML.SOMATIC])][idx.labels], 
                     y=r$ML.AR[r$ML.SOMATIC][idx.labels], 
                     labels=scatter.labels[idx.labels])
+                hist(r$CELLFRACTION, xlab="Cellular fraction", main="")
             } else {
-                legend("bottomright", legend=paste("Prior Somatic", 
-                    round(as.numeric(as.character(mycol.palette$priors)),
-                    digits=4)), col=mycol.palette$color, pch=mycol.palette$pch)
+                legend("bottomright", legend=as.character(mycol.palette$group),
+                    col=mycol.palette$color, pch=mycol.palette$pch)
             }
         }
     } else if (type =="volcano") {
-        .plotVolcano(res$results[[1]]$gene.calls)
+        .plotVolcano(res$results[[1]]$gene.calls, palette.name=palette.name)
     } else if (type =="all") {
         plotAbs(res, type="overview2")
         if (is.null(ids)) ids <- seq_along(res$results)
@@ -455,7 +452,8 @@ max.mapping.bias=0.8,
         if (type=="overview2") {
             if (!is.null(res$results[[1]]$gene.calls) && 
                 !is.null(res$results[[1]]$gene.calls$voom.pvalue)) {
-                .plotVolcano(res$results[[1]]$gene.calls)
+                .plotVolcano(res$results[[1]]$gene.calls, 
+                    palette.name=palette.name)
             }    
             x <- sapply(res$results, function(x) x$GoF)
             barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
@@ -539,13 +537,14 @@ ss) {
     par(xpd = pxpd)
 }
 
-.plotVolcano <- function(gene.calls, num.genes=50, max.pvalue=0.001) {
+.plotVolcano <- function(gene.calls, num.genes=50, max.pvalue=0.001, 
+    palette.name) {
     if (is.null(gene.calls) || is.null(gene.calls$voom.pvalue)) {
         .stopUserError("Type 'volcano' requires gene-level calls and a normalDB.")
     } 
     colorLookUp <- data.frame(chr=unique(gene.calls$chr), color=NA)
     rownames(colorLookUp) <- colorLookUp$chr
-    colorLookUp$color <- colorRampPalette(brewer.pal("Paired",n=12))(nrow(colorLookUp))
+    colorLookUp$color <- colorRampPalette(brewer.pal(palette.name,n=12))(nrow(colorLookUp))
     plotCol <- rep("black", nrow(gene.calls))
     idx <- gene.calls$voom.pvalue < 0.001
     plotCol[idx] <- colorLookUp[gene.calls$chr[idx],"color"]
@@ -566,4 +565,20 @@ ss) {
     }    
     r
 }
-    
+   
+.getAFPlotGroups <- function(r, single.mode) {
+    if (single.mode) {
+        r$group <- "dbSNP/germline"
+        r$group[r$prior.somatic < 0.1 & r$ML.SOMATIC] <- "dbSNP/somatic"
+        r$group[r$prior.somatic >= 0.1 & r$ML.SOMATIC] <- "novel/somatic"
+        r$group[r$prior.somatic >= 0.1 & !r$ML.SOMATIC] <- "novel/germline"
+        r$group[r$prior.somatic >= 0.9 & !r$ML.SOMATIC] <- "COSMIC/germline"
+        r$group[r$prior.somatic >= 0.9 & r$ML.SOMATIC] <- "COSMIC/somatic"
+        return(r)
+    } 
+    r$group <- "germline"
+    r$group[r$prior.somatic < 0.1 & r$ML.SOMATIC] <- "germline/ML somatic"
+    r$group[r$prior.somatic >= 0.1 & r$ML.SOMATIC] <- "somatic"
+    r$group[r$prior.somatic >= 0.1 & !r$ML.SOMATIC] <- "somatic/ML germline"
+    r
+}            
