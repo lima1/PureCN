@@ -556,7 +556,7 @@ ss) {
     abline(h=-log10(max.pvalue), lty=2, col="grey")
     idx <- head(order(gene.calls$voom.pvalue),num.genes)
     text(gene.calls$voom.gene.mean[idx], -log10(gene.calls$voom.pvalue)[idx], 
-        label=rownames(gene.calls)[idx])
+        label=rownames(gene.calls)[idx], pos=2)
 }    
 
 .getVariantPosteriors <- function(res, i, max.mapping.bias=NULL) {
