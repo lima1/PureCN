@@ -1,5 +1,7 @@
 library('getopt')
 
+### Parsing command line ------------------------------------------------------
+
 spec <- matrix(c(
 'help',           'h', 0, "logical",
 'force' ,         'f', 0, "logical",
@@ -45,74 +47,7 @@ sampleid <- opt$sampleid
 outdir <- opt$outdir
 outvcf <- opt$outvcf
 pool <- opt$pool
-model.homozygous <- opt$modelhomozygous
-
-PureCN <- function(
-tumor.coverage.file, normal.coverage.file=NULL, tumor.vcf, genome,
-gc.gene.file=NULL, seg.file=NULL, snp.blacklist=NULL, stats.file=NULL,
-target.weight.file=NULL, normal.panel.vcf.file=NULL, normalDB=NULL, sampleid,
-post.optimize=FALSE, pool, model.homozygous, outvcf, outdir) {
-
-    file.rds <- file.path(outdir, paste(sampleid, '_abs.rds', sep=''))
-
-    if (file.exists(file.rds) && !force) {
-        message(file.rds, 
-            " already exists. Skipping... (--force will overwrite)")
-        ret <- readRDS(file.rds)
-    } else {    
-
-        if (!is.null(normalDB)) {
-            message("normalDB: ", normalDB)
-            normalDB <- readRDS(normalDB)
-            if (is.null(normal.coverage.file)) {
-                if (!is.null(pool)) {
-                    num.normals <- pool
-                    pool <- TRUE
-                } else {
-                    num.normals <- 1
-                    pool <- FALSE
-                }    
-                normal.coverage.file <- findBestNormal(tumor.coverage.file, 
-                    normalDB, pool=pool, num.normals=num.normals)
-                if (!pool) message(paste('Best Normal:', normal.coverage.file))
-            }
-        } else if (is.null(normal.coverage.file) && is.null(seg.file)) {
-            stop("Need either normalDB or normal.coverage.file")
-        }    
-
-        pdf(paste(outdir,"/", sampleid, '_abs_segmentation.pdf', sep=''), 
-            width=10, height=11)
-        ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-                tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
-                sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=TRUE,
-                genome=genome, seg.file=seg.file,
-                args.filterVcf=list(snp.blacklist=snp.blacklist, 
-                    stats.file=stats.file), 
-                args.segmentation=list(target.weight.file=target.weight.file), 
-                args.setMappingBiasVcf=
-                    list(normal.panel.vcf.file=normal.panel.vcf.file),
-                args.filterTargets=list(normalDB=normalDB),
-                model.homozygous=model.homozygous,
-                post.optimize=post.optimize)
-        dev.off()
-        saveRDS(ret, file=file.rds)
-    }
-    createCurationFile(file.rds)
-    file.pdf <- file.path(outdir, paste(sampleid, '_abs.pdf', sep=''))
-    pdf(file.pdf, width=10, height=11)
-    plotAbs(ret, type='all')
-    dev.off()
-    if (!is.null(outvcf)) {
-        if (basename(outvcf) != outvcf) {
-            warning(outvcf, " contains path. Will not put it in ", outdir)
-        } else {
-            outvcf <- file.path(outdir, outvcf)
-        }    
-        vcfanno <- predictSomatic(ret, return.vcf=TRUE, 
-            vcf.field.prefix="PureCN_")
-        writeVcf(vcfanno, file=outvcf)    
-    }    
-}
+model.homozygous <- !is.null(opt$modelhomozygous)
 
 outdir <- normalizePath(outdir, mustWork=TRUE)
 
@@ -124,11 +59,76 @@ if (is.null(sampleid)) stop("Need sampleid.")
 
 library(PureCN)
 
-PureCN(tumor.coverage.file, normal.coverage.file, tumor.vcf, genome,
-gc.gene.file, seg.file=seg.file, snp.blacklist=snp.blacklist, 
-stats.file=stats.file, target.weight.file=target.weight.file, 
-normalDB=normalDB, sampleid=sampleid, post.optimize=post.optimize, 
-normal.panel.vcf.file=normal.panel.vcf.file, pool=pool, 
-model.homozygous=model.homozygous, outvcf=outvcf, 
-outdir=outdir) 
+### Run PureCN ----------------------------------------------------------------
+
+file.rds <- file.path(outdir, paste0(sampleid, '_abs.rds'))
+
+if (file.exists(file.rds) && !force) {
+    message(file.rds, 
+        " already exists. Skipping... (--force will overwrite)")
+    ret <- readCurationFile(file.rds)
+} else {    
+    if (!is.null(normalDB)) {
+        message("normalDB: ", normalDB)
+        normalDB <- readRDS(normalDB)
+        if (is.null(normal.coverage.file)) {
+            if (!is.null(pool)) {
+                num.normals <- pool
+                pool <- TRUE
+            } else {
+                num.normals <- 1
+                pool <- FALSE
+            }    
+            normal.coverage.file <- findBestNormal(tumor.coverage.file, 
+                normalDB, pool=pool, num.normals=num.normals)
+            if (!pool) message(paste('Best Normal:', normal.coverage.file))
+        }
+    } else if (is.null(normal.coverage.file) && is.null(seg.file)) {
+        stop("Need either normalDB or normal.coverage.file")
+    }    
+
+    pdf(paste(outdir,"/", sampleid, '_abs_segmentation.pdf', sep=''), 
+        width=10, height=11)
+    ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+            tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
+            sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=TRUE,
+            genome=genome, seg.file=seg.file,
+            args.filterVcf=list(snp.blacklist=snp.blacklist, 
+                stats.file=stats.file), 
+            args.segmentation=list(target.weight.file=target.weight.file), 
+            args.setMappingBiasVcf=
+                list(normal.panel.vcf.file=normal.panel.vcf.file),
+            args.filterTargets=list(normalDB=normalDB),
+            model.homozygous=model.homozygous,
+            post.optimize=post.optimize)
+    dev.off()
+    saveRDS(ret, file=file.rds)
+}
+
+### Create output files -------------------------------------------------------
+
+createCurationFile(file.rds)
+file.pdf <- file.path(outdir, paste0(sampleid, '_abs.pdf'))
+pdf(file.pdf, width=10, height=11)
+plotAbs(ret, type='all')
+dev.off()
+
+if (!is.null(outvcf)) {
+    if (basename(outvcf) != outvcf) {
+        warning(outvcf, " contains path. Will not put it in ", outdir)
+    } else {
+        outvcf <- file.path(outdir, outvcf)
+    }    
+    vcfanno <- predictSomatic(ret, return.vcf=TRUE, 
+        vcf.field.prefix="PureCN_")
+    writeVcf(vcfanno, file=outvcf)    
+}    
+
+file.loh <- file.path(outdir, paste0(sampleid, '_abs_loh.csv'))
+write.csv(cbind(Sampleid=sampleid, callLOH(ret)), file=file.loh, 
+    row.names=FALSE, quote=FALSE)
+
+file.genes <- file.path(outdir, paste0(sampleid, '_abs_genes.csv'))
+write.csv(cbind(Sampleid=sampleid, callAlterations(ret, all.genes=TRUE)), 
+    file=file.genes, quote=FALSE)
 

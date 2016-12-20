@@ -247,7 +247,7 @@ verbose=TRUE,
     # argument checking
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
         max.homozygous.loss, sampleid, prior.K, prior.contamination, 
-        prior.purity, iterations, min.gof)
+        prior.purity, iterations, min.gof, model.homozygous)
 
     test.num.copy <- sort(test.num.copy)
 

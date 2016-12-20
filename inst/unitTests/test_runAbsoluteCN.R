@@ -102,6 +102,9 @@ test_runAbsoluteCN <- function() {
         iterations=3000))
     checkTrue(grepl("Iterations not in the expected range from",
         geterrmessage()))
+    checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file,genome="hg19",
+        model.homozygous=NULL))
+    checkTrue(grepl("model.homozygous", geterrmessage()))
     
     normalCov <- readCoverageGatk(normal.coverage.file)
     checkException(runAbsoluteCN(normalCov[sample(nrow(normalCov)),], 

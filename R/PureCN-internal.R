@@ -255,7 +255,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
     max.non.clonal, max.homozygous.loss, sampleid, prior.K, 
-    prior.contamination, prior.purity, iterations, min.gof) {
+    prior.contamination, prior.purity, iterations, min.gof, model.homozygous) {
     if (min(test.purity) <= 0 || max(test.purity) > 0.99) 
         .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
@@ -280,10 +280,13 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         .stopUserError("prior.purity must have the same length as ",
             "test.purity.")
     }    
+
     stopifnot(is.numeric(min.ploidy))
     stopifnot(is.numeric(max.ploidy))
     stopifnot(is.numeric(test.purity))
     stopifnot(is.numeric(iterations))
+    stopifnot(is.logical(model.homozygous))
+
     if (iterations < 10 || iterations > 250) {
         .stopUserError("Iterations not in the expected range from 10 to 250.")
     }    

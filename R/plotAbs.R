@@ -293,12 +293,12 @@ palette.name="Paired",
             # brwer.pal requires at least 3 levels
 
             r <- .getAFPlotGroups(r, is.null(info(vcf)$SOMATIC))
-            tmp <- I(brewer.pal(max(nlevels(as.factor(r$group)),3),
+            tmp <- I(brewer.pal(max(nlevels(r$group),3),
                 name=palette.name ))
 
             mycol.palette <- data.frame(
-                group=levels(as.factor(r$group)), 
-                color=tmp[seq_len(nlevels(as.factor(r$group)))] 
+                group=levels(r$group), 
+                color=tmp[seq_len(nlevels(r$group))] 
             )
 
             mycol.palette$pch <- seq_len(nrow(mycol.palette))
@@ -568,17 +568,23 @@ ss) {
    
 .getAFPlotGroups <- function(r, single.mode) {
     if (single.mode) {
-        r$group <- "dbSNP/germline"
-        r$group[r$prior.somatic < 0.1 & r$ML.SOMATIC] <- "dbSNP/somatic"
-        r$group[r$prior.somatic >= 0.1 & r$ML.SOMATIC] <- "novel/somatic"
-        r$group[r$prior.somatic >= 0.1 & !r$ML.SOMATIC] <- "novel/germline"
-        r$group[r$prior.somatic >= 0.9 & !r$ML.SOMATIC] <- "COSMIC/germline"
-        r$group[r$prior.somatic >= 0.9 & r$ML.SOMATIC] <- "COSMIC/somatic"
+        groupLevels <- c("dbSNP/germline", "dnSNP/somatic", "novel/somatic",
+            "novel/germline", "COSMIC/germline", "COSMIC/somatic") 
+        r$group <- groupLevels[1]
+        r$group[r$prior.somatic < 0.1 & r$ML.SOMATIC] <- groupLevels[2]
+        r$group[r$prior.somatic >= 0.1 & r$ML.SOMATIC] <- groupLevels[3]
+        r$group[r$prior.somatic >= 0.1 & !r$ML.SOMATIC] <- groupLevels[4]
+        r$group[r$prior.somatic >= 0.9 & !r$ML.SOMATIC] <- groupLevels[5]
+        r$group[r$prior.somatic >= 0.9 & r$ML.SOMATIC] <- groupLevels[6]
+        r$group <- factor(r$group, levels=groupLevels)
         return(r)
     } 
-    r$group <- "germline"
-    r$group[r$prior.somatic < 0.1 & r$ML.SOMATIC] <- "germline/ML somatic"
-    r$group[r$prior.somatic >= 0.1 & r$ML.SOMATIC] <- "somatic"
-    r$group[r$prior.somatic >= 0.1 & !r$ML.SOMATIC] <- "somatic/ML germline"
+    groupLevels <- c("germline", "germline/ML somatic", "somatic", 
+        "somatic/ML germline")
+    r$group <- groupLevels[1]
+    r$group[r$prior.somatic < 0.1 & r$ML.SOMATIC] <- groupLevels[2]
+    r$group[r$prior.somatic >= 0.1 & r$ML.SOMATIC] <- groupLevels[3]
+    r$group[r$prior.somatic >= 0.1 & !r$ML.SOMATIC] <- groupLevels[4]
+    r$group <- factor(r$group, levels=groupLevels)
     r
 }            
