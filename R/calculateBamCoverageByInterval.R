@@ -1,25 +1,41 @@
-calculateBamCoverageByInterval <- structure(
-function(# Function to calculate coverage from BAM file
-### Takes a BAM file and an interval file as input and 
-### returns coverage for each interval. Coverage should be then GC-normalized
-### using the \code{\link{correctCoverageBias}} function before determining
-### purity and ploidy with \code{\link{runAbsoluteCN}}.
-### Uses the \code{scanBam} function and applies low quality, duplicate reads
-### as well as secondary alignment filters.
-##seealso<< \code{\link{calculateGCContentByInterval} 
-## \link{correctCoverageBias} \link{runAbsoluteCN}}
-bam.file, 
-### Filename of a BAM file.
-interval.file,
-### File specifying the intervals. Interval is expected in 
-### first column in format CHR:START-END. The \code{gc.gene.file} can be used.
-output.file=NULL,
-### Optionally, write minimal coverage file. Can be read with the
-### \code{\link{readCoverageGatk}} function.
-index.file=bam.file
-### The bai index. This is expected without the .bai file suffix, see
-### \code{?scanBam}.
-) {
+#' Function to calculate coverage from BAM file
+#' 
+#' Takes a BAM file and an interval file as input and returns coverage for each
+#' interval. Coverage should be then GC-normalized using the
+#' \code{\link{correctCoverageBias}} function before determining purity and
+#' ploidy with \code{\link{runAbsoluteCN}}. Uses the \code{scanBam} function
+#' and applies low quality, duplicate reads as well as secondary alignment
+#' filters.
+#' 
+#' 
+#' @param bam.file Filename of a BAM file.
+#' @param interval.file File specifying the intervals. Interval is expected in
+#' first column in format CHR:START-END. The \code{gc.gene.file} can be used.
+#' @param output.file Optionally, write minimal coverage file. Can be read with
+#' the \code{\link{readCoverageGatk}} function.
+#' @param index.file The bai index. This is expected without the .bai file
+#' suffix, see \code{?scanBam}.
+#' @return Returns total and average coverage by intervals.
+#' @author Markus Riester
+#' @seealso \code{\link{calculateGCContentByInterval}
+#' \link{correctCoverageBias} \link{runAbsoluteCN}}
+#' @examples
+#' 
+#' bam.file <- system.file("extdata", "ex1.bam", package="PureCN", 
+#'     mustWork = TRUE)
+#' interval.file <- system.file("extdata", "ex1_intervals.txt", 
+#'     package="PureCN", mustWork = TRUE)
+#' 
+#' # Calculate raw coverage from BAM file. These need to be corrected for GC-bias
+#' # using the correctCoverageBias function before determining purity and ploidy.
+#' coverage <- calculateBamCoverageByInterval(bam.file=bam.file, 
+#'     interval.file=interval.file)
+#' 
+#' @export calculateBamCoverageByInterval
+#' @importFrom Rsamtools headerTabix ScanBamParam scanBamFlag
+#'             scanBam scanFa TabixFile
+calculateBamCoverageByInterval <- function(bam.file, interval.file, 
+    output.file = NULL, index.file = bam.file) {
     interval <- read.delim(interval.file, as.is=TRUE)
     colnames(interval)[1] <- "Target"
     pos <- as.data.frame(do.call(rbind, strsplit(interval$Target, ":|-")), 
@@ -57,15 +73,4 @@ index.file=bam.file
         write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE)
     }    
     invisible(ret)
-### Returns total and average coverage by intervals.
-}, ex=function() {
-bam.file <- system.file("extdata", "ex1.bam", package="PureCN", 
-    mustWork = TRUE)
-interval.file <- system.file("extdata", "ex1_intervals.txt", 
-    package="PureCN", mustWork = TRUE)
-
-# Calculate raw coverage from BAM file. These need to be corrected for GC-bias
-# using the correctCoverageBias function before determining purity and ploidy.
-coverage <- calculateBamCoverageByInterval(bam.file=bam.file, 
-    interval.file=interval.file)
-})    
+}

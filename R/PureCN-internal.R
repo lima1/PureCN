@@ -513,28 +513,31 @@ c(test.num.copy, round(opt.C))[i], prior.K))
          apply, 2, sum, na.rm=TRUE))
     
     geneCountMatrix <- geneCountMatrix[complete.cases(geneCountMatrix),]
-    dge <- DGEList(geneCountMatrix, group=c("tumor", rep("normal", ncol(countMatrix)-1)))
-    v <- voomWithQualityWeights(dge, plot=plot.voom)
-    y <- lmFit(v, design = model.matrix(~dge$samples$group))
-    y <- eBayes(y)
-### Return object of the \code{eBayes} function from the limma package
+    dge <- edgeR::DGEList(geneCountMatrix, 
+            group=c("tumor", rep("normal", ncol(countMatrix)-1)))
+    v <- limma::voomWithQualityWeights(dge, plot=plot.voom)
+    y <- limma::lmFit(v, design = stats::model.matrix(~dge$samples$group))
+    y <- limma::eBayes(y)
 }
 
-.voomLogRatio <- function(tumor.coverage.file, normal.coverage.files=NULL, normalDB=NULL, num.normals=NULL, 
-    plot.voom=TRUE) {
-    countMatrix <- .voomCountMatrix(tumor.coverage.file, normal.coverage.files, normalDB, num.normals)
+.voomLogRatio <- function(tumor.coverage.file, normal.coverage.files=NULL, 
+    normalDB=NULL, num.normals=NULL, plot.voom=TRUE) {
+    countMatrix <- .voomCountMatrix(tumor.coverage.file, normal.coverage.files, 
+                                    normalDB, num.normals)
     
     idx <- complete.cases(countMatrix)
-    dge <- DGEList(countMatrix[idx,], group=c("tumor", rep("normal", ncol(countMatrix)-1)))
-    v <- voomWithQualityWeights(dge, plot=plot.voom)
-    y <- lmFit(v, design = model.matrix(~dge$samples$group))
-    y <- eBayes(y)
+    dge <- edgeR::DGEList(countMatrix[idx,], 
+            group=c("tumor", rep("normal", ncol(countMatrix)-1)))
+    v <- limma::voomWithQualityWeights(dge, plot=plot.voom)
+    y <- limma::lmFit(v, design = stats::model.matrix(~dge$samples$group))
+    y <- limma::eBayes(y)
     logRatio <- rep(NA, nrow(countMatrix))
     logRatio[idx] <- y$coefficients[,2]
     logRatio
 }
 
-.voomCountMatrix <- function(tumor.coverage.file, normal.coverage.files=NULL, normalDB, num.normals) {
+.voomCountMatrix <- function(tumor.coverage.file, normal.coverage.files=NULL, 
+                             normalDB, num.normals) {
     if (is.null(normal.coverage.files)) {
         if (!is.null(num.normals)) {
             normal.coverage.files <- findBestNormal(tumor.coverage.file, 
@@ -553,7 +556,6 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     countMatrix <- do.call(cbind, 
         lapply(c(list(tumor), normals), function(x) x$average.coverage))
 }    
-
 
 .checkSymbolsChromosome <- function(gc.pos) {
     chrsPerSymbol <- lapply(split(gc.pos$chr, gc.pos$Gene), unique)

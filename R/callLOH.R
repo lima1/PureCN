@@ -1,15 +1,23 @@
-callLOH <- structure(function(# Get regions of LOH
-### This function provides detailed LOH information by region.
-res, 
-### Return object of the \code{\link{runAbsoluteCN}} function.
-##seealso<< \code{\link{runAbsoluteCN}}
-id=1, 
-### Candidate solution to extract LOH from. \code{id=1} will  
-### use the maximum likelihood solution.
-arm.cutoff=0.9
-### Min fraction LOH on a chromosome arm to call 
-### whole arm events.
-) {
+#' Get regions of LOH
+#' 
+#' This function provides detailed LOH information by region.
+#' 
+#' 
+#' @param res Return object of the \code{\link{runAbsoluteCN}} function.
+#' @param id Candidate solution to extract LOH from. \code{id=1} will use the
+#' maximum likelihood solution.
+#' @param arm.cutoff Min fraction LOH on a chromosome arm to call whole arm
+#' events.
+#' @return Returns \code{data.frame} with LOH regions.
+#' @author Markus Riester
+#' @seealso \code{\link{runAbsoluteCN}}
+#' @examples
+#' 
+#' data(purecn.example.output)
+#' head(callLOH(purecn.example.output))
+#' 
+#' @export callLOH
+callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
     if (is.null(res$input$vcf)) {
         .stopUserError("runAbsoluteCN was run without a VCF file.")
     }
@@ -19,7 +27,7 @@ arm.cutoff=0.9
         .stopUserError("Centromere positions not available or matching.")
     }
     armLocationsGR <- GRanges(seqnames=armLocations$chrom,
-IRanges(start=armLocations$start, end=armLocations$end))
+        IRanges(start=armLocations$start, end=armLocations$end))
     seg <- res$results[[id]]$seg
 
     minorChrNumber <- res$results[[id]]$SNV.posterior$beta.model$posteriors[, 
@@ -65,11 +73,7 @@ IRanges(start=armLocations$start, end=armLocations$end))
     # standardize colnames
     colnames(segLOH)[1:3] <- c("chr", "start", "end")
     segLOH
-### Returns \code{data.frame} with LOH regions.    
-}, ex=function() {
-data(purecn.example.output)
-head(callLOH(purecn.example.output))
-})
+}
 
 .getArmLocations <- function(res) {
     chr.hash <- res$input$chr.hash

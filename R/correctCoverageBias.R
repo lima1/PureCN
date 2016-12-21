@@ -1,42 +1,61 @@
 # Make CMD check happy
 globalVariables(names=c("gcIndex", "gcNum", "..level.."))
 
-correctCoverageBias <- structure(function(# Correct for GC bias
-### Takes as input coverage data in GATK format (or data 
-### read by \code{\link{readCoverageGatk}}) and a mapping file for 
-### GC content, and normalize coverage data for bias correction. 
-### Optionally plots the pre and post normalization GC profiles.
-coverage.file, 
-### Exon coverage file as produced by GATK. Either a file name
-### or data parsed with the \code{\link{readCoverageGatk}} function.
-gc.gene.file,
-### File providing GC content for each exon in the coverage files.
-### First column in format CHR:START-END. Second column GC content (0 to 1). 
-### Third column provides gene symbols, which are optional, but used in
-### \code{\link{runAbsoluteCN}} to generate gene level calls. This file
-### can be generated with GATK GCContentByInterval tool or with the
-### \code{\link{calculateGCContentByInterval}} function.
-##seealso<< \code{\link{calculateGCContentByInterval}}
-output.file=NULL,
-### Optionally, write file with GC corrected coverage. Can be read with
-### the \code{\link{readCoverageGatk}} function.
-method=c("LOESS","POLYNOMIAL"),
-### Two options for normalization are available: The default "LOESS" largely
-### follows the GC correction of the TitanCNA package. The "POLYNOMIAL" method
-### models the coverage data as a polynomial of degree three and normalizes
-### using the EM approach. The "POLYNOMIAL" is expected to be more robust for
-### smaller targeted panels.
-plot.gc.bias=FALSE,
-### Optionally, plot GC profiles of the pre-normalized and post-normalized
-### coverage. Provides a quick visual check of coverage bias.
-plot.max.density=50000
-### By default, if the number of intervals in the probe-set is > 50000, uses
-### a kernel density estimate to plot the coverage distribution. This uses
-### the \code{stat_density} function from the ggplot2 package. Using this
-### parameter, change the threshold at which density estimation is applied.
-### If the \code{plot.gc.bias} parameter is set as \code{FALSE}, this will be
-### ignored.
-) {
+#' Correct for GC bias
+#' 
+#' Takes as input coverage data in GATK format (or data read by
+#' \code{\link{readCoverageGatk}}) and a mapping file for GC content, and
+#' normalize coverage data for bias correction.  Optionally plots the pre and
+#' post normalization GC profiles.
+#' 
+#' 
+#' @param coverage.file Exon coverage file as produced by GATK. Either a file
+#' name or data parsed with the \code{\link{readCoverageGatk}} function.
+#' @param gc.gene.file File providing GC content for each exon in the coverage
+#' files. First column in format CHR:START-END. Second column GC content (0 to
+#' 1).  Third column provides gene symbols, which are optional, but used in
+#' \code{\link{runAbsoluteCN}} to generate gene level calls. This file can be
+#' generated with GATK GCContentByInterval tool or with the
+#' \code{\link{calculateGCContentByInterval}} function.
+#' @param output.file Optionally, write file with GC corrected coverage. Can be
+#' read with the \code{\link{readCoverageGatk}} function.
+#' @param method Two options for normalization are available: The default
+#' "LOESS" largely follows the GC correction of the TitanCNA package. The
+#' "POLYNOMIAL" method models the coverage data as a polynomial of degree three
+#' and normalizes using the EM approach. The "POLYNOMIAL" is expected to be
+#' more robust for smaller targeted panels.
+#' @param plot.gc.bias Optionally, plot GC profiles of the pre-normalized and
+#' post-normalized coverage. Provides a quick visual check of coverage bias.
+#' @param plot.max.density By default, if the number of intervals in the
+#' probe-set is > 50000, uses a kernel density estimate to plot the coverage
+#' distribution. This uses the \code{stat_density} function from the ggplot2
+#' package. Using this parameter, change the threshold at which density
+#' estimation is applied. If the \code{plot.gc.bias} parameter is set as
+#' \code{FALSE}, this will be ignored.
+#' @return GC normalized coverage.
+#' @author Angad Singh, Markus Riester
+#' @seealso \code{\link{calculateGCContentByInterval}}
+#' @examples
+#' 
+#' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+#'     package="PureCN")
+#' gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+#'     package="PureCN")
+#' # normalize using default LOESS method
+#' coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file)
+#' # normalize with POLYNOMIAL method for small panels
+#' coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
+#'     method="POLYNOMIAL", plot.gc.bias=TRUE)
+#' 
+#' @export correctCoverageBias
+#' @importFrom ggplot2 ggplot aes_string geom_point geom_line aes
+#'             xlab ylab theme element_text facet_wrap stat_density2d
+#'             scale_alpha_continuous
+#' @importFrom stats loess lm
+#' @importFrom utils write.table
+correctCoverageBias <- function(coverage.file, gc.gene.file,
+output.file = NULL, method = c("LOESS","POLYNOMIAL"), plot.gc.bias = FALSE,
+plot.max.density = 50000) {
     if (is.character(coverage.file)) {
         tumor  <- readCoverageGatk(coverage.file)
     } else {
@@ -106,20 +125,8 @@ plot.max.density=50000
             facet_wrap(~norm_status, nrow=1))
         }
     }
-##author<< Angad Singh,
     invisible(coverage)
-### GC normalized coverage.
-}, ex=function() {
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
-    package="PureCN")
-# normalize using default LOESS method
-coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file)
-# normalize with POLYNOMIAL method for small panels
-coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
-    method="POLYNOMIAL", plot.gc.bias=TRUE)
-})
+}
 
 .loadGcGeneFile <- function(gc.gene.file, tumor) {
     gc <- read.delim(gc.gene.file)

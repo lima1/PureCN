@@ -1,60 +1,67 @@
-plotAbs <-
-structure(function(# Plots for analyzing PureCN solutions
-### This function provides various plots for finding correct 
-### purity and ploidy combinations in the results of a 
-### \code{\link{runAbsoluteCN}} call.
-res, 
-### Return object of the \code{\link{runAbsoluteCN}} function.
-##seealso<< \code{\link{runAbsoluteCN}}
-ids=NULL, 
-### Candidate solutions to be plotted. \code{ids=1} will draw the 
-### plot for the maximum likelihood solution.
-type=c("hist", "overview", "overview2", "BAF", "AF", "volcano", "all"),
-### Different types of plots. \code{hist} will plot a histogram, 
-### assigning log-ratio peaks to integer values. \code{overview} will plot all 
-### local optima, sorted by likelihood. \code{overview2} adds additional 
-### barplots showing likelihood and goodness-of-fit scores. 
-### \code{BAF} plots something like 
-### a B-allele frequency plot known from SNP arrays: it plots allele 
-### frequencies of germline variants (or most likely germline when status
-### is not available) against copy number. \code{AF} plots observed allelic 
-### fractions against expected (purity), maximum likelihood (optimal 
-### multiplicity) allelic fractions. \code{volcano} plots coverage
-### p-values against log-ratios on the gene-level.
-###  \code{all} plots all, and is useful 
-### for generate a PDF for a sample for manual inspection.
-chr=NULL,
-### If \code{NULL}, show all chromosomes, otherwise only the ones 
-### specified (\code{type="BAF"} only).
-germline.only=TRUE,
-### If \code{TRUE}, show only variants most likely being germline in 
-### BAF plot. Useful to set to \code{FALSE} (in combination with 
-### \code{chr}) to study potential artifacts.
-show.contour=FALSE,
-### For \code{type="overview"}, display contour plot.
-purity=NULL,
-### Display expected integer copy numbers for purity, defaults 
-### to purity of the solution (\code{type="hist"} only).
-ploidy=NULL,
-### Display expected integer copy numbers for ploidy, defaults 
-### to ploidy of the solution (\code{type="hist"} only).
-alpha=TRUE,
-### Add transparency to the plot if VCF contains many variants 
-### (>2000, \code{type="AF"} and \code{type="BAF"} only). 
-show.segment.means=c("SNV", "segments", "both"),
-### Show segment means in germline allele frequency plot? 
-### If \code{both}, show SNVs and segment means. If \code{SNV} show
-### all SNVs. Only for \code{type="AF"}.
-max.mapping.bias=0.8,
-### Exclude variants with high mapping bias from plotting.
-### Note that bias is reported on an inverse scale; a variant 
-### with mapping bias of 1 has no bias.
-### (\code{type="AF"} and \code{type="BAF"} only). 
-palette.name="Paired",
-### The default \code{RColorBrewer} palette.
-...
-### Additonal parameters passed to the \code{plot} function. 
-) {
+#' Plots for analyzing PureCN solutions
+#' 
+#' This function provides various plots for finding correct purity and ploidy
+#' combinations in the results of a \code{\link{runAbsoluteCN}} call.
+#' 
+#' 
+#' @param res Return object of the \code{\link{runAbsoluteCN}} function.
+#' @param ids Candidate solutions to be plotted. \code{ids=1} will draw the
+#' plot for the maximum likelihood solution.
+#' @param type Different types of plots. \code{hist} will plot a histogram,
+#' assigning log-ratio peaks to integer values. \code{overview} will plot all
+#' local optima, sorted by likelihood. \code{overview2} adds additional
+#' barplots showing likelihood and goodness-of-fit scores.  \code{BAF} plots
+#' something like a B-allele frequency plot known from SNP arrays: it plots
+#' allele frequencies of germline variants (or most likely germline when status
+#' is not available) against copy number. \code{AF} plots observed allelic
+#' fractions against expected (purity), maximum likelihood (optimal
+#' multiplicity) allelic fractions. \code{volcano} plots coverage p-values
+#' against log-ratios on the gene-level. \code{all} plots all, and is useful
+#' for generate a PDF for a sample for manual inspection.
+#' @param chr If \code{NULL}, show all chromosomes, otherwise only the ones
+#' specified (\code{type="BAF"} only).
+#' @param germline.only If \code{TRUE}, show only variants most likely being
+#' germline in BAF plot. Useful to set to \code{FALSE} (in combination with
+#' \code{chr}) to study potential artifacts.
+#' @param show.contour For \code{type="overview"}, display contour plot.
+#' @param purity Display expected integer copy numbers for purity, defaults to
+#' purity of the solution (\code{type="hist"} only).
+#' @param ploidy Display expected integer copy numbers for ploidy, defaults to
+#' ploidy of the solution (\code{type="hist"} only).
+#' @param alpha Add transparency to the plot if VCF contains many variants
+#' (>2000, \code{type="AF"} and \code{type="BAF"} only).
+#' @param show.segment.means Show segment means in germline allele frequency
+#' plot?  If \code{both}, show SNVs and segment means. If \code{SNV} show all
+#' SNVs. Only for \code{type="AF"}.
+#' @param max.mapping.bias Exclude variants with high mapping bias from
+#' plotting. Note that bias is reported on an inverse scale; a variant with
+#' mapping bias of 1 has no bias. (\code{type="AF"} and \code{type="BAF"}
+#' only).
+#' @param palette.name The default \code{RColorBrewer} palette.
+#' @param \dots Additonal parameters passed to the \code{plot} function.
+#' @return Returns \code{NULL}.
+#' @author Markus Riester
+#' @seealso \code{\link{runAbsoluteCN}}
+#' @examples
+#' 
+#' data(purecn.example.output)
+#' plotAbs(purecn.example.output, type="overview")
+#' # plot details for the maximum likelihood solution (rank 1)
+#' plotAbs(purecn.example.output, 1, type="hist")
+#' plotAbs(purecn.example.output, 1, type="BAF")
+#' plotAbs(purecn.example.output, 1, type = "BAF", chr="chr2")
+#' 
+#' @export plotAbs
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom grDevices colorRampPalette adjustcolor
+#' @importFrom graphics abline axis boxplot contour hist image
+#'             legend lines par plot text mtext polygon points
+#'             rect strwidth symbols barplot
+plotAbs <- function(res, ids = NULL, 
+type = c("hist", "overview", "overview2", "BAF", "AF", "volcano", "all"),
+chr = NULL, germline.only = TRUE, show.contour = FALSE, purity = NULL, 
+ploidy = NULL, alpha = TRUE, show.segment.means = c("SNV", "segments", "both"),
+max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
     chr.hash <- res$input$chr.hash
     if (is.null(chr.hash)) {
         chr.hash <- .getChrHash(gsub(":.*$","",res$input$log.ratio[,1]))
@@ -467,15 +474,7 @@ palette.name="Paired",
         }
         par(mar=parm)
     }
-### Returns \code{NULL}.
-},ex=function() {
-data(purecn.example.output)
-plotAbs(purecn.example.output, type="overview")
-# plot details for the maximum likelihood solution (rank 1)
-plotAbs(purecn.example.output, 1, type="hist")
-plotAbs(purecn.example.output, 1, type="BAF")
-plotAbs(purecn.example.output, 1, type = "BAF", chr="chr2")
-})    
+}
 
 .toLines <- function(
 ### "segments" already segmented log-ratios into a list for plotting

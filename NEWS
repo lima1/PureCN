@@ -25,6 +25,7 @@ API CHANGES
       Instead provide support for GRanges
     - poolCoverage: w argument now used as provided, not 
         normalized so that w[1] is 1
+    - Removed ... from runAbsoluteCN
  
  
 PLANNED FEATURES 

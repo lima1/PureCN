@@ -1,26 +1,38 @@
-getSexFromCoverage <- structure(function(# Get sample sex from coverage
-### This function determines the sex of a sample by the coverage 
-### ratio of chrX and chrY. Loss of chromosome Y (LOY) can result in a wrong
-### female call. For small targeted panels, this will only work 
-### when sufficient sex marker genes such as AMELY are covered.
-### For optimal results, parameters might need to be tuned for the assay.
-coverage.file, 
-### GATK coverage file or data read with \code{\link{readCoverageGatk}}.
-min.ratio=25,
-### Min chrX/chrY coverage ratio to call sample as female.
-min.ratio.na=20,
-### Min chrX/chrY coverage ratio to call sample as \code{NA}. 
-### This ratio defines a grey zone from \code{min.ratio.na} to 
-### \code{min.ratio} in which samples are not called.
-### The default is set to a copy number ratio that would be rare in male 
-### samples, but lower than expected in female samples. Contamination can be a 
-### source of ambiguous calls. Mappability issues on chromosome Y resulting in 
-### low coverage need to be considered when setting cutoffs.
-remove.outliers=TRUE,
-### Removes coverage outliers before calculating mean chromosome coverages.
-verbose=TRUE
-### Verbose output.
-) {
+#' Get sample sex from coverage
+#' 
+#' This function determines the sex of a sample by the coverage ratio of chrX
+#' and chrY. Loss of chromosome Y (LOY) can result in a wrong female call. For
+#' small targeted panels, this will only work when sufficient sex marker genes
+#' such as AMELY are covered. For optimal results, parameters might need to be
+#' tuned for the assay.
+#' 
+#' 
+#' @param coverage.file GATK coverage file or data read with
+#' \code{\link{readCoverageGatk}}.
+#' @param min.ratio Min chrX/chrY coverage ratio to call sample as female.
+#' @param min.ratio.na Min chrX/chrY coverage ratio to call sample as
+#' \code{NA}.  This ratio defines a grey zone from \code{min.ratio.na} to
+#' \code{min.ratio} in which samples are not called. The default is set to a
+#' copy number ratio that would be rare in male samples, but lower than
+#' expected in female samples. Contamination can be a source of ambiguous
+#' calls. Mappability issues on chromosome Y resulting in low coverage need to
+#' be considered when setting cutoffs.
+#' @param remove.outliers Removes coverage outliers before calculating mean
+#' chromosome coverages.
+#' @param verbose Verbose output.
+#' @return Returns a \code{character(1)} with \code{M} for male, \code{F} for
+#' female, or \code{NA} if unknown.
+#' @author Markus Riester
+#' @seealso \code{\link{getSexFromVcf}}
+#' @examples
+#' 
+#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+#'     package="PureCN")
+#' sex <- getSexFromCoverage(tumor.coverage.file)
+#' 
+#' @export getSexFromCoverage
+getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
+    remove.outliers = TRUE, verbose = TRUE) {
     if (is.character(coverage.file)) {
         x <- readCoverageGatk(coverage.file)
     } else {
@@ -60,17 +72,10 @@ verbose=TRUE
                 " chr1-22: ",round(avg.autosome.coverage, digits=2),"."
         )
     }     
-##seealso<< \code{\link{getSexFromVcf}}
     if (XY.ratio > min.ratio) return("F")
     if (XY.ratio > min.ratio.na) return(NA)
     return("M") 
-### Returns a \code{character(1)} with \code{M} for male, \code{F} 
-### for female, or \code{NA} if unknown.    
-}, ex=function(){
-    tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-        package="PureCN")
-    sex <- getSexFromCoverage(tumor.coverage.file)
-})
+}
 
 .getSexChr <- function(chrom) {
     if ("chrX" %in% chrom) {
@@ -81,36 +86,50 @@ verbose=TRUE
     return(as.character(23:24))    
 }
 
-getSexFromVcf <- structure(function(# Get sample sex from a VCF file
-### This function detects non-random distribution of homozygous
-### variants on chromosome X compared to all other chromosomes.
-### A non-significant Fisher's exact p-value indicates more than one
-### chromosome X copy. This function is called in runAbsoluteCN as 
-### sanity check when a VCF is provided. It is also useful for determining
-### sex when no sex marker genes on chrY (e.g. AMELY) are available.
-vcf,
-### CollapsedVCF object, read in with the \code{readVcf} function 
-### from the VariantAnnotation package.
-tumor.id.in.vcf=NULL, 
-### The tumor id in the CollapsedVCF (optional).
-min.or=4,
-### Minimum odds-ratio to call sample as male. If p-value is
-### not significant due to a small number of SNPs on chromosome X,
-### sample will be called as NA even when odds-ratio exceeds this cutoff.
-min.or.na=2.5,
-### Minimum odds-ratio to not call a sample. Odds-ratios in the
-### range \code{min.or.na} to \code{min.or} define a grey area in which samples
-### are not called. Contamination can be a source of ambiguous calls.
-max.pv=0.001,
-### Maximum Fisher's exact p-value to call sample as male.
-homozygous.cutoff=0.95,
-### Minimum allelic fraction to call position homozygous.
-af.cutoff=0.2,
-### Remove all SNVs with allelic fraction lower than the
-### specified value. 
-verbose=TRUE
-### Verbose output.
-) {
+
+
+#' Get sample sex from a VCF file
+#' 
+#' This function detects non-random distribution of homozygous variants on
+#' chromosome X compared to all other chromosomes. A non-significant Fisher's
+#' exact p-value indicates more than one chromosome X copy. This function is
+#' called in runAbsoluteCN as sanity check when a VCF is provided. It is also
+#' useful for determining sex when no sex marker genes on chrY (e.g. AMELY) are
+#' available.
+#' 
+#' 
+#' @param vcf CollapsedVCF object, read in with the \code{readVcf} function
+#' from the VariantAnnotation package.
+#' @param tumor.id.in.vcf The tumor id in the CollapsedVCF (optional).
+#' @param min.or Minimum odds-ratio to call sample as male. If p-value is not
+#' significant due to a small number of SNPs on chromosome X, sample will be
+#' called as NA even when odds-ratio exceeds this cutoff.
+#' @param min.or.na Minimum odds-ratio to not call a sample. Odds-ratios in the
+#' range \code{min.or.na} to \code{min.or} define a grey area in which samples
+#' are not called. Contamination can be a source of ambiguous calls.
+#' @param max.pv Maximum Fisher's exact p-value to call sample as male.
+#' @param homozygous.cutoff Minimum allelic fraction to call position
+#' homozygous.
+#' @param af.cutoff Remove all SNVs with allelic fraction lower than the
+#' specified value.
+#' @param verbose Verbose output.
+#' @return Returns a \code{character(1)} with \code{M} for male, \code{F} for
+#' female, or \code{NA} if unknown.
+#' @author Markus Riester
+#' @seealso \code{\link{getSexFromCoverage}}
+#' @examples
+#' 
+#' vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+#' vcf <- readVcf(vcf.file, "hg19")
+#' # This example vcf is already filtered and contains no homozygous calls,
+#' # which are necessary for determining sex from chromosome X.
+#' getSexFromVcf(vcf)
+#' 
+#' @export getSexFromVcf
+#' @importFrom stats fisher.test
+getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4, 
+    min.or.na = 2.5, max.pv = 0.001, homozygous.cutoff = 0.95,
+    af.cutoff = 0.2, verbose=TRUE) {
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf) 
     }
@@ -145,7 +164,6 @@ verbose=TRUE
     if (res$estimate >= min.or.na) sex <- NA
     if (res$estimate >= min.or && res$p.value > max.pv) sex <- NA
     if (res$p.value <= max.pv && res$estimate >= min.or) sex <- "M"
-##seealso<< \code{\link{getSexFromCoverage}}
     if (verbose) { 
         message("Sex from VCF: ", sex, " (Fisher's p-value: ", 
             ifelse(res$p.value < 0.0001, "< 0.0001", 
@@ -153,15 +171,8 @@ verbose=TRUE
             "  odds-ratio: ", round(res$estimate, digits=2), ")")
     }    
     return(sex)    
-### Returns a \code{character(1)} with \code{M} for male, \code{F} 
-### for female, or \code{NA} if unknown.    
-}, ex=function() {
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-vcf <- readVcf(vcf.file, "hg19")
-# This example vcf is already filtered and contains no homozygous calls,
-# which are necessary for determining sex from chromosome X.
-getSexFromVcf(vcf)
-})    
+}
+
 .getSex <- function(sex, normal, tumor) {
     if (sex != "?") return(sex)
     sex.tumor <- getSexFromCoverage(tumor, verbose=FALSE)

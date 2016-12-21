@@ -1,28 +1,38 @@
-createSNPBlacklist <- structure(function(# Create SNP black list
-### This function is deprecated. If a pool of normal VCF is available,
-### please use the \code{normal.panel.vcf.file} argument of the
-### \code{\link{setMappingBiasVcf}} function.
-### Function to create a black list of germline SNPs with expected allelic
-### fraction (AF) smaller than 0.5 in diploid genomes.  
-vcf.files, 
-### List of VCF files. When a VCF file contains multiple samples, 
-### it will ignore all samples except the first.
-n=min(10, length(vcf.files)),
-### Required number of VCF files showing low allelic fraction to 
-### blacklist a SNP id. 
-low.af=0.025,
-### Defines a low AF p-value.
-high.af=0.1,
-### Defines a high AF p-value. For every sample with high AF p-value, 
-### there must be one more sample with low AF to reach the cutoff.  
-chr.hash=NULL,
-### Mapping of non-numerical chromsome names to numerical names
-### (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes
-### are properly ordered.   
-genome="hg19"
-### Version of the reference genome, required for the \code{readVcf} 
-### function.
-) {
+#' Create SNP black list
+#' 
+#' This function is deprecated. If a pool of normal VCF is available, please
+#' use the \code{normal.panel.vcf.file} argument of the
+#' \code{\link{setMappingBiasVcf}} function. 
+#' 
+#' 
+#' @param vcf.files List of VCF files. When a VCF file contains multiple
+#' samples, it will ignore all samples except the first.
+#' @param n Required number of VCF files showing low allelic fraction to
+#' blacklist a SNP id.
+#' @param low.af Defines a low AF p-value.
+#' @param high.af Defines a high AF p-value. For every sample with high AF
+#' p-value, there must be one more sample with low AF to reach the cutoff.
+#' @param chr.hash Mapping of non-numerical chromsome names to numerical names
+#' (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are
+#' properly ordered.
+#' @param genome Version of the reference genome, required for the
+#' \code{readVcf} function.
+#' @return A list with elements \item{snp.blacklist}{A \code{data.frame} with
+#' blacklisted SNPs.} \item{segmented}{A \code{data.frame} with blacklisted
+#' regions.}
+#' @author Markus Riester
+#' @examples
+#' 
+#' # Assume VCF files of normals (for example obtained by a MuTect artifact
+#' # detection run) are in directory poolofnormals:
+#' mutect.normal.files <- dir("poolofnormals", pattern="vcf$", full.names=TRUE) 
+#' 
+#' # These files do not exist in our example, so we do not run the function here.
+#' #snp.blacklist <- createSNPBlacklist(mutect.normal.files)
+#' 
+#' @export createSNPBlacklist
+createSNPBlacklist <- function(vcf.files, n = min(10, length(vcf.files)),
+low.af = 0.025, high.af = 0.1, chr.hash = NULL, genome = "hg19") {
     .Deprecated("setMappingBiasVcf")
     vcfs <- lapply(vcf.files, .readAndCheckVcf, genome)
     vcfs <- lapply(vcfs, function(x) x[info(x)$DB & 
@@ -85,18 +95,8 @@ genome="hg19"
 
     snp.bl.segmented <- snp.bl.segmented[order(.strip.chr.name(snp.bl.segmented$chrom, chr.hash)),]
     
-    ##value<< A list with elements
     list(
-        snp.blacklist=snp.bl, ##<< A \code{data.frame} with blacklisted SNPs.
-        segmented=snp.bl.segmented[,-1] ##<< A \code{data.frame} with 
-## blacklisted regions.
+        snp.blacklist=snp.bl, 
+        segmented=snp.bl.segmented[,-1] 
     )
-##end<<
-}, ex=function() {
-# Assume VCF files of normals (for example obtained by a MuTect artifact
-# detection run) are in directory poolofnormals:
-mutect.normal.files <- dir("poolofnormals", pattern="vcf$", full.names=TRUE) 
-
-# These files do not exist in our example, so we do not run the function here.
-#snp.blacklist <- createSNPBlacklist(mutect.normal.files)
-})
+}    

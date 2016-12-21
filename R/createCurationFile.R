@@ -1,13 +1,27 @@
-createCurationFile <- structure(function(# Create file to curate PureCN results
-### Function to create a CSV file that can be used to mark the correct solution
-### in the output of a \code{\link{runAbsoluteCN}} run.
-file.rds,
-### Output of the \code{\link{runAbsoluteCN}} function, serialized 
-### with \code{saveRDS}.
-##seealso<< \code{\link{runAbsoluteCN}}
-overwrite.uncurated=TRUE
-### Overwrite existing files unless flagged as \sQuote{Curated}.
-) {
+#' Create file to curate PureCN results
+#' 
+#' Function to create a CSV file that can be used to mark the correct solution
+#' in the output of a \code{\link{runAbsoluteCN}} run.
+#' 
+#' 
+#' @param file.rds Output of the \code{\link{runAbsoluteCN}} function,
+#' serialized with \code{saveRDS}.
+#' @param overwrite.uncurated Overwrite existing files unless flagged as
+#' \sQuote{Curated}.
+#' @return A \code{data.frame} with the tumor purity and ploidy of the maximum
+#' likelihood solution.
+#' @author Markus Riester
+#' @seealso \code{\link{runAbsoluteCN}}
+#' @examples
+#' 
+#' data(purecn.example.output)
+#' file.rds <- "Sample1_PureCN.rds"
+#' saveRDS(purecn.example.output, file=file.rds)
+#' createCurationFile(file.rds) 
+#' 
+#' @export createCurationFile
+#' @importFrom utils write.csv
+createCurationFile <- function(file.rds, overwrite.uncurated = TRUE) {
     rds <- readRDS(file.rds)
     res <- rds$results[[1]]
 
@@ -40,14 +54,7 @@ overwrite.uncurated=TRUE
         write.csv(d.f.curation, file=filename, row.names=FALSE)
     }
     invisible(d.f.curation)
-### A \code{data.frame} with the tumor purity and ploidy of the 
-### maximum likelihood solution.
-},ex=function() {
-data(purecn.example.output)
-file.rds <- "Sample1_PureCN.rds"
-saveRDS(purecn.example.output, file=file.rds)
-createCurationFile(file.rds) 
-})
+}
 
 .getSexFromRds <- function(rds) {
     if (!is.na(rds$input$sex) && !is.na(rds$input$sex.vcf)) {
@@ -59,4 +66,3 @@ createCurationFile(file.rds)
     }    
     return(rds$input$sex.vcf)
 }
-    

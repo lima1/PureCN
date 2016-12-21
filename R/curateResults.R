@@ -1,29 +1,41 @@
-getDiploid <- structure(function(# Function to extract diploid solutions.
-### This function can be used to extract purity and ploidy solutions that
-### are diploid with only few CNVs. Since high ploidy solutions 
-### typically have a very different copy number profile, one of the 
-### identified diploid solutions is likely correct if there are any. This 
-### function can be used for automated curation workflows; very silent genomes
-### have by definition only a small number of CNVs, making it difficult for the
-### algorithm to correctly identify purity and ploidy. If the maximum
-### likelihood solution is diploid, it is always returned; all other solutions
-### must pass the more stringent criteria as defined in the function arguments.
-res, 
-### Return object of the \code{\link{runAbsoluteCN}} function.
-##seealso<< \code{\link{runAbsoluteCN}}
-min.diploid=0.5, 
-### Minimum fraction of genome with normal copy number 2.
-min.single.gain.loss=0.05,
-### Minimum fraction of genome with copy number 1 or 3. This makes sure that 
-### low purity samples are not confused with quiet samples.
-max.non.single.gain.loss=0.10,
-### Maximum fraction of genome with copy number smaller 1 or more than 3.
-max.loh=0.5,
-### Maximum fraction of genome in LOH. 
-min.log.likelihood=NULL
-### Minimum copy number log-likelihood to consider sample. If 
-### \code{NULL}, not tested.
-) {
+#' Function to extract diploid solutions.
+#' 
+#' This function can be used to extract purity and ploidy solutions that are
+#' diploid with only few CNVs. Since high ploidy solutions typically have a
+#' very different copy number profile, one of the identified diploid solutions
+#' is likely correct if there are any. This function can be used for automated
+#' curation workflows; very silent genomes have by definition only a small
+#' number of CNVs, making it difficult for the algorithm to correctly identify
+#' purity and ploidy. If the maximum likelihood solution is diploid, it is
+#' always returned; all other solutions must pass the more stringent criteria
+#' as defined in the function arguments.
+#' 
+#' 
+#' @param res Return object of the \code{\link{runAbsoluteCN}} function.
+#' @param min.diploid Minimum fraction of genome with normal copy number 2.
+#' @param min.single.gain.loss Minimum fraction of genome with copy number 1 or
+#' 3. This makes sure that low purity samples are not confused with quiet
+#' samples.
+#' @param max.non.single.gain.loss Maximum fraction of genome with copy number
+#' smaller 1 or more than 3.
+#' @param max.loh Maximum fraction of genome in LOH.
+#' @param min.log.likelihood Minimum copy number log-likelihood to consider
+#' sample. If \code{NULL}, not tested.
+#' @return A list with elements \item{ids}{The ids of diploid solutions
+#' (\code{res$results[ids]}).} \item{fraction.non.single}{The fraction of the
+#' genome with copy number <1 or >3.}
+#' @author Markus Riester
+#' @seealso \code{\link{runAbsoluteCN}}
+#' @examples
+#' 
+#' data(purecn.example.output)
+#' # no diploid solutions in the example
+#' idx <- getDiploid(purecn.example.output)
+#' 
+#' @export getDiploid
+getDiploid <- function(res, min.diploid = 0.5, min.single.gain.loss = 0.05, 
+    max.non.single.gain.loss = 0.10, max.loh = 0.5, 
+    min.log.likelihood = NULL) {
     if (length(res$results) < 2) return(res)
 
     cs <- sapply(0:7, function(i) sapply(res$results, function(x) 
@@ -46,38 +58,40 @@ min.log.likelihood=NULL
         ll >= min.log.likelihood ) |
         ( ploidy > 1.5 & ploidy < 2.5 & seq_along(ploidy)==1 ) 
 
-    ##value<< A list with elements
     list(
-        ids=which(idx), ##<< The ids of diploid solutions 
-## (\code{res$results[ids]}).
-        fraction.non.single=fraction.non.single ##<< The fraction of the genome
-## with copy number <1 or >3.
+        ids=which(idx), 
+        fraction.non.single=fraction.non.single 
     )    
-##end<<    
-}, ex=function() {
-data(purecn.example.output)
-# no diploid solutions in the example
-idx <- getDiploid(purecn.example.output)
-})    
+}
 
-autoCurateResults <- structure(
-function(# Heuristics to find the best purity/ploidy solution.
-### This implements a workflow with various heuristics, with the goal
-### of identifying correct purity/ploidy solutions in difficult samples.
-### This is mainly for automated copy number calling. This function 
-### may evolve over time and might produce different rankings
-### after PureCN updates.
-res,
-### Return object of the \code{\link{runAbsoluteCN}} function.
-##seealso<< \code{\link{runAbsoluteCN}}
-bootstrap=TRUE,
-### Try to reduce the number of local optima by using the
-### bootstrapResults function.
-bootstrap.n=500,
-### Number of bootstrap replicates.
-verbose=TRUE
-### Verbose output.
-) {
+
+#' Heuristics to find the best purity/ploidy solution.
+#' 
+#' This implements a workflow with various heuristics, with the goal of
+#' identifying correct purity/ploidy solutions in difficult samples. This is
+#' mainly for automated copy number calling. This function may evolve over time
+#' and might produce different rankings after PureCN updates.
+#' 
+#' 
+#' @param res Return object of the \code{\link{runAbsoluteCN}} function.
+#' @param bootstrap Try to reduce the number of local optima by using the
+#' bootstrapResults function.
+#' @param bootstrap.n Number of bootstrap replicates.
+#' @param verbose Verbose output.
+#' @return The provided \code{\link{runAbsoluteCN}} return object with unlikely
+#' purity and ploidy solutions filtered out.
+#' @author Markus Riester
+#' @seealso \code{\link{runAbsoluteCN}}
+#' @examples
+#' 
+#' data(purecn.example.output)
+#' # no diploid solutions in the example
+#' example.output.curated <- autoCurateResults(purecn.example.output, 
+#'     bootstrap.n=100)
+#' 
+#' @export autoCurateResults
+autoCurateResults <- function(res, bootstrap=TRUE, bootstrap.n = 500,
+    verbose = TRUE) {
     if (bootstrap && is.null(res$results[[1]]$bootstrap.value)) {
         if (verbose) message("Bootstrapping VCF ",
                 "to reduce number of solutions.")
@@ -106,12 +120,5 @@ verbose=TRUE
     if (length(ids)>0) {
         res$results <- c(res$results[ids], res$results[-ids])        
     }
-    res    
-### The provided \code{\link{runAbsoluteCN}} return object with unlikely 
-### purity and ploidy solutions filtered out.
-}, ex=function() {
-data(purecn.example.output)
-# no diploid solutions in the example
-example.output.curated <- autoCurateResults(purecn.example.output, 
-    bootstrap.n=100)
-})        
+    res
+}    

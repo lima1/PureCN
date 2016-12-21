@@ -1,40 +1,55 @@
-findBestNormal <- structure(function(#Find best normal sample in database
-### Function to find the best matching normal for a provided 
-### tumor sample.
-tumor.coverage.file, 
-### GATK coverage file of a tumor sample.
-normalDB,
-### Database of normal samples, created with 
-### \code{\link{createNormalDatabase}}.
-##seealso<< \code{\link{createNormalDatabase} \link{getSexFromCoverage}}
-pcs=1:3,
-### Principal components to use for distance calculation.
-num.normals=1,
-### Return the \code{num.normals} best normals.
-ignore.sex=FALSE,
-### If \code{FALSE}, detects sex of sample and returns best normals
-### with matching sex.
-sex=NULL,
-### Sex of sample. If \code{NULL}, determine with 
-### \code{\link{getSexFromCoverage}} and default parameters.
-### Valid values are \code{F} for female, \code{M} for male. If all 
-### chromosomes are diploid, specify \code{diploid}. 
-normal.coverage.files=NULL,
-### Only consider these normal samples. If \code{NULL}, use all in 
-### the database. Must match \code{normalDB$normal.coverage.files}. 
-pool=FALSE,
-### If \code{TRUE}, use \code{\link{poolCoverage}} to pool best 
-### normals.
-pool.weights=c("voom", "equal"),
-### Either find good pooling weights by optimization or weight 
-### all best normals equally.
-plot.pool=FALSE,
-### Allows the pooling function to create plots.
-verbose=TRUE,
-### Verbose output.
-...
-### Additional arguments passed to \code{\link{poolCoverage}}.
-) {
+#' Find best normal sample in database
+#' 
+#' Function to find the best matching normal for a provided tumor sample.
+#' 
+#' 
+#' @param tumor.coverage.file GATK coverage file of a tumor sample.
+#' @param normalDB Database of normal samples, created with
+#' \code{\link{createNormalDatabase}}.
+#' @param pcs Principal components to use for distance calculation.
+#' @param num.normals Return the \code{num.normals} best normals.
+#' @param ignore.sex If \code{FALSE}, detects sex of sample and returns best
+#' normals with matching sex.
+#' @param sex Sex of sample. If \code{NULL}, determine with
+#' \code{\link{getSexFromCoverage}} and default parameters. Valid values are
+#' \code{F} for female, \code{M} for male. If all chromosomes are diploid,
+#' specify \code{diploid}.
+#' @param normal.coverage.files Only consider these normal samples. If
+#' \code{NULL}, use all in the database. Must match
+#' \code{normalDB$normal.coverage.files}.
+#' @param pool If \code{TRUE}, use \code{\link{poolCoverage}} to pool best
+#' normals.
+#' @param pool.weights Either find good pooling weights by optimization or
+#' weight all best normals equally.
+#' @param plot.pool Allows the pooling function to create plots.
+#' @param verbose Verbose output.
+#' @param \dots Additional arguments passed to \code{\link{poolCoverage}}.
+#' @return Filename of the best matching normal.
+#' @author Markus Riester
+#' @seealso \code{\link{createNormalDatabase} \link{getSexFromCoverage}}
+#' @examples
+#' 
+#' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+#'     package="PureCN")
+#' normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
+#'     package="PureCN")
+#' normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+#' normalDB <- createNormalDatabase(normal.coverage.files)
+#' 
+#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+#'     package="PureCN")
+#' best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
+#' 
+#' pool <- findBestNormal(tumor.coverage.file, normalDB, num.normals=2, 
+#'     pool=TRUE)
+#' 
+#' @export findBestNormal
+#' @importFrom stats dist predict
+findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3, 
+    num.normals = 1, ignore.sex = FALSE, sex = NULL, 
+    normal.coverage.files = NULL, pool = FALSE, 
+    pool.weights = c("voom", "equal"), plot.pool = FALSE, verbose = TRUE,
+    ...) {
     if (is.character(tumor.coverage.file)) {
         tumor  <- readCoverageGatk(tumor.coverage.file)
     } else {
@@ -98,52 +113,53 @@ verbose=TRUE,
       return(poolCoverage(normals, w=w, ...))
     } 
     normal.coverage.files
-### Filename of the best matching normal.
-},ex=function() {
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-    package="PureCN")
-normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
-normalDB <- createNormalDatabase(normal.coverage.files)
-
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN")
-best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
-
-pool <- findBestNormal(tumor.coverage.file, normalDB, num.normals=2, 
-    pool=TRUE)
-})    
+}
 
 
-plotBestNormal <- structure(
-    function(#Plot the PCA of tumor and its best normal(s)
-### This function can be used to understand how a best normal is chosen
-### by the \code{\link{findBestNormal}} function. It can be also used 
-### to tune the best normal selection by finding good parameter values for
-### \code{num.normals} and \code{pcs}.
-normal.coverage.files,
-### GATK coverage file of normal files, typically identified via 
-### \code{\link{findBestNormal}}.
-tumor.coverage.file,
-### GATK coverage file of a tumor sample.
-normalDB,
-### Database of normal samples, created with 
-### \code{\link{createNormalDatabase}}.
-##seealso<< \code{\link{createNormalDatabase} \link{findBestNormal}}
-x=1,
-### Principal component (PC) to be plotted on x-axis.
-y=2,
-### PC to be plotted on y-axis.
-col.tumor="red",
-### Color of tumor in plot.
-col.best.normal="blue",
-### Color of best normals in plot.
-col.other.normals="black",
-### Color of other normals in plot.
-...
-### Arguments passed to the \code{plot} function.
-) {
+#' Plot the PCA of tumor and its best normal(s)
+#' 
+#' This function can be used to understand how a best normal is chosen by the
+#' \code{\link{findBestNormal}} function. It can be also used to tune the best
+#' normal selection by finding good parameter values for \code{num.normals} and
+#' \code{pcs}.
+#' 
+#' 
+#' @param normal.coverage.files GATK coverage file of normal files, typically
+#' identified via \code{\link{findBestNormal}}.
+#' @param tumor.coverage.file GATK coverage file of a tumor sample.
+#' @param normalDB Database of normal samples, created with
+#' \code{\link{createNormalDatabase}}.
+#' @param x Principal component (PC) to be plotted on x-axis.
+#' @param y PC to be plotted on y-axis.
+#' @param col.tumor Color of tumor in plot.
+#' @param col.best.normal Color of best normals in plot.
+#' @param col.other.normals Color of other normals in plot.
+#' @param \dots Arguments passed to the \code{plot} function.
+#' @return Returns \code{NULL}.
+#' @author Markus Riester
+#' @seealso \code{\link{createNormalDatabase} \link{findBestNormal}}
+#' @examples
+#' 
+#' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+#'     package="PureCN")
+#' normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
+#'      package="PureCN")
+#' normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+#' normalDB <- createNormalDatabase(normal.coverage.files)
+#' 
+#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+#'     package="PureCN")
+#' best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
+#' plotBestNormal(best.normal.coverage.file, tumor.coverage.file, normalDB)
+#' 
+#' # Display sample sex. The first point in the plot is always tumor.
+#' plotBestNormal(best.normal.coverage.file, tumor.coverage.file, normalDB,  
+#'     pch=c(1,ifelse(normalDB$sex=="F", 1, 2)))
+#' 
+#' @export plotBestNormal
+plotBestNormal <- function(normal.coverage.files, tumor.coverage.file,
+    normalDB, x = 1, y = 2, col.tumor = "red", col.best.normal = "blue",
+    col.other.normals = "black", ... ) {
     if (is.character(tumor.coverage.file)) {
         tumor  <- readCoverageGatk(tumor.coverage.file)
     } else {
@@ -158,22 +174,4 @@ col.other.normals="black",
         ifelse( normalDB$normal.coverage.files %in% 
         normal.coverage.files, col.best.normal, col.other.normals)),
         xlab=paste("PC",x), ylab=paste("PC",y),...)
-### Returns \code{NULL}.
-},ex=function() {
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
-     package="PureCN")
-normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
-normalDB <- createNormalDatabase(normal.coverage.files)
-
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN")
-best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
-plotBestNormal(best.normal.coverage.file, tumor.coverage.file, normalDB)
-
-# Display sample sex. The first point in the plot is always tumor.
-plotBestNormal(best.normal.coverage.file, tumor.coverage.file, normalDB,  
-    pch=c(1,ifelse(normalDB$sex=="F", 1, 2)))
-})
-
+}

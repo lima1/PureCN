@@ -1,14 +1,35 @@
-poolCoverage <- structure(function(#Pool coverage from multiple samples
-### Averages the coverage of a list of samples.
-all.data, 
-### List of normals, read with \code{\link{readCoverageGatk}}.
-##seealso<< \code{\link{readCoverageGatk}}
-remove.chrs=c(),
-### Remove these chromosomes from the pool.
-w=NULL
-### \code{numeric(length(all.data))} vector of weights. If 
-### \code{NULL}, weight all samples equally.
-) { 
+#' Pool coverage from multiple samples
+#' 
+#' Averages the coverage of a list of samples.
+#' 
+#' 
+#' @param all.data List of normals, read with \code{\link{readCoverageGatk}}.
+#' @param remove.chrs Remove these chromosomes from the pool.
+#' @param w \code{numeric(length(all.data))} vector of weights. If \code{NULL},
+#' weight all samples equally.
+#' @return A \code{data.frame} with the averaged coverage over all normals.
+#' @author Markus Riester
+#' @seealso \code{\link{readCoverageGatk}}
+#' @examples
+#' 
+#' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+#'     package="PureCN")
+#' normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
+#'     package="PureCN")
+#' normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+#'     package="PureCN")
+#' 
+#' normalDB <- createNormalDatabase(normal.coverage.files)
+#' 
+#' # get the best 2 normals and average them
+#' best.normal.coverage.files <- findBestNormal(tumor.coverage.file, normalDB, 
+#'     num.normals=2)
+#' pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageGatk),
+#'      remove.chrs=c("chrX", "chrY"))
+#' 
+#' @export poolCoverage
+poolCoverage <- function(all.data, remove.chrs=c(), w = NULL) { 
     pool = all.data[[1]]
     if (length(all.data) == 1) {
         return(.removeChr(pool, remove.chrs))
@@ -26,24 +47,7 @@ w=NULL
             (w[i] * all.data[[i]]$base.with..10.coverage)
     }
     return(.removeChr(pool, remove.chrs))
-### A \code{data.frame} with the averaged coverage over all normals.
-},ex=function() {
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-    package="PureCN")
-normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN")
-
-normalDB <- createNormalDatabase(normal.coverage.files)
-
-# get the best 2 normals and average them
-best.normal.coverage.files <- findBestNormal(tumor.coverage.file, normalDB, 
-    num.normals=2)
-pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageGatk),
-     remove.chrs=c("chrX", "chrY"))
-})    
+}
 
 .removeChr <- function(pool, remove.chrs=c()) {
     pool$chr <- gsub("^chrchr", "chr", pool$chr)

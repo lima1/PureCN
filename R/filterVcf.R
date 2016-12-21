@@ -1,62 +1,70 @@
-filterVcfBasic <-
-structure(function(#Basic VCF filter function
-### Function to remove artifacts and low confidence/quality 
-### variant calls. 
-vcf, 
-### \code{CollapsedVCF} object, read in with the \code{readVcf} 
-### function from the VariantAnnotation package.
-tumor.id.in.vcf=NULL, 
-### The tumor id in the \code{CollapsedVCF} (optional).
-use.somatic.status=TRUE, 
-### If somatic status and germline data is available, then use this 
-### information to remove non-heterozygous germline SNPs or germline SNPS 
-### with biased allelic fractions.
-snp.blacklist=NULL,
-### CSV file with SNP ids with expected allelic fraction 
-### significantly different from 0.5 in diploid genomes. Can be an array of 
-### lists. The function \code{\link{createSNPBlacklist}} can provide 
-### appropriate black lists. Can also be a BED file (either tab or 
-### comma separated) of  blacklisted genomic regions (columns 1-3: 
-### chromosome, start, end).
-af.range=c(0.03, 0.97),
-### Exclude SNPs with allelic fraction smaller or greater than the 
-### two values, respectively. The higher value removes homozygous SNPs,
-### which potentially have allelic fractions smaller than 1 due to artifacts
-### or contamination. If a matched normal is available, this value is ignored,
-### because homozygosity can be confirmed in the normal.
-contamination.cutoff=c(0.05,0.075),
-### Count SNPs in dbSNP with allelic fraction smaller than the 
-### first value, if found on most chromosomes, remove all with AF smaller than
-### the second value.
-min.coverage=15,
-### Minimum coverage in tumor. Variants with lower coverage are ignored.
-min.base.quality=25,
-### Minimim base quality in tumor. Requires a \code{BQ} genotype field 
-### in the VCF.
-min.supporting.reads=NULL,
-### Minimum number of reads supporting the alt allele. 
-### If \code{NULL}, calculate based on coverage and assuming sequencing error 
-### of 10^-3.
-error=0.001,
-### Estimated sequencing error rate. Used to calculate minimum
-### number of supporting reads using \code{\link{calculatePowerDetectSomatic}}.
-##seealso<< \code{\link{calculatePowerDetectSomatic}}
-target.granges=NULL,
-### \code{GenomicRanges} object specifiying the target postions.
-### Used to remove off-target reads. If \code{NULL}, do not check whether
-### variants are on or off-target.
-remove.off.target.snvs=TRUE,
-### If set to a true value, will remove all SNVs outside the 
-### covered regions.
-model.homozygous=FALSE,
-### If set to \code{TRUE}, does not remove homozygous SNPs. Ignored in case
-### a matched normal is provided in the VCF.
-interval.padding=50,
-### Include variants in the interval flanking regions of the 
-### specified size in bp. Requires \code{target.granges}.
-verbose=TRUE
-### Verbose output.
-) {
+#' Basic VCF filter function
+#' 
+#' Function to remove artifacts and low confidence/quality variant calls.
+#' 
+#' 
+#' @param vcf \code{CollapsedVCF} object, read in with the \code{readVcf}
+#' function from the VariantAnnotation package.
+#' @param tumor.id.in.vcf The tumor id in the \code{CollapsedVCF} (optional).
+#' @param use.somatic.status If somatic status and germline data is available,
+#' then use this information to remove non-heterozygous germline SNPs or
+#' germline SNPS with biased allelic fractions.
+#' @param snp.blacklist CSV file with SNP ids with expected allelic fraction
+#' significantly different from 0.5 in diploid genomes. Can be an array of
+#' lists. The function \code{\link{createSNPBlacklist}} can provide appropriate
+#' black lists. Can also be a BED file (either tab or comma separated) of
+#' blacklisted genomic regions (columns 1-3: chromosome, start, end).
+#' @param af.range Exclude SNPs with allelic fraction smaller or greater than
+#' the two values, respectively. The higher value removes homozygous SNPs,
+#' which potentially have allelic fractions smaller than 1 due to artifacts or
+#' contamination. If a matched normal is available, this value is ignored,
+#' because homozygosity can be confirmed in the normal.
+#' @param contamination.cutoff Count SNPs in dbSNP with allelic fraction
+#' smaller than the first value, if found on most chromosomes, remove all with
+#' AF smaller than the second value.
+#' @param min.coverage Minimum coverage in tumor. Variants with lower coverage
+#' are ignored.
+#' @param min.base.quality Minimim base quality in tumor. Requires a \code{BQ}
+#' genotype field in the VCF.
+#' @param min.supporting.reads Minimum number of reads supporting the alt
+#' allele.  If \code{NULL}, calculate based on coverage and assuming sequencing
+#' error of 10^-3.
+#' @param error Estimated sequencing error rate. Used to calculate minimum
+#' number of supporting reads using \code{\link{calculatePowerDetectSomatic}}.
+#' @param target.granges \code{GenomicRanges} object specifiying the target
+#' postions. Used to remove off-target reads. If \code{NULL}, do not check
+#' whether variants are on or off-target.
+#' @param remove.off.target.snvs If set to a true value, will remove all SNVs
+#' outside the covered regions.
+#' @param model.homozygous If set to \code{TRUE}, does not remove homozygous
+#' SNPs. Ignored in case a matched normal is provided in the VCF.
+#' @param interval.padding Include variants in the interval flanking regions of
+#' the specified size in bp. Requires \code{target.granges}.
+#' @param verbose Verbose output.
+#' @return A list with elements \item{vcf}{The filtered \code{CollapsedVCF}
+#' object.} \item{flag}{A flag (\code{logical(1)}) if problems were
+#' identified.} \item{flag_comment}{A comment describing the flagging.}
+#' @author Markus Riester
+#' @seealso \code{\link{calculatePowerDetectSomatic}}
+#' @examples
+#' 
+#' # This function is typically only called by runAbsolute via 
+#' # fun.filterVcf and args.filterVcf.
+#' vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+#' vcf <- readVcf(vcf.file, "hg19")
+#' vcf.filtered <- filterVcfBasic(vcf)        
+#' 
+#' @export filterVcfBasic
+#' @importFrom GenomeInfoDb seqnames seqlevelsStyle seqlevelsStyle<-
+#'             genomeStyles
+#' @importFrom SummarizedExperiment rowRanges
+#' @importFrom stats pbeta
+filterVcfBasic <- function(vcf, tumor.id.in.vcf = NULL, 
+use.somatic.status = TRUE, snp.blacklist = NULL, af.range = c(0.03, 0.97),
+contamination.cutoff = c(0.05,0.075), min.coverage = 15, min.base.quality = 25,
+min.supporting.reads = NULL, error = 0.001, target.granges = NULL,
+remove.off.target.snvs = TRUE, model.homozygous = FALSE, interval.padding = 50,
+verbose=TRUE) {
     flag <- NA
     flag_comment <- NA
 
@@ -199,39 +207,45 @@ verbose=TRUE
         flag=flag, ##<< A flag (\code{logical(1)}) if problems were identified.
         flag_comment=flag_comment ##<< A comment describing the flagging. 
     )
-##end<<
-}, ex=function() {
-# This function is typically only called by runAbsolute via 
-# fun.filterVcf and args.filterVcf.
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-vcf <- readVcf(vcf.file, "hg19")
-vcf.filtered <- filterVcfBasic(vcf)        
-})    
+}
 
-filterVcfMuTect <- structure(function(#Filter VCF MuTect
-### Function to remove artifacts and low confidence/quality calls from
-### a MuTect generated VCF file. Also applies filters defined in
-### \code{filterVcfBasic}. This function will only keep variants 
-### listed in the stats file and those not matching the specified
-### failure reasons. 
-vcf, 
-### \code{CollapsedVCF} object, read in with the \code{readVcf} function 
-### from the VariantAnnotation package.
-tumor.id.in.vcf=NULL, 
-### The tumor id in the VCF file, optional.
-stats.file=NULL, 
-### MuTect stats file
+
+#' Filter VCF MuTect
+#' 
+#' Function to remove artifacts and low confidence/quality calls from a MuTect
+#' generated VCF file. Also applies filters defined in \code{filterVcfBasic}.
+#' This function will only keep variants listed in the stats file and those not
+#' matching the specified failure reasons.
+#' 
+#' 
+#' @param vcf \code{CollapsedVCF} object, read in with the \code{readVcf}
+#' function from the VariantAnnotation package.
+#' @param tumor.id.in.vcf The tumor id in the VCF file, optional.
+#' @param stats.file MuTect stats file.
+#' @param ignore MuTect flags that mark variants for exclusion.
+#' @param verbose Verbose output.
+#' @param \dots Additional arguments passed to \code{\link{filterVcfBasic}}.
+#' @return A list with elements \code{vcf}, \code{flag} and
+#' \code{flag_comment}.  \code{vcf} contains the filtered \code{CollapsedVCF},
+#' \code{flag} a \code{logical(1)} flag if problems were identified, further
+#' described in \code{flag_comment}.
+#' @author Markus Riester
+#' @seealso \code{\link{filterVcfBasic}}
+#' @examples
+#' 
+#' ### This function is typically only called by runAbsolute via the 
+#' ### fun.filterVcf and args.filterVcf comments.
+#' library(VariantAnnotation)    
+#' vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+#' vcf <- readVcf(vcf.file, "hg19")
+#' vcf.filtered <- filterVcfMuTect(vcf)        
+#' 
+#' @export filterVcfMuTect
+filterVcfMuTect <- function(vcf, tumor.id.in.vcf = NULL, stats.file = NULL, 
 ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events", 
 "poor_mapping_region_alternate_allele_mapq", "poor_mapping_region_mapq0", 
 "possible_contamination", "strand_artifact", "seen_in_panel_of_normals"),
-### Failure flags that lead to exclusion of variant. Requires 
-### \code{failure_reasons} column.
-verbose=TRUE,
-### Verbose output.
-...
-### Additional arguments passed to \code{\link{filterVcfBasic}}.
-##seealso<< \code{\link{filterVcfBasic}}
-){
+verbose=TRUE, ... ){
     if (is.null(stats.file)) return(
         filterVcfBasic(vcf, tumor.id.in.vcf, verbose=verbose, ...))
     
@@ -269,41 +283,45 @@ verbose=TRUE,
     if (verbose) message("Removing ", n-nrow(vcf), 
         " MuTect calls due to blacklisted failure reasons.")
     filterVcfBasic(vcf, tumor.id.in.vcf, verbose=verbose, ...)
-### A list with elements \code{vcf}, \code{flag} and \code{flag_comment}. 
-### \code{vcf} contains the 
-### filtered \code{CollapsedVCF}, \code{flag} a \code{logical(1)} flag if 
-### problems were identified, further described in \code{flag_comment}.    
-},ex=function() {
-### This function is typically only called by runAbsolute via the 
-### fun.filterVcf and args.filterVcf comments.
-library(VariantAnnotation)    
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-vcf <- readVcf(vcf.file, "hg19")
-vcf.filtered <- filterVcfMuTect(vcf)        
-})
+}
 
-setPriorVcf <- structure(function(# Set Somatic Prior VCF
-### Function to set prior for somatic mutation status for each
-### variant in the provided \code{CollapsedVCF} object.
-vcf,
-### \code{CollapsedVCF} object, read in with the \code{readVcf} function 
-### from the VariantAnnotation package.
+
+#' Set Somatic Prior VCF
+#' 
+#' Function to set prior for somatic mutation status for each variant in the
+#' provided \code{CollapsedVCF} object.
+#' 
+#' 
+#' @param vcf \code{CollapsedVCF} object, read in with the \code{readVcf}
+#' function from the VariantAnnotation package.
+#' @param prior.somatic Prior probabilities for somatic mutations. First value
+#' is for the case when no matched normals are available and the variant is not
+#' in dbSNP (second value). Third value is for variants with MuTect somatic
+#' call. Different from 1, because somatic mutations in segments of copy number
+#' 0 have 0 probability and artifacts can thus have dramatic influence on
+#' likelihood score. Forth value is for variants not labeled as somatic by
+#' MuTect. Last two values are optional, if vcf contains a flag Cosmic.CNT, it
+#' will set the prior probability for variants with CNT > 2 to the first of
+#' those values in case of no matched normal available (0.995 default).  Final
+#' value is for the case that variant is in both dbSNP and COSMIC > 2.
+#' @param tumor.id.in.vcf Id of tumor in case multiple samples are stored in
+#' VCF.
+#' @param verbose Verbose output.
+#' @return A \code{numeric(nrow(vcf))} vector with the prior probability of
+#' somatic status for each variant in the \code{CollapsedVCF}.
+#' @author Markus Riester
+#' @examples
+#' 
+#' # This function is typically only called by runAbsoluteCN via the 
+#' # fun.setPriorVcf and args.setPriorVcf comments.
+#' vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+#' vcf <- readVcf(vcf.file, "hg19")
+#' vcf.priorsomatic <- setPriorVcf(vcf)        
+#' 
+#' @export setPriorVcf
+setPriorVcf <- function(vcf,
 prior.somatic=c(0.5, 0.0005, 0.999, 0.0001, 0.995, 0.01), 
-### Prior probabilities for somatic mutations. First value is for 
-### the case when no matched normals are available and the variant is not in 
-### dbSNP (second value). Third value is for variants with MuTect somatic call.
-### Different from 1, because somatic mutations in segments of copy number 0 
-### have 0 probability and artifacts can thus have dramatic influence on 
-### likelihood score. Forth value is for variants not labeled as somatic by 
-### MuTect. Last two values are optional, if vcf contains a flag Cosmic.CNT, 
-### it will set the prior probability for variants with CNT > 2 to the first 
-### of those values in case of no matched normal available (0.995 default). 
-### Final value is for the case that variant is in both dbSNP and COSMIC > 2. 
-tumor.id.in.vcf=NULL,
-### Id of tumor in case multiple samples are stored in VCF.
-verbose=TRUE
-### Verbose output.
-) {
+tumor.id.in.vcf=NULL, verbose=TRUE) {
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
     }
@@ -311,13 +329,6 @@ verbose=TRUE
          tmp <- prior.somatic
          prior.somatic <- ifelse(info(vcf)$SOMATIC,
             prior.somatic[3],prior.somatic[4])
-    #     normal.id.in.vcf <- .getNormalIdInVcf(vcf, tumor.id.in.vcf)
-    #     dpAll <- as.numeric(geno(vcf)$DP[,normal.id.in.vcf])
-
-    #     prior.somatic[!info(vcf)$SOMATIC] <- prior.somatic[!info(vcf)$SOMATIC]/
-    #        log2(dpAll[!info(vcf)$SOMATIC]+1)
-#         prior.somatic[!info(vcf)$SOMATIC & info(vcf)$DB] <- prior.somatic[4]* 
-#            prior.somatic[2]
 
          if (verbose) message("Found SOMATIC annotation in VCF. ",
             "Setting somatic prior probabilities for somatic variants to ", 
@@ -340,15 +351,7 @@ verbose=TRUE
          }      
     }     
     prior.somatic
-### A \code{numeric(nrow(vcf))} vector with the prior probability of 
-### somatic status for each variant in the \code{CollapsedVCF}.
-},ex=function() {
-# This function is typically only called by runAbsoluteCN via the 
-# fun.setPriorVcf and args.setPriorVcf comments.
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-vcf <- readVcf(vcf.file, "hg19")
-vcf.priorsomatic <- setPriorVcf(vcf)        
-})     
+}
 
 # If a matched normal is available, this will remove all
 # heterozygous germline SNPs with biased allelic fractions   
@@ -563,4 +566,3 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }    
     vcf
 }
-    

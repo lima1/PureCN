@@ -1,58 +1,72 @@
-segmentationPSCBS <-
-structure(function(# PSCBS segmentation
-### Alternative segmentation function using the \code{PSCBS} package. 
-### This function is called via the 
-### \code{fun.segmentation} argument of \code{\link{runAbsoluteCN}}. 
-### The arguments are passed via \code{args.segmentation}.
-##seealso<< \code{\link{runAbsoluteCN}}
-normal, 
-### GATK coverage data for normal sample.
-tumor,  
-### GATK coverage data for tumor sample.
-log.ratio, 
-### Copy number log-ratios, one for each exon in coverage file.
-seg,
-### If segmentation was provided by the user, this data structure will contain
-### this segmentation. Useful for minimal segmentation functions. Otherwise
-### PureCN will re-segment the data. This segmentation function ignores this
-### user provided segmentation.
-plot.cnv, 
-### Segmentation plots.
-min.coverage, 
-### Minimum coverage in both normal and tumor.
-sampleid=sampleid,
-### Sample id, used in output files.
-target.weight.file=NULL,
-### Can be used to assign weights to exons. NOT SUPPORTED YET.
-flavor="tcn&dh",
-### Flavor value for PSCBS. See segmentByNonPairedPSCBS.
-tauA=0.03,
-### tauA argument for PSCBS. See segmentByNonPairedPSCBS.
-vcf=NULL,
-### Optional VCF object with germline allelic ratios.
-tumor.id.in.vcf=1,
-### Id of tumor in case multiple samples are stored in VCF.
-normal.id.in.vcf=NULL,
-### Id of normal in in VCF. If NULL, use unpaired PSCBS.
-max.segments=NULL,
-### If not NULL, try a higher undo.SD parameter if number of
-### segments exceeds the threshold.
-prune.hclust.h=NULL,
-### Height in the \code{hclust} pruning step. Increasing this value 
-### will merge segments more aggressively. If NULL, try to find a sensible
-### default.
-prune.hclust.method="ward.D",
-### Cluster method used in the \code{hclust} pruning step. See
-### documentation for the \code{hclust} function.
-chr.hash=NULL,
-### Mapping of non-numerical chromsome names to numerical names
-### (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes
-### are properly ordered.   
-verbose=TRUE,
-### Verbose output.
-...
-### Additional parameters passed to the segmentByNonPairedPSCBS function.
-) {
+#' PSCBS segmentation
+#' 
+#' Alternative segmentation function using the \code{PSCBS} package.  This
+#' function is called via the \code{fun.segmentation} argument of
+#' \code{\link{runAbsoluteCN}}.  The arguments are passed via
+#' \code{args.segmentation}.
+#' 
+#' 
+#' @param normal GATK coverage data for normal sample.
+#' @param tumor GATK coverage data for tumor sample.
+#' @param log.ratio Copy number log-ratios, one for each exon in coverage file.
+#' @param seg If segmentation was provided by the user, this data structure
+#' will contain this segmentation. Useful for minimal segmentation functions.
+#' Otherwise PureCN will re-segment the data. This segmentation function
+#' ignores this user provided segmentation.
+#' @param plot.cnv Segmentation plots.
+#' @param min.coverage Minimum coverage in both normal and tumor.
+#' @param sampleid Sample id, used in output files.
+#' @param target.weight.file Can be used to assign weights to exons. NOT
+#' SUPPORTED YET.
+#' @param flavor Flavor value for PSCBS. See segmentByNonPairedPSCBS.
+#' @param tauA tauA argument for PSCBS. See segmentByNonPairedPSCBS.
+#' @param vcf Optional VCF object with germline allelic ratios.
+#' @param tumor.id.in.vcf Id of tumor in case multiple samples are stored in
+#' VCF.
+#' @param normal.id.in.vcf Id of normal in in VCF. If NULL, use unpaired PSCBS.
+#' @param max.segments If not NULL, try a higher undo.SD parameter if number of
+#' segments exceeds the threshold.
+#' @param prune.hclust.h Height in the \code{hclust} pruning step. Increasing
+#' this value will merge segments more aggressively. If NULL, try to find a
+#' sensible default.
+#' @param prune.hclust.method Cluster method used in the \code{hclust} pruning
+#' step. See documentation for the \code{hclust} function.
+#' @param chr.hash Mapping of non-numerical chromsome names to numerical names
+#' (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes are properly
+#' ordered.
+#' @param verbose Verbose output.
+#' @param \dots Additional parameters passed to the segmentByNonPairedPSCBS
+#' function.
+#' @return \code{data.frame} containing the segmentation.
+#' @author Markus Riester
+#' @seealso \code{\link{runAbsoluteCN}}
+#' @examples
+#' 
+#' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+#'     package="PureCN")
+#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+#'     package="PureCN")
+#' vcf.file <- system.file("extdata", "example_vcf.vcf", 
+#'     package="PureCN")
+#' gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+#'     package="PureCN")
+#' 
+#' # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
+#' # non-default values to speed-up this example.  This is not a good idea for real
+#' # samples.
+#'  ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+#'      tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, genome="hg19",
+#'      sampleid="Sample1", gc.gene.file=gc.gene.file,
+#'      fun.segmentation=segmentationPSCBS, max.ploidy=4,
+#'      test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
+#' 
+#' @export segmentationPSCBS
+segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
+    min.coverage, sampleid, target.weight.file = NULL, flavor = "tcn&dh", tauA =
+        0.03, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
+    max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
+    chr.hash = NULL, verbose = TRUE, ...) {
+
     debug <- TRUE
         
     if (!requireNamespace("PSCBS", quietly = TRUE)) {
@@ -115,27 +129,8 @@ verbose=TRUE,
             method=prune.hclust.method, chr.hash=chr.hash, verbose=verbose)
     }
     x$cna$output
-### \code{data.frame} containing the segmentation.    
-},ex=function() {
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN")
-vcf.file <- system.file("extdata", "example_vcf.vcf", 
-    package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
-    package="PureCN")
+}
 
-# The max.candidate.solutions, max.ploidy and test.purity parameters are set to
-# non-default values to speed-up this example.  This is not a good idea for real
-# samples.
- ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, genome="hg19",
-     sampleid="Sample1", gc.gene.file=gc.gene.file,
-     fun.segmentation=segmentationPSCBS, max.ploidy=4,
-     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
-})    
-    
 .PSCBSoutput2DNAcopy <- function(seg, sampleid) {
     sx <- cbind(ID=sampleid, seg$output[!is.na(seg$output$tcnMean),])
     sx <- sx[,c("ID", "chromosome", "tcnStart", "tcnEnd", "tcnNbrOfLoci", 

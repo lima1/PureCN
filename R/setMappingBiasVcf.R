@@ -1,29 +1,43 @@
-setMappingBiasVcf <- structure(function(# Set Mapping Bias VCF
-### Function to set mapping  bias for each
-### variant in the provided \code{CollapsedVCF} object.
-### By default, it returns the same value for all variants, but a
-### pool of normal samples can be provided for position-specific
-### mapping bias calculation.
-vcf,
-### \code{CollapsedVCF} object, read in with the \code{readVcf} function 
-### from the VariantAnnotation package.
-tumor.id.in.vcf=NULL,
-### Id of tumor in case multiple samples are stored in VCF.
-normal.panel.vcf.file=NULL,
-### Combined VCF file of a panel of normals, expects allelic fractions
-### as FA genotype field. Should be compressed and indexed with bgzip and 
-### tabix, respectively.
-min.normals=5,
-### Minimum number of normals with heterozygous SNP for calculating
-### position-specific mapping bias. Requires \code{normal.panel.vcf.file}.  
-smooth=TRUE,
-### Impute mapping bias of variants not found in the panel by smoothing
-### of neighboring SNPs. Requires \code{normal.panel.vcf.file}.  
-smooth.n=5,
-### Number of neighboring variants used for smoothing.
-verbose=TRUE
-### Verbose output.
-) {
+#' Set Mapping Bias VCF
+#' 
+#' Function to set mapping bias for each variant in the provided
+#' \code{CollapsedVCF} object. By default, it returns the same value for all
+#' variants, but a pool of normal samples can be provided for position-specific
+#' mapping bias calculation.
+#' 
+#' 
+#' @param vcf \code{CollapsedVCF} object, read in with the \code{readVcf}
+#' function from the VariantAnnotation package.
+#' @param tumor.id.in.vcf Id of tumor in case multiple samples are stored in
+#' VCF.
+#' @param normal.panel.vcf.file Combined VCF file of a panel of normals,
+#' expects allelic fractions as FA genotype field. Should be compressed and
+#' indexed with bgzip and tabix, respectively.
+#' @param min.normals Minimum number of normals with heterozygous SNP for
+#' calculating position-specific mapping bias. Requires
+#' \code{normal.panel.vcf.file}.
+#' @param smooth Impute mapping bias of variants not found in the panel by
+#' smoothing of neighboring SNPs. Requires \code{normal.panel.vcf.file}.
+#' @param smooth.n Number of neighboring variants used for smoothing.
+#' @param verbose Verbose output.
+#' @return A \code{numeric(nrow(vcf))} vector with the mapping bias of for each
+#' variant in the \code{CollapsedVCF}. Mapping bias is expected as scaling
+#' factor. Adjusted allelic fraction is (observed allelic fraction)/(mapping
+#' bias). Maximum scaling factor is 1 and means no bias.
+#' @author Markus Riester
+#' @examples
+#' 
+#' # This function is typically only called by runAbsoluteCN via 
+#' # fun.setMappingBiasVcf and args.setMappingBiasVcf.
+#' vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+#' vcf <- readVcf(vcf.file, "hg19")
+#' vcf.bias <- setMappingBiasVcf(vcf)        
+#' 
+#' @export setMappingBiasVcf
+setMappingBiasVcf <- function(vcf, tumor.id.in.vcf = NULL,
+normal.panel.vcf.file = NULL, min.normals = 5, smooth = TRUE, smooth.n = 5,
+verbose = TRUE) {
+
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
     }
@@ -74,23 +88,12 @@ verbose=TRUE
         tmp[is.na(ov)] <- tmpSmoothed[is.na(ov)]
     }
     return(tmp)
-### A \code{numeric(nrow(vcf))} vector with the mapping bias of 
-### for each variant in the \code{CollapsedVCF}. Mapping bias is expected as
-### scaling factor. Adjusted allelic fraction is 
-### (observed allelic fraction)/(mapping bias). Maximum scaling factor is 1
-### and means no bias. 
-},ex=function() {
-# This function is typically only called by runAbsoluteCN via 
-# fun.setMappingBiasVcf and args.setMappingBiasVcf.
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-vcf <- readVcf(vcf.file, "hg19")
-vcf.bias <- setMappingBiasVcf(vcf)        
-}) 
+}
 
 .smoothVectorByChromosome <- function(x, chr, smooth.n) {
     .filter <- function(x, ...) {
         if (length(x) < smooth.n*5) return(x)
-        filter(x, ...)
+        stats::filter(x, ...)
     }       
     fN <- rep(1/smooth.n, smooth.n)
     y <- do.call(c, lapply(split(x, factor(as.character(chr), levels=unique(chr))), .filter, fN, sides=2))

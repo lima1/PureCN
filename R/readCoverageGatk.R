@@ -1,15 +1,25 @@
-# from the ExomeCNV package
-readCoverageGatk <- structure(function(#Read GATK coverage files
-### Read coverage file produced by The Genome Analysis Toolkit or
-### by \code{\link{calculateBamCoverageByInterval}}.
-##seealso<< \code{\link{calculateBamCoverageByInterval}}
-### The three only important columns in the GATK-generated file
-### are: Target, total_coverage, and average_coverage. 
-file
-### Exon coverage file as produced by GATK.
-) 
-{
-    gatk <- read.table(file, header = TRUE)
+# originally from the ExomeCNV package
+
+
+#' Read GATK coverage files
+#' 
+#' Read coverage file produced by The Genome Analysis Toolkit or by
+#' \code{\link{calculateBamCoverageByInterval}}.
+#' 
+#' 
+#' @param file Exon coverage file as produced by GATK.
+#' @return A \code{data.frame} with the parsed coverage information.
+#' @author Markus Riester
+#' @seealso \code{\link{calculateBamCoverageByInterval}}
+#' @examples
+#' 
+#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+#'     package="PureCN")
+#' coverage <- readCoverageGatk(tumor.coverage.file)
+#' 
+#' @export readCoverageGatk
+readCoverageGatk <- function(file) {
+    gatk <- utils::read.table(file, header = TRUE)
     chrpos <- matrix(unlist(strsplit(as.character(gatk$Target), 
         ":")), ncol = 2, byrow = TRUE)
     
@@ -37,12 +47,7 @@ file
     .checkLowCoverage(tmp)
     tmp <- .checkIntervals(tmp)
     return(tmp)
-### A \code{data.frame} with the parsed coverage information. 
-},ex=function() {
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN")
-coverage <- readCoverageGatk(tumor.coverage.file)
-})
+}
 
 .checkIntervals <- function(coverage) {
     coverageGr <- GRanges(coverage$chr, IRanges(start=coverage$probe_start,
@@ -77,4 +82,3 @@ coverage <- readCoverageGatk(tumor.coverage.file)
             paste(chrsWithLowCoverage, collapse=","))
     }    
 }
-        
