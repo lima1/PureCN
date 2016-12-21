@@ -300,6 +300,8 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
             # brwer.pal requires at least 3 levels
 
             r <- .getAFPlotGroups(r, is.null(info(vcf)$SOMATIC))
+            r <- r[order(r$group),]
+
             tmp <- I(brewer.pal(max(nlevels(r$group),3),
                 name=palette.name ))
 
@@ -402,7 +404,13 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                     as.character(r$ML.C[r$ML.SOMATIC])][idx.labels], 
                     y=r$ML.AR[r$ML.SOMATIC][idx.labels], 
                     labels=scatter.labels[idx.labels])
-                hist(r$CELLFRACTION, xlab="Cellular fraction", main="")
+                idxSomatic <- !grepl("germline|dbSNP", as.character(r$group))
+                if (sum(idxSomatic)) {
+                    colSomatic <- mycol.palette$color[match(names(sort(table(r$group[idxSomatic]), 
+                        decreasing=TRUE)[1]), mycol.palette$group)]
+                    hist(r$CELLFRACTION[idxSomatic], col=colSomatic,
+                        xlab="Cellular fraction", main="")
+                }
             } else {
                 legend("bottomright", legend=as.character(mycol.palette$group),
                     col=mycol.palette$color, pch=mycol.palette$pch)
