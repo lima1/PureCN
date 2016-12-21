@@ -889,4 +889,15 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     # check if genes are on multiple chromosomes
     gc.pos <- .checkSymbolsChromosome(gc.pos)
 }
-    
+
+.getCentromerePositions <- function(centromeres, genome) {
+    if (is.null(centromeres)) {
+        data(centromeres, envir = environment())
+        if (genome %in% names(centromeres)) {
+            centromeres <- centromeres[[genome]]
+        } else {
+            centromeres <- NULL
+        }
+    }
+    centromeres
+}    

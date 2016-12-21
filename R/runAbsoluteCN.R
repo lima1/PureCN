@@ -243,15 +243,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         args.filterVcf$remove.off.target.snvs <- remove.off.target.snvs
         message("remove.off.target.snvs is deprecated. Please use it in args.filterVcf instead.")
     }
-    
-    if (is.null(centromeres)) {
-        data(centromeres, envir = environment())
-        if (genome %in% names(centromeres)) {
-            centromeres <- centromeres[[genome]]
-        } else {
-            centromeres <- NULL
-        }
-    }
+    centromeres <- .getCentromerePositions(centromeres, genome)
     
     # defaults to equal priors for all tested purity values
     if (is.null(prior.purity)) {
@@ -265,7 +257,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     test.num.copy <- sort(test.num.copy)
     
     if (!is.null(gc.gene.file) && !file.exists(gc.gene.file)) {
-        warning("gc.gene.file ", gc.gene.file, " not found. You won't get gene-level calls.")
+        warning("gc.gene.file ", gc.gene.file, 
+                " not found. You won't get gene-level calls.")
         gc.gene.file = NULL
     }
     
@@ -282,7 +275,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     }
     if (is.null(tumor.coverage.file)) {
         if ((is.null(seg.file) && is.null(log.ratio)) || is.null(gc.gene.file)) {
-            .stopUserError("Missing tumor.coverage.file requires seg.file or ", "log.ratio and gc.gene.file.")
+            .stopUserError("Missing tumor.coverage.file requires seg.file or ", 
+                           "log.ratio and gc.gene.file.")
         }
         tumor <- .gcGeneToCoverage(gc.gene.file, min.coverage + 1)
         tumor.coverage.file <- tumor
@@ -335,7 +329,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         if (is.null(normal.coverage.file)) 
             normal <- tumor
         if (length(log.ratio) != nrow(tumor)) {
-            .stopUserError("Length of log.ratio different from tumor ", "coverage.")
+            .stopUserError("Length of log.ratio different from tumor ", 
+                           "coverage.")
         }
         if (is.null(sampleid)) 
             sampleid <- "Sample.1"
@@ -381,18 +376,21 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         if (!is.null(gc.gene.file)) {
             dropoutWarning <- .checkGCBias(normal, tumor, gc.data, max.dropout, verbose)
         } else if (verbose) {
-            message("No gc.gene.file provided. Cannot check if data was ", "GC-normalized. Was it?")
+            message("No gc.gene.file provided. Cannot check if data was ", 
+                    "GC-normalized. Was it?")
         }
     }
     
     if (!is.null(gc.gene.file) && is.null(gc.data$Gene)) {
         if (verbose) 
-            message("No Gene column in gc.gene.file.", " You won't get gene-level calls.")
+            message("No Gene column in gc.gene.file.", 
+                    " You won't get gene-level calls.")
         gc.gene.file <- NULL
     }
     
     
-    exon.gr <- GRanges(seqnames = tumor$chr, IRanges(start = tumor$probe_start, end = tumor$probe_end))
+    exon.gr <- GRanges(seqnames=tumor$chr, IRanges(start=tumor$probe_start, 
+                                                   end=tumor$probe_end))
     
     vcf <- NULL
     vcf.germline <- NULL

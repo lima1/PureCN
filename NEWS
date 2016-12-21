@@ -8,6 +8,7 @@ Changes in version 1.6.0
 - Improved somatic vs. germline status calling
 - Better mapping bias estimation and correction
 - Better copy number normalization using multiple best normals
+- New GC-normalization for smaller gene panels
 
 
 API CHANGES
