@@ -129,8 +129,8 @@ verbose=TRUE) {
                 vcf <- vcf[!rownames(vcf) %in% snp.blacklist.data[,1],]
             } else {
                 blackBed <- import(snp.blacklist[i], format="bed")
-                ov <- suppressWarnings(findOverlaps(vcf, blackBed, select="first"))
-                vcf <- vcf[is.na(ov)]
+                ov <- suppressWarnings(overlapsAny(vcf, blackBed))
+                vcf <- vcf[!ov]
             }    
             if (verbose) message("Removing ", n-nrow(vcf), 
                 " blacklisted SNPs.")
@@ -531,10 +531,8 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
             "Mb with ", interval.padding, "bp padding)")
     }    
 
-    idxTarget <- !is.na(findOverlaps(vcf, 
-                target.granges,select="first"))
-    idxPadding <- !is.na(findOverlaps(vcf, 
-                target.granges.padding,select="first"))
+    idxTarget <- overlapsAny(vcf, target.granges)
+    idxPadding <- overlapsAny(vcf, target.granges.padding)
    
     newInfo <- DataFrame(
         Number=1, Type="Integer",
@@ -546,8 +544,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     info(vcf)$OnTarget[idxPadding] <- 2
     info(vcf)$OnTarget[idxTarget] <- 1
     if (verbose) {
-        targetsWithSNVs <- !is.na(findOverlaps(target.granges.padding, vcf, 
-            select="first"))
+        targetsWithSNVs <- overlapsAny(target.granges.padding, vcf)
         percentTargetsWithSNVs <- round(sum(targetsWithSNVs,na.rm=TRUE)/
             length(targetsWithSNVs)*100, digits=1)
         tmp <- ""
