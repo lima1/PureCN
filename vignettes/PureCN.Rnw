@@ -22,18 +22,17 @@ targeted short read sequencing}
 \maketitle
 
 \begin{abstract}
-\Biocpkg{PureCN} is a purity and ploidy aware copy number caller for cancer
-samples inspired by the \software{ABSOLUTE} algorithm \cite{Carter2012}.  It was
-designed for hybrid capture sequencing data, especially with medium-sized
-targeted gene panels without matching normal samples in mind (matched
-whole-exome data is of course supported). 
+\Biocpkg{PureCN} \cite{Riester2016} is a purity and ploidy aware copy number
+caller for cancer samples inspired by the \software{ABSOLUTE} algorithm
+\cite{Carter2012}.  It was designed for hybrid capture sequencing data,
+especially with medium-sized targeted gene panels without matching normal
+samples in mind (matched whole-exome data is of course supported). 
 
-It can be used to supplement existing normalization and segmentation
-algorithms, i.e. the software can start from BAM files, from target-level
-coverage data, from copy number log-ratios or from already segmented
-data. If the correct purity and ploidy solution was identified,
-\Biocpkg{PureCN} will accurately classify variants as germline vs. somatic
-or clonal vs. sub-clonal.
+It can be used to supplement existing normalization and segmentation algorithms,
+i.e. the software can start from BAM files, from target-level coverage data,
+from copy number log-ratios or from already segmented data. If the correct
+purity and ploidy solution was identified, \Biocpkg{PureCN} will accurately
+classify variants as germline vs. somatic or clonal vs. sub-clonal.
 
 \Biocpkg{PureCN} was further designed to integrate well with industry standard
 pipelines \cite{McKenna2010}, but it is straightforward to generate input data

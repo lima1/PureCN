@@ -9,5 +9,7 @@ bibentry(bibtype = "Article",
          title = "PureCN: Copy number calling and SNV classification using 
          targeted short read sequencing",
          year="2016",   
+         volume="11",
+         pages="13",
          journal = "Source Code for Biology and Medicine"   
          )
