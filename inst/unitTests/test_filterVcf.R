@@ -3,13 +3,15 @@ test_filterVcf <- function() {
     vcf <- readVcf(vcf.file, "hg19")
     x <- filterVcfBasic(vcf)
 
+    # TODO: remove in 1.8
     d.f <- data.frame(id=head(names(vcf)), Count=1)
     write.csv(d.f, file="snpbl.csv", row.names=FALSE)
+
     y <- filterVcfBasic(vcf, snp.blacklist="snpbl.csv")
-    d.f2 <- as.data.frame(head(rowRanges(vcf)))
-    write.csv(d.f2, file="snpbl2.csv", row.names=FALSE)
-    write.table(d.f2, file="snpbl3.csv", row.names=FALSE,sep="\t")
-    z <- filterVcfBasic(vcf, snp.blacklist="snpbl2.csv")
+    rtracklayer::export(head(rowRanges(vcf)), con="snpbl2.bed", format="bed")
+    # TODO: remove in 1.8
+    rtracklayer::export(head(rowRanges(vcf)), con="snpbl3.csv", format="bed")
+    z <- filterVcfBasic(vcf, snp.blacklist="snpbl2.bed")
     zz <- filterVcfBasic(vcf, snp.blacklist="snpbl3.csv")
 
     checkEqualsNumeric(6, nrow(x$vcf)-nrow(y$vcf))
@@ -35,5 +37,4 @@ test_filterVcf <- function() {
         quote=FALSE, row.names=FALSE, sep="\t"))
     vcfMutectFilter <- filterVcfMuTect(vcf, stats.file=filename)
     checkEqualsNumeric(6, nrow(vcfMutectFilter$vcf))
-
 }    

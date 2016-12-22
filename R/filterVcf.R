@@ -124,20 +124,13 @@ verbose=TRUE) {
             }
             n <- nrow(vcf)
             if (sum( rownames(vcf) %in% snp.blacklist.data[,1]) > 1  ) {
+                warning("Old SNP blacklists are deprecated. ", 
+                    "Use either a BED file or a normal.panel.vcf.file.")
                 vcf <- vcf[!rownames(vcf) %in% snp.blacklist.data[,1],]
             } else {
-                if (is.null(snp.blacklist.data$seg.mean)) {
-                    snp.blacklist.data$seg.mean <- 1
-                }    
-                snp.blacklist.data <- 
-                    snp.blacklist.data[snp.blacklist.data$seg.mean > 0.2,]
-                ov <- suppressWarnings(findOverlaps(vcf, 
-                    GRanges(seqnames=snp.blacklist.data[,1], 
-                    IRanges(start=snp.blacklist.data[,2], 
-                            end=snp.blacklist.data[,3]))))
-
-                idx <- !(seq_len(nrow(vcf)) %in% queryHits(ov) & info(vcf)$DB)
-                vcf <- vcf[idx]
+                blackBed <- import(snp.blacklist[i], format="bed")
+                ov <- suppressWarnings(findOverlaps(vcf, blackBed, select="first"))
+                vcf <- vcf[is.na(ov)]
             }    
             if (verbose) message("Removing ", n-nrow(vcf), 
                 " blacklisted SNPs.")

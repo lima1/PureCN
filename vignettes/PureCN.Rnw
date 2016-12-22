@@ -379,16 +379,12 @@ if (downloadFromUCSC) {
         track="Segmental Dups", table="genomicSuperDups"))
     tbl.simpleRepeats <- getTable( ucscTableQuery(mySession, 
         track="Simple Repeats", table="simpleRepeat"))
-    write.table(tbl.segmentalDups[,-1],
-        file="hg19_segmentalDuplications.txt", sep="\t", 
-        row.names=FALSE)
-    write.table(tbl.simpleRepeats[,-1],
-        file="hg19_simpleRepeats.txt", sep="\t", 
-        row.names=FALSE)
+    export(tbl.segmentalDups, "hg19_segmentalDuplications.bed")
+    export(tbl.simpleRepeats, "hg19_simpleRepeats.bed")
 }
 
-snp.blacklist <- c("hg19_segmentalDuplications.txt", 
-    "hg19_simpleRepeats.txt")
+snp.blacklist <- c("hg19_segmentalDuplications.bed", 
+    "hg19_simpleRepeats.bed")
 @
 
 \section{Recommended run}
@@ -396,7 +392,8 @@ snp.blacklist <- c("hg19_segmentalDuplications.txt",
 Finally, we can run \Biocpkg{PureCN} with all that information:
 
 <<runpurecn>>=
-ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+ret <-runAbsoluteCN(normal.coverage.file=pool,
+# normal.coverage.file=normal.coverage.file, 
     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, 
     genome="hg19", sampleid="Sample1", 
     gc.gene.file=gc.gene.file, 

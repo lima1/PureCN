@@ -114,11 +114,11 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
             }    
 
             h <- hist(do.call(c, lapply(seq_len(nrow(seg)), function(i)
-                    rep(seg$seg.mean[i], seg$num.mark[i]))),breaks=100, 
+                    rep(seg$seg.mean[i], seg$num.mark[i]))),breaks=75, 
                     plot=FALSE)
             h$density <- h$counts/sum(h$counts)
             plot(h, freq=FALSE, xlab="log2 ratio",
-                ylab="Fraction Genome", main=main,...)
+                ylab="Fraction Genome", main=main, col="#377EB8", ...)
             abline(v=peak.ideal.means, lty=3, lwd=2, col="darkgrey")
             axis(side=3, at=peak.ideal.means, 
                 labels=names(peak.ideal.means), tick=FALSE, padj=1)
@@ -472,12 +472,12 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
             }    
             x <- sapply(res$results, function(x) x$GoF)
             barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
-                main="Goodness-of-fit", las=2)
+                main="Goodness-of-fit", las=2, col="#377EB8")
             if (!is.null(res$input$vcf)) {
                 x <- sapply(res$results, function(x) 
                     x$SNV.posterior$beta.model$llik)
                 barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
-                    main="SNV likelihood score", las=2)
+                    main="SNV likelihood score", las=2, col="#377EB8")
             }
         }
         par(mar=parm)
