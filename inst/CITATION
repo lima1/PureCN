@@ -11,5 +11,6 @@ bibentry(bibtype = "Article",
          year="2016",   
          volume="11",
          pages="13",
+         doi="10.1186/s13029-016-0060-z",
          journal = "Source Code for Biology and Medicine"   
          )

@@ -20,7 +20,7 @@ spec <- matrix(c(
 'postoptimize',   'z', 0, "logical",
 'modelhomozygous','y', 0, "logical",
 'outdir',         'o', 1, "character",
-'outvcf',         'u', 1, "character",
+'outvcf',         'u', 0, "logical",
 'sampleid',       'i', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
@@ -45,7 +45,7 @@ normal.panel.vcf.file <- opt$normal_panel
 normalDB <- opt$normaldb
 sampleid <- opt$sampleid
 outdir <- opt$outdir
-outvcf <- opt$outvcf
+outvcf <- !is.null(opt$outvcf)
 pool <- opt$pool
 model.homozygous <- !is.null(opt$modelhomozygous)
 
@@ -61,7 +61,7 @@ library(PureCN)
 
 ### Run PureCN ----------------------------------------------------------------
 
-file.rds <- file.path(outdir, paste0(sampleid, '_abs.rds'))
+file.rds <- file.path(outdir, paste0(sampleid, '_purecn.rds'))
 
 if (file.exists(file.rds) && !force) {
     message(file.rds, 
@@ -87,7 +87,7 @@ if (file.exists(file.rds) && !force) {
         stop("Need either normalDB or normal.coverage.file")
     }    
 
-    pdf(paste(outdir,"/", sampleid, '_abs_segmentation.pdf', sep=''), 
+    pdf(paste(outdir,"/", sampleid, '_purecn_segmentation.pdf', sep=''), 
         width=10, height=11)
     ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
             tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
@@ -108,27 +108,27 @@ if (file.exists(file.rds) && !force) {
 ### Create output files -------------------------------------------------------
 
 createCurationFile(file.rds)
-file.pdf <- file.path(outdir, paste0(sampleid, '_abs.pdf'))
+file.pdf <- file.path(outdir, paste0(sampleid, '_purecn.pdf'))
 pdf(file.pdf, width=10, height=11)
 plotAbs(ret, type='all')
 dev.off()
 
-if (!is.null(outvcf)) {
-    if (basename(outvcf) != outvcf) {
-        warning(outvcf, " contains path. Will not put it in ", outdir)
-    } else {
-        outvcf <- file.path(outdir, outvcf)
-    }    
+if (outvcf) {
+    file.vcf <- file.path(outdir, paste0(sampleid, '_purecn.vcf'))
     vcfanno <- predictSomatic(ret, return.vcf=TRUE, 
         vcf.field.prefix="PureCN_")
     writeVcf(vcfanno, file=outvcf)    
+} else {
+    file.csv <- file.path(outdir, paste0(sampleid, '_purecn_variants.csv'))
+    write.csv(cbind(Sampleid=sampleid, predictSomatic(ret)), file=file.csv, 
+        row.names=FALSE, quote=FALSE)
 }    
 
-file.loh <- file.path(outdir, paste0(sampleid, '_abs_loh.csv'))
+file.loh <- file.path(outdir, paste0(sampleid, '_purecn_loh.csv'))
 write.csv(cbind(Sampleid=sampleid, callLOH(ret)), file=file.loh, 
     row.names=FALSE, quote=FALSE)
 
-file.genes <- file.path(outdir, paste0(sampleid, '_abs_genes.csv'))
+file.genes <- file.path(outdir, paste0(sampleid, '_purecn_genes.csv'))
 write.csv(cbind(Sampleid=sampleid, callAlterations(ret, all.genes=TRUE)), 
     file=file.genes, quote=FALSE)
 

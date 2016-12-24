@@ -1,5 +1,7 @@
 library('getopt')
 
+### Parsing command line ------------------------------------------------------
+
 spec <- matrix(c(
 'help' , 'h', 0, "logical",
 'force' , 'f', 0, "logical",
@@ -28,6 +30,8 @@ method <- ifelse(is.null(opt$method), "LOESS", opt$method)
 outdir <- normalizePath(outdir, mustWork=TRUE)
 gc.gene.file <- normalizePath(gc.gene.file, mustWork=TRUE)
 
+### Calculate coverage from BAM files -----------------------------------------
+
 if (!is.null(bam.file)) {
     library(PureCN)
     bam.file <- normalizePath(bam.file, mustWork=TRUE)
@@ -42,6 +46,8 @@ if (!is.null(bam.file)) {
     }
     gatk.coverage <- output.file
 }
+
+### GC-normalize coverage -----------------------------------------------------
 
 if (!is.null(gatk.coverage)) {
     library(PureCN)
