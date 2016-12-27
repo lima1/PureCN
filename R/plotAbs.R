@@ -410,6 +410,16 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                         decreasing=TRUE)[1]), mycol.palette$group)]
                     hist(r$CELLFRACTION[idxSomatic], col=colSomatic,
                         xlab="Cellular fraction", main="")
+                    cellFractions <- seq(0.01,1,0.01)
+                    power <- sapply(cellFractions, function(pw) 
+                        calculatePowerDetectSomatic(mean(r$depth, na.rm=TRUE), 
+                            purity=res$results[[i]]$purity,
+                            ploidy=res$results[[i]]$ploidy, cell.fraction=pw,
+                            verbose=FALSE)$power)
+                    minFraction <- cellFractions[which(power > 0.8)[1]]
+                    abline(v=minFraction)
+                    axis(side=3, at=minFraction, 
+                        labels="Power 0.8", tick=FALSE, padj=1)
                 }
             } else {
                 legend("bottomright", legend=as.character(mycol.palette$group),

@@ -255,7 +255,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
     max.non.clonal, max.homozygous.loss, sampleid, prior.K, 
-    prior.contamination, prior.purity, iterations, min.gof, model.homozygous) {
+    prior.contamination, prior.purity, iterations, min.gof, model.homozygous, 
+    gc.gene.file) {
     if (min(test.purity) <= 0 || max(test.purity) > 0.99) 
         .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
@@ -280,6 +281,9 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         .stopUserError("prior.purity must have the same length as ",
             "test.purity.")
     }    
+    if (!is.null(gc.gene.file) && !file.exists(gc.gene.file)) {
+        .stopUserError("gc.gene.file ", gc.gene.file, " not found.")
+    }
 
     stopifnot(is.numeric(min.ploidy))
     stopifnot(is.numeric(max.ploidy))

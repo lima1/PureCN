@@ -250,17 +250,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         prior.purity <- rep(1, length(test.purity))/length(test.purity)
     }
     # argument checking
-    .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal, max.homozygous.loss, 
-        sampleid, prior.K, prior.contamination, prior.purity, iterations, min.gof, 
-        model.homozygous)
+    .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
+        max.homozygous.loss, sampleid, prior.K, prior.contamination, prior.purity,
+        iterations, min.gof, model.homozygous, gc.gene.file)
     
     test.num.copy <- sort(test.num.copy)
-    
-    if (!is.null(gc.gene.file) && !file.exists(gc.gene.file)) {
-        warning("gc.gene.file ", gc.gene.file, 
-                " not found. You won't get gene-level calls.")
-        gc.gene.file = NULL
-    }
     
     if (verbose) 
         message("Loading GATK coverage files...")
@@ -404,7 +398,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!is.null(vcf.file)) {
         if (verbose) 
             message("Loading VCF...")
-        vcf <- .readAndCheckVcf(vcf.file, genome = genome)
+        vcf <- .readAndCheckVcf(vcf.file, genome=genome, verbose=verbose)
         
         if (length(intersect(tumor$chr, seqlevels(vcf))) < 1) {
             .stopUserError("Different chromosome names in coverage and VCF.")

@@ -446,7 +446,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }    
     return(TRUE)
 }    
-.readAndCheckVcf <- function(vcf.file, genome) {
+.readAndCheckVcf <- function(vcf.file, genome, verbose) {
     if (class(vcf.file) == "character") {    
         vcf <- readVcf(vcf.file, genome)
     } else if (class(vcf.file) != "CollapsedVCF") {
@@ -455,8 +455,15 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     } else {
         vcf <- vcf.file
     } 
+    triAllelic <- elementNROWS(alt(vcf))>1
+    if (sum(triAllelic)) {
+        n <- nrow(vcf)
+        vcf <- vcf[which(!triAllelic)]
+        if (verbose) message("Removing ",n-nrow(vcf), " triallelic sites.")
+    }    
     if (is.null(info(vcf)$DB)) {
-        .stopUserError(vcf.file, " has no DB info field for dbSNP membership.")
+        # try to add an DB field based on rownames
+        vcf <- .addDbField(vcf)
     }
     if (is.null(geno(vcf)$AD)) {
         .stopUserError(vcf.file, 
@@ -472,6 +479,24 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }
     vcf     
 }    
+
+.addDbField <- function(vcf) {
+     db <- grepl("^rs",rownames(vcf))
+     if (!sum(db)) {
+        .stopUserError("vcf.file has no DB info field for dbSNP membership.")
+     } else  { 
+        warning("vcf.file has no DB info field for dbSNP membership.",
+            " Guessing it based on ID.")
+     }   
+    newInfo <- DataFrame(
+        Number=0, Type="Flag",
+        Description="dbSNP Membership",
+        row.names="DB")
+    info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
+    info(vcf)$DB <- db
+    vcf
+}
+    
 .addCosmicCNT <- function(vcf, cosmic.vcf.file, verbose=TRUE) {
     if (!is.null(info(vcf)$Cosmic.CNT)) {
         if (verbose) message("VCF already COSMIC annotated. Skipping.")

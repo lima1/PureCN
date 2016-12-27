@@ -117,7 +117,7 @@ if (outvcf) {
     file.vcf <- file.path(outdir, paste0(sampleid, '_purecn.vcf'))
     vcfanno <- predictSomatic(ret, return.vcf=TRUE, 
         vcf.field.prefix="PureCN_")
-    writeVcf(vcfanno, file=outvcf)    
+    writeVcf(vcfanno, file=file.vcf)    
 } else {
     file.csv <- file.path(outdir, paste0(sampleid, '_purecn_variants.csv'))
     write.csv(cbind(Sampleid=sampleid, predictSomatic(ret)), file=file.csv, 
