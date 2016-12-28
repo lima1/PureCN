@@ -466,8 +466,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         vcf <- .addDbField(vcf)
     }
     if (is.null(geno(vcf)$AD)) {
-        .stopUserError(vcf.file, 
-            " has no AD geno field containing read depths of ref and alt.")
+        vcf <- .addADField(vcf)
     }
     if (!.checkVcfFieldAvailable(vcf, "FA")) {
         # try to add an FA geno field if missing
@@ -479,7 +478,6 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }
     vcf     
 }    
-
 .addDbField <- function(vcf) {
      db <- grepl("^rs",rownames(vcf))
      if (!sum(db)) {
@@ -494,6 +492,30 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         row.names="DB")
     info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
     info(vcf)$DB <- db
+    vcf
+}
+
+.addADField <- function(vcf, field="AD") {
+    # FreeBayes
+    if (!length(setdiff(c("DP","AO", "RO"),names(geno(vcf))))) {
+        matrixAD <- do.call(cbind, lapply(samples(header(vcf)), function(j) { 
+            ao <- unlist(geno(vcf)$AO[,j])
+            ro <- unlist(geno(vcf)$RO[,j])
+            AD <- lapply(seq_along(ao), function(i) as.integer(c(ro[i], ao[i])))
+            names(AD) <- names(ao)
+            AD
+        })) 
+        colnames(matrixAD) <- samples(header(vcf))   
+        newGeno <- DataFrame(
+            Number=".", Type="Integer",
+            Description="Allelic depths for the ref and alt alleles in the order listed",
+            row.names=field)
+        geno(header(vcf)) <- rbind(geno(header(vcf)), newGeno)
+        geno(vcf)[[field]] <- matrixAD
+    } else {   
+        .stopUserError("vcf.file has no AD geno field containing read depths ",
+            "of ref and alt.")
+    }
     vcf
 }
     
