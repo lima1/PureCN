@@ -105,7 +105,7 @@
 #' (\code{return.object$candidates}).  If \code{NULL}, do 2D grid search and
 #' find local optima.
 #' @param min.coverage Minimum coverage in both normal and tumor. Targets with
-#' lower coverage are ingored.
+#' lower coverage are ignored.
 #' @param max.coverage.vcf This will set the maximum number of reads in the SNV
 #' fitting.  This is to avoid that small non-reference biases that come
 #' apparent only at high coverages have a dramatic influence on likelihood

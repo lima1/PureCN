@@ -152,7 +152,7 @@ of local optima.}
 find local optima.}
 
 \item{min.coverage}{Minimum coverage in both normal and tumor. Targets with
-lower coverage are ingored.}
+lower coverage are ignored.}
 
 \item{max.coverage.vcf}{This will set the maximum number of reads in the SNV
 fitting.  This is to avoid that small non-reference biases that come
