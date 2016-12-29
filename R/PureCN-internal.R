@@ -81,7 +81,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     haploid.penalty <- 0
     
     if (median(C) < 1.1 && p <= 0.35) {
-        haploid.penalty <- 1
+        haploid.penalty <- 2
     }
     
     subclonal <- apply(C.posterior[queryHits(ov), ], 1, which.max) == ncol(C.posterior)
@@ -263,7 +263,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         .stopUserError("min.ploidy or max.ploidy not within expected range.")
 
     .checkFraction(max.non.clonal, "max.non.clonal")
-    .checkFraction(max.homozygous.loss, "max.homozygous.loss")
+    .checkFraction(max.homozygous.loss[1], "max.homozygous.loss")
     .checkFraction(prior.K, "prior.K")
     .checkFraction(prior.contamination, "prior.contamination")
     .checkFraction(min.gof, "min.gof")
@@ -362,7 +362,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     if (result$flag) {
         result$flag_comment <- .appendComment(result$flag_comment, "NON-ABERRANT")
     }
-    if (result$fraction.subclonal > max.non.clonal) {
+    if (result$fraction.subclonal > max.non.clonal*0.75) {
         result$flag <- TRUE
         result$flag_comment <- .appendComment(result$flag_comment, "POLYGENOMIC")
     }

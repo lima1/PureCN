@@ -181,7 +181,13 @@ verbose=TRUE) {
        vcf <- vcf[which(as.numeric(geno(vcf)$BQ[,tumor.id.in.vcf])>=min.base.quality)]
        if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
            " low quality variants with BQ<",min.base.quality,".") 
-    } 
+    } else if (!is.null(rowRanges(vcf)$QUAL)) {
+       n.vcf.before.filter <- nrow(vcf)
+       idx <- which(as.numeric(rowRanges(vcf)$QUAL)>=min.base.quality)
+       if (length(idx)) vcf <- vcf[idx]
+       if (verbose) message("Removing ", n.vcf.before.filter - nrow(vcf), 
+           " low quality variants with BQ<",min.base.quality,".") 
+    }     
     
     if (!is.null(target.granges)) {
         vcf <- .annotateVcfTarget(vcf, target.granges, interval.padding, verbose)

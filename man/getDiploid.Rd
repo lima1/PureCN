@@ -31,6 +31,9 @@ A list with elements \item{ids}{The ids of diploid solutions
 genome with copy number <1 or >3.}
 }
 \description{
+This function is deprecated and will be made defunct in next release.
+}
+\details{
 This function can be used to extract purity and ploidy solutions that are
 diploid with only few CNVs. Since high ploidy solutions typically have a
 very different copy number profile, one of the identified diploid solutions
@@ -40,13 +43,6 @@ number of CNVs, making it difficult for the algorithm to correctly identify
 purity and ploidy. If the maximum likelihood solution is diploid, it is
 always returned; all other solutions must pass the more stringent criteria
 as defined in the function arguments.
-}
-\examples{
-
-data(purecn.example.output)
-# no diploid solutions in the example
-idx <- getDiploid(purecn.example.output)
-
 }
 \author{
 Markus Riester

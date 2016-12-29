@@ -22,18 +22,13 @@ The provided \code{\link{runAbsoluteCN}} return object with unlikely
 purity and ploidy solutions filtered out.
 }
 \description{
+This function is deprecated and will be made defunct in next release.
+}
+\details{
 This implements a workflow with various heuristics, with the goal of
 identifying correct purity/ploidy solutions in difficult samples. This is
 mainly for automated copy number calling. This function may evolve over time
 and might produce different rankings after PureCN updates.
-}
-\examples{
-
-data(purecn.example.output)
-# no diploid solutions in the example
-example.output.curated <- autoCurateResults(purecn.example.output, 
-    bootstrap.n=100)
-
 }
 \author{
 Markus Riester

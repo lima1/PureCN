@@ -17,13 +17,13 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   test.purity = seq(0.15, 0.95, by = 0.01), prior.purity = NULL,
   prior.K = 0.999, prior.contamination = 0.01,
   max.candidate.solutions = 20, candidates = NULL, min.coverage = 15,
-  max.coverage.vcf = 300, max.non.clonal = 0.2, max.homozygous.loss = 0.1,
-  non.clonal.M = 1/3, max.mapping.bias = 0.8, iterations = 30,
-  log.ratio.calibration = 0.25, remove.off.target.snvs = NULL,
-  model.homozygous = FALSE, error = 0.001, gc.gene.file = NULL,
-  max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, max.segments = 300,
-  min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL,
-  post.optimize = FALSE, verbose = TRUE)
+  max.coverage.vcf = 300, max.non.clonal = 0.2,
+  max.homozygous.loss = c(0.05, 1e+07), non.clonal.M = 1/3,
+  max.mapping.bias = 0.8, iterations = 30, log.ratio.calibration = 0.25,
+  remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001,
+  gc.gene.file = NULL, max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75,
+  max.segments = 300, min.gof = 0.8, plot.cnv = TRUE,
+  cosmic.vcf.file = NULL, post.optimize = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{normal.coverage.file}{GATK coverage file of normal control (optional
@@ -162,8 +162,9 @@ scores.}
 \item{max.non.clonal}{Maximum genomic fraction assigned to a subclonal copy
 number state.}
 
-\item{max.homozygous.loss}{Maximum genomic fraction assigned to homozygous
-loss.  This is set to a fairly high default value to not exclude correct
+\item{max.homozygous.loss}{\code{double(2)} with maximum genomic fraction 
+assigned to homozygous loss and maximum size of a homozygous loss segment.  
+These are set to a fairly high default value to not exclude correct
 solutions, especially in noisy segmentations.}
 
 \item{non.clonal.M}{Average expected cellular fraction of sub-clonal somatic

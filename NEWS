@@ -9,16 +9,23 @@ Changes in version 1.6.0
 - Better mapping bias estimation and correction
 - Better copy number normalization using multiple best normals
 - New GC-normalization for smaller gene panels
+- Removed automatic curation, since the tuned likelihood model 
+  of runAbsoluteCN was hard to beat
+- More control over homozygous deletions (significant portion
+  of wrong maximum likelihood solutions had many homozygous deletions)  
 
 
 API CHANGES
 
-- Deprecated functions: createSNPBlacklist
+- Deprecated functions: createSNPBlacklist, getDiploid, autoCurateResults
 - Defunct functions: createExonWeightFile
 - Changed defaults: 
     - min.normals 5 (from 10) in setMappingBiasVcf
     - max.segments 300 (from 200) in runAbsoluteCN               
     - min.targeted.base 5 (from 4) in filterTargets
+    - max.homozygous.loss now a double(2) vector, with first element
+      specifying the maximum fraction of genome deleted (default 5%) and the 
+      secoond value the maximum size of a homozygous loss (default 10mb).
 - Other minor changes:
     - Renamed some predictSomatic() output column names
     - Moved remove.off.target.snvs to filterVcfBasic

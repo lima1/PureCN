@@ -12,5 +12,7 @@
   the replacement indicated below:
   \itemize{
     \item{createSNPBlacklist: \code{\link{setMappingBiasVcf}}}
+    \item{getDiploid: no replacement}
+    \item{autoCurateResults: no replacement}
   }
 }

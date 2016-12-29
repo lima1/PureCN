@@ -1,4 +1,6 @@
 #' Function to extract diploid solutions.
+#'
+#' This function is deprecated and will be made defunct in next release.
 #' 
 #' This function can be used to extract purity and ploidy solutions that are
 #' diploid with only few CNVs. Since high ploidy solutions typically have a
@@ -26,16 +28,13 @@
 #' genome with copy number <1 or >3.}
 #' @author Markus Riester
 #' @seealso \code{\link{runAbsoluteCN}}
-#' @examples
-#' 
-#' data(purecn.example.output)
-#' # no diploid solutions in the example
-#' idx <- getDiploid(purecn.example.output)
 #' 
 #' @export getDiploid
 getDiploid <- function(res, min.diploid = 0.5, min.single.gain.loss = 0.05, 
     max.non.single.gain.loss = 0.10, max.loh = 0.5, 
     min.log.likelihood = NULL) {
+    .Deprecated()
+
     if (length(res$results) < 2) return(res)
 
     cs <- sapply(0:7, function(i) sapply(res$results, function(x) 
@@ -67,6 +66,8 @@ getDiploid <- function(res, min.diploid = 0.5, min.single.gain.loss = 0.05,
 
 #' Heuristics to find the best purity/ploidy solution.
 #' 
+#' This function is deprecated and will be made defunct in next release.
+#'
 #' This implements a workflow with various heuristics, with the goal of
 #' identifying correct purity/ploidy solutions in difficult samples. This is
 #' mainly for automated copy number calling. This function may evolve over time
@@ -82,16 +83,11 @@ getDiploid <- function(res, min.diploid = 0.5, min.single.gain.loss = 0.05,
 #' purity and ploidy solutions filtered out.
 #' @author Markus Riester
 #' @seealso \code{\link{runAbsoluteCN}}
-#' @examples
-#' 
-#' data(purecn.example.output)
-#' # no diploid solutions in the example
-#' example.output.curated <- autoCurateResults(purecn.example.output, 
-#'     bootstrap.n=100)
 #' 
 #' @export autoCurateResults
 autoCurateResults <- function(res, bootstrap=TRUE, bootstrap.n = 500,
     verbose = TRUE) {
+    .Deprecated()
     if (bootstrap && is.null(res$results[[1]]$bootstrap.value)) {
         if (verbose) message("Bootstrapping VCF ",
                 "to reduce number of solutions.")

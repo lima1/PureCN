@@ -718,8 +718,6 @@ Column name & Description \\
 
 \section{Curation}
 
-\subsection{Manual}
-
 For prediction of SNV status (germline vs. somatic, sub-clonal vs. clonal,
 homozygous vs. heterozygous), it is important that both purity and ploidy are
 correct. We provide functionality for curating results:
@@ -753,55 +751,6 @@ read.csv("Sample1_PureCN.csv")
 \Biocpkg{PureCN} currently only flags samples with warnings, it does not mark
 any samples as failed. The \Rcode{Failed} column in the curation file can be
 used to manually flag samples for exclusion in downstream analyses.
-
-\subsection{Automatic}
-
-If \Biocpkg{PureCN} is mainly used for copy number calling, not for classifying
-variants, then a deterministic algorithm that does not require manual curation is
-important and can produce good results for most samples. A default workflow for
-automatic curation is available in the \Rfunction{autoCurateResults} function.
-This is a work in progress and implements various heuristics that try to call
-the correct solution in difficult samples (i.e., noisy or quiet samples).  We
-recommend copying and renaming the function when reproducibility is crucial.
-
-The number of considered local optima is typically high and potentially
-confusing. The first step in the auto curation is thus to remove low likelihood
-optima.  Internally, this is done with the \Rfunction{bootstrapResults}
-function. This function bootstraps variants in the provided VCF and re-ranks
-local optima. Solutions that never rank high are then excluded
-(Figure~\ref{figure/figureexample1b-1}).  Large-scale copy number artifacts can
-decrease the likelihood scores of correct solutions, however, potentially
-resulting in a removal of purity/ploidy estimates closest to the true values. 
-
-The next step in the auto curation workflow is rescuing low ranking diploid
-solutions. True high ploidy solutions typically have a rather uniform copy
-number distribution, while diploid solutions in general have only a small
-number of heterozygous losses and single copy gains; a large fraction of the
-genome would be by definition normal diploid.  The \Rfunction{getDiploid}
-function is internally used to find diploid solutions.  Since there should not
-be any diploid solutions in true high ploidy samples, these diploid solutions
-are then moved to the top of the ranking. If multiple diploid solutions exist,
-additional heuristics try to guess the correct one (for example the diploid
-purity should not be too different from the maximum likelihood purity).
-
-<<figureexample1b, fig.show='hide', fig.width=6, fig.height=6>>=
-ret <- autoCurateResults(ret)
-plotAbs(ret, type="overview")
-@
-\incfig{figure/figureexample1b-1}{0.75\textwidth}{Overview.}
-{As in Figure~\ref{figure/figureexample1-1}, but with low likelihood solutions
-automatically removed.}
-
-These automatically curated samples can of course be manually curated as well:
-
-<<curationauto>>=
-file.curated.rds <- "Sample1_PureCN_autocurated.rds"
-saveRDS(ret, file=file.curated.rds)
-pdf("Sample1_PureCN_autocurated.pdf", width=10, height=12)
-plotAbs(ret, type="all")
-dev.off()
-createCurationFile(file.curated.rds) 
-@
 
 \section{Cell lines}
 \label{sec:celllines}

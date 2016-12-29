@@ -112,8 +112,9 @@
 #' scores.
 #' @param max.non.clonal Maximum genomic fraction assigned to a subclonal copy
 #' number state.
-#' @param max.homozygous.loss Maximum genomic fraction assigned to homozygous
-#' loss.  This is set to a fairly high default value to not exclude correct
+#' @param max.homozygous.loss \code{double(2)} with maximum genomic fraction 
+#' assigned to homozygous loss and maximum size of a homozygous loss segment.  
+#' These are set to a fairly high default value to not exclude correct
 #' solutions, especially in noisy segmentations.
 #' @param non.clonal.M Average expected cellular fraction of sub-clonal somatic
 #' mutations. This is to calculate expected allelic fractions of a single
@@ -230,7 +231,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     test.purity = seq(0.15, 0.95, by = 0.01), prior.purity = NULL, 
     prior.K = 0.999, prior.contamination = 0.01, max.candidate.solutions = 20,
     candidates = NULL, min.coverage = 15, max.coverage.vcf = 300, 
-    max.non.clonal = 0.2, max.homozygous.loss = 0.1, non.clonal.M = 1/3, 
+    max.non.clonal = 0.2, max.homozygous.loss = c(0.05, 1e07) , non.clonal.M = 1/3, 
     max.mapping.bias = 0.8, iterations = 30, log.ratio.calibration = 0.25, 
     remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001, 
     gc.gene.file = NULL, max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
@@ -238,11 +239,15 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     post.optimize = FALSE, verbose = TRUE) {
     debug <- FALSE
     
-    # TODO: remove in PureCN 1.6
+    # TODO: remove in PureCN 1.8
     if (!is.null(remove.off.target.snvs)) {
         args.filterVcf$remove.off.target.snvs <- remove.off.target.snvs
         message("remove.off.target.snvs is deprecated. Please use it in args.filterVcf instead.")
     }
+    # TODO: remove in PureCN 1.8
+    if (length(max.homozygous.loss)==1){
+         max.homozygous.loss <- c(max.homozygous.loss, 1e07)
+    }     
     centromeres <- .getCentromerePositions(centromeres, genome)
     
     # defaults to equal priors for all tested purity values
@@ -717,8 +722,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                   frac.homozygous.loss <- vapply(test.num.copy, function(Ci) (sum(li[-i] * 
                     ifelse(C[-i] == 0, 1, 0)) + li[i] * ifelse(Ci == 0, 1, 0))/sum(li), 
                     double(1))
+
+                  # set maximimum homozygous loss size to 10mb.  
+                  if (li[i]>max.homozygous.loss[2] && test.num.copy[1]<1) frac.homozygous.loss[1] <- 1
                   log.prior.homozygous.loss <- log(ifelse(frac.homozygous.loss > 
-                    max.homozygous.loss, 0, 1))
+                    max.homozygous.loss[1], 0, 1))
                   if (iter > 1) 
                     p.rij <- p.rij + log.prior.homozygous.loss
                   
