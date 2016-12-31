@@ -474,7 +474,7 @@ log-ratio copy number range. The vertical dotted lines and numbers visualize
 the, for the given purity/ploidy combination, expected log-ratios for all
 integer copy numbers from 0 to 7. It can be seen that most of the log-ratios of
 the maximum likelihood solution align well to expected values for copy numbers
-of 0, 1 and 2. 
+of 0, 1, 2 and 4. 
 
 <<figureexample3, fig.show='hide', fig.width=8, fig.height=8>>=
 plotAbs(ret, 1, type="BAF")
