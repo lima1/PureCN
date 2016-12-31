@@ -568,11 +568,13 @@ ss) {
     plot(gene.calls$voom.gene.mean, -log10(gene.calls$voom.pvalue), 
         xlab="Coverage log-ratio tumor vs. normal",
         ylab="-log10(p-value)", col=plotCol) 
-    legend("topleft", legend=unique(gene.calls$chr[idx]),fill=unique(plotCol[idx]))
-    abline(h=-log10(max.pvalue), lty=2, col="grey")
-    idx <- head(order(gene.calls$voom.pvalue),num.genes)
-    text(gene.calls$voom.gene.mean[idx], -log10(gene.calls$voom.pvalue)[idx], 
-        label=rownames(gene.calls)[idx], pos=2)
+    if (length(which(idx))) {
+        legend("topleft", legend=unique(gene.calls$chr[idx]),fill=unique(plotCol[idx]))
+        abline(h=-log10(max.pvalue), lty=2, col="grey")
+        idx <- head(order(gene.calls$voom.pvalue),num.genes)
+        text(gene.calls$voom.gene.mean[idx], -log10(gene.calls$voom.pvalue)[idx], 
+            label=rownames(gene.calls)[idx], pos=2)
+    }
 }    
 
 .getVariantPosteriors <- function(res, i, max.mapping.bias=NULL) {

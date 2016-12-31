@@ -48,8 +48,8 @@
 #' # samples.
 #' ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
 #'     tumor.coverage.file=tumor.coverage.file, genome="hg19", vcf.file=vcf.file,
-#'     sampleid="Sample1", gc.gene.file=gc.gene.file,
-#'     args.filterTargets=list(normalDB=normalDB), max.ploidy=4, 
+#'     sampleid="Sample1", gc.gene.file=gc.gene.file, normalDB=normalDB,
+#'     args.filterTargets=list(min.targeted.base=10), max.ploidy=4, 
 #'     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 #' 
 #' @export filterTargets

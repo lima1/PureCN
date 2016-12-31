@@ -396,8 +396,7 @@ ret <-runAbsoluteCN(normal.coverage.file=pool,
 # normal.coverage.file=normal.coverage.file, 
     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, 
     genome="hg19", sampleid="Sample1", 
-    gc.gene.file=gc.gene.file, 
-    args.filterTargets=list(normalDB=normalDB),
+    gc.gene.file=gc.gene.file, normalDB=normalDB,
 # args.setMappingBiasVcf=list(normal.panel.vcf.file=normal.panel.vcf.file),
 # args.filterVcf=list(snp.blacklist=snp.blacklist, 
 # stats.file=mutect.stats.file), 
@@ -409,8 +408,8 @@ The \Rcode{normal.coverage.file} argument points to a coverage file obtained fro
 either a matched or a process-matched normal sample, but can be also a small
 pool of best normals (Section~\ref{bestnormal}).  
 
-The \Rcode{normalDB} argument (Section~\ref{bestnormal}) in
-\Rcode{args.filterTargets} allows the segmentation function to skip targets
+The \Rcode{normalDB} argument (Section~\ref{bestnormal}) provides a pool of
+normal samples and for example allows the segmentation function to skip targets
 with low coverage in the pool of normals.  If available, a VCF containing all
 variants from the normal samples should be provided via
 \Rcode{args.setMappingBiasVcf} to correct read mapping biases.  The files

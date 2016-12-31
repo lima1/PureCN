@@ -6,10 +6,10 @@
 \usage{
 runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   log.ratio = NULL, seg.file = NULL, seg.file.sdev = 0.4,
-  vcf.file = NULL, genome, centromeres = NULL, sex = c("?", "F", "M",
-  "diploid"), fun.filterVcf = filterVcfMuTect, args.filterVcf = list(),
-  fun.setPriorVcf = setPriorVcf, args.setPriorVcf = list(),
-  fun.setMappingBiasVcf = setMappingBiasVcf,
+  vcf.file = NULL, normalDB = NULL, genome, centromeres = NULL,
+  sex = c("?", "F", "M", "diploid"), fun.filterVcf = filterVcfMuTect,
+  args.filterVcf = list(), fun.setPriorVcf = setPriorVcf,
+  args.setPriorVcf = list(), fun.setMappingBiasVcf = setMappingBiasVcf,
   args.setMappingBiasVcf = list(), fun.filterTargets = filterTargets,
   args.filterTargets = list(), fun.segmentation = segmentationCBS,
   args.segmentation = list(), fun.focal = findFocal, args.focal = list(),
@@ -55,6 +55,11 @@ function.  Requires a DB info flag for dbSNP membership. The default
 \code{cosmic.vcf.file}), containing the hits in the COSMIC database. Again,
 do not expect very useful results without a VCF file.}
 
+\item{normalDB}{Normal database, created with
+\code{\link{createNormalDatabase}}. If provided, used to calculate gene-level
+p-values (requires \code{Gene} column in \code{gc.gene.file}) and to filter
+targets with low coverage in the pool of normal samples.}
+
 \item{genome}{Genome version, for example hg19.}
 
 \item{centromeres}{A \code{data.frame} with centromere positions in first
@@ -99,8 +104,7 @@ should be used for segmentation. Defaults to \code{\link{filterTargets}}.}
 
 \item{args.filterTargets}{Arguments for target filtering function. Arguments
 \code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
-\code{verbose} are required and automatically set (do NOT set them here
-again).}
+\code{normalDB} and \code{verbose} are required and automatically set}
 
 \item{fun.segmentation}{Function for segmenting the copy number log-ratios.
 Expected return value is a \code{data.frame} representation of the

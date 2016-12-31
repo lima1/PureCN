@@ -29,6 +29,8 @@ API CHANGES
 - Other minor changes:
     - Renamed some predictSomatic() output column names
     - Moved remove.off.target.snvs to filterVcfBasic
+    - Moved normalDB from filterTargets to runAbsoluteCN, since it us now 
+      use for more than target filtering.
     - Dropped BED file support in calculateGCContentByInterval
       Instead provide support for GRanges
     - poolCoverage: w argument now used as provided, not 

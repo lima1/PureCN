@@ -33,6 +33,10 @@
 #' \code{fun.setPriorVcf} function will also look for a Cosmic.CNT slot (see
 #' \code{cosmic.vcf.file}), containing the hits in the COSMIC database. Again,
 #' do not expect very useful results without a VCF file.
+#' @param normalDB Normal database, created with
+#' \code{\link{createNormalDatabase}}. If provided, used to calculate gene-level
+#' p-values (requires \code{Gene} column in \code{gc.gene.file}) and to filter
+#' targets with low coverage in the pool of normal samples.
 #' @param genome Genome version, for example hg19.
 #' @param centromeres A \code{data.frame} with centromere positions in first
 #' three columns.  If \code{NULL}, use pre-stored positions for genome versions
@@ -67,8 +71,7 @@
 #' should be used for segmentation. Defaults to \code{\link{filterTargets}}.
 #' @param args.filterTargets Arguments for target filtering function. Arguments
 #' \code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
-#' \code{verbose} are required and automatically set (do NOT set them here
-#' again).
+#' \code{normalDB} and \code{verbose} are required and automatically set 
 #' @param fun.segmentation Function for segmenting the copy number log-ratios.
 #' Expected return value is a \code{data.frame} representation of the
 #' segmentation. Defaults to \code{\link{segmentationCBS}}.
@@ -220,13 +223,14 @@
 #' @importFrom data.table data.table
 runAbsoluteCN <- function(normal.coverage.file = NULL, 
     tumor.coverage.file = NULL, log.ratio = NULL, seg.file = NULL, 
-    seg.file.sdev = 0.4, vcf.file = NULL, genome, centromeres = NULL, 
-    sex = c("?", "F", "M", "diploid"), fun.filterVcf = filterVcfMuTect, 
-    args.filterVcf = list(), fun.setPriorVcf = setPriorVcf, 
-    args.setPriorVcf = list(), fun.setMappingBiasVcf = setMappingBiasVcf, 
-    args.setMappingBiasVcf = list(), fun.filterTargets = filterTargets, 
-    args.filterTargets = list(), fun.segmentation = segmentationCBS, 
-    args.segmentation = list(), fun.focal = findFocal, args.focal = list(), 
+    seg.file.sdev = 0.4, vcf.file = NULL, normalDB = NULL, genome, 
+    centromeres = NULL, sex = c("?", "F", "M", "diploid"), 
+    fun.filterVcf = filterVcfMuTect, args.filterVcf = list(), 
+    fun.setPriorVcf = setPriorVcf, args.setPriorVcf = list(), 
+    fun.setMappingBiasVcf = setMappingBiasVcf, args.setMappingBiasVcf = list(), 
+    fun.filterTargets = filterTargets, args.filterTargets = list(), 
+    fun.segmentation = segmentationCBS, args.segmentation = list(), 
+    fun.focal = findFocal, args.focal = list(), 
     sampleid = NULL, min.ploidy = 1, max.ploidy = 6, test.num.copy = 0:7, 
     test.purity = seq(0.15, 0.95, by = 0.01), prior.purity = NULL, 
     prior.K = 0.999, prior.contamination = 0.01, max.candidate.solutions = 20,
@@ -242,12 +246,21 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # TODO: remove in PureCN 1.8
     if (!is.null(remove.off.target.snvs)) {
         args.filterVcf$remove.off.target.snvs <- remove.off.target.snvs
-        message("remove.off.target.snvs is deprecated. Please use it in args.filterVcf instead.")
+        message("remove.off.target.snvs is deprecated. ", 
+            "Please use it in args.filterVcf instead.")
     }
     # TODO: remove in PureCN 1.8
     if (length(max.homozygous.loss)==1){
          max.homozygous.loss <- c(max.homozygous.loss, 1e07)
+         message("max.homozygous.loss now a double(2) vector. ", 
+            "Please provide both values.")
     }     
+    # TODO: remove in PureCN 1.8
+    if (is.null(normalDB) && !is.null(args.filterTargets$normalDB)) {
+        normalDB <- args.filterTargets$normalDB
+        message("normalDB now a runAbsoluteCN argument. ", 
+            "Please provide it there, not in args.filterTargets.")
+    }    
     centromeres <- .getCentromerePositions(centromeres, genome)
     
     # defaults to equal priors for all tested purity values
@@ -348,10 +361,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         gc.data <- gc.data[match(as.character(tumor[, 1]), gc.data[, 1]), , drop = FALSE]
     }
     
-    args.filterTargets <- c(list(log.ratio = log.ratio, tumor = tumor, gc.data = gc.data, 
-        seg.file = seg.file, verbose = verbose), args.filterTargets)
+    args.filterTargets <- c(list(log.ratio = log.ratio, tumor = tumor, 
+        gc.data = gc.data, seg.file = seg.file, normalDB = normalDB, 
+        verbose = verbose), args.filterTargets)
     
-    targetsUsed <- do.call(fun.filterTargets, args.filterTargets)
+    targetsUsed <- do.call(fun.filterTargets, 
+        .checkArgs(args.filterTargets, "filterTargets"))
     
     # chr.hash is an internal data structure, so we need to do this separately.
     targetsUsed <- .filterTargetsChrHash(targetsUsed, tumor, chr.hash, verbose)
@@ -444,7 +459,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         if (is.null(args.filterVcf$min.coverage)) {
             args.filterVcf$min.coverage <- min.coverage
         }
-        vcf.filtering <- do.call(fun.filterVcf, args.filterVcf)
+        vcf.filtering <- do.call(fun.filterVcf, 
+            .checkArgs(args.filterVcf, "filterVcf"))
         
         vcf <- vcf.filtering$vcf
         
@@ -454,13 +470,15 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         
         args.setPriorVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf, 
             verbose = verbose), args.setPriorVcf)
-        prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
+        prior.somatic <- do.call(fun.setPriorVcf, 
+            .checkArgs(args.setPriorVcf, "setPriorVcf"))
         
         # get mapping bias
         args.setMappingBiasVcf$vcf <- vcf
         args.setMappingBiasVcf$tumor.id.in.vcf <- tumor.id.in.vcf
         args.setMappingBiasVcf$verbose <- verbose
-        mapping.bias <- do.call(fun.setMappingBiasVcf, args.setMappingBiasVcf)
+        mapping.bias <- do.call(fun.setMappingBiasVcf,
+            .checkArgs(args.setMappingBiasVcf, "setMappingBiasVcf"))
         idxHqGermline <- prior.somatic < 0.5 & mapping.bias >= max.mapping.bias
         vcf.germline <- vcf[idxHqGermline]
     }
@@ -477,7 +495,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         verbose = verbose), args.segmentation)
     
     vcf.germline <- NULL
-    seg <- do.call(fun.segmentation, args.segmentation)
+    seg <- do.call(fun.segmentation,
+            .checkArgs(args.segmentation, "segmentation"))
     
     seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), IRanges(start = round(seg$loc.start), 
         end = seg$loc.end))
@@ -509,7 +528,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         # get final somatic priors
         args.setPriorVcf$vcf <- vcf
         args.setPriorVcf$verbose <- FALSE
-        prior.somatic <- do.call(fun.setPriorVcf, args.setPriorVcf)
+        prior.somatic <- do.call(fun.setPriorVcf,
+            .checkArgs(args.setPriorVcf, "setPriorVcf"))
     }
     
     # get target log-ratios for all segments
@@ -867,8 +887,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         flag_comment = vcf.filtering$flag_comment, dropout = dropoutWarning, use.somatic.status = args.filterVcf$use.somatic.status, 
         model.homozygous = model.homozygous)
     
-    if (!is.null(args.filterTargets$normalDB) && length(results) && !is.null(results[[1]]$gene.calls)) {
-        results <- .addVoomToGeneCalls(results, tumor.coverage.file, args.filterTargets$normalDB, 
+    if (!is.null(normalDB) && length(results) && !is.null(results[[1]]$gene.calls)) {
+        results <- .addVoomToGeneCalls(results, tumor.coverage.file, normalDB, 
             gc.gene.file)
     }
     

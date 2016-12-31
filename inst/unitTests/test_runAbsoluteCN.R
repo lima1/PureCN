@@ -279,7 +279,7 @@ test_runAbsoluteCN <- function() {
     # check filterTargets
     checkException(runAbsoluteCN(normal.coverage.file = normal.coverage.file,  
         tumor.coverage.file = tumor.coverage.file, genome = "hg19", 
-        args.filterTargets=list(normalDB=vcf.file)))
+        normalDB=vcf.file))
     checkTrue(grepl("normalDB not a valid normalDB object", 
         geterrmessage()))
     
@@ -289,15 +289,13 @@ test_runAbsoluteCN <- function() {
     tmp$normal.coverage.files <- NULL
     checkException(runAbsoluteCN(normal.coverage.file = normal.coverage.file,  
         tumor.coverage.file = tumor.coverage.file, genome = "hg19", 
-        args.filterTargets=list(normalDB=tmp)))
+        normalDB=tmp))
     checkTrue(grepl("normalDB appears to be empty", 
         geterrmessage()))
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
         tumor.coverage.file = tumor.coverage.file, genome = "hg19", vcf.file = vcf.file, 
-        sampleid = "Sample1", gc.gene.file = gc.gene.file, 
-        args.filterTargets = list(normalDB = normalDB,
-        filter.lowhigh.gc=0
-        ), 
+        sampleid = "Sample1", gc.gene.file = gc.gene.file, normalDB = normalDB,
+        args.filterTargets = list(filter.lowhigh.gc=0), 
         plot.cnv=FALSE,
         max.ploidy = 3, test.purity = seq(0.4, 0.7, by = 0.05), 
         max.candidate.solutions = 1)

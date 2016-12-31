@@ -295,6 +295,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         .stopUserError("Iterations not in the expected range from 10 to 250.")
     }    
 }
+
 .failedNonAberrant <- function(result, cutoffs = c(0.01, 0.005)) {
     xx <- split(result$seg, result$seg$C)
     if (length(xx) < 3) 
@@ -904,4 +905,13 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         }
     }
     centromeres
-}    
+}
+.checkArgs <- function(args, fname) {
+    dups <- duplicated(names(args)) 
+    if (sum(dups)) {
+        args <- args[!dups]
+        warning("Duplicated arguments in ", fname)
+    }
+    args
+}
+        
