@@ -502,8 +502,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     p <- y$p.value[rownames(results[[1]]$gene.calls),2]
 
     for (i in seq_along(results)) {
-        results[[i]]$gene.calls$voom.gene.mean <- logFC
-        results[[i]]$gene.calls$voom.pvalue <- p
+        results[[i]]$gene.calls$.voom.gene.mean <- logFC
+        results[[i]]$gene.calls$pvalue <- p
    }
    results
 }

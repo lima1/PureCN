@@ -25,11 +25,11 @@ API CHANGES
     - min.targeted.base 5 (from 4) in filterTargets
     - max.homozygous.loss now a double(2) vector, with first element
       specifying the maximum fraction of genome deleted (default 5%) and the 
-      secoond value the maximum size of a homozygous loss (default 10mb).
+      second value the maximum size of a homozygous loss (default 10mb).
 - Other minor changes:
     - Renamed some predictSomatic() output column names
     - Moved remove.off.target.snvs to filterVcfBasic
-    - Moved normalDB from filterTargets to runAbsoluteCN, since it us now 
+    - Moved normalDB from filterTargets to runAbsoluteCN, since it is now 
       use for more than target filtering.
     - Dropped BED file support in calculateGCContentByInterval
       Instead provide support for GRanges

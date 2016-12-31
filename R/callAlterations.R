@@ -63,6 +63,8 @@ log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, all.genes = FALSE) {
         calls$loh <- bm$posterior$ML.M.SEGMENT[match(calls$seg.id, segids)] == 0 
     }
     
+    calls <- calls[, !grepl("^\\.",colnames(calls))]
+       
     if (!all.genes) {
         return(calls[!is.na(calls$type),])
     }
