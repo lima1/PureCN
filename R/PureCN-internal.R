@@ -361,23 +361,28 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     result$flag_comment <- NA
     result$flag <- .failedNonAberrant(result)
     if (result$flag) {
-        result$flag_comment <- .appendComment(result$flag_comment, "NON-ABERRANT")
+        result$flag_comment <- .appendComment(result$flag_comment, 
+            "NON-ABERRANT")
     }
     if (result$fraction.subclonal > max.non.clonal*0.75) {
         result$flag <- TRUE
-        result$flag_comment <- .appendComment(result$flag_comment, "POLYGENOMIC")
+        result$flag_comment <- .appendComment(result$flag_comment, 
+            "POLYGENOMIC")
     }
-    if (result$fraction.homozygous.loss > 0.05) {
+    if (result$fraction.homozygous.loss > 0.01) {
         result$flag <- TRUE
-        result$flag_comment <- .appendComment(result$flag_comment, "EXCESSIVE LOSSES")
+        result$flag_comment <- .appendComment(result$flag_comment, 
+            "EXCESSIVE LOSSES")
     }
     if (result$ploidy > 4.5 || result$ploidy < 1.5) {
         result$flag <- TRUE
-        result$flag_comment <- .appendComment(result$flag_comment, "RARE KARYOTYPE")
+        result$flag_comment <- .appendComment(result$flag_comment, 
+            "RARE KARYOTYPE")
     }
     if (result$purity < 0.3) {
         result$flag <- TRUE
-        result$flag_comment <- .appendComment(result$flag_comment, "LOW PURITY")
+        result$flag_comment <- .appendComment(result$flag_comment, 
+            "LOW PURITY")
     }
     if (result$purity > 0.9 && !model.homozygous && 
         (!is.null(use.somatic.status) && !use.somatic.status)) {
