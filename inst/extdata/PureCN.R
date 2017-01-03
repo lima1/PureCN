@@ -131,3 +131,14 @@ file.genes <- file.path(outdir, paste0(sampleid, '_purecn_genes.csv'))
 write.csv(cbind(Sampleid=sampleid, callAlterations(ret, all.genes=TRUE)), 
     file=file.genes, quote=FALSE)
 
+if (!is.null(tumor.vcf)) {
+    file.pdf <- file.path(outdir, paste0(sampleid, '_chromosomes_purecn.pdf'))
+    pdf(file.pdf, width=9, height=10)
+    vcf <- ret$input$vcf[ret$results[[1]]$SNV.posterior$beta.model$vcf.ids]
+    chromosomes <- seqlevelsInUse(vcf)
+    chromosomes <- chromosomes[orderSeqlevels(chromosomes)]
+    for (chrom in chromosomes) {
+        plotAbs(ret, 1, type='BAF', chr=chrom)
+    }
+    dev.off()
+}
