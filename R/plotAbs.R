@@ -243,6 +243,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                 plot(x, r$ML.C[idx], ylab="Maximum Likelihood Copy Number", 
                     xlab="Pos (kbp)", 
                     ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), ... )
+                points(x, r$ML.M.SEGMENT[idx], col="grey")
             } else {
                 plot(r$AR[idx],ylab="B-Allele Frequency", xlab="SNV Index",
                     main=main, type="n", ...)
