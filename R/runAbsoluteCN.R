@@ -59,7 +59,7 @@
 #' @param args.filterVcf Arguments for variant filtering function. Arguments
 #' \code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage},
 #' \code{model.homozygous}, \code{error} and \code{verbose} are required in the
-#' filter function and are automatically set (do NOT set them here again).
+#' filter function and are automatically set.
 #' @param fun.setPriorVcf Function to set prior for somatic status for each
 #' variant in the VCF. Defaults to \code{\link{setPriorVcf}}.
 #' @param args.setPriorVcf Arguments for somatic prior function.
@@ -78,8 +78,8 @@
 #' @param args.segmentation Arguments for segmentation function. Arguments
 #' \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv},
 #' \code{min.coverage}, \code{sampleid}, \code{vcf}, \code{tumor.id.in.vcf},
-#' \code{verbose} are required in the segmentation function and automatically
-#' set (do NOT set them here again).
+#' \code{centromeres} and \code{verbose} are required in the segmentation function 
+#' and automatically set.
 #' @param fun.focal Function for identifying focal amplifications. Defaults to
 #' \code{\link{findFocal}}.
 #' @param args.focal Arguments for focal amplification function.
@@ -492,7 +492,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         seg = .loadSegFile(seg.file), plot.cnv = plot.cnv, min.coverage = ifelse(is.null(seg.file), 
             min.coverage, -1), sampleid = sampleid, vcf = vcf.germline, tumor.id.in.vcf = tumor.id.in.vcf, 
         normal.id.in.vcf = normal.id.in.vcf, max.segments = max.segments, chr.hash = chr.hash, 
-        verbose = verbose), args.segmentation)
+        centromeres = centromeres, verbose = verbose), args.segmentation)
     
     vcf.germline <- NULL
     seg <- do.call(fun.segmentation,
@@ -823,8 +823,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         
         if (!is.null(vcf.file)) {
             if (post.optimize) {
-                idx <- (max(1, match(p, test.purity) - 4)):(min(length(test.purity), 
-                  match(p, test.purity) + 4))
+                idx <- c(match(p, test.purity), 
+                    (max(1, match(p, test.purity) - 4)):(min(length(test.purity), 
+                     match(p, test.purity) + 4)))
+                idx <- idx[!duplicated(idx)]
                 tp <- test.purity[idx]
                 pp <- prior.purity[idx]
             } else {
@@ -832,7 +834,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 pp <- 1
             }
             .fitSNV <- function(tp, pp) {
-                res.snvllik <- lapply(tp, function(px) {
+                .fitSNVp <- function(px) {
                   if (verbose) 
                     message("Fitting SNVs for purity ", round(px, digits = 2), " and tumor ploidy ", 
                       round(weighted.mean(C, li), digits = 2), ".")
@@ -842,18 +844,28 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     snv.lr, sampleid, cont.rate = prior.contamination, prior.K = prior.K, 
                     max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M, 
                     model.homozygous = model.homozygous, error = error, max.mapping.bias = max.mapping.bias))
-                })
+                }
+
+                res.snvllik <- lapply(tp[1], .fitSNVp)
                 
-                if (post.optimize) {
-                  px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal = subclonal[i], 
-                    lr = exon.lrs[[i]] + log.ratio.offset[i], sd.seg = sd.seg, p = px, 
-                    Ci = C[i], total.ploidy = px * (sum(li * (C)))/sum(li) + (1 - 
-                      px) * 2, max.exon.ratio = max.exon.ratio), double(1)))
-                  
-                  px.rij.s <- sapply(px.rij, sum, na.rm = TRUE) + log(pp) + vapply(res.snvllik, 
-                    function(x) x$beta.model$llik, double(1))
-                  
-                  idx <- which.max(px.rij.s)
+                if (post.optimize && length(tp)>1) {
+                    GoF <- .getGoF(list(SNV.posterior=res.snvllik[[1]]))
+                    idx <- 1
+                    if (GoF < min.gof) { 
+                        if (verbose) message("Poor goodness-of-fit (", 
+                            round(GoF, digits=3), 
+                            "). Skipping post-optimization.")
+                    } else {    
+                        res.snvllik <- c(res.snvllik, lapply(tp[-1], .fitSNVp))
+                      px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal = subclonal[i], 
+                        lr = exon.lrs[[i]] + log.ratio.offset[i], sd.seg = sd.seg, p = px, 
+                        Ci = C[i], total.ploidy = px * (sum(li * (C)))/sum(li) + (1 - 
+                          px) * 2, max.exon.ratio = max.exon.ratio), double(1)))
+                      
+                      px.rij.s <- sapply(px.rij, sum, na.rm = TRUE) + log(pp) + vapply(res.snvllik, 
+                        function(x) x$beta.model$llik, double(1))
+                      idx <- which.max(px.rij.s)
+                  }
                 } else {
                   idx <- 1
                 }

@@ -5,10 +5,11 @@
 \title{PSCBS segmentation}
 \usage{
 segmentationPSCBS(normal, tumor, log.ratio, seg, plot.cnv, min.coverage,
-  sampleid, target.weight.file = NULL, flavor = "tcn&dh", tauA = 0.03,
-  vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
-  max.segments = NULL, prune.hclust.h = NULL,
-  prune.hclust.method = "ward.D", chr.hash = NULL, verbose = TRUE, ...)
+  sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD = NULL,
+  drop.outliers = TRUE, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
+  tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
+  prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
+  centromeres = NULL, verbose = TRUE, ...)
 }
 \arguments{
 \item{normal}{GATK coverage data for normal sample.}
@@ -28,38 +29,51 @@ ignores this user provided segmentation.}
 
 \item{sampleid}{Sample id, used in output files.}
 
-\item{target.weight.file}{Can be used to assign weights to exons. NOT
-SUPPORTED YET.}
+\item{target.weight.file}{Can be used to assign weights to targets. NOT
+SUPPORTED YET in segmentation. Will remove targets with weight below 1/3.}
 
-\item{flavor}{Flavor value for PSCBS. See segmentByNonPairedPSCBS.}
+\item{alpha}{Alpha value for CBS, see documentation for the \code{segment}
+function.}
 
-\item{tauA}{tauA argument for PSCBS. See segmentByNonPairedPSCBS.}
+\item{undo.SD}{\code{undo.SD} for CBS, see documentation of the
+\code{segment} function. If \code{NULL}, try to find a sensible default.}
+
+\item{drop.outliers}{If \code{TRUE}, calls the 
+\code{dropSegmentationOutliers} function from PSCBS before segmentation.}
+
+\item{flavor}{Flavor value for PSCBS. See \code{segmentByNonPairedPSCBS}.}
+
+\item{tauA}{tauA argument for PSCBS. See \code{segmentByNonPairedPSCBS}.}
 
 \item{vcf}{Optional VCF object with germline allelic ratios.}
 
 \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in
 VCF.}
 
-\item{normal.id.in.vcf}{Id of normal in in VCF. If NULL, use unpaired PSCBS.}
+\item{normal.id.in.vcf}{Id of normal in in VCF. If \code{NULL}, 
+use unpaired PSCBS.}
 
-\item{max.segments}{If not NULL, try a higher undo.SD parameter if number of
-segments exceeds the threshold.}
+\item{max.segments}{If not \code{NULL}, try a higher \code{undo.SD} 
+parameter if number of segments exceeds the threshold.}
 
 \item{prune.hclust.h}{Height in the \code{hclust} pruning step. Increasing
-this value will merge segments more aggressively. If NULL, try to find a
-sensible default.}
+this value will merge segments more aggressively. If \code{NULL}, try to 
+find a sensible default.}
 
 \item{prune.hclust.method}{Cluster method used in the \code{hclust} pruning
 step. See documentation for the \code{hclust} function.}
 
 \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
-(e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes are properly
-ordered.}
+(e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are 
+properly ordered.}
+
+\item{centromeres}{A \code{data.frame} with centromere positions in first
+three columns.  If not \code{NULL}, add breakpoints at centromeres.}
 
 \item{verbose}{Verbose output.}
 
-\item{\dots}{Additional parameters passed to the segmentByNonPairedPSCBS
-function.}
+\item{\dots}{Additional parameters passed to the 
+\code{segmentByNonPairedPSCBS} function.}
 }
 \value{
 \code{data.frame} containing the segmentation.

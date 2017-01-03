@@ -8,7 +8,7 @@ segmentationCBS(normal, tumor, log.ratio, seg, plot.cnv, min.coverage, sampleid,
   target.weight.file = NULL, alpha = 0.005, undo.SD = NULL, vcf = NULL,
   tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
   prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
-  verbose = TRUE)
+  centromeres = NULL, verbose = TRUE)
 }
 \arguments{
 \item{normal}{GATK coverage data for normal sample.}
@@ -57,6 +57,9 @@ step. See documentation for the \code{hclust} function.}
 \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
 (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are
 properly ordered.}
+
+\item{centromeres}{A \code{data.frame} with centromere positions in first
+three columns.  Currently not supported in this function.}
 
 \item{verbose}{Verbose output.}
 }

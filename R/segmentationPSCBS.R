@@ -16,27 +16,36 @@
 #' @param plot.cnv Segmentation plots.
 #' @param min.coverage Minimum coverage in both normal and tumor.
 #' @param sampleid Sample id, used in output files.
-#' @param target.weight.file Can be used to assign weights to exons. NOT
-#' SUPPORTED YET.
-#' @param flavor Flavor value for PSCBS. See segmentByNonPairedPSCBS.
-#' @param tauA tauA argument for PSCBS. See segmentByNonPairedPSCBS.
+#' @param target.weight.file Can be used to assign weights to targets. NOT
+#' SUPPORTED YET in segmentation. Will remove targets with weight below 1/3.
+#' @param alpha Alpha value for CBS, see documentation for the \code{segment}
+#' function.
+#' @param undo.SD \code{undo.SD} for CBS, see documentation of the
+#' \code{segment} function. If \code{NULL}, try to find a sensible default.
+#' @param drop.outliers If \code{TRUE}, calls the 
+#' \code{dropSegmentationOutliers} function from PSCBS before segmentation.
+#' @param flavor Flavor value for PSCBS. See \code{segmentByNonPairedPSCBS}.
+#' @param tauA tauA argument for PSCBS. See \code{segmentByNonPairedPSCBS}.
 #' @param vcf Optional VCF object with germline allelic ratios.
 #' @param tumor.id.in.vcf Id of tumor in case multiple samples are stored in
 #' VCF.
-#' @param normal.id.in.vcf Id of normal in in VCF. If NULL, use unpaired PSCBS.
-#' @param max.segments If not NULL, try a higher undo.SD parameter if number of
-#' segments exceeds the threshold.
+#' @param normal.id.in.vcf Id of normal in in VCF. If \code{NULL}, 
+#' use unpaired PSCBS.
+#' @param max.segments If not \code{NULL}, try a higher \code{undo.SD} 
+#' parameter if number of segments exceeds the threshold.
 #' @param prune.hclust.h Height in the \code{hclust} pruning step. Increasing
-#' this value will merge segments more aggressively. If NULL, try to find a
-#' sensible default.
+#' this value will merge segments more aggressively. If \code{NULL}, try to 
+#' find a sensible default.
 #' @param prune.hclust.method Cluster method used in the \code{hclust} pruning
 #' step. See documentation for the \code{hclust} function.
 #' @param chr.hash Mapping of non-numerical chromsome names to numerical names
-#' (e.g. chr1 to 1, chr2 to 2, etc.). If NULL, assume chromsomes are properly
-#' ordered.
+#' (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are 
+#' properly ordered.
+#' @param centromeres A \code{data.frame} with centromere positions in first
+#' three columns.  If not \code{NULL}, add breakpoints at centromeres. 
 #' @param verbose Verbose output.
-#' @param \dots Additional parameters passed to the segmentByNonPairedPSCBS
-#' function.
+#' @param \dots Additional parameters passed to the 
+#' \code{segmentByNonPairedPSCBS} function.
 #' @return \code{data.frame} containing the segmentation.
 #' @author Markus Riester
 #' @seealso \code{\link{runAbsoluteCN}}
@@ -62,10 +71,11 @@
 #' 
 #' @export segmentationPSCBS
 segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
-    min.coverage, sampleid, target.weight.file = NULL, flavor = "tcn&dh", tauA =
-        0.03, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
-    max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
-    chr.hash = NULL, verbose = TRUE, ...) {
+    min.coverage, sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD =
+    NULL, drop.outliers=TRUE, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
+    tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
+    prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
+    centromeres = NULL, verbose = TRUE, ...) {
 
     debug <- TRUE
         
@@ -75,18 +85,22 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
 
+    well.covered.exon.idx <- ((normal$average.coverage > min.coverage) &
+        (tumor$average.coverage > min.coverage)) | 
+        ((normal$average.coverage > 1.5 * min.coverage) &  
+        (tumor$average.coverage > 0.5 * min.coverage))
+
     target.weights <- NULL
     if (!is.null(target.weight.file)) {
         target.weights <- read.delim(target.weight.file, as.is=TRUE)
         target.weights <- target.weights[match(as.character(tumor[,1]), 
             target.weights[,1]),2]
         if (verbose) message(
-            "Exon weights found, but currently not supported by PSCBS.")
+            "Target weights found, but currently not supported by PSCBS. ",
+            "Will simply exclude targets with low weight.")
+        lowWeightTargets <- target.weights < 1/3
+        well.covered.exon.idx[which(lowWeightTargets)] <- FALSE
     }
-    well.covered.exon.idx <- ((normal$average.coverage > min.coverage) &
-        (tumor$average.coverage > min.coverage)) | 
-        ((normal$average.coverage > 1.5 * min.coverage) &  
-        (tumor$average.coverage > 0.5 * min.coverage))
 
     #MR: fix for missing chrX/Y 
     well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
@@ -118,8 +132,25 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     #    seg <- PSCBS::segmentByPairedPSCBS(d.f, tauA=tauA, 
     #        flavor=flavor, ...)
     #} else {
-        seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
-            flavor=flavor, ...)
+    if (is.null(undo.SD)) {
+        undo.SD <- .getSDundo(log.ratio)
+        if (verbose) message("Setting undo.SD parameter to ", undo.SD)
+    }   
+    knownSegments <- NULL
+    if (!is.null(centromeres)) {
+        knownSegments <- centromeres
+        colnames(knownSegments) <- c("chromosome", "start", "end")
+        knownSegments$length <- knownSegments$end-knownSegments$start+1
+        knownSegments$chromosome <- .strip.chr.name(knownSegments$chromosome,
+            chr.hash)
+        knownSegments <- PSCBS::gapsToSegments(knownSegments)
+    }    
+    if (drop.outliers) {
+        d.f <- PSCBS::dropSegmentationOutliers(d.f)
+    }    
+    seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
+        flavor=flavor, undoTCN=undo.SD, knownSegments=knownSegments, 
+        min.width=3,alphaTCN=alpha, ...)
     #}    
     if (plot.cnv) PSCBS::plotTracks(seg)
     x <- .PSCBSoutput2DNAcopy(seg, sampleid)

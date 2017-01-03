@@ -13,6 +13,8 @@ Changes in version 1.6.0
   of runAbsoluteCN was hard to beat
 - More control over homozygous deletions (significant portion
   of wrong maximum likelihood solutions had many homozygous deletions)  
+- Faster post.optimize=TRUE by not optimizing poor fits.
+- Tweaks to segmentationPSCBS
 
 
 API CHANGES
@@ -36,6 +38,7 @@ API CHANGES
     - poolCoverage: w argument now used as provided, not 
         normalized so that w[1] is 1
     - Removed ... from runAbsoluteCN
+    - added centromeres to segmentation function.
  
  
 PLANNED FEATURES 

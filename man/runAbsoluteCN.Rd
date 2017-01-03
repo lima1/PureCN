@@ -86,7 +86,7 @@ to \code{\link{filterVcfMuTect}}, which in turn also calls
 \item{args.filterVcf}{Arguments for variant filtering function. Arguments
 \code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage},
 \code{model.homozygous}, \code{error} and \code{verbose} are required in the
-filter function and are automatically set (do NOT set them here again).}
+filter function and are automatically set.}
 
 \item{fun.setPriorVcf}{Function to set prior for somatic status for each
 variant in the VCF. Defaults to \code{\link{setPriorVcf}}.}
@@ -113,8 +113,8 @@ segmentation. Defaults to \code{\link{segmentationCBS}}.}
 \item{args.segmentation}{Arguments for segmentation function. Arguments
 \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv},
 \code{min.coverage}, \code{sampleid}, \code{vcf}, \code{tumor.id.in.vcf},
-\code{verbose} are required in the segmentation function and automatically
-set (do NOT set them here again).}
+\code{centromeres} and \code{verbose} are required in the segmentation function 
+and automatically set.}
 
 \item{fun.focal}{Function for identifying focal amplifications. Defaults to
 \code{\link{findFocal}}.}
