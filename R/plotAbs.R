@@ -168,7 +168,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                 idx <-r$chr %in% chr
                 if (!sum(idx)) {
                     .stopUserError(paste(chr, collapse=","), 
-                    "not valid chromosome name(s). ",
+                    " not valid chromosome name(s). ",
                     "Valid names are: ",  
                     paste(unique(r$chr), collapse=","))
                 }
@@ -221,10 +221,17 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                 abline(h=0.5, lty=3, col="grey")
                 main <- paste("SCNA-fit Log-Likelihood:", 
                     round(res$results[[i]]$log.likelihood, digits=2) )
-                plot(x, r$log.ratio[idx], ylab="Copy Number log-ratio", 
-                    xlab="Pos (kbp)", col=mycol, main=main, pch=mypch, 
+                logRatio <- res$input$log.ratio
+                logRatio <- logRatio[grep(paste0(chr,":"), logRatio[,1]),]
+                xLogRatio <- strsplit(as.character(logRatio[,1]),"[:-]")
+                xLogRatio <- as.numeric(sapply(xLogRatio, 
+                    function(i) i[2]))/1000
+
+                plot(xLogRatio, logRatio[,2], ylab="Copy Number log-ratio", 
+                    xlab="Pos (kbp)", col="grey", main=main, 
                     ylim=quantile(segment.log.ratio,p=c(0.01,0.99)),
                     ... )
+                points(x, r$log.ratio[idx], col=mycol, pch=mypch)
                 segment.log.ratio.lines[,1] <- x[segment.log.ratio.lines[,1]]
                 lines(segment.log.ratio.lines, col="black", lwd=3)
                 segment.M.log.ratio.lines[,1] <- x[segment.M.log.ratio.lines[,1]]
