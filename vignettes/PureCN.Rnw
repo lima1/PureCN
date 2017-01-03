@@ -456,8 +456,7 @@ plotAbs(ret, type="overview")
 (red). The numbers indicate the ranks of the local optima. Yellow fonts
 indicate that the corresponding solutions were flagged, which does not
 necessarily mean the solutions are wrong. The correct solution (number 1) of
-this toy example was flagged due to the low ploidy and large number of homozygous 
-losses.}
+this toy example was flagged due to large amount of LOH.} 
 
 We now look at the main plots of the maximum likelihood solution in more detail.
 
