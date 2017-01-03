@@ -128,8 +128,10 @@ write.csv(cbind(Sampleid=sampleid, callLOH(ret)), file=file.loh,
     row.names=FALSE, quote=FALSE)
 
 file.genes <- file.path(outdir, paste0(sampleid, '_purecn_genes.csv'))
-write.csv(cbind(Sampleid=sampleid, callAlterations(ret, all.genes=TRUE)), 
-    file=file.genes, quote=FALSE)
+allAlterations <- callAlterations(ret, all.genes=TRUE)
+
+write.csv(cbind(Sampleid=sampleid, gene.symbol=rownames(allAlterations), 
+    allAlterations), row.names=FALSE, file=file.genes, quote=FALSE)
 
 if (!is.null(tumor.vcf)) {
     file.pdf <- file.path(outdir, paste0(sampleid, '_chromosomes_purecn.pdf'))
