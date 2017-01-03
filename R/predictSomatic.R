@@ -74,9 +74,9 @@ predictSomatic <- function(res, id = 1, return.vcf = FALSE,
     colnames(pp)[colnames(pp)=="gene.symbol"] <- "GS" 
 
     descriptionPp <- paste0(ifelse(grepl("^S", colnames(pp)[idxColsPp]),
-        "Somatic", "Germline"), gsub("^.*M", 
-        " posterior probability, multiplicity ", 
-            colnames(pp)[idxColsPp]), ".")
+        "Somatic", "Germline"), gsub("^.*M(\\d)", 
+        " posterior probability, multiplicity \\1", 
+            colnames(pp)[idxColsPp]))
 
     descriptionPp <- gsub("GCONTHIGH", 
         " homozygous, reference allele contamination", descriptionPp)
