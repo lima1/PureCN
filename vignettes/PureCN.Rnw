@@ -866,8 +866,7 @@ retLogRatio <- runAbsoluteCN(log.ratio=log.ratio,
     gc.gene.file=gc.gene.file, vcf.file=vcf.file, 
     max.candidate.solutions=1, genome="hg19",
     test.purity=seq(0.3,0.7,by=0.05), verbose=FALSE, 
-    args.filterTargets=list(normalDB=normalDB),
-    plot.cnv=FALSE)
+    normalDB=normalDB, plot.cnv=FALSE)
 @
 
 Again, the \Rcode{max.candidate.solutions} and \Rcode{test.purity} arguments

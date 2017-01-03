@@ -98,8 +98,7 @@ if (file.exists(file.rds) && !force) {
             args.segmentation=list(target.weight.file=target.weight.file), 
             args.setMappingBiasVcf=
                 list(normal.panel.vcf.file=normal.panel.vcf.file),
-            args.filterTargets=list(normalDB=normalDB),
-            model.homozygous=model.homozygous,
+            normalDB=normalDB, model.homozygous=model.homozygous,
             post.optimize=post.optimize)
     dev.off()
     saveRDS(ret, file=file.rds)
