@@ -106,8 +106,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
         lapply(seq(ncol(C.posterior)), function(k) {
             Ci <- c(test.num.copy, opt.C[i])[k]       
-            #priorM <- log(Ci + 1 + haploid.penalty)
-            priorM <- log(abs(2-Ci) + 1)
+            priorM <- log(Ci + 1 + haploid.penalty)
+            #priorM <- log(abs(2-Ci) + 1)
             priorHom <- ifelse(model.homozygous, -log(3), log(0))
             
             skip <- test.num.copy > Ci | C.posterior[i, k] <=0
