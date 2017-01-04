@@ -52,7 +52,7 @@ model.homozygous <- !is.null(opt$modelhomozygous)
 file.rds <- opt$rds
 
 if (!is.null(file.rds) && file.exists(file.rds)) {
-    outdir <- dirname(file.rds)
+    if (is.null(outdir)) outdir <- dirname(file.rds)
 } else {
     if (is.null(sampleid)) stop("Need sampleid.")
     file.rds <- file.path(outdir, paste0(sampleid, '_purecn.rds'))
