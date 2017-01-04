@@ -670,6 +670,8 @@ Column name       & Description \\
 (not adjusted for purity/ploidy)  \\
 \Rcode{focal}       & \Rcode{TRUE} for focal amplification, as defined by the 
 \Rfunction{fun.focal} argument in \Rfunction{runAbsoluteCN} \\
+\Rcode{breakpoints} & Number of breakpoints between \Rcode{start} and 
+\Rcode{end} \\
 \Rcode{pvalue} & Gene p-value against pool of normals. 
 Requires \Rcode{normalDB}. Not adjusted for multiple testing. \\
 \Rcode{num.snps.segment} & Number of SNPs in this segment informative for 

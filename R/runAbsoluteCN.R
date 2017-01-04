@@ -851,7 +851,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 if (post.optimize && length(tp)>1) {
                     GoF <- .getGoF(list(SNV.posterior=res.snvllik[[1]]))
                     idx <- 1
-                    if (GoF < (min.gof-0.1)) { 
+                    if (GoF < (min.gof-0.05)) { 
                         if (verbose) message("Poor goodness-of-fit (", 
                             round(GoF, digits=3), 
                             "). Skipping post-optimization.")

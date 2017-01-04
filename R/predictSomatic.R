@@ -97,8 +97,14 @@ ifelse(x=="logical", "Flag", ifelse(x=="integer", "Integer", "Float"))))
     newInfoMl <- DataFrame(
         Number=ifelse(infoType=="Flag", 0, 1),
         Type=infoType, 
-        Description=gsub("^ML\\.", "Maximum likelihood estimate ", 
-            colnames(pp)[idxCols]),
+        Description=c(
+        "Maximum likelihood state is a somatic state",
+        "Maximum likelihood multiplicity",
+        "Maximum likelihood integer copy number",
+        "Maximum likelihood minor segment copy number",
+        "Expected allelic fraction of the maximum likelihood state",
+        "TRUE if segment is most likely in LOH"
+        ),
         row.names=colnames(pp)[idxCols]
     )
 

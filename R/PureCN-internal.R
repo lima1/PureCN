@@ -494,9 +494,13 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     gene.calls <- data.frame(dt[, list(chr = chrom[1], start = min(start), 
         end = max(end), C = as.double(median(C)), seg.mean = median(seg.mean),
         seg.id = seg.id[which.min(seg.length)], 
+        .min.segid=min(seg.id), .max.segid=max(seg.id),
         number.targets = length(start), gene.mean = mean(LR, na.rm = TRUE), 
         gene.min = min(LR, na.rm = TRUE), gene.max = max(LR, na.rm = TRUE), 
         focal = focal[which.min(seg.length)]), by = Gene], row.names = 1)
+    breakpoints <- gene.calls$.max.segid - gene.calls$.min.segid
+    gene.calls$breakpoints <- breakpoints
+    gene.calls <- gene.calls[, !grepl("^\\.",colnames(gene.calls))]
     gene.calls    
 }
 
