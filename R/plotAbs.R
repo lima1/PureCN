@@ -209,9 +209,20 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
 
             if (!is.null(chr) && length(chr)==1) {
                 x <- r$start[idx]/1000
+                logRatio <- res$input$log.ratio
+                logRatio <- logRatio[grep(paste0(chr,":"), logRatio[,1]),]
+                xLogRatio <- strsplit(as.character(logRatio[,1]),"[:-]")
+                xLogRatio <- as.numeric(sapply(xLogRatio, 
+                    function(i) i[2]))/1000
                 plot(x, r$AR[idx],ylab="B-Allele Frequency", 
                     xlab="Pos (kbp)",main=paste(main, " Chromosome:", chr), 
-                    col=mycol, pch=mypch, ...)
+                    col=mycol, pch=mypch, xlim=range(xLogRatio), ...)
+                centromerePos <- NULL
+                if (!is.null(res$input$centromere)) {
+                    centromerePos <- res$input$centromere$chromStart[
+                        which(res$input$centromere$chrom==chr)]/1000
+                    
+                }    
 
                 segment.b1.lines[,1] <- x[segment.b1.lines[,1]]
                 segment.b2.lines[,1] <- x[segment.b2.lines[,1]]
@@ -219,16 +230,14 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                 lines(segment.b2.lines, col="black", lwd=3)
 
                 abline(h=0.5, lty=3, col="grey")
+                abline(v=centromerePos, lty=3, col="grey")
                 main <- paste("SCNA-fit Log-Likelihood:", 
                     round(res$results[[i]]$log.likelihood, digits=2) )
-                logRatio <- res$input$log.ratio
-                logRatio <- logRatio[grep(paste0(chr,":"), logRatio[,1]),]
-                xLogRatio <- strsplit(as.character(logRatio[,1]),"[:-]")
-                xLogRatio <- as.numeric(sapply(xLogRatio, 
-                    function(i) i[2]))/1000
 
                 plot(xLogRatio, logRatio[,2], ylab="Copy Number log-ratio", 
-                    xlab="Pos (kbp)", col="grey", main=main, 
+                    xlab="Pos (kbp)", 
+                    col=adjustcolor("grey", alpha.f=ifelse(myalpha<1,0.75,1)), 
+                    main=main, 
                     ylim=quantile(segment.log.ratio,p=c(0.01,0.99)),
                     ... )
                 points(x, r$log.ratio[idx], col=mycol, pch=mypch)
@@ -240,10 +249,12 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                 abline(h=peak.ideal.means, lty=2, col="grey")
                 axis(side=4,at=peak.ideal.means, 
                     labels=names(peak.ideal.means))
+                abline(v=centromerePos, lty=3, col="grey")
                 plot(x, r$ML.C[idx], ylab="Maximum Likelihood Copy Number", 
-                    xlab="Pos (kbp)", 
+                    xlab="Pos (kbp)", xlim=range(xLogRatio),
                     ylim=c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), ... )
                 points(x, r$ML.M.SEGMENT[idx], col="grey")
+                abline(v=centromerePos, lty=3, col="grey")
             } else {
                 plot(r$AR[idx],ylab="B-Allele Frequency", xlab="SNV Index",
                     main=main, type="n", ...)

@@ -997,6 +997,10 @@ Rscript PureCN.R --outdir ~/tmp/ --segfile example_seg.txt \
     --vcf example_vcf.vcf -i Sample1 --genome hg19 \
     --gcgene  example_gc.gene.file.txt \
     --outvcf 
+
+# Recreate output after manual curation of Sample_purecn.csv
+Rscript PureCN.R --rds Sample1_purecn.rds
+    
 \end{verbatim}
 
 \begin{table*}
@@ -1011,6 +1015,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --normal -n         & normal.coverage.file   & \Rfunction{runAbsoluteCN}  \\
 --tumor -t          & tumor.coverage.file     & \Rfunction{runAbsoluteCN} \\
 --vcf -v            & vcf.file          & \Rfunction{runAbsoluteCN}   \\
+--rds -r            & file.rds          & \Rfunction{readCurationFile}   \\
 --genome -g         & genome             & \Rfunction{runAbsoluteCN}  \\
 --gcgene -c         & gc.gene.file      & \Rfunction{runAbsoluteCN}   \\
 --segfile -l        & seg.file           & \Rfunction{runAbsoluteCN}  \\

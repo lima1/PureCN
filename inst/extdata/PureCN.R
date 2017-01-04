@@ -8,6 +8,7 @@ spec <- matrix(c(
 'normal',         'n', 1, "character",
 'tumor',          't', 1, "character",
 'vcf',            'v', 1, "character",
+'rds',            'r', 1, "character",
 'genome',         'g', 1, "character",
 'gcgene',         'c', 1, "character",
 'segfile',        'l', 1, "character",
@@ -48,25 +49,32 @@ outdir <- opt$outdir
 outvcf <- !is.null(opt$outvcf)
 pool <- opt$pool
 model.homozygous <- !is.null(opt$modelhomozygous)
+file.rds <- opt$rds
 
+if (!is.null(file.rds) && file.exists(file.rds)) {
+    outdir <- dirname(file.rds)
+} else {
+    if (is.null(sampleid)) stop("Need sampleid.")
+    file.rds <- file.path(outdir, paste0(sampleid, '_purecn.rds'))
+    if (is.null(seg.file)) {
+        tumor.coverage.file <- normalizePath(tumor.coverage.file, 
+            mustWork=TRUE)
+    }
+}
+    
 outdir <- normalizePath(outdir, mustWork=TRUE)
 
-if (is.null(seg.file)) {
-    tumor.coverage.file <- normalizePath(tumor.coverage.file, mustWork=TRUE)
-}
-
-if (is.null(sampleid)) stop("Need sampleid.")
 
 library(PureCN)
 
 ### Run PureCN ----------------------------------------------------------------
 
-file.rds <- file.path(outdir, paste0(sampleid, '_purecn.rds'))
 
 if (file.exists(file.rds) && !force) {
     message(file.rds, 
         " already exists. Skipping... (--force will overwrite)")
     ret <- readCurationFile(file.rds)
+    if (is.null(sampleid)) sampleid <- ret$input$sampleid
 } else {    
     if (!is.null(normalDB)) {
         message("normalDB: ", normalDB)
@@ -133,7 +141,7 @@ allAlterations <- callAlterations(ret, all.genes=TRUE)
 write.csv(cbind(Sampleid=sampleid, gene.symbol=rownames(allAlterations), 
     allAlterations), row.names=FALSE, file=file.genes, quote=FALSE)
 
-if (!is.null(tumor.vcf)) {
+if (!is.null(ret$input$vcf)) {
     file.pdf <- file.path(outdir, paste0(sampleid, '_chromosomes_purecn.pdf'))
     pdf(file.pdf, width=9, height=10)
     vcf <- ret$input$vcf[ret$results[[1]]$SNV.posterior$beta.model$vcf.ids]
