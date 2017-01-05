@@ -15,6 +15,7 @@ Changes in version 1.6.0
   of wrong maximum likelihood solutions had many homozygous deletions)  
 - Faster post.optimize=TRUE by not optimizing poor fits.
 - Tweaks to segmentationPSCBS
+- Lots of improvements to command line scripts.
 
 
 API CHANGES
@@ -47,6 +48,5 @@ PLANNED FEATURES
 - Better runtime performance by ignoring unlikely solutions early
 - Better support for known, small deletions and amplifications (e.g. EGFRvIII,
   MYC)
-- Better support for pool of normals
 - Switch to S4 data structures (maybe)
 - Whole dataset visualizations (maybe PureCN 1.8)

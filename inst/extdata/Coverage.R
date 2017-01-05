@@ -49,8 +49,7 @@ if (!is.null(bam.file)) {
 
 ### GC-normalize coverage -----------------------------------------------------
 
-if (!is.null(gatk.coverage)) {
-    library(PureCN)
+.gcNormalize <- function(gatk.coverage, gc.gene.file, method, outdir, force) {
     output.file <- file.path(outdir,  gsub(".txt$|_interval_summary",
         paste0("_", tolower(method), ".txt"), basename(gatk.coverage)))
     outpng.file <- sub("txt$","png", output.file)
@@ -62,5 +61,10 @@ if (!is.null(gatk.coverage)) {
             output.file=output.file, method=method, plot.gc.bias=TRUE)
         dev.off()
    } 
+}
+
+if (!is.null(gatk.coverage)) {
+    library(PureCN)
+    .gcNormalize(gatk.coverage, gc.gene.file, method, outdir, force)
 }
     
