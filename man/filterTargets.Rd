@@ -5,8 +5,7 @@
 \title{Remove low quality targets}
 \usage{
 filterTargets(log.ratio, tumor, gc.data, seg.file, filter.lowhigh.gc = 0.001,
-  min.targeted.base = 5, normalDB = NULL, normalDB.min.coverage = 0.2,
-  verbose)
+  min.targeted.base = 5, normalDB = NULL, normalDB.min.coverage = 0.2)
 }
 \arguments{
 \item{log.ratio}{Copy number log-ratios, one for each target or interval in
@@ -33,8 +32,6 @@ likely very different from the true GC content of the probes.}
 
 \item{normalDB.min.coverage}{Exclude targets with coverage lower than 20
 percent of the chromosome median in the pool of normals.}
-
-\item{verbose}{Verbose output.}
 }
 \value{
 \code{logical(length(log.ratio))} specifying which targets should be

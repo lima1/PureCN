@@ -6,7 +6,7 @@
 \usage{
 readCurationFile(file.rds, file.curation = gsub(".rds$", ".csv", file.rds),
   remove.failed = FALSE, report.best.only = FALSE, min.ploidy = NULL,
-  max.ploidy = NULL, verbose = FALSE)
+  max.ploidy = NULL)
 }
 \arguments{
 \item{file.rds}{Output of the \code{\link{runAbsoluteCN}} function,
@@ -25,8 +25,6 @@ be used to automatically ignore unlikely solutions.}
 
 \item{max.ploidy}{Maximum ploidy to be considered. If \code{NULL}, all. Can
 be used to automatically ignore unlikely solutions.}
-
-\item{verbose}{Verbose output.}
 }
 \value{
 The return value of the corresponding \code{\link{runAbsoluteCN}}

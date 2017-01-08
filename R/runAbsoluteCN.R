@@ -58,7 +58,7 @@
 #' \code{\link{filterVcfBasic}}.
 #' @param args.filterVcf Arguments for variant filtering function. Arguments
 #' \code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage},
-#' \code{model.homozygous}, \code{error} and \code{verbose} are required in the
+#' \code{model.homozygous} and \code{error} are required in the
 #' filter function and are automatically set.
 #' @param fun.setPriorVcf Function to set prior for somatic status for each
 #' variant in the VCF. Defaults to \code{\link{setPriorVcf}}.
@@ -70,15 +70,15 @@
 #' coverage files. Needs to return a \code{logical} vector whether an interval
 #' should be used for segmentation. Defaults to \code{\link{filterTargets}}.
 #' @param args.filterTargets Arguments for target filtering function. Arguments
-#' \code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
-#' \code{normalDB} and \code{verbose} are required and automatically set 
+#' \code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file} and
+#' \code{normalDB} are required and automatically set 
 #' @param fun.segmentation Function for segmenting the copy number log-ratios.
 #' Expected return value is a \code{data.frame} representation of the
 #' segmentation. Defaults to \code{\link{segmentationCBS}}.
 #' @param args.segmentation Arguments for segmentation function. Arguments
-#' \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv},
+#' \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv} and
 #' \code{min.coverage}, \code{sampleid}, \code{vcf}, \code{tumor.id.in.vcf},
-#' \code{centromeres} and \code{verbose} are required in the segmentation function 
+#' \code{centromeres} are required in the segmentation function 
 #' and automatically set.
 #' @param fun.focal Function for identifying focal amplifications. Defaults to
 #' \code{\link{findFocal}}.
@@ -133,6 +133,8 @@
 #' \code{sd(log.ratio)*log.ratio.calibration}.
 #' @param remove.off.target.snvs Deprecated. Use the corresponding argument in
 #' \code{args.filterVcf}.
+#' @param smooth.log.ratio Smooth \code{log.ratio} using the \code{DNAcopy}
+#' package.
 #' @param model.homozygous Homozygous germline SNPs are uninformative and by
 #' default removed. In 100 percent pure samples such as cell lines, however,
 #' heterozygous germline SNPs appear homozygous in case of LOH. Setting this
@@ -171,11 +173,19 @@
 #' typically result in a slightly more accurate purity, especially for rather
 #' silent genomes or very low purities. Otherwise, it will just use the purity
 #' determined via the SCNA-fit.
+#' @param log.file If not \code{NULL}, store verbose output to file.
 #' @param verbose Verbose output.
 #' @return A list with elements \item{candidates}{Results of the grid search.}
 #' \item{results}{All local optima, sorted by final rank.} \item{input}{The
 #' input data.}
 #' @author Markus Riester
+#' @references Riester et al. (2016). PureCN: Copy number calling and SNV 
+#' classification using targeted short read sequencing. Source Code for Biology 
+#' and Medicine, 11, pp. 13. 
+#'
+#' Carter et al. (2012), Absolute quantification of somatic DNA alterations in 
+#' human cancer. Nature Biotechnology.
+#'
 #' @seealso \code{\link{correctCoverageBias}} \code{\link{segmentationCBS}}
 #' \code{\link{calculatePowerDetectSomatic}}
 #' @examples
@@ -221,6 +231,8 @@
 #' @importFrom utils data read.delim tail packageVersion
 #' @importFrom S4Vectors queryHits subjectHits DataFrame
 #' @importFrom data.table data.table
+#' @importFrom futile.logger flog.info flog.warn flog.fatal
+#'             flog.threshold flog.appender appender.tee
 runAbsoluteCN <- function(normal.coverage.file = NULL, 
     tumor.coverage.file = NULL, log.ratio = NULL, seg.file = NULL, 
     seg.file.sdev = 0.4, vcf.file = NULL, normalDB = NULL, genome, 
@@ -237,29 +249,32 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     candidates = NULL, min.coverage = 15, max.coverage.vcf = 300, 
     max.non.clonal = 0.2, max.homozygous.loss = c(0.05, 1e07) , non.clonal.M = 1/3, 
     max.mapping.bias = 0.8, iterations = 30, log.ratio.calibration = 0.25, 
-    remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001, 
-    gc.gene.file = NULL, max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
+    smooth.log.ratio = TRUE, remove.off.target.snvs = NULL, 
+    model.homozygous = FALSE, error = 0.001, gc.gene.file = NULL, 
+    max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
-    post.optimize = FALSE, verbose = TRUE) {
-    debug <- FALSE
-    
+    post.optimize = FALSE, log.file = NULL, verbose = TRUE) {
+
+    if (!verbose) flog.threshold("WARN")
+    if (!is.null(log.file)) flog.appender(appender.tee(log.file))
+
+     # log function arguments     
+    try(.logHeader(as.list(match.call())[-1]), silent=TRUE)
+
     # TODO: remove in PureCN 1.8
     if (!is.null(remove.off.target.snvs)) {
         args.filterVcf$remove.off.target.snvs <- remove.off.target.snvs
-        message("remove.off.target.snvs is deprecated. ", 
-            "Please use it in args.filterVcf instead.")
+        flog.warn("remove.off.target.snvs is deprecated. Please use it in args.filterVcf instead.")
     }
     # TODO: remove in PureCN 1.8
     if (length(max.homozygous.loss)==1){
          max.homozygous.loss <- c(max.homozygous.loss, 1e07)
-         message("max.homozygous.loss now a double(2) vector. ", 
-            "Please provide both values.")
+         flog.warn("max.homozygous.loss now a double(2) vector. Please provide both values.")
     }     
     # TODO: remove in PureCN 1.8
     if (is.null(normalDB) && !is.null(args.filterTargets$normalDB)) {
         normalDB <- args.filterTargets$normalDB
-        message("normalDB now a runAbsoluteCN argument. ", 
-            "Please provide it there, not in args.filterTargets.")
+        flog.warn("normalDB now a runAbsoluteCN argument. Please provide it there, not in args.filterTargets.")
     }    
     centromeres <- .getCentromerePositions(centromeres, genome)
     
@@ -274,8 +289,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     test.num.copy <- sort(test.num.copy)
     
-    if (verbose) 
-        message("Loading GATK coverage files...")
+    flog.info("Loading GATK coverage files...")
     
     if (!is.null(normal.coverage.file)) {
         if (is.character(normal.coverage.file)) {
@@ -298,9 +312,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         if (is.null(sampleid)) 
             sampleid <- basename(tumor.coverage.file)
     } else {
-        if (verbose) 
-            message("tumor.coverage.file does not appear to be a filename, assuming", 
-                " it is valid GATK coverage data.")
         tumor <- tumor.coverage.file
         if (is.null(sampleid)) 
             sampleid <- "Sample.1"
@@ -326,14 +337,15 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             if (is.null(normal.coverage.file)) 
                 normal <- tumor
             log.ratio <- .createFakeLogRatios(tumor, seg.file, chr.hash)
+            smooth.log.ratio <- FALSE
             if (is.null(sampleid)) 
-                sampleid <- read.delim(seg.file)[1, 1]
+                sampleid <- read.delim(seg.file, as.is=TRUE)[1, 1]
         } else {
             if (is.null(normal.coverage.file)) {
                 .stopUserError("Need a normal coverage file if log.ratio and seg.file are not", 
                   " provided.")
             }
-            log.ratio <- calculateLogRatio(normal, tumor, verbose = verbose)
+            log.ratio <- calculateLogRatio(normal, tumor)
         }
     } else {
         # the segmentation algorithm will remove targets with low coverage in both tumor
@@ -362,14 +374,14 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     }
     
     args.filterTargets <- c(list(log.ratio = log.ratio, tumor = tumor, 
-        gc.data = gc.data, seg.file = seg.file, normalDB = normalDB, 
-        verbose = verbose), args.filterTargets)
+        gc.data = gc.data, seg.file = seg.file, normalDB = normalDB),
+        args.filterTargets)
     
     targetsUsed <- do.call(fun.filterTargets, 
         .checkArgs(args.filterTargets, "filterTargets"))
     
     # chr.hash is an internal data structure, so we need to do this separately.
-    targetsUsed <- .filterTargetsChrHash(targetsUsed, tumor, chr.hash, verbose)
+    targetsUsed <- .filterTargetsChrHash(targetsUsed, tumor, chr.hash)
     targetsUsed <- which(targetsUsed)
     if (nrow(tumor) != nrow(normal) || nrow(tumor) != length(log.ratio) || (!is.null(gc.gene.file) && 
         nrow(tumor) != nrow(gc.data))) {
@@ -381,27 +393,30 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!is.null(gc.gene.file)) {
         gc.data <- gc.data[targetsUsed, ]
     }
-    if (verbose) 
-        message("Using ", nrow(tumor), " targets.")
+    flog.info("Using %i targets.", nrow(tumor))
+
+    if (smooth.log.ratio) {
+        CNA.obj <- smooth.CNA(CNA(log.ratio, 
+            .strip.chr.name(normal$chr, chr.hash), 
+            floor((normal$probe_start + normal$probe_end)/2), 
+            data.type="logratio", sampleid="sample"))
+        log.ratio <- CNA.obj$sample
+    }     
     
     dropoutWarning <- FALSE
     # clean up noisy targets, but not if the segmentation was already provided.
     if (is.null(seg.file)) {
         if (!is.null(gc.gene.file)) {
-            dropoutWarning <- .checkGCBias(normal, tumor, gc.data, max.dropout, verbose)
-        } else if (verbose) {
-            message("No gc.gene.file provided. Cannot check if data was ", 
-                    "GC-normalized. Was it?")
+            dropoutWarning <- .checkGCBias(normal, tumor, gc.data, max.dropout)
+        } else {
+            flog.info("No gc.gene.file provided. Cannot check if data was GC-normalized. Was it?")
         }
     }
     
     if (!is.null(gc.gene.file) && is.null(gc.data$Gene)) {
-        if (verbose) 
-            message("No Gene column in gc.gene.file.", 
-                    " You won't get gene-level calls.")
+        flog.info("No Gene column in gc.gene.file. You won't get gene-level calls.")
         gc.gene.file <- NULL
     }
-    
     
     exon.gr <- GRanges(seqnames=tumor$chr, IRanges(start=tumor$probe_start, 
                                                    end=tumor$probe_end))
@@ -416,9 +431,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     sex.vcf <- NULL
     
     if (!is.null(vcf.file)) {
-        if (verbose) 
-            message("Loading VCF...")
-        vcf <- .readAndCheckVcf(vcf.file, genome=genome, verbose=verbose)
+        flog.info("Loading VCF...")
+        vcf <- .readAndCheckVcf(vcf.file, genome=genome)
         
         if (length(intersect(tumor$chr, seqlevels(vcf))) < 1) {
             .stopUserError("Different chromosome names in coverage and VCF.")
@@ -429,7 +443,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         }
         
         if (sum(colSums(geno(vcf)$DP) > 0) == 1 && args.filterVcf$use.somatic.status) {
-            message("VCF file seems to have only one sample. ", "Using SNVs in single mode.")
             args.filterVcf$use.somatic.status <- FALSE
         }
         
@@ -439,23 +452,21 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             normal.id.in.vcf <- .getNormalIdInVcf(vcf, tumor.id.in.vcf)
         }
         
-        if (verbose) 
-            message("Assuming ", tumor.id.in.vcf, " is tumor in VCF file.")
+        flog.info("%s is tumor in VCF file.", tumor.id.in.vcf)
         if (sex != "diploid") {
-            sex.vcf <- getSexFromVcf(vcf, tumor.id.in.vcf, verbose = verbose)
+            sex.vcf <- getSexFromVcf(vcf, tumor.id.in.vcf)
             if (!is.na(sex.vcf) && sex %in% c("F", "M") && sex.vcf != sex) {
-                warning("Sex mismatch of coverage and VCF. ", 
+                flog.warn("Sex mismatch of coverage and VCF. %s%s", 
                         "Could be because of noisy data, contamination, ", 
                   "loss of chrY or a mis-alignment of coverage and VCF.")
             }
         }
         n.vcf.before.filter <- nrow(vcf)
-        if (verbose) 
-            message("Found ", n.vcf.before.filter, " variants in VCF file.")
+        flog.info("Found %i variants in VCF file.", n.vcf.before.filter)
         
         args.filterVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf, 
             model.homozygous = model.homozygous, error = error, 
-            target.granges = exon.gr, verbose = verbose), args.filterVcf)
+            target.granges = exon.gr), args.filterVcf)
         if (is.null(args.filterVcf$min.coverage)) {
             args.filterVcf$min.coverage <- min.coverage
         }
@@ -465,34 +476,31 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         vcf <- vcf.filtering$vcf
         
         if (!is.null(cosmic.vcf.file)) {
-            vcf <- .addCosmicCNT(vcf, cosmic.vcf.file, verbose = verbose)
+            vcf <- .addCosmicCNT(vcf, cosmic.vcf.file)
         }
         
-        args.setPriorVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf, 
-            verbose = verbose), args.setPriorVcf)
+        args.setPriorVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf),
+            args.setPriorVcf)
         prior.somatic <- do.call(fun.setPriorVcf, 
             .checkArgs(args.setPriorVcf, "setPriorVcf"))
         
         # get mapping bias
         args.setMappingBiasVcf$vcf <- vcf
         args.setMappingBiasVcf$tumor.id.in.vcf <- tumor.id.in.vcf
-        args.setMappingBiasVcf$verbose <- verbose
         mapping.bias <- do.call(fun.setMappingBiasVcf,
             .checkArgs(args.setMappingBiasVcf, "setMappingBiasVcf"))
         idxHqGermline <- prior.somatic < 0.5 & mapping.bias >= max.mapping.bias
         vcf.germline <- vcf[idxHqGermline]
     }
     
-    if (verbose) 
-        message("Sex of sample: ", sex)
-    if (verbose) 
-        message("Segmenting data...")
+    flog.info("Sample sex: %s", sex)
+    flog.info("Segmenting data...")
     
     args.segmentation <- c(list(normal = normal, tumor = tumor, log.ratio = log.ratio, 
         seg = .loadSegFile(seg.file), plot.cnv = plot.cnv, min.coverage = ifelse(is.null(seg.file), 
             min.coverage, -1), sampleid = sampleid, vcf = vcf.germline, tumor.id.in.vcf = tumor.id.in.vcf, 
         normal.id.in.vcf = normal.id.in.vcf, max.segments = max.segments, chr.hash = chr.hash, 
-        centromeres = centromeres, verbose = verbose), args.segmentation)
+        centromeres = centromeres), args.segmentation)
     
     vcf.germline <- NULL
     seg <- do.call(fun.segmentation,
@@ -516,20 +524,13 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             n.vcf.before.filter <- nrow(vcf)
             vcf <- vcf[!is.na(snv.lr)]
             mapping.bias <- mapping.bias[!is.na(snv.lr)]
+            prior.somatic <- prior.somatic[!is.na(snv.lr)]
             
             # make sure all SNVs are in covered segments
-            if (verbose) 
-                message("Removing ", n.vcf.before.filter - nrow(vcf), " variants outside segments.")
+            flog.info("Removing %i variants outside segments.", n.vcf.before.filter - nrow(vcf))
         }
         ov <- findOverlaps(seg.gr, vcf)
-        if (verbose) 
-            message("Using ", nrow(vcf), " variants.")
-        
-        # get final somatic priors
-        args.setPriorVcf$vcf <- vcf
-        args.setPriorVcf$verbose <- FALSE
-        prior.somatic <- do.call(fun.setPriorVcf,
-            .checkArgs(args.setPriorVcf, "setPriorVcf"))
+        flog.info("Using %i variants.", nrow(vcf))
     }
     
     # get target log-ratios for all segments
@@ -554,7 +555,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!is.null(seg.file)) {
         sd.seg <- seg.file.sdev
     } else {
-        exon.lrs <- lapply(exon.lrs, .smoothOutliers)
+    #    exon.lrs <- lapply(exon.lrs, .smoothOutliers)
     }
     
     # renormalize, in case segmentation function changed means
@@ -587,14 +588,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     if (sum(li < 0) > 0) 
         .stopRuntimeError("Some segments have negative size.")
-    
-    if (verbose) {
-        message("Mean standard deviation of log-ratios: ", round(sd.seg, digits = 2))
-    }
+    flog.info("Mean standard deviation of log-ratios: %.2f", sd.seg)
     log.ratio.offset <- rep(0, nrow(seg))
     
-    if (verbose) 
-        message("Optimizing purity and ploidy. ", "Will take a minute or two...")
+    flog.info("2D-grid search of purity and ploidy...")
     
     # find local maxima. use a coarser grid for purity, otherwise we will get far too
     # many solutions, which we will need to cluster later anyways.
@@ -603,7 +600,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     } else {
         candidate.solutions <- .optimizeGrid(test.purity = seq(max(0.1, min(test.purity)), 
             min(0.99, max(test.purity)), by = 1/30), min.ploidy, max.ploidy, test.num.copy = test.num.copy, 
-            exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal, verbose, debug)
+            exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal)
         
         # if we have > 20 somatic mutations, we can try estimating purity based on
         # allelic fractions and assuming diploid genomes.
@@ -623,11 +620,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         candidate.solutions$candidates <- candidate.solutions$candidates[idx.keep, 
             ]
     }
-    
-    if (verbose) 
-        message(paste(strwrap(paste("Local optima:", paste(round(candidate.solutions$candidates$purity, 
-            digits = 2), round(candidate.solutions$candidates$ploidy, digits = 2), 
-            sep = "/", collapse = ", "))), collapse = "\n"))
+    flog.info(paste(strwrap(paste("Local optima:\n", paste(round(candidate.solutions$candidates$purity, 
+        digits = 2), round(candidate.solutions$candidates$ploidy, digits = 2), 
+        sep = "/", collapse = ", "))), collapse = "\n"))
     
     simulated.annealing <- TRUE
     
@@ -640,16 +635,14 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             total.ploidy <- candidate.solutions$candidates$ploidy[cpi]
             p <- candidate.solutions$candidates$purity[cpi]
             
-            if (verbose) 
-                message("Testing local optimum ", cpi, "/", nrow(candidate.solutions$candidates), 
-                  " at purity ", round(p, digits = 2), " and total ploidy ", round(total.ploidy, 
-                    digits = 2), "...")
+            flog.info("Testing local optimum %i/%i at purity %.2f and total ploidy %.2f...", 
+                cpi, nrow(candidate.solutions$candidates), p, total.ploidy)
             
             subclonal <- rep(FALSE, nrow(seg))
             old.llik <- -1
             cnt.llik.equal <- 0
-            C.posterior <- matrix(ncol = length(test.num.copy) + 1, nrow = nrow(seg))
-            colnames(C.posterior) <- c(test.num.copy, "Subclonal")
+            C.likelihood <- matrix(ncol = length(test.num.copy) + 1, nrow = nrow(seg))
+            colnames(C.likelihood) <- c(test.num.copy, "Subclonal")
             for (iter in seq_len(iterations)) {
                 # test for convergence
                 if (abs(old.llik - llik) < 0.0001) {
@@ -710,12 +703,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     p, " and total ploidy ", total.ploidy, ".")
                 }
                 
-                if (debug) 
-                  message(paste("Iteration:", iter, " Log-likelihood: ", llik, " Purity:", 
-                    p, " Total Ploidy:", total.ploidy, " Tumor Ploidy:", sum(li * 
-                      (C))/sum(li), " Fraction sub-clonal:", subclonal.f, " Mean log-ratio offset", 
-                    mean(log.ratio.offset)))
-                
                 for (i in seq_len(nrow(seg))) {
                   # Gibbs sample copy number Step 1: calculate log-likelihoods of fits In the first
                   # iteration, we do not have the integer copy numbers yet, so calculate ploidy
@@ -743,8 +730,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     ifelse(C[-i] == 0, 1, 0)) + li[i] * ifelse(Ci == 0, 1, 0))/sum(li), 
                     double(1))
 
-                  # set maximimum homozygous loss size to 10mb.  
-                  if (li[i]>max.homozygous.loss[2] && test.num.copy[1]<1) frac.homozygous.loss[1] <- 1
+                  if (li[i] > max.homozygous.loss[2] && test.num.copy[1]<1) {
+                       frac.homozygous.loss[1] <- 1
+                  }     
                   log.prior.homozygous.loss <- log(ifelse(frac.homozygous.loss > 
                     max.homozygous.loss[1], 0, 1))
                   if (iter > 1) 
@@ -754,7 +742,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                   p.rij <- c(p.rij, .calcLlikSegmentSubClonal(exon.lrs[[i]] + log.ratio.offset[i], 
                     max.exon.ratio))
                   
-                  C.posterior[i, ] <- exp(p.rij - max(p.rij))
+                  C.likelihood[i, ] <- exp(p.rij - max(p.rij))
                   
                   if (simulated.annealing) 
                     p.rij <- p.rij * exp(iter/4)
@@ -772,8 +760,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                   old.C <- C[i]
                   opt.C <- (2^(seg$seg.mean + log.ratio.offset) * total.ploidy)/p - 
                     ((2 * (1 - p))/p)
-                  # message(opt.C[i], ' seg: ', seg$seg.mean[i], ' offset: ', log.ratio.offset[i],
-                  # ' purity: ', p)
                   opt.C[opt.C < 0] <- 0
                   if (id > length(test.num.copy)) {
                     # optimal non-integer copy number
@@ -783,16 +769,14 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     C[i] <- test.num.copy[id]
                     subclonal[i] <- FALSE
                   }
-                  if (old.C != C[i] && debug) 
-                    message("Old: ", old.C, " New: ", C[i], " LR: ", mean(exon.lrs[[i]]))
                 }
             }
             if (subclonal.f < max.non.clonal && abs(total.ploidy - candidate.solutions$candidates$ploidy[cpi]) < 
                 1) 
                 break
             log.ratio.calibration <- log.ratio.calibration + 0.25
-            if (verbose && attempt < max.attempts) {
-                message("Recalibrating log-ratios...")
+            if (attempt < max.attempts) {
+                flog.info("Recalibrating log-ratios...")
             }
         }
         seg.adjusted <- seg
@@ -807,7 +791,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 SNV.posterior <- list(beta.model = list(llik = -Inf))
             }
             return(list(log.likelihood = llik, purity = p, ploidy = weighted.mean(C, 
-                li), total.ploidy = total.ploidy, seg = seg.adjusted, C.posterior = data.frame(C.posterior/rowSums(C.posterior), 
+                li), total.ploidy = total.ploidy, seg = seg.adjusted, C.likelihood = data.frame(C.likelihood/rowSums(C.likelihood), 
                 ML.C = C, ML.Subclonal = subclonal), SNV.posterior = SNV.posterior, 
                 fraction.subclonal = subclonal.f, fraction.homozygous.loss = sum(li[which(C < 
                   0.01)])/sum(li), gene.calls = NA, log.ratio.offset = log.ratio.offset, 
@@ -833,15 +817,15 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 tp <- p
                 pp <- 1
             }
+            cont.rate <- prior.contamination
             .fitSNV <- function(tp, pp) {
-                .fitSNVp <- function(px) {
-                  if (verbose) 
-                    message("Fitting SNVs for purity ", round(px, digits = 2), " and tumor ploidy ", 
-                      round(weighted.mean(C, li), digits = 2), ".")
+                .fitSNVp <- function(px, cont.rate=prior.contamination) {
+                    flog.info("Fitting SNVs for purity %.2f, tumor ploidy %.2f and contamination %.2f.", 
+                        px, weighted.mean(C, li), cont.rate)
                   
                   list(beta.model = .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, test.num.copy, 
-                    C.posterior, C, opt.C, snv.model = "beta", prior.somatic, mapping.bias, 
-                    snv.lr, sampleid, cont.rate = prior.contamination, prior.K = prior.K, 
+                    C.likelihood, C, opt.C, snv.model = "beta", prior.somatic, mapping.bias, 
+                    snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K, 
                     max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M, 
                     model.homozygous = model.homozygous, error = error, max.mapping.bias = max.mapping.bias))
                 }
@@ -852,9 +836,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     GoF <- .getGoF(list(SNV.posterior=res.snvllik[[1]]))
                     idx <- 1
                     if (GoF < (min.gof-0.05)) { 
-                        if (verbose) message("Poor goodness-of-fit (", 
-                            round(GoF, digits=3), 
-                            "). Skipping post-optimization.")
+                        flog.info("Poor goodness-of-fit (%.3f). Skipping post-optimization.", GoF)
                     } else {    
                         res.snvllik <- c(res.snvllik, lapply(tp[-1], .fitSNVp))
                       px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal = subclonal[i], 
@@ -870,8 +852,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                   idx <- 1
                 }
                 p <- tp[idx]
-                if (verbose) 
-                  message("Optimized purity: ", p)
+                flog.info("Optimized purity: %.2f", p)
                 SNV.posterior <- res.snvllik[[idx]]
                 list(p = p, SNV.posterior = SNV.posterior, llik = px.rij.s[idx])
             }
@@ -879,21 +860,57 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             p <- fitRes$p
             SNV.posterior <- fitRes$SNV.posterior
         }
-        
-        list(log.likelihood = llik, purity = p, ploidy = weighted.mean(C, li), total.ploidy = total.ploidy, 
-            seg = seg.adjusted, C.posterior = data.frame(C.posterior/rowSums(C.posterior), 
-                ML.C = C, ML.Subclonal = subclonal), SNV.posterior = SNV.posterior, 
-            fraction.subclonal = subclonal.f, fraction.homozygous.loss = sum(li[which(C < 
-                0.01)])/sum(li), gene.calls = gene.calls, log.ratio.offset = log.ratio.offset, 
-            SA.iterations = iter, failed = FALSE)
+         
+        list(log.likelihood = llik, purity = p, ploidy = weighted.mean(C, li),
+            total.ploidy = total.ploidy, seg = seg.adjusted, 
+            C.posterior = data.frame(C.likelihood/rowSums(C.likelihood), ML.C =
+            C, Opt.C = opt.C, ML.Subclonal = subclonal),
+            C.likelihood=C.likelihood, SNV.posterior = SNV.posterior,
+            fraction.subclonal = subclonal.f, fraction.homozygous.loss =
+            sum(li[which(C < 0.01)])/sum(li), gene.calls = gene.calls,
+            log.ratio.offset = log.ratio.offset, SA.iterations = iter, failed =
+            FALSE)
     }
     
     results <- lapply(seq_len(nrow(candidate.solutions$candidates)), .optimizeSolution)
-    if (verbose) 
-        message("Remember, posterior probabilities assume a correct SCNA fit.")
     
     results <- .rankResults(results)
     results <- .filterDuplicatedResults(results)
+
+    if (grepl("CONTAMINATION", vcf.filtering$flag_comment)) {
+        cont.rate <- .plotContamination(
+            results[[1]]$SNV.posterior$beta.model$posteriors, 
+            max.mapping.bias, plot=FALSE)
+        if (cont.rate > prior.contamination) {
+            flog.info("Initial guess of contamination rate: %.3f", cont.rate)
+        }    
+    }
+    ## optimize contamination. we just re-run the fitting 
+    if (grepl("CONTAMINATION", vcf.filtering$flag_comment) && 
+        cont.rate>prior.contamination) {
+        flog.info("Optimizing contamination rate...")
+             
+        res.snvllik <-
+            .calcSNVLLik(vcf, tumor.id.in.vcf,
+                  ov, results[[1]]$purity, test.num.copy, results[[1]]$C.likelihood, 
+                  results[[1]]$C.posterior$ML.C,
+                  results[[1]]$C.posterior$Opt.C,
+                  snv.model = "beta", prior.somatic, mapping.bias,
+                  snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K,
+                  max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M,
+                  model.homozygous = model.homozygous, error = error,
+                  max.mapping.bias = max.mapping.bias)
+        results[[1]]$SNV.posterior$beta.model <- res.snvllik
+        cont.rate <- .plotContamination(
+                    results[[1]]$SNV.posterior$beta.model$posteriors,
+                                max.mapping.bias, plot=FALSE)
+                flog.info("Optimized contamination rate: %.3f", cont.rate)
+        results[[1]]$SNV.posterior$beta.model$posterior.contamination <- cont.rate
+        # add contamination rate to flag comment
+        vcf.filtering$flag_comment <- gsub("POTENTIAL SAMPLE CONTAMINATION", 
+            paste0("POTENTIAL SAMPLE CONTAMINATION (", round(cont.rate*100, digits=1),"%)"), 
+            vcf.filtering$flag_comment)
+    }
     results <- .flagResults(results, max.non.clonal = max.non.clonal, max.logr.sdev = max.logr.sdev, 
         logr.sdev = sd.seg, max.segments = max.segments, min.gof = min.gof, flag = vcf.filtering$flag, 
         flag_comment = vcf.filtering$flag_comment, dropout = dropoutWarning, use.somatic.status = args.filterVcf$use.somatic.status, 
@@ -905,10 +922,13 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     }
     
     if (length(results) < 1) {
-        warning("Could not find valid purity and ploidy solution.")
+        flog.warn("Could not find valid purity and ploidy solution.")
     }
+    .logFooter()
     list(candidates = candidate.solutions, results = results, input = list(tumor = tumor.coverage.file, 
         normal = normal.coverage.file, log.ratio = data.frame(probe = normal[, 1], 
             log.ratio = log.ratio), log.ratio.sdev = sd.seg, vcf = vcf, sampleid = sampleid, 
         sex = sex, sex.vcf = sex.vcf, chr.hash = chr.hash, centromeres = centromeres))
 }
+
+

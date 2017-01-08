@@ -37,9 +37,16 @@
 #' properly ordered.
 #' @param centromeres A \code{data.frame} with centromere positions in first
 #' three columns.  Currently not supported in this function.
-#' @param verbose Verbose output.
 #' @return \code{data.frame} containing the segmentation.
 #' @author Markus Riester
+#' @references Olshen, A. B., Venkatraman, E. S., Lucito, R., Wigler, M. 
+#' (2004). Circular binary segmentation for the analysis of array-based DNA 
+#' copy number data. Biostatistics 5: 557-572.
+#'
+#' Venkatraman, E. S., Olshen, A. B. (2007). A faster circular binary 
+#' segmentation algorithm for the analysis of array CGH data. Bioinformatics 
+#' 23: 657-63.
+#'
 #' @seealso \code{\link{runAbsoluteCN}}
 #' @examples
 #' 
@@ -67,7 +74,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     min.coverage, sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD =
         NULL, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
     max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
-    chr.hash = NULL, centromeres = NULL, verbose = TRUE) {
+    chr.hash = NULL, centromeres = NULL) {
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
     
@@ -76,24 +83,21 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         target.weights <- read.delim(target.weight.file, as.is=TRUE)
         target.weights <- target.weights[match(as.character(tumor[,1]), 
             target.weights[,1]),2]
-        if (verbose) message("Target weights found, will use weighted CBS.")
+        flog.info("Target weights found, will use weighted CBS.")
     }
-    x <- .CNV.analyze2(normal, tumor, logR=log.ratio, plot.cnv=plot.cnv, 
+    x <- .CNV.analyze2(normal, tumor, log.ratio=log.ratio, plot.cnv=plot.cnv, 
         min.coverage=min.coverage, sampleid=sampleid, alpha=alpha, 
         weights=target.weights, sdundo=undo.SD, max.segments=max.segments,
-        chr.hash=chr.hash, verbose=verbose) 
+        chr.hash=chr.hash) 
     if (!is.null(vcf)) {
         x <- .pruneByVCF(x, vcf, tumor.id.in.vcf, chr.hash=chr.hash)
         x <- .findCNNLOH(x, vcf, tumor.id.in.vcf, alpha=alpha, 
             chr.hash=chr.hash)
         x <- .pruneByHclust(x, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
-            method=prune.hclust.method, chr.hash=chr.hash, verbose=verbose)
+            method=prune.hclust.method, chr.hash=chr.hash)
     }
     idx.enough.markers <- x$cna$output$num.mark > 1
     rownames(x$cna$output) <- NULL
-    if (verbose) {
-        print(x$cna$output[idx.enough.markers,])
-    }
     x$cna$output[idx.enough.markers,]
 }
 
@@ -159,7 +163,7 @@ iterations=2, chr.hash ) {
 }
         
 .pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=NULL, method="ward.D", 
-    min.variants=5, chr.hash, iterations=2, verbose=TRUE) {
+    min.variants=5, chr.hash, iterations=2) {
     for (iter in seq_len(iterations)) {
     seg <- x$cna$output
     #message("HCLUST: ", iter, " Num segment LRs: ", length(table(x$cna$output$seg.mean)))
@@ -180,7 +184,7 @@ iterations=2, chr.hash ) {
 
     if (is.null(h)) {
         h <- .getPruneH(seg)
-        if (verbose) message("Setting prune.hclust.h parameter to ", h)
+        flog.info("Setting prune.hclust.h parameter to %f.", h)
     }   
 
     numVariants <- sapply(seq_len(nrow(seg)), function(i) 
@@ -293,9 +297,9 @@ iterations=2, chr.hash ) {
         
 # ExomeCNV version without the x11() calls 
 .CNV.analyze2 <-
-function(normal, tumor, logR=NULL, min.coverage=15, weights=NULL, sdundo=NULL,
-undo.splits="sdundo", smooth=TRUE, alpha=0.01, sampleid=NULL, plot.cnv=TRUE,
-max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
+function(normal, tumor, log.ratio=NULL, min.coverage=15, weights=NULL, sdundo=NULL,
+undo.splits="sdundo", alpha=0.01, sampleid=NULL, plot.cnv=TRUE,
+max.segments=NULL, chr.hash=chr.hash) {
 
     # first, do it for exons with enough coverage. MR: added less stringent 
     # cutoff in case normal looks great. these could be homozygous deletions 
@@ -303,51 +307,46 @@ max.segments=NULL, chr.hash=chr.hash, verbose=TRUE) {
     well.covered.exon.idx <- .getWellCoveredExons(normal, tumor, 
         min.coverage)
 
-    if (verbose) message("Removing ", sum(!well.covered.exon.idx), 
-        " low coverage exons.")
-    if (is.null(logR)) norm.log.ratio = calculateLogRatio(normal, tumor, verbose)
-    else norm.log.ratio = logR
+    flog.info("Removing %i low coverage exons.", sum(!well.covered.exon.idx))
     
     if (is.null(sdundo)) {
-        sdundo <- .getSDundo(norm.log.ratio[well.covered.exon.idx])
+        sdundo <- .getSDundo(log.ratio[well.covered.exon.idx])
     }   
      
-    CNA.obj <- CNA(norm.log.ratio[well.covered.exon.idx], 
+    CNA.obj <- CNA(log.ratio[well.covered.exon.idx], 
         .strip.chr.name(normal$chr[well.covered.exon.idx], chr.hash), 
         floor((normal$probe_start[well.covered.exon.idx] + 
         normal$probe_end[well.covered.exon.idx])/2), data.type="logratio", 
         sampleid=sampleid)
 
-    smoothed.CNA.obj = if (smooth) smooth.CNA(CNA.obj) else CNA.obj
-
     try.again <- 0
 
     while (try.again < 2) {
-        if (verbose) message("Setting undo.SD parameter to ", sdundo)
+        flog.info("Setting undo.SD parameter to %f.", sdundo)
         if (!is.null(weights)) { 
             weights <- weights[well.covered.exon.idx]
             # MR: this shouldn't happen. In doubt, count them as median.
             weights[is.na(weights)] <- median(weights, na.rm=TRUE)
-            segment.smoothed.CNA.obj <- segment(smoothed.CNA.obj, 
+            segment.CNA.obj <- segment(CNA.obj, 
                 undo.splits=undo.splits, undo.SD=sdundo, 
-                verbose=ifelse(verbose, 1, 0), alpha=alpha,weights=weights)
+                verbose=0, alpha=alpha,weights=weights)
         } else {
-            segment.smoothed.CNA.obj <- segment(smoothed.CNA.obj, 
+            segment.CNA.obj <- segment(CNA.obj, 
                 undo.splits=undo.splits, undo.SD=sdundo, 
-                verbose=ifelse(verbose, 1, 0), alpha=alpha)
+                verbose=0, alpha=alpha)
         } 
-        if (is.null(max.segments) || nrow(segment.smoothed.CNA.obj$output) 
+        if (is.null(max.segments) || nrow(segment.CNA.obj$output) 
             < max.segments) break
         sdundo <- sdundo * 1.5
         try.again <- try.again + 1
     }
 
     if (plot.cnv) {
-        plot(segment.smoothed.CNA.obj, plot.type="s")
-        plot(segment.smoothed.CNA.obj, plot.type="w")
+        plot(segment.CNA.obj, plot.type="s")
+        plot(segment.CNA.obj, plot.type="w")
     }
 
-    return(list(cna=segment.smoothed.CNA.obj, logR=norm.log.ratio))
+    return(list(cna=segment.CNA.obj, logR=log.ratio))
 }
 
 .getSegSizes <- function(seg) {

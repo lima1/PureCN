@@ -20,10 +20,11 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   max.coverage.vcf = 300, max.non.clonal = 0.2,
   max.homozygous.loss = c(0.05, 1e+07), non.clonal.M = 1/3,
   max.mapping.bias = 0.8, iterations = 30, log.ratio.calibration = 0.25,
-  remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001,
-  gc.gene.file = NULL, max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75,
-  max.segments = 300, min.gof = 0.8, plot.cnv = TRUE,
-  cosmic.vcf.file = NULL, post.optimize = FALSE, verbose = TRUE)
+  smooth.log.ratio = TRUE, remove.off.target.snvs = NULL,
+  model.homozygous = FALSE, error = 0.001, gc.gene.file = NULL,
+  max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, max.segments = 300,
+  min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL,
+  post.optimize = FALSE, log.file = NULL, verbose = TRUE)
 }
 \arguments{
 \item{normal.coverage.file}{GATK coverage file of normal control (optional
@@ -85,7 +86,7 @@ to \code{\link{filterVcfMuTect}}, which in turn also calls
 
 \item{args.filterVcf}{Arguments for variant filtering function. Arguments
 \code{vcf}, \code{tumor.id.in.vcf}, \code{min.coverage},
-\code{model.homozygous}, \code{error} and \code{verbose} are required in the
+\code{model.homozygous} and \code{error} are required in the
 filter function and are automatically set.}
 
 \item{fun.setPriorVcf}{Function to set prior for somatic status for each
@@ -103,17 +104,17 @@ coverage files. Needs to return a \code{logical} vector whether an interval
 should be used for segmentation. Defaults to \code{\link{filterTargets}}.}
 
 \item{args.filterTargets}{Arguments for target filtering function. Arguments
-\code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file},
-\code{normalDB} and \code{verbose} are required and automatically set}
+\code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file} and
+\code{normalDB} are required and automatically set}
 
 \item{fun.segmentation}{Function for segmenting the copy number log-ratios.
 Expected return value is a \code{data.frame} representation of the
 segmentation. Defaults to \code{\link{segmentationCBS}}.}
 
 \item{args.segmentation}{Arguments for segmentation function. Arguments
-\code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv},
+\code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv} and
 \code{min.coverage}, \code{sampleid}, \code{vcf}, \code{tumor.id.in.vcf},
-\code{centromeres} and \code{verbose} are required in the segmentation function 
+\code{centromeres} are required in the segmentation function 
 and automatically set.}
 
 \item{fun.focal}{Function for identifying focal amplifications. Defaults to
@@ -187,6 +188,9 @@ that should converge quickly. Allowed range is 10 to 250.}
 \item{log.ratio.calibration}{Re-calibrate log-ratios in the window
 \code{sd(log.ratio)*log.ratio.calibration}.}
 
+\item{smooth.log.ratio}{Smooth \code{log.ratio} using the \code{DNAcopy}
+package.}
+
 \item{remove.off.target.snvs}{Deprecated. Use the corresponding argument in
 \code{args.filterVcf}.}
 
@@ -237,6 +241,8 @@ might take a long time when lots of SNVs need to be fitted, but will
 typically result in a slightly more accurate purity, especially for rather
 silent genomes or very low purities. Otherwise, it will just use the purity
 determined via the SCNA-fit.}
+
+\item{log.file}{If not \code{NULL}, store verbose output to file.}
 
 \item{verbose}{Verbose output.}
 }
@@ -291,6 +297,14 @@ res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=funSeg, max.ploidy = 4,
 }
 \author{
 Markus Riester
+}
+\references{
+Riester et al. (2016). PureCN: Copy number calling and SNV 
+classification using targeted short read sequencing. Source Code for Biology 
+and Medicine, 11, pp. 13. 
+
+Carter et al. (2012), Absolute quantification of somatic DNA alterations in 
+human cancer. Nature Biotechnology.
 }
 \seealso{
 \code{\link{correctCoverageBias}} \code{\link{segmentationCBS}}

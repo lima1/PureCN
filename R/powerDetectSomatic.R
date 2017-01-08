@@ -19,8 +19,8 @@
 #' mutations.} \item{k}{Minimum number of supporting reads.} \item{f}{Expected
 #' allelic fraction. }
 #' @author Markus Riester
-#' @references Carter et al., Absolute quantification of somatic DNA
-#' alterations in human cancer. Nature Biotechnology 2012.
+#' @references Carter et al. (2012), Absolute quantification of somatic DNA
+#' alterations in human cancer. Nature Biotechnology.
 #' @examples
 #' 
 #' purity <- c(0.1,0.15,0.2,0.25,0.4,0.6,1)

@@ -23,7 +23,6 @@
 #' \code{\link{createNormalDatabase}}.
 #' @param normalDB.min.coverage Exclude targets with coverage lower than 20
 #' percent of the chromosome median in the pool of normals.
-#' @param verbose Verbose output.
 #' @return \code{logical(length(log.ratio))} specifying which targets should be
 #' used in segmentation.
 #' @author Markus Riester
@@ -55,7 +54,7 @@
 #' @export filterTargets
 filterTargets <- function(log.ratio, tumor, gc.data, seg.file, 
     filter.lowhigh.gc = 0.001, min.targeted.base = 5, normalDB = NULL,
-    normalDB.min.coverage = 0.2, verbose) {
+    normalDB.min.coverage = 0.2) {
     # NA's in log.ratio confuse the CBS function
     targetsUsed <- !is.na(log.ratio) & !is.infinite(log.ratio) 
     # With segmentation file, ignore all filters
@@ -64,12 +63,12 @@ filterTargets <- function(log.ratio, tumor, gc.data, seg.file,
     if (!is.null(gc.data)) {
         .checkFraction(filter.lowhigh.gc, "filter.lowhigh.gc")
         targetsUsed <- .filterTargetsLowHighGC(targetsUsed, tumor,
-            gc.data, filter.lowhigh.gc, verbose)
+            gc.data, filter.lowhigh.gc)
     }
     targetsUsed <- .filterTargetsNormalDB(targetsUsed, tumor, normalDB,
-        normalDB.min.coverage, verbose)
+        normalDB.min.coverage)
     targetsUsed <- .filterTargetsTargetedBase(targetsUsed, tumor,
-        min.targeted.base, verbose)
+        min.targeted.base)
 }
 
 .checkNormalDB <- function(tumor, normalDB) {
@@ -90,7 +89,7 @@ filterTargets <- function(log.ratio, tumor, gc.data, seg.file,
 }
     
 .filterTargetsNormalDB <- function(targetsUsed, tumor, normalDB,
-normalDB.min.coverage, verbose) {
+normalDB.min.coverage) {
     if (is.null(normalDB)) return(targetsUsed)
     # make sure that normalDB matches tumor
     if (!.checkNormalDB(tumor, normalDB)) {
@@ -113,40 +112,40 @@ normalDB.min.coverage, verbose) {
 
     nAfter <- sum(targetsUsed)
 
-    if (verbose && nAfter < nBefore) { 
-        message("Removing ", nBefore-nAfter, " targets with low coverage ",
-            "in normalDB.")
+    if (nAfter < nBefore) { 
+        flog.info("Removing %i targets with low coverage in normalDB.", 
+            nBefore-nAfter)
     }
     targetsUsed
 }
 
-.filterTargetsChrHash <- function(targetsUsed, tumor, chr.hash, verbose) {
+.filterTargetsChrHash <- function(targetsUsed, tumor, chr.hash) {
     if (is.null(chr.hash)) return(targetsUsed)
     nBefore <- sum(targetsUsed)
     targetsUsed <- targetsUsed & tumor$chr %in% chr.hash$chr
     nAfter <- sum(targetsUsed)
 
-    if (verbose && nAfter < nBefore) { 
-        message("Removing ", nBefore-nAfter, " targets on chromosomes ",
-            "outside chr.hash.")
+    if ( nAfter < nBefore) { 
+        flog.info("Removing %i targets on chromosomes outside chr.hash.", 
+            nBefore-nAfter)
     }
     targetsUsed
 }
 
-.filterTargetsTargetedBase <- function(targetsUsed, tumor, min.targeted.base,
-    verbose) {
+.filterTargetsTargetedBase <- function(targetsUsed, tumor, min.targeted.base) {
     if (is.null(min.targeted.base)) return(targetsUsed)
     nBefore <- sum(targetsUsed)
     targetsUsed <- targetsUsed & !is.na(tumor$targeted.base) & 
         tumor$targeted.base >= min.targeted.base
     nAfter <- sum(targetsUsed)
-    if (verbose && nAfter < nBefore) message("Removing ", nBefore-nAfter, 
-        " small targets")
+    if (nAfter < nBefore) {
+        flog.info("Removing %i small targets.", nBefore-nAfter)
+    }    
     targetsUsed
 }
 
 .filterTargetsLowHighGC <- function(targetsUsed, tumor, gc.data,
-    filter.lowhigh.gc, verbose) {
+    filter.lowhigh.gc) {
     gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
     qq <- quantile(gc.data$gc_bias, p=c(filter.lowhigh.gc, 
         1-filter.lowhigh.gc), na.rm=TRUE)
@@ -156,8 +155,8 @@ normalDB.min.coverage, verbose) {
         !(gc.data$gc_bias < qq[1] | gc.data$gc_bias > qq[2])
     nAfter <- sum(targetsUsed)
 
-    if (verbose && nAfter < nBefore) message("Removing ", 
-        nBefore-nAfter, " low/high GC targets")
-
+    if (nAfter < nBefore) {
+        flog.info("Removing %i low/high GC targets.", nBefore-nAfter)
+    }
     targetsUsed
 }

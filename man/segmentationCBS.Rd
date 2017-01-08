@@ -8,7 +8,7 @@ segmentationCBS(normal, tumor, log.ratio, seg, plot.cnv, min.coverage, sampleid,
   target.weight.file = NULL, alpha = 0.005, undo.SD = NULL, vcf = NULL,
   tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
   prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
-  centromeres = NULL, verbose = TRUE)
+  centromeres = NULL)
 }
 \arguments{
 \item{normal}{GATK coverage data for normal sample.}
@@ -60,8 +60,6 @@ properly ordered.}
 
 \item{centromeres}{A \code{data.frame} with centromere positions in first
 three columns.  Currently not supported in this function.}
-
-\item{verbose}{Verbose output.}
 }
 \value{
 \code{data.frame} containing the segmentation.
@@ -94,6 +92,15 @@ ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
 }
 \author{
 Markus Riester
+}
+\references{
+Olshen, A. B., Venkatraman, E. S., Lucito, R., Wigler, M. 
+(2004). Circular binary segmentation for the analysis of array-based DNA 
+copy number data. Biostatistics 5: 557-572.
+
+Venkatraman, E. S., Olshen, A. B. (2007). A faster circular binary 
+segmentation algorithm for the analysis of array CGH data. Bioinformatics 
+23: 657-63.
 }
 \seealso{
 \code{\link{runAbsoluteCN}}

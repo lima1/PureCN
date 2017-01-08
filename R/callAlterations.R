@@ -57,10 +57,10 @@ log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, all.genes = FALSE) {
 
     bm <- res$results[[id]]$SNV.posterior$beta.model
     if (!is.null(bm)) {
-        segids <- bm$posterior$seg.id
+        segids <- bm$posteriors$seg.id
         calls$num.snps.segment <- sapply(calls$seg.id, function(i) 
             sum(segids==i,na.rm=TRUE))
-        calls$loh <- bm$posterior$ML.M.SEGMENT[match(calls$seg.id, segids)] == 0 
+        calls$loh <- bm$posteriors$ML.M.SEGMENT[match(calls$seg.id, segids)] == 0 
     }
     
     calls <- calls[, !grepl("^\\.",colnames(calls))]

@@ -4,7 +4,7 @@
 \alias{calculateLogRatio}
 \title{Calculate coverage log-ratio of tumor vs. normal}
 \usage{
-calculateLogRatio(normal, tumor, verbose = TRUE)
+calculateLogRatio(normal, tumor)
 }
 \arguments{
 \item{normal}{Normal coverage read in by the \code{\link{readCoverageGatk}}
@@ -12,8 +12,6 @@ function.}
 
 \item{tumor}{Tumor coverage read in by the \code{\link{readCoverageGatk}}
 function.}
-
-\item{verbose}{Verbose output.}
 }
 \value{
 \code{numeric(nrow(tumor))}, tumor vs. normal copy number log-ratios
@@ -33,7 +31,7 @@ tumor.coverage.file <- system.file("extdata", "example_tumor.txt",
     package="PureCN")
 normal <- readCoverageGatk(normal.coverage.file)
 tumor <- readCoverageGatk(tumor.coverage.file)
-log.ratio <- calculateLogRatio(normal, tumor, verbose=FALSE)
+log.ratio <- calculateLogRatio(normal, tumor)
 
 }
 \author{

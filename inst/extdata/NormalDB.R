@@ -4,10 +4,11 @@ library('getopt')
 
 spec <- matrix(c(
 'help' ,  'h', 0, "logical",
+'version', 'v', 0, "logical",
 'force' , 'f', 0, "logical",
 'gcgene', 'c', 1, "character",
 'method', 'm', 1, "character",
-'coveragefiles', 'v', 1, "character",
+'coveragefiles', 'b', 1, "character",
 'assay',   'a',1, "character",
 'outdir' , 'o', 1, "character"
 ), byrow=TRUE, ncol=4)
@@ -17,6 +18,12 @@ if ( !is.null(opt$help) ) {
     cat(getopt(spec, usage=TRUE))
     q(status=1)
 }
+
+if (!is.null(opt$version)) {
+    message(as.character(packageVersion("PureCN")))
+    q(status=1)
+}    
+
 
 .checkFileList <- function(file) {
     files <- read.delim(file, as.is=TRUE, header=FALSE)[,1]

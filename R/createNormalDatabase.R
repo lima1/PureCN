@@ -46,7 +46,7 @@ max.mean.coverage = 100, ... ) {
     normals.m <- scale(normals.m, 1/z, center=FALSE)
 
     normals.pca <- prcomp(t(normals.m[idx,]), ...)
-    sex.determined <- sapply(normals,getSexFromCoverage, verbose=is.null(sex))
+    sex.determined <- sapply(normals,getSexFromCoverage)
     if (is.null(sex)) {
         sex <- sex.determined
     } else {   
@@ -59,9 +59,8 @@ max.mean.coverage = 100, ... ) {
         for (i in seq_along(sex.determined)) {
             if (!is.na(sex.determined[i]) && sex[i] != "diploid" &&
                 sex.determined[i] != sex[i]) {
-                warning("Sex mismatch in ", normal.coverage.files[i], 
-                    ". Sex provided is ", sex, ", but could be ", 
-                    sex.determined[i])
+                flog.warn("Sex mismatch in %s. Sex provided is %s, but could be %s.", 
+                    normal.coverage.files[i], sex[i], sex.determined[i])
             }    
         }    
     }
@@ -109,7 +108,6 @@ createExonWeightFile <- function() {
 #' (>20) to estimate target log-ratio standard deviations. Should not overlap
 #' with files in \code{tumor.coverage.files}.
 #' @param target.weight.file Output filename.
-#' @param verbose Verbose output.
 #' @return A \code{data.frame} with target weights.
 #' @author Markus Riester
 #' @examples
@@ -127,12 +125,12 @@ createExonWeightFile <- function() {
 #' 
 #' @export createTargetWeights
 createTargetWeights <- function(tumor.coverage.files, normal.coverage.files,
-target.weight.file, verbose = TRUE) {
-    if (verbose) message("Loading coverage data...")
+target.weight.file) {
+    flog.info("Loading coverage data...")
     tumor.coverage <- lapply(tumor.coverage.files,  readCoverageGatk)
     normal.coverage <- lapply(normal.coverage.files,  readCoverageGatk)
     lrs <- lapply(tumor.coverage, function(tc) sapply(normal.coverage, 
-            function(nc) calculateLogRatio(nc, tc, verbose=verbose)))
+            function(nc) calculateLogRatio(nc, tc)))
 
     lrs <- do.call(cbind, lrs)
 

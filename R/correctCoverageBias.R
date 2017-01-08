@@ -1,5 +1,5 @@
 # Make CMD check happy
-globalVariables(names=c("gcIndex", "gcNum", "..level.."))
+globalVariables(names=c("..level.."))
 
 #' Correct for GC bias
 #' 
@@ -110,7 +110,7 @@ plot.max.density = 50000) {
         if (density == "Low") {
             print(ggplot(gcPlot, aes_string(x="gc_bias", y="average.coverage")) + 
                 geom_point(color='red', alpha=0.2) + 
-                geom_line(data = plotMed, aes(x = gcIndex, y = gcNum), color = 'blue') + 
+                geom_line(data = plotMed, aes_string(x = 'gcIndex', y = 'gcNum'), color = 'blue') + 
                 xlab("GC content") + ylab("Coverage") + 
                 theme(axis.text = element_text(size= 6), axis.title = element_text(size=16)) + 
                 facet_wrap(~ norm_status, nrow=1))
@@ -119,7 +119,7 @@ plot.max.density = 50000) {
             geom_point(color="blue", alpha = 0.1) + 
             stat_density2d(aes(fill = ..level..), geom="polygon") + 
             scale_alpha_continuous(limits=c(0.1, 0), breaks=seq(0, 0.1, by = 0.025)) + 
-            geom_line(data = plotMed, aes(x = gcIndex,y = gcNum), color = 'red') + 
+            geom_line(data = plotMed, aes_string(x = 'gcIndex',y = 'gcNum'), color = 'red') + 
             xlab("GC content") + ylab("Coverage") + 
             theme(axis.text = element_text(size = 16), axis.title = element_text(size = 16)) + 
             facet_wrap(~norm_status, nrow=1))

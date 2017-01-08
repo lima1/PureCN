@@ -5,8 +5,7 @@
 \title{Get sample sex from a VCF file}
 \usage{
 getSexFromVcf(vcf, tumor.id.in.vcf = NULL, min.or = 4, min.or.na = 2.5,
-  max.pv = 0.001, homozygous.cutoff = 0.95, af.cutoff = 0.2,
-  verbose = TRUE)
+  max.pv = 0.001, homozygous.cutoff = 0.95, af.cutoff = 0.2)
 }
 \arguments{
 \item{vcf}{CollapsedVCF object, read in with the \code{readVcf} function
@@ -29,8 +28,6 @@ homozygous.}
 
 \item{af.cutoff}{Remove all SNVs with allelic fraction lower than the
 specified value.}
-
-\item{verbose}{Verbose output.}
 }
 \value{
 Returns a \code{character(1)} with \code{M} for male, \code{F} for

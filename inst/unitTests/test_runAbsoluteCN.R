@@ -240,7 +240,7 @@ test_runAbsoluteCN <- function() {
     
     # test with a log.ratio and no tumor file
     log.ratio <- calculateLogRatio(readCoverageGatk(normal.coverage.file),
-        readCoverageGatk(tumor.coverage.file), verbose=FALSE)
+        readCoverageGatk(tumor.coverage.file))
 
     ret <- runAbsoluteCN( log.ratio=log.ratio,
         gc.gene.file=gc.gene.file,

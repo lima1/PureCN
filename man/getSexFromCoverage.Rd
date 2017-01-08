@@ -5,7 +5,7 @@
 \title{Get sample sex from coverage}
 \usage{
 getSexFromCoverage(coverage.file, min.ratio = 25, min.ratio.na = 20,
-  remove.outliers = TRUE, verbose = TRUE)
+  remove.outliers = TRUE)
 }
 \arguments{
 \item{coverage.file}{GATK coverage file or data read with
@@ -23,8 +23,6 @@ be considered when setting cutoffs.}
 
 \item{remove.outliers}{Removes coverage outliers before calculating mean
 chromosome coverages.}
-
-\item{verbose}{Verbose output.}
 }
 \value{
 Returns a \code{character(1)} with \code{M} for male, \code{F} for

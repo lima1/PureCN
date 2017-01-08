@@ -5,7 +5,7 @@
 \title{Set Mapping Bias VCF}
 \usage{
 setMappingBiasVcf(vcf, tumor.id.in.vcf = NULL, normal.panel.vcf.file = NULL,
-  min.normals = 5, smooth = TRUE, smooth.n = 5, verbose = TRUE)
+  min.normals = 5, smooth = TRUE, smooth.n = 5)
 }
 \arguments{
 \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf}
@@ -26,8 +26,6 @@ calculating position-specific mapping bias. Requires
 smoothing of neighboring SNPs. Requires \code{normal.panel.vcf.file}.}
 
 \item{smooth.n}{Number of neighboring variants used for smoothing.}
-
-\item{verbose}{Verbose output.}
 }
 \value{
 A \code{numeric(nrow(vcf))} vector with the mapping bias of for each

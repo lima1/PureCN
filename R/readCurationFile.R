@@ -15,7 +15,6 @@
 #' be used to automatically ignore unlikely solutions.
 #' @param max.ploidy Maximum ploidy to be considered. If \code{NULL}, all. Can
 #' be used to automatically ignore unlikely solutions.
-#' @param verbose Verbose output.
 #' @return The return value of the corresponding \code{\link{runAbsoluteCN}}
 #' call, but with the results array manipulated according the curation CSV file
 #' and arguments of this function.
@@ -35,8 +34,8 @@
 readCurationFile <- function(file.rds,
 file.curation = gsub(".rds$", ".csv", file.rds),
 remove.failed = FALSE, report.best.only=FALSE, min.ploidy = NULL,
-max.ploidy = NULL, verbose=FALSE) {
-    if (verbose) message("Reading ", file.rds, "...")
+max.ploidy = NULL) {
+    flog.info("Reading %s...", file.rds)
     res <- readRDS(file.rds)
     curation <- read.csv(file.curation, as.is=TRUE, nrows=1)
     .checkLogical <- function(field) {

@@ -19,7 +19,6 @@
 #' @param smooth Impute mapping bias of variants not found in the panel by
 #' smoothing of neighboring SNPs. Requires \code{normal.panel.vcf.file}.
 #' @param smooth.n Number of neighboring variants used for smoothing.
-#' @param verbose Verbose output.
 #' @return A \code{numeric(nrow(vcf))} vector with the mapping bias of for each
 #' variant in the \code{CollapsedVCF}. Mapping bias is expected as scaling
 #' factor. Adjusted allelic fraction is (observed allelic fraction)/(mapping
@@ -35,8 +34,7 @@
 #' 
 #' @export setMappingBiasVcf
 setMappingBiasVcf <- function(vcf, tumor.id.in.vcf = NULL,
-normal.panel.vcf.file = NULL, min.normals = 5, smooth = TRUE, smooth.n = 5,
-verbose = TRUE) {
+normal.panel.vcf.file = NULL, min.normals = 5, smooth = TRUE, smooth.n = 5) {
 
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
@@ -46,12 +44,12 @@ verbose = TRUE) {
          normal.id.in.vcf <- .getNormalIdInVcf(vcf, tumor.id.in.vcf)
          faAll <- as.numeric(geno(vcf)$FA[!info(vcf)$SOMATIC,normal.id.in.vcf])
          mappingBias <- mean(faAll, na.rm=TRUE)*2
-         if (verbose) message("Found SOMATIC annotation in VCF. ",
-            "Setting mapping bias to ", round(mappingBias, digits=3)) 
+         flog.info("Found SOMATIC annotation in VCF. Setting mapping bias to %.3f.", 
+            mappingBias) 
     }     
     if (is.null(info(vcf)$SOMATIC) && is.null(normal.panel.vcf.file)) {
-        message(
-            "VCF does not contain somatic status. For best results, consider\n",
+        flog.info(
+            "VCF does not contain somatic status. For best results, consider%s%s",
             "providing normal.panel.vcf.file when matched normals are not ",
             "available.")
     }    
@@ -64,10 +62,9 @@ verbose = TRUE) {
     if (is.null(normal.panel.vcf.file)) {
         return(tmp)
     } 
-    nvcf <- .readNormalPanelVcfLarge(vcf, normal.panel.vcf.file, 
-        verbose=verbose)
+    nvcf <- .readNormalPanelVcfLarge(vcf, normal.panel.vcf.file)
     if (nrow(nvcf) < 1) {
-        warning("setMappingBiasVcf: no hits in ", normal.panel.vcf.file, ".")
+        flog.warn("setMappingBiasVcf: no hits in %s.", normal.panel.vcf.file)
         return(tmp)
     }
 
@@ -101,15 +98,15 @@ verbose = TRUE) {
     as.numeric(y)
 }
 
-.readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file, max.file.size=1, verbose) {
+.readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file, max.file.size=1) {
     genome <- genome(vcf)[1]    
     if (file.size(normal.panel.vcf.file)/1000^3 > max.file.size || nrow(vcf)< 1000) {
-        if (verbose) message("Scanning ", normal.panel.vcf.file, "...")
+        flog.info("Scanning %s...", normal.panel.vcf.file)
         nvcf <- readVcf(TabixFile(normal.panel.vcf.file), genome=genome, 
             ScanVcfParam(which = rowRanges(vcf), info=NA, fixed=NA, 
             geno="FA"))
     } else {
-        if (verbose) message("Loading ", normal.panel.vcf.file, "...")
+        flog.info("Loading %s...", normal.panel.vcf.file)
         nvcf <- readVcf(normal.panel.vcf.file, genome=genome,
             ScanVcfParam(info=NA, fixed=NA, geno="FA"))
         nvcf <- subsetByOverlaps(nvcf, rowRanges(vcf))

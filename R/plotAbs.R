@@ -57,6 +57,7 @@
 #' @importFrom graphics abline axis boxplot contour hist image
 #'             legend lines par plot text mtext polygon points
 #'             rect strwidth symbols barplot
+#' @importFrom ggplot2 geom_boxplot geom_hline labs
 plotAbs <- function(res, ids = NULL, 
 type = c("hist", "overview", "overview2", "BAF", "AF", "volcano", "all"),
 chr = NULL, germline.only = TRUE, show.contour = FALSE, purity = NULL, 
@@ -152,7 +153,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                 "Purity:", round(res$results[[i]]$purity[[1]], digits=2), 
                 " Tumor ploidy:", round( res$results[[i]]$ploidy, digits=3), 
                 " SNV log-likelihood:", 
-                    round(res$results[[i]]$SNV.posterior$beta$llik, digits=2),
+                    round(res$results[[i]]$SNV.posterior$beta.model$llik, digits=2),
                 " GoF:", r2,    
                 " Mean coverage:", 
                     paste(round(apply(geno(res$input$vcf)$DP,2,mean)),
@@ -315,7 +316,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
             r <- .getVariantPosteriors(res, i, max.mapping.bias)
             if (is.null(r)) next
 
-            vcf <- res$input$vcf[res$results[[i]]$SNV.posterior$beta$vcf.ids]
+            vcf <- res$input$vcf[res$results[[i]]$SNV.posterior$beta.model$vcf.ids]
             # brwer.pal requires at least 3 levels
 
             r <- .getAFPlotGroups(r, is.null(info(vcf)$SOMATIC))
@@ -418,7 +419,15 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                 legend("topright", legend=as.character(mycol.palette$group),
                     col=mycol.palette$color, 
                     pch=mycol.palette$pch, cex=0.8)
-
+                
+                estimatedContRate <- 
+                    res$results[[i]]$SNV.posterior$beta.model$posterior.contamination
+                if (!is.null(estimatedContRate) && 
+                    estimatedContRate > min(r$AR[r$ML.SOMATIC])) {
+                    abline(h=estimatedContRate, col="red")
+                    text(x=mylogratio.xlim[1], y=estimatedContRate+0.02, 
+                        labels="Contamination", col="red", pos=4)
+                }
                 text(x=peak.ideal.means[
                     as.character(r$ML.C[r$ML.SOMATIC])][idx.labels], 
                     y=r$ML.AR[r$ML.SOMATIC][idx.labels], 
@@ -597,7 +606,7 @@ ss) {
 }    
 
 .getVariantPosteriors <- function(res, i, max.mapping.bias=NULL) {
-    r <- res$results[[i]]$SNV.posterior$beta.model$posterior
+    r <- res$results[[i]]$SNV.posterior$beta.model$posteriors
     if (!is.null(r) && !is.null(max.mapping.bias)) {
         r <- r[r$MAPPING.BIAS >= max.mapping.bias,]
     }    
@@ -607,22 +616,56 @@ ss) {
 .getAFPlotGroups <- function(r, single.mode) {
     if (single.mode) {
         groupLevels <- c("dbSNP/germline", "dbSNP/somatic", "novel/somatic",
-            "novel/germline", "COSMIC/germline", "COSMIC/somatic") 
+            "novel/germline", "COSMIC/germline", "COSMIC/somatic", "contamination") 
         r$group <- groupLevels[1]
         r$group[r$prior.somatic < 0.1 & r$ML.SOMATIC] <- groupLevels[2]
         r$group[r$prior.somatic >= 0.1 & r$ML.SOMATIC] <- groupLevels[3]
         r$group[r$prior.somatic >= 0.1 & !r$ML.SOMATIC] <- groupLevels[4]
         r$group[r$prior.somatic >= 0.9 & !r$ML.SOMATIC] <- groupLevels[5]
         r$group[r$prior.somatic >= 0.9 & r$ML.SOMATIC] <- groupLevels[6]
+        r$group[r$GERMLINE.CONTLOW > 0.5 | 
+            r$GERMLINE.CONTHIGH > 0.5] <- groupLevels[7]
         r$group <- factor(r$group, levels=groupLevels)
         return(r)
     } 
     groupLevels <- c("germline", "germline/ML somatic", "somatic", 
-        "somatic/ML germline")
+        "somatic/ML germline", "contamination")
     r$group <- groupLevels[1]
     r$group[r$prior.somatic < 0.1 & r$ML.SOMATIC] <- groupLevels[2]
     r$group[r$prior.somatic >= 0.1 & r$ML.SOMATIC] <- groupLevels[3]
     r$group[r$prior.somatic >= 0.1 & !r$ML.SOMATIC] <- groupLevels[4]
+    r$group[r$GERMLINE.CONTLOW > 0.5 | 
+        r$GERMLINE.CONTHIGH > 0.5] <- groupLevels[5]
     r$group <- factor(r$group, levels=groupLevels)
     r
 }            
+
+
+.plotContamination <- function(pp,  max.mapping.bias=NULL, plot=TRUE) {
+    if (is.null(max.mapping.bias)) max.mapping.bias=0
+
+    idx <- pp$GERMLINE.CONTHIGH+pp$GERMLINE.CONTLOW > 0.5 & 
+        pp$MAPPING.BIAS >= max.mapping.bias
+    if (!length(which(idx))) return(0)
+    df <- data.frame(
+        chr=pp$chr[idx], 
+        AR=sapply(pp$AR.ADJUSTED[idx], function(x) ifelse(x>0.5, 1-x,x)),
+        HIGHLOW=ifelse(pp$GERMLINE.CONTHIGH>pp$GERMLINE.CONTLOW, 
+            "HIGH", "LOW")[idx]
+    )
+    df$chr <- factor(df$chr, levels=unique(df$chr))
+    # take the chromosome median and then average. the low count
+    # might be biased in case contamination rate is < AR cutoff
+    estimatedRate <- weighted.mean( 
+        sapply(split(df$AR, df$HIGHLOW), median), 
+        sapply(split(df$AR, df$HIGHLOW), length)
+    )
+    if (plot) {
+        gp <- ggplot(df, aes_string(x="chr",y="AR",fill="HIGHLOW"))+geom_boxplot()+
+        geom_hline(yintercept=estimatedRate, color="grey", linetype="dashed")+
+        labs(fill="")
+        print(gp)
+   }     
+   estimatedRate
+}
+

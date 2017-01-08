@@ -4,6 +4,7 @@ library('getopt')
 
 spec <- matrix(c(
 'help' , 'h', 0, "logical",
+'version',  'v', 0, "logical",
 'force' , 'f', 0, "logical",
 'bam', 'b', 1, "character",
 'gatkcoverage', 'g', 1, "character",
@@ -17,6 +18,11 @@ if ( !is.null(opt$help) ) {
     cat(getopt(spec, usage=TRUE))
     q(status=1)
 }
+
+if (!is.null(opt$version)) {
+    message(as.character(packageVersion("PureCN")))
+    q(status=1)
+}    
 
 force <- !is.null(opt$force)
 

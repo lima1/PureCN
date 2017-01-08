@@ -5,7 +5,7 @@
 \title{Set Somatic Prior VCF}
 \usage{
 setPriorVcf(vcf, prior.somatic = c(0.5, 5e-04, 0.999, 1e-04, 0.995, 0.01),
-  tumor.id.in.vcf = NULL, verbose = TRUE)
+  tumor.id.in.vcf = NULL)
 }
 \arguments{
 \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf}
@@ -24,8 +24,6 @@ value is for the case that variant is in both dbSNP and COSMIC > 2.}
 
 \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in
 VCF.}
-
-\item{verbose}{Verbose output.}
 }
 \value{
 A \code{numeric(nrow(vcf))} vector with the prior probability of

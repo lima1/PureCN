@@ -326,10 +326,10 @@ present in 5 or more samples.
 We next use coverage data of normal samples to estimate the expected variance
 in coverage per target:
 
-<<targetweightfile1>>=
+<<targetweightfile1, message=FALSE>>=
 target.weight.file <- "target_weights.txt"
 createTargetWeights(tumor.coverage.file, normal.coverage.files, 
-    target.weight.file, verbose=FALSE)
+    target.weight.file)
 @
 
 This function calculates target-level copy number log-ratios using all normal
@@ -858,11 +858,11 @@ target-level copy number log-ratios, and \Biocpkg{PureCN} should be used for
 segmentation and purity/ploidy inference only, it is possible to provide these
 log-ratios:
 
-<<customlogratio>>=
+<<customlogratio, message=FALSE>>=
 # We still use the log-ratio exactly as normalized by PureCN for this
 # example
 log.ratio <- calculateLogRatio(readCoverageGatk(normal.coverage.file),
-    readCoverageGatk(tumor.coverage.file), verbose=FALSE)
+    readCoverageGatk(tumor.coverage.file))
 
 retLogRatio <- runAbsoluteCN(log.ratio=log.ratio,
     gc.gene.file=gc.gene.file, vcf.file=vcf.file, 
@@ -964,6 +964,7 @@ Rscript Coverage.R --outdir ~/tmp/ --gatkcoverage example_tumor.txt \
 Argument name       & Corresponding PureCN argument & PureCN function \\
 \midrule
 --help -h           & & \\
+--version -v          & & \\
 --force -f          & & \\
 --outdir -o         & & \\
 --bam -b            & bam.file & \Rfunction{calculateBamCoverageByInterval} \\
@@ -1010,11 +1011,12 @@ Rscript PureCN.R --rds Sample1_purecn.rds
 Argument name       & Corresponding PureCN argument & PureCN function \\
 \midrule
 --help -h           & & \\
+--version -v        & & \\
 --force -f          & & \\
 --outdir -o         &          &                            \\
 --normal -n         & normal.coverage.file   & \Rfunction{runAbsoluteCN}  \\
 --tumor -t          & tumor.coverage.file     & \Rfunction{runAbsoluteCN} \\
---vcf -v            & vcf.file          & \Rfunction{runAbsoluteCN}   \\
+--vcf -b            & vcf.file          & \Rfunction{runAbsoluteCN}   \\
 --rds -r            & file.rds          & \Rfunction{readCurationFile}   \\
 --genome -g         & genome             & \Rfunction{runAbsoluteCN}  \\
 --gcgene -c         & gc.gene.file      & \Rfunction{runAbsoluteCN}   \\

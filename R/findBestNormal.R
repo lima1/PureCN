@@ -22,7 +22,6 @@
 #' @param pool.weights Either find good pooling weights by optimization or
 #' weight all best normals equally.
 #' @param plot.pool Allows the pooling function to create plots.
-#' @param verbose Verbose output.
 #' @param \dots Additional arguments passed to \code{\link{poolCoverage}}.
 #' @return Filename of the best matching normal.
 #' @author Markus Riester
@@ -48,7 +47,7 @@
 findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3, 
     num.normals = 1, ignore.sex = FALSE, sex = NULL, 
     normal.coverage.files = NULL, pool = FALSE, 
-    pool.weights = c("voom", "equal"), plot.pool = FALSE, verbose = TRUE,
+    pool.weights = c("voom", "equal"), plot.pool = FALSE, 
     ...) {
     if (is.character(tumor.coverage.file)) {
         tumor  <- readCoverageGatk(tumor.coverage.file)
@@ -71,15 +70,15 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
     if (!ignore.sex && !is.null(normalDB$sex) && 
         sum(!is.na(normalDB$sex))>0) {
         if (is.null(sex)) {
-            sex <- getSexFromCoverage(tumor, verbose=FALSE)
+            sex <- getSexFromCoverage(tumor)
         }
-        if (verbose) message("Sex of sample: ", sex)
+        flog.info("Sample sex: %s", sex)
         if (!is.na(sex)) {
             idx.normals <- which(normalDB$sex == sex)
         }
         if (length(idx.normals) < 2) { 
-            warning("Not enough samples of sex ", sex, 
-                " in database. Ignoring sex.")
+            flog.warn("Not enough samples of sex %s %s", sex, 
+                "in database. Ignoring sex.")
             idx.normals <- seq_along(normalDB$normal.coverage.files)
         }
     }
@@ -98,10 +97,8 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
     if (pool) {
       normals <- lapply(normal.coverage.files, readCoverageGatk)
       pool.weights <- match.arg(pool.weights)
-      if (verbose) {
-          message("Pooling ", paste(basename(normal.coverage.files), 
-            collapse=", "))
-      }        
+      flog.info("Pooling %s.", paste(basename(normal.coverage.files), 
+        collapse=", "))
       w <- NULL
       if (pool.weights == "voom" && num.normals > 1) {  
           logRatio <- .voomLogRatio(tumor, 

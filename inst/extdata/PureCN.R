@@ -4,10 +4,11 @@ library('getopt')
 
 spec <- matrix(c(
 'help',           'h', 0, "logical",
+'version',        'v', 0, "logical",
 'force' ,         'f', 0, "logical",
 'normal',         'n', 1, "character",
 'tumor',          't', 1, "character",
-'vcf',            'v', 1, "character",
+'vcf',            'b', 1, "character",
 'rds',            'r', 1, "character",
 'genome',         'g', 1, "character",
 'gcgene',         'c', 1, "character",
@@ -30,6 +31,11 @@ if ( !is.null(opt$help) ) {
     cat(getopt(spec, usage=TRUE))
     q(status=1)
 }
+
+if (!is.null(opt$version)) {
+    message(as.character(packageVersion("PureCN")))
+    q(status=1)
+}    
 
 force <- !is.null(opt$force)
 post.optimize <- !is.null(opt$postoptimize)
@@ -54,7 +60,9 @@ file.rds <- opt$rds
 if (!is.null(file.rds) && file.exists(file.rds)) {
     if (is.null(outdir)) outdir <- dirname(file.rds)
 } else {
-    if (is.null(sampleid)) stop("Need sampleid.")
+    if (is.null(sampleid)) stop("Need --sampleid.")
+    if (is.null(genome)) stop("Need --genome")
+    genome <- as.character(genome)
     file.rds <- file.path(outdir, paste0(sampleid, '_purecn.rds'))
     if (is.null(seg.file)) {
         tumor.coverage.file <- normalizePath(tumor.coverage.file, 
@@ -94,6 +102,7 @@ if (file.exists(file.rds) && !force) {
     } else if (is.null(normal.coverage.file) && is.null(seg.file)) {
         stop("Need either normalDB or normal.coverage.file")
     }    
+    file.log <- file.path(outdir, paste0(sampleid, '_purecn.log'))
 
     pdf(paste(outdir,"/", sampleid, '_purecn_segmentation.pdf', sep=''), 
         width=10, height=11)
@@ -107,7 +116,7 @@ if (file.exists(file.rds) && !force) {
             args.setMappingBiasVcf=
                 list(normal.panel.vcf.file=normal.panel.vcf.file),
             normalDB=normalDB, model.homozygous=model.homozygous,
-            post.optimize=post.optimize)
+            log.file=file.log, post.optimize=post.optimize)
     dev.off()
     saveRDS(ret, file=file.rds)
 }

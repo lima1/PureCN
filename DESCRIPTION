@@ -2,8 +2,8 @@ Package: PureCN
 Type: Package
 Title: Copy number calling and SNV classification using
     targeted short read sequencing
-Version: 1.5.32
-Date: 2017-01-03
+Version: 1.5.33
+Date: 2017-01-06
 Authors@R: c(person("Markus", "Riester", role=c("aut", "cre"),
         email="markus.riester@novartis.com"),
     person("Angad P.", "Singh", role="aut"))
@@ -13,7 +13,7 @@ Description: This package estimates tumor purity, copy number, loss of
     with standard somatic variant detection pipelines, and has support for
     tumor samples without matching normal samples.
 Depends:
-    R (>= 3.2),
+    R (>= 3.3),
     DNAcopy,
     VariantAnnotation (>= 1.14.1)
 Imports:
@@ -32,6 +32,7 @@ Imports:
     Biostrings,
     rtracklayer,
     ggplot2,
+    futile.logger,
     edgeR,
     limma
 Suggests:

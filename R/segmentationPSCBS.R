@@ -22,8 +22,6 @@
 #' function.
 #' @param undo.SD \code{undo.SD} for CBS, see documentation of the
 #' \code{segment} function. If \code{NULL}, try to find a sensible default.
-#' @param drop.outliers If \code{TRUE}, calls the 
-#' \code{dropSegmentationOutliers} function from PSCBS before segmentation.
 #' @param flavor Flavor value for PSCBS. See \code{segmentByNonPairedPSCBS}.
 #' @param tauA tauA argument for PSCBS. See \code{segmentByNonPairedPSCBS}.
 #' @param vcf Optional VCF object with germline allelic ratios.
@@ -43,11 +41,20 @@
 #' properly ordered.
 #' @param centromeres A \code{data.frame} with centromere positions in first
 #' three columns.  If not \code{NULL}, add breakpoints at centromeres. 
-#' @param verbose Verbose output.
 #' @param \dots Additional parameters passed to the 
 #' \code{segmentByNonPairedPSCBS} function.
 #' @return \code{data.frame} containing the segmentation.
 #' @author Markus Riester
+#' @references Olshen, A. B., Venkatraman, E. S., Lucito, R., Wigler, M. 
+#' (2004). Circular binary segmentation for the analysis of array-based DNA 
+#' copy number data. Biostatistics 5: 557-572.
+#'
+#' Venkatraman, E. S., Olshen, A. B. (2007). A faster circular binary 
+#' segmentation algorithm for the analysis of array CGH data. Bioinformatics 
+#' 23: 657-63.
+#'
+#' Olshen et al. (2011). Parent-specific copy number in paired tumor-normal 
+#' studies using circular binary segmentation. Bioinformatics.
 #' @seealso \code{\link{runAbsoluteCN}}
 #' @examples
 #' 
@@ -72,10 +79,10 @@
 #' @export segmentationPSCBS
 segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
     min.coverage, sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD =
-    NULL, drop.outliers=TRUE, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
+    NULL, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
     tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
     prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
-    centromeres = NULL, verbose = TRUE, ...) {
+    centromeres = NULL, ...) {
 
     debug <- TRUE
         
@@ -95,8 +102,7 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         target.weights <- read.delim(target.weight.file, as.is=TRUE)
         target.weights <- target.weights[match(as.character(tumor[,1]), 
             target.weights[,1]),2]
-        if (verbose) message(
-            "Target weights found, but currently not supported by PSCBS. ",
+         flog.info("Target weights found, but currently not supported by PSCBS. %s",
             "Will simply exclude targets with low weight.")
         lowWeightTargets <- target.weights < 1/3
         well.covered.exon.idx[which(lowWeightTargets)] <- FALSE
@@ -134,7 +140,7 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     #} else {
     if (is.null(undo.SD)) {
         undo.SD <- .getSDundo(log.ratio)
-        if (verbose) message("Setting undo.SD parameter to ", undo.SD)
+        flog.info("Setting undo.SD parameter to %f.", undo.SD)
     }   
     knownSegments <- NULL
     if (!is.null(centromeres)) {
@@ -145,9 +151,6 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
             chr.hash)
         knownSegments <- PSCBS::gapsToSegments(knownSegments)
     }    
-    if (drop.outliers) {
-        d.f <- PSCBS::dropSegmentationOutliers(d.f)
-    }    
     seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
         flavor=flavor, undoTCN=undo.SD, knownSegments=knownSegments, 
         min.width=3,alphaTCN=alpha, ...)
@@ -157,7 +160,7 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 
     if (!is.null(vcf)) {
         x <- .pruneByHclust(x, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
-            method=prune.hclust.method, chr.hash=chr.hash, verbose=verbose)
+            method=prune.hclust.method, chr.hash=chr.hash)
     }
     x$cna$output
 }

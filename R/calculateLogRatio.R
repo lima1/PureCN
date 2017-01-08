@@ -10,7 +10,6 @@
 #' function.
 #' @param tumor Tumor coverage read in by the \code{\link{readCoverageGatk}}
 #' function.
-#' @param verbose Verbose output.
 #' @return \code{numeric(nrow(tumor))}, tumor vs. normal copy number log-ratios
 #' for all targets.
 #' @author Markus Riester
@@ -22,21 +21,17 @@
 #'     package="PureCN")
 #' normal <- readCoverageGatk(normal.coverage.file)
 #' tumor <- readCoverageGatk(tumor.coverage.file)
-#' log.ratio <- calculateLogRatio(normal, tumor, verbose=FALSE)
+#' log.ratio <- calculateLogRatio(normal, tumor)
 #' 
 #' @export calculateLogRatio
-calculateLogRatio <- function(normal, tumor, verbose=TRUE) {
+calculateLogRatio <- function(normal, tumor) {
     # make sure that normal and tumor align
     if (!identical(as.character(normal[, 1]), as.character(tumor[, 1]))) {
         .stopUserError("Interval files in normal and tumor different.")
     }
-    if (verbose) {
-        message("Average coverage: ", 
-            round(mean(tumor$average.coverage, na.rm=TRUE), digits=0), 
-            "X (tumor), ",
-            round(mean(normal$average.coverage, na.rm=TRUE), digits=0),
-            "X (normal).")
-    }    
+    flog.info("Average coverage: %.0fX (tumor) %.0fX (normal).", 
+        mean(tumor$average.coverage, na.rm=TRUE), 
+        mean(normal$average.coverage, na.rm=TRUE))
     total.cov.normal <- sum(as.numeric(normal$coverage), na.rm = TRUE)
     total.cov.tumor <- sum(as.numeric(tumor$coverage), na.rm = TRUE)
 

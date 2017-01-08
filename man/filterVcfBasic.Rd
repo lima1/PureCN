@@ -6,10 +6,10 @@
 \usage{
 filterVcfBasic(vcf, tumor.id.in.vcf = NULL, use.somatic.status = TRUE,
   snp.blacklist = NULL, af.range = c(0.03, 0.97),
-  contamination.cutoff = c(0.05, 0.075), min.coverage = 15,
+  contamination.cutoff = c(0.075, 0.02), min.coverage = 15,
   min.base.quality = 25, min.supporting.reads = NULL, error = 0.001,
   target.granges = NULL, remove.off.target.snvs = TRUE,
-  model.homozygous = FALSE, interval.padding = 50, verbose = TRUE)
+  model.homozygous = FALSE, interval.padding = 50)
 }
 \arguments{
 \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf}
@@ -34,8 +34,9 @@ contamination. If a matched normal is available, this value is ignored,
 because homozygosity can be confirmed in the normal.}
 
 \item{contamination.cutoff}{Count SNPs in dbSNP with allelic fraction
-smaller than the first value, if found on most chromosomes, remove all with
-AF smaller than the second value.}
+smaller than the first value or greater than 1-first value, if found on most chromosomes, mark sample
+as contaminated if the fraction of putative contamination SNPs exceeds
+the second value.}
 
 \item{min.coverage}{Minimum coverage in tumor. Variants with lower coverage
 are ignored.}
@@ -62,8 +63,6 @@ SNPs. Ignored in case a matched normal is provided in the VCF.}
 
 \item{interval.padding}{Include variants in the interval flanking regions of
 the specified size in bp. Requires \code{target.granges}.}
-
-\item{verbose}{Verbose output.}
 }
 \value{
 A list with elements \item{vcf}{The filtered \code{CollapsedVCF}

@@ -6,10 +6,10 @@
 \usage{
 segmentationPSCBS(normal, tumor, log.ratio, seg, plot.cnv, min.coverage,
   sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD = NULL,
-  drop.outliers = TRUE, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
-  tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
-  prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
-  centromeres = NULL, verbose = TRUE, ...)
+  flavor = "tcn&dh", tauA = 0.03, vcf = NULL, tumor.id.in.vcf = 1,
+  normal.id.in.vcf = NULL, max.segments = NULL, prune.hclust.h = NULL,
+  prune.hclust.method = "ward.D", chr.hash = NULL, centromeres = NULL,
+  ...)
 }
 \arguments{
 \item{normal}{GATK coverage data for normal sample.}
@@ -37,9 +37,6 @@ function.}
 
 \item{undo.SD}{\code{undo.SD} for CBS, see documentation of the
 \code{segment} function. If \code{NULL}, try to find a sensible default.}
-
-\item{drop.outliers}{If \code{TRUE}, calls the 
-\code{dropSegmentationOutliers} function from PSCBS before segmentation.}
 
 \item{flavor}{Flavor value for PSCBS. See \code{segmentByNonPairedPSCBS}.}
 
@@ -69,8 +66,6 @@ properly ordered.}
 
 \item{centromeres}{A \code{data.frame} with centromere positions in first
 three columns.  If not \code{NULL}, add breakpoints at centromeres.}
-
-\item{verbose}{Verbose output.}
 
 \item{\dots}{Additional parameters passed to the 
 \code{segmentByNonPairedPSCBS} function.}
@@ -107,6 +102,18 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 }
 \author{
 Markus Riester
+}
+\references{
+Olshen, A. B., Venkatraman, E. S., Lucito, R., Wigler, M. 
+(2004). Circular binary segmentation for the analysis of array-based DNA 
+copy number data. Biostatistics 5: 557-572.
+
+Venkatraman, E. S., Olshen, A. B. (2007). A faster circular binary 
+segmentation algorithm for the analysis of array CGH data. Bioinformatics 
+23: 657-63.
+
+Olshen et al. (2011). Parent-specific copy number in paired tumor-normal 
+studies using circular binary segmentation. Bioinformatics.
 }
 \seealso{
 \code{\link{runAbsoluteCN}}

@@ -70,7 +70,7 @@ legend("bottomright", legend=paste("Purity", purity), fill=seq_along(purity))
 Markus Riester
 }
 \references{
-Carter et al., Absolute quantification of somatic DNA
-alterations in human cancer. Nature Biotechnology 2012.
+Carter et al. (2012), Absolute quantification of somatic DNA
+alterations in human cancer. Nature Biotechnology.
 }
 

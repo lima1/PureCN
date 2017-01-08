@@ -64,7 +64,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 }    
 
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
-    C.posterior, C, opt.C, snv.model, prior.somatic, mapping.bias, snv.lr, 
+    C.likelihood, C, opt.C, snv.model, prior.somatic, mapping.bias, snv.lr, 
     sampleid = NULL, cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M,
     model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8) {
 
@@ -84,9 +84,9 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         haploid.penalty <- 2
     }
     
-    subclonal <- apply(C.posterior[queryHits(ov), ], 1, which.max) == ncol(C.posterior)
+    subclonal <- apply(C.likelihood[queryHits(ov), ], 1, which.max) == ncol(C.likelihood)
     
-    seg.idx <- which(seq_len(nrow(C.posterior)) %in% queryHits(ov))
+    seg.idx <- which(seq_len(nrow(C.likelihood)) %in% queryHits(ov))
     sd.ar <- sd(unlist(geno(vcf)$FA[, tumor.id.in.vcf]))
 
     # Fit variants in all segments
@@ -104,13 +104,13 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         shape1 <- ar_all * dp_all + 1
         shape2 <- (1 - ar_all) * dp_all + 1
 
-        lapply(seq(ncol(C.posterior)), function(k) {
+        lapply(seq(ncol(C.likelihood)), function(k) {
             Ci <- c(test.num.copy, opt.C[i])[k]       
             priorM <- log(Ci + 1 + haploid.penalty)
             #priorM <- log(abs(2-Ci) + 1)
             priorHom <- ifelse(model.homozygous, -log(3), log(0))
             
-            skip <- test.num.copy > Ci | C.posterior[i, k] <=0
+            skip <- test.num.copy > Ci | C.likelihood[i, k] <=0
 
             p.ar <- lapply(c(0, 1), function(g) {
                 cns <- test.num.copy
@@ -166,8 +166,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
     likelihoods <- do.call(rbind, 
         lapply(seq_along(xx), function(i) Reduce("+", 
-            lapply(seq(ncol(C.posterior)), function(j) 
-                exp(xx[[i]][[j]]) * C.posterior[seg.idx[i], j]))))
+            lapply(seq(ncol(C.likelihood)), function(j) 
+                exp(xx[[i]][[j]]) * C.likelihood[seg.idx[i], j]))))
 
     colnames(likelihoods) <- c(paste("SOMATIC.M", test.num.copy, sep = ""), 
         paste("GERMLINE.M", test.num.copy, sep = ""), "GERMLINE.CONTHIGH", 
@@ -418,7 +418,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .getGoF <- function(result) {
     if (is.null(result$SNV.posterior$beta.model)) return(0)
     r <- result$SNV.posterior$beta.model$posteriors
-    e <- (r$ML.AR-r$AR)^2
+    e <- (r$ML.AR-r$AR.ADJUSTED)^2
     maxDist <- 0.2^2
     r2 <- max(1-mean(e,na.rm=TRUE)/maxDist,0)
     return(r2)
@@ -583,7 +583,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     
 
 .optimizeGrid <- function(test.purity, min.ploidy, max.ploidy, test.num.copy = 0:7, 
-    exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal, verbose = FALSE, debug = FALSE) {
+    exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal) {
     ploidy.grid <- seq(min.ploidy, max.ploidy, by = 0.2)
     if (min.ploidy < 1.8 && max.ploidy > 2.2) {
         ploidy.grid <- c(seq(min.ploidy, 1.8, by = 0.2), 1.9, 2, 2.1, seq(2.2, max.ploidy, 
@@ -592,16 +592,12 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     mm <- lapply(test.purity, function(p) {
         b <- 2 * (1 - p)
         log.ratio.offset <- 0
-        if (debug) 
-            message(paste(b, log.ratio.offset))
         lapply(ploidy.grid, function(D) {
             dt <- p/D
             llik.all <- lapply(seq_along(exon.lrs), function(i) .calcLlikSegmentExonLrs(exon.lrs[[i]], 
                 log.ratio.offset, max.exon.ratio, sd.seg, dt, b, D, test.num.copy))
             subclonal <- vapply(llik.all, which.max, double(1)) == 1
             subclonal.f <- length(unlist(exon.lrs[subclonal]))/length(unlist(exon.lrs))
-            if (debug) 
-                message(paste(sum(subclonal), subclonal.f))
             if (subclonal.f > max.non.clonal) 
                 return(-Inf)
             llik <- sum(vapply(llik.all, max, double(1)))
@@ -857,6 +853,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     msg <- paste0(msg, "\n\nThis is most likely a user error due to",
         " invalid input data or parameters (PureCN ", 
         packageVersion("PureCN"), ").")
+    flog.fatal(paste(strwrap(msg),"\n"))
     stop( paste(strwrap(msg),"\n"), call.= FALSE)
 }
 .stopRuntimeError <- function(...) {
@@ -864,25 +861,41 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     msg <- paste0(msg, "\n\nThis runtime error might be caused by",
         " invalid input data or parameters. Please report bug (PureCN ", 
         packageVersion("PureCN"), ").")
+    flog.fatal(paste(strwrap(msg),"\n"))
     stop( paste(strwrap(msg),"\n"), call.= FALSE)
 }
+.logHeader <- function(l) {
+    flog.info(strrep("-", 60))
+    flog.info("PureCN %s", as.character(packageVersion("PureCN")))
+    flog.info(strrep("-", 60))
+    idxSupported <- sapply(l, function(x) class(eval(x))) %in% 
+        c("character", "numeric", "NULL", "list", "logical") &
+        sapply(l, function(x) length(unlist(eval(x)))) < 12
 
+    l <- c(l[idxSupported],lapply(l[!idxSupported], function(x) "<data>"))
+    argsStrings <- paste(sapply(seq_along(l), function(i) 
+        paste0("-", names(l)[i], " ", paste(eval(l[[i]]),collapse=","))),
+        collapse=" ")
+    flog.info("Arguments: %s", argsStrings)
+}
+.logFooter <- function() {
+    flog.info("Done.")
+    flog.info(strrep("-", 60))
+}    
 .calcGCmetric <- function(gc.data, coverage) { 
     gcbins <- split(coverage$average.coverage, gc.data$gc_bias < 0.5); 
     mean(gcbins[[1]], na.rm=TRUE)/mean(gcbins[[2]], na.rm=TRUE) 
 }
-.checkGCBias <- function(normal, tumor, gc.data, max.dropout, verbose) {
+.checkGCBias <- function(normal, tumor, gc.data, max.dropout) {
     gcMetricNormal <- .calcGCmetric(gc.data, normal)
     gcMetricTumor <- .calcGCmetric(gc.data, tumor)
-    if (verbose) { 
-        message("AT/GC dropout: ", round(gcMetricTumor, digits=2),
-        " (tumor), ", round(gcMetricNormal, digits=2), " (normal).")
-    }    
+    flog.info("AT/GC dropout: %.2f (tumor), %.2f (normal). ", 
+        gcMetricTumor, gcMetricNormal)
     if (gcMetricNormal < max.dropout[1] || 
         gcMetricNormal > max.dropout[2] ||
         gcMetricTumor  < max.dropout[1] ||
         gcMetricTumor  > max.dropout[2]) {
-        warning("High GC-bias in normal or tumor. Is data GC-normalized?")
+        flog.warn("High GC-bias in normal or tumor. Is data GC-normalized?")
         return(TRUE)
     }
     return(FALSE)

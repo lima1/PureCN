@@ -19,7 +19,6 @@
 #' be considered when setting cutoffs.
 #' @param remove.outliers Removes coverage outliers before calculating mean
 #' chromosome coverages.
-#' @param verbose Verbose output.
 #' @return Returns a \code{character(1)} with \code{M} for male, \code{F} for
 #' female, or \code{NA} if unknown.
 #' @author Markus Riester
@@ -32,7 +31,7 @@
 #' 
 #' @export getSexFromCoverage
 getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
-    remove.outliers = TRUE, verbose = TRUE) {
+    remove.outliers = TRUE) {
     if (is.character(coverage.file)) {
         x <- readCoverageGatk(coverage.file)
     } else {
@@ -51,7 +50,7 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
     }    
 
     if (is.na(avg.coverage[sex.chr[1]]) || is.na(avg.coverage[sex.chr[2]]) ) {
-        if (verbose) message(
+        flog.warn(
             "Allosome coverage appears to be missing, cannot determine sex.")
         return(NA)
     }    
@@ -60,18 +59,13 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
         names(avg.coverage))],na.rm=TRUE)
     autosome.ratio <- avg.autosome.coverage/(avg.coverage[sex.chr[1]]+0.0001)
     if (autosome.ratio > 5) { 
-        if (verbose) message(
-            "Allosome coverage very low, cannot determine sex.")
+        flog.info("Allosome coverage very low, cannot determine sex.")
         return(NA)
     }
     XY.ratio <- avg.coverage[sex.chr[1]]/ (avg.coverage[sex.chr[2]]+ 0.0001)
-    if (verbose) {
-        message("Mean coverages:",
-                " chrX: ",  round(avg.coverage[sex.chr[1]], digits=2), 
-                " chrY: ", round(avg.coverage[sex.chr[2]], digits=2),
-                " chr1-22: ",round(avg.autosome.coverage, digits=2),"."
-        )
-    }     
+    flog.info("Mean coverages: chrX: %.2f, chrY: %.2f, chr1-22: %.2f.",
+            avg.coverage[sex.chr[1]], avg.coverage[sex.chr[2]],
+            avg.autosome.coverage)
     if (XY.ratio > min.ratio) return("F")
     if (XY.ratio > min.ratio.na) return(NA)
     return("M") 
@@ -112,7 +106,6 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
 #' homozygous.
 #' @param af.cutoff Remove all SNVs with allelic fraction lower than the
 #' specified value.
-#' @param verbose Verbose output.
 #' @return Returns a \code{character(1)} with \code{M} for male, \code{F} for
 #' female, or \code{NA} if unknown.
 #' @author Markus Riester
@@ -129,7 +122,7 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
 #' @importFrom stats fisher.test
 getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4, 
     min.or.na = 2.5, max.pv = 0.001, homozygous.cutoff = 0.95,
-    af.cutoff = 0.2, verbose=TRUE) {
+    af.cutoff = 0.2) {
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf) 
     }
@@ -144,41 +137,34 @@ getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4,
 
     homozygous <- geno(vcf)$FA[,tumor.id.in.vcf] > homozygous.cutoff
     if ( sum(homozygous)/length(homozygous) < 0.001 ) {
-        if (verbose) { 
-            message("No homozygous variants in VCF, provide unfiltered VCF.")
-        }    
+        flog.info("No homozygous variants in VCF, provide unfiltered VCF.")
         return(NA)
     }
 
     if (!sum(chrX)) {
-        if (verbose) { 
-            message("No variants on chrX in VCF.")
-        }    
+        flog.info("No variants on chrX in VCF.")
         return(NA)
     }    
     res <- fisher.test(homozygous, as.vector(chrX))
-    if (verbose) message(sum( homozygous & as.vector(chrX)), 
-        " homozygous and ", sum( !homozygous & as.vector(chrX)), 
-        " heterozygous variants on chromosome X.")
+    flog.info("%i homozygous and %i heterozygous variants on chrX.", 
+        sum( homozygous & as.vector(chrX)), 
+        sum( !homozygous & as.vector(chrX)))
     sex <- "F"    
     if (res$estimate >= min.or.na) sex <- NA
     if (res$estimate >= min.or && res$p.value > max.pv) sex <- NA
     if (res$p.value <= max.pv && res$estimate >= min.or) sex <- "M"
-    if (verbose) { 
-        message("Sex from VCF: ", sex, " (Fisher's p-value: ", 
-            ifelse(res$p.value < 0.0001, "< 0.0001", 
-            round(res$p.value, digits=3)), 
-            "  odds-ratio: ", round(res$estimate, digits=2), ")")
-    }    
+    flog.info("Sex from VCF: %s (Fisher's p-value: %s, odds-ratio: %.2f).", 
+        sex, ifelse(res$p.value < 0.0001, "< 0.0001", round(res$p.value, digits=3)), 
+        res$estimate)
     return(sex)    
 }
 
 .getSex <- function(sex, normal, tumor) {
     if (sex != "?") return(sex)
-    sex.tumor <- getSexFromCoverage(tumor, verbose=FALSE)
-    sex.normal <- getSexFromCoverage(normal, verbose=FALSE)
+    sex.tumor <- getSexFromCoverage(tumor)
+    sex.normal <- getSexFromCoverage(normal)
     if (!identical(sex.tumor, sex.normal)) {
-        warning("Sex tumor/normal mismatch: tumor = ", sex.tumor, 
+        flog.warn("Sex tumor/normal mismatch: tumor = ", sex.tumor, 
             " normal = ", sex.normal)
     }
     sex <- sex.tumor    
