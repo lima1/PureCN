@@ -80,6 +80,7 @@ if (length(coverageFiles)) {
             stop("Unknown GC-normalization method")
         }
         gc.gene.file <- opt$gcgene
+        if (is.null(gc.gene.file)) stop("Need --gcgene")
         gc.gene.file <- normalizePath(gc.gene.file, mustWork=TRUE)
         for (gatk.coverage in coverageFiles) {
             .gcNormalize(gatk.coverage, gc.gene.file, method, outdir, force)
