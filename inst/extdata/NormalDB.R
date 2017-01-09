@@ -10,6 +10,7 @@ spec <- matrix(c(
 'method', 'm', 1, "character",
 'coveragefiles', 'b', 1, "character",
 'assay',   'a',1, "character",
+'genome',  'g', 1, "character",
 'outdir' , 'o', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
@@ -47,11 +48,15 @@ outdir <- normalizePath(outdir, mustWork=TRUE)
 method <- opt$method
 assay <- opt$assay
 if (is.null(assay)) assay <- ""
+genome <- opt$genome
+if (is.null(genome)) stop("Need --genome")
 
-.getFileName <- function(outdir, prefix, suffix, assay, method) {
+
+.getFileName <- function(outdir, prefix, suffix, assay, method, genome) {
     if (nchar(assay)) assay <- paste0("_", assay)
     if (nchar(method)) method <- paste0("_", method)
-    file.path(outdir, paste0(prefix, assay, method, suffix))
+    if (nchar(genome)) genome <- paste0("_", genome)
+    file.path(outdir, paste0(prefix, assay, method, genome, suffix))
 }
 
 .gcNormalize <- function(gatk.coverage, gc.gene.file, method, outdir, force) {
@@ -85,12 +90,14 @@ if (length(coverageFiles)) {
             "GC-normalized")
     }        
     normalDB <- createNormalDatabase(coverageFiles)
-    saveRDS(normalDB, file=.getFileName(outdir,"normalDB",".rds", assay, method))
+    saveRDS(normalDB, file=.getFileName(outdir,"normalDB",".rds", assay, 
+        method, genome))
 }
 
 if (length(coverageFiles) > 3) {
     library(PureCN)
-    target.weight.file <- .getFileName(outdir,"target_weights",".txt", assay, method)
+    target.weight.file <- .getFileName(outdir,"target_weights",".txt", assay, 
+        method, genome)
     createTargetWeights(coverageFiles[1:2], coverageFiles[-(1:2)], 
         target.weight.file)
 } else {
