@@ -5,10 +5,10 @@
 \title{Plots for analyzing PureCN solutions}
 \usage{
 plotAbs(res, ids = NULL, type = c("hist", "overview", "overview2", "BAF",
-  "AF", "volcano", "all"), chr = NULL, germline.only = TRUE,
-  show.contour = FALSE, purity = NULL, ploidy = NULL, alpha = TRUE,
-  show.segment.means = c("SNV", "segments", "both"), max.mapping.bias = 0.8,
-  palette.name = "Paired", ...)
+  "AF", "volcano", "all", "contamination"), chr = NULL,
+  germline.only = TRUE, show.contour = FALSE, purity = NULL,
+  ploidy = NULL, alpha = TRUE, show.segment.means = c("SNV", "segments",
+  "both"), max.mapping.bias = 0.8, palette.name = "Paired", ...)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
@@ -26,7 +26,8 @@ is not available) against copy number. \code{AF} plots observed allelic
 fractions against expected (purity), maximum likelihood (optimal
 multiplicity) allelic fractions. \code{volcano} plots coverage p-values
 against log-ratios on the gene-level. \code{all} plots all, and is useful
-for generate a PDF for a sample for manual inspection.}
+for generate a PDF for a sample for manual inspection. \code{contamination}
+plots expected contamination rate per chromosome.}
 
 \item{chr}{If \code{NULL}, show all chromosomes, otherwise only the ones
 specified (\code{type="BAF"} only).}

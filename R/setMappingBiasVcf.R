@@ -57,7 +57,7 @@ normal.panel.vcf.file = NULL, min.normals = 5, smooth = TRUE, smooth.n = 5) {
     # Defines the maximum value for the mapping bias scaling factor.
     # 1 assumes that the reference allele can never have
     # a lower mappability than the alt allele.
-    max.bias <- 1
+    max.bias <- 1.2
     tmp[tmp>max.bias] <- max.bias
     if (is.null(normal.panel.vcf.file)) {
         return(tmp)
@@ -71,7 +71,7 @@ normal.panel.vcf.file = NULL, min.normals = 5, smooth = TRUE, smooth.n = 5) {
     psMappingBias <- apply(geno(nvcf)$FA, 1, function(x) { 
         x <- unlist(x)
         x <- subset(x, !is.na(x) & x>0.1 &x < 0.9)
-        ifelse(length(x) >= min.normals, mean(x),0.5)
+        if (length(x) >= min.normals) mean(x) else 0.5
     })*2
     
     ov <- findOverlaps(vcf, nvcf, select="first")

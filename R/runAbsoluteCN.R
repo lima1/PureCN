@@ -906,10 +906,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                                 max.mapping.bias, plot=FALSE)
                 flog.info("Optimized contamination rate: %.3f", cont.rate)
         results[[1]]$SNV.posterior$beta.model$posterior.contamination <- cont.rate
-        # add contamination rate to flag comment
-        vcf.filtering$flag_comment <- gsub("POTENTIAL SAMPLE CONTAMINATION", 
-            paste0("POTENTIAL SAMPLE CONTAMINATION (", round(cont.rate*100, digits=1),"%)"), 
-            vcf.filtering$flag_comment)
     }
     results <- .flagResults(results, max.non.clonal = max.non.clonal, max.logr.sdev = max.logr.sdev, 
         logr.sdev = sd.seg, max.segments = max.segments, min.gof = min.gof, flag = vcf.filtering$flag, 

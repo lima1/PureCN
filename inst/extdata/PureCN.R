@@ -129,6 +129,11 @@ pdf(file.pdf, width=10, height=11)
 plotAbs(ret, type='all')
 dev.off()
 
+file.png <- file.path(outdir, paste0(sampleid, '_purecn_contamination.png'))
+png(file.png, width=800)
+plotAbs(ret,1, type='contamination')
+dev.off()
+
 if (outvcf) {
     file.vcf <- file.path(outdir, paste0(sampleid, '_purecn.vcf'))
     vcfanno <- predictSomatic(ret, return.vcf=TRUE, 

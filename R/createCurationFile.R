@@ -24,12 +24,14 @@
 createCurationFile <- function(file.rds, overwrite.uncurated = TRUE) {
     rds <- readRDS(file.rds)
     res <- rds$results[[1]]
-
+    contamination <- res$SNV.posterior$beta.model$posterior.contamination
+    contamination <- if (is.null(contamination)) 0 else contamination
     d.f.curation <- data.frame(
         Sampleid=res$seg$ID[1], 
         Purity=res$purity, 
         Ploidy=res$ploidy, 
         Sex=.getSexFromRds(rds),
+        Contamination=contamination,
         Flagged=res$flag, 
         Failed=FALSE, 
         Curated=FALSE, 

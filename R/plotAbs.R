@@ -17,7 +17,8 @@
 #' fractions against expected (purity), maximum likelihood (optimal
 #' multiplicity) allelic fractions. \code{volcano} plots coverage p-values
 #' against log-ratios on the gene-level. \code{all} plots all, and is useful
-#' for generate a PDF for a sample for manual inspection.
+#' for generate a PDF for a sample for manual inspection. \code{contamination}
+#' plots expected contamination rate per chromosome.
 #' @param chr If \code{NULL}, show all chromosomes, otherwise only the ones
 #' specified (\code{type="BAF"} only).
 #' @param germline.only If \code{TRUE}, show only variants most likely being
@@ -59,7 +60,8 @@
 #'             rect strwidth symbols barplot
 #' @importFrom ggplot2 geom_boxplot geom_hline labs
 plotAbs <- function(res, ids = NULL, 
-type = c("hist", "overview", "overview2", "BAF", "AF", "volcano", "all"),
+type = c("hist", "overview", "overview2", "BAF", "AF", "volcano", "all",
+"contamination"),
 chr = NULL, germline.only = TRUE, show.contour = FALSE, purity = NULL, 
 ploidy = NULL, alpha = TRUE, show.segment.means = c("SNV", "segments", "both"),
 max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
@@ -454,9 +456,12 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                     col=mycol.palette$color, pch=mycol.palette$pch)
             }
         }
-    } else if (type =="volcano") {
-        .plotVolcano(res$results[[1]]$gene.calls, palette.name=palette.name)
-    } else if (type =="all") {
+    } else if (type == "volcano") {
+        .plotVolcano(res$results[[ids[1]]]$gene.calls, palette.name=palette.name)
+    } else if (type == "contamination") {
+        .plotContamination(res$results[[ids[1]]]$SNV.posterior$beta.model$posteriors, 
+            max.mapping.bias)   
+    } else if (type == "all") {
         plotAbs(res, type="overview2")
         if (is.null(ids)) ids <- seq_along(res$results)
         for (i in ids) {
@@ -623,8 +628,8 @@ ss) {
         r$group[r$prior.somatic >= 0.1 & !r$ML.SOMATIC] <- groupLevels[4]
         r$group[r$prior.somatic >= 0.9 & !r$ML.SOMATIC] <- groupLevels[5]
         r$group[r$prior.somatic >= 0.9 & r$ML.SOMATIC] <- groupLevels[6]
-        r$group[r$GERMLINE.CONTLOW > 0.5 | 
-            r$GERMLINE.CONTHIGH > 0.5] <- groupLevels[7]
+        r$group[r$GERMLINE.CONTLOW > 0.9 | 
+            r$GERMLINE.CONTHIGH > 0.9] <- groupLevels[7]
         r$group <- factor(r$group, levels=groupLevels)
         return(r)
     } 
@@ -634,14 +639,14 @@ ss) {
     r$group[r$prior.somatic < 0.1 & r$ML.SOMATIC] <- groupLevels[2]
     r$group[r$prior.somatic >= 0.1 & r$ML.SOMATIC] <- groupLevels[3]
     r$group[r$prior.somatic >= 0.1 & !r$ML.SOMATIC] <- groupLevels[4]
-    r$group[r$GERMLINE.CONTLOW > 0.5 | 
-        r$GERMLINE.CONTHIGH > 0.5] <- groupLevels[5]
+    r$group[r$GERMLINE.CONTLOW > 0.9 | 
+        r$GERMLINE.CONTHIGH > 0.9] <- groupLevels[5]
     r$group <- factor(r$group, levels=groupLevels)
     r
 }            
 
 
-.plotContamination <- function(pp,  max.mapping.bias=NULL, plot=TRUE) {
+.plotContamination <- function(pp,  max.mapping.bias=NULL, min.fraction.chromosomes=0.8, plot=TRUE) {
     if (is.null(max.mapping.bias)) max.mapping.bias=0
 
     idx <- pp$GERMLINE.CONTHIGH+pp$GERMLINE.CONTLOW > 0.5 & 
@@ -656,10 +661,14 @@ ss) {
     df$chr <- factor(df$chr, levels=unique(df$chr))
     # take the chromosome median and then average. the low count
     # might be biased in case contamination rate is < AR cutoff
+
     estimatedRate <- weighted.mean( 
         sapply(split(df$AR, df$HIGHLOW), median), 
         sapply(split(df$AR, df$HIGHLOW), length)
     )
+    fractionChrs <- sum(unique(pp$chr) %in% df$chr)/length(unique(pp$chr))
+    estimatedRate <- if (fractionChrs >= min.fraction.chromosomes) estimatedRate else 0
+
     if (plot) {
         gp <- ggplot(df, aes_string(x="chr",y="AR",fill="HIGHLOW"))+geom_boxplot()+
         geom_hline(yintercept=estimatedRate, color="grey", linetype="dashed")+
