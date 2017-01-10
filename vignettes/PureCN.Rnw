@@ -496,7 +496,7 @@ germline SNPs. The goodness of fit (GoF) is provided on an arbitrary scale in
 which 100\% corresponds to a perfect fit and 0\% to the worst possible fit.
 The latter is defined as a fit in which allelic fractions on average differ by
 0.2 from their expected fractions. Note that this does not take purity into
-account and low purity solutions are expected to have a better fit. In the
+account and low purity samples are expected to have a better fit. In the
 middle panel, the corresponding copy number log-ratios are shown. The lower
 panel displays the calculated integer copy numbers, corrected for purity and
 ploidy. 
@@ -571,9 +571,9 @@ For optimal classification results:
 decrease the classification performance significantly.
     \item Provide \Rcode{args.setMappingBias} a pool of normal VCF to
         obtain position-specific mapping bias information.
-    \item For classifying variants, use a somatic posterior probability
-        cutoff of 0.8 and 0.2 for somatic and germline variants, respectively.
-        This appears to be a good compromise of call rate and accuracy.
+    \item Use a somatic posterior probability cutoff of 0.8 and 0.2 for somatic
+        and germline variants, respectively.  This appears to be a good
+        compromise of call rate and accuracy.
 \end{itemize}        
 
 \textbf{Note that the posterior probabilities assume that the purity and ploidy

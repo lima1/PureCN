@@ -14,7 +14,8 @@
 #' @param max.mean.coverage Assume that coverages above this value do not
 #' necessarily improve copy number normalization. Internally, samples with
 #' coverage higher than this value will be normalized to have mean coverage
-#' equal to this value.
+#' equal to this value. If \code{NULL}, use the 80 percentile as cutoff.
+#' If \code{NA}, does not use a maxmimum value.
 #' @param \dots Arguments passed to the \code{prcomp} function.
 #' @return A normal database that can be used in the
 #' \code{\link{findBestNormal}} function to retrieve good matching normal
@@ -33,7 +34,7 @@
 #' @export createNormalDatabase
 #' @importFrom stats prcomp
 createNormalDatabase <- function(normal.coverage.files, sex = NULL,
-max.mean.coverage = 100, ... ) {
+max.mean.coverage = NULL, ... ) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
     normals <- .readNormals(normal.coverage.files)
 
@@ -42,9 +43,14 @@ max.mean.coverage = 100, ... ) {
     idx <- complete.cases(normals.m)
 
     z <- apply(normals.m[idx,],2,mean)
-    z <- sapply(max.mean.coverage/z, min,1)
-    normals.m <- scale(normals.m, 1/z, center=FALSE)
-
+    if (is.null(max.mean.coverage)) max.mean.coverage <- 
+        quantile(round(z), p=0.8)
+    if (!is.na(max.mean.coverage)) { 
+        flog.info("Setting maximum coverage in normalDB to %.0f", 
+            max.mean.coverage)
+        z <- sapply(max.mean.coverage/z, min,1)
+        normals.m <- scale(normals.m, 1/z, center=FALSE)
+    }
     normals.pca <- prcomp(t(normals.m[idx,]), ...)
     sex.determined <- sapply(normals,getSexFromCoverage)
     if (is.null(sex)) {

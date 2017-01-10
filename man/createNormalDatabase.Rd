@@ -5,7 +5,7 @@
 \title{Create database of normal samples}
 \usage{
 createNormalDatabase(normal.coverage.files, sex = NULL,
-  max.mean.coverage = 100, ...)
+  max.mean.coverage = NULL, ...)
 }
 \arguments{
 \item{normal.coverage.files}{Vector with file names pointing to GATK
@@ -18,7 +18,8 @@ diploid, specify \code{diploid}. If \code{NULL}, determine from coverage.}
 \item{max.mean.coverage}{Assume that coverages above this value do not
 necessarily improve copy number normalization. Internally, samples with
 coverage higher than this value will be normalized to have mean coverage
-equal to this value.}
+equal to this value. If \code{NULL}, use the 80 percentile as cutoff.
+If \code{NA}, does not use a maxmimum value.}
 
 \item{\dots}{Arguments passed to the \code{prcomp} function.}
 }
