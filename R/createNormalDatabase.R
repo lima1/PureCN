@@ -45,7 +45,7 @@ max.mean.coverage = NULL, ... ) {
     z <- apply(normals.m[idx,],2,mean)
     if (is.null(max.mean.coverage)) max.mean.coverage <- 
         quantile(round(z), p=0.8)
-    if (!is.na(max.mean.coverage)) { 
+    if (!is.na(max.mean.coverage) && length(normals)>8) { 
         flog.info("Setting maximum coverage in normalDB to %.0f", 
             max.mean.coverage)
         z <- sapply(max.mean.coverage/z, min,1)
