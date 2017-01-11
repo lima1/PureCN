@@ -51,7 +51,7 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
 
     if (is.na(avg.coverage[sex.chr[1]]) || is.na(avg.coverage[sex.chr[2]]) ) {
         flog.warn(
-            "Allosome coverage appears to be missing, cannot determine sex.")
+            "Allosome coverage missing, cannot determine sex.")
         return(NA)
     }    
     
