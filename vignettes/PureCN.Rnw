@@ -320,7 +320,8 @@ It is highly recommended to provide \Biocpkg{PureCN} this combined VCF as well;
 it might help the software correcting non-reference read mapping biases. This
 is described in the \Rfunction{setMappingBiasVcf} documentation.  To reduce
 memory usuage, the normal panel VCF can be reduced to contain only variants
-present in 5 or more samples.
+present in 5 or more samples (the VCF for \software{MuTect} should however
+contain variants present in 2-3 samples).
 
 \subsubsection{Coverage data}
 We next use coverage data of normal samples to estimate the expected variance
