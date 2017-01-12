@@ -876,6 +876,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     results <- .rankResults(results)
     results <- .filterDuplicatedResults(results)
+    cont.rate <- prior.contamination
 
     if (grepl("CONTAMINATION", vcf.filtering$flag_comment)) {
         cont.rate <- .plotContamination(
@@ -906,7 +907,13 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                                 max.mapping.bias, plot=FALSE)
                 flog.info("Optimized contamination rate: %.3f", cont.rate)
         results[[1]]$SNV.posterior$beta.model$posterior.contamination <- cont.rate
+        # undo flagging if contamination rate is low
     }
+    if (cont.rate<0.001 && vcf.filtering$flag_comment == 
+        "POTENTIAL SAMPLE CONTAMINATION") {
+        vcf.filtering$flag_comment <- ""
+        vcf.filtering$flag <- FALSE
+    }    
     results <- .flagResults(results, max.non.clonal = max.non.clonal, max.logr.sdev = max.logr.sdev, 
         logr.sdev = sd.seg, max.segments = max.segments, min.gof = min.gof, flag = vcf.filtering$flag, 
         flag_comment = vcf.filtering$flag_comment, dropout = dropoutWarning, use.somatic.status = args.filterVcf$use.somatic.status, 

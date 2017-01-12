@@ -1029,6 +1029,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --normaldb -d       & normalDB (serialized with \Rfunction{saveRDS}) & 
     \Rfunction{findBestNormal}, \Rfunction{filterTargets} \\
 --pool -m           & pool, num.normals & \Rfunction{findBestNormal} \\    
+--minaf -j          & af.range & \Rfunction{filterVcfBasic} \\
 --postoptimize -z   & post.optimize & \Rfunction{runAbsoluteCN} \\    
 --modelhomozygous -y & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\

@@ -19,6 +19,7 @@ spec <- matrix(c(
 'targetweightfile', 'e', 1, "character",
 'normaldb',       'd', 1, "character",
 'pool',           'm', 1, "integer",
+'minaf',          'j', 1, "double",
 'postoptimize',   'z', 0, "logical",
 'modelhomozygous','y', 0, "logical",
 'outdir',         'o', 1, "character",
@@ -106,12 +107,16 @@ if (file.exists(file.rds) && !force) {
 
     pdf(paste(outdir,"/", sampleid, '_purecn_segmentation.pdf', sep=''), 
         width=10, height=11)
+    af.range = c(0.03, 0.97)
+    if (!is.null(opt$minaf)) {
+        af.range <- c(opt$minaf, 1-opt$minaf)
+    }    
     ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
             tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
             sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=TRUE,
             genome=genome, seg.file=seg.file,
             args.filterVcf=list(snp.blacklist=snp.blacklist, 
-                stats.file=stats.file), 
+                af.range=af.range, stats.file=stats.file), 
             args.segmentation=list(target.weight.file=target.weight.file), 
             args.setMappingBiasVcf=
                 list(normal.panel.vcf.file=normal.panel.vcf.file),
