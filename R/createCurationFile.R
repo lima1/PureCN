@@ -8,6 +8,8 @@
 #' serialized with \code{saveRDS}.
 #' @param overwrite.uncurated Overwrite existing files unless flagged as
 #' \sQuote{Curated}.
+#' @param overwrite.curated Overwrite existing files even if flagged as
+#' \sQuote{Curated}.
 #' @return A \code{data.frame} with the tumor purity and ploidy of the maximum
 #' likelihood solution.
 #' @author Markus Riester
@@ -21,7 +23,8 @@
 #' 
 #' @export createCurationFile
 #' @importFrom utils write.csv
-createCurationFile <- function(file.rds, overwrite.uncurated = TRUE) {
+createCurationFile <- function(file.rds, overwrite.uncurated = TRUE, 
+    overwrite.curated=FALSE) {
     rds <- readRDS(file.rds)
     res <- rds$results[[1]]
     contamination <- res$SNV.posterior$beta.model$posterior.contamination
@@ -43,7 +46,7 @@ createCurationFile <- function(file.rds, overwrite.uncurated = TRUE) {
 
     if (file.exists(filename)) {
         tmp <- read.csv(filename, as.is=TRUE)
-        if (tmp$Curated[1]) {
+        if (tmp$Curated[1] && !overwrite.curated) {
             warning(filename, 
                 " already exists and seems to be edited.",
                 " Will not overwrite it.")

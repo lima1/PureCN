@@ -420,7 +420,7 @@ efficiently for artifacts as described in Sections~\ref{artifactfiltering} and
 neither a matched normal nor a pool of normals is available. 
 
 The \Rcode{post.optimize} flag will increase the runtime by about a factor of
-4-5, but might return slightly more accurate purity estimates. For high quality
+2-5, but might return slightly more accurate purity estimates. For high quality
 whole-exome data, this is typically not necessary for copy number calling (but
 might be for variant classification, see Section~\ref{predictsomatic}).  The
 \Rcode{plot.cnv} argument allows the segmentation function to generate
@@ -1216,9 +1216,31 @@ Figure~\ref{figure/figureexample2-1}:
         --columns ID --output $OUT/${ID}_bwa_dbsnp.vcf.gz --output-type z \
             $OUT/${ID}_bwa.vcf.gz
     \end{verbatim}
-    \item To generate the normal panel VCF (\Rcode{normal.panel.vcf.file}),
-    we recommend following the \software{MuTect} instruction for generating 
-    this file used there for filtering artifacts.
+    \item To generate the normal panel VCF (\Rcode{normal.panel.vcf.file})
+    with \software{GATK}:
+    \begin{itemize}
+        \item Run \software{MuTect} on the normal with
+        \Rcode{-I:tumor \$BAM\_NORMAL} and optionally with the 
+        \Rcode{--artifact\_detection\_mode} flag.
+        \item Remove the empty \Rcode{none} sample from the VCF:
+        \begin{verbatim}
+    $JAVA -Xmx6g -jar $GATK \
+    --analysis_type SelectVariants -R $REFERENCE \
+    --exclude_sample_expressions none \
+    -V $OUT/${ID}_bwa_mutect_artifact_detection_mode.vcf \
+    -o $OUT/${ID}_bwa_mutect_artifact_detection_mode_no_none.vcf 
+        \end{verbatim}
+        \item Merge the VCFs:
+        \begin{verbatim}
+    CMD="java  -Xmx12g -jar $GATK -T CombineVariants --minimumN 5 -R $REFERENCE"
+    for VCF in $OUT/*bwa_mutect_artifact_detection_mode_no_none.vcf;
+    do
+        CMD="$CMD --variant $VCF"
+    done
+    CMD="$CMD -o $OUT/normals_merged_min5.vcf"
+    echo $CMD > $OUT/merge_normals_min5.sh
+        \end{verbatim}
+    \end{itemize}
 \end{itemize}
 
 \paragraph{Questions related to manual curation.}

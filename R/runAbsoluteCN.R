@@ -454,7 +454,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         
         flog.info("%s is tumor in VCF file.", tumor.id.in.vcf)
         if (sex != "diploid") {
-            sex.vcf <- getSexFromVcf(vcf, tumor.id.in.vcf)
+            sex.vcf <- getSexFromVcf(vcf, tumor.id.in.vcf, 
+                use.somatic.status=args.filterVcf$use.somatic.status)
             if (!is.na(sex.vcf) && sex %in% c("F", "M") && sex.vcf != sex) {
                 flog.warn("Sex mismatch of coverage and VCF. %s%s", 
                         "Could be because of noisy data, contamination, ", 
@@ -837,6 +838,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     idx <- 1
                     if (GoF < (min.gof-0.05)) { 
                         flog.info("Poor goodness-of-fit (%.3f). Skipping post-optimization.", GoF)
+                    } else if (.calcFractionBalanced(res.snvllik[[1]]$beta.model$posteriors) > 0.8 && 
+                        weighted.mean(C, li) > 2.7) {
+                        flog.info("High ploidy solution in highly balanced genome. Skipping post-optimization.")
                     } else {    
                         res.snvllik <- c(res.snvllik, lapply(tp[-1], .fitSNVp))
                       px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal = subclonal[i], 
@@ -867,7 +871,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             C, Opt.C = opt.C, ML.Subclonal = subclonal),
             C.likelihood=C.likelihood, SNV.posterior = SNV.posterior,
             fraction.subclonal = subclonal.f, fraction.homozygous.loss =
-            sum(li[which(C < 0.01)])/sum(li), gene.calls = gene.calls,
+            sum(li[which(C < 0.01)])/sum(li), fraction.balanced = 
+            .calcFractionBalanced(SNV.posterior$beta.model$posteriors),
+            gene.calls = gene.calls,
             log.ratio.offset = log.ratio.offset, SA.iterations = iter, failed =
             FALSE)
     }

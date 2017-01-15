@@ -106,6 +106,8 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
 #' homozygous.
 #' @param af.cutoff Remove all SNVs with allelic fraction lower than the
 #' specified value.
+#' @param use.somatic.status If somatic status and germline data is available,
+#' then exclude somatic variants.
 #' @return Returns a \code{character(1)} with \code{M} for male, \code{F} for
 #' female, or \code{NA} if unknown.
 #' @author Markus Riester
@@ -122,7 +124,7 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
 #' @importFrom stats fisher.test
 getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4, 
     min.or.na = 2.5, max.pv = 0.001, homozygous.cutoff = 0.95,
-    af.cutoff = 0.2) {
+    af.cutoff = 0.2, use.somatic.status=TRUE) {
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf) 
     }
@@ -130,8 +132,13 @@ getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4,
 
     chrY <- seqnames(vcf) == sex.chr[2]
     vcf <- vcf[!chrY]
-    af <- geno(vcf)$FA[,tumor.id.in.vcf] > af.cutoff
-    vcf <- vcf[af]
+
+    if (!is.null(info(vcf)$SOMATIC) && use.somatic.status) {
+        vcf <- vcf[!info(vcf)$SOMATIC]
+    } else {
+        af <- geno(vcf)$FA[,tumor.id.in.vcf] > af.cutoff
+        vcf <- vcf[af]
+    }
 
     chrX <- seqnames(vcf) == sex.chr[1]
 

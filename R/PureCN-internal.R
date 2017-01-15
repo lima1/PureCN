@@ -937,4 +937,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     }
     args
 }
-        
+.calcFractionBalanced <- function(p) {
+    sum(p$ML.C - p$ML.M.SEGMENT == p$ML.M.SEGMENT, na.rm=TRUE)/nrow(p)
+}
+            

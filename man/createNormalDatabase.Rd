@@ -19,7 +19,7 @@ diploid, specify \code{diploid}. If \code{NULL}, determine from coverage.}
 necessarily improve copy number normalization. Internally, samples with
 coverage higher than this value will be normalized to have mean coverage
 equal to this value. If \code{NULL}, use the 80 percentile as cutoff.
-If \code{NA}, does not use a maxmimum value.}
+If \code{NA}, does not use a maximum value.}
 
 \item{\dots}{Arguments passed to the \code{prcomp} function.}
 }

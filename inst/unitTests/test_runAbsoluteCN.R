@@ -117,6 +117,8 @@ test_runAbsoluteCN <- function() {
         tumor.coverage.file=tumor.coverage.file, 
         vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1)
+    
+    checkEqualsNumeric(0.2, ret$results[[1]]$fraction.balanced, tolerance=0.1)
 
     s <- predictSomatic(ret)
     checkEqualsNumeric(s$AR.ADJUSTED, s$AR/s$MAPPING.BIAS)

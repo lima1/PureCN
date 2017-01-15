@@ -4,13 +4,17 @@
 \alias{createCurationFile}
 \title{Create file to curate PureCN results}
 \usage{
-createCurationFile(file.rds, overwrite.uncurated = TRUE)
+createCurationFile(file.rds, overwrite.uncurated = TRUE,
+  overwrite.curated = FALSE)
 }
 \arguments{
 \item{file.rds}{Output of the \code{\link{runAbsoluteCN}} function,
 serialized with \code{saveRDS}.}
 
 \item{overwrite.uncurated}{Overwrite existing files unless flagged as
+\sQuote{Curated}.}
+
+\item{overwrite.curated}{Overwrite existing files even if flagged as
 \sQuote{Curated}.}
 }
 \value{
