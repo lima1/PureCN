@@ -19,10 +19,13 @@
 #' @param smooth Impute mapping bias of variants not found in the panel by
 #' smoothing of neighboring SNPs. Requires \code{normal.panel.vcf.file}.
 #' @param smooth.n Number of neighboring variants used for smoothing.
-#' @return A \code{numeric(nrow(vcf))} vector with the mapping bias of for each
+#' @return A list with elements \item{bias}{A \code{numeric(nrow(vcf))} 
+#' vector with the mapping bias of for each
 #' variant in the \code{CollapsedVCF}. Mapping bias is expected as scaling
 #' factor. Adjusted allelic fraction is (observed allelic fraction)/(mapping
-#' bias). Maximum scaling factor is 1 and means no bias.
+#' bias). Maximum scaling factor is 1 and means no bias.}
+#' \item{pon.count}{A \code{numeric(nrow(vcf))} vector with the number
+#' of hits in the \code{normal.panel.vcf.file}.}
 #' @author Markus Riester
 #' @examples
 #' 
@@ -60,12 +63,12 @@ normal.panel.vcf.file = NULL, min.normals = 5, smooth = TRUE, smooth.n = 5) {
     max.bias <- 1.2
     tmp[tmp>max.bias] <- max.bias
     if (is.null(normal.panel.vcf.file)) {
-        return(tmp)
+        return(list(bias=tmp))
     } 
     nvcf <- .readNormalPanelVcfLarge(vcf, normal.panel.vcf.file)
     if (nrow(nvcf) < 1) {
         flog.warn("setMappingBiasVcf: no hits in %s.", normal.panel.vcf.file)
-        return(tmp)
+        return(list(bias=tmp))
     }
 
     psMappingBias <- apply(geno(nvcf)$FA, 1, function(x) { 
@@ -73,18 +76,25 @@ normal.panel.vcf.file = NULL, min.normals = 5, smooth = TRUE, smooth.n = 5) {
         x <- subset(x, !is.na(x) & x>0.1 &x < 0.9)
         if (length(x) >= min.normals) mean(x) else 0.5
     })*2
+
+    ponCntHits <- apply(geno(nvcf)$FA,1, function(x) sum(!is.na(unlist(x))))
+
     
     ov <- findOverlaps(vcf, nvcf, select="first")
+    
+    ponCnt <- integer(length(tmp))
 
     tmp[!is.na(ov)] <- psMappingBias[ov][!is.na(ov)]
     tmp[tmp>max.bias] <- max.bias
+
+    ponCnt[!is.na(ov)] <- ponCntHits[ov][!is.na(ov)]
     if (smooth) {
         tmpSmoothed <- .smoothVectorByChromosome(tmp, as.character(seqnames(vcf)), 
             smooth.n)
         # only smooth variants not found in database
         tmp[is.na(ov)] <- tmpSmoothed[is.na(ov)]
     }
-    return(tmp)
+    return(list(bias=tmp, pon.count=ponCnt))
 }
 
 .smoothVectorByChromosome <- function(x, chr, smooth.n) {

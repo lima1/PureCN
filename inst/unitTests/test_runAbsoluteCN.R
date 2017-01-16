@@ -132,9 +132,11 @@ test_runAbsoluteCN <- function() {
     
     myMappingBiasTestFun <- function(vcf, ...) {
          tmp <- rep(1, nrow(vcf))
+         tmp2 <- rep(0, nrow(vcf))
          idx <- as.logical(seqnames(vcf) == "chr9" & start(vcf)== 35811642)
          tmp[idx] <- 0.9
-         tmp
+         tmp2[idx] <- 2
+         list(bias=tmp, pon.count=tmp2)
     }    
     ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
         tumor.coverage.file=tumor.coverage.file, 
@@ -149,6 +151,7 @@ test_runAbsoluteCN <- function() {
     s <- predictSomatic(ret)
     checkEqualsNumeric(s$AR.ADJUSTED, s$AR/s$MAPPING.BIAS)
     checkEqualsNumeric(0.9, s$MAPPING.BIAS[s$chr=="chr9" & s$start==35811642])
+    checkEqualsNumeric(2, s$pon.count[s$chr=="chr9" & s$start==35811642])
 
     # test with gc.gene.file without symbols
     gc2 <- read.delim(gc.gene.file, as.is=TRUE)[,-3]

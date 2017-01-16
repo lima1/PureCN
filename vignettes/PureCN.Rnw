@@ -626,6 +626,7 @@ somatic (sum of all somatic state posterior probabilities) \\
 \Rcode{on.target} & 1 for variants within intervals, 2 for variants in flanking
  regions, 0 for off-target SNVs \\
 \Rcode{seg.id}       & Segment id  \\
+\Rcode{pon.count}  & Number of hits in the \Rcode{normal.panel.vcf.file} \\
 \Rcode{gene.symbol} & Gene symbol if available \\ 
 \bottomrule
 \end{tabular}

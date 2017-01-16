@@ -490,7 +490,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         args.setMappingBiasVcf$tumor.id.in.vcf <- tumor.id.in.vcf
         mapping.bias <- do.call(fun.setMappingBiasVcf,
             .checkArgs(args.setMappingBiasVcf, "setMappingBiasVcf"))
-        idxHqGermline <- prior.somatic < 0.5 & mapping.bias >= max.mapping.bias
+        idxHqGermline <- prior.somatic < 0.5 & mapping.bias$bias >= max.mapping.bias
         vcf.germline <- vcf[idxHqGermline]
     }
     
@@ -524,7 +524,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         if (sum(is.na(snv.lr)) > 0) {
             n.vcf.before.filter <- nrow(vcf)
             vcf <- vcf[!is.na(snv.lr)]
-            mapping.bias <- mapping.bias[!is.na(snv.lr)]
+            mapping.bias$bias <- mapping.bias$bias[!is.na(snv.lr)]
+            if (!is.null(mapping.bias$pon.count)) {
+                mapping.bias$pon.count <- mapping.bias$pon.count[!is.na(snv.lr)]
+            }  
             prior.somatic <- prior.somatic[!is.na(snv.lr)]
             
             # make sure all SNVs are in covered segments

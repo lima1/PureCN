@@ -74,7 +74,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     if (length(prior.somatic) != nrow(vcf)) {
         .stopRuntimeError("prior.somatic and VCF do not align.")
     }
-    if (length(mapping.bias) != nrow(vcf)) {
+    if (length(mapping.bias$bias) != nrow(vcf)) {
         .stopRuntimeError("mapping.bias and VCF do not align.")
     }
     
@@ -95,7 +95,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         idx <- subjectHits(ov)[queryHits(ov) == i]
         
         ar_all <- unlist(geno(vcf)$FA[idx, tumor.id.in.vcf])
-        ar_all <- ar_all/mapping.bias[idx]
+        ar_all <- ar_all/mapping.bias$bias[idx]
         ar_all[ar_all > 1] <- 1
         
         dp_all <- unlist(geno(vcf)$DP[idx, tumor.id.in.vcf])
@@ -195,9 +195,9 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     posteriors$ML.AR[ posteriors$ML.AR > 1] <- 1 
 
     posteriors$AR <- unlist(geno(vcf[vcf.ids])$FA[, tumor.id.in.vcf])
-    posteriors$AR.ADJUSTED <- posteriors$AR / mapping.bias[vcf.ids]
+    posteriors$AR.ADJUSTED <- posteriors$AR / mapping.bias$bias[vcf.ids]
     posteriors$AR.ADJUSTED[posteriors$AR.ADJUSTED>1] <- 1
-    posteriors$MAPPING.BIAS <- mapping.bias[vcf.ids]
+    posteriors$MAPPING.BIAS <- mapping.bias$bias[vcf.ids]
     # Extract LOH
     posteriors$ML.LOH <- (posteriors$ML.M == posteriors$ML.C | 
         posteriors$ML.M == 0 | posteriors$ML.C == 1)
@@ -213,6 +213,9 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     posteriors$prior.contamination <- prior.cont[vcf.ids]
     posteriors$on.target <- info(vcf[vcf.ids])$OnTarget
     posteriors$seg.id <- queryHits(ov)
+    if (!is.null(mapping.bias$pon.count)) {
+        posteriors$pon.count <- mapping.bias$pon.count[vcf.ids]
+    }
 
     rm.snv.posteriors <- apply(likelihoods, 1, max) 
     idx.ignore <- rm.snv.posteriors == 0 | 

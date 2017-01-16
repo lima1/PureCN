@@ -51,6 +51,8 @@ API CHANGES
       with futile.logger.  
     - Smoothing of log-ratios now optionally done by runAbsoluteCN, not
       segmentation function.  
+    - setMappingBiasVcf now returns a list with elements bias (the old 
+      return value) and pon.count, the number of hits in the PON.  
  
  
 PLANNED FEATURES 

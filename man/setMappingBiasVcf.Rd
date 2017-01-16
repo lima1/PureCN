@@ -28,10 +28,13 @@ smoothing of neighboring SNPs. Requires \code{normal.panel.vcf.file}.}
 \item{smooth.n}{Number of neighboring variants used for smoothing.}
 }
 \value{
-A \code{numeric(nrow(vcf))} vector with the mapping bias of for each
+A list with elements \item{bias}{A \code{numeric(nrow(vcf))} 
+vector with the mapping bias of for each
 variant in the \code{CollapsedVCF}. Mapping bias is expected as scaling
 factor. Adjusted allelic fraction is (observed allelic fraction)/(mapping
-bias). Maximum scaling factor is 1 and means no bias.
+bias). Maximum scaling factor is 1 and means no bias.}
+\item{pon.count}{A \code{numeric(nrow(vcf))} vector with the number
+of hits in the \code{normal.panel.vcf.file}.}
 }
 \description{
 Function to set mapping bias for each variant in the provided
