@@ -66,7 +66,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
     C.likelihood, C, opt.C, snv.model, prior.somatic, mapping.bias, snv.lr, 
     sampleid = NULL, cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M,
-    model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8) {
+    model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8, max.pon) {
 
     prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
     prior.somatic <- prior.somatic/(1 + cont.rate)
@@ -213,14 +213,16 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     posteriors$prior.contamination <- prior.cont[vcf.ids]
     posteriors$on.target <- info(vcf[vcf.ids])$OnTarget
     posteriors$seg.id <- queryHits(ov)
-    if (!is.null(mapping.bias$pon.count)) {
-        posteriors$pon.count <- mapping.bias$pon.count[vcf.ids]
-    }
 
     rm.snv.posteriors <- apply(likelihoods, 1, max) 
     idx.ignore <- rm.snv.posteriors == 0 | 
         posteriors$MAPPING.BIAS < max.mapping.bias
 
+    if (!is.null(mapping.bias$pon.count)) {
+        posteriors$pon.count <- mapping.bias$pon.count[vcf.ids]
+        idx.ignore <- idx.ignore | 
+            ( posteriors$pon.count > max.pon & !info(vcf[vcf.ids])$DB )
+    }
     # change seqnames to chr
     colnames(posteriors)[1] <- "chr"    
 

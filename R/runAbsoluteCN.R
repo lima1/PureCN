@@ -126,6 +126,11 @@
 #' @param max.mapping.bias Exclude variants with high mapping bias from the
 #' likelihood score calculation. Note that bias is reported on an inverse
 #' scale; a variant with mapping bias of 1 has no bias.
+#' @param max.pon Exclude variants found more than \code{max.pon} times in 
+#' pool of normals and not in dbSNP. Requires \code{normal.panel.vcf.file} in
+#' \code{\link{setMappingBiasVcf}}. Should be set to a value high enough 
+#' to be much more likely an artifact and not a true germline variant not
+#' present in dbSNP.
 #' @param iterations Maximum number of iterations in the Simulated Annealing
 #' copy number fit optimization. Note that this an integer optimization problem
 #' that should converge quickly. Allowed range is 10 to 250.
@@ -248,10 +253,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     prior.K = 0.999, prior.contamination = 0.01, max.candidate.solutions = 20,
     candidates = NULL, min.coverage = 15, max.coverage.vcf = 300, 
     max.non.clonal = 0.2, max.homozygous.loss = c(0.05, 1e07) , non.clonal.M = 1/3, 
-    max.mapping.bias = 0.8, iterations = 30, log.ratio.calibration = 0.25, 
-    smooth.log.ratio = TRUE, remove.off.target.snvs = NULL, 
-    model.homozygous = FALSE, error = 0.001, gc.gene.file = NULL, 
-    max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
+    max.mapping.bias = 0.8, max.pon = 3, iterations = 30, 
+    log.ratio.calibration = 0.25, smooth.log.ratio = TRUE, 
+    remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001, 
+    gc.gene.file = NULL, max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
     post.optimize = FALSE, log.file = NULL, verbose = TRUE) {
 
@@ -831,7 +836,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     C.likelihood, C, opt.C, snv.model = "beta", prior.somatic, mapping.bias, 
                     snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K, 
                     max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M, 
-                    model.homozygous = model.homozygous, error = error, max.mapping.bias = max.mapping.bias))
+                    model.homozygous = model.homozygous, error = error, 
+                    max.mapping.bias = max.mapping.bias, max.pon = max.pon))
                 }
 
                 res.snvllik <- lapply(tp[1], .fitSNVp)
@@ -909,7 +915,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                   snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K,
                   max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M,
                   model.homozygous = model.homozygous, error = error,
-                  max.mapping.bias = max.mapping.bias)
+                  max.mapping.bias = max.mapping.bias, max.pon = max.pon)
         results[[1]]$SNV.posterior$beta.model <- res.snvllik
         cont.rate <- .plotContamination(
                     results[[1]]$SNV.posterior$beta.model$posteriors,
