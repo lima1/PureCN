@@ -226,7 +226,7 @@ test_runAbsoluteCN <- function() {
     # test with a seg.file
     ret <- runAbsoluteCN( tumor.coverage.file = tumor.coverage.file, seg.file=seg.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
-        test.purity=seq(0.3,0.7, by=0.05))
+        test.purity=seq(0.3,0.7, by=0.05), sampleid="Sample2")
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
 
     ret <- runAbsoluteCN( seg.file=seg.file, gc.gene.file=gc.gene.file,
@@ -242,7 +242,31 @@ test_runAbsoluteCN <- function() {
         gc.gene.file=gc.gene.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
         test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE))
-    
+    file.remove("seg_wrong.tmp")
+    tmp <- read.delim(seg.file,as.is=TRUE)
+    tmp2 <- tmp
+    tmp2[,1] <- "Sample2"
+    tmp <- rbind(tmp, tmp2)
+    write.table(tmp, file="seg.tmp", quote=FALSE, row.names=FALSE,
+        sep="\t")
+    checkException( runAbsoluteCN( seg.file="seg.tmp", 
+        gc.gene.file=gc.gene.file,
+        vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
+        test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE))
+    checkTrue(grepl("seg.file contains multiple samples and sampleid missing", 
+        geterrmessage()))
+
+    checkException( runAbsoluteCN( seg.file="seg.tmp", 
+        gc.gene.file=gc.gene.file, sampleid="Sample3",
+        vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
+        test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE))
+    checkTrue(grepl("contains multiple samples and sampleid does not match any", 
+        geterrmessage()))
+    ret <- runAbsoluteCN( seg.file="seg.tmp", 
+        gc.gene.file=gc.gene.file, sampleid="Sample1",
+        vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
+        test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE, max.ploidy=2.5)
+
     # test with a log.ratio and no tumor file
     log.ratio <- calculateLogRatio(readCoverageGatk(normal.coverage.file),
         readCoverageGatk(tumor.coverage.file))

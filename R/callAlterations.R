@@ -130,7 +130,7 @@ callAlterationsFromSegmentation <- function(sampleid, chr, start, end,
     chr.hash <- .getChrHash(tumor$chr)
     segs <- split(seg.adjusted, seg$ID)
     gene.calls <- lapply(segs, function(s) {
-        log.ratio <- .createFakeLogRatios(tumor, s[,1:6], chr.hash)
+        log.ratio <- .createFakeLogRatios(tumor, s[,1:6], s$ID[1], chr.hash)
         .getGeneCalls(s, gc.data, log.ratio, fun.focal, args.focal, chr.hash)
     })
     res <- lapply(gene.calls, function(x) list(results=list(list(gene.calls=x, failed=FALSE))))

@@ -19,6 +19,7 @@ Changes in version 1.6.0
 - Lots of improvements to command line scripts
 - Code cleanups (switch from inlinedocs to roxygen, from message/warn to
   futile.logger)
+- seg.file can contain multiple samples
 
 
 API CHANGES

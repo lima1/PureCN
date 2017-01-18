@@ -766,48 +766,45 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     idx <- x <= (qnt[1] - H) | x >= (qnt[2] + H)
     x[!idx]
 }    
-.smoothOutliers <- function(x, na.rm = TRUE, ...) {
-    if (length(x) < 5) 
-        return(x)
-    qnt <- quantile(x, probs = c(0.25, 0.75), na.rm = na.rm, ...)
-    H <- 1.5 * IQR(x, na.rm = na.rm)
-    y <- x
-    # find points outside the 'boxplot' range
-    idx <- x <= (qnt[1] - H) | x >= (qnt[2] + H)
-    idx[c(1, length(idx))] <- FALSE
-    # smooth outliers by using the average log-ratio including the two neighbors
-    y[idx] <- (x[which(idx) - 1] + x[which(idx)] + x[which(idx) + 1])/3
-    # are the first or last elements outliers? Then remove those (only one neighbor)
-    idx <- x <= (qnt[1] - H) | x >= (qnt[2] + H)
-    if (idx[1]) 
-        y[1] <- NA
-    if (idx[length(y)]) 
-        y[length(y)] <- NA
-    y[!is.na(y)]
-}
 .calcPuritySomaticVariants <- function(vcf, prior.somatic, tumor.id.in.vcf) {
     median(unlist(geno(vcf[prior.somatic > 0.5])$FA[, tumor.id.in.vcf]), na.rm = TRUE)/0.48
 }
-.loadSegFile <- function(seg.file) {
+.loadSegFile <- function(seg.file, sampleid) {
     if (is.null(seg.file)) return(NULL)
     seg <- read.delim(seg.file)
-    .checkSeg(seg)
+    .checkSeg(seg, sampleid)
 }
-.checkSeg <- function(seg) {
+.checkSeg <- function(seg, sampleid) {
     required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
         "seg.mean")
     if (!identical(colnames(seg), required.colnames)) {
         .stopUserError(paste("Segmentation file expected with colnames", 
                 paste(required.colnames, collapse = ", ")))
     }
+    segs <- split(seg, seg$ID)
+    matchedSeg <- match(make.names(sampleid), make.names(names(segs)))
+
+    if (length(segs)==1) {
+        if (!is.null(sampleid) && is.na(matchedSeg)) {
+            flog.warn("Provided sampleid (%s) does not match %s found in %s",
+                      sampleid, names(segs)[1], "segmentation.")
+        }   
+        matchedSeg <- 1 
+    } else if (is.null(sampleid)) {
+        .stopUserError("seg.file contains multiple samples and sampleid missing.")
+    } else if (is.na(matchedSeg)) {
+        .stopUserError("seg.file contains multiple samples and sampleid does not match any.")
+    } else {
+        seg <- segs[[matchedSeg]]
+    }    
     seg
 }
        
-.createFakeLogRatios <- function(tumor, seg.file, chr.hash) {
+.createFakeLogRatios <- function(tumor, seg.file, sampleid, chr.hash) {
     if (class(seg.file)=="character") {
-        seg <- .loadSegFile(seg.file)    
+        seg <- .loadSegFile(seg.file, sampleid)    
     } else {
-        seg <-.checkSeg(seg.file)
+        seg <-.checkSeg(seg.file, sampleid)
     }    
     seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), 
                 IRanges(start = round(seg$loc.start), end = seg$loc.end))
