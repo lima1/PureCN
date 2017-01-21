@@ -19,10 +19,11 @@
 #' which potentially have allelic fractions smaller than 1 due to artifacts or
 #' contamination. If a matched normal is available, this value is ignored,
 #' because homozygosity can be confirmed in the normal.
-#' @param contamination.cutoff Count SNPs in dbSNP with allelic fraction
-#' smaller than the first value or greater than 1-first value, if found on most chromosomes, mark sample
-#' as contaminated if the fraction of putative contamination SNPs exceeds
-#' the second value.
+#' @param contamination.range Count SNPs in dbSNP with allelic fraction
+#' in the specified range. If the number of these putative contamination 
+#' SNPs exceeds an expected value and if they are found on almost all 
+#' chromosomes, the sample is flagged as potentially contaminated and extra
+#' contamination estimation steps will be performed later on.
 #' @param min.coverage Minimum coverage in tumor. Variants with lower coverage
 #' are ignored.
 #' @param min.base.quality Minimim base quality in tumor. Requires a \code{BQ}
@@ -61,7 +62,7 @@
 #' @importFrom stats pbeta
 filterVcfBasic <- function(vcf, tumor.id.in.vcf = NULL, 
 use.somatic.status = TRUE, snp.blacklist = NULL, af.range = c(0.03, 0.97),
-contamination.cutoff = c(0.075,0.02), min.coverage = 15, min.base.quality = 25,
+contamination.range = c(0.01, 0.075), min.coverage = 15, min.base.quality = 25,
 min.supporting.reads = NULL, error = 0.001, target.granges = NULL,
 remove.off.target.snvs = TRUE, model.homozygous = FALSE, 
 interval.padding = 50) {
@@ -116,27 +117,33 @@ interval.padding = 50) {
         }
         idx
     }    
-    idxNotReference <- .sufficientReads(vcf,ref=FALSE, depths, cutoffs)
-    vcf <- vcf[idxNotReference]
+    idxNotAlt <- .sufficientReads(vcf,ref=FALSE, depths, cutoffs)
+    vcf <- vcf[idxNotAlt]
     idxNotHomozygous <- .sufficientReads(vcf,ref=TRUE, depths, cutoffs)
+
     #--------------------------------------------------------------------------
 
+    # heurestic to find potential contamination
+    #--------------------------------------------------------------------------
     idx <- info(vcf)$DB & idxNotHomozygous &
-        ( unlist(geno(vcf)$FA[,tumor.id.in.vcf]) <  contamination.cutoff[1] | 
-        unlist(geno(vcf)$FA[,tumor.id.in.vcf]) > (1 - contamination.cutoff[1]))
+        ( unlist(geno(vcf)$FA[,tumor.id.in.vcf]) <  contamination.range[2] | 
+        unlist(geno(vcf)$FA[,tumor.id.in.vcf]) > (1 - contamination.range[2]))
 
-    fractionContaminated <- sum(idx)/sum(info(vcf)$DB)
+    fractionContaminated <- sum(idx)/sum(info(vcf)$DB & idxNotHomozygous)
+    minFractionContaminated <- 0.02
+
     if (fractionContaminated > 0) {
-    #    cntContPerChr <- sapply(seqlevelsInUse(vcf), function(seq) nrow(keepSeqlevels(vcf[idx],seq)))
-    #    cntAllPerChr <- sapply(seqlevelsInUse(vcf), function(seq) nrow(keepSeqlevels(vcf,seq)))
-    #    flog.info("Contamination p-value across chromosomes: %.2f.",
-    #        fisher.test(cntContPerChr, cntAllPerChr)$p.value)
+        expectedAllelicFraction <- contamination.range[1] * 0.75
+        powerDetectCont <- calculatePowerDetectSomatic(mean(geno(vcf)$DP[,tumor.id.in.vcf], 
+            na.rm=TRUE), f=expectedAllelicFraction)$power
+        minFractionContaminated <- min(0.2, max(minFractionContaminated, powerDetectCont * 0.5))
+        flog.info("Fraction: %.3f, Good default: %.3f potential: %d", fractionContaminated, minFractionContaminated, fractionContaminated>minFractionContaminated)
     }
 
     # do we have many low allelic fraction calls that are in dbSNP on basically
     # all chromosomes? then we found some contamination
     if (sum(runLength(seqnames(rowRanges(vcf[idx])))>3) >= 20 &&
-        fractionContaminated >= contamination.cutoff[2]) {
+        fractionContaminated >= minFractionContaminated) {
         flag <- TRUE
         flag_comment <- "POTENTIAL SAMPLE CONTAMINATION"    
     }

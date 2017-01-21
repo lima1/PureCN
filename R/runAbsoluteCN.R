@@ -892,44 +892,45 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     results <- .rankResults(results)
     results <- .filterDuplicatedResults(results)
-    cont.rate <- prior.contamination
 
-    if (grepl("CONTAMINATION", vcf.filtering$flag_comment)) {
-        cont.rate <- .plotContamination(
-            results[[1]]$SNV.posterior$beta.model$posteriors, 
-            max.mapping.bias, plot=FALSE)
-        if (cont.rate > prior.contamination) {
-            flog.info("Initial guess of contamination rate: %.3f", cont.rate)
-        }    
+    # If necessary, try to estimate contamination
+    #--------------------------------------------------------------------------
+    cont.rate <- prior.contamination
+    
+    for (i in seq_along(results)) {
+        if (grepl("CONTAMINATION", vcf.filtering$flag_comment)) {
+            cont.rate <- .plotContamination(
+                results[[i]]$SNV.posterior$beta.model$posteriors, 
+                max.mapping.bias, plot=FALSE)
+            if (cont.rate > prior.contamination) {
+                flog.info("Initial guess of contamination rate: %.3f", cont.rate)
+            }    
+        }
+        ## optimize contamination. we just re-run the fitting 
+        if (grepl("CONTAMINATION", vcf.filtering$flag_comment) && 
+            cont.rate>prior.contamination) {
+            flog.info("Optimizing contamination rate of optimum %i/%i...", 
+                i, length(results))
+                 
+            res.snvllik <-
+                .calcSNVLLik(vcf, tumor.id.in.vcf,
+                      ov, results[[i]]$purity, test.num.copy, results[[i]]$C.likelihood, 
+                      results[[i]]$C.posterior$ML.C,
+                      results[[i]]$C.posterior$Opt.C,
+                      snv.model = "beta", prior.somatic, mapping.bias,
+                      snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K,
+                      max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M,
+                      model.homozygous = model.homozygous, error = error,
+                      max.mapping.bias = max.mapping.bias, max.pon = max.pon)
+            results[[i]]$SNV.posterior$beta.model <- res.snvllik
+            cont.rate <- .plotContamination(
+                        results[[i]]$SNV.posterior$beta.model$posteriors,
+                                    max.mapping.bias, plot=FALSE)
+                    flog.info("Optimized contamination rate: %.3f", cont.rate)
+            results[[i]]$SNV.posterior$beta.model$posterior.contamination <- cont.rate
+            # undo flagging if contamination rate is low
+        }
     }
-    ## optimize contamination. we just re-run the fitting 
-    if (grepl("CONTAMINATION", vcf.filtering$flag_comment) && 
-        cont.rate>prior.contamination) {
-        flog.info("Optimizing contamination rate...")
-             
-        res.snvllik <-
-            .calcSNVLLik(vcf, tumor.id.in.vcf,
-                  ov, results[[1]]$purity, test.num.copy, results[[1]]$C.likelihood, 
-                  results[[1]]$C.posterior$ML.C,
-                  results[[1]]$C.posterior$Opt.C,
-                  snv.model = "beta", prior.somatic, mapping.bias,
-                  snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K,
-                  max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M,
-                  model.homozygous = model.homozygous, error = error,
-                  max.mapping.bias = max.mapping.bias, max.pon = max.pon)
-        results[[1]]$SNV.posterior$beta.model <- res.snvllik
-        cont.rate <- .plotContamination(
-                    results[[1]]$SNV.posterior$beta.model$posteriors,
-                                max.mapping.bias, plot=FALSE)
-                flog.info("Optimized contamination rate: %.3f", cont.rate)
-        results[[1]]$SNV.posterior$beta.model$posterior.contamination <- cont.rate
-        # undo flagging if contamination rate is low
-    }
-    if (cont.rate<0.001 && vcf.filtering$flag_comment == 
-        "POTENTIAL SAMPLE CONTAMINATION") {
-        vcf.filtering$flag_comment <- ""
-        vcf.filtering$flag <- FALSE
-    }    
     results <- .flagResults(results, max.non.clonal = max.non.clonal, max.logr.sdev = max.logr.sdev, 
         logr.sdev = sd.seg, max.segments = max.segments, min.gof = min.gof, flag = vcf.filtering$flag, 
         flag_comment = vcf.filtering$flag_comment, dropout = dropoutWarning, use.somatic.status = args.filterVcf$use.somatic.status, 

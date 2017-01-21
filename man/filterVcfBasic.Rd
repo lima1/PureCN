@@ -6,7 +6,7 @@
 \usage{
 filterVcfBasic(vcf, tumor.id.in.vcf = NULL, use.somatic.status = TRUE,
   snp.blacklist = NULL, af.range = c(0.03, 0.97),
-  contamination.cutoff = c(0.075, 0.02), min.coverage = 15,
+  contamination.range = c(0.01, 0.075), min.coverage = 15,
   min.base.quality = 25, min.supporting.reads = NULL, error = 0.001,
   target.granges = NULL, remove.off.target.snvs = TRUE,
   model.homozygous = FALSE, interval.padding = 50)
@@ -33,10 +33,11 @@ which potentially have allelic fractions smaller than 1 due to artifacts or
 contamination. If a matched normal is available, this value is ignored,
 because homozygosity can be confirmed in the normal.}
 
-\item{contamination.cutoff}{Count SNPs in dbSNP with allelic fraction
-smaller than the first value or greater than 1-first value, if found on most chromosomes, mark sample
-as contaminated if the fraction of putative contamination SNPs exceeds
-the second value.}
+\item{contamination.range}{Count SNPs in dbSNP with allelic fraction
+in the specified range. If the number of these putative contamination 
+SNPs exceeds an expected value and if they are found on almost all 
+chromosomes, the sample is flagged as potentially contaminated and extra
+contamination estimation steps will be performed later on.}
 
 \item{min.coverage}{Minimum coverage in tumor. Variants with lower coverage
 are ignored.}

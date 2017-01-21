@@ -231,7 +231,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         likelihoods = likelihoods, 
         posteriors = posteriors, 
         vcf.ids = vcf.ids, 
-        llik.ignored = idx.ignore)
+        llik.ignored = idx.ignore,
+        posterior.contamination = 0)
 
     ret
 }

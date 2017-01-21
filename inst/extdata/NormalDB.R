@@ -25,6 +25,7 @@ if (!is.null(opt$version)) {
     q(status=1)
 }    
 
+force <- !is.null(opt$force)
 
 .checkFileList <- function(file) {
     files <- read.delim(file, as.is=TRUE, header=FALSE)[,1]
@@ -54,7 +55,7 @@ if (is.null(genome)) stop("Need --genome")
 
 .getFileName <- function(outdir, prefix, suffix, assay, method, genome) {
     if (nchar(assay)) assay <- paste0("_", assay)
-    if (nchar(method)) method <- paste0("_", method)
+    if (nchar(method)) method <- paste0("_", tolower(method))
     if (nchar(genome)) genome <- paste0("_", genome)
     file.path(outdir, paste0(prefix, assay, method, genome, suffix))
 }

@@ -1034,6 +1034,8 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
     \Rfunction{findBestNormal}, \Rfunction{filterTargets} \\
 --pool -m           & pool, num.normals & \Rfunction{findBestNormal} \\    
 --minaf -j          & af.range & \Rfunction{filterVcfBasic} \\
+--minpurity -k      & test.purity & \Rfunction{runAbsoluteCN} \\
+--maxpurity -x      & test.purity & \Rfunction{runAbsoluteCN} \\
 --postoptimize -z   & post.optimize & \Rfunction{runAbsoluteCN} \\    
 --modelhomozygous -y & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\

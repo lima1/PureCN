@@ -68,9 +68,23 @@ if (!is.null(bam.file)) {
         dev.off()
    } 
 }
+.checkFileList <- function(file) {
+    files <- read.delim(file, as.is=TRUE, header=FALSE)[,1]
+    numExists <- sum(file.exists(files), na.rm=TRUE)
+    if (numExists < length(files)) { 
+        stop("File not exists in file ", file)
+    }
+    files
+}
 
 if (!is.null(gatk.coverage)) {
     library(PureCN)
-    .gcNormalize(gatk.coverage, gc.gene.file, method, outdir, force)
+    if (grepl(".list$", gatk.coverage)) {
+        coverageFiles <- .checkFileList(gatk.coverage)
+    } else {
+        coverageFiles <- gatk.coverage
+    }
+    for (gatk.coverage in coverageFiles)     
+        .gcNormalize(gatk.coverage, gc.gene.file, method, outdir, force)
 }
     

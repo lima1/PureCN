@@ -29,7 +29,7 @@ calculateLogRatio <- function(normal, tumor) {
     if (!identical(as.character(normal[, 1]), as.character(tumor[, 1]))) {
         .stopUserError("Interval files in normal and tumor different.")
     }
-    flog.info("Average coverage: %.0fX (tumor) %.0fX (normal).", 
+    flog.info("Mean coverage: %.0fX (tumor) %.0fX (normal).", 
         mean(tumor$average.coverage, na.rm=TRUE), 
         mean(normal$average.coverage, na.rm=TRUE))
     total.cov.normal <- sum(as.numeric(normal$coverage), na.rm = TRUE)

@@ -43,11 +43,8 @@ API CHANGES
     - poolCoverage: w argument now used as provided, not 
         normalized so that w[1] is 1
     - Removed ... from runAbsoluteCN
-    - added centromeres to segmentation function.
-    - contamination.cutoff now specifies fraction of SNPs necessary to
-      call sample contaminated. Does not remove anymore, since these
-      are obviously informative for contamination rate estimation in the
-      PureCN model.
+    - Added centromeres to segmentation function
+    - Replaced contamination.cutoff with contamination.range in filterVcfBasic 
     - Removed verbose from most functions, since messages are now controlled
       with futile.logger.  
     - Smoothing of log-ratios now optionally done by runAbsoluteCN, not
