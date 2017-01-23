@@ -139,7 +139,8 @@ normalDB.min.coverage) {
         tumor$targeted.base >= min.targeted.base
     nAfter <- sum(targetsUsed)
     if (nAfter < nBefore) {
-        flog.info("Removing %i small targets.", nBefore-nAfter)
+        flog.info("Removing %i small (< %ibp) targets.", nBefore-nAfter, 
+            min.targeted.base)
     }    
     targetsUsed
 }

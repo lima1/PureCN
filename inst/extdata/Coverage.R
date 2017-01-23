@@ -7,6 +7,7 @@ spec <- matrix(c(
 'version',  'v', 0, "logical",
 'force' , 'f', 0, "logical",
 'bam', 'b', 1, "character",
+'bai', 'a', 1, "character",
 'gatkcoverage', 'g', 1, "character",
 'gcgene' , 'c', 1, "character",
 'method' , 'm', 1, "character",
@@ -27,6 +28,9 @@ if (!is.null(opt$version)) {
 force <- !is.null(opt$force)
 
 bam.file <- opt$bam
+index.file <- opt$bai
+
+
 gatk.coverage <- opt$gatkcoverage
 gc.gene.file <- opt$gcgene
 outdir <- opt$outdir
@@ -44,11 +48,19 @@ if (!is.null(bam.file)) {
     output.file <- file.path(outdir,  gsub(".bam$","_coverage.txt", 
         basename(bam.file)))
 
+    if (!is.null(index.file)) {
+        index.file <- normalizePath(index.file, mustWork=TRUE)
+        index.file <- sub(".bai$", "", index.file)
+    } else {
+        index.file <- bam.file
+    }    
+
     if (file.exists(output.file) && !force) {
         message(output.file, " exists. Skipping... (--force will overwrite)")
     } else {
         calculateBamCoverageByInterval(bam.file=bam.file, 
-            interval.file=gc.gene.file, output.file)
+            interval.file=gc.gene.file, output.file=output.file,
+             index.file=index.file)
     }
     gatk.coverage <- output.file
 }

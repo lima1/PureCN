@@ -973,6 +973,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --force -f          & & \\
 --outdir -o         & & \\
 --bam -b            & bam.file & \Rfunction{calculateBamCoverageByInterval} \\
+--bai -a            & index.file & \Rfunction{calculateBamCoverageByInterval} \\
 --gatkcoverage -g   & coverage.file & \Rfunction{correctCoverageBias} \\
 --gcgene -c         & gc.gene.file  & \Rfunction{correctCoverageBias} \\
 --method -m         & method  & \Rfunction{correctCoverageBias} \\
