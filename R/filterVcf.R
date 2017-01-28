@@ -135,7 +135,7 @@ interval.padding = 50) {
     if (fractionContaminated > 0) {
         expectedAllelicFraction <- contamination.range[1] * 0.75
         powerDetectCont <- calculatePowerDetectSomatic(mean(geno(vcf)$DP[,tumor.id.in.vcf], 
-            na.rm=TRUE), f=expectedAllelicFraction)$power
+            na.rm=TRUE), f=expectedAllelicFraction, verbose=FALSE)$power
         minFractionContaminated <- min(0.2, max(minFractionContaminated, powerDetectCont * 0.5))
         flog.info("Fraction: %.3f, Good default: %.3f potential: %d", fractionContaminated, minFractionContaminated, fractionContaminated>minFractionContaminated)
     }

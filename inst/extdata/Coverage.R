@@ -51,7 +51,9 @@ if (!is.null(bam.file)) {
     if (!is.null(index.file)) {
         index.file <- normalizePath(index.file, mustWork=TRUE)
         index.file <- sub(".bai$", "", index.file)
-    } else {
+    } else if (file.exists(sub("bam$", "bai", bam.file))) {
+        index.file <- sub(".bam$", "", bam.file)
+    } else {    
         index.file <- bam.file
     }    
 

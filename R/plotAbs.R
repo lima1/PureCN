@@ -241,7 +241,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                     xlab="Pos (kbp)", 
                     col=adjustcolor("grey", alpha.f=ifelse(myalpha<1,0.75,1)), 
                     main=main, 
-                    ylim=quantile(segment.log.ratio,p=c(0.01,0.99)),
+                    ylim=quantile(segment.log.ratio,p=c(0.001,0.999)),
                     ... )
                 points(x, r$log.ratio[idx], col=mycol, pch=mypch)
                 segment.log.ratio.lines[,1] <- x[segment.log.ratio.lines[,1]]

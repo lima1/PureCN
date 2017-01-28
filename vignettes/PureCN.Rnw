@@ -1168,6 +1168,8 @@ Figure~\ref{figure/figureexample2-1}:
     in whole-exome data.
     \item The same is obviously true for coverage. Coverages below 80X are
     difficult unless purities are high and coverages are even.
+    \item Samples with tumor purities below 20\% usually cannot be analyzed with this
+    algorithm and \Biocpkg{PureCN} might return very wrong purity estimates. 
     \item The number of heterozygous SNPs is also important. Copy number probes 
     enriched in SNPs are therefore very helpful (see Section~\ref{secmaxsnps}).
     \item While \Biocpkg{PureCN} supports to some degree uneven tiling of
