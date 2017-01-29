@@ -33,6 +33,7 @@ Imports:
     rtracklayer,
     ggplot2,
     futile.logger,
+    VGAM,
     edgeR,
     limma
 Suggests:

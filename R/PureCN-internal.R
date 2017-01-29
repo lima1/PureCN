@@ -67,6 +67,15 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     C.likelihood, C, opt.C, snv.model, prior.somatic, mapping.bias, snv.lr, 
     sampleid = NULL, cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M,
     model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8, max.pon) {
+    
+    .dbeta <- function(x, shape1, shape2, log, size) dbeta(x=x, 
+        shape1=shape1, shape2=shape2, log=log)
+    if (snv.model=="betabin") {
+        .dbeta <- function(x, shape1, shape2, log, size) {
+            dbetabinom.ab(x=round(x*size),shape1=shape1, shape2=shape2, 
+                size=size, log=TRUE)
+         }   
+    }    
 
     prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
     prior.somatic <- prior.somatic/(1 + cont.rate)
@@ -118,19 +127,19 @@ c(test.num.copy, round(opt.C))[i], prior.K))
                 dbetax <- (p * cns + g * (1-p))/(p * Ci + 2 * (1-p))
                 l <- lapply(seq_along(test.num.copy), function(j) {
                     if (skip[j]) return(mInf_all)
-                    dbeta(x = dbetax[j], 
+                    .dbeta(x = dbetax[j], 
                     shape1 = shape1,  
-                    shape2 = shape2, log = TRUE) - priorM
+                    shape2 = shape2, log = TRUE, size=dp_all) - priorM
                 })
                 do.call(cbind,l)
             })
             
-            p.ar.cont.1 <- dbeta(x = (p * Ci + 2 * (1 - p - cont.rate))/
-                  (p * Ci + 2 * (1 - p)),shape1=shape1, shape2=shape2,log=TRUE) - 
+            p.ar.cont.1 <- .dbeta(x = (p * Ci + 2 * (1 - p - cont.rate))/
+                  (p * Ci + 2 * (1 - p)),shape1=shape1, shape2=shape2,log=TRUE, size=dp_all) - 
                                   priorM
 
-            p.ar.cont.2 <- dbeta(x = (cont.rate)/(p * Ci + 2 * (1 - p)), 
-                  shape1=shape1, shape2=shape2,log=TRUE) -
+            p.ar.cont.2 <- .dbeta(x = (cont.rate)/(p * Ci + 2 * (1 - p)), 
+                  shape1=shape1, shape2=shape2,log=TRUE,size=dp_all) -
                                   priorM
 
             # add prior probabilities for somatic vs germline
@@ -943,4 +952,3 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .calcFractionBalanced <- function(p) {
     sum(p$ML.C - p$ML.M.SEGMENT == p$ML.M.SEGMENT, na.rm=TRUE)/nrow(p)
 }
-            

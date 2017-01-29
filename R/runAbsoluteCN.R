@@ -173,6 +173,8 @@
 #' a higher prior probability of being somatic. Not used in likelhood model
 #' when matched normal is available in \code{vcf.file}. Should be compressed
 #' and indexed with bgzip and tabix, respectively.
+#' @param model Use either a beta or a betabinomial distribution. The latter
+#' might be better for noisy or high coverage samples.
 #' @param post.optimize Optimize purity using final SCNA-fit and SNVs. This
 #' might take a long time when lots of SNVs need to be fitted, but will
 #' typically result in a slightly more accurate purity, especially for rather
@@ -238,6 +240,7 @@
 #' @importFrom data.table data.table
 #' @importFrom futile.logger flog.info flog.warn flog.fatal
 #'             flog.threshold flog.appender appender.tee
+#' @importFrom VGAM dbetabinom.ab
 runAbsoluteCN <- function(normal.coverage.file = NULL, 
     tumor.coverage.file = NULL, log.ratio = NULL, seg.file = NULL, 
     seg.file.sdev = 0.4, vcf.file = NULL, normalDB = NULL, genome, 
@@ -258,6 +261,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001, 
     gc.gene.file = NULL, max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
+    model = c("beta", "betabin"),
     post.optimize = FALSE, log.file = NULL, verbose = TRUE) {
 
     if (!verbose) flog.threshold("WARN")
@@ -281,6 +285,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         normalDB <- args.filterTargets$normalDB
         flog.warn("normalDB now a runAbsoluteCN argument. Please provide it there, not in args.filterTargets.")
     }    
+
+    model <- match.arg(model)
+
     centromeres <- .getCentromerePositions(centromeres, genome)
     
     # defaults to equal priors for all tested purity values
@@ -834,7 +841,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                         px, weighted.mean(C, li), cont.rate)
                   
                   list(beta.model = .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, test.num.copy, 
-                    C.likelihood, C, opt.C, snv.model = "beta", prior.somatic, mapping.bias, 
+                    C.likelihood, C, opt.C, snv.model = model, prior.somatic, mapping.bias, 
                     snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K, 
                     max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M, 
                     model.homozygous = model.homozygous, error = error, 
@@ -917,7 +924,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                       ov, results[[i]]$purity, test.num.copy, results[[i]]$C.likelihood, 
                       results[[i]]$C.posterior$ML.C,
                       results[[i]]$C.posterior$Opt.C,
-                      snv.model = "beta", prior.somatic, mapping.bias,
+                      snv.model = model, prior.somatic, mapping.bias,
                       snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K,
                       max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M,
                       model.homozygous = model.homozygous, error = error,

@@ -132,6 +132,7 @@ if (file.exists(file.rds) && !force) {
             args.setMappingBiasVcf=
                 list(normal.panel.vcf.file=normal.panel.vcf.file),
             normalDB=normalDB, model.homozygous=model.homozygous,
+            model="betabin",
             log.file=file.log, post.optimize=post.optimize)
     dev.off()
     saveRDS(ret, file=file.rds)

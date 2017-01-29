@@ -24,8 +24,8 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001,
   gc.gene.file = NULL, max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75,
   max.segments = 300, min.gof = 0.8, plot.cnv = TRUE,
-  cosmic.vcf.file = NULL, post.optimize = FALSE, log.file = NULL,
-  verbose = TRUE)
+  cosmic.vcf.file = NULL, model = c("beta", "betabin"),
+  post.optimize = FALSE, log.file = NULL, verbose = TRUE)
 }
 \arguments{
 \item{normal.coverage.file}{GATK coverage file of normal control (optional
@@ -242,6 +242,9 @@ Assay specific and needs to be calibrated.}
 a higher prior probability of being somatic. Not used in likelhood model
 when matched normal is available in \code{vcf.file}. Should be compressed
 and indexed with bgzip and tabix, respectively.}
+
+\item{model}{Use either a beta or a betabinomial distribution. The latter
+might be better for noisy or high coverage samples.}
 
 \item{post.optimize}{Optimize purity using final SCNA-fit and SNVs. This
 might take a long time when lots of SNVs need to be fitted, but will

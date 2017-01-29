@@ -294,7 +294,7 @@ test_runAbsoluteCN <- function() {
     ret <- runAbsoluteCN( normal.coverage.file=normal.coverage.file,
         tumor.coverage.file=tumor.coverage.file, sampleid="LIB-02252e4",
         vcf.file=vcf, max.candidate.solutions=1,genome="hg19", 
-        cosmic.vcf.file=cosmic.vcf.file,
+        cosmic.vcf.file=cosmic.vcf.file, model="betabin",
         test.purity=seq(0.3,0.7, by=0.01))
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     # test min.ploidy bug
