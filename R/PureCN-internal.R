@@ -425,14 +425,14 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 }
 
 .getFractionLoh <- function(result) {
-    if (is.null(result$SNV.posterior$beta.model)) return(0)
-    pp <- result$SNV.posterior$beta.model$posteriors
+    if (is.null(result$SNV.posterior)) return(0)
+    pp <- result$SNV.posterior$posteriors
     x1 <- unique(pp$seg.id[pp$ML.M.SEGMENT==0])
     sum(result$seg$size[x1])/sum(result$seg$size)
 }
 .getGoF <- function(result) {
-    if (is.null(result$SNV.posterior$beta.model)) return(0)
-    r <- result$SNV.posterior$beta.model$posteriors
+    if (is.null(result$SNV.posterior)) return(0)
+    r <- result$SNV.posterior$posteriors
     e <- (r$ML.AR-r$AR.ADJUSTED)^2
     maxDist <- 0.2^2
     r2 <- max(1-mean(e,na.rm=TRUE)/maxDist,0)
@@ -698,15 +698,15 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .rankResults <- function(results) {
     if (length(results) < 1) return(results)  
     # max.ll <- max(sapply(results, function(z) z$log.likelihood)) max.snv.ll <-
-    # max(sapply(results, function(z) z$SNV.posterior$beta.model$llik))
+    # max(sapply(results, function(z) z$SNV.posterior$llik))
     complexity <- .calcComplexityCopyNumber(results) 
     for (i in seq_along(results)) {
         if (is.null(results[[i]]$SNV.posterior)) {
             results[[i]]$total.log.likelihood <- results[[i]]$log.likelihood
         } else {
             # results[[i]]$total.log.likelihood <- (results[[i]]$log.likelihood/max.ll) +
-            # 2*(results[[i]]$SNV.posterior$beta.model$llik/max.snv.ll)
-            results[[i]]$total.log.likelihood <- results[[i]]$log.likelihood + results[[i]]$SNV.posterior$beta.model$llik
+            # 2*(results[[i]]$SNV.posterior$llik/max.snv.ll)
+            results[[i]]$total.log.likelihood <- results[[i]]$log.likelihood + results[[i]]$SNV.posterior$llik
         }
         results[[i]]$total.log.likelihood <- results[[i]]$total.log.likelihood + complexity[i]
     }

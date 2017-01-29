@@ -3,7 +3,7 @@ test_predictSomatic <- function() {
     ret <- predictSomatic(purecn.example.output)
     checkEquals("data.frame", class(ret))
     checkEquals( nrow(
-      purecn.example.output$results[[1]]$SNV.posterior$beta.model$posteriors),
+      purecn.example.output$results[[1]]$SNV.posterior$posteriors),
                 nrow(ret))
     esr2 <- ret[ret$gene.symbol=="ESR2",]
     checkEquals("chr14", as.character(esr2$chr))

@@ -30,7 +30,7 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
         IRanges(start=armLocations$start, end=armLocations$end))
     seg <- res$results[[id]]$seg
 
-    minorChrNumber <- res$results[[id]]$SNV.posterior$beta.model$posteriors[, 
+    minorChrNumber <- res$results[[id]]$SNV.posterior$posteriors[, 
         c("seg.id", "ML.M.SEGMENT")]
     minorChrNumber <- minorChrNumber[!duplicated(minorChrNumber[,1]),]
     seg$M <- NA

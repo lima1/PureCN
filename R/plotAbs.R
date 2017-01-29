@@ -155,7 +155,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                 "Purity:", round(res$results[[i]]$purity[[1]], digits=2), 
                 " Tumor ploidy:", round( res$results[[i]]$ploidy, digits=3), 
                 " SNV log-likelihood:", 
-                    round(res$results[[i]]$SNV.posterior$beta.model$llik, digits=2),
+                    round(res$results[[i]]$SNV.posterior$llik, digits=2),
                 " GoF:", r2,    
                 " Mean coverage:", 
                     paste(round(apply(geno(res$input$vcf)$DP,2,mean)),
@@ -198,7 +198,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
             segment.log.ratio.lines <- .toLines(ss=segment.log.ratio[idx])
             segment.M.log.ratio.lines <- .toLines(
                 peak.ideal.means[as.character(
-                res$results[[i]]$SNV.posterior$beta.model$posteriors$ML.M.SEGMENT[idx]
+                res$results[[i]]$SNV.posterior$posteriors$ML.M.SEGMENT[idx]
             )])
             
             # calculate expected segment B-allelic fractions
@@ -318,7 +318,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
             r <- .getVariantPosteriors(res, i, max.mapping.bias)
             if (is.null(r)) next
 
-            vcf <- res$input$vcf[res$results[[i]]$SNV.posterior$beta.model$vcf.ids]
+            vcf <- res$input$vcf[res$results[[i]]$SNV.posterior$vcf.ids]
             # brwer.pal requires at least 3 levels
 
             r <- .getAFPlotGroups(r, is.null(info(vcf)$SOMATIC))
@@ -423,7 +423,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                     pch=mycol.palette$pch, cex=0.8)
                 
                 estimatedContRate <- 
-                    res$results[[i]]$SNV.posterior$beta.model$posterior.contamination
+                    res$results[[i]]$SNV.posterior$posterior.contamination
                 if (!is.null(estimatedContRate) && 
                     estimatedContRate > min(r$AR[r$ML.SOMATIC])) {
                     abline(h=estimatedContRate, col="red")
@@ -459,7 +459,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
     } else if (type == "volcano") {
         .plotVolcano(res$results[[ids[1]]]$gene.calls, palette.name=palette.name)
     } else if (type == "contamination") {
-        .plotContamination(res$results[[ids[1]]]$SNV.posterior$beta.model$posteriors, 
+        .plotContamination(res$results[[ids[1]]]$SNV.posterior$posteriors, 
             max.mapping.bias)   
     } else if (type == "all") {
         plotAbs(res, type="overview2")
@@ -518,7 +518,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                 main="Goodness-of-fit", las=2, col="#377EB8")
             if (!is.null(res$input$vcf)) {
                 x <- sapply(res$results, function(x) 
-                    x$SNV.posterior$beta.model$llik)
+                    x$SNV.posterior$llik)
                 barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
                     main="SNV likelihood score", las=2, col="#377EB8")
             }
@@ -611,7 +611,7 @@ ss) {
 }    
 
 .getVariantPosteriors <- function(res, i, max.mapping.bias=NULL) {
-    r <- res$results[[i]]$SNV.posterior$beta.model$posteriors
+    r <- res$results[[i]]$SNV.posterior$posteriors
     if (!is.null(r) && !is.null(max.mapping.bias)) {
         r <- r[r$MAPPING.BIAS >= max.mapping.bias,]
     }    

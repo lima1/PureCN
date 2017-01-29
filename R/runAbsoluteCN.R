@@ -805,7 +805,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         if (subclonal.f > max.non.clonal) {
             if (!is.null(vcf.file)) {
                 # we skipped the SNV fitting for this rare corner case.
-                SNV.posterior <- list(beta.model = list(llik = -Inf))
+                SNV.posterior <- list(llik = -Inf)
             }
             return(list(log.likelihood = llik, purity = p, ploidy = weighted.mean(C, 
                 li), total.ploidy = total.ploidy, seg = seg.adjusted, C.likelihood = data.frame(C.likelihood/rowSums(C.likelihood), 
@@ -840,12 +840,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     flog.info("Fitting SNVs for purity %.2f, tumor ploidy %.2f and contamination %.2f.", 
                         px, weighted.mean(C, li), cont.rate)
                   
-                  list(beta.model = .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, test.num.copy, 
+                  .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, test.num.copy, 
                     C.likelihood, C, opt.C, snv.model = model, prior.somatic, mapping.bias, 
                     snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K, 
                     max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M, 
                     model.homozygous = model.homozygous, error = error, 
-                    max.mapping.bias = max.mapping.bias, max.pon = max.pon))
+                    max.mapping.bias = max.mapping.bias, max.pon = max.pon)
                 }
 
                 res.snvllik <- lapply(tp[1], .fitSNVp)
@@ -855,7 +855,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     idx <- 1
                     if (GoF < (min.gof-0.05)) { 
                         flog.info("Poor goodness-of-fit (%.3f). Skipping post-optimization.", GoF)
-                    } else if (.calcFractionBalanced(res.snvllik[[1]]$beta.model$posteriors) > 0.8 && 
+                    } else if (.calcFractionBalanced(res.snvllik[[1]]$posteriors) > 0.8 && 
                         weighted.mean(C, li) > 2.7) {
                         flog.info("High ploidy solution in highly balanced genome. Skipping post-optimization.")
                     } else {    
@@ -866,7 +866,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                           px) * 2, max.exon.ratio = max.exon.ratio), double(1)))
                       
                       px.rij.s <- sapply(px.rij, sum, na.rm = TRUE) + log(pp) + vapply(res.snvllik, 
-                        function(x) x$beta.model$llik, double(1))
+                        function(x) x$llik, double(1))
                       idx <- which.max(px.rij.s)
                   }
                 } else {
@@ -889,7 +889,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             C.likelihood=C.likelihood, SNV.posterior = SNV.posterior,
             fraction.subclonal = subclonal.f, fraction.homozygous.loss =
             sum(li[which(C < 0.01)])/sum(li), fraction.balanced = 
-            .calcFractionBalanced(SNV.posterior$beta.model$posteriors),
+            .calcFractionBalanced(SNV.posterior$posteriors),
             gene.calls = gene.calls,
             log.ratio.offset = log.ratio.offset, SA.iterations = iter, failed =
             FALSE)
@@ -907,7 +907,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     for (i in seq_along(results)) {
         if (grepl("CONTAMINATION", vcf.filtering$flag_comment)) {
             cont.rate <- .plotContamination(
-                results[[i]]$SNV.posterior$beta.model$posteriors, 
+                results[[i]]$SNV.posterior$posteriors, 
                 max.mapping.bias, plot=FALSE)
             if (cont.rate > prior.contamination) {
                 flog.info("Initial guess of contamination rate: %.3f", cont.rate)
@@ -929,17 +929,17 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                       max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M,
                       model.homozygous = model.homozygous, error = error,
                       max.mapping.bias = max.mapping.bias, max.pon = max.pon)
-            results[[i]]$SNV.posterior$beta.model <- res.snvllik
+            results[[i]]$SNV.posterior <- res.snvllik
             cont.rate <- .plotContamination(
-                        results[[i]]$SNV.posterior$beta.model$posteriors,
+                        results[[i]]$SNV.posterior$posteriors,
                                     max.mapping.bias, plot=FALSE)
                     flog.info("Optimized contamination rate: %.3f", cont.rate)
-            results[[i]]$SNV.posterior$beta.model$posterior.contamination <- cont.rate
+            results[[i]]$SNV.posterior$posterior.contamination <- cont.rate
         }
     }
     if (length(results) && 
-        !is.null(results[[1]]$SNV.posterior$beta.model$posterior.contamination) &&
-        results[[1]]$SNV.posterior$beta.model$posterior.contamination < 0.001 &&
+        !is.null(results[[1]]$SNV.posterior$posterior.contamination) &&
+        results[[1]]$SNV.posterior$posterior.contamination < 0.001 &&
         !is.na(vcf.filtering$flag_comment) &&
         vcf.filtering$flag_comment == "POTENTIAL SAMPLE CONTAMINATION") {
         vcf.filtering$flag <- FALSE

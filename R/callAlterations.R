@@ -55,7 +55,7 @@ log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, all.genes = FALSE) {
     calls$type[amp.ids] <- "AMPLIFICATION"
     calls$type[del.ids] <- "DELETION"
 
-    bm <- res$results[[id]]$SNV.posterior$beta.model
+    bm <- res$results[[id]]$SNV.posterior
     if (!is.null(bm)) {
         segids <- bm$posteriors$seg.id
         calls$num.snps.segment <- sapply(calls$seg.id, function(i) 

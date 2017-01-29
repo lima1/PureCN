@@ -35,6 +35,8 @@ API CHANGES
       second value the maximum size of a homozygous loss (default 10mb).
 - Other minor changes:
     - Renamed some predictSomatic() output column names
+    - Removed "beta.model" from "SNV.posterior" slot since model is now an
+      option.
     - Moved remove.off.target.snvs to filterVcfBasic
     - Moved normalDB from filterTargets to runAbsoluteCN, since it is now 
       use for more than target filtering.

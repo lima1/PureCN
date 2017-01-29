@@ -34,7 +34,7 @@ predictSomatic <- function(res, id = 1, return.vcf = FALSE,
     pp   <- .addSymbols(res$results[[id]])
     if (return.vcf) {
         vcf <- res$input$vcf[
-            res$results[[id]]$SNV.posterior$beta.model$vcf.ids]
+            res$results[[id]]$SNV.posterior$vcf.ids]
         return(.annotatePosteriorsVcf(pp, vcf, prefix=vcf.field.prefix))
     }
     pp
@@ -47,17 +47,17 @@ predictSomatic <- function(res, id = 1, return.vcf = FALSE,
               IRanges(start=result$gene.calls$start,
                       end=result$gene.calls$end))
        
-    p.gr <- GRanges(seqnames=result$SNV.posterior$beta.model$posteriors$chr,
-              IRanges(start=result$SNV.posterior$beta.model$posteriors$start,
-                      end=result$SNV.posterior$beta.model$posteriors$end))
+    p.gr <- GRanges(seqnames=result$SNV.posterior$posteriors$chr,
+              IRanges(start=result$SNV.posterior$posteriors$start,
+                      end=result$SNV.posterior$posteriors$end))
     
     ov <- findOverlaps(p.gr, g.gr)
     
-    result$SNV.posterior$beta.model$posteriors$gene.symbol <- NA
-    result$SNV.posterior$beta.model$posteriors$gene.symbol[queryHits(ov)] <- 
+    result$SNV.posterior$posteriors$gene.symbol <- NA
+    result$SNV.posterior$posteriors$gene.symbol[queryHits(ov)] <- 
         rownames(result$gene.calls)[subjectHits(ov)]
     }    
-    result$SNV.posterior$beta.model$posteriors
+    result$SNV.posterior$posteriors
 }
     
 .annotatePosteriorsVcf <- function(pp, vcf, prefix="") {
