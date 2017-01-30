@@ -72,6 +72,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         shape1=shape1, shape2=shape2, log=log)
     if (snv.model=="betabin") {
         .dbeta <- function(x, shape1, shape2, log, size) {
+            size <- pmin(size, max.coverage.vcf)
             dbetabinom.ab(x=round(x*size),shape1=shape1, shape2=shape2, 
                 size=size, log=TRUE)
          }   
@@ -108,7 +109,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         ar_all[ar_all > 1] <- 1
         
         dp_all <- unlist(geno(vcf)$DP[idx, tumor.id.in.vcf])
-        dp_all[dp_all>max.coverage.vcf] <- max.coverage.vcf
+        if (snv.model!="betabin") dp_all[dp_all>max.coverage.vcf] <- max.coverage.vcf
         mInf_all <- log(double(length(ar_all)))
         shape1 <- ar_all * dp_all + 1
         shape2 <- (1 - ar_all) * dp_all + 1

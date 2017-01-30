@@ -243,8 +243,13 @@ a higher prior probability of being somatic. Not used in likelhood model
 when matched normal is available in \code{vcf.file}. Should be compressed
 and indexed with bgzip and tabix, respectively.}
 
-\item{model}{Use either a beta or a betabinomial distribution. The latter
-might be better for noisy or high coverage samples.}
+\item{model}{Use either a beta or a beta-binomial distribution for fitting
+observed to expected allelic fractions of alterations in \code{vcf.file}. 
+The latter can be useful to account for significant overdispersion, for example 
+due to mapping biases when no pool of normals is available or due to other
+unmodeled biases, e.g. amplification biases.
+The amount of expected overdispersion can be controlled via the 
+\code{max.coverage.vcf} argument (the higher, the less expected bias).}
 
 \item{post.optimize}{Optimize purity using final SCNA-fit and SNVs. This
 might take a long time when lots of SNVs need to be fitted, but will
