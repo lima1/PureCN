@@ -996,8 +996,6 @@ Rscript NormalDB.R --outdir ~/tmp --coveragefiles example_normal.list \
  --genome hg19 
 \end{verbatim}    
 
-The \Rcode{example\_normal.list} file lists one coverage file per
-
 \begin{table*}
 \caption{NormalDB command line script.}
 \begin{tabular}{lll}
