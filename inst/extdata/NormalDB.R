@@ -71,7 +71,8 @@ if (is.null(genome)) stop("Need --genome")
         correctCoverageBias(gatk.coverage, gc.gene.file,
             output.file=output.file, method=method, plot.gc.bias=TRUE)
         dev.off()
-   } 
+    }
+    output.file 
 }
      
 if (length(coverageFiles)) {
@@ -83,9 +84,8 @@ if (length(coverageFiles)) {
         gc.gene.file <- opt$gcgene
         if (is.null(gc.gene.file)) stop("Need --gcgene")
         gc.gene.file <- normalizePath(gc.gene.file, mustWork=TRUE)
-        for (gatk.coverage in coverageFiles) {
-            .gcNormalize(gatk.coverage, gc.gene.file, method, outdir, force)
-        }    
+        coverageFiles <- sapply(coverageFiles, .gcNormalize, gc.gene.file, 
+            method, outdir, force)
     } else {
         method <- ""
         message("--method not specified, assuming coverage files are ",

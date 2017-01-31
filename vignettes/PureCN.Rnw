@@ -981,6 +981,42 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 \end{tabular}
 \end{table*}
 
+\subsection{NormalDB}
+
+NormalDB.R is a convenient helper script that generates pool of normal
+files given a list of coverage files. It can automatically GC-normalize
+if necessary:
+\begin{verbatim}
+# From GATK DepthOfCoverage files, not GC-normalized
+Rscript NormalDB.R --outdir ~/tmp --coveragefiles example_normal.list \
+ --gcgene example_gc.gene.file.txt --genome hg19 --method LOESS 
+
+# From already GC-normalized files
+Rscript NormalDB.R --outdir ~/tmp --coveragefiles example_normal.list \
+ --genome hg19 
+\end{verbatim}    
+
+The \Rcode{example\_normal.list} file lists one coverage file per
+
+\begin{table*}
+\caption{NormalDB command line script.}
+\begin{tabular}{lll}
+\toprule
+Argument name       & Corresponding PureCN argument & PureCN function \\
+\midrule
+--help -h           & & \\
+--version -v          & & \\
+--force -f          & & \\
+--outdir -o         & & \\
+--coveragefiles -b  & coverage.file & \Rfunction{correctCoverageBias} \\
+--gcgene -c         & gc.gene.file  & \Rfunction{correctCoverageBias} \\
+--method -m         & method  & \Rfunction{correctCoverageBias} \\
+--assay -a          & Optional assay name & Used in output file names. \\
+--genome -g        & Optional genome version & Used in output file names. \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
 \subsection{PureCN}
 \label{cmdpurecn}
 
