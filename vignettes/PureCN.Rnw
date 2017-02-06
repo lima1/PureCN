@@ -1289,25 +1289,30 @@ Figure~\ref{figure/figureexample2-1}:
 \paragraph{Questions related to pool of normals.}
 
 As described in detail in Sections~\ref{bestnormal} and
-\ref{artifactfiltering}, pool of normal samples are used in \Biocpkg{PureCN}
+\ref{artifactfiltering}, a pool of normal samples is used in \Biocpkg{PureCN}
 for coverage normalization (to adjust for target-specific capture biases) and
-for artifact filtering. A few recommendations:
+    for artifact filtering. A few recommendations:
 
 \begin{itemize}
     \item Matched normals are obviously perfect for identifying most alignment
     artifacts and mapping biases. While not critical, we still recommend
     generating a \Rcode{normal.panel.vcf.file} for \software{MuTect} and
-    \Rcode{setMappingBiasVcf} using the available normals.
+    \Rfunction{setMappingBiasVcf} using the available normals.
     \item Without matched normals, we need process-matched normals for coverage
     normalization. We recommend at least 2, ideally more than 5 
     from 2-3 different library preparation and sequencing batches.
     \item For artifact removal, the more normals available, the more rare
     artifacts are removed. We recommend at least 10, 50 or more are ideal.  
-    \item For position-specific mapping biase correction, the more normals are
+    \item For position-specific mapping bias correction, the more normals are
     available, the more rare SNPs will have reliable mapping bias estimates.
     This requires at least about 25 normals to be useful, 100 or more are
-    ideal. With smaller pool of normals, we additionally recommend filtering
+    ideal. 
+    \item With smaller pool of normals, we additionally recommend filtering
     SNPs from low quality regions (Section~\ref{artifactfiltering2}).
+    Additionally, it is worth trying the beta-binomial function instead of the
+    default in the \Rcode{mode} argument of \Rfunction{runAbsoluteCN}. This
+    will incorporate uncertainty of observed variant allelic fractions in
+    the variant fitting step.
 \end{itemize}
 
 \paragraph{Questions related to manual curation.}
