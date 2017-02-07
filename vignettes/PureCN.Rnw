@@ -1073,6 +1073,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --maxpurity -x      & test.purity & \Rfunction{runAbsoluteCN} \\
 --postoptimize -z   & post.optimize & \Rfunction{runAbsoluteCN} \\    
 --modelhomozygous -y & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
+--model -q          & model & \Rfunction{runAbsoluteCN} \\ 
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
 --outvcf -u         & return.vcf & \Rfunction{predictSomatic} \\
 \bottomrule
