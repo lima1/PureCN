@@ -790,11 +790,11 @@ caller was run without interval file or with interval padding.
 \label{customseg}
 Copy number normalization and segmentation are crucial for obtaining good
 purity and ploidy estimates. If you have a well-tested pipeline that produces
-clean results for your data, you might want use \Biocpkg{PureCN} as add-on to
-your pipeline. By default, we will use \CRANpkg{DNAcopy} \cite{Venkatraman2007}
-to segment normalized target-level coverage log-ratios. It is straightforward
-to replace the default with other methods and the \Rfunction{segmentationCBS}
-function can serve as an example.
+clean results for your data, you might want to use \Biocpkg{PureCN} as add-on
+to your pipeline. By default, we will use \CRANpkg{DNAcopy}
+\cite{Venkatraman2007} to segment normalized target-level coverage log-ratios.
+It is straightforward to replace the default with other methods and the
+\Rfunction{segmentationCBS} function can serve as an example.
 
 The next section describes how to replace the default segmentation. For the
 probably more uncommon case that only the coverage normalization is performed by
@@ -1074,6 +1074,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --postoptimize -z   & post.optimize & \Rfunction{runAbsoluteCN} \\    
 --modelhomozygous -y & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
 --model -q          & model & \Rfunction{runAbsoluteCN} \\ 
+--funsegmentation -w & fun.segmentation & \Rfunction{runAbsoluteCN} \\ 
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
 --outvcf -u         & return.vcf & \Rfunction{predictSomatic} \\
 \bottomrule

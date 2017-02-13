@@ -25,6 +25,7 @@ spec <- matrix(c(
 'postoptimize',   'z', 0, "logical",
 'modelhomozygous','y', 0, "logical",
 'model',          'q', 1, "character",
+'funsegmentation','w', 1, "character",
 'outdir',         'o', 1, "character",
 'outvcf',         'u', 0, "logical",
 'sampleid',       'i', 1, "character"
@@ -124,7 +125,14 @@ if (file.exists(file.rds) && !force) {
     }    
     model <- opt$model
     if (is.null(model)) model <- "beta"
-
+    fun.segmentation <- segmentationCBS
+    if (!is.null(opt$funsegmentation) && opt$funsegmentation != "CBS") {
+        if (opt$funsegmentation == "PSCBS") {
+            fun.segmentation <- segmentationPSCBS
+        } else {
+            stop("Unknown segmentation function")
+        }
+    }     
     ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
             tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
             sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=TRUE,
@@ -132,6 +140,7 @@ if (file.exists(file.rds) && !force) {
             test.purity=test.purity,
             args.filterVcf=list(snp.blacklist=snp.blacklist, 
                 af.range=af.range, stats.file=stats.file), 
+            fun.segmentation=fun.segmentation,    
             args.segmentation=list(target.weight.file=target.weight.file), 
             args.setMappingBiasVcf=
                 list(normal.panel.vcf.file=normal.panel.vcf.file),

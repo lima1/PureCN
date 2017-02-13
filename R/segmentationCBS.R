@@ -199,8 +199,10 @@ iterations=2, chr.hash ) {
     clusters <- lapply(unique(seg.hc$cluster), function(i) 
         seg.hc$id[seg.hc$cluster==i])
     clusters <- clusters[sapply(clusters, length)>1]
-
+    
+    x$cna$output$cluster.id <- NA
     for (i in seq_along(clusters)) {
+        x$cna$output$cluster.id[clusters[[i]]] <- i
         x$cna$output$seg.mean[clusters[[i]]] <- 
             weighted.mean(x$cna$output$seg.mean[clusters[[i]]], 
             x$cna$output$num.mark[clusters[[i]]])
@@ -257,23 +259,25 @@ iterations=2, chr.hash ) {
     x
 }
 
-.getSDundo <- function(log.ratio) {
-    q <- quantile(log.ratio,p=c(0.1, 0.9))
+.getSDundo <- function(log.ratio, d=0.1) {
+    q <- quantile(log.ratio,p=c(d, 1-d))
     q.diff <- abs(q[1] - q[2])
-    if (q.diff < 1) return(0.5)
-    if (q.diff < 1.5) return(0.75)
-    return(1)
+    if (q.diff < 0.5) return(0.5)
+    if (q.diff < 1) return(0.75)
+    if (q.diff < 1.5) return(1)
+    return(1.25)
 }    
 
-.getPruneH <- function(seg) {
+.getPruneH <- function(seg, d=0.05) {
     seg <- seg[seg$num.mark>=1,]
     log.ratio <- unlist(lapply(seq_len(nrow(seg)), function(i) 
         rep(seg$seg.mean[i], seg$num.mark[i])))
-    q <- quantile(log.ratio,p=c(0.1, 0.9))
+    q <- quantile(log.ratio,p=c(d, 1-d))
     q.diff <- abs(q[1] - q[2])
-    if (q.diff < 1) return(0.1)
+    if (q.diff < 0.5) return(0.1)
+    if (q.diff < 1) return(0.15)
     if (q.diff < 1.5) return(0.2)
-    return(0.3)
+    return(0.25)
 }    
 
 .getWellCoveredExons <- function(normal, tumor, min.coverage) {

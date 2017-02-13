@@ -59,10 +59,6 @@ PLANNED FEATURES
 
 - Support for indels
 - Better runtime performance by ignoring unlikely solutions early
-- Better support for known, small deletions and amplifications (e.g. EGFRvIII,
-  MYC)
-- Switch to S4 data structures (maybe)
-- Whole dataset visualizations (maybe PureCN 1.8)
 
 
 ROADMAP
@@ -73,3 +69,17 @@ ROADMAP
   and documentation improvements) 
 - March 15: Code freeze (only bugfixes and documentation improvements)
 - April: Release
+
+
+PLANNED FEATURES FOR 1.8
+
+- Better sample summary statistics, like mutation burden, chromosomal 
+  instability
+- Better performance in low purity samples 
+- Better performance in high purity samples with significant heterogeneity  
+- Switch to S4 data structures (maybe)
+- Whole dataset visualizations (maybe)
+- Better support for known, small deletions and amplifications (e.g. EGFRvIII,
+  MYC)
+- Support for GATK4
+
