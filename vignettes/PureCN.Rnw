@@ -1312,7 +1312,7 @@ for coverage normalization (to adjust for target-specific capture biases) and
     \item With smaller pool of normals, we additionally recommend filtering
     SNPs from low quality regions (Section~\ref{artifactfiltering2}).
     Additionally, it is worth trying the beta-binomial function instead of the
-    default in the \Rcode{mode} argument of \Rfunction{runAbsoluteCN}. This
+    default in the \Rcode{model} argument of \Rfunction{runAbsoluteCN}. This
     will incorporate uncertainty of observed variant allelic fractions in
     the variant fitting step.
 \end{itemize}
