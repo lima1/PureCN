@@ -922,6 +922,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 }
 
 .gcPos <- function(gc.data) {
+    gc.data$Target <- as.character(gc.data$Target)
     gc.pos <- as.data.frame(do.call(rbind, strsplit(gc.data$Target, ":|-")), stringsAsFactors = FALSE)
     colnames(gc.pos) <- c("chrom", "start", "end")
     gc.pos <- cbind(Gene = gc.data$Gene, gc.pos)
@@ -953,3 +954,17 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .calcFractionBalanced <- function(p) {
     sum(p$ML.C - p$ML.M.SEGMENT == p$ML.M.SEGMENT, na.rm=TRUE)/nrow(p)
 }
+
+.getMajorityStateTargets <- function(ret, id, gc) {
+    seg <- ret$results[[id]]$seg
+    states <- sapply(seq(0,7), function(i) sum(seg$num.mark[which(round(seg$C)==i)]))
+    majorityC <- which.max(states)-1
+    majorityGr <- GRanges(seqnames=seg$chrom, IRanges(start=seg$loc.start, end=seg$loc.end))
+    majorityGr <- majorityGr[seg$C==majorityC]
+    gc.pos <- .gcPos(gc)
+    chr.hash <- .getChrHash(gc.pos$chrom)
+    gc.gr <- GRanges(seqnames = .strip.chr.name(gc.pos$chrom, chr.hash), IRanges(start = gc.pos$start,
+        end = gc.pos$end))
+    overlapsAny(gc.gr, majorityGr)
+}
+

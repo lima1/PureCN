@@ -6,7 +6,7 @@
 \usage{
 correctCoverageBias(coverage.file, gc.gene.file, output.file = NULL,
   method = c("LOESS", "POLYNOMIAL"), plot.gc.bias = FALSE,
-  plot.max.density = 50000)
+  plot.max.density = 50000, purecn.output = NULL)
 }
 \arguments{
 \item{coverage.file}{Exon coverage file as produced by GATK. Either a file
@@ -37,6 +37,15 @@ distribution. This uses the \code{stat_density} function from the ggplot2
 package. Using this parameter, change the threshold at which density
 estimation is applied. If the \code{plot.gc.bias} parameter is set as
 \code{FALSE}, this will be ignored.}
+
+\item{purecn.output}{This can be used to provide this function the
+output of a \code{\link{runAbsoluteCN}} from the same sample. If provided,
+the loess normalization will only use targets assigned to the majority 
+copy number state as reference. This represents a two-pass normalization,
+in which the raw coverage is first normalized using all targets, and then
+again utilizing the available copy number data. In each pass, the raw
+coverage should be provided, not the GC-normalized one. This feature is 
+useful for trying to rescue precious samples. Do not expect wonders.}
 }
 \value{
 GC normalized coverage.

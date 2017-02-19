@@ -32,6 +32,14 @@ globalVariables(names=c("..level.."))
 #' package. Using this parameter, change the threshold at which density
 #' estimation is applied. If the \code{plot.gc.bias} parameter is set as
 #' \code{FALSE}, this will be ignored.
+#' @param purecn.output This can be used to provide this function the
+#' output of a \code{\link{runAbsoluteCN}} from the same sample. If provided,
+#' the loess normalization will only use targets assigned to the majority 
+#' copy number state as reference. This represents a two-pass normalization,
+#' in which the raw coverage is first normalized using all targets, and then
+#' again utilizing the available copy number data. In each pass, the raw
+#' coverage should be provided, not the GC-normalized one. This feature is 
+#' useful for trying to rescue precious samples. Do not expect wonders.
 #' @return GC normalized coverage.
 #' @author Angad Singh, Markus Riester
 #' @seealso \code{\link{calculateGCContentByInterval}}
@@ -55,7 +63,7 @@ globalVariables(names=c("..level.."))
 #' @importFrom utils write.table
 correctCoverageBias <- function(coverage.file, gc.gene.file,
 output.file = NULL, method = c("LOESS","POLYNOMIAL"), plot.gc.bias = FALSE,
-plot.max.density = 50000) {
+plot.max.density = 50000, purecn.output=NULL) {
     if (is.character(coverage.file)) {
         tumor  <- readCoverageGatk(coverage.file)
     } else {
@@ -66,7 +74,7 @@ plot.max.density = 50000) {
 
     method <- match.arg(method)
     if (method=="LOESS") {
-        ret <- .correctCoverageBiasLoess(tumor, gc)
+        ret <- .correctCoverageBiasLoess(tumor, gc, purecn.output)
     } else if(method=="POLYNOMIAL") {
         ret <- .correctCoverageBiasPolynomial(tumor, gc)
     } else {
@@ -151,10 +159,14 @@ plot.max.density = 50000) {
     gc
 }
 
-.correctCoverageBiasLoess <- function(tumor, gc) {
+.correctCoverageBiasLoess <- function(tumor, gc, purecn.output) {
     # taken from TitanCNA
     gc$valid <- TRUE
     gc$valid[tumor$average.coverage <= 0 | gc$gc_bias < 0] <- FALSE
+    if (!is.null(purecn.output)) {
+        majorityState <- .getMajorityStateTargets(purecn.output, 1, gc)
+        gc$valid[!majorityState] <- FALSE
+    }    
     gc$ideal <- TRUE
     routlier <- 0.01
     range <- quantile(tumor$average.coverage[gc$valid], prob = 

@@ -53,7 +53,7 @@ normal.panel.vcf.file = NULL, min.normals = 5, smooth = TRUE, smooth.n = 5) {
     if (is.null(info(vcf)$SOMATIC) && is.null(normal.panel.vcf.file)) {
         flog.info(
             "VCF does not contain somatic status. For best results, consider%s%s",
-            "providing normal.panel.vcf.file when matched normals are not ",
+            " providing normal.panel.vcf.file when matched normals are not ",
             "available.")
     }    
     tmp <- rep(mappingBias, nrow(vcf)) 

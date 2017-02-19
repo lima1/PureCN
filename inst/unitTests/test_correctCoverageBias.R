@@ -15,7 +15,13 @@ test_correctCoverageBias <- function() {
     interval.file <- system.file("extdata", "ex2_intervals.txt", 
         package = "PureCN", mustWork = TRUE)
     checkException(correctCoverageBias(normal.coverage.file, interval.file))
-    
+
+    data(purecn.example.output)
+    coveragePass2 <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
+        output.file="test_loess_coverage.txt", 
+        purecn.output=purecn.example.output)
+    corPass2 <- cor(coverage$average.coverage, coveragePass2$average.coverage, use="complete.obs")
+    checkTrue(corPass2 > 0.99)
     correctCoverageBias(head(x,200), gc.gene.file)
 
     png(file="test_gc_bias.png",width=960)
