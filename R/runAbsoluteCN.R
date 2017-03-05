@@ -942,6 +942,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             results[[i]]$SNV.posterior$posterior.contamination <- cont.rate
         }
     }
+    # re-order after contamination optimization
+    if (length(results)>1) results <- .rankResults(results)
+
     if (length(results) && 
         !is.null(results[[1]]$SNV.posterior$posterior.contamination) &&
         results[[1]]$SNV.posterior$posterior.contamination < 0.001 &&

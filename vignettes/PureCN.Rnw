@@ -1197,6 +1197,17 @@ Figure~\ref{figure/figureexample2-1}:
     \end{itemize}
 \end{itemize} 
 
+\paragraph{If the ploidy is frequently too low:}
+\begin{itemize}
+    \item \Biocpkg{PureCN} with default parameters is conservative in calling
+    genome duplications.
+    \item This should only affect low purity samples (< 35\%), since in higher
+    purity samples the duplication signal is usually strong enough to
+    reliably detect it.  
+    \item In whole-exome data, it is usually safe to decrease the
+    \Rcode{max.homozygous.loss} default, since such large losses are rare.
+\end{itemize}
+
 \paragraph{Will PureCN work with my data?}
 \begin{itemize}
     \item \Biocpkg{PureCN} was designed for medium-sized (>2-3Mb) targeted
