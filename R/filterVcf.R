@@ -137,7 +137,8 @@ interval.padding = 50) {
         powerDetectCont <- calculatePowerDetectSomatic(mean(geno(vcf)$DP[,tumor.id.in.vcf], 
             na.rm=TRUE), f=expectedAllelicFraction, verbose=FALSE)$power
         minFractionContaminated <- min(0.2, max(minFractionContaminated, powerDetectCont * 0.5))
-        flog.info("Fraction: %.3f, Good default: %.3f potential: %d", fractionContaminated, minFractionContaminated, fractionContaminated>minFractionContaminated)
+        flog.info("Initial testing for significant sample cross-contamination: %s", 
+            ifelse(fractionContaminated>minFractionContaminated, "maybe", "unlikely"))
     }
 
     # do we have many low allelic fraction calls that are in dbSNP on basically

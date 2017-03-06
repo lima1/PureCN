@@ -1029,7 +1029,7 @@ Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \
 
 # without a matched normal    
 Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \ 
-    --normaldb normalDB.rds --pool 2 --vcf example_vcf.vcf -i Sample1 \
+    --normaldb normalDB.rds --pool 5 --vcf example_vcf.vcf -i Sample1 \
     --genome hg19 --gcgene example_gc.gene.file.txt \
     --outvcf 
 
@@ -1038,6 +1038,12 @@ Rscript PureCN.R --outdir ~/tmp/ --segfile example_seg.txt \
     --vcf example_vcf.vcf -i Sample1 --genome hg19 \
     --gcgene  example_gc.gene.file.txt \
     --outvcf 
+
+# Two-pass loess normalization from NOT YET GC-normalized coverage data
+Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \ 
+    --normaldb normalDB.rds --pool 5 --vcf example_vcf.vcf -i Sample1 \
+    --genome hg19 --gcgene example_gc.gene.file.txt \
+    --outvcf --twopass --postoptimize
 
 # Recreate output after manual curation of Sample_purecn.csv
 Rscript PureCN.R --rds Sample1_purecn.rds
@@ -1076,6 +1082,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --model -q          & model & \Rfunction{runAbsoluteCN} \\ 
 --funsegmentation -w & fun.segmentation & \Rfunction{runAbsoluteCN} \\ 
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
+--twopass -T        & purecn.output & \Rfunction{correctCoverageBias} \\
 --outvcf -u         & return.vcf & \Rfunction{predictSomatic} \\
 \bottomrule
 \end{tabular}

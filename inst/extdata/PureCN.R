@@ -28,6 +28,7 @@ spec <- matrix(c(
 'funsegmentation','w', 1, "character",
 'outdir',         'o', 1, "character",
 'outvcf',         'u', 0, "logical",
+'twopass',        'T', 0, "logical",
 'sampleid',       'i', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
@@ -79,8 +80,26 @@ outdir <- normalizePath(outdir, mustWork=TRUE)
 
 
 library(PureCN)
+library(futile.logger)
 
 ### Run PureCN ----------------------------------------------------------------
+
+.gcNormalize <- function(gatk.coverage, gc.gene.file, method, outdir, force,
+    purecn.output=NULL) {
+    output.file <- file.path(outdir,  gsub(".txt$|_interval_summary",
+        paste0("_", tolower(method), ".txt"), basename(gatk.coverage)))
+    outpng.file <- sub("txt$","png", output.file)
+    if (file.exists(output.file) && !force) {
+        message(output.file, " exists. Skipping... (--force will overwrite)")
+    } else {
+        png(outpng.file, width=800)
+        correctCoverageBias(gatk.coverage, gc.gene.file,
+            output.file=output.file, method=method, plot.gc.bias=TRUE, 
+            purecn.output=purecn.output)
+        dev.off()
+    }
+    output.file 
+}
 
 
 if (file.exists(file.rds) && !force) {
@@ -89,6 +108,14 @@ if (file.exists(file.rds) && !force) {
     ret <- readCurationFile(file.rds)
     if (is.null(sampleid)) sampleid <- ret$input$sampleid
 } else {    
+    tumor.coverage.file.orig <- tumor.coverage.file
+    if (!is.null(opt$twopass)) {
+        flog.info("GC-normalizing tumor because of --twopass flag. %s%s",
+            " Make sure tumor coverage is not already normalized ",
+            "(normal coverage needs to be GC-normalized!).")
+        tumor.coverage.file <- .gcNormalize(tumor.coverage.file.orig, gc.gene.file, 
+            "LOESS", outdir, force, NULL)
+    }    
     if (!is.null(normalDB)) {
         message("normalDB: ", normalDB)
         normalDB <- readRDS(normalDB)
@@ -133,6 +160,24 @@ if (file.exists(file.rds) && !force) {
             stop("Unknown segmentation function")
         }
     }     
+    if (!is.null(opt$twopass)) {
+        ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+                tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
+                sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=FALSE,
+                genome=genome, seg.file=seg.file,
+                test.purity=seq(min(test.purity),max(test.purity),by=0.05),
+                args.filterVcf=list(snp.blacklist=snp.blacklist, 
+                    af.range=af.range, stats.file=stats.file), 
+                fun.segmentation=fun.segmentation,    
+                args.segmentation=list(target.weight.file=target.weight.file), 
+                normalDB=normalDB, model.homozygous=model.homozygous,
+                model=model, log.file=file.log, post.optimize=FALSE, 
+                max.candidate.solutions=5)
+        flog.info("GC-normalizing tumor second time because of --twopass flag")
+        tumor.coverage.file <- .gcNormalize(tumor.coverage.file.orig, gc.gene.file, 
+            "LOESS", outdir, force, ret)
+    }
+        
     ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
             tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
             sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=TRUE,
