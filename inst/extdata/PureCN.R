@@ -232,7 +232,7 @@ write.csv(cbind(Sampleid=sampleid, gene.symbol=rownames(allAlterations),
 if (!is.null(ret$input$vcf)) {
     file.pdf <- file.path(outdir, paste0(sampleid, '_chromosomes_purecn.pdf'))
     pdf(file.pdf, width=9, height=10)
-    vcf <- ret$input$vcf[ret$results[[1]]$SNV.posterior$beta.model$vcf.ids]
+    vcf <- ret$input$vcf[ret$results[[1]]$SNV.posterior$vcf.ids]
     chromosomes <- seqlevelsInUse(vcf)
     chromosomes <- chromosomes[orderSeqlevels(chromosomes)]
     for (chrom in chromosomes) {
