@@ -103,8 +103,8 @@ library(futile.logger)
 
 
 if (file.exists(file.rds) && !force) {
-    message(file.rds, 
-        " already exists. Skipping... (--force will overwrite)")
+    flog.info("%s already exists. Skipping... (--force will overwrite)", 
+        file.rds)
     ret <- readCurationFile(file.rds)
     if (is.null(sampleid)) sampleid <- ret$input$sampleid
 } else {    

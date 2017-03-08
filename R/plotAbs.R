@@ -446,10 +446,17 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                             purity=res$results[[i]]$purity,
                             ploidy=res$results[[i]]$ploidy, cell.fraction=pw,
                             verbose=FALSE)$power)
-                    minFraction <- cellFractions[which(power > 0.8)[1]]
-                    abline(v=minFraction)
-                    axis(side=3, at=minFraction, 
-                        labels="Power 0.8", tick=FALSE, padj=1)
+                    if (max(power) > 0.8) {
+                        minFraction <- cellFractions[which(power > 0.8)[1]]
+                        abline(v=minFraction)
+                        axis(side=3, at=minFraction, 
+                            labels="Power 0.8", tick=FALSE, padj=1)
+                    } else {
+                        abline(v=1)
+                        axis(side=3, at=1, 
+                            labels=paste("Power", round(max(power),digits=2)), 
+                            tick=FALSE, padj=1)
+                    }    
                 }
             } else {
                 legend("bottomright", legend=as.character(mycol.palette$group),
