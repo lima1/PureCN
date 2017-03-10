@@ -45,4 +45,3 @@ createTargetWeights(tumor.coverage.file, normal.coverage.files, target.weight.fi
 \author{
 Markus Riester
 }
-

@@ -48,4 +48,3 @@ calculateGCContentByInterval(intervals, reference.file,
 \author{
 Markus Riester
 }
-

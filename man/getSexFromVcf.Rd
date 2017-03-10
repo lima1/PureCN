@@ -54,10 +54,9 @@ vcf <- readVcf(vcf.file, "hg19")
 getSexFromVcf(vcf)
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{getSexFromCoverage}}
 }
-
+\author{
+Markus Riester
+}

@@ -39,10 +39,9 @@ pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageGatk),
      remove.chrs=c("chrX", "chrY"))
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{readCoverageGatk}}
 }
-
+\author{
+Markus Riester
+}

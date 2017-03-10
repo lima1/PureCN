@@ -27,10 +27,9 @@ data(purecn.example.output)
 head(callLOH(purecn.example.output))
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

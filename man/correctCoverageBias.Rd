@@ -69,10 +69,9 @@ coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file,
     method="POLYNOMIAL", plot.gc.bias=TRUE)
 
 }
-\author{
-Angad Singh, Markus Riester
-}
 \seealso{
 \code{\link{calculateGCContentByInterval}}
 }
-
+\author{
+Angad Singh, Markus Riester
+}

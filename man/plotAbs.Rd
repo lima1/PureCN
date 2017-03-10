@@ -77,10 +77,9 @@ plotAbs(purecn.example.output, 1, type="BAF")
 plotAbs(purecn.example.output, 1, type = "BAF", chr="chr2")
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

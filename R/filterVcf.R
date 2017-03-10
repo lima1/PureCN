@@ -210,6 +210,10 @@ interval.padding = 50) {
                 n.vcf.before.filter - nrow(vcf))
         }        
     }
+    if (!is.null(info(vcf)$DB) && sum(info(vcf)$DB) < nrow(vcf)/2) {
+        flog.warn("Less than half of variants in dbSNP. Make sure that VCF %s", 
+            "contains both germline and somatic variants.")
+    }
     list(
         vcf=vcf, 
         flag=flag, 

@@ -37,4 +37,3 @@ log.ratio <- calculateLogRatio(normal, tumor)
 \author{
 Markus Riester
 }
-

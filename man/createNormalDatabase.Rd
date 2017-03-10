@@ -44,10 +44,9 @@ normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 normalDB <- createNormalDatabase(normal.coverage.files)
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{findBestNormal}}
 }
-
+\author{
+Markus Riester
+}

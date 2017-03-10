@@ -45,10 +45,9 @@ ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
     args.focal=list(max.size = 2e+06), fun.focal=findFocal)
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

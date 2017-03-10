@@ -49,4 +49,3 @@ mutect.normal.files <- dir("poolofnormals", pattern="vcf$", full.names=TRUE)
 \author{
 Markus Riester
 }
-

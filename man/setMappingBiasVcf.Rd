@@ -54,4 +54,3 @@ vcf.bias <- setMappingBiasVcf(vcf)
 \author{
 Markus Riester
 }
-

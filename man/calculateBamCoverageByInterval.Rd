@@ -43,11 +43,10 @@ coverage <- calculateBamCoverageByInterval(bam.file=bam.file,
     interval.file=interval.file)
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{calculateGCContentByInterval}
 \link{correctCoverageBias} \link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

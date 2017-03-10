@@ -63,10 +63,9 @@ pool <- findBestNormal(tumor.coverage.file, normalDB, num.normals=2,
     pool=TRUE)
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{createNormalDatabase} \link{getSexFromCoverage}}
 }
-
+\author{
+Markus Riester
+}

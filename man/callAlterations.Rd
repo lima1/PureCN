@@ -40,10 +40,9 @@ callAlterations(purecn.example.output)
 callAlterations(purecn.example.output, all.genes=TRUE)["ESR2",]
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

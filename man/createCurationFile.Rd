@@ -33,10 +33,9 @@ saveRDS(purecn.example.output, file=file.rds)
 createCurationFile(file.rds) 
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

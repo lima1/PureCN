@@ -100,9 +100,6 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
      test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 
 }
-\author{
-Markus Riester
-}
 \references{
 Olshen, A. B., Venkatraman, E. S., Lucito, R., Wigler, M. 
 (2004). Circular binary segmentation for the analysis of array-based DNA 
@@ -118,4 +115,6 @@ studies using circular binary segmentation. Bioinformatics.
 \seealso{
 \code{\link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

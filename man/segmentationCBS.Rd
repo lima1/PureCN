@@ -90,9 +90,6 @@ ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
     fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))
 
 }
-\author{
-Markus Riester
-}
 \references{
 Olshen, A. B., Venkatraman, E. S., Lucito, R., Wigler, M. 
 (2004). Circular binary segmentation for the analysis of array-based DNA 
@@ -105,4 +102,6 @@ segmentation algorithm for the analysis of array CGH data. Bioinformatics
 \seealso{
 \code{\link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

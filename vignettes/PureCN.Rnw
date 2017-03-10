@@ -1216,16 +1216,21 @@ Figure~\ref{figure/figureexample2-1}:
 \end{itemize}
 
 \paragraph{Will PureCN work with my data?}
+
 \begin{itemize}
     \item \Biocpkg{PureCN} was designed for medium-sized (>2-3Mb) targeted
     panels.  The more data, the better, best results are typically achieved
     in whole-exome data.
     \item The same is obviously true for coverage. Coverages below 80X are
     difficult unless purities are high and coverages are even.
+    \item Evenness of coverage is to large extend the result of good probe
+    design optimization.  This is not always a priority in assay design, but
+    should be if copy number calling is important.
     \item Samples with tumor purities below 20\% usually cannot be analyzed with this
     algorithm and \Biocpkg{PureCN} might return very wrong purity estimates. 
-    \item The number of heterozygous SNPs is also important. Copy number probes 
-    enriched in SNPs are therefore very helpful (see Section~\ref{secmaxsnps}).
+    \item The number of heterozygous SNPs is also important (>1000 per sample).  
+    Copy number probes  enriched in SNPs are therefore very helpful 
+    (see Section~\ref{secmaxsnps}).
     \item While \Biocpkg{PureCN} supports to some degree uneven tiling of
     targets, the more evenly distributed the better. Large gaps are problematic
     and might require third-party segmentation tools that support off-target
@@ -1235,8 +1240,9 @@ Figure~\ref{figure/figureexample2-1}:
     designed for this data type would be again required.  
     \item Amplicon sequencing data is not supported. 
     \item \Biocpkg{PureCN} also needs process-matched normal samples, again,
-    the more the better.    
+    the more the better. 
 \end{itemize}
+
 
 \paragraph{If you have trouble generating input data PureCN accepts, please check:}
 \label{faqinput}

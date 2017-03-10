@@ -62,4 +62,3 @@ calls <- callAlterationsFromSegmentation(sampleid=seg$ID, chr=seg$chrom,
 \author{
 Markus Riester
 }
-

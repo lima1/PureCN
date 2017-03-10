@@ -30,10 +30,9 @@ identifying correct purity/ploidy solutions in difficult samples. This is
 mainly for automated copy number calling. This function may evolve over time
 and might produce different rankings after PureCN updates.
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

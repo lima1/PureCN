@@ -16,7 +16,8 @@ Changes in version 1.6.0
   of wrong maximum likelihood solutions had many homozygous deletions)  
 - Faster post.optimize=TRUE by not optimizing poor fits or unlikely solutions
 - Tweaks to segmentationPSCBS
-- Lots of improvements to command line scripts
+- Lots of improvements to command line scripts, including a shiny new two-pass
+  mode.
 - Code cleanups (switch from inlinedocs to roxygen, from message/warn to
   futile.logger)
 - seg.file can contain multiple samples
@@ -24,6 +25,8 @@ Changes in version 1.6.0
 
 API CHANGES
 
+- runAbsoluteCN output from PureCN 1.2 cannot be analyzed with PureCN 1.6 and 
+  needs to be re-run. We hope to avoid this in the future.
 - Deprecated functions: createSNPBlacklist, getDiploid, autoCurateResults
 - Defunct functions: createExonWeightFile
 - Changed defaults: 

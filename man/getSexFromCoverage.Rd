@@ -42,10 +42,9 @@ tumor.coverage.file <- system.file("extdata", "example_tumor.txt",
 sex <- getSexFromCoverage(tumor.coverage.file)
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{getSexFromVcf}}
 }
-
+\author{
+Markus Riester
+}

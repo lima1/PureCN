@@ -32,10 +32,9 @@ ret.boot <- bootstrapResults(purecn.example.output, n=100)
 plotAbs(ret.boot, type="overview")
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

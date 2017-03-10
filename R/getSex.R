@@ -140,6 +140,11 @@ getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4,
         vcf <- vcf[af]
     }
 
+    if (!nrow(vcf)) {
+        flog.info("No germline variants in VCF.")
+        return(NA)
+    }    
+
     chrX <- seqnames(vcf) == sex.chr[1]
 
     homozygous <- geno(vcf)$FA[,tumor.id.in.vcf] > homozygous.cutoff

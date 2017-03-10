@@ -23,10 +23,9 @@ tumor.coverage.file <- system.file("extdata", "example_tumor.txt",
 coverage <- readCoverageGatk(tumor.coverage.file)
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{calculateBamCoverageByInterval}}
 }
-
+\author{
+Markus Riester
+}

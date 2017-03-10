@@ -72,4 +72,3 @@ ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
 \author{
 Markus Riester
 }
-

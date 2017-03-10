@@ -45,10 +45,9 @@ createCurationFile(file.rds)
 purecn.curated.example.output <-readCurationFile(file.rds) 
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{runAbsoluteCN} \link{createCurationFile}}
 }
-
+\author{
+Markus Riester
+}

@@ -57,10 +57,9 @@ plotBestNormal(best.normal.coverage.file, tumor.coverage.file, normalDB,
     pch=c(1,ifelse(normalDB$sex=="F", 1, 2)))
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{createNormalDatabase} \link{findBestNormal}}
 }
-
+\author{
+Markus Riester
+}

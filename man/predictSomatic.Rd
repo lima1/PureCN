@@ -40,10 +40,9 @@ purecn.vcf <- predictSomatic(purecn.example.output, return.vcf=TRUE)
 writeVcf(purecn.vcf, file="Sample1_PureCN.vcf")
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

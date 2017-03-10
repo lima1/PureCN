@@ -66,11 +66,10 @@ abline(h=0.8, lty=2, col="grey")
 legend("bottomright", legend=paste("Purity", purity), fill=seq_along(purity))
 
 }
-\author{
-Markus Riester
-}
 \references{
 Carter et al. (2012), Absolute quantification of somatic DNA
 alterations in human cancer. Nature Biotechnology.
 }
-
+\author{
+Markus Riester
+}

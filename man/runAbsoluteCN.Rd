@@ -310,9 +310,6 @@ res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=funSeg, max.ploidy = 4,
     genome='hg19', gc.gene.file=gc.gene.file)
 
 }
-\author{
-Markus Riester
-}
 \references{
 Riester et al. (2016). PureCN: Copy number calling and SNV 
 classification using targeted short read sequencing. Source Code for Biology 
@@ -325,4 +322,6 @@ human cancer. Nature Biotechnology.
 \code{\link{correctCoverageBias}} \code{\link{segmentationCBS}}
 \code{\link{calculatePowerDetectSomatic}}
 }
-
+\author{
+Markus Riester
+}

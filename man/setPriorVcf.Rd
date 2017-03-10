@@ -45,4 +45,3 @@ vcf.priorsomatic <- setPriorVcf(vcf)
 \author{
 Markus Riester
 }
-

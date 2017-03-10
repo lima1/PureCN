@@ -82,10 +82,9 @@ vcf <- readVcf(vcf.file, "hg19")
 vcf.filtered <- filterVcfBasic(vcf)        
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{calculatePowerDetectSomatic}}
 }
-
+\author{
+Markus Riester
+}

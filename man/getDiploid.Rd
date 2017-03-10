@@ -44,10 +44,9 @@ purity and ploidy. If the maximum likelihood solution is diploid, it is
 always returned; all other solutions must pass the more stringent criteria
 as defined in the function arguments.
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{runAbsoluteCN}}
 }
-
+\author{
+Markus Riester
+}

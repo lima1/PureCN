@@ -13,4 +13,3 @@ instead.
 \author{
 Markus Riester
 }
-

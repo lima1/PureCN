@@ -44,10 +44,9 @@ vcf <- readVcf(vcf.file, "hg19")
 vcf.filtered <- filterVcfMuTect(vcf)        
 
 }
-\author{
-Markus Riester
-}
 \seealso{
 \code{\link{filterVcfBasic}}
 }
-
+\author{
+Markus Riester
+}
