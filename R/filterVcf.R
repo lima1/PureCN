@@ -330,7 +330,7 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
 #' 
 #' @export setPriorVcf
 setPriorVcf <- function(vcf,
-prior.somatic=c(0.5, 0.0005, 0.999, 0.0001, 0.995, 0.01), 
+prior.somatic=c(0.5, 0.0005, 0.999, 0.0001, 0.995, 0.1), 
 tumor.id.in.vcf=NULL) {
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)

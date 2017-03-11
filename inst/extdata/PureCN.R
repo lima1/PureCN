@@ -119,21 +119,30 @@ if (file.exists(file.rds) && !force) {
     if (!is.null(normalDB)) {
         message("normalDB: ", normalDB)
         normalDB <- readRDS(normalDB)
-        if (is.null(normal.coverage.file)) {
-            if (!is.null(pool)) {
-                num.normals <- pool
-                pool <- TRUE
-            } else {
-                num.normals <- 1
-                pool <- FALSE
-            }    
-            normal.coverage.file <- findBestNormal(tumor.coverage.file, 
-                normalDB, pool=pool, num.normals=num.normals)
-            if (!pool) message(paste('Best Normal:', normal.coverage.file))
-        }
-    } else if (is.null(normal.coverage.file) && is.null(seg.file)) {
-        stop("Need either normalDB or normal.coverage.file")
     }    
+
+    .getNormalCoverage <- function(normal.coverage.file) {
+        if (!is.null(normalDB)) {
+            if (is.null(normal.coverage.file)) {
+                if (!is.null(pool)) {
+                    num.normals <- pool
+                    pool <- TRUE
+                } else {
+                    num.normals <- 1
+                    pool <- FALSE
+                }    
+                normal.coverage.file <- findBestNormal(tumor.coverage.file, 
+                    normalDB, pool=pool, num.normals=num.normals)
+                if (!pool) message(paste('Best Normal:', normal.coverage.file))
+            }
+        } else if (is.null(normal.coverage.file) && is.null(seg.file)) {
+            stop("Need either normalDB or normal.coverage.file")
+        }    
+        normal.coverage.file
+    }
+    
+    normal.coverage.file <- .getNormalCoverage(normal.coverage.file)
+        
     file.log <- file.path(outdir, paste0(sampleid, '_purecn.log'))
 
     pdf(paste(outdir,"/", sampleid, '_purecn_segmentation.pdf', sep=''), 
@@ -176,6 +185,7 @@ if (file.exists(file.rds) && !force) {
         flog.info("GC-normalizing tumor second time because of --twopass flag")
         tumor.coverage.file <- .gcNormalize(tumor.coverage.file.orig, gc.gene.file, 
             "LOESS", outdir, force, ret)
+        normal.coverage.file <- .getNormalCoverage(normal.coverage.file)
     }
         
     ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 

@@ -4,7 +4,7 @@
 \alias{setPriorVcf}
 \title{Set Somatic Prior VCF}
 \usage{
-setPriorVcf(vcf, prior.somatic = c(0.5, 5e-04, 0.999, 1e-04, 0.995, 0.01),
+setPriorVcf(vcf, prior.somatic = c(0.5, 5e-04, 0.999, 1e-04, 0.995, 0.1),
   tumor.id.in.vcf = NULL)
 }
 \arguments{

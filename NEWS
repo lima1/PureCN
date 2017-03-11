@@ -36,6 +36,8 @@ API CHANGES
     - max.homozygous.loss now a double(2) vector, with first element
       specifying the maximum fraction of genome deleted (default 5%) and the 
       second value the maximum size of a homozygous loss (default 10mb).
+    - prior somatic for variants in both dbSNP and COSMIC > 2 changed from 0.01
+      to 0.1  
 - Other minor changes:
     - Renamed some predictSomatic() output column names
     - Removed "beta.model" from "SNV.posterior" slot since model is now an

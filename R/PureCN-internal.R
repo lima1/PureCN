@@ -881,13 +881,17 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     flog.info(strrep("-", 60))
     flog.info("PureCN %s", as.character(packageVersion("PureCN")))
     flog.info(strrep("-", 60))
-    idxSupported <- sapply(l, function(x) class(eval(x))) %in% 
+    # which arguments are printable in a single line?
+    idxSupported <- sapply(l, function(x) class(eval.parent(x))) %in% 
         c("character", "numeric", "NULL", "list", "logical") &
-        sapply(l, function(x) length(unlist(eval(x)))) < 12
+        sapply(l, function(x) object.size(eval.parent(x))) < 1024
+    idxSmall <-     
+        sapply(l[idxSupported], function(x) length(unlist(eval.parent(x)))) < 12
+    idxSupported[idxSupported] <- idxSmall    
 
     l <- c(l[idxSupported],lapply(l[!idxSupported], function(x) "<data>"))
-    argsStrings <- paste(sapply(seq_along(l), function(i) 
-        paste0("-", names(l)[i], " ", paste(eval(l[[i]]),collapse=","))),
+    argsStrings <- paste(sapply(seq_along(l), function(i) paste0("-", 
+        names(l)[i], " ", paste(eval.parent(l[[i]]),collapse=","))),
         collapse=" ")
     flog.info("Arguments: %s", argsStrings)
 }
