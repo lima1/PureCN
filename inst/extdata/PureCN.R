@@ -172,7 +172,7 @@ if (file.exists(file.rds) && !force) {
     if (!is.null(opt$twopass)) {
         ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
                 tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
-                sampleid=sampleid, gc.gene.file=gc.gene.file, plot.cnv=FALSE,
+                sampleid=sampleid, plot.cnv=FALSE,
                 genome=genome, seg.file=seg.file,
                 test.purity=seq(min(test.purity),max(test.purity),by=0.05),
                 args.filterVcf=list(snp.blacklist=snp.blacklist, 

@@ -597,7 +597,17 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     gc.pos
 }
     
-
+.get2DPurityGrid <- function(test.purity, by=1/30) {
+    startPurity <- max(0.1, min(test.purity))
+    endPurity <- min(0.99, max(test.purity))
+    grid <- seq(startPurity, endPurity, by=by)   
+    if (startPurity < 0.34 && endPurity > 0.35) {
+        grid <- c(seq(startPurity, 0.34, by=1/50), 
+        seq(0.35, endPurity, by=by))
+    } 
+    grid       
+}
+    
 .optimizeGrid <- function(test.purity, min.ploidy, max.ploidy, test.num.copy = 0:7, 
     exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal) {
     ploidy.grid <- seq(min.ploidy, max.ploidy, by = 0.2)
@@ -959,16 +969,25 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     sum(p$ML.C - p$ML.M.SEGMENT == p$ML.M.SEGMENT, na.rm=TRUE)/nrow(p)
 }
 
-.getMajorityStateTargets <- function(ret, id, gc) {
+.getMajorityStateTargets <- function(ret, id, gc, n=1) {
     seg <- ret$results[[id]]$seg
     states <- sapply(seq(0,7), function(i) sum(seg$num.mark[which(round(seg$C)==i)]))
-    majorityC <- which.max(states)-1
+    majorityC <- head(order(states,decreasing=TRUE),n)-1
     majorityGr <- GRanges(seqnames=seg$chrom, IRanges(start=seg$loc.start, end=seg$loc.end))
-    majorityGr <- majorityGr[seg$C==majorityC]
+    majorityGr <- majorityGr[seg$C %in% majorityC]
     gc.pos <- .gcPos(gc)
     chr.hash <- .getChrHash(gc.pos$chrom)
     gc.gr <- GRanges(seqnames = .strip.chr.name(gc.pos$chrom, chr.hash), IRanges(start = gc.pos$start,
         end = gc.pos$end))
-    overlapsAny(gc.gr, majorityGr)
+    idx <- overlapsAny(gc.gr, majorityGr)
+    percentMajority <- sum(idx)/length(idx)*100
+    if (percentMajority < 50 && n < 3) {
+        return(.getMajorityStateTargets(ret,id,gc,n+1))
+    }
+    flog.info("Majority Copy Number State%s: %s (%.1f%% targets)", 
+        ifelse(length(majorityC)>1, "s",""), 
+        paste(majorityC, collapse=", "), 
+        percentMajority )
+    idx
 }
 

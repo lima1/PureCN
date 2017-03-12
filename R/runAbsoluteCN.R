@@ -620,8 +620,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!is.null(candidates)) {
         candidate.solutions <- candidates
     } else {
-        candidate.solutions <- .optimizeGrid(test.purity = seq(max(0.1, min(test.purity)), 
-            min(0.99, max(test.purity)), by = 1/30), min.ploidy, max.ploidy, test.num.copy = test.num.copy, 
+        candidate.solutions <- .optimizeGrid(.get2DPurityGrid(test.purity),
+            min.ploidy, max.ploidy, test.num.copy = test.num.copy, 
             exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal)
         
         # if we have > 20 somatic mutations, we can try estimating purity based on
@@ -956,10 +956,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
 
     results <- .flagResults(results, max.non.clonal = max.non.clonal, max.logr.sdev = max.logr.sdev, 
         logr.sdev = sd.seg, max.segments = max.segments, min.gof = min.gof, flag = vcf.filtering$flag, 
-        flag_comment = vcf.filtering$flag_comment, dropout = dropoutWarning, use.somatic.status = args.filterVcf$use.somatic.status, 
+        flag_comment = vcf.filtering$flag_comment, dropout = dropoutWarning, 
+        use.somatic.status = args.filterVcf$use.somatic.status, 
         model.homozygous = model.homozygous)
     
-    if (!is.null(normalDB) && length(results) && !is.null(results[[1]]$gene.calls)) {
+    if (!is.null(gc.gene.file) && !is.null(normalDB) && length(results) && 
+        !is.null(results[[1]]$gene.calls)) {
         results <- .addVoomToGeneCalls(results, tumor.coverage.file, normalDB, 
             gc.gene.file)
     }

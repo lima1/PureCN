@@ -125,7 +125,7 @@ test_runAbsoluteCN <- function() {
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     checkEqualsNumeric(ret$results[[1]]$GoF, 0.93, tolerance=0.1)
-    checkEqualsNumeric(seq(0.3,0.7,by=1/30),
+    checkEqualsNumeric(c(seq(0.3, 0.34, by=1/50), seq(0.35,0.7,by=1/30)),
         as.numeric(colnames(ret$candidates$all)))
 
     vcf <- readVcf(vcf.file, "hg19", param=ScanVcfParam(samples="LIB-02240e4"))
@@ -145,7 +145,7 @@ test_runAbsoluteCN <- function() {
         max.candidate.solutions=1, fun.setMappingBiasVcf=myMappingBiasTestFun)
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
-    checkEqualsNumeric(seq(0.3,0.7,by=1/30),
+    checkEqualsNumeric(c(seq(0.3, 0.34, by=1/50), seq(0.35,0.7,by=1/30)),
         as.numeric(colnames(ret$candidates$all)))
     
     s <- predictSomatic(ret)
