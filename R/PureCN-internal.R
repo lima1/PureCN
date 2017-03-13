@@ -64,7 +64,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 }    
 
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
-    C.likelihood, C, opt.C, snv.model, prior.somatic, mapping.bias, snv.lr, 
+    C.likelihood, C, opt.C, median.C, snv.model, prior.somatic, mapping.bias, snv.lr, 
     sampleid = NULL, cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M,
     model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8, max.pon) {
     
@@ -90,7 +90,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     
     haploid.penalty <- 0
     
-    if (median(C) < 1.1 && p <= 0.35) {
+    if (median.C < 1.1) {
         haploid.penalty <- 2
     }
     
@@ -116,7 +116,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
         lapply(seq(ncol(C.likelihood)), function(k) {
             Ci <- c(test.num.copy, opt.C[i])[k]       
-            priorM <- log(Ci + 1 + haploid.penalty)
+            priorM <- log(max(Ci,1) + 1 + haploid.penalty)
             #priorM <- log(abs(2-Ci) + 1)
             priorHom <- ifelse(model.homozygous, -log(3), log(0))
             
@@ -124,7 +124,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
             p.ar <- lapply(c(0, 1), function(g) {
                 cns <- test.num.copy
-                if (!g) cns[1] <- 1/3
+                if (!g) cns[1] <- non.clonal.M
                 dbetax <- (p * cns + g * (1-p))/(p * Ci + 2 * (1-p))
                 l <- lapply(seq_along(test.num.copy), function(j) {
                     if (skip[j]) return(mInf_all)
