@@ -4,7 +4,7 @@
 \alias{segmentationCBS}
 \title{CBS segmentation}
 \usage{
-segmentationCBS(normal, tumor, log.ratio, seg, plot.cnv, min.coverage, sampleid,
+segmentationCBS(normal, tumor, log.ratio, seg, plot.cnv, sampleid,
   target.weight.file = NULL, alpha = 0.005, undo.SD = NULL, vcf = NULL,
   tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
   prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
@@ -24,8 +24,6 @@ Otherwise PureCN will re-segment the data. This segmentation function
 ignores this user provided segmentation.}
 
 \item{plot.cnv}{Segmentation plots.}
-
-\item{min.coverage}{Minimum coverage in both normal and tumor.}
 
 \item{sampleid}{Sample id, used in output files.}
 

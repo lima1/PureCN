@@ -3,15 +3,16 @@ library('getopt')
 ### Parsing command line ------------------------------------------------------
 
 spec <- matrix(c(
-'help' ,  'h', 0, "logical",
-'version', 'v', 0, "logical",
-'force' , 'f', 0, "logical",
-'gcgene', 'c', 1, "character",
-'method', 'm', 1, "character",
+'help' ,         'h', 0, "logical",
+'version',       'v', 0, "logical",
+'force' ,        'f', 0, "logical",
+'seed',          'S', 1, "integer", 
+'gcgene',        'c', 1, "character",
+'method',        'm', 1, "character",
 'coveragefiles', 'b', 1, "character",
-'assay',   'a',1, "character",
-'genome',  'g', 1, "character",
-'outdir' , 'o', 1, "character"
+'assay',         'a',1, "character",
+'genome',        'g', 1, "character",
+'outdir' ,       'o', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
 
@@ -24,6 +25,10 @@ if (!is.null(opt$version)) {
     message(as.character(packageVersion("PureCN")))
     q(status=1)
 }    
+
+if (!is.null(opt$seed)) {
+    set.seed(opt$seed)
+}
 
 force <- !is.null(opt$force)
 

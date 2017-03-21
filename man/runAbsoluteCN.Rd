@@ -105,16 +105,17 @@ coverage files. Needs to return a \code{logical} vector whether an interval
 should be used for segmentation. Defaults to \code{\link{filterTargets}}.}
 
 \item{args.filterTargets}{Arguments for target filtering function. Arguments
-\code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file} and
-\code{normalDB} are required and automatically set}
+\code{normal}, \code{tumor}, \code{log.ratio}, \code{gc.data}, 
+\code{min.coverage}\code{seg.file} and \code{normalDB} are required and 
+automatically set.}
 
 \item{fun.segmentation}{Function for segmenting the copy number log-ratios.
 Expected return value is a \code{data.frame} representation of the
 segmentation. Defaults to \code{\link{segmentationCBS}}.}
 
 \item{args.segmentation}{Arguments for segmentation function. Arguments
-\code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv} and
-\code{min.coverage}, \code{sampleid}, \code{vcf}, \code{tumor.id.in.vcf},
+\code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv},
+\code{sampleid}, \code{vcf}, \code{tumor.id.in.vcf},
 \code{centromeres} are required in the segmentation function 
 and automatically set.}
 
@@ -157,8 +158,13 @@ of local optima.}
 (\code{return.object$candidates}).  If \code{NULL}, do 2D grid search and
 find local optima.}
 
-\item{min.coverage}{Minimum coverage in both normal and tumor. Targets with
-lower coverage are ignored.}
+\item{min.coverage}{Minimum coverage in both normal and tumor. Targets and 
+variants with lower coverage are ignored. This value is provided to the 
+\code{args.filterTargets} and \code{args.filterVcf} lists, but can be 
+overwritten in these lists if different cutoffs for the coverage and variant
+filters are wanted. To increase the sensitivity of homozygous deletions in 
+high purity samples, the coverage cutoff in tumor is automatically lowered by 
+50 percent if the normal coverage is high.}
 
 \item{max.coverage.vcf}{This will set the maximum number of reads in the SNV
 fitting.  This is to avoid that small non-reference biases that come

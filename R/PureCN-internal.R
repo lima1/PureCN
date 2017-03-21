@@ -717,7 +717,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         } else {
             # results[[i]]$total.log.likelihood <- (results[[i]]$log.likelihood/max.ll) +
             # 2*(results[[i]]$SNV.posterior$llik/max.snv.ll)
-            results[[i]]$total.log.likelihood <- results[[i]]$log.likelihood + results[[i]]$SNV.posterior$llik
+            results[[i]]$total.log.likelihood <- results[[i]]$log.likelihood/2 + results[[i]]$SNV.posterior$llik
         }
         results[[i]]$total.log.likelihood <- results[[i]]$total.log.likelihood + complexity[i]
     }
@@ -984,10 +984,20 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     if (percentMajority < 50 && n < 3) {
         return(.getMajorityStateTargets(ret,id,gc,n+1))
     }
-    flog.info("Majority Copy Number State%s: %s (%.1f%% targets)", 
+    flog.info("Majority Copy Number State%s: %s (%.1f%% of targets)", 
         ifelse(length(majorityC)>1, "s",""), 
         paste(majorityC, collapse=", "), 
         percentMajority )
     idx
 }
 
+# function to adjust log-ratios to segment mean
+.postprocessLogRatios <- function(exon.lrs, seg.mean) {
+
+    exon.lrs <- lapply(seq_along(exon.lrs), function(i) {
+        if (length(exon.lrs[[i]]) > 3) return(exon.lrs[[i]])
+        exon.lrs[[i]] - mean(exon.lrs[[i]]) + seg.mean[i]
+    })
+
+    return(exon.lrs)
+}    

@@ -14,7 +14,6 @@
 #' Otherwise PureCN will re-segment the data. This segmentation function
 #' ignores this user provided segmentation.
 #' @param plot.cnv Segmentation plots.
-#' @param min.coverage Minimum coverage in both normal and tumor.
 #' @param sampleid Sample id, used in output files.
 #' @param target.weight.file Can be used to assign weights to targets.
 #' @param alpha Alpha value for CBS, see documentation for the \code{segment}
@@ -71,7 +70,7 @@
 #' @export segmentationCBS
 #' @importFrom stats t.test hclust cutree
 segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
-    min.coverage, sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD =
+    sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD =
         NULL, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
     max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
     chr.hash = NULL, centromeres = NULL) {
@@ -86,7 +85,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         flog.info("Target weights found, will use weighted CBS.")
     }
     x <- .CNV.analyze2(normal, tumor, log.ratio=log.ratio, plot.cnv=plot.cnv, 
-        min.coverage=min.coverage, sampleid=sampleid, alpha=alpha, 
+        sampleid=sampleid, alpha=alpha, 
         weights=target.weights, sdundo=undo.SD, max.segments=max.segments,
         chr.hash=chr.hash) 
     if (!is.null(vcf)) {
@@ -280,47 +279,19 @@ iterations=2, chr.hash ) {
     return(0.25)
 }    
 
-.getWellCoveredExons <- function(normal, tumor, min.coverage) {
-    total.cov.normal <- sum(as.numeric(normal$coverage), na.rm = TRUE)
-    total.cov.tumor <- sum(as.numeric(tumor$coverage), na.rm = TRUE)
-    
-    #MR: we try to not remove homozygous deletions in very pure samples.
-    #  to distinguish low quality from low copy number, we keep if normal
-    # has good coverage. If normal coverage is very high, we adjust for that.  
-    f <- max(total.cov.normal/total.cov.tumor,1)
-
-    well.covered.exon.idx <- ((normal$average.coverage > min.coverage) & 
-        (tumor$average.coverage > min.coverage)) | 
-        ((normal$average.coverage > 1.5 * f * min.coverage) &  
-        (tumor$average.coverage > 0.5 * min.coverage))
-    #MR: fix for missing chrX/Y 
-    well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
-
-    well.covered.exon.idx
-}
-        
 # ExomeCNV version without the x11() calls 
 .CNV.analyze2 <-
-function(normal, tumor, log.ratio=NULL, min.coverage=15, weights=NULL, sdundo=NULL,
+function(normal, tumor, log.ratio=NULL, weights=NULL, sdundo=NULL,
 undo.splits="sdundo", alpha=0.01, sampleid=NULL, plot.cnv=TRUE,
 max.segments=NULL, chr.hash=chr.hash) {
-
-    # first, do it for exons with enough coverage. MR: added less stringent 
-    # cutoff in case normal looks great. these could be homozygous deletions 
-    # in high purity samples
-    well.covered.exon.idx <- .getWellCoveredExons(normal, tumor, 
-        min.coverage)
-
-    flog.info("Removing %i low coverage exons.", sum(!well.covered.exon.idx))
     
     if (is.null(sdundo)) {
-        sdundo <- .getSDundo(log.ratio[well.covered.exon.idx])
+        sdundo <- .getSDundo(log.ratio)
     }   
      
-    CNA.obj <- CNA(log.ratio[well.covered.exon.idx], 
-        .strip.chr.name(normal$chr[well.covered.exon.idx], chr.hash), 
-        floor((normal$probe_start[well.covered.exon.idx] + 
-        normal$probe_end[well.covered.exon.idx])/2), data.type="logratio", 
+    CNA.obj <- CNA(log.ratio, 
+        .strip.chr.name(normal$chr, chr.hash), 
+        floor((normal$probe_start + normal$probe_end)/2), data.type="logratio", 
         sampleid=sampleid)
 
     try.again <- 0
@@ -328,7 +299,6 @@ max.segments=NULL, chr.hash=chr.hash) {
     while (try.again < 2) {
         flog.info("Setting undo.SD parameter to %f.", sdundo)
         if (!is.null(weights)) { 
-            weights <- weights[well.covered.exon.idx]
             # MR: this shouldn't happen. In doubt, count them as median.
             weights[is.na(weights)] <- median(weights, na.rm=TRUE)
             segment.CNA.obj <- segment(CNA.obj, 

@@ -70,14 +70,15 @@
 #' coverage files. Needs to return a \code{logical} vector whether an interval
 #' should be used for segmentation. Defaults to \code{\link{filterTargets}}.
 #' @param args.filterTargets Arguments for target filtering function. Arguments
-#' \code{log.ratio}, \code{tumor}, \code{gc.data}, \code{seg.file} and
-#' \code{normalDB} are required and automatically set 
+#' \code{normal}, \code{tumor}, \code{log.ratio}, \code{gc.data}, 
+#' \code{min.coverage}\code{seg.file} and \code{normalDB} are required and 
+#' automatically set. 
 #' @param fun.segmentation Function for segmenting the copy number log-ratios.
 #' Expected return value is a \code{data.frame} representation of the
 #' segmentation. Defaults to \code{\link{segmentationCBS}}.
 #' @param args.segmentation Arguments for segmentation function. Arguments
-#' \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv} and
-#' \code{min.coverage}, \code{sampleid}, \code{vcf}, \code{tumor.id.in.vcf},
+#' \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv},
+#' \code{sampleid}, \code{vcf}, \code{tumor.id.in.vcf},
 #' \code{centromeres} are required in the segmentation function 
 #' and automatically set.
 #' @param fun.focal Function for identifying focal amplifications. Defaults to
@@ -107,8 +108,13 @@
 #' @param candidates Candidates to optimize from a previous run
 #' (\code{return.object$candidates}).  If \code{NULL}, do 2D grid search and
 #' find local optima.
-#' @param min.coverage Minimum coverage in both normal and tumor. Targets with
-#' lower coverage are ignored.
+#' @param min.coverage Minimum coverage in both normal and tumor. Targets and 
+#' variants with lower coverage are ignored. This value is provided to the 
+#' \code{args.filterTargets} and \code{args.filterVcf} lists, but can be 
+#' overwritten in these lists if different cutoffs for the coverage and variant
+#' filters are wanted. To increase the sensitivity of homozygous deletions in 
+#' high purity samples, the coverage cutoff in tumor is automatically lowered by 
+#' 50 percent if the normal coverage is high.
 #' @param max.coverage.vcf This will set the maximum number of reads in the SNV
 #' fitting.  This is to avoid that small non-reference biases that come
 #' apparent only at high coverages have a dramatic influence on likelihood
@@ -391,9 +397,14 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         gc.data <- gc.data[match(as.character(tumor[, 1]), gc.data[, 1]), , drop = FALSE]
     }
     
-    args.filterTargets <- c(list(log.ratio = log.ratio, tumor = tumor, 
-        gc.data = gc.data, seg.file = seg.file, normalDB = normalDB),
-        args.filterTargets)
+    args.filterTargets <- c(list(normal=normal, tumor = tumor, 
+        log.ratio = log.ratio, gc.data = gc.data, seg.file = seg.file, 
+        normalDB = normalDB), args.filterTargets)
+    # make it possible to provide different coverages for the different
+    # filters 
+    if (is.null(args.filterTargets$min.coverage)) {
+        args.filterTargets$min.coverage <- min.coverage
+    }
     
     targetsUsed <- do.call(fun.filterTargets, 
         .checkArgs(args.filterTargets, "filterTargets"))
@@ -516,8 +527,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     flog.info("Segmenting data...")
     
     args.segmentation <- c(list(normal = normal, tumor = tumor, log.ratio = log.ratio, 
-        seg = .loadSegFile(seg.file, sampleid), plot.cnv = plot.cnv, min.coverage = ifelse(is.null(seg.file), 
-            min.coverage, -1), sampleid = sampleid, vcf = vcf.germline, tumor.id.in.vcf = tumor.id.in.vcf, 
+        seg = .loadSegFile(seg.file, sampleid), plot.cnv = plot.cnv,  
+        sampleid = sampleid, vcf = vcf.germline, tumor.id.in.vcf = tumor.id.in.vcf, 
         normal.id.in.vcf = normal.id.in.vcf, max.segments = max.segments, chr.hash = chr.hash, 
         centromeres = centromeres), args.segmentation)
     
@@ -576,17 +587,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # when we use already segmented data
     if (!is.null(seg.file)) {
         sd.seg <- seg.file.sdev
-    } else {
-    #    exon.lrs <- lapply(exon.lrs, .smoothOutliers)
     }
     
     # renormalize, in case segmentation function changed means
-    exon.lrs <- lapply(seq_along(exon.lrs), function(i) {
-        if (length(exon.lrs[[i]]) < 3) 
-            return(exon.lrs[[i]])
-        exon.lrs[[i]] - mean(exon.lrs[[i]]) + seg$seg.mean[i]
-    })
-    
+    exon.lrs <- .postprocessLogRatios(exon.lrs, seg$seg.mean)
+
     max.exon.ratio <- 7
     
     # show log-ratio histogram

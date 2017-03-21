@@ -41,31 +41,27 @@ API CHANGES
 - Other minor changes:
     - Renamed some predictSomatic() output column names
     - Removed "beta.model" from "SNV.posterior" slot since model is now an
-      option.
+      option
     - Moved remove.off.target.snvs to filterVcfBasic
     - Moved normalDB from filterTargets to runAbsoluteCN, since it is now 
-      use for more than target filtering.
+      use for more than target filtering
     - Dropped BED file support in calculateGCContentByInterval
       Instead provide support for GRanges
     - poolCoverage: w argument now used as provided, not 
         normalized so that w[1] is 1
     - Removed ... from runAbsoluteCN
+    - min.coverage removed from segmentation function, since this is now
+      done by filterTargets
     - Added centromeres to segmentation function
     - Replaced contamination.cutoff with contamination.range in filterVcfBasic 
     - Removed verbose from most functions, since messages are now controlled
-      with futile.logger.  
-    - Smoothing of log-ratios now optionally done by runAbsoluteCN, not
-      segmentation function.  
+      with futile.logger
+    - Smoothing of log-ratios before segmentation now optionally done by 
+      runAbsoluteCN, not segmentation function
     - setMappingBiasVcf now returns a list with elements bias (the old 
-      return value) and pon.count, the number of hits in the PON.  
+      return value) and pon.count, the number of hits in the PON
  
  
-PLANNED FEATURES 
-
-- Support for indels
-- Better runtime performance by ignoring unlikely solutions early
-
-
 ROADMAP
 
 - January 15: API freeze (no changes to existing API)
@@ -82,9 +78,11 @@ PLANNED FEATURES FOR 1.8
   instability
 - Better performance in low purity samples 
 - Better performance in high purity samples with significant heterogeneity  
+- LOH database
 - Switch to S4 data structures (maybe)
 - Whole dataset visualizations (maybe)
 - Better support for known, small deletions and amplifications (e.g. EGFRvIII,
   MYC)
 - Support for GATK4
+- Better runtime performance by ignoring unlikely solutions early
 

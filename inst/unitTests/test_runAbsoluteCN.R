@@ -1,4 +1,5 @@
 test_runAbsoluteCN <- function() {
+    set.seed(123)
     normal.coverage.file <- system.file("extdata", "example_normal.txt", 
         package = "PureCN")
     normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
@@ -167,10 +168,12 @@ test_runAbsoluteCN <- function() {
 
     # test that correct exons were filtered
     tumor <- readCoverageGatk(tumor.coverage.file)
+    normal <- readCoverageGatk(normal.coverage.file)
     log.ratio <- ret$input$log.ratio
-    filtered <- cbind(tumor, gc2)[!as.character(tumor$probe) %in% log.ratio$probe,]
+    filtered <- cbind(tumor, gc2, normal.average.coverage=normal$average.coverage)[!as.character(tumor$probe) %in% log.ratio$probe,]
     checkTrue(!sum(!(
             filtered$average.coverage < 15 | 
+            filtered$normal.average.coverage < 15 |
             filtered$targeted.base < 5 | 
             filtered$gc_bias < 0.25 | 
             filtered$gc_bias>0.8)
@@ -302,8 +305,8 @@ test_runAbsoluteCN <- function() {
         max.ploidy=4, genome="hg19", test.purity=seq(0.3,0.7, by=0.05), 
         plot.cnv=FALSE, max.candidate.solutions=1)
 
-    checkTrue(ret$results[[1]]$ploidy > 2)
-    checkTrue(ret$results[[1]]$ploidy < 4)
+    checkTrue(ret$results[[1]]$ploidy > 2, msg=ret$results[[1]]$ploidy)
+    checkTrue(ret$results[[1]]$ploidy < 4, msg=ret$results[[1]]$ploidy)
 
     # check filterTargets
     checkException(runAbsoluteCN(normal.coverage.file = normal.coverage.file,  
@@ -329,15 +332,20 @@ test_runAbsoluteCN <- function() {
         max.ploidy = 3, test.purity = seq(0.4, 0.7, by = 0.05), 
         max.candidate.solutions = 1)
     tumor <- readCoverageGatk(tumor.coverage.file)
+    normal <- readCoverageGatk(normal.coverage.file)
     idx <- tumor$probe %in% ret$input$log.ratio$probe
     cutoff <- median(normalDB$exon.median.coverage)*0.3
     plotAbs(ret, 1, type="volcano")
 
     checkEqualsNumeric(0, sum(!(normalDB$exon.median.coverage[!idx] < cutoff | 
-        tumor$targeted.base[!idx] < 5 | tumor$average.coverage[!idx] < 14)))
+        tumor$targeted.base[!idx] < 5 | tumor$average.coverage[!idx] < 15 | 
+        normal$average.coverage[!idx] < 15
+        )))
 
    checkTrue( sum(!(normalDB$exon.median.coverage[idx] < cutoff | 
-    tumor$targeted.base[idx] < 5 | tumor$average.coverage[idx] < 14)) > 9000)
+    tumor$targeted.base[idx] < 5 | tumor$average.coverage[idx] < 15 |
+    normal$average.coverage[idx] < 15
+    )) > 9000)
     
 
     # run with minimal segmentation function:

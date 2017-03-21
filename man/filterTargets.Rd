@@ -4,14 +4,17 @@
 \alias{filterTargets}
 \title{Remove low quality targets}
 \usage{
-filterTargets(log.ratio, tumor, gc.data, seg.file, filter.lowhigh.gc = 0.001,
-  min.targeted.base = 5, normalDB = NULL, normalDB.min.coverage = 0.2)
+filterTargets(normal, tumor, log.ratio, gc.data, seg.file,
+  filter.lowhigh.gc = 0.001, min.coverage = 15, min.targeted.base = 5,
+  normalDB = NULL, normalDB.min.coverage = 0.2)
 }
 \arguments{
+\item{normal}{Coverage data for normal sample.}
+
+\item{tumor}{Coverage data for tumor sample.}
+
 \item{log.ratio}{Copy number log-ratios, one for each target or interval in
 coverage file.}
-
-\item{tumor}{GATK coverage data for tumor sample.}
 
 \item{gc.data}{\code{data.frame} with GC bias for each interval.}
 
@@ -21,6 +24,9 @@ is already segmented via the provided segmentation file.}
 \item{filter.lowhigh.gc}{Quantile q (defines lower q and upper 1-q) for
 removing targets with outlier GC profile. Assuming that GC correction might
 not have been worked on those. Requires \code{gc.gene.file}.}
+
+\item{min.coverage}{Minimum coverage in both normal and tumor. Targets with
+lower coverage are ignored.}
 
 \item{min.targeted.base}{Exclude intervals with targeted base (size in bp)
 smaller than this cutoff. This is useful when the same interval file was

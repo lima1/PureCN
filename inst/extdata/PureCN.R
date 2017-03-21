@@ -6,6 +6,7 @@ spec <- matrix(c(
 'help',           'h', 0, "logical",
 'version',        'v', 0, "logical",
 'force' ,         'f', 0, "logical",
+'seed',           'S', 1, "integer", 
 'normal',         'n', 1, "character",
 'tumor',          't', 1, "character",
 'vcf',            'b', 1, "character",
@@ -43,6 +44,10 @@ if (!is.null(opt$version)) {
     q(status=1)
 }    
 
+if (!is.null(opt$seed)) {
+    set.seed(opt$seed)
+}
+    
 force <- !is.null(opt$force)
 post.optimize <- !is.null(opt$postoptimize)
 normal.coverage.file <- opt$normal

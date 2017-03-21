@@ -14,7 +14,6 @@
 #' Otherwise PureCN will re-segment the data. This segmentation function
 #' ignores this user provided segmentation.
 #' @param plot.cnv Segmentation plots.
-#' @param min.coverage Minimum coverage in both normal and tumor.
 #' @param sampleid Sample id, used in output files.
 #' @param target.weight.file Can be used to assign weights to targets. NOT
 #' SUPPORTED YET in segmentation. Will remove targets with weight below 1/3.
@@ -78,7 +77,7 @@
 #' 
 #' @export segmentationPSCBS
 segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
-    min.coverage, sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD =
+    sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD =
     NULL, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
     tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
     prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
@@ -92,12 +91,8 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
 
-    well.covered.exon.idx <- ((normal$average.coverage > min.coverage) &
-        (tumor$average.coverage > min.coverage)) | 
-        ((normal$average.coverage > 1.5 * min.coverage) &  
-        (tumor$average.coverage > 0.5 * min.coverage))
-
     target.weights <- NULL
+    well.covered.exon.idx <- rep(TRUE, nrow(tumor))
     if (!is.null(target.weight.file)) {
         target.weights <- read.delim(target.weight.file, as.is=TRUE)
         target.weights <- target.weights[match(as.character(tumor[,1]), 
