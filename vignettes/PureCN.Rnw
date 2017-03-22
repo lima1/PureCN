@@ -501,7 +501,18 @@ The latter is defined as a fit in which allelic fractions on average differ by
 account and low purity samples are expected to have a better fit. In the
 middle panel, the corresponding copy number log-ratios are shown. The lower
 panel displays the calculated integer copy numbers, corrected for purity and
-ploidy. 
+ploidy. We can zoom into particular chromosomes 
+(Figure~\ref{figure/figureexample3b-1}).
+
+<<figureexample3b, fig.show='hide', fig.width=9, fig.height=8>>=
+plotAbs(ret, 1, type="BAF", chr="chr19")
+@
+\incfig{figure/figureexample3b-1}{0.95\textwidth}{Chromosome plot.}{Similar
+    to Figure~\ref{figure/figureexample3-1}, but zoomed into a particular 
+    chromosome. The grey dots in the middle panel visualize copy number 
+    log-ratios of targets without heterozygous SNPs, which are omitted from the 
+    previous genome-wide plot. The x-axis now indicates genomic coordinates in
+    kbps.}
 
 <<figureexample4, fig.show='hide', fig.width=8, fig.height=8>>=
 plotAbs(ret, 1, type="AF")

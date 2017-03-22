@@ -234,14 +234,11 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
 
                 abline(h=0.5, lty=3, col="grey")
                 abline(v=centromerePos, lty=3, col="grey")
-                main <- paste("SCNA-fit Log-Likelihood:", 
-                    round(res$results[[i]]$log.likelihood, digits=2) )
-
+                 
                 plot(xLogRatio, logRatio[,2], ylab="Copy Number log-ratio", 
                     xlab="Pos (kbp)", 
                     col=adjustcolor("grey", alpha.f=ifelse(myalpha<1,0.75,1)), 
-                    main=main, 
-                    ylim=quantile(segment.log.ratio,p=c(0.001,0.999)),
+                    ylim=range(segment.log.ratio*1.1),
                     ... )
                 points(x, r$log.ratio[idx], col=mycol, pch=mypch)
                 segment.log.ratio.lines[,1] <- x[segment.log.ratio.lines[,1]]

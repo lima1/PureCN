@@ -305,7 +305,8 @@ test_runAbsoluteCN <- function() {
         max.ploidy=4, genome="hg19", test.purity=seq(0.3,0.7, by=0.05), 
         plot.cnv=FALSE, max.candidate.solutions=1)
 
-    checkTrue(ret$results[[1]]$ploidy > 2, msg=ret$results[[1]]$ploidy)
+    # this can be lower since we also test diploid solutions
+    #checkTrue(ret$results[[1]]$ploidy > 2, msg=ret$results[[1]]$ploidy)
     checkTrue(ret$results[[1]]$ploidy < 4, msg=ret$results[[1]]$ploidy)
 
     # check filterTargets

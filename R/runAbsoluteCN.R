@@ -249,7 +249,7 @@
 #' @importFrom utils data read.delim tail packageVersion object.size
 #' @importFrom S4Vectors queryHits subjectHits DataFrame
 #' @importFrom data.table data.table
-#' @importFrom futile.logger flog.info flog.warn flog.fatal
+#' @importFrom futile.logger flog.info flog.warn flog.fatal flog.debug
 #'             flog.threshold flog.appender appender.tee
 #' @importFrom VGAM dbetabinom.ab
 runAbsoluteCN <- function(normal.coverage.file = NULL, 
@@ -671,6 +671,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             C.likelihood <- matrix(ncol = length(test.num.copy) + 1, nrow = nrow(seg))
             colnames(C.likelihood) <- c(test.num.copy, "Subclonal")
             for (iter in seq_len(iterations)) {
+                flog.debug("Iteration %i, Purity %.2f, total ploidy %.2f, likelihood %.3f",
+                    iter, p, total.ploidy, llik)
                 # test for convergence
                 if (abs(old.llik - llik) < 0.0001) {
                   cnt.llik.equal <- cnt.llik.equal + 1
