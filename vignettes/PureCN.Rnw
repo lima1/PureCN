@@ -1169,6 +1169,10 @@ complaints, etc. please do not hesitate to send us an email.
     (Section~\ref{secmaxsnps}).
     \item If a pool of normal samples is available, followed the steps in
     Section~\ref{artifactfiltering}.
+    \item For smaller targeted panels, copy number events can interfere with
+    the GC-normalization. Try either the \Rcode{POLYNOMIAL} method in 
+    \Rfunction{correctCoverageBias} or the two-pass loess normalization 
+    (Section~\ref{cmdpurecn}) if the data looks noisy.
     \item Read the output of \Rfunction{runAbsoluteCN} with
         \Rcode{verbose=TRUE}, fixed all warnings.
     \item If third-party segmentation tools are used, checked that normalized
