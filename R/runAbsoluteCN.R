@@ -972,7 +972,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!is.null(gc.gene.file) && !is.null(normalDB) && length(results) && 
         !is.null(results[[1]]$gene.calls)) {
         results <- .addVoomToGeneCalls(results, tumor.coverage.file, normalDB, 
-            gc.gene.file)
+            gc.gene.file, gc.data)
     }
     
     if (length(results) < 1) {

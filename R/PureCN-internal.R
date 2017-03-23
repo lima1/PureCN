@@ -521,9 +521,10 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 }
 
 .addVoomToGeneCalls <- function(results, tumor.coverage.file, normalDB, 
-    gc.gene.file) {
-    y <- .voomTargets(tumor.coverage.file, normalDB, gc.gene.file, 
+    gc.gene.file, gc.data) {
+    y <- .voomTargets(tumor.coverage.file, normalDB, gc.gene.file, gc.data,
         num.normals=10, plot.voom=FALSE)
+
     logFC <- y$coefficients[rownames(results[[1]]$gene.calls),2]
     p <- y$p.value[rownames(results[[1]]$gene.calls),2]
 
@@ -534,11 +535,16 @@ c(test.num.copy, round(opt.C))[i], prior.K))
    results
 }
 
-.voomTargets <- function(tumor.coverage.file, normalDB, gc.gene.file, 
+.voomTargets <- function(tumor.coverage.file, normalDB, gc.gene.file, gc.data=NULL,
     num.normals=NULL, plot.voom=FALSE) {
     
     countMatrix <- .voomCountMatrix(tumor.coverage.file, normalDB=normalDB, num.normals=num.normals)
-    gc.data <- read.delim(gc.gene.file, as.is=TRUE)
+    if (is.null(gc.data)) {
+        gc.data <- read.delim(gc.gene.file, as.is=TRUE)
+    } else {
+        gc.data.tmp <- read.delim(gc.gene.file, as.is=TRUE)
+        countMatrix <- countMatrix[gc.data.tmp[,1] %in% gc.data[,1],]
+    }     
     gc.pos <- .gcPos(gc.data)
     geneCountMatrix <- do.call(rbind, lapply(split(data.frame(countMatrix), gc.pos$Gene),
          apply, 2, sum, na.rm=TRUE))
