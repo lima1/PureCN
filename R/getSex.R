@@ -192,3 +192,14 @@ getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4,
     }       
     tumor
 }
+
+.fixAllosomeSegmentation <- function(sex, seg) {
+    if (sex=="diploid") return(seg)
+    sex.chr <- .getSexChr(seg$chrom)
+    remove.chrs <- sex.chr
+    if (sex=="F") {
+        remove.chrs <-sex.chr[2]
+    }       
+    seg[!seg$chrom %in% remove.chrs,]
+}
+

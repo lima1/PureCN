@@ -535,10 +535,14 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     vcf.germline <- NULL
     seg <- do.call(fun.segmentation,
             .checkArgs(args.segmentation, "segmentation"))
-    
+
+    if (!is.null(seg.file)) {
+        seg <- .fixAllosomeSegmentation(sex, seg)
+    }
+
     seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), IRanges(start = round(seg$loc.start), 
         end = seg$loc.end))
-    
+
     snv.lr <- NULL
     
     if (!is.null(vcf.file)) {
