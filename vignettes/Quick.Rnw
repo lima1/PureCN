@@ -1,0 +1,145 @@
+%\VignetteKeywords{runAbsoluteCN}
+%\VignetteEngine{knitr::knitr}
+%\VignetteDepends{PureCN}
+%\VignettePackage{PureCN}
+%\VignetteIndexEntry{Quick start and command line usage}
+
+\documentclass{article}
+
+<<style-knitr, eval=TRUE, echo=FALSE, results="asis">>=
+BiocStyle::latex2()
+@ 
+
+\begin{document}
+
+<<load-purecn, echo=FALSE, message=FALSE>>=
+library(PureCN)
+set.seed(1234)
+@
+
+\section*{PureCN - Quick Start}
+
+This tutorial provides a quick overview of the command line tools shipping with
+\Biocpkg{PureCN}. For the R package and more detailed information, see the main
+vignette. 
+
+\section*{Prepare Environment and Files}
+
+Get the path to command line scripts in R:
+
+<<paths>>=
+system.file("extdata", package="PureCN")
+@ 
+
+Store this path in an environment variable, for example in BASH:
+
+\begin{verbatim}
+$ export PURECN="/path/to/PureCN/extdata"
+$ Rscript $PURECN/PureCN.R --help
+Usage: /path/to/PureCN/inst/extdata/PureCN.R [-[-help|h]] ...
+\end{verbatim}
+
+Generate a basic interval file from a BED file containing target coordinates:
+
+\begin{verbatim}
+$ Rscript $PURECN/IntervalFile.R --bed ex_intervals.bed --fasta ex_reference.fa \ 
+ --outfile ex_gcgene.txt
+\end{verbatim}
+
+See the main vignette how to add gene symbols, which are necessary to obtain
+gene-level copy number and LOH calls. For a test run, you will not need this.
+
+\section*{Run PureCN}
+
+\subsection*{Third-party segmentation}
+
+If you already have a segmentation from third-party tools (for example CNVkit,
+EXCAVATOR2):
+
+\begin{verbatim}
+Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
+    --segfile $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
+#    --normal_panel $NORMAL_PANEL \
+    --vcf $VCF_FILE \
+#    --statsfile $VCF_STATS_FILE \
+    -i $SAMPLEID \
+    --genome hg19 --gcgene ex_gcgene.txt \
+#    --funsegmentation none \
+    --outvcf --force --postoptimize  
+\end{verbatim}
+
+The normal panel VCF file is useful for mapping bias correction and especially
+recommended without matched normals. See the FAQ of the main vignette how to
+generate this file. It is not essential for test runs.
+
+The main VCF (\Rcode{--vcf}) is ideally created by \software{MuTect} 1.1.7.
+The \software{MuTect} stats file can be provided for better artifact filtering.
+Support for \software{MuTect 2} and \software{FreeBayes} is available, but
+poorly tested and only very limited artifact filtering will be performed for
+these callers.  
+
+The \Rcode{--funsegmentation} controls if the data should to be re-segmented
+using germline BAFs (default). Set this value to none if the provided
+segmentation should be used as is. 
+
+\subsection*{PureCN segmentation}
+
+The following describe \Biocpkg{PureCN} runs with internal copy number
+normalization and segmentation.
+
+\subsubsection*{Coverage}
+
+For each sample, tumor and normal:
+
+\begin{verbatim}
+# From a BAM file 
+$ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
+    --bam example.bam \
+    --gcgene ex_gcgene.txt
+
+# From a GATK DepthOfCoverage file
+Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
+    --gatkcoverage example_tumor.txt \ 
+    --gcgene  ex_gcgene.txt
+\end{verbatim}
+
+\subsubsection*{NormalDB}
+
+To build a normal database, copy all GC-normalized normal coverage files in a
+single text file, line-by-line:
+
+\begin{verbatim}
+cat normal*loess.txt > example_normal.list
+
+# From already GC-normalized files
+$ Rscript $PURECN/NormalDB.R --outdir $OUT \
+    --coveragefiles example_normal.list \
+    --genome hg19 
+\end{verbatim}
+
+\subsubsection*{PureCN}
+
+\begin{verbatim}
+cd $OUT/$SAMPLEID
+# From GC-normalized coverage data
+$ Rscript $PURECN/PureCN.R --outdir . --tumor example_tumor_loess.txt \ 
+    --normal example_normal_loess.txt --vcf $VCF_FILE -i Sample1 \
+    --genome hg19 --gcgene  ex_gcgene.txt \
+    --outvcf 
+
+# Without a matched normal    
+$ Rscript $PURECN/PureCN.R --outdir . --tumor example_tumor_loess.txt \ 
+    --normaldb ../normalDB_hg19.rds --pool 5 --vcf example_vcf.vcf -i Sample1 \
+    --genome hg19 --gcgene example_gc.gene.file.txt \
+    --outvcf 
+
+# Recreate output after manual curation of Sample_purecn.csv
+$ Rscript $PURECN/PureCN.R --rds Sample1_purecn.rds
+\end{verbatim}
+
+\section*{Session Info}
+<<sessioninfo, results='asis', echo=FALSE>>=
+toLatex(sessionInfo())
+@
+
+\end{document}

@@ -2,7 +2,7 @@
 %\VignetteEngine{knitr::knitr}
 %\VignetteDepends{PureCN}
 %\VignettePackage{PureCN}
-%\VignetteIndexEntry{PureCN}
+%\VignetteIndexEntry{PureCN overview}
 
 \documentclass{article}
 
@@ -186,8 +186,6 @@ intervals <- import(bed.file)
 calculateGCContentByInterval(intervals, reference.file, 
     output.file = "ex2_gc_file.txt")
 @
-
-
 
 \subsection{Third-party segmentation tools}
 
@@ -961,6 +959,38 @@ mutations present in 20\% of all tumor cells.}{Reproduced from \cite{Carter2012}
 
 \section{Command line scripts}
 
+The following section describe command line tools that provide a complete
+pipeline from BAM files.  
+
+\subsection{IntervalFile}
+
+A simple helper script to convert a BED file containing target coordinates into 
+a valid \Rcode{gc.gene.file} (without gene symbols):
+
+\begin{verbatim}
+ Rscript IntervalFile.R --bed ex_intervals.bed --fasta ex_reference.fa \ 
+ --outfile ex_gcgene.txt
+\end{verbatim}
+
+In case third-party segmentation tools are used, you can now jump to
+Section~\ref{cmdpurecn}.
+
+\begin{table*}
+\caption{IntervalFile command line script.}
+\begin{tabular}{lll}
+\toprule
+Argument name       & Corresponding PureCN argument & PureCN function \\
+\midrule
+--help -h           & & \\
+--version -v        & & \\
+--force -f          & & \\
+--bed -b            & interval.file & \Rfunction{calculateGCContentByInterval} \\
+--fasta -b          & reference.file & \Rfunction{calculateGCContentByInterval} \\
+--outfile -o        & & \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
 \subsection{Coverage}
 \label{cmdcoverage}
 
@@ -1175,10 +1205,6 @@ complaints, etc. please do not hesitate to send us an email.
     (Section~\ref{secmaxsnps}).
     \item If a pool of normal samples is available, followed the steps in
     Section~\ref{artifactfiltering}.
-    \item For smaller targeted panels, copy number events can interfere with
-    the GC-normalization. Try either the \Rcode{POLYNOMIAL} method in 
-    \Rfunction{correctCoverageBias} or the two-pass loess normalization 
-    (Section~\ref{cmdpurecn}) if the data looks noisy.
     \item Read the output of \Rfunction{runAbsoluteCN} with
         \Rcode{verbose=TRUE}, fixed all warnings.
     \item If third-party segmentation tools are used, checked that normalized
@@ -1216,6 +1242,11 @@ segmentation parameters, such as \Rcode{prune.hclust.h=0.2} or higher.
     specialized third-party segmentation method as described in
     section~\ref{customseg}, since our default is optimized for targeted
     sequencing.
+    \item For smaller targeted panels, copy number events can interfere with
+    the GC-normalization. Try either the \Rcode{POLYNOMIAL} method in 
+    \Rfunction{correctCoverageBias} or the two-pass loess normalization 
+    (Section~\ref{cmdpurecn}) if the data looks noisy. Third-party tools that
+    utilize off-target reads might be also worth trying.
     \end{itemize}
     \item Otherwise, if log-ratio peaks are clean as in 
 Figure~\ref{figure/figureexample2-1}:

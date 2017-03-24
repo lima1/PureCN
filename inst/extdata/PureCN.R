@@ -147,7 +147,6 @@ if (file.exists(file.rds) && !force) {
         }    
         normal.coverage.file
     }
-    message(normal.panel.vcf.file)    
     normal.coverage.file <- .getNormalCoverage(normal.coverage.file)
         
     file.log <- file.path(outdir, paste0(sampleid, '_purecn.log'))
