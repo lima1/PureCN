@@ -50,7 +50,6 @@ if (!is.null(opt$seed)) {
     
 force <- !is.null(opt$force)
 post.optimize <- !is.null(opt$postoptimize)
-normal.coverage.file <- opt$normal
 tumor.coverage.file <- opt$tumor
 tumor.vcf <- opt$vcf
 genome <- opt$genome
@@ -61,6 +60,7 @@ seg.file <- opt$segfile
 target.weight.file <- opt$targetweightfile
 normal.panel.vcf.file <- opt$normal_panel
 normalDB <- opt$normaldb
+normal.coverage.file <- opt[["normal"]]
 sampleid <- opt$sampleid
 outdir <- opt$outdir
 outvcf <- !is.null(opt$outvcf)
@@ -122,6 +122,8 @@ if (file.exists(file.rds) && !force) {
             "LOESS", outdir, force, NULL)
     }    
     if (!is.null(normalDB)) {
+        if (!is.null(seg.file)) stop("normalDB and segfile do not work together.")
+
         message("normalDB: ", normalDB)
         normalDB <- readRDS(normalDB)
     }    
@@ -145,7 +147,7 @@ if (file.exists(file.rds) && !force) {
         }    
         normal.coverage.file
     }
-    
+    message(normal.panel.vcf.file)    
     normal.coverage.file <- .getNormalCoverage(normal.coverage.file)
         
     file.log <- file.path(outdir, paste0(sampleid, '_purecn.log'))
@@ -170,6 +172,8 @@ if (file.exists(file.rds) && !force) {
     if (!is.null(opt$funsegmentation) && opt$funsegmentation != "CBS") {
         if (opt$funsegmentation == "PSCBS") {
             fun.segmentation <- segmentationPSCBS
+        } else if (opt$funsegmentation == "none") {
+            fun.segmentation <- function(seg, ...) seg
         } else {
             stop("Unknown segmentation function")
         }

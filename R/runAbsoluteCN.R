@@ -597,7 +597,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # show log-ratio histogram
     if (plot.cnv) {
         if (!is.null(seg.file)) {
-            seg.orig <- read.delim(seg.file)
+            seg.orig <- .loadSegFile(seg.file, sampleid)
             par(mfrow = c(2, 1))
             hist(do.call(c, lapply(seq_len(nrow(seg.orig)), function(i) rep(seg.orig$seg.mean[i], 
                 seg.orig$num.mark[i]))), breaks = 100, xlab = "log2 ratio", main = paste(sampleid, 

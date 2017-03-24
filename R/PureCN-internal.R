@@ -804,6 +804,13 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .checkSeg <- function(seg, sampleid) {
     required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
         "seg.mean")
+    required.colnames2 <- c("ID", "chromosome", "start", "end", "num_probes", 
+        "mean")
+
+    if (identical(colnames(seg), required.colnames2)) {
+        colnames(seg) <- required.colnames
+    }    
+
     if (!identical(colnames(seg), required.colnames)) {
         .stopUserError(paste("Segmentation file expected with colnames", 
                 paste(required.colnames, collapse = ", ")))

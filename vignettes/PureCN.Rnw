@@ -1054,6 +1054,7 @@ Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \
 # From already segmented data
 Rscript PureCN.R --outdir ~/tmp/ --segfile example_seg.txt \ 
     --vcf example_vcf.vcf -i Sample1 --genome hg19 \
+    --funsegmentation none \
     --gcgene  example_gc.gene.file.txt \
     --outvcf 
 
