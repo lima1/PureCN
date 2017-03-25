@@ -7,8 +7,8 @@ spec <- matrix(c(
 'help' ,        'h', 0, "logical",
 'version',      'v', 0, "logical",
 'force' ,       'f', 0, "logical",
-'bed',          'b', 1, "character",
 'fasta',        'a', 1, "character",
+'infile',       'i', 1, "character",
 'outfile',      'o', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
@@ -30,18 +30,18 @@ if (!force && file.exists(outfile)) {
     stop(outfile, " exists. Use --force to overwrite.")
 }    
 
-if (is.null(opt$bed)) stop("Need --bed.")
+if (is.null(opt$infile)) stop("Need --infile.")
 if (is.null(opt$fasta)) stop("Need --fasta.")
 
-bed.file <- normalizePath(opt$bed, mustWork=TRUE)
+in.file <- normalizePath(opt$infile, mustWork=TRUE)
 reference.file <- normalizePath(opt$fasta, mustWork=TRUE)
 
 flog.info("Loading PureCN...")
 
 suppressPackageStartupMessages(library(rtracklayer))
 
-intervals <- import(bed.file)
-
+intervals <- import(in.file)
+flog.info("%s", class(intervals))
 suppressPackageStartupMessages(library(PureCN))
 calculateGCContentByInterval(intervals, reference.file, 
     output.file = outfile)

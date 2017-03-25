@@ -42,12 +42,16 @@ Usage: /path/to/PureCN/inst/extdata/PureCN.R [-[-help|h]] ...
 Generate a basic interval file from a BED file containing target coordinates:
 
 \begin{verbatim}
-$ Rscript $PURECN/IntervalFile.R --bed ex_intervals.bed --fasta ex_reference.fa \ 
+$ Rscript $PURECN/IntervalFile.R --infile ex_intervals.bed --fasta ex_reference.fa \ 
  --outfile ex_gcgene.txt
 \end{verbatim}
 
-See the main vignette how to add gene symbols, which are necessary to obtain
-gene-level copy number and LOH calls. For a test run, you will not need this.
+Internally, this function uses \Biocpkg{rtracklayer} to parse the
+\Rcode{infile}. Make sure that the file format matches the file name suffix. 
+
+See the main vignette how to add gene symbols to the interval file. Symbols are
+necessary to obtain gene-level copy number and LOH calls. For a test run, you
+will not need this.
 
 \section*{Run PureCN}
 

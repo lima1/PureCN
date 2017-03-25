@@ -968,7 +968,7 @@ A simple helper script to convert a BED file containing target coordinates into
 a valid \Rcode{gc.gene.file} (without gene symbols):
 
 \begin{verbatim}
- Rscript IntervalFile.R --bed ex_intervals.bed --fasta ex_reference.fa \ 
+ Rscript IntervalFile.R --infile ex_intervals.bed --fasta ex_reference.fa \ 
  --outfile ex_gcgene.txt
 \end{verbatim}
 
@@ -979,14 +979,14 @@ Section~\ref{cmdpurecn}.
 \caption{IntervalFile command line script.}
 \begin{tabular}{lll}
 \toprule
-Argument name       & Corresponding PureCN argument & PureCN function \\
+Argument name  & Corresponding PureCN argument & PureCN function \\
 \midrule
---help -h           & & \\
---version -v        & & \\
---force -f          & & \\
---bed -b            & interval.file & \Rfunction{calculateGCContentByInterval} \\
---fasta -b          & reference.file & \Rfunction{calculateGCContentByInterval} \\
---outfile -o        & & \\
+--help -h      & & \\
+--version -v   & & \\
+--force -f     & & \\
+--fasta -a     & reference.file & \Rfunction{calculateGCContentByInterval} \\
+--infile -i    & interval.file & \Rfunction{calculateGCContentByInterval} \\
+--outfile -o   & & \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1014,7 +1014,7 @@ Rscript Coverage.R --outdir ~/tmp/ --gatkcoverage example_tumor.txt \
 Argument name       & Corresponding PureCN argument & PureCN function \\
 \midrule
 --help -h           & & \\
---version -v          & & \\
+--version -v        & & \\
 --force -f          & & \\
 --seed -S           & & \\
 --outdir -o         & & \\
