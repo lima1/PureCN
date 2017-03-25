@@ -50,7 +50,7 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
     pool.weights = c("voom", "equal"), plot.pool = FALSE, 
     ...) {
     if (is.character(tumor.coverage.file)) {
-        tumor  <- readCoverageGatk(tumor.coverage.file)
+        tumor  <- readCoverageFile(tumor.coverage.file)
     } else {
         tumor <- tumor.coverage.file
     }    
@@ -95,7 +95,7 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
 
     normal.coverage.files <- normalDB$normal.coverage.files[idx.normals][head(best.match, num.normals)]
     if (pool) {
-      normals <- lapply(normal.coverage.files, readCoverageGatk)
+      normals <- lapply(normal.coverage.files, readCoverageFile)
       pool.weights <- match.arg(pool.weights)
       flog.info("Pooling %s.", paste(basename(normal.coverage.files), 
         collapse=", "))
@@ -158,7 +158,7 @@ plotBestNormal <- function(normal.coverage.files, tumor.coverage.file,
     normalDB, x = 1, y = 2, col.tumor = "red", col.best.normal = "blue",
     col.other.normals = "black", ... ) {
     if (is.character(tumor.coverage.file)) {
-        tumor  <- readCoverageGatk(tumor.coverage.file)
+        tumor  <- readCoverageFile(tumor.coverage.file)
     } else {
         tumor <- tumor.coverage.file
     }    

@@ -1,6 +1,6 @@
 test_getSexFromCoverage <- function() {
     tumor.coverage.file <- system.file("extdata", "example_tumor.txt", package="PureCN")
-    coverage <- readCoverageGatk(tumor.coverage.file)
+    coverage <- readCoverageFile(tumor.coverage.file)
     sex <- getSexFromCoverage(coverage)
     checkTrue(is.na(sex))
     sex <- getSexFromCoverage(tumor.coverage.file)

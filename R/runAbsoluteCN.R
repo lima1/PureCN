@@ -14,12 +14,12 @@
 #' if log.ratio is provided - then it will be only used to filter low coverage
 #' exons).  Should be already GC-normalized with
 #' \code{\link{correctCoverageBias}}.  Needs to be either a file name or data
-#' read with the \code{\link{readCoverageGatk}} function.
+#' read with the \code{\link{readCoverageFile}} function.
 #' @param tumor.coverage.file GATK coverage file of tumor. If \code{NULL},
 #' requires \code{seg.file} and an interval file via \code{gc.gene.file}.
 #' Should be already GC-normalized with \code{\link{correctCoverageBias}}.
 #' Needs to be either a file name or data read with the
-#' \code{\link{readCoverageGatk}} function.
+#' \code{\link{readCoverageFile}} function.
 #' @param log.ratio Copy number log-ratios for all exons in the coverage files.
 #' If \code{NULL}, calculated based on coverage files.
 #' @param seg.file Segmented data. Optional, to support matched SNP6 data.  If
@@ -317,7 +317,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!is.null(normal.coverage.file)) {
         if (is.character(normal.coverage.file)) {
             normal.coverage.file <- normalizePath(normal.coverage.file, mustWork = TRUE)
-            normal <- readCoverageGatk(normal.coverage.file)
+            normal <- readCoverageFile(normal.coverage.file)
         } else {
             normal <- normal.coverage.file
         }
@@ -331,7 +331,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         tumor.coverage.file <- tumor
     } else if (is.character(tumor.coverage.file)) {
         tumor.coverage.file <- normalizePath(tumor.coverage.file, mustWork = TRUE)
-        tumor <- readCoverageGatk(tumor.coverage.file)
+        tumor <- readCoverageFile(tumor.coverage.file)
         if (is.null(sampleid)) 
             sampleid <- basename(tumor.coverage.file)
     } else {

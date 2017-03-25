@@ -133,8 +133,8 @@ createExonWeightFile <- function() {
 createTargetWeights <- function(tumor.coverage.files, normal.coverage.files,
 target.weight.file) {
     flog.info("Loading coverage data...")
-    tumor.coverage <- lapply(tumor.coverage.files,  readCoverageGatk)
-    normal.coverage <- lapply(normal.coverage.files,  readCoverageGatk)
+    tumor.coverage <- lapply(tumor.coverage.files,  readCoverageFile)
+    normal.coverage <- lapply(normal.coverage.files,  readCoverageFile)
     lrs <- lapply(tumor.coverage, function(tc) sapply(normal.coverage, 
             function(nc) calculateLogRatio(nc, tc)))
 
@@ -157,7 +157,7 @@ target.weight.file) {
 }
 
 .readNormals <- function(normal.coverage.files) {
-    normals <- lapply(normal.coverage.files, readCoverageGatk)
+    normals <- lapply(normal.coverage.files, readCoverageFile)
 
     # check that all files used the same interval file.
     for (i in seq_along(normals)) {

@@ -4,13 +4,13 @@ globalVariables(names=c("..level.."))
 #' Correct for GC bias
 #' 
 #' Takes as input coverage data in GATK format (or data read by
-#' \code{\link{readCoverageGatk}}) and a mapping file for GC content, and
+#' \code{\link{readCoverageFile}}) and a mapping file for GC content, and
 #' normalize coverage data for bias correction.  Optionally plots the pre and
 #' post normalization GC profiles.
 #' 
 #' 
 #' @param coverage.file Exon coverage file as produced by GATK. Either a file
-#' name or data parsed with the \code{\link{readCoverageGatk}} function.
+#' name or data parsed with the \code{\link{readCoverageFile}} function.
 #' @param gc.gene.file File providing GC content for each exon in the coverage
 #' files. First column in format CHR:START-END. Second column GC content (0 to
 #' 1).  Third column provides gene symbols, which are optional, but used in
@@ -18,7 +18,7 @@ globalVariables(names=c("..level.."))
 #' generated with GATK GCContentByInterval tool or with the
 #' \code{\link{calculateGCContentByInterval}} function.
 #' @param output.file Optionally, write file with GC corrected coverage. Can be
-#' read with the \code{\link{readCoverageGatk}} function.
+#' read with the \code{\link{readCoverageFile}} function.
 #' @param method Two options for normalization are available: The default
 #' "LOESS" largely follows the GC correction of the TitanCNA package. The
 #' "POLYNOMIAL" method models the coverage data as a polynomial of degree three
@@ -65,7 +65,7 @@ correctCoverageBias <- function(coverage.file, gc.gene.file,
 output.file = NULL, method = c("LOESS","POLYNOMIAL"), plot.gc.bias = FALSE,
 plot.max.density = 50000, purecn.output=NULL) {
     if (is.character(coverage.file)) {
-        tumor  <- readCoverageGatk(coverage.file)
+        tumor  <- readCoverageFile(coverage.file)
     } else {
         tumor <- coverage.file
     }    

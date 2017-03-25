@@ -92,7 +92,7 @@ filterTargets <- function(normal, tumor, log.ratio, gc.data, seg.file,
         !length(normalDB$normal.coverage.files)) {
         .stopUserError("normalDB appears to be empty.")
     }    
-    tmp <- readCoverageGatk(normalDB$normal.coverage.files[1])
+    tmp <- readCoverageFile(normalDB$normal.coverage.files[1])
     return(identical(tmp$Target, tumor$Target))
 }
     

@@ -11,7 +11,7 @@ test_createNormalDatabase <- function() {
     
     pool <- findBestNormal(normal.coverage.files[1], normalDB, num.normals=2, pool=TRUE)
 
-    n <- lapply(normal.coverage.files, readCoverageGatk)
+    n <- lapply(normal.coverage.files, readCoverageFile)
     checkEqualsNumeric(nrow(n[[1]]), nrow(pool))
 
     checkEqualsNumeric(apply(cbind(n[[1]]$average.coverage, 
@@ -33,7 +33,7 @@ test_createNormalDatabase <- function() {
     # create a GATK file with shuffled probes
     gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
         package = "PureCN")
-    normal <- readCoverageGatk(normal.coverage.file)
+    normal <- readCoverageFile(normal.coverage.file)
     correctCoverageBias(normal, gc.gene.file)
     suppressWarnings(correctCoverageBias(normal[sample(nrow(normal)),], 
         gc.gene.file, "shuffled_gatk.txt"))

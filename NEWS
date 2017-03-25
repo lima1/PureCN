@@ -27,6 +27,8 @@ API CHANGES
 
 - runAbsoluteCN output from PureCN 1.2 cannot be analyzed with PureCN 1.6 and 
   needs to be re-run. We hope to avoid this in the future.
+- Renamed functions: readCoverageGatk to readCoverageFile since future versions
+  will likely support additional third-party tools.
 - Deprecated functions: createSNPBlacklist, getDiploid, autoCurateResults
 - Defunct functions: createExonWeightFile
 - Changed defaults: 

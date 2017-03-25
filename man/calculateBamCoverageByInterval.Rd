@@ -14,7 +14,7 @@ calculateBamCoverageByInterval(bam.file, interval.file, output.file = NULL,
 first column in format CHR:START-END. The \code{gc.gene.file} can be used.}
 
 \item{output.file}{Optionally, write minimal coverage file. Can be read with
-the \code{\link{readCoverageGatk}} function.}
+the \code{\link{readCoverageFile}} function.}
 
 \item{index.file}{The bai index. This is expected without the .bai file
 suffix, see \code{?scanBam}.}

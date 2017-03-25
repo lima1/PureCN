@@ -11,8 +11,9 @@
   The following functions are deprecated and will be made defunct; use
   the replacement indicated below:
   \itemize{
+    \item{autoCurateResults: no replacement}
     \item{createSNPBlacklist: \code{\link{setMappingBiasVcf}}}
     \item{getDiploid: no replacement}
-    \item{autoCurateResults: no replacement}
+    \item{readCoverageGatk: \code{\link{readCoverageFile}}}
   }
 }

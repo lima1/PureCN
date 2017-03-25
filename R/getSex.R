@@ -8,7 +8,7 @@
 #' 
 #' 
 #' @param coverage.file GATK coverage file or data read with
-#' \code{\link{readCoverageGatk}}.
+#' \code{\link{readCoverageFile}}.
 #' @param min.ratio Min chrX/chrY coverage ratio to call sample as female.
 #' @param min.ratio.na Min chrX/chrY coverage ratio to call sample as
 #' \code{NA}.  This ratio defines a grey zone from \code{min.ratio.na} to
@@ -33,7 +33,7 @@
 getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
     remove.outliers = TRUE) {
     if (is.character(coverage.file)) {
-        x <- readCoverageGatk(coverage.file)
+        x <- readCoverageFile(coverage.file)
     } else {
         x <- coverage.file
     }

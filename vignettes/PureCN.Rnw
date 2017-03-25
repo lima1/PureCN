@@ -879,8 +879,8 @@ log-ratios:
 <<customlogratio, message=FALSE>>=
 # We still use the log-ratio exactly as normalized by PureCN for this
 # example
-log.ratio <- calculateLogRatio(readCoverageGatk(normal.coverage.file),
-    readCoverageGatk(tumor.coverage.file))
+log.ratio <- calculateLogRatio(readCoverageFile(normal.coverage.file),
+    readCoverageFile(tumor.coverage.file))
 
 retLogRatio <- runAbsoluteCN(log.ratio=log.ratio,
     gc.gene.file=gc.gene.file, vcf.file=vcf.file, 
@@ -1463,7 +1463,7 @@ library(org.Hs.eg.db)
 .annotateIntervals <- function(gc.gene.file, txdb, output.file = NULL) {
     gc <- read.delim(gc.gene.file, as.is=TRUE)
     # misuse this function to convert interval string into data.frame
-    gc.data <- readCoverageGatk(gc.gene.file)
+    gc.data <- readCoverageFile(gc.gene.file)
     grGC <- GRanges(seqnames=gc.data$chr, 
         IRanges(start=gc.data$probe_start, end=gc.data$probe_end))
     id <- transcriptsByOverlaps(txdb, ranges=grGC, columns = "GENEID")

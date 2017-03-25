@@ -6,9 +6,9 @@
 #' the user.
 #' 
 #' 
-#' @param normal Normal coverage read in by the \code{\link{readCoverageGatk}}
+#' @param normal Normal coverage read in by the \code{\link{readCoverageFile}}
 #' function.
-#' @param tumor Tumor coverage read in by the \code{\link{readCoverageGatk}}
+#' @param tumor Tumor coverage read in by the \code{\link{readCoverageFile}}
 #' function.
 #' @return \code{numeric(nrow(tumor))}, tumor vs. normal copy number log-ratios
 #' for all targets.
@@ -19,8 +19,8 @@
 #'     package="PureCN")
 #' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
 #'     package="PureCN")
-#' normal <- readCoverageGatk(normal.coverage.file)
-#' tumor <- readCoverageGatk(tumor.coverage.file)
+#' normal <- readCoverageFile(normal.coverage.file)
+#' tumor <- readCoverageFile(tumor.coverage.file)
 #' log.ratio <- calculateLogRatio(normal, tumor)
 #' 
 #' @export calculateLogRatio

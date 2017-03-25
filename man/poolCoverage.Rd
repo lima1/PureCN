@@ -7,7 +7,7 @@
 poolCoverage(all.data, remove.chrs = c(), w = NULL)
 }
 \arguments{
-\item{all.data}{List of normals, read with \code{\link{readCoverageGatk}}.}
+\item{all.data}{List of normals, read with \code{\link{readCoverageFile}}.}
 
 \item{remove.chrs}{Remove these chromosomes from the pool.}
 
@@ -35,12 +35,12 @@ normalDB <- createNormalDatabase(normal.coverage.files)
 # get the best 2 normals and average them
 best.normal.coverage.files <- findBestNormal(tumor.coverage.file, normalDB, 
     num.normals=2)
-pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageGatk),
+pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageFile),
      remove.chrs=c("chrX", "chrY"))
 
 }
 \seealso{
-\code{\link{readCoverageGatk}}
+\code{\link{readCoverageFile}}
 }
 \author{
 Markus Riester

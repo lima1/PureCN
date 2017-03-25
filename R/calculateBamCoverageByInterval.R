@@ -12,7 +12,7 @@
 #' @param interval.file File specifying the intervals. Interval is expected in
 #' first column in format CHR:START-END. The \code{gc.gene.file} can be used.
 #' @param output.file Optionally, write minimal coverage file. Can be read with
-#' the \code{\link{readCoverageGatk}} function.
+#' the \code{\link{readCoverageFile}} function.
 #' @param index.file The bai index. This is expected without the .bai file
 #' suffix, see \code{?scanBam}.
 #' @return Returns total and average coverage by intervals.

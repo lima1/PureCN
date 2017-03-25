@@ -9,7 +9,7 @@ getSexFromCoverage(coverage.file, min.ratio = 25, min.ratio.na = 20,
 }
 \arguments{
 \item{coverage.file}{GATK coverage file or data read with
-\code{\link{readCoverageGatk}}.}
+\code{\link{readCoverageFile}}.}
 
 \item{min.ratio}{Min chrX/chrY coverage ratio to call sample as female.}
 

@@ -32,13 +32,13 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
 if log.ratio is provided - then it will be only used to filter low coverage
 exons).  Should be already GC-normalized with
 \code{\link{correctCoverageBias}}.  Needs to be either a file name or data
-read with the \code{\link{readCoverageGatk}} function.}
+read with the \code{\link{readCoverageFile}} function.}
 
 \item{tumor.coverage.file}{GATK coverage file of tumor. If \code{NULL},
 requires \code{seg.file} and an interval file via \code{gc.gene.file}.
 Should be already GC-normalized with \code{\link{correctCoverageBias}}.
 Needs to be either a file name or data read with the
-\code{\link{readCoverageGatk}} function.}
+\code{\link{readCoverageFile}} function.}
 
 \item{log.ratio}{Copy number log-ratios for all exons in the coverage files.
 If \code{NULL}, calculated based on coverage files.}

@@ -42,11 +42,11 @@ Usage: /path/to/PureCN/inst/extdata/PureCN.R [-[-help|h]] ...
 Generate a basic interval file from a BED file containing target coordinates:
 
 \begin{verbatim}
-$ Rscript $PURECN/IntervalFile.R --infile ex_intervals.bed --fasta ex_reference.fa \ 
- --outfile ex_gcgene.txt
+$ Rscript $PURECN/IntervalFile.R --infile ex_intervals.bed \ 
+    --fasta ex_reference.fa --outfile ex_gcgene.txt
 \end{verbatim}
 
-Internally, this function uses \Biocpkg{rtracklayer} to parse the
+Internally, this script uses \Biocpkg{rtracklayer} to parse the
 \Rcode{infile}. Make sure that the file format matches the file name suffix. 
 
 See the main vignette how to add gene symbols to the interval file. Symbols are
@@ -88,7 +88,7 @@ segmentation should be used as is.
 
 \subsection*{PureCN segmentation}
 
-The following describe \Biocpkg{PureCN} runs with internal copy number
+The following describes \Biocpkg{PureCN} runs with internal copy number
 normalization and segmentation.
 
 \subsubsection*{Coverage}

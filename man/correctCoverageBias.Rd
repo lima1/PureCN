@@ -10,7 +10,7 @@ correctCoverageBias(coverage.file, gc.gene.file, output.file = NULL,
 }
 \arguments{
 \item{coverage.file}{Exon coverage file as produced by GATK. Either a file
-name or data parsed with the \code{\link{readCoverageGatk}} function.}
+name or data parsed with the \code{\link{readCoverageFile}} function.}
 
 \item{gc.gene.file}{File providing GC content for each exon in the coverage
 files. First column in format CHR:START-END. Second column GC content (0 to
@@ -20,7 +20,7 @@ generated with GATK GCContentByInterval tool or with the
 \code{\link{calculateGCContentByInterval}} function.}
 
 \item{output.file}{Optionally, write file with GC corrected coverage. Can be
-read with the \code{\link{readCoverageGatk}} function.}
+read with the \code{\link{readCoverageFile}} function.}
 
 \item{method}{Two options for normalization are available: The default
 "LOESS" largely follows the GC correction of the TitanCNA package. The
@@ -52,7 +52,7 @@ GC normalized coverage.
 }
 \description{
 Takes as input coverage data in GATK format (or data read by
-\code{\link{readCoverageGatk}}) and a mapping file for GC content, and
+\code{\link{readCoverageFile}}) and a mapping file for GC content, and
 normalize coverage data for bias correction.  Optionally plots the pre and
 post normalization GC profiles.
 }

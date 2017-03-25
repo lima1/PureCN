@@ -1,13 +1,12 @@
-# originally from the ExomeCNV package
-
-
-#' Read GATK coverage files
+#' Read coverage file
 #' 
 #' Read coverage file produced by The Genome Analysis Toolkit or by
 #' \code{\link{calculateBamCoverageByInterval}}.
 #' 
 #' 
-#' @param file Exon coverage file as produced by GATK.
+#' @param file Target coverage file.
+#' @param format File format. If missing, derived from the file 
+#' extension. Currently only GATK DepthofCoverage format supported.
 #' @return A \code{data.frame} with the parsed coverage information.
 #' @author Markus Riester
 #' @seealso \code{\link{calculateBamCoverageByInterval}}
@@ -15,10 +14,38 @@
 #' 
 #' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
 #'     package="PureCN")
-#' coverage <- readCoverageGatk(tumor.coverage.file)
+#' coverage <- readCoverageFile(tumor.coverage.file)
+#' 
+#' @export readCoverageFile
+readCoverageFile <- function(file, format) {
+    if (missing(format)) format <- "GATK"
+    coverageData <- .readCoverageGatk(file)
+    .checkLowCoverage(coverageData)
+    return(.checkIntervals(coverageData))
+}
+
+
+#' Read GATK coverage files
+#' 
+#' Read coverage file produced by The Genome Analysis Toolkit or by
+#' \code{\link{calculateBamCoverageByInterval}}. This function
+#' is deprecated. Please use \code{\link{readCoverageFile}} instead.
+#' 
+#' 
+#' @param file Exon coverage file as produced by GATK.
+#' @return A \code{data.frame} with the parsed coverage information.
+#' @author Markus Riester
+#' @seealso \code{\link{calculateBamCoverageByInterval}}
+#' \code{\link{readCoverageFile}}
 #' 
 #' @export readCoverageGatk
 readCoverageGatk <- function(file) {
+    .Deprecated("readCoverageFile")
+    readCoverageFile(file, format="GATK")
+}
+
+.readCoverageGatk <- function(file) {
+    # originally from the ExomeCNV package
     gatk <- utils::read.table(file, header = TRUE)
     chrpos <- matrix(unlist(strsplit(as.character(gatk$Target), 
         ":")), ncol = 2, byrow = TRUE)
@@ -44,10 +71,9 @@ readCoverageGatk <- function(file) {
         coverage = as.numeric(gatk$total_coverage), 
         average.coverage = as.numeric(gatk$average_coverage), 
         base.with..10.coverage = NA)
-    .checkLowCoverage(tmp)
-    tmp <- .checkIntervals(tmp)
     return(tmp)
 }
+
 
 .checkIntervals <- function(coverage) {
     coverageGr <- GRanges(coverage$chr, IRanges(start=coverage$probe_start,

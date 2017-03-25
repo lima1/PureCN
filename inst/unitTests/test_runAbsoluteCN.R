@@ -107,7 +107,7 @@ test_runAbsoluteCN <- function() {
         model.homozygous=NULL))
     checkTrue(grepl("model.homozygous", geterrmessage()))
     
-    normalCov <- readCoverageGatk(normal.coverage.file)
+    normalCov <- readCoverageFile(normal.coverage.file)
     checkException(runAbsoluteCN(normalCov[sample(nrow(normalCov)),], 
         tumor.coverage.file, genome="hg19"))
     checkTrue(grepl("Interval files in normal and tumor different",
@@ -167,8 +167,8 @@ test_runAbsoluteCN <- function() {
     checkException(callAlterations(ret))
 
     # test that correct exons were filtered
-    tumor <- readCoverageGatk(tumor.coverage.file)
-    normal <- readCoverageGatk(normal.coverage.file)
+    tumor <- readCoverageFile(tumor.coverage.file)
+    normal <- readCoverageFile(normal.coverage.file)
     log.ratio <- ret$input$log.ratio
     filtered <- cbind(tumor, gc2, normal.average.coverage=normal$average.coverage)[!as.character(tumor$probe) %in% log.ratio$probe,]
     checkTrue(!sum(!(
@@ -181,8 +181,8 @@ test_runAbsoluteCN <- function() {
 
     vcf <- readVcf(vcf.file, "hg19") 
     seqlevelsStyle(vcf) <- "ENSEMBL"
-    normCov <- readCoverageGatk( normal.coverage.file )
-    tumorCov <- readCoverageGatk( tumor.coverage.file )
+    normCov <- readCoverageFile( normal.coverage.file )
+    tumorCov <- readCoverageFile( tumor.coverage.file )
     normCov$chr <- as.character(normCov$chr) 
     tumorCov$chr <- as.character(tumorCov$chr) 
     seqlevelsStyle(normCov$chr) <- "ENSEMBL"
@@ -271,8 +271,8 @@ test_runAbsoluteCN <- function() {
         test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE, max.ploidy=2.5)
 
     # test with a log.ratio and no tumor file
-    log.ratio <- calculateLogRatio(readCoverageGatk(normal.coverage.file),
-        readCoverageGatk(tumor.coverage.file))
+    log.ratio <- calculateLogRatio(readCoverageFile(normal.coverage.file),
+        readCoverageFile(tumor.coverage.file))
 
     ret <- runAbsoluteCN( log.ratio=log.ratio,
         gc.gene.file=gc.gene.file,
@@ -332,8 +332,8 @@ test_runAbsoluteCN <- function() {
         plot.cnv=FALSE,
         max.ploidy = 3, test.purity = seq(0.4, 0.7, by = 0.05), 
         max.candidate.solutions = 1)
-    tumor <- readCoverageGatk(tumor.coverage.file)
-    normal <- readCoverageGatk(normal.coverage.file)
+    tumor <- readCoverageFile(tumor.coverage.file)
+    normal <- readCoverageFile(normal.coverage.file)
     idx <- tumor$probe %in% ret$input$log.ratio$probe
     cutoff <- median(normalDB$exon.median.coverage)*0.3
     plotAbs(ret, 1, type="volcano")

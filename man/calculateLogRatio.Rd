@@ -7,10 +7,10 @@
 calculateLogRatio(normal, tumor)
 }
 \arguments{
-\item{normal}{Normal coverage read in by the \code{\link{readCoverageGatk}}
+\item{normal}{Normal coverage read in by the \code{\link{readCoverageFile}}
 function.}
 
-\item{tumor}{Tumor coverage read in by the \code{\link{readCoverageGatk}}
+\item{tumor}{Tumor coverage read in by the \code{\link{readCoverageFile}}
 function.}
 }
 \value{
@@ -29,8 +29,8 @@ normal.coverage.file <- system.file("extdata", "example_normal.txt",
     package="PureCN")
 tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package="PureCN")
-normal <- readCoverageGatk(normal.coverage.file)
-tumor <- readCoverageGatk(tumor.coverage.file)
+normal <- readCoverageFile(normal.coverage.file)
+tumor <- readCoverageFile(tumor.coverage.file)
 log.ratio <- calculateLogRatio(normal, tumor)
 
 }

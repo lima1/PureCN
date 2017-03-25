@@ -584,7 +584,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         }    
     }
     if (is.character(tumor.coverage.file)) {
-        tumor <- readCoverageGatk(tumor.coverage.file)
+        tumor <- readCoverageFile(tumor.coverage.file)
     } else {
         tumor <- tumor.coverage.file
     }
@@ -942,7 +942,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 }
 
 .gcGeneToCoverage <- function(gc.gene.file, min.coverage) {
-    gc.data <- readCoverageGatk(gc.gene.file)
+    gc.data <- readCoverageFile(gc.gene.file)
     gc.data$average.coverage <- min.coverage
     gc.data$coverage <- min.coverage * gc.data$targeted.base
     gc.data

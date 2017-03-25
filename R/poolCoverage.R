@@ -3,13 +3,13 @@
 #' Averages the coverage of a list of samples.
 #' 
 #' 
-#' @param all.data List of normals, read with \code{\link{readCoverageGatk}}.
+#' @param all.data List of normals, read with \code{\link{readCoverageFile}}.
 #' @param remove.chrs Remove these chromosomes from the pool.
 #' @param w \code{numeric(length(all.data))} vector of weights. If \code{NULL},
 #' weight all samples equally.
 #' @return A \code{data.frame} with the averaged coverage over all normals.
 #' @author Markus Riester
-#' @seealso \code{\link{readCoverageGatk}}
+#' @seealso \code{\link{readCoverageFile}}
 #' @examples
 #' 
 #' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
@@ -25,7 +25,7 @@
 #' # get the best 2 normals and average them
 #' best.normal.coverage.files <- findBestNormal(tumor.coverage.file, normalDB, 
 #'     num.normals=2)
-#' pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageGatk),
+#' pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageFile),
 #'      remove.chrs=c("chrX", "chrY"))
 #' 
 #' @export poolCoverage
