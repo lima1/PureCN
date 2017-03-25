@@ -41,7 +41,6 @@ flog.info("Loading PureCN...")
 suppressPackageStartupMessages(library(rtracklayer))
 
 intervals <- import(in.file)
-flog.info("%s", class(intervals))
 suppressPackageStartupMessages(library(PureCN))
 calculateGCContentByInterval(intervals, reference.file, 
     output.file = outfile)
