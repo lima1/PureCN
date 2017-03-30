@@ -33,10 +33,10 @@ bootstrapResults <- function(res, n = 500, top = 2) {
     ## Sample SNVs with replacement and recalculate log-likelihood.
     .bootstrapResult <- function(result) {
         lliks <- log(apply(result$SNV.posterior$likelihoods[
-            !result$SNV.posterior$llik.ignored,],1,max))
+            !result$SNV.posterior$posteriors$FLAGGED,],1,max))
         lliks <- sum(sample(lliks, replace=TRUE))
         result$log.likelihood + sum(lliks) - 
-            sum(result$SNV.posterior$llik.ignored)
+            sum(result$SNV.posterior$posteriors$FLAGGED)
     }
     best <- replicate(n, head(order(sapply(results, .bootstrapResult),
         decreasing=TRUE), top))

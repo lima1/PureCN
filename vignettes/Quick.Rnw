@@ -23,7 +23,7 @@ This tutorial provides a quick overview of the command line tools shipping with
 \Biocpkg{PureCN}. For the R package and more detailed information, see the main
 vignette. 
 
-\section*{Prepare Environment and Files}
+\subsection*{Prepare environment and files}
 
 Get the path to command line scripts in R:
 
@@ -47,15 +47,13 @@ $ Rscript $PURECN/IntervalFile.R --infile ex_intervals.bed \
 \end{verbatim}
 
 Internally, this script uses \Biocpkg{rtracklayer} to parse the
-\Rcode{infile}. Make sure that the file format matches the file name suffix. 
+\Rcode{infile}. Make sure that the file format matches the file extension. 
 
 See the main vignette how to add gene symbols to the interval file. Symbols are
 necessary to obtain gene-level copy number and LOH calls. For a test run, you
 will not need this.
 
-\section*{Run PureCN}
-
-\subsection*{Third-party segmentation}
+\subsection*{Run PureCN with third-party segmentation}
 
 If you already have a segmentation from third-party tools (for example CNVkit,
 EXCAVATOR2):
@@ -86,7 +84,7 @@ The \Rcode{--funsegmentation} controls if the data should to be re-segmented
 using germline BAFs (default). Set this value to none if the provided
 segmentation should be used as is. 
 
-\subsection*{PureCN segmentation}
+\subsection*{Run PureCN internal segmentation}
 
 The following describes \Biocpkg{PureCN} runs with internal copy number
 normalization and segmentation.
@@ -141,7 +139,7 @@ $ Rscript $PURECN/PureCN.R --outdir . --tumor example_tumor_loess.txt \
 $ Rscript $PURECN/PureCN.R --rds Sample1_purecn.rds
 \end{verbatim}
 
-\section*{Session Info}
+\subsection*{Session Info}
 <<sessioninfo, results='asis', echo=FALSE>>=
 toLatex(sessionInfo())
 @

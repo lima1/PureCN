@@ -217,6 +217,11 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         (p*posteriors$ML.C+2*(1-p))/p
     posteriors$CELLFRACTION[!posteriors$ML.SOMATIC] <- NA
 
+    rm.snv.posteriors <- apply(likelihoods, 1, max) 
+    idx.ignore <- rm.snv.posteriors == 0 | 
+        posteriors$MAPPING.BIAS < max.mapping.bias
+    posteriors$FLAGGED <- idx.ignore    
+
     posteriors$log.ratio <- snv.lr[vcf.ids]
     posteriors$depth <-as.numeric(geno(vcf[vcf.ids])$DP[, tumor.id.in.vcf])
     posteriors$prior.somatic <- prior.somatic[vcf.ids]
@@ -224,14 +229,12 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     posteriors$on.target <- info(vcf[vcf.ids])$OnTarget
     posteriors$seg.id <- queryHits(ov)
 
-    rm.snv.posteriors <- apply(likelihoods, 1, max) 
-    idx.ignore <- rm.snv.posteriors == 0 | 
-        posteriors$MAPPING.BIAS < max.mapping.bias
 
     if (!is.null(mapping.bias$pon.count)) {
         posteriors$pon.count <- mapping.bias$pon.count[vcf.ids]
         idx.ignore <- idx.ignore | 
             ( posteriors$pon.count > max.pon & !info(vcf[vcf.ids])$DB )
+        posteriors$FLAGGED <- idx.ignore    
     }
     # change seqnames to chr
     colnames(posteriors)[1] <- "chr"    
@@ -241,7 +244,6 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         likelihoods = likelihoods, 
         posteriors = posteriors, 
         vcf.ids = vcf.ids, 
-        llik.ignored = idx.ignore,
         posterior.contamination = 0)
 
     ret

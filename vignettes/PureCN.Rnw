@@ -483,14 +483,14 @@ of 0, 1, 2 and 4.
 plotAbs(ret, 1, type="BAF")
 @
 \incfig{figure/figureexample3-1}{0.95\textwidth}{B-allele frequency plot.}{Each
-    dot is a (predicted) germline SNP. The first panel shows the allelic
-    fractions.  The alternating blue and white background colors visualize odd
-    and even chromosome numbers, respectively. The black lines visualize the
-    expected (not the average!) allelic fractions in the segment. These are
-    calculated using the estimated purity and the total and minor segment copy
-    numbers. These are visualized in black and grey, respectively, in the second
-    and third panel.  The second panel shows the copy number log-ratios, the 
-    third panel the integer copy numbers.}
+dot is a (predicted) germline SNP. The first panel shows the allelic fractions
+as provided in the VCF file.  The alternating blue and white background colors
+visualize odd and even chromosome numbers, respectively. The black lines
+visualize the expected (not the average!) allelic fractions in the segment.
+These are calculated using the estimated purity and the total and minor segment
+copy numbers. These are visualized in black and grey, respectively, in the
+second and third panel.  The second panel shows the copy number log-ratios, the
+third panel the integer copy numbers.}
 
 Germline variant data are informative for calculating integer copy number,
 because unbalanced maternal and paternal chromosome numbers in the tumor
@@ -583,9 +583,10 @@ writeVcf(vcf, file="Sample1_PureCN.vcf")
 For optimal classification results:
 \begin{itemize}
     \item Set \Rcode{post.optimize=TRUE} since small inaccuracies in purity can
-decrease the classification performance significantly.
+decrease the classification performance significantly
     \item Provide \Rcode{args.setMappingBias} a pool of normal VCF to
-        obtain position-specific mapping bias information.
+        obtain position-specific mapping bias information
+    \item Exclude variants in regions of low mappability    
     \item Use a somatic posterior probability cutoff of 0.8 and 0.2 for somatic
         and germline variants, respectively.  This appears to be a good
         compromise of call rate and accuracy.
@@ -631,6 +632,8 @@ somatic (sum of all somatic state posterior probabilities) \\
 \Rcode{ML.LOH} & \Rcode{TRUE} if variant is most likely in LOH \\
 \Rcode{CN.SUBCLONAL} & \Rcode{TRUE} if copy number segment is sub-clonal \\
 \Rcode{CELLFRACTION} & Fraction of tumor cells harboring the somatic mutation\\
+\Rcode{FLAGGED} & Flag indicating that call is unreliable 
+    (currently only due to high mapping bias)\\
 \Rcode{log.ratio} & The copy number log-ratio (tumor vs. normal) for this 
     variant \\
 \Rcode{depth} & The total sequencing depth at this position \\
@@ -1238,15 +1241,16 @@ segmentation parameters, such as \Rcode{prune.hclust.h=0.2} or higher.
     \item Were the normal samples run with the same assay and pipeline? 
     \item Did you provide \Rfunction{runAbsoluteCN} all the recommended files
     as described in Section~\ref{secrecommended}?  
-    \item For whole-genome data, you most likely get better results using a
+    \item For whole-genome data, you will get better results using a
     specialized third-party segmentation method as described in
     section~\ref{customseg}, since our default is optimized for targeted
     sequencing.
     \item For smaller targeted panels, copy number events can interfere with
-    the GC-normalization. Try either the \Rcode{POLYNOMIAL} method in 
-    \Rfunction{correctCoverageBias} or the two-pass loess normalization 
-    (Section~\ref{cmdpurecn}) if the data looks noisy. Third-party tools that
-    utilize off-target reads might be also worth trying.
+    the GC-normalization. Try either the \Rcode{POLYNOMIAL} method in
+    \Rfunction{correctCoverageBias} or the two-pass loess normalization
+    (Section~\ref{cmdpurecn}) if the data looks noisy. Third-party segmentation
+    tools (Section~\ref{customseg}) that utilize off-target reads might be also
+    worth trying.
     \end{itemize}
     \item Otherwise, if log-ratio peaks are clean as in 
 Figure~\ref{figure/figureexample2-1}:
