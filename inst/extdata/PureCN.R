@@ -55,6 +55,11 @@ tumor.vcf <- opt$vcf
 genome <- opt$genome
 gc.gene.file <- opt$gcgene
 snp.blacklist <- opt$snpblacklist
+
+if (!is.null(snp.blacklist)) {
+    snp.blacklist <- strsplit(snp.blacklist, ",")[[1]]
+}
+    
 stats.file <- opt$statsfile
 seg.file <- opt$segfile
 target.weight.file <- opt$targetweightfile

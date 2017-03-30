@@ -56,15 +56,34 @@ will not need this.
 \subsection*{Run PureCN with third-party segmentation}
 
 If you already have a segmentation from third-party tools (for example CNVkit,
-EXCAVATOR2):
+EXCAVATOR2). For a test run:
 
 \begin{verbatim}
 Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
+    --sampleid $SAMPLEID \
     --segfile $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
-#    --normal_panel $NORMAL_PANEL \
     --vcf $VCF_FILE \
-#    --statsfile $VCF_STATS_FILE \
-    -i $SAMPLEID \
+    --genome hg19 --gcgene ex_gcgene.txt \
+    --outvcf --force --postoptimize  
+\end{verbatim}
+
+The main VCF (\Rcode{--vcf}) is ideally created by \software{MuTect} 1.1.7.
+The \software{MuTect} stats file can be provided for better artifact filtering.
+Support for \software{MuTect 2} and \software{FreeBayes} is available, but
+poorly tested and only very limited artifact filtering will be performed for
+these callers.  
+
+For a production pipeline run we provide a bit more information about the assay
+and genome:
+
+\begin{verbatim}
+Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
+    --sampleid $SAMPLEID \
+    --segfile $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
+    --normal_panel $NORMAL_PANEL \
+    --vcf $VCF_FILE \
+    --statsfile $VCF_STATS_FILE \
+    --snpblacklist hg19_segmentalDups.bed,hg19_simpleRepeats.bed \
     --genome hg19 --gcgene ex_gcgene.txt \
 #    --funsegmentation none \
     --outvcf --force --postoptimize  
@@ -74,12 +93,6 @@ The normal panel VCF file is useful for mapping bias correction and especially
 recommended without matched normals. See the FAQ of the main vignette how to
 generate this file. It is not essential for test runs.
 
-The main VCF (\Rcode{--vcf}) is ideally created by \software{MuTect} 1.1.7.
-The \software{MuTect} stats file can be provided for better artifact filtering.
-Support for \software{MuTect 2} and \software{FreeBayes} is available, but
-poorly tested and only very limited artifact filtering will be performed for
-these callers.  
-
 The \Rcode{--funsegmentation} controls if the data should to be re-segmented
 using germline BAFs (default). Set this value to none if the provided
 segmentation should be used as is. 
@@ -87,7 +100,8 @@ segmentation should be used as is.
 \subsection*{Run PureCN internal segmentation}
 
 The following describes \Biocpkg{PureCN} runs with internal copy number
-normalization and segmentation.
+normalization and segmentation. Provided are again minimal examples for
+test runs.
 
 \subsubsection*{Coverage}
 
