@@ -633,7 +633,7 @@ somatic (sum of all somatic state posterior probabilities) \\
 \Rcode{CN.SUBCLONAL} & \Rcode{TRUE} if copy number segment is sub-clonal \\
 \Rcode{CELLFRACTION} & Fraction of tumor cells harboring the somatic mutation\\
 \Rcode{FLAGGED} & Flag indicating that call is unreliable 
-    (currently only due to high mapping bias)\\
+    (currently only due to high mapping bias and high pool of normal counts)\\
 \Rcode{log.ratio} & The copy number log-ratio (tumor vs. normal) for this 
     variant \\
 \Rcode{depth} & The total sequencing depth at this position \\
