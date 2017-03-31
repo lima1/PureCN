@@ -64,7 +64,7 @@ Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
     --segfile $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
     --vcf $VCF_FILE \
     --genome hg19 --gcgene ex_gcgene.txt \
-    --outvcf --force --postoptimize  
+    --outvcf 
 \end{verbatim}
 
 The main VCF (\Rcode{--vcf}) is ideally created by \software{MuTect} 1.1.7.
@@ -93,9 +93,13 @@ The normal panel VCF file is useful for mapping bias correction and especially
 recommended without matched normals. See the FAQ of the main vignette how to
 generate this file. It is not essential for test runs.
 
-The \Rcode{--funsegmentation} controls if the data should to be re-segmented
-using germline BAFs (default). Set this value to none if the provided
-segmentation should be used as is. 
+The \Rcode{--funsegmentation} argument controls if the data should to be
+re-segmented using germline BAFs (default). Set this value to \Rcode{none} if
+the provided segmentation should be used as is. 
+
+The \Rcode{--postoptimize} flag defines that purity should be optimized using
+both variant allelic fractions and copy number instead of copy number only.
+This results in a significant runtime increase for whole-exome data.
 
 \subsection*{Run PureCN internal segmentation}
 
@@ -139,13 +143,13 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT \
 cd $OUT/$SAMPLEID
 # From GC-normalized coverage data
 $ Rscript $PURECN/PureCN.R --outdir . --tumor example_tumor_loess.txt \ 
-    --normal example_normal_loess.txt --vcf $VCF_FILE -i Sample1 \
+    --normal example_normal_loess.txt --vcf $VCF_FILE -i $SAMPLEID \
     --genome hg19 --gcgene  ex_gcgene.txt \
     --outvcf 
 
 # Without a matched normal    
 $ Rscript $PURECN/PureCN.R --outdir . --tumor example_tumor_loess.txt \ 
-    --normaldb ../normalDB_hg19.rds --pool 5 --vcf example_vcf.vcf -i Sample1 \
+    --normaldb ../normalDB_hg19.rds --pool 5 --vcf example_vcf.vcf -i $SAMPLEID \
     --genome hg19 --gcgene example_gc.gene.file.txt \
     --outvcf 
 
