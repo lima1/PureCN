@@ -68,7 +68,6 @@ Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
 \end{verbatim}
 
 The main VCF (\Rcode{--vcf}) is ideally created by \software{MuTect} 1.1.7.
-The \software{MuTect} stats file can be provided for better artifact filtering.
 Support for \software{MuTect 2} and \software{FreeBayes} is available, but
 poorly tested and only very limited artifact filtering will be performed for
 these callers.  
@@ -92,6 +91,8 @@ Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
 The normal panel VCF file is useful for mapping bias correction and especially
 recommended without matched normals. See the FAQ of the main vignette how to
 generate this file. It is not essential for test runs.
+The \software{MuTect} 1.1.7 stats file (the main output file besides the VCF)
+should be provided for better artifact filtering.
 
 The \Rcode{--funsegmentation} argument controls if the data should to be
 re-segmented using germline BAFs (default). Set this value to \Rcode{none} if
@@ -101,7 +102,7 @@ The \Rcode{--postoptimize} flag defines that purity should be optimized using
 both variant allelic fractions and copy number instead of copy number only.
 This results in a significant runtime increase for whole-exome data.
 
-\subsection*{Run PureCN internal segmentation}
+\subsection*{Run PureCN with internal segmentation}
 
 The following describes \Biocpkg{PureCN} runs with internal copy number
 normalization and segmentation. Provided are again minimal examples for

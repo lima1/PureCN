@@ -312,7 +312,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     test.num.copy <- sort(test.num.copy)
     
-    flog.info("Loading GATK coverage files...")
+    flog.info("Loading coverage files...")
     
     if (!is.null(normal.coverage.file)) {
         if (is.character(normal.coverage.file)) {
