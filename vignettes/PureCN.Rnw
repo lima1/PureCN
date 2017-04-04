@@ -30,7 +30,7 @@ samples in mind (matched whole-exome data is of course supported).
 
 It can be used to supplement existing normalization and segmentation algorithms,
 i.e. the software can start from BAM files, from target-level coverage data,
-from copy number log-ratios or from already segmented data. If the correct
+from copy number log-ratios or from already segmented data. After the correct
 purity and ploidy solution was identified, \Biocpkg{PureCN} will accurately
 classify variants as germline vs. somatic or clonal vs. sub-clonal.
 
