@@ -7,9 +7,9 @@ Date: 2017-04-04
 Authors@R: c(person("Markus", "Riester", role=c("aut", "cre"),
         email="markus.riester@novartis.com"),
     person("Angad P.", "Singh", role="aut"))
-Description: This package estimates tumor purity, copy number, loss of
+Description: This package estimates tumor purity, copy number, and loss of
     heterozygosity (LOH), and classifies single nucleotide variants (SNVs) by
-    somatic status and clonality.  PureCN is designed for targeted short read
+    somatic status and clonality. PureCN is designed for targeted short read
     sequencing data, integrates well with standard somatic variant detection
     and copy number pipelines, and has support for tumor samples without
     matching normal samples.

@@ -905,10 +905,12 @@ provided, then all targets below the coverage minimum are further excluded.
 
 If a matched normal is not available, it is also helpful to provide
 \Rfunction{runAbsoluteCN} the COSMIC database \cite{Forbes2015} via
-\Rcode{cosmic.vcf.file}. While this has limited effect on purity and ploidy
-estimation due the sparsity of hotspot mutations, it often helps in the manual
-curation to compare how well high confidence germline (dbSNP) vs. somatic
-(COSMIC) variants fit a particular purity/ploidy combination.
+\Rcode{cosmic.vcf.file} (or via a \Rcode{Cosmic.CNT} INFO field in the VCF).
+While this has limited effect on purity and ploidy estimation due the sparsity
+of hotspot mutations, it often helps in the manual curation to compare how well
+high confidence germline (dbSNP) vs. somatic (COSMIC) variants fit a particular
+purity/ploidy combination. 
+
 
 \subsection{Power to detect somatic mutations}
 
@@ -1284,9 +1286,6 @@ Figure~\ref{figure/figureexample2-1}:
     in whole-exome data.
     \item The same is obviously true for coverage. Coverages below 80X are
     difficult unless purities are high and coverages are even.
-    \item Evenness of coverage is to large extend the result of good probe
-    design optimization.  This is not always a priority in assay design, but
-    should be if copy number calling is important.
     \item Samples with tumor purities below 20\% usually cannot be analyzed with this
     algorithm and \Biocpkg{PureCN} might return very wrong purity estimates. 
     \item The number of heterozygous SNPs is also important (>1000 per sample).  
