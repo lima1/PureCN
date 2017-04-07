@@ -259,6 +259,11 @@ iterations=2, chr.hash ) {
 }
 
 .getSDundo <- function(log.ratio, d=0.1) {
+    # did user provide segmentation? Then the sd of the log-ratio
+    # is wrong and shouldn't be used 
+    isFakeLogRatio <- sum(abs(diff(log.ratio))<0.0001)/
+        length(log.ratio)>0.9
+    if (isFakeLogRatio) return(0)
     q <- quantile(log.ratio,p=c(d, 1-d))
     q.diff <- abs(q[1] - q[2])
     if (q.diff < 0.5) return(0.5)
