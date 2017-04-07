@@ -583,14 +583,15 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     vcf
 }
 
+.calcTargetedGenome <- function(granges) {
+    tmp <- reduce(granges)
+    sum(width(tmp))/(1000^2)
+}    
+
 .annotateVcfTarget <- function(vcf, target.granges, interval.padding) {
     target.granges.padding <- target.granges
     start(target.granges.padding) <- start(target.granges.padding)-interval.padding
     end(target.granges.padding) <- end(target.granges.padding)+interval.padding
-    .calcTargetedGenome <- function(granges) {
-        tmp <- reduce(granges)
-        sum(width(tmp))/(1000^2)
-    }    
     flog.info("Total size of targeted genomic region: %.2fMb (%.2fMb with %ibp padding).", 
         .calcTargetedGenome(target.granges), 
         .calcTargetedGenome(target.granges.padding),
