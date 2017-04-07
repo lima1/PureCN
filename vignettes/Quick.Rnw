@@ -63,8 +63,7 @@ Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
     --segfile $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
     --vcf $VCF_FILE \
-    --genome hg19 --gcgene ex_gcgene.txt \
-    --outvcf 
+    --genome hg19 --gcgene ex_gcgene.txt 
 \end{verbatim}
 
 The main VCF (\Rcode{--vcf}) is ideally created by \software{MuTect} 1.1.7.
@@ -85,7 +84,7 @@ Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
     --snpblacklist hg19_segmentalDups.bed,hg19_simpleRepeats.bed \
     --genome hg19 --gcgene ex_gcgene.txt \
 #    --funsegmentation none \
-    --outvcf --force --postoptimize  
+    --force --postoptimize  
 \end{verbatim}
 
 The normal panel VCF file is useful for mapping bias correction and especially
@@ -145,14 +144,12 @@ cd $OUT/$SAMPLEID
 # From GC-normalized coverage data
 $ Rscript $PURECN/PureCN.R --outdir . --tumor example_tumor_loess.txt \ 
     --normal example_normal_loess.txt --vcf $VCF_FILE -i $SAMPLEID \
-    --genome hg19 --gcgene  ex_gcgene.txt \
-    --outvcf 
+    --genome hg19 --gcgene  ex_gcgene.txt 
 
 # Without a matched normal    
 $ Rscript $PURECN/PureCN.R --outdir . --tumor example_tumor_loess.txt \ 
     --normaldb ../normalDB_hg19.rds --pool 5 --vcf example_vcf.vcf -i $SAMPLEID \
-    --genome hg19 --gcgene example_gc.gene.file.txt \
-    --outvcf 
+    --genome hg19 --gcgene example_gc.gene.file.txt 
 
 # Recreate output after manual curation of Sample_purecn.csv
 $ Rscript $PURECN/PureCN.R --rds Sample1_purecn.rds

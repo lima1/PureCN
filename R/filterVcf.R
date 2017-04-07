@@ -317,6 +317,8 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
 #' value is for the case that variant is in both dbSNP and COSMIC > 2.
 #' @param tumor.id.in.vcf Id of tumor in case multiple samples are stored in
 #' VCF.
+#' @param min.cosmic.cnt Minimum number of hits in the COSMIC database to 
+#' call variant as likely somatic.
 #' @return A \code{numeric(nrow(vcf))} vector with the prior probability of
 #' somatic status for each variant in the \code{CollapsedVCF}.
 #' @author Markus Riester
@@ -330,8 +332,9 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
 #' 
 #' @export setPriorVcf
 setPriorVcf <- function(vcf,
-prior.somatic=c(0.5, 0.0005, 0.999, 0.0001, 0.995, 0.1), 
-tumor.id.in.vcf=NULL) {
+prior.somatic=c(0.5, 0.0005, 0.999, 0.0001, 0.995, 0.5), 
+tumor.id.in.vcf=NULL,
+min.cosmic.cnt=4) {
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
     }
@@ -352,8 +355,8 @@ tumor.id.in.vcf=NULL) {
              flog.info("Setting somatic prior probabilities for hits to %f or to %f if in both COSMIC and dbSNP.", 
                 tmp[5], tmp[6])
 
-             prior.somatic[which(info(vcf)$Cosmic.CNT>2)] <- tmp[5]
-             prior.somatic[which(info(vcf)$Cosmic.CNT>2 & 
+             prior.somatic[which(info(vcf)$Cosmic.CNT >= min.cosmic.cnt)] <- tmp[5]
+             prior.somatic[which(info(vcf)$Cosmic.CNT >= min.cosmic.cnt & 
                 info(vcf)$DB)] <- tmp[6]
          } else {
              flog.info("Setting somatic prior probabilities for dbSNP hits to %f or to %f otherwise.", 

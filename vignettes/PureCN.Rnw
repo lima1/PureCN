@@ -1077,28 +1077,25 @@ PureCN.R is an example script to run PureCN with basic parameters:
 # From GC-normalized coverage data
 Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \ 
     --normal example_normal.txt --vcf example_vcf.vcf -i Sample1 \
-    --genome hg19 --gcgene  example_gc.gene.file.txt \
-    --outvcf 
+    --genome hg19 --gcgene  example_gc.gene.file.txt 
 
 # Without a matched normal    
 Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \ 
     --normaldb normalDB.rds --pool 5 --vcf example_vcf.vcf -i Sample1 \
-    --genome hg19 --gcgene example_gc.gene.file.txt \
-    --outvcf 
+    --genome hg19 --gcgene example_gc.gene.file.txt 
 
 # From already segmented data
 Rscript PureCN.R --outdir ~/tmp/ --segfile example_seg.txt \ 
     --vcf example_vcf.vcf -i Sample1 --genome hg19 \
     --funsegmentation none \
-    --gcgene  example_gc.gene.file.txt \
-    --outvcf 
+    --gcgene  example_gc.gene.file.txt 
 
 # Two-pass loess normalization from NOT YET GC-normalized tumor coverage
 # data (normal controls need to be GC-normalized by the LOESS method)
 Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \ 
     --normaldb normalDB.rds --pool 5 --vcf example_vcf.vcf -i Sample1 \
     --genome hg19 --gcgene example_gc.gene.file.txt \
-    --outvcf --twopass --postoptimize
+    --twopass --postoptimize
 
 # Recreate output after manual curation of Sample_purecn.csv
 Rscript PureCN.R --rds Sample1_purecn.rds

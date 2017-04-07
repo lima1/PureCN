@@ -4,8 +4,8 @@
 \alias{setPriorVcf}
 \title{Set Somatic Prior VCF}
 \usage{
-setPriorVcf(vcf, prior.somatic = c(0.5, 5e-04, 0.999, 1e-04, 0.995, 0.1),
-  tumor.id.in.vcf = NULL)
+setPriorVcf(vcf, prior.somatic = c(0.5, 5e-04, 0.999, 1e-04, 0.995, 0.5),
+  tumor.id.in.vcf = NULL, min.cosmic.cnt = 4)
 }
 \arguments{
 \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf}
@@ -24,6 +24,9 @@ value is for the case that variant is in both dbSNP and COSMIC > 2.}
 
 \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in
 VCF.}
+
+\item{min.cosmic.cnt}{Minimum number of hits in the COSMIC database to 
+call variant as likely somatic.}
 }
 \value{
 A \code{numeric(nrow(vcf))} vector with the prior probability of
