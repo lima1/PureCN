@@ -79,7 +79,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     }    
 
     prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
-    prior.somatic <- prior.somatic/(1 + cont.rate)
+    prior.somatic <- prior.somatic - (prior.cont*prior.somatic)
 
     if (length(prior.somatic) != nrow(vcf)) {
         .stopRuntimeError("prior.somatic and VCF do not align.")

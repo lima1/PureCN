@@ -5,7 +5,7 @@
 \title{Set Mapping Bias VCF}
 \usage{
 setMappingBiasVcf(vcf, tumor.id.in.vcf = NULL, normal.panel.vcf.file = NULL,
-  min.normals = 5, smooth = TRUE, smooth.n = 5)
+  min.normals = 4, smooth = TRUE, smooth.n = 5)
 }
 \arguments{
 \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf}

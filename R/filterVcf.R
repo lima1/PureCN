@@ -168,8 +168,14 @@ interval.padding = 50) {
 
     if (!is.null(snp.blacklist)) {
         for (i in seq_along(snp.blacklist)) {
+            # TODO clean up in PureCN 1.8
             snp.blacklist.data <- read.csv(snp.blacklist[i], as.is=TRUE)
-            snp.blacklist.data2 <- read.delim(snp.blacklist[i], as.is=TRUE)
+            snp.blacklist.data2 <- try(read.delim(snp.blacklist[i], 
+                as.is=TRUE),silent=TRUE)
+            # temporary hack to support headers. In 1.8, we will use only rtracklayer.
+            if (class(snp.blacklist.data2) == "try-error") {
+                snp.blacklist.data2 <- read.delim(snp.blacklist[i], as.is=TRUE, skip=1)
+            }    
             if (ncol(snp.blacklist.data2) > ncol(snp.blacklist.data)) {
                 snp.blacklist.data <- snp.blacklist.data2
             }

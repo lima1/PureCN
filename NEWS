@@ -32,7 +32,7 @@ API CHANGES
 - Deprecated functions: createSNPBlacklist, getDiploid, autoCurateResults
 - Defunct functions: createExonWeightFile
 - Changed defaults: 
-    - min.normals 5 (from 10) in setMappingBiasVcf
+    - min.normals 4 (from 10) in setMappingBiasVcf
     - max.segments 300 (from 200) in runAbsoluteCN               
     - min.targeted.base 5 (from 4) in filterTargets
     - max.homozygous.loss now a double(2) vector, with first element

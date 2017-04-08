@@ -37,7 +37,7 @@
 #' 
 #' @export setMappingBiasVcf
 setMappingBiasVcf <- function(vcf, tumor.id.in.vcf = NULL,
-normal.panel.vcf.file = NULL, min.normals = 5, smooth = TRUE, smooth.n = 5) {
+normal.panel.vcf.file = NULL, min.normals = 4, smooth = TRUE, smooth.n = 5) {
 
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
@@ -73,7 +73,7 @@ normal.panel.vcf.file = NULL, min.normals = 5, smooth = TRUE, smooth.n = 5) {
 
     psMappingBias <- apply(geno(nvcf)$FA, 1, function(x) { 
         x <- unlist(x)
-        x <- subset(x, !is.na(x) & x>0.1 &x < 0.9)
+        x <- subset(x, !is.na(x) & x>0.05 &x < 0.9)
         if (length(x) >= min.normals) mean(x) else 0.5
     })*2
 

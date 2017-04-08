@@ -379,12 +379,12 @@ if (downloadFromUCSC) {
     library(rtracklayer)
     mySession <- browserSession("UCSC")
     genome(mySession) <- "hg19"
-    tbl.segmentalDups <- getTable( ucscTableQuery(mySession, 
+    segmentalDups <- track( ucscTableQuery(mySession, 
         track="Segmental Dups", table="genomicSuperDups"))
-    tbl.simpleRepeats <- getTable( ucscTableQuery(mySession, 
+    simpleRepeats <- track( ucscTableQuery(mySession, 
         track="Simple Repeats", table="simpleRepeat"))
-    export(tbl.segmentalDups, "hg19_segmentalDuplications.bed")
-    export(tbl.simpleRepeats, "hg19_simpleRepeats.bed")
+    export(segmentalDups, "hg19_segmentalDuplications.bed")
+    export(simpleRepeats, "hg19_simpleRepeats.bed")
 }
 
 snp.blacklist <- c("hg19_segmentalDuplications.bed", 
