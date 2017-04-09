@@ -639,8 +639,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             somatic.purity <- min(max(test.purity), .calcPuritySomaticVariants(vcf, 
                 prior.somatic, tumor.id.in.vcf))
             
-            candidate.solutions$candidates <- rbind(candidate.solutions$candidates, 
-                c(2, somatic.purity, NA, 2))
+            candidate.solutions$candidates <- .filterDuplicatedCandidates(
+                rbind(candidate.solutions$candidates, 
+                      c(2, somatic.purity, NA, 2)))
         }
     }
     
