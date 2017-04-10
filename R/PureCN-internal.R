@@ -496,7 +496,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
     gc.pos <- .gcPos(gc.data)
     # that will otherwise mess up the log-ratio means, mins and maxs
-    idx <- !is.nan(log.ratio) & !is.infinite(log.ratio)
+    idx <- !is.nan(log.ratio) & !is.infinite(log.ratio) & gc.pos$Gene != "."
     gc.pos <- gc.pos[idx, ]
     log.ratio <- log.ratio[idx]
     
@@ -596,12 +596,14 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         lapply(c(list(tumor), normals), function(x) x$average.coverage))
 }    
 
-.checkSymbolsChromosome <- function(gc.pos) {
+.checkSymbolsChromosome <- function(gc.pos, blank=c("", ".")) {
     chrsPerSymbol <- lapply(split(gc.pos$chr, gc.pos$Gene), unique)
     nonUniqueSymbols <- names(chrsPerSymbol[sapply(chrsPerSymbol, length)>1])
     idx <- gc.pos$Gene %in% nonUniqueSymbols
+    idxBlank <- gc.pos$Gene %in% blank
     gc.pos$Gene <- as.character(gc.pos$Gene)
     gc.pos$Gene[idx] <- paste(gc.pos$Gene, gc.pos$chr, sep=".")[idx]
+    gc.pos$Gene[idxBlank] <- "."
     gc.pos
 }
     
