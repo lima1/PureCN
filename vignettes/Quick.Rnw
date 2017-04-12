@@ -81,7 +81,7 @@ Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
     --normal_panel $NORMAL_PANEL \
     --vcf $VCF_FILE \
     --statsfile $VCF_STATS_FILE \
-    --snpblacklist hg19_segmentalDups.bed,hg19_simpleRepeats.bed \
+    --snpblacklist hg19_simpleRepeats.bed \
     --genome hg19 --gcgene ex_gcgene.txt \
 #    --funsegmentation none \
     --force --postoptimize  

@@ -364,9 +364,9 @@ variants, while removing potential artifacts.  Without the stats file,
 
 Instead of using a pool of normals to find SNPs with extremely biased allelic
 fractions, we can also use a BED file to blacklist regions of low mappability.
-For example the segmental duplications and simple repeats tracks from the UCSC.
-This is recommended when neither matching normals nor a pool of normal VCF
-(Section~\ref{artifactfiltering}) is available.
+For example the simple repeats track from the UCSC.  This is recommended when
+neither matching normals nor a pool of normal VCF
+(Section~\ref{artifactfiltering}) is available. 
 
 <<ucsc_segmental>>=
 # Instead of using a pool of normals to find low quality regions,
@@ -379,16 +379,12 @@ if (downloadFromUCSC) {
     library(rtracklayer)
     mySession <- browserSession("UCSC")
     genome(mySession) <- "hg19"
-    segmentalDups <- track( ucscTableQuery(mySession, 
-        track="Segmental Dups", table="genomicSuperDups"))
     simpleRepeats <- track( ucscTableQuery(mySession, 
         track="Simple Repeats", table="simpleRepeat"))
-    export(segmentalDups, "hg19_segmentalDuplications.bed")
     export(simpleRepeats, "hg19_simpleRepeats.bed")
 }
 
-snp.blacklist <- c("hg19_segmentalDuplications.bed", 
-    "hg19_simpleRepeats.bed")
+snp.blacklist <- "hg19_simpleRepeats.bed"
 @
 
 \section{Recommended run}
