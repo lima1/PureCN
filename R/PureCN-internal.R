@@ -814,6 +814,15 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     if (identical(colnames(seg), required.colnames2)) {
         colnames(seg) <- required.colnames
     }    
+    
+    # The smallest possible log-ratio is about 8
+    # for 0.99 purity and high ploidy.
+    # remove artifacts with lower log-ratio
+    if (min(seg$seg.mean, na.rm=TRUE) < -8) {
+        nBefore <- nrow(seg)
+        seg <- seg[which(seg$seg.mean >= -8),]
+        flog.warn("Removed %i segments with log-ratio < -8.", nBefore-nrow(seg))
+    }    
 
     if (!identical(colnames(seg), required.colnames)) {
         .stopUserError(paste("Segmentation file expected with colnames", 
