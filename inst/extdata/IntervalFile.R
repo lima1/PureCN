@@ -9,8 +9,7 @@ spec <- matrix(c(
 'force' ,       'f', 0, "logical",
 'fasta',        'a', 1, "character",
 'infile',       'i', 1, "character",
-'outfile',      'o', 1, "character",
-'subdivide',    's', 0, "logical"
+'outfile',      'o', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
 
@@ -42,11 +41,6 @@ suppressPackageStartupMessages(library(rtracklayer))
 
 intervals <- import(in.file)
 
-if (!is.null(opt$subdivide)) {
-    flog.info("Subdividing large targets.")
-    suppressPackageStartupMessages(library(exomeCopy))
-    intervals <- subdivideGRanges(intervals, mean(width(intervals)))
-} 
 flog.info("Loading PureCN...")
 suppressPackageStartupMessages(library(PureCN))
 calculateGCContentByInterval(intervals, reference.file, 

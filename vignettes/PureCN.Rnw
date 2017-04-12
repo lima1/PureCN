@@ -382,6 +382,13 @@ if (downloadFromUCSC) {
     simpleRepeats <- track( ucscTableQuery(mySession, 
         track="Simple Repeats", table="simpleRepeat"))
     export(simpleRepeats, "hg19_simpleRepeats.bed")
+    
+    # when off-target reads are used, we can provide one of the 
+    # whole-genome blacklists tracks
+    # hg19_DukeBlacklist <- track( ucscTableQuery(mySession,  
+    #     track="Mappability", 
+    #     table="wgEncodeDukeMapabilityRegionsExcludable"))
+    # export(hg19_DukeBlacklist, "hg19_DukeBlacklist.bed")
 }
 
 snp.blacklist <- "hg19_simpleRepeats.bed"
@@ -988,7 +995,6 @@ Argument name  & Corresponding PureCN argument & PureCN function \\
 --fasta -a     & reference.file & \Rfunction{calculateGCContentByInterval} \\
 --infile -i    & interval.file & \Rfunction{calculateGCContentByInterval} \\
 --outfile -o   & & \\
---subdivide -s & (split large targets) & \\
 \bottomrule
 \end{tabular}
 \end{table*}
