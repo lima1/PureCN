@@ -513,6 +513,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
             seq_along(res$results), col=mycol, cex=1.2,font=myfont)
         if (type=="overview2") {
             if (!is.null(res$results[[1]]$gene.calls) && 
+                !is.na(res$results[[1]]$gene.calls) && 
                 !is.null(res$results[[1]]$gene.calls$pvalue)) {
                 .plotVolcano(res$results[[1]]$gene.calls, 
                     palette.name=palette.name)
@@ -593,7 +594,7 @@ ss) {
 
 .plotVolcano <- function(gene.calls, num.genes=50, max.pvalue=0.001, 
     palette.name) {
-    if (is.null(gene.calls) || is.null(gene.calls$pvalue)) {
+    if (is.null(gene.calls) || is.na(gene.calls) || is.null(gene.calls$pvalue)) {
         .stopUserError("Type 'volcano' requires gene-level calls and a normalDB.")
     } 
     colorLookUp <- data.frame(chr=unique(gene.calls$chr), color=NA)
