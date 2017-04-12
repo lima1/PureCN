@@ -800,12 +800,12 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .calcPuritySomaticVariants <- function(vcf, prior.somatic, tumor.id.in.vcf) {
     median(unlist(geno(vcf[prior.somatic > 0.5])$FA[, tumor.id.in.vcf]), na.rm = TRUE)/0.48
 }
-.loadSegFile <- function(seg.file, sampleid) {
+.loadSegFile <- function(seg.file, sampleid, verbose=TRUE) {
     if (is.null(seg.file)) return(NULL)
     seg <- read.delim(seg.file)
-    .checkSeg(seg, sampleid)
+    .checkSeg(seg, sampleid, verbose)
 }
-.checkSeg <- function(seg, sampleid) {
+.checkSeg <- function(seg, sampleid, verbose=TRUE) {
     required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
         "seg.mean")
     required.colnames2 <- c("ID", "chromosome", "start", "end", "num_probes", 
@@ -821,7 +821,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     if (min(seg$seg.mean, na.rm=TRUE) < -8) {
         nBefore <- nrow(seg)
         seg <- seg[which(seg$seg.mean >= -8),]
-        flog.warn("Removed %i segments with log-ratio < -8.", nBefore-nrow(seg))
+        if (verbose) flog.warn("Removing %i segments with log-ratio < -8.", 
+            nBefore-nrow(seg))
     }    
 
     if (!identical(colnames(seg), required.colnames)) {
