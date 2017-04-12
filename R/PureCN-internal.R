@@ -820,8 +820,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     # remove artifacts with lower log-ratio
     if (min(seg$seg.mean, na.rm=TRUE) < -8) {
         nBefore <- nrow(seg)
-        seg <- seg[which(seg$seg.mean >= -8),]
-        if (verbose) flog.warn("Removing %i segments with log-ratio < -8.", 
+        seg <- seg[which(seg$seg.mean >= -8 | seg$num.mark >= 4),]
+        if (verbose) flog.warn("Removing %i short segments with log-ratio < -8.", 
             nBefore-nrow(seg))
     }    
 

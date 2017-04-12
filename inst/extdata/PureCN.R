@@ -169,7 +169,7 @@ if (file.exists(file.rds) && !force) {
             test.purity <- seq(opt$minpurity, 0.95, by = 0.01)
         }
     }    
-    model <- opt$model
+    model <- opt[["model"]]
     if (is.null(model)) model <- "beta"
     fun.segmentation <- segmentationCBS
     if (!is.null(opt$funsegmentation) && opt$funsegmentation != "CBS") {

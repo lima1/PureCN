@@ -527,7 +527,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     flog.info("Segmenting data...")
     
     args.segmentation <- c(list(normal = normal, tumor = tumor, log.ratio = log.ratio, 
-        seg = .loadSegFile(seg.file, sampleid), plot.cnv = plot.cnv,  
+        seg = .loadSegFile(seg.file, sampleid, verbose=FALSE), plot.cnv = plot.cnv,  
         sampleid = sampleid, vcf = vcf.germline, tumor.id.in.vcf = tumor.id.in.vcf, 
         normal.id.in.vcf = normal.id.in.vcf, max.segments = max.segments, chr.hash = chr.hash, 
         centromeres = centromeres), args.segmentation)
