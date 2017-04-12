@@ -24,6 +24,16 @@ test_correctCoverageBias <- function() {
     checkTrue(corPass2 > 0.99)
     correctCoverageBias(head(x,200), gc.gene.file)
 
+    gc.data <- read.delim(gc.gene.file, as.is=TRUE)
+    gc.data$Gene <- NULL
+    tmpFile <- tempfile()
+    write.table(gc.data, file=tmpFile, row.names=FALSE, quote=FALSE, sep="\t")
+    coveragePass3 <- correctCoverageBias(normal.coverage.file, tmpFile, 
+        output.file="test_loess_coverage.txt", 
+        purecn.output=purecn.example.output)
+    corPass3 <- cor(coverage$average.coverage, coveragePass3$average.coverage, use="complete.obs")
+    checkTrue(corPass3 > 0.99)
+
     png(file="test_gc_bias.png",width=960)
     coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
         output.file="test_norm_coverage.txt", method = "POLYNOMIAL", plot.gc.bias = TRUE)

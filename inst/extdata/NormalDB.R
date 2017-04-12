@@ -1,4 +1,5 @@
 library('getopt')
+library(futile.logger)
 
 ### Parsing command line ------------------------------------------------------
 
@@ -70,7 +71,7 @@ if (is.null(genome)) stop("Need --genome")
         paste0("_", tolower(method), ".txt"), basename(gatk.coverage)))
     outpng.file <- sub("txt$","png", output.file)
     if (file.exists(output.file) && !force) {
-        message(output.file, " exists. Skipping... (--force will overwrite)")
+        flog.info(output.file, " exists. Skipping... (--force will overwrite)")
     } else {
         png(outpng.file, width=800)
         correctCoverageBias(gatk.coverage, gc.gene.file,
@@ -80,8 +81,9 @@ if (is.null(genome)) stop("Need --genome")
     output.file 
 }
      
+flog.info("Loading PureCN...")
 if (length(coverageFiles)) {
-    library(PureCN)
+    suppressPackageStartupMessages(library(PureCN))
     if (!is.null(method)) {
         if (!method %in% c("LOESS", "POLYNOMIAL")) {
             stop("Unknown GC-normalization method")
@@ -93,21 +95,23 @@ if (length(coverageFiles)) {
             method, outdir, force)
     } else {
         method <- ""
-        message("--method not specified, assuming coverage files are ",
+        flog.info("--method not specified, assuming coverage files are %s",
             "GC-normalized")
     }        
+    flog.info("Creating normalDB.")
     normalDB <- createNormalDatabase(coverageFiles)
     saveRDS(normalDB, file=.getFileName(outdir,"normalDB",".rds", assay, 
         method, genome))
 }
 
 if (length(coverageFiles) > 3) {
-    library(PureCN)
+    suppressPackageStartupMessages(library(PureCN))
     target.weight.file <- .getFileName(outdir,"target_weights",".txt", assay, 
         method, genome)
+    flog.info("Creating target weights.")
     createTargetWeights(coverageFiles[1:2], coverageFiles[-(1:2)], 
         target.weight.file)
 } else {
-    message("Not enough coverage files for creating target_weights.txt")
+    flog.warn("Not enough coverage files for creating target_weights.txt")
 }
 

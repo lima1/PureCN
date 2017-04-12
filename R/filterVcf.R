@@ -269,7 +269,7 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
     stats <- read.delim(stats.file, as.is=TRUE, skip=1)
 
     if (is.null(stats$contig) || is.null(stats$position)) {
-        warning("MuTect stats file lacks contig and position columns.")
+        flog.warn("MuTect stats file lacks contig and position columns.")
         return(filterVcfBasic(vcf, tumor.id.in.vcf, ...))
     }    
 
@@ -287,7 +287,7 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
             n-nrow(vcf))
     }    
     if (is.null(stats$failure_reasons)) {
-        flog.warn("MuTect stats file lacks failure_reasons column.",
+        flog.warn("MuTect stats file lacks failure_reasons column.%s",
             " Keeping all variants listed in stats file.")
         return(filterVcfBasic(vcf, tumor.id.in.vcf, ...))
     }
@@ -446,7 +446,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         if (sampleid %in% samples(header(vcf))) {
             return(match(sampleid, samples(header(vcf))))
         }    
-        warning("Cannot determine tumor vs. normal in VCF. ",
+        flog.warn("Cannot determine tumor vs. normal in VCF. %s",
             "Assuming it is first sample. Specify tumor via sampleid argument.")
         return(1)
     }
@@ -460,7 +460,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     if (!is.null(sampleid)) {
         if (sampleid %in% samples(header(vcf)) && 
             sampleid != tumor.id.in.vcf) {
-            warning("Sampleid looks like a normal in VCF, not like a tumor.")
+            flog.warn("Sampleid looks like a normal in VCF, not like a tumor.")
         }    
     }    
     tumor.id.in.vcf
@@ -509,7 +509,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
      if (!sum(db)) {
         .stopUserError("vcf.file has no DB info field for dbSNP membership.")
      } else  { 
-        warning("vcf.file has no DB info field for dbSNP membership.",
+        flog.warn("vcf.file has no DB info field for dbSNP membership.%s",
             " Guessing it based on ID.")
      }   
     newInfo <- DataFrame(
@@ -574,7 +574,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     if (!length(ov)) return(vcf)
 
     if (is.null(info(cosmic.vcf)$CNT)) {
-        warning("Cosmic VCF has no CNT info field. ",
+        flog.warn("Cosmic VCF has no CNT info field. %s",
             "Giving up COSMIC annotation.")
         return(vcf)
     }

@@ -28,13 +28,13 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   post.optimize = FALSE, log.file = NULL, verbose = TRUE)
 }
 \arguments{
-\item{normal.coverage.file}{GATK coverage file of normal control (optional
+\item{normal.coverage.file}{Coverage file of normal control (optional
 if log.ratio is provided - then it will be only used to filter low coverage
 exons).  Should be already GC-normalized with
 \code{\link{correctCoverageBias}}.  Needs to be either a file name or data
 read with the \code{\link{readCoverageFile}} function.}
 
-\item{tumor.coverage.file}{GATK coverage file of tumor. If \code{NULL},
+\item{tumor.coverage.file}{Coverage file of tumor. If \code{NULL},
 requires \code{seg.file} and an interval file via \code{gc.gene.file}.
 Should be already GC-normalized with \code{\link{correctCoverageBias}}.
 Needs to be either a file name or data read with the
@@ -275,9 +275,9 @@ input data.}
 \description{
 This function takes as input tumor and normal control coverage and allelic
 fractions of germline variants and somatic mutations. Coverage data is
-provided in GATK DepthOfCoverage format, allelic fraction in VCF format
-(e.g. obtained by MuTect). Normal control does not need to be matched (from
-the same patient). In case VCF does not contain somatic status, it should
+provided in \sQuote{GATK DepthOfCoverage} format, allelic fraction in VCF 
+format (obtained by MuTect). Normal control does not need to be from
+the same patient. In case VCF does not contain somatic status, it should
 contain dbSNP and optionally COSMIC annotation. Returns purity and ploidy
 combinations, sorted by likelihood score. Provides copy number and LOH data,
 by both gene and genomic region.

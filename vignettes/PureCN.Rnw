@@ -992,6 +992,7 @@ Argument name  & Corresponding PureCN argument & PureCN function \\
 --fasta -a     & reference.file & \Rfunction{calculateGCContentByInterval} \\
 --infile -i    & interval.file & \Rfunction{calculateGCContentByInterval} \\
 --outfile -o   & & \\
+--subdivide -s & (split large targets) & \\
 \bottomrule
 \end{tabular}
 \end{table*}

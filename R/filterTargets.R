@@ -101,7 +101,7 @@ normalDB.min.coverage) {
     if (is.null(normalDB)) return(targetsUsed)
     # make sure that normalDB matches tumor
     if (!.checkNormalDB(tumor, normalDB)) {
-        warning("normalDB does not align with coverage. Ignoring normalDB.")
+        flog.warn("normalDB does not align with coverage. Ignoring normalDB.")
         return(targetsUsed)
     }    
 # TODO: remove in 1.6

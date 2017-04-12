@@ -954,6 +954,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
 .gcPos <- function(gc.data) {
     gc.data$Target <- as.character(gc.data$Target)
+    if (is.null(gc.data$Gene)) gc.data$Gene <- "."
     gc.pos <- as.data.frame(do.call(rbind, strsplit(gc.data$Target, ":|-")), stringsAsFactors = FALSE)
     colnames(gc.pos) <- c("chrom", "start", "end")
     gc.pos <- cbind(Gene = gc.data$Gene, gc.pos)
@@ -978,7 +979,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     dups <- duplicated(names(args)) 
     if (sum(dups)) {
         args <- args[!dups]
-        warning("Duplicated arguments in ", fname)
+        flog.warn("Duplicated arguments in %s", fname)
     }
     args
 }

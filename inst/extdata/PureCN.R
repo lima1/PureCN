@@ -1,4 +1,5 @@
 library('getopt')
+library(futile.logger)
 
 ### Parsing command line ------------------------------------------------------
 
@@ -128,8 +129,6 @@ if (file.exists(file.rds) && !force) {
     }    
     if (!is.null(normalDB)) {
         if (!is.null(seg.file)) stop("normalDB and segfile do not work together.")
-
-        message("normalDB: ", normalDB)
         normalDB <- readRDS(normalDB)
     }    
 
@@ -182,6 +181,7 @@ if (file.exists(file.rds) && !force) {
             stop("Unknown segmentation function")
         }
     }     
+    tmpFile <- tempfile(tmpdir=outdir, fileext=".rds")
     if (!is.null(opt$twopass)) {
         ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
                 tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
@@ -195,9 +195,11 @@ if (file.exists(file.rds) && !force) {
                 normalDB=normalDB, model.homozygous=model.homozygous,
                 model=model, log.file=file.log, post.optimize=FALSE, 
                 max.candidate.solutions=5)
+        # store in case it crashes
+        saveRDS(ret, file=tmpFile)
         flog.info("GC-normalizing tumor second time because of --twopass flag")
         tumor.coverage.file <- .gcNormalize(tumor.coverage.file.orig, gc.gene.file, 
-            "LOESS", outdir, force, ret)
+            method="LOESS", outdir=outdir, force=TRUE, purecn.output=ret)
         normal.coverage.file <- .getNormalCoverage(normal.coverage.file)
     }
         
@@ -216,6 +218,7 @@ if (file.exists(file.rds) && !force) {
             model=model, log.file=file.log, post.optimize=post.optimize)
     dev.off()
     saveRDS(ret, file=file.rds)
+    if (file.exists(tmpFile)) file.remove(tmpFile)
 }
 
 ### Create output files -------------------------------------------------------

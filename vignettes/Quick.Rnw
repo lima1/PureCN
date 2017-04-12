@@ -129,7 +129,7 @@ To build a normal database, copy all GC-normalized normal coverage files in a
 single text file, line-by-line:
 
 \begin{verbatim}
-cat normal*loess.txt > example_normal.list
+ls -a normal*loess.txt | cat > example_normal.list
 
 # From already GC-normalized files
 $ Rscript $PURECN/NormalDB.R --outdir $OUT \
