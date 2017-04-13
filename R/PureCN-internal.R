@@ -496,7 +496,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
     gc.pos <- .gcPos(gc.data)
     # that will otherwise mess up the log-ratio means, mins and maxs
-    idx <- !is.nan(log.ratio) & !is.infinite(log.ratio) & gc.pos$Gene != "."
+    idx <- which(!is.nan(log.ratio) & !is.infinite(log.ratio) & gc.pos$Gene != ".")
     gc.pos <- gc.pos[idx, ]
     log.ratio <- log.ratio[idx]
     
