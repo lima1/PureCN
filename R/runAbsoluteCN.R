@@ -360,7 +360,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             if (is.null(normal.coverage.file)) 
                 normal <- tumor
             log.ratio <- .createFakeLogRatios(tumor, seg.file, sampleid, 
-                                              chr.hash)
+                                              chr.hash, model.homozygous)
             smooth.log.ratio <- FALSE
             if (is.null(sampleid)) 
                 sampleid <- read.delim(seg.file, as.is=TRUE)[1, 1]
@@ -525,9 +525,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     flog.info("Sample sex: %s", sex)
     flog.info("Segmenting data...")
+    segProvided <- .loadSegFile(seg.file, sampleid, model.homozygous)
     
     args.segmentation <- c(list(normal = normal, tumor = tumor, log.ratio = log.ratio, 
-        seg = .loadSegFile(seg.file, sampleid, verbose=FALSE), plot.cnv = plot.cnv,  
+        seg = segProvided, plot.cnv = plot.cnv,  
         sampleid = sampleid, vcf = vcf.germline, tumor.id.in.vcf = tumor.id.in.vcf, 
         normal.id.in.vcf = normal.id.in.vcf, max.segments = max.segments, chr.hash = chr.hash, 
         centromeres = centromeres), args.segmentation)
@@ -600,11 +601,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     # show log-ratio histogram
     if (plot.cnv) {
-        if (!is.null(seg.file)) {
-            seg.orig <- .loadSegFile(seg.file, sampleid, verbose=FALSE)
+        if (!is.null(segProvided)) {
             par(mfrow = c(2, 1))
-            hist(do.call(c, lapply(seq_len(nrow(seg.orig)), function(i) rep(seg.orig$seg.mean[i], 
-                seg.orig$num.mark[i]))), breaks = 100, xlab = "log2 ratio", main = paste(sampleid, 
+            hist(do.call(c, lapply(seq_len(nrow(segProvided)), function(i) rep(segProvided$seg.mean[i], 
+                segProvided$num.mark[i]))), breaks = 100, xlab = "log2 ratio", main = paste(sampleid, 
                 "(original segmentation)"))
         }
         hist(do.call(c, lapply(seq_len(nrow(seg)), function(i) rep(seg$seg.mean[i], 

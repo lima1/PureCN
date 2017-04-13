@@ -800,12 +800,13 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .calcPuritySomaticVariants <- function(vcf, prior.somatic, tumor.id.in.vcf) {
     median(unlist(geno(vcf[prior.somatic > 0.5])$FA[, tumor.id.in.vcf]), na.rm = TRUE)/0.48
 }
-.loadSegFile <- function(seg.file, sampleid, verbose=TRUE) {
+.loadSegFile <- function(seg.file, sampleid, model.homozygous=FALSE, 
+    verbose=TRUE) {
     if (is.null(seg.file)) return(NULL)
     seg <- read.delim(seg.file)
-    .checkSeg(seg, sampleid, verbose)
+    .checkSeg(seg, sampleid, model.homozygous, verbose)
 }
-.checkSeg <- function(seg, sampleid, verbose=TRUE) {
+.checkSeg <- function(seg, sampleid, model.homozygous, verbose=TRUE) {
     required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
         "seg.mean")
     required.colnames2 <- c("ID", "chromosome", "start", "end", "num_probes", 
@@ -818,7 +819,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     # The smallest possible log-ratio is about 8
     # for 0.99 purity and high ploidy.
     # remove artifacts with lower log-ratio
-    if (min(seg$seg.mean, na.rm=TRUE) < -8) {
+    if (!model.homozygous && min(seg$seg.mean, na.rm=TRUE) < -8) {
         nBefore <- nrow(seg)
         seg <- seg[which(seg$seg.mean >= -8 | seg$num.mark >= 4),]
         if (verbose) flog.warn("Removing %i short segments with log-ratio < -8.", 
@@ -848,11 +849,12 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     seg
 }
        
-.createFakeLogRatios <- function(tumor, seg.file, sampleid, chr.hash) {
+.createFakeLogRatios <- function(tumor, seg.file, sampleid, chr.hash, 
+    model.homozygous=FALSE) {
     if (class(seg.file)=="character") {
-        seg <- .loadSegFile(seg.file, sampleid)    
+        seg <- .loadSegFile(seg.file, sampleid, model.homozygous, verbose=FALSE)    
     } else {
-        seg <-.checkSeg(seg.file, sampleid)
+        seg <-.checkSeg(seg.file, sampleid, model.homozygous, verbose=FALSE)
     }    
     seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), 
                 IRanges(start = round(seg$loc.start), end = seg$loc.end))
