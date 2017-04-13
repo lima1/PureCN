@@ -431,7 +431,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                     as.character(r$ML.C[r$ML.SOMATIC])][idx.labels], 
                     y=r$ML.AR[r$ML.SOMATIC][idx.labels], 
                     labels=scatter.labels[idx.labels])
-                idxSomatic <- !grepl("germline|dbSNP", as.character(r$group))
+                idxSomatic <- !grepl("germline|dbSNP|contamination", as.character(r$group))
                 if (sum(idxSomatic)) {
                     colSomatic <- mycol.palette$color[match(names(sort(table(r$group[idxSomatic]), 
                         decreasing=TRUE)[1]), mycol.palette$group)]
