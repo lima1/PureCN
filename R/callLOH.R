@@ -35,7 +35,7 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
     minorChrNumber <- minorChrNumber[!duplicated(minorChrNumber[,1]),]
     seg$M <- NA
     seg$M[minorChrNumber[,1]] <- minorChrNumber[,2]
-    seg <- seg[complete.cases(seg),]
+    seg <- seg[!is.na(seg$M),]
     seg$chrom <- .add.chr.name(seg$chrom, chr.hash)
     
     # merge consecutive segments if they have same genotype

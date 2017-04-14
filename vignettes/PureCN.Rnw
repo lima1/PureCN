@@ -1133,6 +1133,8 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --minaf -j          & af.range & \Rfunction{filterVcfBasic} \\
 --minpurity -k      & test.purity & \Rfunction{runAbsoluteCN} \\
 --maxpurity -x      & test.purity & \Rfunction{runAbsoluteCN} \\
+--minploidy -K      & min.ploidy & \Rfunction{runAbsoluteCN} \\
+--maxploidy -X      & max.ploidy & \Rfunction{runAbsoluteCN} \\
 --postoptimize -z   & post.optimize & \Rfunction{runAbsoluteCN} \\    
 --modelhomozygous -y & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
 --model -q          & model & \Rfunction{runAbsoluteCN} \\ 

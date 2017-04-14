@@ -24,6 +24,8 @@ spec <- matrix(c(
 'minaf',          'j', 1, "double",
 'minpurity',      'k', 1, "double",
 'maxpurity',      'x', 1, "double",
+'minploidy',      'K', 1, "double",
+'maxploidy',      'X', 1, "double",
 'postoptimize',   'z', 0, "logical",
 'modelhomozygous','y', 0, "logical",
 'model',          'q', 1, "character",
@@ -60,7 +62,10 @@ snp.blacklist <- opt$snpblacklist
 if (!is.null(snp.blacklist)) {
     snp.blacklist <- strsplit(snp.blacklist, ",")[[1]]
 }
-    
+
+min.ploidy <- if (is.null(opt$minploidy)) 1 else opt$minploidy    
+max.ploidy <- if (is.null(opt$maxploidy)) 6 else opt$maxploidy    
+
 stats.file <- opt$statsfile
 seg.file <- opt$segfile
 target.weight.file <- opt$targetweightfile
@@ -194,6 +199,7 @@ if (file.exists(file.rds) && !force) {
                 args.segmentation=list(target.weight.file=target.weight.file), 
                 normalDB=normalDB, model.homozygous=model.homozygous,
                 model=model, log.file=file.log, post.optimize=FALSE, 
+                min.ploidy=min.ploidy, max.ploidy=max.ploidy, 
                 max.candidate.solutions=5)
         # store in case it crashes
         saveRDS(ret, file=tmpFile)
@@ -215,6 +221,7 @@ if (file.exists(file.rds) && !force) {
             args.setMappingBiasVcf=
                 list(normal.panel.vcf.file=normal.panel.vcf.file),
             normalDB=normalDB, model.homozygous=model.homozygous,
+            min.ploidy=min.ploidy, max.ploidy=max.ploidy, 
             model=model, log.file=file.log, post.optimize=post.optimize)
     dev.off()
     saveRDS(ret, file=file.rds)
