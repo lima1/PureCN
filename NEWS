@@ -1,26 +1,26 @@
 Changes in version 1.6.0
 ------------------------
 
-- Automatic 50bp interval padding
+- Lots of improvements to command line scripts
+- Improved somatic vs. germline status calling
+- Better mapping bias estimation and correction
+- Better integration into existing copy number pipelines
+- Support for cell lines
+- New GC-normalization for smaller gene panels
 - Added sub-clonal SNV state (SOMATIC.M0)
 - Polished plots, added new GC-normalization and volcano plots
-- Support for cell lines
-- Improved somatic vs. germline status calling
-- Contamination rate estimation
-- Better mapping bias estimation and correction
 - Better copy number normalization using multiple best normals
-- New GC-normalization for smaller gene panels
 - Removed automatic curation, since the tuned likelihood model 
   of runAbsoluteCN was hard to beat
 - More control over homozygous deletions (significant portion
   of wrong maximum likelihood solutions had many homozygous deletions)  
 - Faster post.optimize=TRUE by not optimizing poor fits or unlikely solutions
+- Automatic 50bp interval padding
 - Tweaks to segmentationPSCBS
-- Lots of improvements to command line scripts, including a shiny new two-pass
-  mode.
+- seg.file can contain multiple samples
+- Contamination rate estimation (experimental)
 - Code cleanups (switch from inlinedocs to roxygen, from message/warn to
   futile.logger)
-- seg.file can contain multiple samples
 
 
 API CHANGES
@@ -64,16 +64,6 @@ API CHANGES
       return value) and pon.count, the number of hits in the PON
  
  
-ROADMAP
-
-- January 15: API freeze (no changes to existing API)
-- February 1: Defaults freeze (no tuning of default parameters anymore)
-- February 15: Feature freeze (only bugfixes, code cleanups and speedups
-  and documentation improvements) 
-- March 15: Code freeze (only bugfixes and documentation improvements)
-- April: Release
-
-
 PLANNED FEATURES FOR 1.8
 
 - Better sample summary statistics, like mutation burden, chromosomal 
@@ -87,4 +77,3 @@ PLANNED FEATURES FOR 1.8
   MYC)
 - Support for GATK4
 - Better runtime performance by ignoring unlikely solutions early
-
