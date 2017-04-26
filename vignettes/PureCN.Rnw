@@ -383,6 +383,13 @@ if (downloadFromUCSC) {
         track="Simple Repeats", table="simpleRepeat"))
     export(simpleRepeats, "hg19_simpleRepeats.bed")
     
+    # use only variants in unique regions. this will probably remove 
+    # hotspot or other likely functional somatic mutations.
+    # mappability <- import("wgEncodeCrgMapabilityAlign100mer.bigWig")
+    # idx <- mappability$score < 1
+    # export(mappability[idx], "hg19_wgEncodeCrgMapabilityAlign100mer.bed")
+
+    
     # when off-target reads are used, we can provide one of the 
     # whole-genome blacklists tracks
     # hg19_DukeBlacklist <- track( ucscTableQuery(mySession,  
@@ -1145,7 +1152,42 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 \bottomrule
 \end{tabular}
 \end{table*}
- 
+
+\subsection{Dx}
+\label{cmdpurecndx}
+
+Dx.R extracts copy number and mutation metrics from PureCN.R output. 
+
+\begin{verbatim}
+# Basic output
+Rscript Dx.R --outdir $OUT --rds Sample1_purecn.rds 
+
+# Provide a BED file with callable regions, for examples obtained by
+# GATK CallableLoci. Useful to calculate mutations per megabase and
+# to exclude low quality regions.
+grep CALLABLE Sample1_callable_status.bed > \ 
+    Sample1_callable_status_filtered.bed
+Rscript Dx.R --outdir $OUT  --rds Sample1_purecn.rds \
+    --callable Sample1_callable_status_filtered.bed
+\end{verbatim}
+
+\begin{table*}
+\caption{Dx command line script.}
+\begin{tabular}{lll}
+\toprule
+Argument name  & Corresponding PureCN argument & PureCN function \\
+\midrule
+--help -h     & & \\
+--version -v  & & \\
+--force -f    & & \\
+--rds -r      & file.rds & \Rfunction{readCurationFile}   \\
+--callable -a & callable & \Rfunction{callMutationBurden} \\
+--exclude -b  & exclude  & \Rfunction{callMutationBurden} \\
+--outdir -o   & & \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
 These R scripts can be found in the extdata directory of the installed package.
 
 \section{Limitations}

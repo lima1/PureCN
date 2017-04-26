@@ -1,67 +1,12 @@
-Changes in version 1.6.0
+Changes in version 1.8.0
 ------------------------
 
-- Lots of improvements to command line scripts
-- Improved somatic vs. germline status calling
-- Better mapping bias estimation and correction
-- Better integration into existing copy number pipelines
-- Support for cell lines
-- New GC-normalization for smaller gene panels
-- Added sub-clonal SNV state (SOMATIC.M0)
-- Polished plots, added new GC-normalization and volcano plots
-- Better copy number normalization using multiple best normals
-- Removed automatic curation, since the tuned likelihood model 
-  of runAbsoluteCN was hard to beat
-- More control over homozygous deletions (significant portion
-  of wrong maximum likelihood solutions had many homozygous deletions)  
-- Faster post.optimize=TRUE by not optimizing poor fits or unlikely solutions
-- Automatic 50bp interval padding
-- Tweaks to segmentationPSCBS
-- seg.file can contain multiple samples
-- Contamination rate estimation (experimental)
-- Code cleanups (switch from inlinedocs to roxygen, from message/warn to
-  futile.logger)
+- Added mutation burden calculation
 
 
 API CHANGES
 
-- runAbsoluteCN output from PureCN 1.2 cannot be analyzed with PureCN 1.6 and 
-  needs to be re-run. We hope to avoid this in the future.
-- Renamed functions: readCoverageGatk to readCoverageFile since future versions
-  will likely support additional third-party tools.
-- Deprecated functions: createSNPBlacklist, getDiploid, autoCurateResults
-- Defunct functions: createExonWeightFile
-- Changed defaults: 
-    - min.normals 4 (from 10) in setMappingBiasVcf
-    - max.segments 300 (from 200) in runAbsoluteCN               
-    - min.targeted.base 5 (from 4) in filterTargets
-    - max.homozygous.loss now a double(2) vector, with first element
-      specifying the maximum fraction of genome deleted (default 5%) and the 
-      second value the maximum size of a homozygous loss (default 10mb).
-    - prior somatic for variants in both dbSNP and COSMIC changed from 0.01
-      and requiring 3 hits to 0.5 and requiring 4 hits.  
-- Other minor changes:
-    - Renamed some predictSomatic() output column names
-    - Removed "beta.model" from "SNV.posterior" slot since model is now an
-      option
-    - Moved remove.off.target.snvs to filterVcfBasic
-    - Moved normalDB from filterTargets to runAbsoluteCN, since it is now 
-      used for more than target filtering
-    - Dropped BED file support in calculateGCContentByInterval
-      Instead provide support for GRanges
-    - poolCoverage: w argument now used as provided, not 
-        normalized so that w[1] is 1
-    - Removed ... from runAbsoluteCN
-    - min.coverage removed from segmentation function, since this is now
-      done by filterTargets
-    - Added centromeres to segmentation function
-    - Replaced contamination.cutoff with contamination.range in filterVcfBasic 
-    - Removed verbose from most functions, since messages are now controlled
-      with futile.logger
-    - Smoothing of log-ratios before segmentation now optionally done by 
-      runAbsoluteCN, not segmentation function
-    - setMappingBiasVcf now returns a list with elements bias (the old 
-      return value) and pon.count, the number of hits in the PON
+- Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults
  
  
 PLANNED FEATURES FOR 1.8

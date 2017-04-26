@@ -84,20 +84,6 @@ max.mean.coverage = NULL, ... ) {
 }
 
 
-#' Calculate exon weights
-#' 
-#' This function is defunct. Please use \code{\link{createTargetWeights}}
-#' instead.
-#' 
-#' 
-#' @author Markus Riester
-#' @export createExonWeightFile
-createExonWeightFile <- function() {
-    .Defunct("createTargetWeights")
-}
-
-
-
 #' Calculate target weights
 #' 
 #' Creates a target weight file useful for segmentation. Requires a set of GATK
