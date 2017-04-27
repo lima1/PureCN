@@ -10,8 +10,10 @@ test_callMutationBurden <- function() {
     exclude <- GRanges(seqnames="chr1", IRanges(start=1, 
         end=max(end(callableBed))))
     
+    myVcfFilter <- function(vcf) seqnames(vcf)!="chr2"
+
     callsCallable <- callMutationBurden(purecn.example.output, 
-        callable=callableBed, exclude=exclude)
+        callable=callableBed, exclude=exclude, fun.countMutation=myVcfFilter)
 
     checkTrue(callsCallable$callable.bases.ontarget>0)
     checkTrue(callsCallable$callable.bases.flanking > callsCallable$callable.bases.ontarget)

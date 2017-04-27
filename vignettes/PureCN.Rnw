@@ -881,7 +881,6 @@ where segmented data are provided instead of coverage data. Note that the middle
 panel shows no variance in log-ratios, since only segment-level log-ratios are
 available.}
   
-
 \subsubsection{Custom normalization}
 \label{customnorm}
 If third-party tools such as \software{GATK4} are used to calculate
@@ -921,6 +920,26 @@ of hotspot mutations, it often helps in the manual curation to compare how well
 high confidence germline (dbSNP) vs. somatic (COSMIC) variants fit a particular
 purity/ploidy combination. 
 
+\subsection{Mutation burden}
+
+The \Rfunction{predictSomatic} function described in
+Section~\ref{predictsomatic} can be used to efficiently remove private germline
+mutations. This in turn allows the calculation of mutation burden for unmatched
+tumor samples. A wrapper function for this specific task is included as
+\Rfunction{callMutationBurden}:
+
+<<callmutationburden>>=
+callableBed <- import(system.file("extdata", "example_callable.bed.gz", 
+    package = "PureCN"))
+
+callMutationBurden(ret, callable=callableBed)
+@
+
+The \Rcode{callableBed} file should be a file parsable by
+\Biocpkg{rtracklayer}. This file can specify genomic regions that are callable,
+for example as obtained by \software{GATK CallableLoci}. This is optional, but
+if provided can be used to accurately calculate mutation rates per
+megabase.
 
 \subsection{Power to detect somatic mutations}
 

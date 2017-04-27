@@ -18,8 +18,8 @@
 #' mutations. Expects a \code{logical} vector indicating whether variant
 #' should be counted (\code{TRUE}) or not (\code{FALSE}).
 #' @param callable \code{GRanges} object with callable genomic regions,
-#' for example obtained by GATK CallableLoci BED file, imported with
-#' \code{rtracklayer}.
+#' for example obtained by \sQuote{GATK CallableLoci} BED file, imported 
+#' with \code{rtracklayer}.
 #' @param exclude \code{GRanges} object with genomic regions that
 #' should be excluded from the \code{callable} regions, for example
 #' intronic regions. Requires \code{callable}.
@@ -31,6 +31,21 @@
 #' 
 #' data(purecn.example.output)
 #' callMutationBurden(purecn.example.output)
+#'
+#' # To calculate exact mutations per megabase, we can provide a BED
+#' # file containing all callable regions
+#' callableBed <- import(system.file("extdata", "example_callable.bed.gz", 
+#'     package = "PureCN"))
+#'
+#' # We can exclude some regions for mutation burden calculation, 
+#' # for example intronic regions. 
+#' exclude <- GRanges(seqnames="chr1", IRanges(start=1, 
+#'     end=max(end(callableBed))))
+#' 
+#' myVcfFilter <- function(vcf) seqnames(vcf)!="chr2"
+#'
+#' callsCallable <- callMutationBurden(purecn.example.output, 
+#'     callable=callableBed, exclude=exclude, fun.countMutation=myVcfFilter)
 #' 
 #' @export callMutationBurden
 callMutationBurden <- function(res, id = 1, remove.flagged = TRUE, 
@@ -75,14 +90,13 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
     
     # filter mutations, for example if the user wants to 
     # calculate missense burden
-    p$countMutation <- TRUE
     if (!is.null(fun.countMutation)) {
         if (class(fun.countMutation) != "function") {
             .stopUserError("fun.countMutation not a function.")        
         }
         vcf <-  res$input$vcf
         vcf <- vcf[overlapsAny(vcf, p)]
-        p$countMutation <- fun.countMutation(vcf)
+        p <- p[which(fun.countMutation(vcf))]
     } 
         
     p <- p[p$prior.somatic >= min.prior.somatic]
@@ -90,9 +104,8 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
         
     data.frame(
         somatic.ontarget=sum(p$ML.SOMATIC & p$on.target==1 & 
-            p$CELLFRACTION>min.cellfraction & p$countMutation),
-        somatic.all=sum(p$ML.SOMATIC & 
-            p$CELLFRACTION>min.cellfraction & p$countMutation), 
+            p$CELLFRACTION>min.cellfraction),
+        somatic.all=sum(p$ML.SOMATIC & p$CELLFRACTION>min.cellfraction), 
         private.germline.ontarget=sum(!p$ML.SOMATIC & p$on.target==1), 
         private.germline.all=sum(!p$ML.SOMATIC),
         callable.bases.ontarget=callableBasesOntarget,

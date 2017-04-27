@@ -30,8 +30,8 @@ mutations. Expects a \code{logical} vector indicating whether variant
 should be counted (\code{TRUE}) or not (\code{FALSE}).}
 
 \item{callable}{\code{GRanges} object with callable genomic regions,
-for example obtained by GATK CallableLoci BED file, imported with
-\code{rtracklayer}.}
+for example obtained by \sQuote{GATK CallableLoci} BED file, imported 
+with \code{rtracklayer}.}
 
 \item{exclude}{\code{GRanges} object with genomic regions that
 should be excluded from the \code{callable} regions, for example
@@ -48,6 +48,21 @@ This function provides detailed mutation burden information.
 
 data(purecn.example.output)
 callMutationBurden(purecn.example.output)
+
+# To calculate exact mutations per megabase, we can provide a BED
+# file containing all callable regions
+callableBed <- import(system.file("extdata", "example_callable.bed.gz", 
+    package = "PureCN"))
+
+# We can exclude some regions for mutation burden calculation, 
+# for example intronic regions. 
+exclude <- GRanges(seqnames="chr1", IRanges(start=1, 
+    end=max(end(callableBed))))
+
+myVcfFilter <- function(vcf) seqnames(vcf)!="chr2"
+
+callsCallable <- callMutationBurden(purecn.example.output, 
+    callable=callableBed, exclude=exclude, fun.countMutation=myVcfFilter)
 
 }
 \seealso{
