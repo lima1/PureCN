@@ -80,6 +80,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 
     prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
     prior.somatic <- prior.somatic - (prior.cont*prior.somatic)
+    priorHom <- if (model.homozygous) -log(3) else log(0)
 
     if (length(prior.somatic) != nrow(vcf)) {
         .stopRuntimeError("prior.somatic and VCF do not align.")
@@ -99,26 +100,25 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     seg.idx <- which(seq_len(nrow(C.likelihood)) %in% queryHits(ov))
     sd.ar <- sd(unlist(geno(vcf)$FA[, tumor.id.in.vcf]))
 
+    ar_all <- unlist(geno(vcf)$FA[, tumor.id.in.vcf])
+    ar_all <- ar_all/mapping.bias$bias
+    ar_all[ar_all > 1] <- 1
+    
+    dp_all <- unlist(geno(vcf)$DP[, tumor.id.in.vcf])
+    if (snv.model!="betabin") dp_all[dp_all>max.coverage.vcf] <- max.coverage.vcf
+
     # Fit variants in all segments
     xx <- lapply(seg.idx, function(i) {
         # classify germline vs somatic
         idx <- subjectHits(ov)[queryHits(ov) == i]
         
-        ar_all <- unlist(geno(vcf)$FA[idx, tumor.id.in.vcf])
-        ar_all <- ar_all/mapping.bias$bias[idx]
-        ar_all[ar_all > 1] <- 1
-        
-        dp_all <- unlist(geno(vcf)$DP[idx, tumor.id.in.vcf])
-        if (snv.model!="betabin") dp_all[dp_all>max.coverage.vcf] <- max.coverage.vcf
-        mInf_all <- log(double(length(ar_all)))
-        shape1 <- ar_all * dp_all + 1
-        shape2 <- (1 - ar_all) * dp_all + 1
+        shape1 <- ar_all[idx] * dp_all[idx] + 1
+        shape2 <- (1 - ar_all[idx]) * dp_all[idx] + 1
+        mInf_all <- log(double(length(shape1)))
 
         lapply(seq(ncol(C.likelihood)), function(k) {
             Ci <- c(test.num.copy, opt.C[i])[k]       
             priorM <- log(max(Ci,1) + 1 + haploid.penalty)
-            #priorM <- log(abs(2-Ci) + 1)
-            priorHom <- ifelse(model.homozygous, -log(3), log(0))
             
             skip <- test.num.copy > Ci | C.likelihood[i, k] <=0
 
@@ -130,17 +130,17 @@ c(test.num.copy, round(opt.C))[i], prior.K))
                     if (skip[j]) return(mInf_all)
                     .dbeta(x = dbetax[j], 
                     shape1 = shape1,  
-                    shape2 = shape2, log = TRUE, size=dp_all) - priorM
+                    shape2 = shape2, log = TRUE, size=dp_all[idx]) - priorM
                 })
                 do.call(cbind,l)
             })
             
             p.ar.cont.1 <- .dbeta(x = (p * Ci + 2 * (1 - p - cont.rate))/
-                  (p * Ci + 2 * (1 - p)),shape1=shape1, shape2=shape2,log=TRUE, size=dp_all) - 
-                                  priorM
+                  (p * Ci + 2 * (1 - p)),shape1=shape1, shape2=shape2, 
+                  log=TRUE, size=dp_all[idx]) - priorM
 
             p.ar.cont.2 <- .dbeta(x = (cont.rate)/(p * Ci + 2 * (1 - p)), 
-                  shape1=shape1, shape2=shape2,log=TRUE,size=dp_all) -
+                  shape1=shape1, shape2=shape2,log=TRUE,size=dp_all[idx]) -
                                   priorM
 
             # add prior probabilities for somatic vs germline
@@ -155,7 +155,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
             p.ar[[4]] <- p.ar.cont.2 + log(prior.cont[idx])
 
             # homozygous state
-            p.ar[[5]] <- dbinom(round((1-ar_all)*dp_all),size=round(dp_all), 
+            p.ar[[5]] <- dbinom(round((1-ar_all[idx])*dp_all[idx]),size=round(dp_all[idx]), 
                 prob=error/3, log=TRUE) + priorHom + log(1-prior.somatic[idx])
              
             do.call(cbind, p.ar)
