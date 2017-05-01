@@ -39,12 +39,11 @@ output.file = NULL) {
     } else {    
         interval.gr <- readCoverageFile(interval.file)
     }    
-    if (min(start(interval.gr)) < 1) {
-        .stopUserError("Interval coordinates should start at 1, not at 0.")
-    }    
+
     x <- scanFa(reference.file, interval.gr)
     GC.count <- letterFrequency(x,"GC")
     all.count <- letterFrequency(x,"ATGC")
+
     gc <- data.frame(
         Target=as.character(interval.gr),
         gc_bias=as.vector(ifelse(all.count==0,NA,GC.count/all.count))

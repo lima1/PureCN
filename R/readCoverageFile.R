@@ -59,7 +59,7 @@ readCoverageGatk <- function(file) {
 
 .checkIntervals <- function(coverageGr) {
     if (min(width(coverageGr))<2) {
-        warning("Coverage data contains single nucleotide intervals.")
+        flog.warn("Coverage data contains single nucleotide intervals.")
     }    
     ov <- findOverlaps(coverageGr, coverageGr)
     dups <- duplicated(queryHits(ov))
@@ -77,7 +77,7 @@ readCoverageGatk <- function(file) {
     chrsWithLowCoverage <- names(which(sapply(split(coverage$average.coverage, 
         as.character(seqnames(coverage))), mean, na.rm=TRUE) < 1))
     if (length(chrsWithLowCoverage)>2) {
-        warning("Multiple chromosomes with very low coverage: ", 
+        flog.warn("Multiple chromosomes with very low coverage: %s", 
             paste(chrsWithLowCoverage, collapse=","))
     }    
 }

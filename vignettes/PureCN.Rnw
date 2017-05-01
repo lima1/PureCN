@@ -964,9 +964,8 @@ default parameters includes off-target regions that were ignored by
 \Rfunction{runAbsoluteCN}. \\
 \bottomrule
 \end{tabular}
-\label{tbl:callLOH}
+\label{tbl:callMutationBurden}
 \end{table*}
-
 
 \subsection{Power to detect somatic mutations}
 
