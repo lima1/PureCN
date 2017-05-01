@@ -21,7 +21,7 @@ readCoverageFile <- function(file, format) {
     if (missing(format)) format <- "GATK"
     targetCoverage <- .readCoverageGatk(file)
     .checkLowCoverage(targetCoverage)
-    return(.checkIntervals(targetCoverage))
+    .checkIntervals(targetCoverage)
 }
 
 
@@ -53,7 +53,7 @@ readCoverageGatk <- function(file) {
         coverage=inputCoverage$total_coverage, 
         average.coverage=inputCoverage$average_coverage)
 
-    return(targetCoverage[order(targetCoverage)])
+    targetCoverage
 }
 
 .checkIntervals <- function(coverageGr) {
@@ -72,7 +72,7 @@ readCoverageGatk <- function(file) {
             sum(dups), dupLines[1])
         coverageGr <- reduce(coverageGr)
     }
-    coverageGr
+    coverageGr[order(coverageGr)]
 }
 
 .checkLowCoverage <- function(coverage) {
