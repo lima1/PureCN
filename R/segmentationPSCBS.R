@@ -89,13 +89,13 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         .stopUserError("segmentationPSCBS requires the PSCBS package.")
     }
 
-    if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
+    if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
 
     target.weights <- NULL
-    well.covered.exon.idx <- rep(TRUE, nrow(tumor))
+    well.covered.exon.idx <- rep(TRUE, length(tumor))
     if (!is.null(target.weight.file)) {
         target.weights <- read.delim(target.weight.file, as.is=TRUE)
-        target.weights <- target.weights[match(as.character(tumor[,1]), 
+        target.weights <- target.weights[match(as.character(tumor), 
             target.weights[,1]),2]
          flog.info("Target weights found, but currently not supported by PSCBS. %s",
             "Will simply exclude targets with low weight.")
@@ -105,12 +105,10 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 
     #MR: fix for missing chrX/Y 
     well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
-    tumor <- tumor[well.covered.exon.idx,]
+    tumor <- tumor[well.covered.exon.idx]
     log.ratio <- log.ratio[well.covered.exon.idx]
-    exon.gr <- GRanges(seqnames=tumor$chr, 
-        IRanges(start=tumor$probe_start, end=tumor$probe_end))
-    ov <- findOverlaps(vcf, exon.gr)
-    d.f <- cbind(tumor[subjectHits(ov),], 
+    ov <- findOverlaps(vcf, tumor)
+    d.f <- cbind(as.data.frame(tumor[subjectHits(ov)]), 
         CT=2^(log.ratio+1)[subjectHits(ov)], 
         betaT=unlist(geno(vcf[queryHits(ov)])$FA[,tumor.id.in.vcf]), 
         betaN=NA,
@@ -120,15 +118,15 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         d.f$betaN <- unlist(geno(vcf[queryHits(ov)])$FA[,normal.id.in.vcf])
     }
          
-    d.f.2 <- cbind(tumor[-subjectHits(ov),], 
+    d.f.2 <- cbind(as.data.frame(tumor[-subjectHits(ov)]), 
         CT=2^(log.ratio+1)[-subjectHits(ov)], betaT=NA, betaN=NA,
-        x=tumor$probe_start[-subjectHits(ov)] )
+        x=start(tumor[-subjectHits(ov)]) )
     
-    d.f.3 <- rbind(d.f, d.f.2)
-    d.f.3 <- d.f.3[order(.strip.chr.name(d.f.3$chr, chr.hash), d.f.3$x),]
-    d.f <- d.f.3
-    colnames(d.f)[2] <- "chromosome"
+    d.f <- rbind(d.f, d.f.2)
+    colnames(d.f)[1] <- "chromosome"
+    d.f <- d.f[order(.strip.chr.name(d.f[,1], chr.hash), d.f$x),]
     d.f$chromosome <- .strip.chr.name(d.f$chromosome, chr.hash)
+
     #if (!is.null(normal.id.in.vcf)) {
     #    seg <- PSCBS::segmentByPairedPSCBS(d.f, tauA=tauA, 
     #        flavor=flavor, ...)

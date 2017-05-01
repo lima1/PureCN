@@ -105,7 +105,7 @@ coverage files. Needs to return a \code{logical} vector whether an interval
 should be used for segmentation. Defaults to \code{\link{filterTargets}}.}
 
 \item{args.filterTargets}{Arguments for target filtering function. Arguments
-\code{normal}, \code{tumor}, \code{log.ratio}, \code{gc.data}, 
+\code{normal}, \code{tumor}, \code{log.ratio},  
 \code{min.coverage}\code{seg.file} and \code{normalDB} are required and 
 automatically set.}
 

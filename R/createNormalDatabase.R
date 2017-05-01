@@ -135,7 +135,7 @@ target.weight.file) {
     zz[zz>1] <-1
     idx <- is.na(zz) | lrs.cnt.na > ncol(lrs)/3
     zz[idx] <- min(zz, na.rm=TRUE)
-    ret <- data.frame(Target=tumor.coverage[[1]][,1], Weights=zz)
+    ret <- data.frame(Target=as.character(tumor.coverage[[1]]), Weights=zz)
 
     write.table(ret, file=target.weight.file,row.names=FALSE, quote=FALSE, 
         sep="\t")
@@ -147,7 +147,7 @@ target.weight.file) {
 
     # check that all files used the same interval file.
     for (i in seq_along(normals)) {
-        if (!identical(normals[[i]]$probe, normals[[1]]$probe)) {
+        if (!identical(as.character(normals[[i]]), as.character(normals[[1]]))) {
             .stopUserError("All normal.coverage.files must have the same ",
                 "intervals. ", normal.coverage.files[i], " is different.")
         }

@@ -12,7 +12,7 @@ test_createNormalDatabase <- function() {
     pool <- findBestNormal(normal.coverage.files[1], normalDB, num.normals=2, pool=TRUE)
 
     n <- lapply(normal.coverage.files, readCoverageFile)
-    checkEqualsNumeric(nrow(n[[1]]), nrow(pool))
+    checkEqualsNumeric(length(n[[1]]), length(pool))
 
     checkEqualsNumeric(apply(cbind(n[[1]]$average.coverage, 
         n[[2]]$average.coverage),1,median), normalDB$exon.median.coverage)
@@ -35,7 +35,7 @@ test_createNormalDatabase <- function() {
         package = "PureCN")
     normal <- readCoverageFile(normal.coverage.file)
     correctCoverageBias(normal, gc.gene.file)
-    suppressWarnings(correctCoverageBias(normal[sample(nrow(normal)),], 
+    suppressWarnings(correctCoverageBias(normal[sample(length(normal)),], 
         gc.gene.file, "shuffled_gatk.txt"))
     checkException(createNormalDatabase(c(normal.coverage.files, 
         "shuffled_gatk.txt")))

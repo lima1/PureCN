@@ -10,7 +10,6 @@
 #' @param tumor Coverage data for tumor sample.
 #' @param log.ratio Copy number log-ratios, one for each target or interval in
 #' coverage file.
-#' @param gc.data \code{data.frame} with GC bias for each interval.
 #' @param seg.file If not \code{NULL}, then do not filter targets, because data
 #' is already segmented via the provided segmentation file.
 #' @param filter.lowhigh.gc Quantile q (defines lower q and upper 1-q) for
@@ -55,7 +54,7 @@
 #'     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 #' 
 #' @export filterTargets
-filterTargets <- function(normal, tumor, log.ratio, gc.data, seg.file, 
+filterTargets <- function(normal, tumor, log.ratio, seg.file, 
     filter.lowhigh.gc = 0.001, min.coverage = 15, min.targeted.base = 5, 
     normalDB = NULL, normalDB.min.coverage = 0.2) {
     # NA's in log.ratio confuse the CBS function
@@ -63,10 +62,10 @@ filterTargets <- function(normal, tumor, log.ratio, gc.data, seg.file,
     # With segmentation file, ignore all filters
     if (!is.null(seg.file)) return(targetsUsed)
 
-    if (!is.null(gc.data)) {
+    if (!is.null(tumor$gc_bias)) {
         .checkFraction(filter.lowhigh.gc, "filter.lowhigh.gc")
         targetsUsed <- .filterTargetsLowHighGC(targetsUsed, tumor,
-            gc.data, filter.lowhigh.gc)
+            filter.lowhigh.gc)
     }
     targetsUsed <- .filterTargetsNormalDB(targetsUsed, tumor, normalDB,
         normalDB.min.coverage)
@@ -104,13 +103,10 @@ normalDB.min.coverage) {
         flog.warn("normalDB does not align with coverage. Ignoring normalDB.")
         return(targetsUsed)
     }    
-# TODO: remove in 1.6
-    if (!is.null(normalDB$gatk.normal.files)) {
-        normalDB$normal.coverage.files <- normalDB$gatk.normal.files
-    }    
+
     nBefore <- sum(targetsUsed)
     min.coverage <- (sapply(split(normalDB$exon.median.coverage, 
-        tumor$chr), median, na.rm=TRUE)*normalDB.min.coverage)[tumor$chr]
+        as.character(seqnames(tumor))), median, na.rm=TRUE)*normalDB.min.coverage)[as.character(seqnames(tumor))]
     
     # should not happen, but just in case
     min.coverage[is.na(min.coverage)] <- median(min.coverage, na.rm=TRUE)
@@ -130,7 +126,7 @@ normalDB.min.coverage) {
 .filterTargetsChrHash <- function(targetsUsed, tumor, chr.hash) {
     if (is.null(chr.hash)) return(targetsUsed)
     nBefore <- sum(targetsUsed)
-    targetsUsed <- targetsUsed & tumor$chr %in% chr.hash$chr
+    targetsUsed <- targetsUsed & seqnames(tumor) %in% chr.hash$chr
     nAfter <- sum(targetsUsed)
 
     if ( nAfter < nBefore) { 
@@ -143,8 +139,7 @@ normalDB.min.coverage) {
 .filterTargetsTargetedBase <- function(targetsUsed, tumor, min.targeted.base) {
     if (is.null(min.targeted.base)) return(targetsUsed)
     nBefore <- sum(targetsUsed)
-    targetsUsed <- targetsUsed & !is.na(tumor$targeted.base) & 
-        tumor$targeted.base >= min.targeted.base
+    targetsUsed <- targetsUsed & width(tumor) >= min.targeted.base
     nAfter <- sum(targetsUsed)
     if (nAfter < nBefore) {
         flog.info("Removing %i small (< %ibp) targets.", nBefore-nAfter, 
@@ -179,15 +174,13 @@ normalDB.min.coverage) {
     targetsUsed
 }
 
-.filterTargetsLowHighGC <- function(targetsUsed, tumor, gc.data,
-    filter.lowhigh.gc) {
-    gc.data <- gc.data[match(as.character(tumor[,1]), gc.data[,1]),]
-    qq <- quantile(gc.data$gc_bias, p=c(filter.lowhigh.gc, 
+.filterTargetsLowHighGC <- function(targetsUsed, tumor, filter.lowhigh.gc) {
+    qq <- quantile(tumor$gc_bias, p=c(filter.lowhigh.gc, 
         1-filter.lowhigh.gc), na.rm=TRUE)
 
     nBefore <- sum(targetsUsed)
-    targetsUsed <- targetsUsed & !is.na(gc.data$gc_bias) & 
-        !(gc.data$gc_bias < qq[1] | gc.data$gc_bias > qq[2])
+    targetsUsed <- targetsUsed & !is.na(tumor$gc_bias) & 
+        !(tumor$gc_bias < qq[1] | tumor$gc_bias > qq[2])
     nAfter <- sum(targetsUsed)
 
     if (nAfter < nBefore) {

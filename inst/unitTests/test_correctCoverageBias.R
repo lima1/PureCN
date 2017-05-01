@@ -6,8 +6,8 @@ test_correctCoverageBias <- function() {
     coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
         output.file="test_loess_coverage.txt")
 
-    checkEquals("data.frame", class(coverage))
-    checkEquals(10049, nrow(coverage))
+    checkEquals("GRanges", class(coverage)[1])
+    checkEquals(10049, length(coverage))
 
     x <- readCoverageFile("test_loess_coverage.txt")
     checkEqualsNumeric(coverage$average.coverage, x$average.coverage)

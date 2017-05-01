@@ -30,30 +30,27 @@
 #' 
 #' @export poolCoverage
 poolCoverage <- function(all.data, remove.chrs=c(), w = NULL) { 
-    pool = all.data[[1]]
+
+    pool <- all.data[[1]]
+
     if (length(all.data) == 1) {
         return(.removeChr(pool, remove.chrs))
     }
     if (is.null(w)) w <- rep(1,length(all.data))
-    #w <- w/w[1]
 
     for (i in 2:length(all.data)) {
-#        pool$sequenced.base = find.max.of.2lists(pool$sequenced.base, 
-#            all.data[[i]]$sequenced.base)
         pool$coverage <- pool$coverage + (w[i] * all.data[[i]]$coverage)
         pool$average.coverage <- pool$average.coverage + 
             (w[i] * all.data[[i]]$average.coverage)
-        pool$base.with..10.coverage <- pool$base.with..10.coverage + 
-            (w[i] * all.data[[i]]$base.with..10.coverage)
     }
     return(.removeChr(pool, remove.chrs))
 }
 
 .removeChr <- function(pool, remove.chrs=c()) {
-    pool$chr <- gsub("^chrchr", "chr", pool$chr)
-    idx <- pool$chr %in% remove.chrs
-    pool$coverage[idx] <- NA
-    pool$average.coverage[idx] <- NA
-    pool$base.with..10.coverage[idx] <- NA
+    idx <- seqnames(pool) %in% remove.chrs
+    if (sum(idx)) {
+        pool[idx]$coverage <- NA
+        pool[idx]$average.coverage <- NA
+    }
     pool
 }

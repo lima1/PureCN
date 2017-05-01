@@ -5,7 +5,7 @@
 \title{Calculates GC content by interval}
 \usage{
 calculateGCContentByInterval(interval.file, reference.file,
-  output.file = NULL, ...)
+  output.file = NULL)
 }
 \arguments{
 \item{interval.file}{File specifying the intervals. Interval is expected in
@@ -18,9 +18,6 @@ will automatically convert to 1-based \code{GRanges}.}
 \item{reference.file}{Reference FASTA file.}
 
 \item{output.file}{Optionally, write GC content file.}
-
-\item{\dots}{Additional parameters passed to the \code{read.delim} function
-that reads the \code{interval.file}.}
 }
 \value{
 Returns GC content by interval.

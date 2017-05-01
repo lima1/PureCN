@@ -19,9 +19,9 @@
 #' @export readCoverageFile
 readCoverageFile <- function(file, format) {
     if (missing(format)) format <- "GATK"
-    coverageData <- .readCoverageGatk(file)
-    .checkLowCoverage(coverageData)
-    return(.checkIntervals(coverageData))
+    targetCoverage <- .readCoverageGatk(file)
+    .checkLowCoverage(targetCoverage)
+    return(.checkIntervals(targetCoverage))
 }
 
 
@@ -46,65 +46,73 @@ readCoverageGatk <- function(file) {
 
 .readCoverageGatk <- function(file) {
     # originally from the ExomeCNV package
-    gatk <- utils::read.table(file, header = TRUE)
-    chrpos <- matrix(unlist(strsplit(as.character(gatk$Target), 
-        ":")), ncol = 2, byrow = TRUE)
-    
-    idx <- !grepl("-", chrpos[,2])
+    inputCoverage <- utils::read.table(file, header = TRUE)
+    if (is.null(inputCoverage$total_coverage)) inputCoverage$total_coverage <- NA
+    if (is.null(inputCoverage$average_coverage)) inputCoverage$average_coverage <- NA
 
-    if (sum(idx)) {
-        warning("Coverage data contains single nucleotide intervals.")
-    }    
-    chrpos[idx,2] <- paste0(chrpos[idx,2], "-", chrpos[idx,2])
-    chr <- factor(chrpos[, 1])
-    
-    pos <- matrix(as.integer(unlist(strsplit(chrpos[, 2], "-"))), 
-        ncol = 2, byrow = TRUE)
-    start <- pos[, 1]
-    end <- pos[, 2]
+    targetCoverage <- GRanges(inputCoverage$Target, 
+        coverage=inputCoverage$total_coverage, 
+        average.coverage=inputCoverage$average_coverage)
 
-    if (is.null(gatk$total_coverage)) gatk$total_coverage <- NA
-    if (is.null(gatk$average_coverage)) gatk$average_coverage <- NA
-
-    tmp <- data.frame(probe = gatk$Target, chr = chr, probe_start = start, 
-        probe_end = end, targeted.base = end - start + 1, sequenced.base = NA, 
-        coverage = as.numeric(gatk$total_coverage), 
-        average.coverage = as.numeric(gatk$average_coverage), 
-        base.with..10.coverage = NA)
-    return(tmp)
+    return(targetCoverage[order(targetCoverage)])
 }
 
-
-.checkIntervals <- function(coverage) {
-    coverageGr <- GRanges(coverage$chr, IRanges(start=coverage$probe_start,
-        end=coverage$probe_end))
+.checkIntervals <- function(coverageGr) {
+    if (min(width(coverageGr))<2) {
+        warning("Coverage data contains single nucleotide intervals.")
+    }    
     ov <- findOverlaps(coverageGr, coverageGr)
     dups <- duplicated(queryHits(ov))
     
     if (sum(dups)) {
         dupLines <- subjectHits(ov)[dups]
-        wOv <- width(pintersect(coverageGr[queryHits(ov)], coverageGr[subjectHits(ov)]))
-        singleDups <- which(wOv[dups]==1)
-        sumSingle <- sum(wOv[dups]==1)
-        tmpMsg <- ""
-        if (sumSingle > 0) {
-            tmpMsg <- paste(sumSingle, "intervals overlap by just 1bp.")
-        }    
-        warning("Found ", sum(dups), " overlapping intervals, starting ",
-            "at line ", dupLines[1], ".\nKeeping them",
-            " for now, but you should fix the interval file. ", 
-            "Future PureCN versions might stop here. ",
-            tmpMsg)
-        #coverage <- coverage[-dupLines,]
+        flog.warn("Found %i overlapping intervals, starting at line %i.",
+            sum(dups), dupLines[1])
+        coverageGr <- reduce(coverageGr)
     }
-    coverage     
+    coverageGr
 }
 
 .checkLowCoverage <- function(coverage) {
     chrsWithLowCoverage <- names(which(sapply(split(coverage$average.coverage, 
-        coverage$chr), mean, na.rm=TRUE) < 1))
+        as.character(seqnames(coverage))), mean, na.rm=TRUE) < 1))
     if (length(chrsWithLowCoverage)>2) {
         warning("Multiple chromosomes with very low coverage: ", 
             paste(chrsWithLowCoverage, collapse=","))
     }    
 }
+
+.addGCData <- function(tumor, gc.gene.file, verbose=TRUE) {
+    tumor$gc_bias <- NA
+    tumor$gc_bias <- as.numeric(tumor$gc_bias)
+    tumor$Gene <- "."
+
+    inputGC <- read.delim(gc.gene.file, as.is = TRUE)
+    if (is.null(inputGC$gc_bias)) {
+        .stopUserError("No gc_bias column in gc.gene.file.")
+    }    
+    if (is.null(inputGC$Gene)) {
+        if (verbose) flog.info("No Gene column in gc.gene.file. You won't get gene-level calls.")
+        inputGC$Gene <- "."
+    }
+    
+    targetGC <- GRanges(inputGC[,1], gc_bias=inputGC$gc_bias, Gene=inputGC$Gene)
+
+    ov <- findOverlaps(tumor, targetGC) 
+    if (!identical(as.character(tumor), as.character(targetGC))) {
+        # if only a few intervals are missing, maybe because of some poor 
+        # quality regions, we just ignore those, otherwise we stop because 
+        # user probably used the wrong file for the assay
+        if (length(ov) < length(tumor)/2) {
+            .stopUserError("tumor.coverage.file and gc.gene.file do not align.")
+        } else {    
+            flog.warn("tumor.coverage.file and gc.gene.file do not align.")
+        }    
+    }
+
+    tumor[queryHits(ov)]$gc_bias <- targetGC[subjectHits(ov)]$gc_bias
+    tumor[queryHits(ov)]$Gene <- targetGC[subjectHits(ov)]$Gene
+    tumor <- .checkSymbolsChromosome(tumor)
+    return(tumor)
+}
+    

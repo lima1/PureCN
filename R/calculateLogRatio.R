@@ -10,7 +10,7 @@
 #' function.
 #' @param tumor Tumor coverage read in by the \code{\link{readCoverageFile}}
 #' function.
-#' @return \code{numeric(nrow(tumor))}, tumor vs. normal copy number log-ratios
+#' @return \code{numeric(length(tumor))}, tumor vs. normal copy number log-ratios
 #' for all targets.
 #' @author Markus Riester
 #' @examples
@@ -26,7 +26,7 @@
 #' @export calculateLogRatio
 calculateLogRatio <- function(normal, tumor) {
     # make sure that normal and tumor align
-    if (!identical(as.character(normal[, 1]), as.character(tumor[, 1]))) {
+    if (!identical(as.character(normal), as.character(tumor))) {
         .stopUserError("Interval files in normal and tumor different.")
     }
     flog.info("Mean coverages: %.0fX (tumor) %.0fX (normal).", 

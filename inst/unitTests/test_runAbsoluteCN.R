@@ -62,7 +62,7 @@ test_runAbsoluteCN <- function() {
     checkTrue(grepl("Tumor and normal are identical", 
         geterrmessage()))
     checkException(runAbsoluteCN(tumor.coverage.file=tumor.coverage.file,
-        log.ratio=head(purecn.example.output$input$log.ratio[,2]), 
+        log.ratio=head(purecn.example.output$input$log.ratio$log.ratio), 
         genome="hg19"))
     checkTrue(grepl("Length of log.ratio different from tumor coverage",
         geterrmessage()))
@@ -108,7 +108,7 @@ test_runAbsoluteCN <- function() {
     checkTrue(grepl("model.homozygous", geterrmessage()))
     
     normalCov <- readCoverageFile(normal.coverage.file)
-    checkException(runAbsoluteCN(normalCov[sample(nrow(normalCov)),], 
+    checkException(runAbsoluteCN(normalCov[sample(length(normalCov)),], 
         tumor.coverage.file, genome="hg19"))
     checkTrue(grepl("Interval files in normal and tumor different",
         geterrmessage()))
@@ -169,8 +169,10 @@ test_runAbsoluteCN <- function() {
     # test that correct exons were filtered
     tumor <- readCoverageFile(tumor.coverage.file)
     normal <- readCoverageFile(normal.coverage.file)
-    log.ratio <- ret$input$log.ratio
-    filtered <- cbind(tumor, gc2, normal.average.coverage=normal$average.coverage)[!as.character(tumor$probe) %in% log.ratio$probe,]
+    tumor$gc_bias <- gc2$gc_bias
+    tumor$normal.average.coverage <- normal$average.coverage
+
+    filtered <- tumor[!overlapsAny(tumor, ret$input$log.ratio)]
     checkTrue(!sum(!(
             filtered$average.coverage < 15 | 
             filtered$normal.average.coverage < 15 |
@@ -183,15 +185,9 @@ test_runAbsoluteCN <- function() {
     seqlevelsStyle(vcf) <- "ENSEMBL"
     normCov <- readCoverageFile( normal.coverage.file )
     tumorCov <- readCoverageFile( tumor.coverage.file )
-    normCov$chr <- as.character(normCov$chr) 
-    tumorCov$chr <- as.character(tumorCov$chr) 
-    seqlevelsStyle(normCov$chr) <- "ENSEMBL"
-    seqlevelsStyle(tumorCov$chr) <- "ENSEMBL"
-    normCov$probe <- paste(normCov$chr, ":", normCov$probe_start, "-", 
-        normCov$probe_end, sep="")
-    tumorCov$probe <- paste(tumorCov$chr, ":", tumorCov$probe_start, "-",
-        tumorCov$probe_end, sep="")
-    
+
+    seqlevelsStyle(normCov) <- "ENSEMBL"
+    seqlevelsStyle(tumorCov) <- "ENSEMBL"
     checkException(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
         genome="hg19", vcf.file=vcf))
     checkTrue(grepl("Different chromosome names in coverage and VCF",
@@ -202,11 +198,11 @@ test_runAbsoluteCN <- function() {
         gc.gene.file=gc.gene.file,
         vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
         max.candidate.solutions=1))
-    checkTrue(grepl("Intervals of tumor.coverage.file and gc.gene.file do not",
+    checkTrue(grepl("tumor.coverage.file and gc.gene.file do not",
         geterrmessage()))
 
     gc3 <- read.delim(gc.gene.file, as.is=TRUE)
-    gc3[,1] <- tumorCov$probe
+    gc3[,1] <- as.character(tumorCov)
     write.table(gc3, file="tmp3.gc", row.names=FALSE, sep="\t", quote=FALSE)
 
     ret <- runAbsoluteCN(normal.coverage.file=normCov, 
@@ -216,7 +212,7 @@ test_runAbsoluteCN <- function() {
         max.candidate.solutions=1)
 
     gpnmb <- callAlterations(ret)["GPNMB",]
-    checkEquals("7", gpnmb$chr)
+    checkEquals("7", as.character(gpnmb$chr))
     checkTrue(gpnmb$start>23000000)
     checkTrue(gpnmb$end  <23400000)
     checkTrue(gpnmb$C >= 6) 
@@ -263,7 +259,7 @@ test_runAbsoluteCN <- function() {
         gc.gene.file=gc.gene.file, sampleid="Sample3",
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
         test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE))
-    checkTrue(grepl("contains multiple samples and sampleid does not match any", 
+    checkTrue(grepl("contains multiple samples and sampleid does not match", 
         geterrmessage()))
     ret <- runAbsoluteCN( seg.file="seg.tmp", 
         gc.gene.file=gc.gene.file, sampleid="Sample1",
@@ -334,17 +330,17 @@ test_runAbsoluteCN <- function() {
         max.candidate.solutions = 1)
     tumor <- readCoverageFile(tumor.coverage.file)
     normal <- readCoverageFile(normal.coverage.file)
-    idx <- tumor$probe %in% ret$input$log.ratio$probe
+    idx <- overlapsAny(tumor, ret$input$log.ratio)
     cutoff <- median(normalDB$exon.median.coverage)*0.3
     plotAbs(ret, 1, type="volcano")
 
     checkEqualsNumeric(0, sum(!(normalDB$exon.median.coverage[!idx] < cutoff | 
-        tumor$targeted.base[!idx] < 5 | tumor$average.coverage[!idx] < 15 | 
+        width(tumor[!idx]) < 5 | tumor$average.coverage[!idx] < 15 | 
         normal$average.coverage[!idx] < 15
         )))
 
    checkTrue( sum(!(normalDB$exon.median.coverage[idx] < cutoff | 
-    tumor$targeted.base[idx] < 5 | tumor$average.coverage[idx] < 15 |
+    width(tumor[idx]) < 5 | tumor$average.coverage[idx] < 15 |
     normal$average.coverage[idx] < 15
     )) > 9000)
     

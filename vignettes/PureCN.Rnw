@@ -939,7 +939,34 @@ The \Rcode{callableBed} file should be a file parsable by
 \Biocpkg{rtracklayer}. This file can specify genomic regions that are callable,
 for example as obtained by \software{GATK CallableLoci}. This is optional, but
 if provided can be used to accurately calculate mutation rates per
-megabase.
+megabase. Variants outside the callable regions are not counted.
+
+The output columns are explained in Table~\ref{tbl:callMutationBurden}.
+
+\begin{table*}
+\caption{\Rfunction{callMutationBurden} output columns.}
+\begin{tabular}{lp{9.5cm}}
+\toprule
+Column name & Description \\
+\midrule
+\Rcode{somatic.ontarget} & Number of mutations in target regions \\
+\Rcode{somatic.all}      & Total number of mutations. Depending on input
+VCF and \Rfunction{runAbsoluteCN} arguments, this might include calls in 
+flanking regions and off-targets reads.  \\
+\Rcode{private.germline.ontargets} & Number of private germline SNPs in 
+targets \\
+\Rcode{private.germline.all} & Total number of private germline SNPs \\
+\Rcode{callable.bases.ontarget} & Number of callable on-target bases \\
+\Rcode{callable.bases.flanking} & Number of callable on-target and 
+flanking bases \\
+\Rcode{callable.bases.all} & Total number of callable bases. With
+default parameters includes off-target regions that were ignored by 
+\Rfunction{runAbsoluteCN}. \\
+\bottomrule
+\end{tabular}
+\label{tbl:callLOH}
+\end{table*}
+
 
 \subsection{Power to detect somatic mutations}
 
@@ -1529,9 +1556,7 @@ library(org.Hs.eg.db)
 .annotateIntervals <- function(gc.gene.file, txdb, output.file = NULL) {
     gc <- read.delim(gc.gene.file, as.is=TRUE)
     # misuse this function to convert interval string into data.frame
-    gc.data <- readCoverageFile(gc.gene.file)
-    grGC <- GRanges(seqnames=gc.data$chr, 
-        IRanges(start=gc.data$probe_start, end=gc.data$probe_end))
+    grGC <- readCoverageFile(gc.gene.file)
     id <- transcriptsByOverlaps(txdb, ranges=grGC, columns = "GENEID")
     id$SYMBOL <-select(org.Hs.eg.db, as.character(id$GENEID), "SYMBOL")[,2]
     gc$Gene <- id$SYMBOL[findOverlaps(grGC, id, select="first")]

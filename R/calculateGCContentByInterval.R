@@ -12,8 +12,6 @@
 #' will automatically convert to 1-based \code{GRanges}.
 #' @param reference.file Reference FASTA file.
 #' @param output.file Optionally, write GC content file.
-#' @param \dots Additional parameters passed to the \code{read.delim} function
-#' that reads the \code{interval.file}.
 #' @return Returns GC content by interval.
 #' @author Markus Riester
 #' @examples
@@ -35,18 +33,11 @@
 #' @importFrom rtracklayer import
 #' @importFrom Biostrings letterFrequency
 calculateGCContentByInterval <- function(interval.file, reference.file,
-output.file = NULL, ... ) {
+output.file = NULL) {
     if (class(interval.file)=="GRanges") {
-        interval.gr <- interval.file
-        interval <- data.frame(Target=paste0(seqnames(interval.gr),":", 
-            start(interval.gr),"-", end(interval.gr)))
+        interval.gr <- .checkIntervals(interval.file)
     } else {    
-        interval <- read.delim(interval.file, as.is=TRUE, ...)
-        colnames(interval)[1] <- "Target"
-        pos <- as.data.frame(do.call(rbind, strsplit(interval$Target, ":|-")),
-            stringsAsFactors = FALSE)
-        interval.gr <- GRanges(seqnames = pos[,1], 
-            IRanges(start = as.numeric(pos[,2]), end = as.numeric(pos[,3])))
+        interval.gr <- readCoverageFile(interval.file)
     }    
     if (min(start(interval.gr)) < 1) {
         .stopUserError("Interval coordinates should start at 1, not at 0.")
@@ -55,7 +46,7 @@ output.file = NULL, ... ) {
     GC.count <- letterFrequency(x,"GC")
     all.count <- letterFrequency(x,"ATGC")
     gc <- data.frame(
-        Target=interval$Target,
+        Target=as.character(interval.gr),
         gc_bias=as.vector(ifelse(all.count==0,NA,GC.count/all.count))
     )
     if (!is.null(output.file)) {

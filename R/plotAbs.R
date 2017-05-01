@@ -212,11 +212,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
 
             if (!is.null(chr) && length(chr)==1) {
                 x <- r$start[idx]/1000
-                logRatio <- res$input$log.ratio
-                logRatio <- logRatio[grep(paste0(chr,":"), logRatio[,1]),]
-                xLogRatio <- strsplit(as.character(logRatio[,1]),"[:-]")
-                xLogRatio <- as.numeric(sapply(xLogRatio, 
-                    function(i) i[2]))/1000
+                xLogRatio <- start(res$input$log.ratio)/1000
                 plot(x, r$AR[idx],ylab="B-Allele Frequency", 
                     xlab="Pos (kbp)",main=paste(main, " Chromosome:", chr), 
                     col=mycol, pch=mypch, xlim=range(xLogRatio), ...)
@@ -235,7 +231,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                 abline(h=0.5, lty=3, col="grey")
                 abline(v=centromerePos, lty=3, col="grey")
                  
-                plot(xLogRatio, logRatio[,2], ylab="Copy Number log-ratio", 
+                plot(xLogRatio, res$input$log.ratio$log.ratio, ylab="Copy Number log-ratio", 
                     xlab="Pos (kbp)", 
                     col=adjustcolor("grey", alpha.f=ifelse(myalpha<1,0.75,1)), 
                     ylim=range(segment.log.ratio*1.1),

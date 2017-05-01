@@ -36,41 +36,34 @@
 #'             scanBam scanFa TabixFile
 calculateBamCoverageByInterval <- function(bam.file, interval.file, 
     output.file = NULL, index.file = bam.file) {
-    interval <- read.delim(interval.file, as.is=TRUE)
-    colnames(interval)[1] <- "Target"
-    pos <- as.data.frame(do.call(rbind, strsplit(interval$Target, ":|-")), 
-        stringsAsFactors = FALSE)
-    interval.gr <- GRanges(seqnames = pos[,1], 
-        IRanges(start = as.numeric(pos[,2]), end = as.numeric(pos[,3])))
+    intervalGr <- readCoverageFile(interval.file)
 
     param <- ScanBamParam(what=c("pos", "qwidth"), 
-                which=interval.gr, 
+                which=intervalGr, 
                 flag=scanBamFlag(isUnmappedQuery=FALSE, 
                                  isNotPassingQualityControls=FALSE, 
                                  isSecondaryAlignment=FALSE,
                                  isDuplicate=FALSE))
 
     x <- scanBam(bam.file, index=index.file, param=param)
-    cvg <- sapply(seq_along(x), function(i) 
+    intervalGr$coverage <- sapply(seq_along(x), function(i) 
         sum(coverage(IRanges(x[[i]][["pos"]], width=x[[i]][["qwidth"]]), 
-            shift=-start(interval.gr)[i], width=width(interval.gr)[i] )))
+            shift=-start(intervalGr)[i], width=width(intervalGr)[i] )))
 
-    ret <- data.frame(
-        probe=interval$Target, 
-        chr=seqnames(interval.gr), 
-        probe_start=start(interval.gr),
-        probe_end=end(interval.gr),
-        targeted.base=width(interval.gr),
-        sequenced.base=NA,
-        coverage=cvg
-    )
-    ret$average.coverage <- ret$coverage/ret$targeted.base
-    ret$base.with..10.coverage <- NA
+    intervalGr$average.coverage <- 
+        intervalGr$coverage/width(intervalGr)
 
     if (!is.null(output.file)) {
-        tmp <- ret[, c("probe", "coverage", "average.coverage")]
-        colnames(tmp) <- c("Target", "total_coverage", "average_coverage")
-        write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE)
+        .writeCoverage(intervalGr, output.file)
     }    
-    invisible(ret)
+    invisible(intervalGr)
+}
+
+.writeCoverage <- function(intervalGr, output.file) {
+    tmp <- data.frame(
+        Target=as.character(intervalGr), 
+        total_coverage=intervalGr$coverage, 
+        average_coverage=intervalGr$average.coverage
+    )
+    write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE)
 }

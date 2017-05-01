@@ -74,7 +74,7 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
             callable <- setdiff(callable, exclude)
         }
 
-        targetGRanges <- GRanges(res$input$log.ratio$probe)
+        targetGRanges <- res$input$log.ratio
 
         intervalPadding <- res$input$args$filterVcf$interval.padding
         if (is.null(intervalPadding)) intervalPadding <- 50

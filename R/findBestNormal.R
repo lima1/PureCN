@@ -59,7 +59,7 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
          "Please regenerate. It will stop working with 1.6.") 
         normalDB$normal.coverage.files <- normalDB$gatk.normal.files
     }    
-    x <- t(tumor[normalDB$exons.used,"average.coverage", drop=FALSE])
+    x <- matrix(tumor[normalDB$exons.used]$average.coverage,nrow=1)
     x[is.na(x)] <- 0
 
     idx.pcs <- pcs
@@ -162,7 +162,7 @@ plotBestNormal <- function(normal.coverage.files, tumor.coverage.file,
     } else {
         tumor <- tumor.coverage.file
     }    
-    xx <- t(tumor[normalDB$exons.used,"average.coverage", drop=FALSE])
+    xx <- matrix(tumor[normalDB$exons.used]$average.coverage,nrow=1)
     xx[is.na(xx)] <- 0
 
     xx <- predict(normalDB$pca,xx)

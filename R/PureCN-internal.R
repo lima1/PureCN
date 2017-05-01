@@ -487,29 +487,27 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     }
     results
 }
-.getGeneCalls <- function(seg.adjusted, gc.data, log.ratio, fun.focal, 
+.getGeneCalls <- function(seg.adjusted, tumor, log.ratio, fun.focal, 
     args.focal, chr.hash) {
     args.focal <- c(list(seg = seg.adjusted), args.focal)
     focal <- do.call(fun.focal, args.focal)
-    abs.gc <- GRanges(seqnames = seg.adjusted$chrom, IRanges(start = seg.adjusted$loc.start, 
+    abs.gc <- GRanges(seqnames = .add.chr.name(seg.adjusted$chrom, chr.hash), IRanges(start = seg.adjusted$loc.start, 
         end = seg.adjusted$loc.end))
 
-    gc.pos <- .gcPos(gc.data)
     # that will otherwise mess up the log-ratio means, mins and maxs
-    idx <- which(!is.nan(log.ratio) & !is.infinite(log.ratio) & gc.pos$Gene != ".")
-    gc.pos <- gc.pos[idx, ]
+    idx <- which(!is.nan(log.ratio) & !is.infinite(log.ratio) & tumor$Gene != ".")
+    if (!length(idx)) return(NA)
+    tumor <- tumor[idx]
     log.ratio <- log.ratio[idx]
     
-    gc.gr <- GRanges(seqnames = .strip.chr.name(gc.pos$chrom, chr.hash), IRanges(start = gc.pos$start, 
-        end = gc.pos$end))
-    ov <- findOverlaps(gc.gr, abs.gc)
+    ov <- findOverlaps(tumor, abs.gc)
     # use funky data.table to calculate means etc. in two lines of code.
-    dt <- data.table(gc.pos[queryHits(ov), ], C = seg.adjusted[subjectHits(ov), "C"], 
+    dt <- data.table(as.data.frame(tumor[queryHits(ov)]), C = seg.adjusted[subjectHits(ov), "C"], 
         seg.mean = seg.adjusted[subjectHits(ov), "seg.mean"], LR = log.ratio[queryHits(ov)], 
         seg.id = subjectHits(ov), seg.length = seg.adjusted$size[subjectHits(ov)], 
         focal = focal[subjectHits(ov)]
         )
-    gene.calls <- data.frame(dt[, list(chr = chrom[1], start = min(start), 
+    gene.calls <- data.frame(dt[, list(chr = seqnames[1], start = min(start), 
         end = max(end), C = as.double(median(C)), seg.mean = median(seg.mean),
         seg.id = seg.id[which.min(seg.length)], 
         .min.segid=min(seg.id), .max.segid=max(seg.id),
@@ -518,13 +516,12 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         focal = focal[which.min(seg.length)]), by = Gene], row.names = 1)
     breakpoints <- gene.calls$.max.segid - gene.calls$.min.segid
     gene.calls$breakpoints <- breakpoints
-    gene.calls <- gene.calls[, !grepl("^\\.",colnames(gene.calls))]
     gene.calls    
 }
 
 .addVoomToGeneCalls <- function(results, tumor.coverage.file, normalDB, 
-    gc.gene.file, gc.data) {
-    y <- .voomTargets(tumor.coverage.file, normalDB, gc.gene.file, gc.data,
+    gc.gene.file) {
+    y <- .voomTargets(tumor.coverage.file, normalDB, gc.gene.file,
         num.normals=10, plot.voom=FALSE)
 
     logFC <- y$coefficients[rownames(results[[1]]$gene.calls),2]
@@ -537,17 +534,13 @@ c(test.num.copy, round(opt.C))[i], prior.K))
    results
 }
 
-.voomTargets <- function(tumor.coverage.file, normalDB, gc.gene.file, gc.data=NULL,
+.voomTargets <- function(tumor.coverage.file, normalDB, gc.gene.file, 
     num.normals=NULL, plot.voom=FALSE) {
     
     countMatrix <- .voomCountMatrix(tumor.coverage.file, normalDB=normalDB, num.normals=num.normals)
-    if (is.null(gc.data)) {
-        gc.data <- read.delim(gc.gene.file, as.is=TRUE)
-    } else {
-        gc.data.tmp <- read.delim(gc.gene.file, as.is=TRUE)
-        countMatrix <- countMatrix[gc.data.tmp[,1] %in% gc.data[,1],]
-    }     
-    gc.pos <- .gcPos(gc.data)
+    gc.data <- read.delim(gc.gene.file, as.is=TRUE)
+    gc.pos <- .checkSymbolsChromosome(GRanges(gc.data[,1], Gene=gc.data$Gene))
+
     geneCountMatrix <- do.call(rbind, lapply(split(data.frame(countMatrix), gc.pos$Gene),
          apply, 2, sum, na.rm=TRUE))
     
@@ -596,15 +589,15 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         lapply(c(list(tumor), normals), function(x) x$average.coverage))
 }    
 
-.checkSymbolsChromosome <- function(gc.pos, blank=c("", ".")) {
-    chrsPerSymbol <- lapply(split(gc.pos$chr, gc.pos$Gene), unique)
+.checkSymbolsChromosome <- function(tumor, blank=c("", ".")) {
+    chrsPerSymbol <- lapply(split(seqnames(tumor), tumor$Gene), unique)
     nonUniqueSymbols <- names(chrsPerSymbol[sapply(chrsPerSymbol, length)>1])
-    idx <- gc.pos$Gene %in% nonUniqueSymbols
-    idxBlank <- gc.pos$Gene %in% blank
-    gc.pos$Gene <- as.character(gc.pos$Gene)
-    gc.pos$Gene[idx] <- paste(gc.pos$Gene, gc.pos$chr, sep=".")[idx]
-    gc.pos$Gene[idxBlank] <- "."
-    gc.pos
+    idx <- tumor$Gene %in% nonUniqueSymbols
+    idxBlank <- tumor$Gene %in% blank
+    tumor$Gene <- as.character(tumor$Gene)
+    tumor$Gene[idx] <- paste(tumor$Gene, tumor$chr, sep=".")[idx]
+    tumor$Gene[idxBlank] <- "."
+    tumor
 }
     
 .get2DPurityGrid <- function(test.purity, by=1/30) {
@@ -859,13 +852,10 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), 
                 IRanges(start = round(seg$loc.start), end = seg$loc.end))
 
-    exon.gr <- GRanges(seqnames = tumor$chr, 
-                IRanges(start = tumor$probe_start, end = tumor$probe_end))
-
-    ov <- findOverlaps(exon.gr, seg.gr)
+    ov <- findOverlaps(tumor, seg.gr)
     log.ratio <- seg$seg.mean[subjectHits(ov)]
     # sanity check, so that every exon has exactly one segment log-ratio
-    log.ratio <- log.ratio[match(seq_len(nrow(tumor)), queryHits(ov))]
+    log.ratio <- log.ratio[match(seq_len(length(tumor)), queryHits(ov))]
     mean.log.ratio <- mean(subset(log.ratio, !is.infinite(log.ratio)), 
         na.rm = TRUE)
     # calibrate
@@ -938,13 +928,13 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     flog.info("Done.")
     flog.info(strrep("-", 60))
 }    
-.calcGCmetric <- function(gc.data, coverage) { 
-    gcbins <- split(coverage$average.coverage, gc.data$gc_bias < 0.5); 
+.calcGCmetric <- function(gc_bias, coverage) { 
+    gcbins <- split(coverage$average.coverage, gc_bias < 0.5); 
     mean(gcbins[[1]], na.rm=TRUE)/mean(gcbins[[2]], na.rm=TRUE) 
 }
-.checkGCBias <- function(normal, tumor, gc.data, max.dropout) {
-    gcMetricNormal <- .calcGCmetric(gc.data, normal)
-    gcMetricTumor <- .calcGCmetric(gc.data, tumor)
+.checkGCBias <- function(normal, tumor, max.dropout) {
+    gcMetricNormal <- .calcGCmetric(tumor$gc_bias, normal)
+    gcMetricTumor <- .calcGCmetric(tumor$gc_bias, tumor)
     flog.info("AT/GC dropout: %.2f (tumor), %.2f (normal). ", 
         gcMetricTumor, gcMetricNormal)
     if (gcMetricNormal < max.dropout[1] || 
@@ -960,20 +950,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .gcGeneToCoverage <- function(gc.gene.file, min.coverage) {
     gc.data <- readCoverageFile(gc.gene.file)
     gc.data$average.coverage <- min.coverage
-    gc.data$coverage <- min.coverage * gc.data$targeted.base
+    gc.data$coverage <- min.coverage * width(gc.data)
     gc.data
-}
-
-.gcPos <- function(gc.data) {
-    gc.data$Target <- as.character(gc.data$Target)
-    if (is.null(gc.data$Gene)) gc.data$Gene <- "."
-    gc.pos <- as.data.frame(do.call(rbind, strsplit(gc.data$Target, ":|-")), stringsAsFactors = FALSE)
-    colnames(gc.pos) <- c("chrom", "start", "end")
-    gc.pos <- cbind(Gene = gc.data$Gene, gc.pos)
-    gc.pos$start <- as.numeric(gc.pos$start)
-    gc.pos$end <- as.numeric(gc.pos$end)
-    # check if genes are on multiple chromosomes
-    gc.pos <- .checkSymbolsChromosome(gc.pos)
 }
 
 .getCentromerePositions <- function(centromeres, genome) {
@@ -999,20 +977,18 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     sum(p$ML.C - p$ML.M.SEGMENT == p$ML.M.SEGMENT, na.rm=TRUE)/nrow(p)
 }
 
-.getMajorityStateTargets <- function(ret, id, gc, n=1) {
+.getMajorityStateTargets <- function(ret, id, tumor, n=1) {
     seg <- ret$results[[id]]$seg
     states <- sapply(seq(0,7), function(i) sum(seg$num.mark[which(round(seg$C)==i)]))
     majorityC <- head(order(states,decreasing=TRUE),n)-1
-    majorityGr <- GRanges(seqnames=seg$chrom, IRanges(start=seg$loc.start, end=seg$loc.end))
+    chr.hash <- .getChrHash(seqlevels(tumor))
+    majorityGr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
+        IRanges(start=seg$loc.start, end=seg$loc.end))
     majorityGr <- majorityGr[seg$C %in% majorityC]
-    gc.pos <- .gcPos(gc)
-    chr.hash <- .getChrHash(gc.pos$chrom)
-    gc.gr <- GRanges(seqnames = .strip.chr.name(gc.pos$chrom, chr.hash), IRanges(start = gc.pos$start,
-        end = gc.pos$end))
-    idx <- overlapsAny(gc.gr, majorityGr)
+    idx <- overlapsAny(tumor, majorityGr)
     percentMajority <- sum(idx)/length(idx)*100
     if (percentMajority < 50 && n < 3) {
-        return(.getMajorityStateTargets(ret,id,gc,n+1))
+        return(.getMajorityStateTargets(ret,id,tumor,n+1))
     }
     flog.info("Majority Copy Number State%s: %s (%.1f%% of targets)", 
         ifelse(length(majorityC)>1, "s",""), 

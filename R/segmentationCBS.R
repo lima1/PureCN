@@ -75,12 +75,12 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
     chr.hash = NULL, centromeres = NULL) {
 
-    if (is.null(chr.hash)) chr.hash <- .getChrHash(tumor$chr)
+    if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
     
     target.weights <- NULL
     if (!is.null(target.weight.file)) {
         target.weights <- read.delim(target.weight.file, as.is=TRUE)
-        target.weights <- target.weights[match(as.character(tumor[,1]), 
+        target.weights <- target.weights[match(as.character(tumor), 
             target.weights[,1]),2]
         flog.info("Target weights found, will use weighted CBS.")
     }
@@ -294,10 +294,7 @@ max.segments=NULL, chr.hash=chr.hash) {
         sdundo <- .getSDundo(log.ratio)
     }   
      
-    CNA.obj <- CNA(log.ratio, 
-        .strip.chr.name(normal$chr, chr.hash), 
-        floor((normal$probe_start + normal$probe_end)/2), data.type="logratio", 
-        sampleid=sampleid)
+    CNA.obj <- .getCNAobject(log.ratio, normal, chr.hash, sampleid)
 
     try.again <- 0
 
@@ -331,4 +328,11 @@ max.segments=NULL, chr.hash=chr.hash) {
 .getSegSizes <- function(seg) {
     round(seg$loc.end-seg$loc.start+1)
 }
+
+.getCNAobject <- function(log.ratio, normal, chr.hash, sampleid) {
+    CNA(log.ratio, .strip.chr.name(seqnames(normal), chr.hash), 
+        floor((start(normal) + end(normal))/2), 
+        data.type="logratio", sampleid=sampleid)
+}
+    
 

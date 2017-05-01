@@ -70,13 +70,13 @@ plot.max.density = 50000, purecn.output=NULL) {
         tumor <- coverage.file
     }    
     
-    gc <- .loadGcGeneFile(gc.gene.file, tumor)
+    tumor <- .addGCData(tumor, gc.gene.file, verbose=FALSE)
 
     method <- match.arg(method)
     if (method=="LOESS") {
-        ret <- .correctCoverageBiasLoess(tumor, gc, purecn.output)
+        ret <- .correctCoverageBiasLoess(tumor, purecn.output)
     } else if(method=="POLYNOMIAL") {
-        ret <- .correctCoverageBiasPolynomial(tumor, gc)
+        ret <- .correctCoverageBiasPolynomial(tumor)
     } else {
         .stopUserError(
         "Invalid method specified. Please specify one of ",
@@ -87,23 +87,19 @@ plot.max.density = 50000, purecn.output=NULL) {
     medDiploid <- ret$medDiploid
 
     if (!is.null(output.file)) {
-        tmp <- coverage[, c("probe", "coverage", "average.coverage")]
-        colnames(tmp) <- c("Target", "total_coverage", "average_coverage")
-        write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE)
+        .writeCoverage(coverage, output.file)
     }
 
     if (plot.gc.bias==TRUE) {
-        if (nrow(gc) < plot.max.density) {
+        if (length(coverage) < plot.max.density) {
             density <- "Low"
         } else {
             density <- "High"
         }
-        tumor$gc_bias <- gc$gc_bias
         tumor$norm_status <- "Pre-normalized"
-        coverage$gc_bias <- gc$gc_bias
         coverage$norm_status <- "Post-normalized"
-        tumCov <- rbind(tumor[,c("probe","coverage","average.coverage","gc_bias","norm_status")],
-            coverage[,c("probe","coverage","average.coverage","gc_bias","norm_status")])
+        tumCov <- rbind(as.data.frame(tumor)[,c("coverage","average.coverage","gc_bias","norm_status")],
+            as.data.frame(coverage)[,c("coverage","average.coverage","gc_bias","norm_status")])
 
         gcPlot <- tumCov[which(tumCov$average.coverage<quantile(tumCov$average.coverage,0.999, na.rm=TRUE)),]
         gcPlot$norm_status <- factor(gcPlot$norm_status, levels = c("Pre-normalized","Post-normalized"))
@@ -136,104 +132,76 @@ plot.max.density = 50000, purecn.output=NULL) {
     invisible(coverage)
 }
 
-.loadGcGeneFile <- function(gc.gene.file, tumor) {
-    gc <- read.delim(gc.gene.file)
-
-    if (is.null(gc$gc_bias)) {
-        .stopUserError("gc.gene.file header invalid.")
-    }
-    
-    if (!identical(as.character(gc[,1]), as.character(tumor[,1]))) {
-        if (sum(!as.character(tumor[,1]) %in% as.character(gc[,1])) > 0) {
-            .stopUserError(
-            "Intervals in coverage.file and gc.gene.file different.\n",
-            "Some intervals in coverage have no GC information.\n",
-            "Please re-calculate coverage using the intervals specified ",
-            "in gc.gene.file or provide the correct gc.gene.file."
-            )
-        }
-        warning(
-        "Interval files in coverage.file and gc.gene.file different.")
-        gc <- gc[match(as.character(tumor[,1]), as.character(gc[,1])),]
-    }
-    gc
-}
-
-.correctCoverageBiasLoess <- function(tumor, gc, purecn.output) {
+.correctCoverageBiasLoess <- function(tumor, purecn.output) {
     # taken from TitanCNA
-    gc$valid <- TRUE
-    gc$valid[tumor$average.coverage <= 0 | gc$gc_bias < 0] <- FALSE
+    tumor$valid <- TRUE
+    tumor$valid[tumor$average.coverage <= 0 | tumor$gc_bias < 0] <- FALSE
     if (!is.null(purecn.output)) {
-        majorityState <- .getMajorityStateTargets(purecn.output, 1, gc)
-        gc$valid[!majorityState] <- FALSE
+        majorityState <- .getMajorityStateTargets(purecn.output, 1, tumor)
+        tumor$valid[!majorityState] <- FALSE
     }    
-    gc$ideal <- TRUE
+    tumor$ideal <- TRUE
     routlier <- 0.01
-    range <- quantile(tumor$average.coverage[gc$valid], prob = 
+    range <- quantile(tumor$average.coverage[tumor$valid], prob = 
         c(0, 1 - routlier), na.rm = TRUE)
     doutlier <- 0.001
-    domain <- quantile(gc$gc_bias[gc$valid], prob = c(doutlier, 1 - doutlier), 
+    domain <- quantile(tumor$gc_bias[tumor$valid], prob = c(doutlier, 1 - doutlier), 
         na.rm = TRUE)
-    gc$ideal[!gc$valid | 
+    tumor$ideal[!tumor$valid | 
         tumor$average.coverage <= range[1] |
         tumor$average.coverage > range[2] | 
-        gc$gc_bias < domain[1] | 
-        gc$gc_bias > domain[2]] <- FALSE
+        tumor$gc_bias < domain[1] | 
+        tumor$gc_bias > domain[2]] <- FALSE
 
-    rough <- loess(tumor$average.coverage[gc$ideal] ~ gc$gc_bias[gc$ideal], 
+    rough <- loess(tumor$average.coverage[tumor$ideal] ~ tumor$gc_bias[tumor$ideal], 
         span = 0.03)
     i <- seq(0, 1, by = 0.001)
     final <- loess(predict(rough, i) ~ i, span = 0.3)
-    cor.gc <- predict(final, gc$gc_bias)
+    cor.gc <- predict(final, tumor$gc_bias)
     cor.gc.factor <- cor.gc/mean(tumor$average.coverage, na.rm=TRUE)
 
-    tumor$gc_bias <- as.integer(gc$gc_bias*100)/100
-    pre <- by(tumor$average.coverage[gc$ideal], tumor$gc_bias[gc$ideal], median, na.rm=TRUE)
+    tumor$gc_bias <- as.integer(tumor$gc_bias*100)/100
+    pre <- by(tumor$average.coverage[tumor$ideal], tumor$gc_bias[tumor$ideal], median, na.rm=TRUE)
     medDiploid <- as.data.frame(cbind(as.numeric(names(pre)),as.vector(pre)))
     colnames(medDiploid) <- c("gcIndex","denom")
 
     tumor$average.coverage <- tumor$average.coverage / cor.gc.factor
     tumor$coverage <- tumor$coverage / cor.gc.factor
 
-    post <- by(tumor$average.coverage[gc$ideal], tumor$gc_bias[gc$ideal], median, na.rm=TRUE)
+    post <- by(tumor$average.coverage[tumor$ideal], tumor$gc_bias[tumor$ideal], median, na.rm=TRUE)
     medDiploid$gcNum <- as.vector(post)
-    tumor$gc_bias <- NULL
+    tumor$ideal <- NULL
+    tumor$valid <- NULL
 
     ret <- list(coverage = tumor, medDiploid=medDiploid)
     ret
 }
 
-.correctCoverageBiasPolynomial <- function(tumor, gc) {
-    coverage <- .cleanupSample(tumor,gc)
+.correctCoverageBiasPolynomial <- function(tumor) {
+    coverage <- .cleanupSample(tumor)
     coveragePloidy <- .inferPloidyRegions(coverage)
     coverageNormalized <- .normalizeRunningMedian(coveragePloidy)
     coverageNormalized
 }
 
-.cleanupSample <- function(tumor, gc) {
-  if(dim(tumor)[1]==0|dim(gc)[1]==0|!identical(as.character(gc[,1]), as.character(tumor[,1]))) {
-    .stopUserError(
-    paste("Mismatching interval sets:",dim(tumor),dim(gc),sep=" ")
+.cleanupSample <- function(tumor, min_cov=10, min_width=75) { 
+
+# Remove instances of coverage < min_cov in sample or zero coverage, as well as chrX/Y
+    tumor$usable <- TRUE
+    notUsable <- which(
+        is.na(tumor$average.coverage) |
+        tumor$average.coverage<min_cov |
+        width(tumor)<min_width 
     )
-  }
-min_cov <- 10
-  tumor$length <- tumor$probe_end - tumor$probe_start + 1
-  coverage <- merge(x=gc,y=tumor,by.x="Target",by.y="probe",sort=FALSE)[,
-    c("Target","gc_bias","average.coverage","length")]
-
-  # Remove instances of coverage < min_cov in sample or zero coverage, as well as chrX/Y
-  coverage$usable <- TRUE
-  coverage[is.na(coverage$average.coverage),"usable"] <- FALSE
-  coverage[grep('chrY',as.character(coverage$Target)),"usable"] <- FALSE
-  coverage[which(coverage$average.coverage<min_cov),"usable"] <- FALSE
-  coverage[which(coverage$regLength<75),"usable"] <- FALSE
-
-  coverage
+    if (length(notUsable)) tumor[notUsable]$usable <- FALSE
+    tumor
 }
 
 .inferPloidyRegions <- function (coverage) {
-  x <- coverage$gc[which(coverage$usable==TRUE)]
-  y <- coverage$average.coverage[which(coverage$usable==TRUE)]
+  x <- coverage[which(coverage$usable==TRUE)]$gc_bias
+  y <- coverage[which(coverage$usable==TRUE)]$average.coverage
+  coverage$CNV <- 2
+  coverage$diploid <- TRUE
 
   # Need to init polynomial parameters here. Instead of randomly initializing, run
   # regression on ALL data points, not excluding on basis of assigned copy numbers or others.
@@ -272,7 +240,7 @@ max_cnv <- 10
     }
     # Assign CNVs in current iteration
     min_index <- lapply(1:ncol(cn), function(i) which.min(cn[,i])-1)
-    coverage[which(coverage$usable==TRUE),"CNV"] <- sapply(min_index, function(x){as.numeric(x[1])})
+    coverage[which(coverage$usable==TRUE)]$CNV <- sapply(min_index, function(x){as.numeric(x[1])})
 
     medx <- seq(0.25, 0.80, 0.05) # Full GC range for fitting polynomial
     medy <- rep(NA, length(medx)) # Median coverage in given GC window
@@ -284,15 +252,15 @@ max_cnv <- 10
         # regions with G+C content below 0.3 or above 0.65
     topp <- quantile(coverage$average.coverage,0.99,na.rm=TRUE)
     botp <- quantile(coverage$average.coverage,0.01,na.rm=TRUE)
-    coverage[which(coverage$usable==TRUE),"diploid"] <- FALSE
-    coverage[which(coverage$CNV==P & coverage$gc_bias>=min(medx[medi]) & coverage$gc_bias<max(medx[medi]) & coverage$average.coverage<topp & coverage$average.coverage>botp & coverage$usable==TRUE),"diploid"] <- TRUE
+    coverage[which(coverage$usable==TRUE)]$diploid <- FALSE
+    coverage[which(coverage$CNV==P & coverage$gc_bias>=min(medx[medi]) & coverage$gc_bias<max(medx[medi]) & coverage$average.coverage<topp & coverage$average.coverage>botp & coverage$usable==TRUE)]$diploid <- TRUE
 
     medcount <- rep(NA,length(medx)) # #points in window, used to weight the regression equation
     for(i in seq(1,length(medx))) {
       gc <- medx[i] # GC window of 0.05
       gc_min <- gc-.025
       gc_max <- gc+.025
-      medgc <- coverage[which(coverage$gc_bias>=gc_min & coverage$gc_bias<gc_max & coverage$diploid==TRUE),] # All points in given GC window
+      medgc <- coverage[which(coverage$gc_bias>=gc_min & coverage$gc_bias<gc_max & coverage$diploid==TRUE)] # All points in given GC window
       medy[i] <- median(medgc$average.coverage) # Median coverage of points
       medcount[i] <- length(medgc$average.coverage)
     }
@@ -312,17 +280,17 @@ max_cnv <- 10
 
 .normalizeRunningMedian <- function(coverage) {
   # Calculate here the average coverage across all regions
-  totlen <- sum(coverage$length,na.rm=TRUE)
-  totcov <- sum(coverage$length*coverage$average.coverage,na.rm=TRUE) # Total coverage across all regions
+  totlen <- sum(width(coverage),na.rm=TRUE)
+  totcov <- sum(coverage$coverage,na.rm=TRUE) # Total coverage across all regions
   avgcov <- totcov/totlen # Average coverage - used post-normalization
 
   # Begin running median normalization here
   # Get range of GC values to normalize over
   ############# medKP replace with coverage$diploid
-  pmin <- as.integer(min(coverage[which(coverage$usable==TRUE),]$gc_bias)*1000)/1000 - 0.005
-  pmax <- as.integer(max(coverage[which(coverage$usable==TRUE),]$gc_bias)*1000)/1000 + 0.005
-  imin <- as.integer(min(coverage[which(coverage$diploid==TRUE),]$gc_bias)*1000)/1000 - 0.005
-  imax <- as.integer(max(coverage[which(coverage$diploid==TRUE),]$gc_bias)*1000)/1000 + 0.005
+  pmin <- as.integer(min(coverage[which(coverage$usable==TRUE)]$gc_bias)*1000)/1000 - 0.005
+  pmax <- as.integer(max(coverage[which(coverage$usable==TRUE)]$gc_bias)*1000)/1000 + 0.005
+  imin <- as.integer(min(coverage[which(coverage$diploid==TRUE)]$gc_bias)*1000)/1000 - 0.005
+  imax <- as.integer(max(coverage[which(coverage$diploid==TRUE)]$gc_bias)*1000)/1000 + 0.005
 
   #Normalize
   coverage$NormalizedCoverage <- 0
@@ -346,17 +314,16 @@ max_cnv <- 10
     denom <- median(medvals, na.rm=TRUE) # Median of small window medians
 
     # Assign normalized coverage as: (original coverage/running median)*Average coverage across all regions
-    coverage[which(i-0.005<=coverage$gc_bias & coverage$gc_bias<i+0.005 & coverage$usable==TRUE),"NormalizedCoverage"] <- avgcov*coverage[which(i-0.005<=coverage$gc_bias & coverage$gc_bias<i+0.005 & coverage$usable==TRUE),"average.coverage"] / denom
-    gcNum <- median(coverage[which(i-0.005<=coverage$gc_bias & coverage$gc_bias<i+0.005 & coverage$usable==TRUE),"NormalizedCoverage"], na.rm=TRUE)
+
+    coverage[which(i-0.005<=coverage$gc_bias & coverage$gc_bias<i+0.005 & coverage$usable==TRUE)]$NormalizedCoverage <- avgcov*coverage[which(i-0.005<=coverage$gc_bias & coverage$gc_bias<i+0.005 & coverage$usable==TRUE)]$average.coverage / denom
+    gcNum <- median(coverage[which(i-0.005<=coverage$gc_bias & coverage$gc_bias<i+0.005 & coverage$usable==TRUE)]$NormalizedCoverage, na.rm=TRUE)
     imedDiploid <- cbind(i,denom,gcNum) # Pre and post-normalization medians
     medDiploid <- rbind(medDiploid,imedDiploid)
   }
-  coverage[which(coverage$NormalizedCoverage==0),"NormalizedCoverage"] <- coverage[which(coverage$NormalizedCoverage==0),"average.coverage"]
+  coverage[which(coverage$NormalizedCoverage==0)]$NormalizedCoverage <- coverage[which(coverage$NormalizedCoverage==0)]$average.coverage
 
-  coverage$probe <- coverage$Target
   coverage$average.coverage <- coverage$NormalizedCoverage
-  coverage$coverage <- coverage$average.coverage * coverage$length
-  coverage$Target <- NULL
+  coverage$coverage <- coverage$average.coverage * width(coverage)
   colnames(medDiploid)[1] <- "gcIndex"
 
   ret <- list(coverage = coverage, medDiploid = medDiploid)

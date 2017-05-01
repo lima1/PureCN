@@ -14,7 +14,7 @@ function.}
 function.}
 }
 \value{
-\code{numeric(nrow(tumor))}, tumor vs. normal copy number log-ratios
+\code{numeric(length(tumor))}, tumor vs. normal copy number log-ratios
 for all targets.
 }
 \description{

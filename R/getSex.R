@@ -38,8 +38,8 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
         x <- coverage.file
     }
 
-    sex.chr <- .getSexChr(x$chr)
-    xx <- split(x$average.coverage, x$chr)
+    sex.chr <- .getSexChr(seqnames(x))
+    xx <- split(x$average.coverage, as.character(seqnames(x)))
     
     # for small panels the median appears more robust.
     if (length(xx[[sex.chr[2]]]) < 10) {    
@@ -184,7 +184,7 @@ getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4,
     sex
 }
 .fixAllosomeCoverage <- function(sex, tumor) {
-    sex.chr <- .getSexChr(tumor$chr)
+    sex.chr <- .getSexChr(seqlevels(tumor))
     if (sex=="M" || sex=="?") {
         tumor <- .removeChr(tumor, remove.chrs=sex.chr)
     } else if (sex=="F") {

@@ -4,9 +4,9 @@
 \alias{filterTargets}
 \title{Remove low quality targets}
 \usage{
-filterTargets(normal, tumor, log.ratio, gc.data, seg.file,
-  filter.lowhigh.gc = 0.001, min.coverage = 15, min.targeted.base = 5,
-  normalDB = NULL, normalDB.min.coverage = 0.2)
+filterTargets(normal, tumor, log.ratio, seg.file, filter.lowhigh.gc = 0.001,
+  min.coverage = 15, min.targeted.base = 5, normalDB = NULL,
+  normalDB.min.coverage = 0.2)
 }
 \arguments{
 \item{normal}{Coverage data for normal sample.}
@@ -15,8 +15,6 @@ filterTargets(normal, tumor, log.ratio, gc.data, seg.file,
 
 \item{log.ratio}{Copy number log-ratios, one for each target or interval in
 coverage file.}
-
-\item{gc.data}{\code{data.frame} with GC bias for each interval.}
 
 \item{seg.file}{If not \code{NULL}, then do not filter targets, because data
 is already segmented via the provided segmentation file.}

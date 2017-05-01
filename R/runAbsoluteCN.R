@@ -70,7 +70,7 @@
 #' coverage files. Needs to return a \code{logical} vector whether an interval
 #' should be used for segmentation. Defaults to \code{\link{filterTargets}}.
 #' @param args.filterTargets Arguments for target filtering function. Arguments
-#' \code{normal}, \code{tumor}, \code{log.ratio}, \code{gc.data}, 
+#' \code{normal}, \code{tumor}, \code{log.ratio},  
 #' \code{min.coverage}\code{seg.file} and \code{normalDB} are required and 
 #' automatically set. 
 #' @param fun.segmentation Function for segmenting the copy number log-ratios.
@@ -281,22 +281,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
      # log function arguments     
     try(.logHeader(as.list(match.call())[-1]), silent=TRUE)
 
-    # TODO: remove in PureCN 1.8
-    if (!is.null(remove.off.target.snvs)) {
-        args.filterVcf$remove.off.target.snvs <- remove.off.target.snvs
-        flog.warn("remove.off.target.snvs is deprecated. Please use it in args.filterVcf instead.")
-    }
-    # TODO: remove in PureCN 1.8
-    if (length(max.homozygous.loss)==1){
-         max.homozygous.loss <- c(max.homozygous.loss, 1e07)
-         flog.warn("max.homozygous.loss now a double(2) vector. Please provide both values.")
-    }     
-    # TODO: remove in PureCN 1.8
-    if (is.null(normalDB) && !is.null(args.filterTargets$normalDB)) {
-        normalDB <- args.filterTargets$normalDB
-        flog.warn("normalDB now a runAbsoluteCN argument. Please provide it there, not in args.filterTargets.")
-    }    
-
     model <- match.arg(model)
 
     centromeres <- .getCentromerePositions(centromeres, genome)
@@ -340,7 +324,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             sampleid <- "Sample.1"
     }
     
-    chr.hash <- .getChrHash(tumor$chr)
+    chr.hash <- .getChrHash(seqlevels(tumor))
     
     # check that normal is not the same as tumor (only if no log-ratio or
     # segmentation is provided, in that case we wouldn't use normal anyway)
@@ -376,7 +360,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         # and normal, so we just use tumor if there is no normal coverage file.
         if (is.null(normal.coverage.file)) 
             normal <- tumor
-        if (length(log.ratio) != nrow(tumor)) {
+        if (length(log.ratio) != length(tumor)) {
             .stopUserError("Length of log.ratio different from tumor ", 
                            "coverage.")
         }
@@ -387,18 +371,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     sex <- .getSex(match.arg(sex), normal, tumor)
     tumor <- .fixAllosomeCoverage(sex, tumor)
     
-    gc.data <- NULL
     if (!is.null(gc.gene.file)) {
-        gc.data <- read.delim(gc.gene.file, as.is = TRUE)
-        if (!length(intersect(gc.data[, 1], tumor[, 1]))) {
-            .stopUserError("Intervals of tumor.coverage.file and gc.gene.file ", 
-                "do not align.")
-        }
-        gc.data <- gc.data[match(as.character(tumor[, 1]), gc.data[, 1]), , drop = FALSE]
+        tumor <- .addGCData(tumor, gc.gene.file)
     }
     
     args.filterTargets <- c(list(normal=normal, tumor = tumor, 
-        log.ratio = log.ratio, gc.data = gc.data, seg.file = seg.file, 
+        log.ratio = log.ratio, seg.file = seg.file, 
         normalDB = normalDB), args.filterTargets)
     # make it possible to provide different coverages for the different
     # filters 
@@ -412,23 +390,17 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # chr.hash is an internal data structure, so we need to do this separately.
     targetsUsed <- .filterTargetsChrHash(targetsUsed, tumor, chr.hash)
     targetsUsed <- which(targetsUsed)
-    if (nrow(tumor) != nrow(normal) || nrow(tumor) != length(log.ratio) || (!is.null(gc.gene.file) && 
-        nrow(tumor) != nrow(gc.data))) {
+    if (length(tumor) != length(normal) || length(tumor) != length(log.ratio)) { 
         .stopRuntimeError("Mis-aligned coverage data.")
     }
     tumor <- tumor[targetsUsed, ]
     normal <- normal[targetsUsed, ]
     log.ratio <- log.ratio[targetsUsed]
-    if (!is.null(gc.gene.file)) {
-        gc.data <- gc.data[targetsUsed, ]
-    }
-    flog.info("Using %i targets.", nrow(tumor))
+    flog.info("Using %i targets.", length(tumor))
 
     if (smooth.log.ratio) {
-        CNA.obj <- smooth.CNA(CNA(log.ratio, 
-            .strip.chr.name(normal$chr, chr.hash), 
-            floor((normal$probe_start + normal$probe_end)/2), 
-            data.type="logratio", sampleid="sample"))
+        CNA.obj <- smooth.CNA(
+            .getCNAobject(log.ratio, normal, chr.hash, "sample"))
         log.ratio <- CNA.obj$sample
     }     
     
@@ -436,19 +408,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # clean up noisy targets, but not if the segmentation was already provided.
     if (is.null(seg.file)) {
         if (!is.null(gc.gene.file)) {
-            dropoutWarning <- .checkGCBias(normal, tumor, gc.data, max.dropout)
+            dropoutWarning <- .checkGCBias(normal, tumor, max.dropout)
         } else {
             flog.info("No gc.gene.file provided. Cannot check if data was GC-normalized. Was it?")
         }
     }
-    
-    if (!is.null(gc.gene.file) && is.null(gc.data$Gene)) {
-        flog.info("No Gene column in gc.gene.file. You won't get gene-level calls.")
-        gc.gene.file <- NULL
-    }
-    
-    exon.gr <- GRanges(seqnames=tumor$chr, IRanges(start=tumor$probe_start, 
-                                                   end=tumor$probe_end))
     
     vcf <- NULL
     vcf.germline <- NULL
@@ -463,7 +427,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         flog.info("Loading VCF...")
         vcf <- .readAndCheckVcf(vcf.file, genome=genome)
         
-        if (length(intersect(tumor$chr, seqlevels(vcf))) < 1) {
+        if (length(intersect(seqlevels(tumor), seqlevels(vcf))) < 1) {
             .stopUserError("Different chromosome names in coverage and VCF.")
         }
         
@@ -496,7 +460,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         
         args.filterVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf, 
             model.homozygous = model.homozygous, error = error, 
-            target.granges = exon.gr), args.filterVcf)
+            target.granges = tumor), args.filterVcf)
         if (is.null(args.filterVcf$min.coverage)) {
             args.filterVcf$min.coverage <- min.coverage
         }
@@ -553,7 +517,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         # log-ratio.
         sd.ar <- sd(unlist(geno(vcf)$FA[, tumor.id.in.vcf]))
         snv.lr <- seg$seg.mean[ov]
-        ov.vcfexon <- findOverlaps(vcf, exon.gr)
+        ov.vcfexon <- findOverlaps(vcf, tumor)
         snv.lr[queryHits(ov.vcfexon)] <- log.ratio[subjectHits(ov.vcfexon)]
         if (sum(is.na(snv.lr)) > 0) {
             n.vcf.before.filter <- nrow(vcf)
@@ -572,7 +536,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     }
     
     # get target log-ratios for all segments
-    ov.se <- findOverlaps(seg.gr, exon.gr)
+    ov.se <- findOverlaps(seg.gr, tumor)
     exon.lrs <- lapply(seq_len(nrow(seg)), function(i) log.ratio[subjectHits(ov.se)[queryHits(ov.se) == 
         i]])
     exon.lrs <- lapply(exon.lrs, function(x) subset(x, !is.na(x) & !is.infinite(x)))
@@ -833,7 +797,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         }
         
         if (!is.null(gc.gene.file)) {
-            gene.calls <- .getGeneCalls(seg.adjusted, gc.data, log.ratio, fun.focal, 
+            gene.calls <- .getGeneCalls(seg.adjusted, tumor, log.ratio, fun.focal, 
                 args.focal, chr.hash)
         } else {
             gene.calls <- NA
@@ -977,7 +941,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!is.null(gc.gene.file) && !is.null(normalDB) && length(results) && 
         !is.null(results[[1]]$gene.calls)) {
         results <- .addVoomToGeneCalls(results, tumor.coverage.file, normalDB, 
-            gc.gene.file, gc.data)
+            gc.gene.file)
     }
     
     if (length(results) < 1) {
@@ -988,7 +952,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         candidates = candidate.solutions, 
         results = results, 
         input = list(tumor = tumor.coverage.file, normal = normal.coverage.file, 
-            log.ratio = data.frame(probe = normal[, 1], log.ratio = log.ratio), 
+            log.ratio = GRanges(normal[, 1], log.ratio = log.ratio), 
             log.ratio.sdev = sd.seg, vcf = vcf, sampleid = sampleid, 
             sex = sex, sex.vcf = sex.vcf, chr.hash = chr.hash, centromeres = centromeres,
             args=list(filterVcf = args.filterVcf, filterTargets = args.filterTargets)
