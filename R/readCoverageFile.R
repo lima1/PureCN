@@ -61,6 +61,9 @@ readCoverageGatk <- function(file) {
     if (min(width(coverageGr))<2) {
         flog.warn("Coverage data contains single nucleotide intervals.")
     }    
+    if(min(start(coverageGr))<1) {
+        .stopUserError("Interval coordinates should start at 1, not at 0")
+    }    
     ov <- findOverlaps(coverageGr, coverageGr)
     dups <- duplicated(queryHits(ov))
     
