@@ -45,7 +45,6 @@ readCoverageGatk <- function(file) {
 }
 
 .readCoverageGatk <- function(file) {
-    # originally from the ExomeCNV package
     inputCoverage <- utils::read.table(file, header = TRUE)
     if (is.null(inputCoverage$total_coverage)) inputCoverage$total_coverage <- NA
     if (is.null(inputCoverage$average_coverage)) inputCoverage$average_coverage <- NA

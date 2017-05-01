@@ -42,20 +42,13 @@ predictSomatic <- function(res, id = 1, return.vcf = FALSE,
 
 .addSymbols <- function(result) {
     if (class(result$gene.calls) == "data.frame") {
+        g.gr <- GRanges(result$gene.calls)
+        p.gr <- GRanges(result$SNV.posterior$posteriors)
+        ov <- findOverlaps(p.gr, g.gr)
         
-    g.gr <- GRanges(seqnames=result$gene.calls$chr,
-              IRanges(start=result$gene.calls$start,
-                      end=result$gene.calls$end))
-       
-    p.gr <- GRanges(seqnames=result$SNV.posterior$posteriors$chr,
-              IRanges(start=result$SNV.posterior$posteriors$start,
-                      end=result$SNV.posterior$posteriors$end))
-    
-    ov <- findOverlaps(p.gr, g.gr)
-    
-    result$SNV.posterior$posteriors$gene.symbol <- NA
-    result$SNV.posterior$posteriors$gene.symbol[queryHits(ov)] <- 
-        rownames(result$gene.calls)[subjectHits(ov)]
+        result$SNV.posterior$posteriors$gene.symbol <- NA
+        result$SNV.posterior$posteriors$gene.symbol[queryHits(ov)] <- 
+            rownames(result$gene.calls)[subjectHits(ov)]
     }    
     result$SNV.posterior$posteriors
 }

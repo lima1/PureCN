@@ -26,8 +26,7 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
     if (!nrow(armLocations)) {
         .stopUserError("Centromere positions not available or matching.")
     }
-    armLocationsGR <- GRanges(seqnames=armLocations$chrom,
-        IRanges(start=armLocations$start, end=armLocations$end))
+    armLocationsGR <- GRanges(armLocations)
     seg <- res$results[[id]]$seg
 
     minorChrNumber <- res$results[[id]]$SNV.posterior$posteriors[, 
@@ -51,8 +50,7 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
         i <- i + 1
     }
 
-    segGR <- GRanges(seqnames=seg$chrom, IRanges(start=seg$loc.start,
-    end=seg$loc.end))
+    segGR <- GRanges(seg)
 
     ov <- findOverlaps(armLocationsGR, segGR)
     segLOH <-  cbind(seg[subjectHits(ov),], armLocations[queryHits(ov),])

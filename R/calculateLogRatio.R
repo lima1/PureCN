@@ -41,6 +41,5 @@ calculateLogRatio <- function(normal, tumor) {
     mean.log.ratio <- mean(subset(log.ratio, !is.infinite(log.ratio)), 
         na.rm = TRUE)
     # calibrate
-    log.ratio <- log.ratio - mean.log.ratio
-    log.ratio
+    log.ratio - mean.log.ratio
 }
