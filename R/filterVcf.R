@@ -57,7 +57,7 @@
 #' 
 #' @export filterVcfBasic
 #' @importFrom GenomeInfoDb seqnames seqlevelsStyle seqlevelsStyle<-
-#'             genomeStyles keepSeqlevels
+#'             genomeStyles 
 #' @importFrom SummarizedExperiment rowRanges
 #' @importFrom stats pbeta
 filterVcfBasic <- function(vcf, tumor.id.in.vcf = NULL, 

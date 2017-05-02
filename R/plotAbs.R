@@ -212,7 +212,8 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
 
             if (!is.null(chr) && length(chr)==1) {
                 x <- r$start[idx]/1000
-                logRatio <- keepSeqlevels(res$input$log.ratio, chr)
+                logRatio <- res$input$log.ratio
+                logRatio <- logRatio[seqnames(logRatio) %in% chr]
                 xLogRatio <- start(logRatio)/1000
                 plot(x, r$AR[idx],ylab="B-Allele Frequency", 
                     xlab="Pos (kbp)",main=paste(main, " Chromosome:", chr), 
