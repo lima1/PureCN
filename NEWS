@@ -1,3 +1,10 @@
+Changes in version 1.6.1
+------------------------
+- Fixed crash when VCF contained variants with 0 coverage
+- Fixed crash in calculatePowerDetectSomatic when fdr was 0
+- Minor edits to "Quick Start" vignette
+
+
 Changes in version 1.6.0
 ------------------------
 
@@ -8,6 +15,7 @@ Changes in version 1.6.0
 - Support for cell lines
 - New GC-normalization for smaller gene panels
 - Added sub-clonal SNV state (SOMATIC.M0)
+- Added beta-binomial model for noisy allelic fractions
 - Polished plots, added new GC-normalization and volcano plots
 - Better copy number normalization using multiple best normals
 - Removed automatic curation, since the tuned likelihood model 

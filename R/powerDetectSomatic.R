@@ -57,7 +57,7 @@ verbose=TRUE) {
     coverage <- round(coverage)
     if (coverage < 2) .stopUserError("coverage not in expected range (>=2)")
     if (error < 0 || error > 1) .stopUserError("error not in expected range.")
-    if (fpr < 0 || fpr > 1) .stopUserError("fpr not in expected range.")
+    if (fpr <= 0 || fpr > 1) .stopUserError("fpr not in expected range.")
     if (cell.fraction <= 0 || cell.fraction > 1) { 
         .stopUserError("cell.fraction not in expected range.")
     }

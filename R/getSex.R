@@ -137,7 +137,7 @@ getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4,
         vcf <- vcf[!info(vcf)$SOMATIC]
     } else {
         af <- geno(vcf)$FA[,tumor.id.in.vcf] > af.cutoff
-        vcf <- vcf[af]
+        vcf <- vcf[which(af)]
     }
 
     if (!nrow(vcf)) {
