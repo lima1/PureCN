@@ -953,7 +953,7 @@ Column name & Description \\
 \Rcode{somatic.all}      & Total number of mutations. Depending on input
 VCF and \Rfunction{runAbsoluteCN} arguments, this might include calls in 
 flanking regions and off-targets reads.  \\
-\Rcode{private.germline.ontargets} & Number of private germline SNPs in 
+\Rcode{private.germline.ontarget} & Number of private germline SNPs in 
 targets \\
 \Rcode{private.germline.all} & Total number of private germline SNPs \\
 \Rcode{callable.bases.ontarget} & Number of callable on-target bases \\

@@ -63,8 +63,9 @@ suppressPackageStartupMessages(library(PureCN))
 flog.info("Reading %s...", infileRds)
 res <- readCurationFile(infileRds)
 sampleid <- res$input$sampleid
+file.suffix <- ""
 
-outfileMb <- file.path(outdir, paste0(sampleid, '_purecn_mutation_burden.csv'))
+outfileMb <- file.path(outdir, paste0(sampleid, file.suffix, '_mutation_burden.csv'))
 
 force <- !is.null(opt$force)
 

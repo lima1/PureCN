@@ -800,11 +800,14 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     .checkSeg(seg, sampleid, model.homozygous, verbose)
 }
 .checkSeg <- function(seg, sampleid, model.homozygous, verbose=TRUE) {
+    
     required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
         "seg.mean")
     required.colnames2 <- c("ID", "chromosome", "start", "end", "num_probes", 
         "mean")
-
+    if (ncol(seg) > length(required.colnames)) {
+        seg <- seg[,1:length(required.colnames)]
+    }    
     if (identical(colnames(seg), required.colnames2)) {
         colnames(seg) <- required.colnames
     }    
