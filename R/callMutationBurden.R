@@ -16,7 +16,8 @@
 #' @param fun.countMutation Function that can be used to filter the
 #' input VCF further for filtering, for example to only keep missense
 #' mutations. Expects a \code{logical} vector indicating whether variant
-#' should be counted (\code{TRUE}) or not (\code{FALSE}).
+#' should be counted (\code{TRUE}) or not (\code{FALSE}). Default
+#' is to keep only single nucleotide variants.
 #' @param callable \code{GRanges} object with callable genomic regions,
 #' for example obtained by \sQuote{GATK CallableLoci} BED file, imported 
 #' with \code{rtracklayer}.
@@ -49,7 +50,8 @@
 #' 
 #' @export callMutationBurden
 callMutationBurden <- function(res, id = 1, remove.flagged = TRUE, 
-    min.prior.somatic=0.1, min.cellfraction=0, fun.countMutation=NULL,
+    min.prior.somatic=0.1, min.cellfraction=0, 
+    fun.countMutation=function(vcf) width(vcf)==1,
     callable=NULL, exclude=NULL) {
 
     if (is.null(res$input$vcf)) {

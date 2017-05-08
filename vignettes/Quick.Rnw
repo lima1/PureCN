@@ -25,13 +25,15 @@ vignette.
 
 \subsection*{Prepare environment and files}
 
-Get the path to command line scripts in R:
+\begin{itemize}
+
+\item Get the path to command line scripts in R:
 
 <<paths>>=
 system.file("extdata", package="PureCN")
 @ 
 
-Store this path in an environment variable, for example in BASH:
+\item Store this path in an environment variable, for example in BASH:
 
 \begin{verbatim}
 $ export PURECN="/path/to/PureCN/extdata"
@@ -39,11 +41,11 @@ $ Rscript $PURECN/PureCN.R --help
 Usage: /path/to/PureCN/inst/extdata/PureCN.R [-[-help|h]] ...
 \end{verbatim}
 
-Generate a basic interval file from a BED file containing target coordinates:
+\item Generate a basic interval file from a BED file containing target coordinates:
 
 \begin{verbatim}
-$ Rscript $PURECN/IntervalFile.R --infile ex_intervals.bed \ 
-    --fasta ex_reference.fa --outfile ex_gcgene.txt
+$ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
+    --fasta hg19.fa --outfile baits_hg19_gcgene.txt
 \end{verbatim}
 
 Internally, this script uses \Biocpkg{rtracklayer} to parse the
@@ -52,6 +54,8 @@ Internally, this script uses \Biocpkg{rtracklayer} to parse the
 See the main vignette how to add gene symbols to the interval file. Symbols are
 necessary to obtain gene-level copy number and LOH calls. For a test run, you
 will not need this.
+
+\end{itemize}
 
 \subsection*{Run PureCN with third-party segmentation}
 
@@ -62,8 +66,8 @@ EXCAVATOR2). For a test run:
 Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
     --segfile $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
-    --vcf $VCF_FILE \
-    --genome hg19 --gcgene ex_gcgene.txt 
+    --vcf ${SAMPLEID}_mutect.vcf \
+    --genome hg19 --gcgene baits_hg19_gcgene.txt 
 \end{verbatim}
 
 The main VCF (\Rcode{--vcf}) is ideally created by \software{MuTect} 1.1.7.
@@ -77,12 +81,12 @@ and genome:
 \begin{verbatim}
 Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
-    --segfile $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
+    --segfile $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.seg \
     --normal_panel $NORMAL_PANEL \
-    --vcf $VCF_FILE \
-    --statsfile $VCF_STATS_FILE \
+    --vcf ${SAMPLEID}_mutect.vcf \
+    --statsfile ${SAMPLEID}_mutect_stats.txt \
     --snpblacklist hg19_simpleRepeats.bed \
-    --genome hg19 --gcgene ex_gcgene.txt \
+    --genome hg19 --gcgene baits_hg19_gcgene.txt \
 #    --funsegmentation none \
     --force --postoptimize  
 \end{verbatim}
@@ -105,7 +109,8 @@ This results in a significant runtime increase for whole-exome data.
 
 The following describes \Biocpkg{PureCN} runs with internal copy number
 normalization and segmentation. Provided are again minimal examples for
-test runs.
+test runs. See the main vignette how to get optimal results in production
+pipelines.
 
 \subsubsection*{Coverage}
 
@@ -114,13 +119,13 @@ For each sample, tumor and normal:
 \begin{verbatim}
 # From a BAM file 
 $ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
-    --bam example.bam \
-    --gcgene ex_gcgene.txt
+    --bam ${SAMPLEID}.bam \
+    --gcgene baits_hg19_gcgene.txt
 
 # From a GATK DepthOfCoverage file
 Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
-    --gatkcoverage example_tumor.txt \ 
-    --gcgene  ex_gcgene.txt
+    --gatkcoverage ${SAMPLEID}.coverage.sample_interval_summary \ 
+    --gcgene  baits_hg19_gcgene.txt
 \end{verbatim}
 
 \subsubsection*{NormalDB}
@@ -142,17 +147,23 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT \
 \begin{verbatim}
 cd $OUT/$SAMPLEID
 # From GC-normalized coverage data
-$ Rscript $PURECN/PureCN.R --outdir . --tumor example_tumor_loess.txt \ 
-    --normal example_normal_loess.txt --vcf $VCF_FILE -i $SAMPLEID \
-    --genome hg19 --gcgene  ex_gcgene.txt 
+$ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \ 
+    --normal ${SAMPLEID_NORMAL}_coverage_loess.txt \ 
+    --sampleid $SAMPLEID \
+    --vcf ${SAMPLEID}_mutect.vcf \
+    --genome hg19 \
+    --gcgene baits_hg19_gcgene.txt 
 
 # Without a matched normal    
-$ Rscript $PURECN/PureCN.R --outdir . --tumor example_tumor_loess.txt \ 
-    --normaldb ../normalDB_hg19.rds --pool 5 --vcf example_vcf.vcf -i $SAMPLEID \
-    --genome hg19 --gcgene example_gc.gene.file.txt 
+$ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \ 
+    --normaldb ../normalDB_hg19.rds \
+    --sampleid $SAMPLEID \
+    --vcf ${SAMPLEID}_mutect.vcf \
+    --pool 5 \
+    --genome hg19 --gcgene baits_hg19_gcgene.txt 
 
 # Recreate output after manual curation of Sample_purecn.csv
-$ Rscript $PURECN/PureCN.R --rds Sample1_purecn.rds
+$ Rscript $PURECN/PureCN.R --rds ${SAMPLEID}_purecn.rds
 \end{verbatim}
 
 \subsection*{Session Info}

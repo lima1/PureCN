@@ -7,6 +7,8 @@
 #' @param file Target coverage file.
 #' @param format File format. If missing, derived from the file 
 #' extension. Currently only GATK DepthofCoverage format supported.
+#' @param zero Start position is 0-based. Default is \code{FALSE}
+#' for GATK, \code{TRUE} for BED file based intervals.
 #' @return A \code{data.frame} with the parsed coverage information.
 #' @author Markus Riester
 #' @seealso \code{\link{calculateBamCoverageByInterval}}
@@ -16,14 +18,24 @@
 #'     package="PureCN")
 #' coverage <- readCoverageFile(tumor.coverage.file)
 #' 
+#' @importFrom tools file_ext
 #' @export readCoverageFile
-readCoverageFile <- function(file, format) {
-    if (missing(format)) format <- "GATK"
-    targetCoverage <- .readCoverageGatk(file)
+readCoverageFile <- function(file, format, zero=NULL) {
+    if (missing(format)) format <- .getFormat(file)
+    if (format %in% c("cnn", "cnr")) {    
+        targetCoverage <- .readCoverageCnn(file, zero)
+    } else {
+        targetCoverage <- .readCoverageGatk(file, zero)
+    }
     .checkLowCoverage(targetCoverage)
     .checkIntervals(targetCoverage)
 }
 
+.getFormat <- function(file) {
+    ext <- file_ext(file)
+    if (ext %in% c("cnn", "cnr")) return("cnn")
+    "GATK"    
+}    
 
 #' Read GATK coverage files
 #' 
@@ -44,15 +56,34 @@ readCoverageGatk <- function(file) {
     readCoverageFile(file, format="GATK")
 }
 
-.readCoverageGatk <- function(file) {
+.readCoverageGatk <- function(file, zero) {
+    if (!is.null(zero)) flog.warn("zero ignored for GATK coverage files.")
     inputCoverage <- utils::read.table(file, header = TRUE)
     if (is.null(inputCoverage$total_coverage)) inputCoverage$total_coverage <- NA
     if (is.null(inputCoverage$average_coverage)) inputCoverage$average_coverage <- NA
+    if (is.null(inputCoverage$ontarget)) inputCoverage$ontarget <- TRUE
 
     targetCoverage <- GRanges(inputCoverage$Target, 
         coverage=inputCoverage$total_coverage, 
-        average.coverage=inputCoverage$average_coverage)
+        average.coverage=inputCoverage$average_coverage,
+        ontarget=inputCoverage$ontarget)
 
+    targetCoverage
+}
+
+.readCoverageCnn <- function(file, zero) {
+    if (is.null(zero)) zero <- TRUE
+    inputCoverage <- utils::read.table(file, header = TRUE)
+    if (zero) inputCoverage$start <- inputCoverage$start + 1
+    targetCoverage <- GRanges(inputCoverage)    
+    targetCoverage$coverage <- targetCoverage$depth * width(targetCoverage)
+    targetCoverage$average.coverage <- targetCoverage$depth
+    targetCoverage$ontarget <- TRUE
+    targetCoverage$depth <- NULL
+    targetCoverage$Gene <- targetCoverage$gene
+    targetCoverage$ontarget[which(targetCoverage$Gene=="Background")] <- FALSE
+    targetCoverage$gene <- NULL
+    targetCoverage$log2 <- NULL
     targetCoverage
 }
 

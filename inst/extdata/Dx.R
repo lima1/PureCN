@@ -10,7 +10,7 @@ spec <- matrix(c(
 'rds',          'r', 1, "character",
 'callable',     'a', 1, "character",
 'exclude',      'b', 1, "character",
-'outdir',       'o', 1, "character"
+'out',          'o', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
 
@@ -31,9 +31,6 @@ if (is.null(infileRds)) stop("Need --rds")
 infileRds <- normalizePath(infileRds, mustWork=TRUE)
 
 # Parse outdir
-outdir <- opt$outdir
-if (is.null(outdir)) outdir <- dirname(infileRds)
-outdir <- normalizePath(outdir, mustWork=TRUE)
 
 # Parse both BED files restricting covered region
 callableFile <- opt$callable
@@ -42,7 +39,7 @@ if (!is.null(callableFile)) {
     suppressPackageStartupMessages(library(rtracklayer))
     callableFile <- normalizePath(callableFile, mustWork=TRUE)
     flog.info("Reading %s...", callableFile)
-    callable <- import(callableFile)
+    callable <- GRanges(import(callableFile))
 }
 
 excludeFile <- opt$exclude
@@ -51,7 +48,7 @@ if (!is.null(excludeFile)) {
     suppressPackageStartupMessages(library(rtracklayer))
     excludeFile <- normalizePath(excludeFile, mustWork=TRUE)
     flog.info("Reading %s...", excludeFile)
-    exclude <- import(excludeFile)
+    exclude <- GRanges(import(excludeFile))
 }
 
 
@@ -60,12 +57,28 @@ if (!is.null(excludeFile)) {
 flog.info("Loading PureCN...")
 suppressPackageStartupMessages(library(PureCN))
 
-flog.info("Reading %s...", infileRds)
 res <- readCurationFile(infileRds)
 sampleid <- res$input$sampleid
-file.suffix <- ""
 
-outfileMb <- file.path(outdir, paste0(sampleid, file.suffix, '_mutation_burden.csv'))
+.getOutPrefix <- function(opt, infile, sampleid) {
+    out <- opt[["out"]]
+    if (is.null(out)) {
+        if (!is.null(infile) && file.exists(infile)) {
+            outdir <- dirname(infile)
+            prefix <- sampleid
+        } else {
+            stop("Need --out")
+        }    
+    } else {
+        outdir <- dirname(out)
+        prefix <- basename(out)
+    }    
+    outdir <- normalizePath(outdir, mustWork=TRUE)
+    outPrefix <- file.path(outdir, prefix)
+}
+outPrefix <- .getOutPrefix(opt, infileRds, sampleid)
+     
+outfileMb <- paste0(outPrefix, '_mutation_burden.csv')
 
 force <- !is.null(opt$force)
 

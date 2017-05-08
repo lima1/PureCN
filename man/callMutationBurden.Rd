@@ -5,8 +5,9 @@
 \title{Call mutation burden}
 \usage{
 callMutationBurden(res, id = 1, remove.flagged = TRUE,
-  min.prior.somatic = 0.1, min.cellfraction = 0, fun.countMutation = NULL,
-  callable = NULL, exclude = NULL)
+  min.prior.somatic = 0.1, min.cellfraction = 0,
+  fun.countMutation = function(vcf) width(vcf) == 1, callable = NULL,
+  exclude = NULL)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
@@ -27,7 +28,8 @@ with very low allelic fraction.}
 \item{fun.countMutation}{Function that can be used to filter the
 input VCF further for filtering, for example to only keep missense
 mutations. Expects a \code{logical} vector indicating whether variant
-should be counted (\code{TRUE}) or not (\code{FALSE}).}
+should be counted (\code{TRUE}) or not (\code{FALSE}). Default
+is to keep only single nucleotide variants.}
 
 \item{callable}{\code{GRanges} object with callable genomic regions,
 for example obtained by \sQuote{GATK CallableLoci} BED file, imported 

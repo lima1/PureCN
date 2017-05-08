@@ -1205,14 +1205,14 @@ Dx.R extracts copy number and mutation metrics from PureCN.R output.
 
 \begin{verbatim}
 # Basic output
-Rscript Dx.R --outdir $OUT --rds Sample1_purecn.rds 
+Rscript Dx.R --out ${OUT}/Sample1 --rds Sample1_purecn.rds 
 
 # Provide a BED file with callable regions, for examples obtained by
 # GATK CallableLoci. Useful to calculate mutations per megabase and
 # to exclude low quality regions.
 grep CALLABLE Sample1_callable_status.bed > \ 
     Sample1_callable_status_filtered.bed
-Rscript Dx.R --outdir $OUT  --rds Sample1_purecn.rds \
+Rscript Dx.R --out ${OUT}/Sample1  --rds Sample1_purecn.rds \
     --callable Sample1_callable_status_filtered.bed
 \end{verbatim}
 
@@ -1228,7 +1228,7 @@ Argument name  & Corresponding PureCN argument & PureCN function \\
 --rds -r      & file.rds & \Rfunction{readCurationFile}   \\
 --callable -a & callable & \Rfunction{callMutationBurden} \\
 --exclude -b  & exclude  & \Rfunction{callMutationBurden} \\
---outdir -o   & & \\
+--out -o      & & \\
 \bottomrule
 \end{tabular}
 \end{table*}

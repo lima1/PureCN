@@ -3,14 +3,15 @@ Changes in version 1.8.0
 
 - Added mutation burden calculation
 - Code cleanups (switch to GRanges where possible)
+- Added support for CNVkit coverage files (*.cnn, *.cnr)
 
 API CHANGES
 
+- New function: callMutationBurden
 - Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults
 - Minor changes: 
-    - Remove gc.data from filterTargets since gc_bias is now added to tumor 
+    - Removed gc.data from filterTargets since gc_bias is now added to tumor 
       coverage
- 
  
 PLANNED FEATURES FOR 1.8
 

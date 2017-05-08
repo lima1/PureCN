@@ -30,7 +30,7 @@ spec <- matrix(c(
 'modelhomozygous','y', 0, "logical",
 'model',          'q', 1, "character",
 'funsegmentation','w', 1, "character",
-'outdir',         'o', 1, "character",
+'outdir',            'o', 1, "character",
 'outvcf',         'u', 0, "logical",
 'twopass',        'T', 0, "logical",
 'sampleid',       'i', 1, "character"
@@ -78,7 +78,7 @@ outvcf <- !is.null(opt$outvcf)
 pool <- opt$pool
 model.homozygous <- !is.null(opt$modelhomozygous)
 file.rds <- opt$rds
-file.suffix <- ''
+sampleidExtension <- if (is.null(opt$extension)) '' else opt$extension
 
 if (!is.null(file.rds) && file.exists(file.rds)) {
     if (is.null(outdir)) outdir <- dirname(file.rds)
@@ -86,7 +86,7 @@ if (!is.null(file.rds) && file.exists(file.rds)) {
     if (is.null(sampleid)) stop("Need --sampleid.")
     if (is.null(genome)) stop("Need --genome")
     genome <- as.character(genome)
-    file.rds <- file.path(outdir, paste0(sampleid, file.suffix, '.rds'))
+    file.rds <- file.path(outdir, paste0(sampleid, sampleidExtension, '.rds'))
     if (is.null(seg.file)) {
         tumor.coverage.file <- normalizePath(tumor.coverage.file, 
             mustWork=TRUE)
@@ -159,9 +159,9 @@ if (file.exists(file.rds) && !force) {
     }
     normal.coverage.file <- .getNormalCoverage(normal.coverage.file)
         
-    file.log <- file.path(outdir, paste0(sampleid, file.suffix, '.log'))
+    file.log <- file.path(outdir, paste0(sampleid, sampleidExtension, '.log'))
 
-    pdf(paste(outdir,"/", sampleid, file.suffix, '_segmentation.pdf', sep=''), 
+    pdf(paste(outdir,"/", sampleid, sampleidExtension, '_segmentation.pdf', sep=''), 
         width=10, height=11)
     af.range = c(0.03, 0.97)
     if (!is.null(opt$minaf)) {
@@ -232,43 +232,43 @@ if (file.exists(file.rds) && !force) {
 ### Create output files -------------------------------------------------------
 
 createCurationFile(file.rds)
-file.pdf <- file.path(outdir, paste0(sampleid, file.suffix, '.pdf'))
+file.pdf <- file.path(outdir, paste0(sampleid, sampleidExtension, '.pdf'))
 pdf(file.pdf, width=10, height=11)
 plotAbs(ret, type='all')
 dev.off()
 
-file.png <- file.path(outdir, paste0(sampleid, file.suffix, '_contamination.png'))
+file.png <- file.path(outdir, paste0(sampleid, sampleidExtension, '_contamination.png'))
 png(file.png, width=800)
 plotAbs(ret,1, type='contamination')
 dev.off()
 
 if (outvcf) {
-    file.vcf <- file.path(outdir, paste0(sampleid, file.suffix, '.vcf'))
+    file.vcf <- file.path(outdir, paste0(sampleid, sampleidExtension, '.vcf'))
     vcfanno <- predictSomatic(ret, return.vcf=TRUE, 
         vcf.field.prefix="PureCN.")
     writeVcf(vcfanno, file=file.vcf)    
 } else {
-    file.csv <- file.path(outdir, paste0(sampleid, file.suffix, '_variants.csv'))
+    file.csv <- file.path(outdir, paste0(sampleid, sampleidExtension, '_variants.csv'))
     write.csv(cbind(Sampleid=sampleid, predictSomatic(ret)), file=file.csv, 
         row.names=FALSE, quote=FALSE)
 }    
 
-file.loh <- file.path(outdir, paste0(sampleid, file.suffix, '_loh.csv'))
+file.loh <- file.path(outdir, paste0(sampleid, sampleidExtension, '_loh.csv'))
 write.csv(cbind(Sampleid=sampleid, callLOH(ret)), file=file.loh, 
     row.names=FALSE, quote=FALSE)
 
-file.genes <- file.path(outdir, paste0(sampleid, file.suffix, '_genes.csv'))
+file.genes <- file.path(outdir, paste0(sampleid, sampleidExtension, '_genes.csv'))
 allAlterations <- callAlterations(ret, all.genes=TRUE)
 
 write.csv(cbind(Sampleid=sampleid, gene.symbol=rownames(allAlterations), 
     allAlterations), row.names=FALSE, file=file.genes, quote=FALSE)
 
-file.seg <- file.path(outdir, paste0(sampleid, file.suffix, '_dnacopy.txt'))
+file.seg <- file.path(outdir, paste0(sampleid, sampleidExtension, '_dnacopy.txt'))
 write.table(ret$results[[1]]$seg, file=file.seg, sep="\t", quote=FALSE, 
     row.names=FALSE)
 
 if (!is.null(ret$input$vcf)) {
-    file.pdf <- file.path(outdir, paste0(sampleid, file.suffix, '_chromosomes.pdf'))
+    file.pdf <- file.path(outdir, paste0(sampleid, sampleidExtension, '_chromosomes.pdf'))
     pdf(file.pdf, width=9, height=10)
     vcf <- ret$input$vcf[ret$results[[1]]$SNV.posterior$vcf.ids]
     chromosomes <- seqlevelsInUse(vcf)

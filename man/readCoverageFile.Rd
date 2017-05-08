@@ -4,13 +4,16 @@
 \alias{readCoverageFile}
 \title{Read coverage file}
 \usage{
-readCoverageFile(file, format)
+readCoverageFile(file, format, zero = NULL)
 }
 \arguments{
 \item{file}{Target coverage file.}
 
 \item{format}{File format. If missing, derived from the file 
 extension. Currently only GATK DepthofCoverage format supported.}
+
+\item{zero}{Start position is 0-based. Default is \code{FALSE}
+for GATK, \code{TRUE} for BED file based intervals.}
 }
 \value{
 A \code{data.frame} with the parsed coverage information.
