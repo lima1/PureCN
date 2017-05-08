@@ -61,12 +61,12 @@ readCoverageGatk <- function(file) {
     inputCoverage <- utils::read.table(file, header = TRUE)
     if (is.null(inputCoverage$total_coverage)) inputCoverage$total_coverage <- NA
     if (is.null(inputCoverage$average_coverage)) inputCoverage$average_coverage <- NA
-    if (is.null(inputCoverage$ontarget)) inputCoverage$ontarget <- TRUE
+    if (is.null(inputCoverage$on_target)) inputCoverage$on_target <- TRUE
 
     targetCoverage <- GRanges(inputCoverage$Target, 
         coverage=inputCoverage$total_coverage, 
         average.coverage=inputCoverage$average_coverage,
-        ontarget=inputCoverage$ontarget)
+        on.target=inputCoverage$on_target)
 
     targetCoverage
 }
@@ -78,10 +78,10 @@ readCoverageGatk <- function(file) {
     targetCoverage <- GRanges(inputCoverage)    
     targetCoverage$coverage <- targetCoverage$depth * width(targetCoverage)
     targetCoverage$average.coverage <- targetCoverage$depth
-    targetCoverage$ontarget <- TRUE
+    targetCoverage$on.target <- TRUE
     targetCoverage$depth <- NULL
     targetCoverage$Gene <- targetCoverage$gene
-    targetCoverage$ontarget[which(targetCoverage$Gene=="Background")] <- FALSE
+    targetCoverage$on.target[which(targetCoverage$Gene=="Background")] <- FALSE
     targetCoverage$gene <- NULL
     targetCoverage$log2 <- NULL
     targetCoverage

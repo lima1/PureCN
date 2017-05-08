@@ -15,14 +15,18 @@ test_readCoverageFile <- function() {
     checkEquals(4, length(coverage))
     checkEqualsNumeric(c(762097, 861281, 865591, 866325)+1, start(coverage))
     checkEqualsNumeric(c(762270, 861490, 865791, 866498), end(coverage))
+    checkEquals(c(TRUE, TRUE, TRUE, TRUE), coverage$on.target)
+
     coverage <- readCoverageFile(coverageFile, zero=FALSE)
     checkEquals(4, length(coverage))
     checkEqualsNumeric(c(762097, 861281, 865591, 866325), start(coverage))
     checkEqualsNumeric(c(762270, 861490, 865791, 866498), end(coverage))
+    checkEquals(c(TRUE, TRUE, TRUE, TRUE), coverage$on.target)
+
     coverageFile <- system.file("extdata", "example_normal4.cnr", package="PureCN")
     coverage <- readCoverageFile(coverageFile)
     checkEquals(5, length(coverage))
     checkEqualsNumeric(c(10500, 70509, 227917, 318219, 367658)+1, start(coverage))
     checkEqualsNumeric(c(68590, 176917, 267219, 367158, 367893), end(coverage))
-    checkEquals(c(FALSE, FALSE, FALSE, FALSE, TRUE), coverage$ontarget)
+    checkEquals(c(FALSE, FALSE, FALSE, FALSE, TRUE), coverage$on.target)
 }    

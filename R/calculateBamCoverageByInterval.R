@@ -63,7 +63,8 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
     tmp <- data.frame(
         Target=as.character(intervalGr), 
         total_coverage=intervalGr$coverage, 
-        average_coverage=intervalGr$average.coverage
+        average_coverage=intervalGr$average.coverage,
+        on_target=intervalGr$on.target
     )
     write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE)
 }
