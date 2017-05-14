@@ -247,7 +247,7 @@
 #' @importFrom stats complete.cases dbeta dnorm dunif runif weighted.mean
 #'             dbinom C
 #' @importFrom utils data read.delim tail packageVersion object.size
-#' @importFrom S4Vectors queryHits subjectHits DataFrame
+#' @importFrom S4Vectors queryHits subjectHits DataFrame expand
 #' @importFrom data.table data.table
 #' @importFrom futile.logger flog.info flog.warn flog.fatal flog.debug
 #'             flog.threshold flog.appender appender.tee

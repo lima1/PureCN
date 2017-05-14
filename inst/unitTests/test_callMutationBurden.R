@@ -18,4 +18,13 @@ test_callMutationBurden <- function() {
     checkTrue(callsCallable$callable.bases.ontarget>0)
     checkTrue(callsCallable$callable.bases.flanking > callsCallable$callable.bases.ontarget)
     checkTrue(callsCallable$callable.bases.all > callsCallable$callable.bases.flanking)
+
+    # test input checks
+    checkException(callMutationBurden(purecn.example.output,
+            callable=callableBed, exclude=exclude, 
+            fun.countMutation="helloworld"))
+    checkException(callMutationBurden(purecn.example.output,
+            callable=callableBed, exclude="helloworld"))
+    checkException(callMutationBurden(purecn.example.output,
+            callable="helloworld"))
 }    

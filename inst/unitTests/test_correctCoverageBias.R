@@ -9,6 +9,9 @@ test_correctCoverageBias <- function() {
     checkEquals("GRanges", class(coverage)[1])
     checkEquals(10049, length(coverage))
 
+    correctCoverageBias(normal.coverage.file, gc.gene.file, 
+        plot.max.density=100, plot.gc.bias=TRUE)
+
     x <- readCoverageFile("test_loess_coverage.txt")
     checkEqualsNumeric(coverage$average.coverage, x$average.coverage)
     file.remove("test_loess_coverage.txt")
@@ -20,7 +23,8 @@ test_correctCoverageBias <- function() {
     coveragePass2 <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
         output.file="test_loess_coverage.txt", 
         purecn.output=purecn.example.output)
-    corPass2 <- cor(coverage$average.coverage, coveragePass2$average.coverage, use="complete.obs")
+    corPass2 <- cor(coverage$average.coverage, coveragePass2$average.coverage, 
+        use="complete.obs")
     checkTrue(corPass2 > 0.99)
     correctCoverageBias(head(x,200), gc.gene.file)
 
@@ -31,7 +35,8 @@ test_correctCoverageBias <- function() {
     coveragePass3 <- correctCoverageBias(normal.coverage.file, tmpFile, 
         output.file="test_loess_coverage.txt", 
         purecn.output=purecn.example.output)
-    corPass3 <- cor(coverage$average.coverage, coveragePass3$average.coverage, use="complete.obs")
+    corPass3 <- cor(coverage$average.coverage, coveragePass3$average.coverage, 
+        use="complete.obs")
     checkTrue(corPass3 > 0.99)
 
     png(file="test_gc_bias.png",width=960)
@@ -42,4 +47,7 @@ test_correctCoverageBias <- function() {
     x <- readCoverageFile("test_norm_coverage.txt")
     checkEqualsNumeric(coverage$average.coverage, x$average.coverage)
     file.remove("test_norm_coverage.txt")
+
+    checkException(correctCoverageBias(normal.coverage.file, gc.gene.file, method="HELLOWORLD"))
+
 }

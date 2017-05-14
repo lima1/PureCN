@@ -37,6 +37,9 @@ test_runAbsoluteCN <- function() {
     checkException(callLOH(ret))
     checkTrue(grepl("runAbsoluteCN was run without a VCF file", 
         geterrmessage()))
+    checkException(callMutationBurden(ret))
+    checkTrue(grepl("runAbsoluteCN was run without a VCF file", 
+        geterrmessage()))
     checkException(runAbsoluteCN(tumor.coverage.file=tumor.coverage.file, 
         genome="hg19"))
     checkTrue(grepl("Need a normal coverage file if log.ratio and seg.file", 

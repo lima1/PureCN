@@ -37,11 +37,13 @@
 #' 
 #' @export setMappingBiasVcf
 setMappingBiasVcf <- function(vcf, tumor.id.in.vcf = NULL,
-normal.panel.vcf.file = NULL, min.normals = 4, smooth = TRUE, smooth.n = 5) {
+normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
 
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
     }
+    if (min.normals < 2) .stopUserError("min.normals must be >=2.")
+
     mappingBias <- 1
     if (!is.null(info(vcf)$SOMATIC) && ncol(vcf)>1) {
          normal.id.in.vcf <- .getNormalIdInVcf(vcf, tumor.id.in.vcf)
@@ -71,14 +73,16 @@ normal.panel.vcf.file = NULL, min.normals = 4, smooth = TRUE, smooth.n = 5) {
         return(list(bias=tmp))
     }
 
-    psMappingBias <- apply(geno(nvcf)$FA, 1, function(x) { 
-        x <- unlist(x)
-        x <- subset(x, !is.na(x) & x>0.05 &x < 0.9)
-        if (length(x) >= min.normals) mean(x) else 0.5
-    })*2
-
-    ponCntHits <- apply(geno(nvcf)$FA,1, function(x) sum(!is.na(unlist(x))))
-
+    psMappingBias <- sapply(seq_len(nrow(nvcf)), function(i) {
+        fa <- apply(geno(nvcf)$AD[i,,],1,function(x) x[2]/sum(x))
+        idx <- !is.na(fa) & fa > 0.05 & fa < 0.9
+        if (!sum(idx)>=min.normals) return(c(0,0,0,0))
+        c(apply(geno(nvcf)$AD[i,idx,],2,sum), sum(idx), mean(fa[idx]))
+    })
+    # Add an average "normal" SNP (average coverage and allelic fraction > 0.4)
+    # as empirical prior 
+    psMappingBias <- .adjustEmpBayes(psMappingBias)*2
+    ponCntHits <- apply(geno(nvcf)$AD[,,1],1, function(x) sum(!is.na(unlist(x))))
     
     ov <- findOverlaps(vcf, nvcf, select="first")
     
@@ -108,18 +112,28 @@ normal.panel.vcf.file = NULL, min.normals = 4, smooth = TRUE, smooth.n = 5) {
     as.numeric(y)
 }
 
-.readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file, max.file.size=1) {
+.readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file, 
+    max.file.size=1, geno="AD") {
     genome <- genome(vcf)[1]    
     if (file.size(normal.panel.vcf.file)/1000^3 > max.file.size || nrow(vcf)< 1000) {
         flog.info("Scanning %s...", normal.panel.vcf.file)
         nvcf <- readVcf(TabixFile(normal.panel.vcf.file), genome=genome, 
             ScanVcfParam(which = rowRanges(vcf), info=NA, fixed=NA, 
-            geno="FA"))
+            geno=geno))
     } else {
         flog.info("Loading %s...", normal.panel.vcf.file)
         nvcf <- readVcf(normal.panel.vcf.file, genome=genome,
-            ScanVcfParam(info=NA, fixed=NA, geno="FA"))
+            ScanVcfParam(info=NA, fixed=NA, geno=geno))
         nvcf <- subsetByOverlaps(nvcf, rowRanges(vcf))
     }    
-    nvcf
+    expand(nvcf)
+}    
+
+.adjustEmpBayes <- function(x) {
+    xg <- x[,x[4,]>0.4]
+    shape1 <- sum(xg[1,])/sum(xg[3,])
+    shape2 <- sum(xg[2,])/sum(xg[3,])
+    x[1,] <- x[1,]+shape1
+    x[2,] <- x[2,]+shape1
+    apply(x, 2, function(y) y[2]/sum(y[1:2]))
 }    

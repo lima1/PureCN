@@ -3,15 +3,18 @@ Changes in version 1.8.0
 
 - Added mutation burden calculation
 - Code cleanups (switch to GRanges where possible)
+- More robust mapping bias estimation
 - Added support for CNVkit coverage files (*.cnn, *.cnr)
 
 API CHANGES
 
 - New function: callMutationBurden
 - Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults
+- Changed defaults: min.normals 2 (from 4) in setMappingBiasVcf
 - Minor changes: 
     - Removed gc.data from filterTargets since gc_bias is now added to tumor 
       coverage
+      
  
 PLANNED FEATURES FOR 1.8
 

@@ -3,6 +3,14 @@ test_readCoverageFile <- function() {
     coverage <- readCoverageFile(tumor.coverage.file)
     checkEquals(10049, length(coverage))
     checkIdentical(as.character(seqnames(coverage)[1]), "chr1")
+    checkEqualsNumeric(179, sum(!is.na(coverage[seqnames(coverage)=="chr21"]$coverage)))
+
+    pool <- poolCoverage(list(coverage))
+    checkEqualsNumeric(coverage$average.coverage, pool$average.coverage)
+
+    pool <- poolCoverage(list(coverage), remove.chrs="chr21")
+    checkEqualsNumeric(179,sum(is.na(pool[seqnames(coverage)=="chr21"]$coverage)))
+
 
     tumor.overlapping.coverage.file <- system.file("extdata", "test_coverage_overlapping_intervals.txt", package="PureCN")
     coverage <- readCoverageFile(tumor.overlapping.coverage.file)
