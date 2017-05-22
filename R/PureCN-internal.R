@@ -593,7 +593,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     normals <- .readNormals(normal.coverage.files)
 
     countMatrix <- do.call(cbind, 
-        lapply(c(list(tumor), normals), function(x) x$average.coverage))
+        lapply(c(list(tumor), normals), function(x) x$coverage))
 }    
 
 .checkSymbolsChromosome <- function(gc.pos, blank=c("", ".")) {
