@@ -37,10 +37,9 @@ test_createNormalDatabase <- function() {
     correctCoverageBias(normal, gc.gene.file)
     suppressWarnings(correctCoverageBias(normal[sample(length(normal)),], 
         gc.gene.file, "shuffled_gatk.txt"))
-    checkException(createNormalDatabase(c(normal.coverage.files, 
-        "shuffled_gatk.txt")))
-    checkTrue(grepl("shuffled_gatk.txt", 
-        geterrmessage()), msg=geterrmessage())
+    # should still work
+    createNormalDatabase(c(normal.coverage.files, 
+        "shuffled_gatk.txt"))
 
     tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
         package = "PureCN")

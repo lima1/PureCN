@@ -16,7 +16,9 @@
 #' removing targets with outlier GC profile. Assuming that GC correction might
 #' not have been worked on those. Requires \code{gc.gene.file}.
 #' @param min.coverage Minimum coverage in both normal and tumor. Targets with
-#' lower coverage are ignored.
+#' lower coverage are ignored. If a \code{normalDB} is provided, then this
+#' database already provides information about low quality targets and the
+#' \code{min.coverage} is set to 0.03X.
 #' @param min.targeted.base Exclude intervals with targeted base (size in bp)
 #' smaller than this cutoff. This is useful when the same interval file was
 #' used to calculate GC content. For such small targets, the GC content is
@@ -56,7 +58,7 @@
 #' @export filterTargets
 filterTargets <- function(normal, tumor, log.ratio, seg.file, 
     filter.lowhigh.gc = 0.001, min.coverage = 15, min.targeted.base = 5, 
-    normalDB = NULL, normalDB.min.coverage = 0.2) {
+    normalDB = NULL, normalDB.min.coverage = 0.25) {
     # NA's in log.ratio confuse the CBS function
     targetsUsed <- !is.na(log.ratio) & !is.infinite(log.ratio) 
     # With segmentation file, ignore all filters
@@ -71,6 +73,12 @@ filterTargets <- function(normal, tumor, log.ratio, seg.file,
         normalDB.min.coverage)
     targetsUsed <- .filterTargetsTargetedBase(targetsUsed, tumor,
         min.targeted.base)
+
+    if (!is.null(normalDB)) { 
+        flog.info("normalDB provided. Setting minimum coverage for segmentation to 0.03X.")
+        min.coverage <- 0.03
+    }
+        
     targetsUsed <- .filterTargetsCoverage(targetsUsed, normal, tumor, 
         min.coverage)
 
@@ -105,8 +113,9 @@ normalDB.min.coverage) {
     }    
 
     nBefore <- sum(targetsUsed)
+    key <- paste(as.character(seqnames(tumor)), tumor$on.target)
     min.coverage <- (sapply(split(normalDB$exon.median.coverage, 
-        as.character(seqnames(tumor))), median, na.rm=TRUE)*normalDB.min.coverage)[as.character(seqnames(tumor))]
+        key), median, na.rm=TRUE)*normalDB.min.coverage)[key]
     
     # should not happen, but just in case
     min.coverage[is.na(min.coverage)] <- median(min.coverage, na.rm=TRUE)
@@ -168,7 +177,7 @@ normalDB.min.coverage) {
     targetsUsed <- targetsUsed & well.covered.exon.idx
     nAfter <- sum(targetsUsed)
     if (nAfter < nBefore) {
-        flog.info("Removing %i low coverage (< %iX) targets.", nBefore-nAfter, 
+        flog.info("Removing %i low coverage (< %.2fX) targets.", nBefore-nAfter, 
             min.coverage)
     }    
     targetsUsed

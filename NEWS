@@ -1,6 +1,7 @@
 Changes in version 1.8.0
 ------------------------
 
+- Support for off-target reads in copy number normalization and segmentation
 - Added mutation burden calculation
 - Code cleanups (switch to GRanges where possible)
 - More robust mapping bias estimation
@@ -10,11 +11,12 @@ API CHANGES
 
 - New function: callMutationBurden
 - Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults
-- Changed defaults: min.normals 2 (from 4) in setMappingBiasVcf
+- Changed defaults: 
+    - min.normals 2 (from 4) in setMappingBiasVcf
+    - normalDB.min.coverage 0.25 (from 0.2) in filterTargets
 - Minor changes: 
     - Removed gc.data from filterTargets since gc_bias is now added to tumor 
       coverage
-      
  
 PLANNED FEATURES FOR 1.8
 

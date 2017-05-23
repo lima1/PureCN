@@ -359,4 +359,17 @@ test_runAbsoluteCN <- function() {
     seg <- read.delim(seg.file)
     checkEqualsNumeric(nrow(seg), nrow(res$results[[1]]$seg))
     checkEquals(seg$seg.mean, res$results[[1]]$seg$seg.mean)
+
+    # run with normalDB and no Gene column
+    gc.data <- read.delim(gc.gene.file, as.is=TRUE)
+    gc.data$Gene <- NULL
+    tmpFile <- tempfile()
+    write.table(gc.data, file=tmpFile, row.names=FALSE, quote=FALSE, sep="\t")
+    ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
+             tumor.coverage.file=tumor.coverage.file,
+             candidates=purecn.example.output$candidates,
+             max.ploidy = 4, test.purity = seq(0.3, 0.7, by = 0.05),
+             genome="hg19", normalDB=normalDB, gc.gene.file=tmpFile, 
+             max.candidate.solutions=1)
+
 }    

@@ -6,7 +6,7 @@
 \usage{
 filterTargets(normal, tumor, log.ratio, seg.file, filter.lowhigh.gc = 0.001,
   min.coverage = 15, min.targeted.base = 5, normalDB = NULL,
-  normalDB.min.coverage = 0.2)
+  normalDB.min.coverage = 0.25)
 }
 \arguments{
 \item{normal}{Coverage data for normal sample.}
@@ -24,7 +24,9 @@ removing targets with outlier GC profile. Assuming that GC correction might
 not have been worked on those. Requires \code{gc.gene.file}.}
 
 \item{min.coverage}{Minimum coverage in both normal and tumor. Targets with
-lower coverage are ignored.}
+lower coverage are ignored. If a \code{normalDB} is provided, then this
+database already provides information about low quality targets and the
+\code{min.coverage} is set to 0.03X.}
 
 \item{min.targeted.base}{Exclude intervals with targeted base (size in bp)
 smaller than this cutoff. This is useful when the same interval file was

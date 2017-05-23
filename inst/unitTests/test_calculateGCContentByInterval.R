@@ -14,7 +14,7 @@ test_calculateGCContentByInterval <- function() {
     y <- calculateGCContentByInterval(intervals, reference.file, 
         output.file="gc_file_bed_test.txt")
     checkEqualsNumeric(x$gc_bias, y$gc_bias)
-    checkEqualsNumeric(x$Target, y$Target)
+    checkEqualsNumeric(x$Target, as.character(y))
     y <- read.delim("gc_file_bed_test.txt")
     checkEqualsNumeric(x$gc_bias, y$gc_bias)
 
@@ -24,4 +24,6 @@ test_calculateGCContentByInterval <- function() {
     write.table(idata, file=interval.file2, row.names=FALSE, quote=FALSE)
     checkException(calculateGCContentByInterval(interval.file2, reference.file))
     checkTrue(grepl("Interval coordinates should start at 1, not at 0", geterrmessage()))
+    gc <- calculateGCContentByInterval(interval.file, reference.file, off.target=TRUE, min.off.target.width=2, off.target.padding=-2)
+    checkEqualsNumeric(11, length(gc))
 }    

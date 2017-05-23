@@ -523,6 +523,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     gc.gene.file) {
     y <- .voomTargets(tumor.coverage.file, normalDB, gc.gene.file,
         num.normals=10, plot.voom=FALSE)
+    if (is.null(y)) return(results)
 
     logFC <- y$coefficients[rownames(results[[1]]$gene.calls),2]
     p <- y$p.value[rownames(results[[1]]$gene.calls),2]
@@ -544,6 +545,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     geneCountMatrix <- do.call(rbind, lapply(split(data.frame(countMatrix), gc.pos$Gene),
          apply, 2, sum, na.rm=TRUE))
     
+    if (nrow(geneCountMatrix)<2) return(NULL)
+            
     geneCountMatrix <- geneCountMatrix[complete.cases(geneCountMatrix),]
     dge <- edgeR::DGEList(geneCountMatrix, 
             group=c("tumor", rep("normal", ncol(countMatrix)-1)))
@@ -586,10 +589,15 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     normals <- .readNormals(normal.coverage.files)
 
     countMatrix <- do.call(cbind, 
-        lapply(c(list(tumor), normals), function(x) x$average.coverage))
+        #lapply(c(list(tumor), normals), function(x) x$average.coverage))
+        lapply(c(list(tumor), normals), function(x) x$coverage))
 }    
 
 .checkSymbolsChromosome <- function(tumor, blank=c("", ".")) {
+    if (is.null(tumor$Gene)) {
+        tumor$Gene <- "."
+        return(tumor)
+    }    
     chrsPerSymbol <- lapply(split(seqnames(tumor), tumor$Gene), unique)
     nonUniqueSymbols <- names(chrsPerSymbol[sapply(chrsPerSymbol, length)>1])
     idx <- tumor$Gene %in% nonUniqueSymbols
@@ -931,15 +939,20 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     flog.info("Done.")
     flog.info(strrep("-", 60))
 }    
-.calcGCmetric <- function(gc_bias, coverage) { 
-    gcbins <- split(coverage$average.coverage, gc_bias < 0.5); 
+.calcGCmetric <- function(gc_bias, coverage, on.target) { 
+    gcbins <- split(coverage[coverage$on.target==on.target]$average.coverage, 
+        gc_bias < 0.5); 
     mean(gcbins[[1]], na.rm=TRUE)/mean(gcbins[[2]], na.rm=TRUE) 
 }
-.checkGCBias <- function(normal, tumor, max.dropout) {
-    gcMetricNormal <- .calcGCmetric(tumor$gc_bias, normal)
-    gcMetricTumor <- .calcGCmetric(tumor$gc_bias, tumor)
-    flog.info("AT/GC dropout: %.2f (tumor), %.2f (normal). ", 
-        gcMetricTumor, gcMetricNormal)
+.checkGCBias <- function(normal, tumor, max.dropout, on.target=TRUE) {
+
+    gcMetricNormal <- .calcGCmetric(tumor$gc_bias, normal, on.target)
+    gcMetricTumor <- .calcGCmetric(tumor$gc_bias, tumor, on.target)
+
+    if (is.na(gcMetricTumor)) return(FALSE)
+
+    flog.info("AT/GC dropout%s: %.2f (tumor), %.2f (normal). ", 
+        ifelse(on.target,""," (off-target regions)"), gcMetricTumor, gcMetricNormal)
     if (gcMetricNormal < max.dropout[1] || 
         gcMetricNormal > max.dropout[2] ||
         gcMetricTumor  < max.dropout[1] ||

@@ -33,7 +33,7 @@
 #' 
 #' @export calculateBamCoverageByInterval
 #' @importFrom Rsamtools headerTabix ScanBamParam scanBamFlag
-#'             scanBam scanFa TabixFile
+#'             scanBam scanFa scanFaIndex TabixFile
 calculateBamCoverageByInterval <- function(bam.file, interval.file, 
     output.file = NULL, index.file = bam.file) {
     intervalGr <- readCoverageFile(interval.file)

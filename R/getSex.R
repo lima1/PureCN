@@ -37,6 +37,7 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
     } else {
         x <- coverage.file
     }
+    if (!is.null(x$on.target)) x <- x[which(x$on.target)]
 
     sex.chr <- .getSexChr(seqnames(x))
     xx <- split(x$average.coverage, as.character(seqnames(x)))

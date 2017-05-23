@@ -1039,13 +1039,15 @@ Section~\ref{cmdpurecn}.
 \caption{IntervalFile command line script.}
 \begin{tabular}{lll}
 \toprule
-Argument name  & Corresponding PureCN argument & PureCN function \\
+Argument name   & Corresponding PureCN argument & PureCN function \\
 \midrule
---help -h      & & \\
---version -v   & & \\
---force -f     & & \\
---fasta -a     & reference.file & \Rfunction{calculateGCContentByInterval} \\
---infile -i    & interval.file & \Rfunction{calculateGCContentByInterval} \\
+--help -h       & & \\
+--version -v    & & \\
+--force -f      & & \\
+--fasta -a      & reference.file & \Rfunction{calculateGCContentByInterval} \\
+--infile -i     & interval.file & \Rfunction{calculateGCContentByInterval} \\
+--offtarget -t  & off.target    & \Rfunction{calculateGCContentByInterval} \\
+--accessible -b & accessible   & \Rfunction{calculateGCContentByInterval} \\
 --outfile -o   & & \\
 \bottomrule
 \end{tabular}
@@ -1191,6 +1193,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --modelhomozygous -y & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
 --model -q          & model & \Rfunction{runAbsoluteCN} \\ 
 --funsegmentation -w & fun.segmentation & \Rfunction{runAbsoluteCN} \\ 
+--alpha -A          & alpha & \Rfunction{segmentationCBS} \\
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
 --twopass -T        & purecn.output & \Rfunction{correctCoverageBias} \\
 --outvcf -u         & return.vcf & \Rfunction{predictSomatic} \\

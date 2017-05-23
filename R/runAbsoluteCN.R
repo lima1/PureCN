@@ -243,7 +243,7 @@
 #' @import DNAcopy
 #' @import IRanges
 #' @import VariantAnnotation
-#' @importFrom GenomicRanges GRanges
+#' @importFrom GenomicRanges GRanges tile
 #' @importFrom stats complete.cases dbeta dnorm dunif runif weighted.mean
 #'             dbinom C
 #' @importFrom utils data read.delim tail packageVersion object.size
@@ -409,6 +409,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (is.null(seg.file)) {
         if (!is.null(gc.gene.file)) {
             dropoutWarning <- .checkGCBias(normal, tumor, max.dropout)
+            .checkGCBias(normal, tumor, max.dropout, on.target=FALSE)
         } else {
             flog.info("No gc.gene.file provided. Cannot check if data was GC-normalized. Was it?")
         }
@@ -460,7 +461,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         
         args.filterVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf, 
             model.homozygous = model.homozygous, error = error, 
-            target.granges = tumor), args.filterVcf)
+            target.granges = tumor[tumor$on.target]), args.filterVcf)
         if (is.null(args.filterVcf$min.coverage)) {
             args.filterVcf$min.coverage <- min.coverage
         }

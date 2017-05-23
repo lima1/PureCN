@@ -133,46 +133,60 @@ plot.max.density = 50000, purecn.output=NULL) {
 }
 
 .correctCoverageBiasLoess <- function(tumor, purecn.output) {
-    # taken from TitanCNA
-    tumor$valid <- TRUE
-    tumor$valid[tumor$average.coverage <= 0 | tumor$gc_bias < 0] <- FALSE
-    if (!is.null(purecn.output)) {
-        majorityState <- .getMajorityStateTargets(purecn.output, 1, tumor)
-        tumor$valid[!majorityState] <- FALSE
-    }    
-    tumor$ideal <- TRUE
-    routlier <- 0.01
-    range <- quantile(tumor$average.coverage[tumor$valid], prob = 
-        c(0, 1 - routlier), na.rm = TRUE)
-    doutlier <- 0.001
-    domain <- quantile(tumor$gc_bias[tumor$valid], prob = c(doutlier, 1 - doutlier), 
-        na.rm = TRUE)
-    tumor$ideal[!tumor$valid | 
-        tumor$average.coverage <= range[1] |
-        tumor$average.coverage > range[2] | 
-        tumor$gc_bias < domain[1] | 
-        tumor$gc_bias > domain[2]] <- FALSE
+    if (is.null(tumor$on.target)) tumor$on.target <- TRUE
+    gc_bias <- tumor$gc_bias
+    for (on.target in c(FALSE, TRUE)) {
+        idxConsidered <- tumor$on.target == on.target    
+        tumor$valid <- idxConsidered
+        tumor$gc_bias <- gc_bias
 
-    rough <- loess(tumor$average.coverage[tumor$ideal] ~ tumor$gc_bias[tumor$ideal], 
-        span = 0.03)
-    i <- seq(0, 1, by = 0.001)
-    final <- loess(predict(rough, i) ~ i, span = 0.3)
-    cor.gc <- predict(final, tumor$gc_bias)
-    cor.gc.factor <- cor.gc/mean(tumor$average.coverage, na.rm=TRUE)
+        # taken from TitanCNA
+        tumor$valid[tumor$average.coverage <= 0 | tumor$gc_bias < 0] <- FALSE
 
-    tumor$gc_bias <- as.integer(tumor$gc_bias*100)/100
-    pre <- by(tumor$average.coverage[tumor$ideal], tumor$gc_bias[tumor$ideal], median, na.rm=TRUE)
-    medDiploid <- as.data.frame(cbind(as.numeric(names(pre)),as.vector(pre)))
-    colnames(medDiploid) <- c("gcIndex","denom")
+        if (!sum(tumor$valid)) next
+            
+        if (!is.null(purecn.output)) {
+            majorityState <- .getMajorityStateTargets(purecn.output, 1, tumor)
+            tumor$valid[!majorityState] <- FALSE
+        }    
+        tumor$ideal <- TRUE
+        routlier <- 0.01
+        range <- quantile(tumor$average.coverage[tumor$valid], prob = 
+            c(0, 1 - routlier), na.rm = TRUE)
+        doutlier <- 0.001
+        domain <- quantile(tumor$gc_bias[tumor$valid], prob = c(doutlier, 1 - doutlier), 
+            na.rm = TRUE)
+        
+        tumor$ideal[!tumor$valid | 
+            tumor$average.coverage <= range[1] |
+            tumor$average.coverage > range[2] | 
+            tumor$gc_bias < domain[1] | 
+            tumor$gc_bias > domain[2]] <- FALSE
+        
+        if (!on.target) {    
+            widthR <- quantile(width(tumor[tumor$ideal]), prob=0.1)
+            tumor$ideal[width(tumor) < widthR] <- FALSE
+        }
+        rough <- loess(tumor$average.coverage[tumor$ideal] ~ tumor$gc_bias[tumor$ideal], 
+            span = 0.03)
+        i <- seq(0, 1, by = 0.001)
+        final <- loess(predict(rough, i) ~ i, span = 0.3)
+        cor.gc <- predict(final, tumor$gc_bias[idxConsidered])
+        cor.gc.factor <- cor.gc/mean(tumor$average.coverage[tumor$ideal], na.rm=TRUE)
+        tumor$gc_bias <- as.integer(tumor$gc_bias*100)/100
 
-    tumor$average.coverage <- tumor$average.coverage / cor.gc.factor
-    tumor$coverage <- tumor$coverage / cor.gc.factor
+        pre <- by(tumor$average.coverage[tumor$ideal], tumor$gc_bias[tumor$ideal], median, na.rm=TRUE)
+        medDiploid <- as.data.frame(cbind(as.numeric(names(pre)),as.vector(pre)))
+        colnames(medDiploid) <- c("gcIndex","denom")
+        
+        tumor$average.coverage[idxConsidered] <- (tumor$average.coverage[idxConsidered] / cor.gc.factor)
+        tumor$coverage[idxConsidered] <- (tumor$coverage[idxConsidered] / cor.gc.factor)
 
-    post <- by(tumor$average.coverage[tumor$ideal], tumor$gc_bias[tumor$ideal], median, na.rm=TRUE)
-    medDiploid$gcNum <- as.vector(post)
-    tumor$ideal <- NULL
-    tumor$valid <- NULL
-
+        post <- by(tumor$average.coverage[tumor$ideal], tumor$gc_bias[tumor$ideal], median, na.rm=TRUE)
+        medDiploid$gcNum <- as.vector(post)
+        tumor$ideal <- NULL
+        tumor$valid <- NULL
+    }
     ret <- list(coverage = tumor, medDiploid=medDiploid)
     ret
 }

@@ -130,8 +130,10 @@ target.weight.file) {
 
     lrs.sd <- apply(lrs, 1, sd, na.rm=TRUE)
     lrs.cnt.na <- apply(lrs,1, function(x) sum(is.na(x)))
-
-    zz <- quantile(lrs.sd,probs=0.75, na.rm=TRUE)/lrs.sd
+    # get the 70% of sd by chromosome and use this to normalize weight=1
+    chrom <-  as.character(seqnames(tumor.coverage[[1]]))
+    sd70ByChr <- sapply(split(lrs.sd, chrom),quantile, probs=0.7, names=FALSE, na.rm=TRUE)[chrom]
+    zz <- sd70ByChr/lrs.sd
     zz[zz>1] <-1
     idx <- is.na(zz) | lrs.cnt.na > ncol(lrs)/3
     zz[idx] <- min(zz, na.rm=TRUE)

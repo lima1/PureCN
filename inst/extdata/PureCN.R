@@ -30,6 +30,7 @@ spec <- matrix(c(
 'modelhomozygous','y', 0, "logical",
 'model',          'q', 1, "character",
 'funsegmentation','w', 1, "character",
+'alpha'          ,'A', 1, "double",
 'outdir',            'o', 1, "character",
 'outvcf',         'u', 0, "logical",
 'twopass',        'T', 0, "logical",
@@ -65,6 +66,7 @@ if (!is.null(snp.blacklist)) {
 
 min.ploidy <- if (is.null(opt$minploidy)) 1 else opt$minploidy    
 max.ploidy <- if (is.null(opt$maxploidy)) 6 else opt$maxploidy    
+alpha <- if (is.null(opt$alpha)) 0.005 else opt$alpha
 
 stats.file <- opt$statsfile
 seg.file <- opt$segfile
@@ -197,7 +199,8 @@ if (file.exists(file.rds) && !force) {
                 args.filterVcf=list(snp.blacklist=snp.blacklist, 
                     af.range=af.range, stats.file=stats.file), 
                 fun.segmentation=fun.segmentation,    
-                args.segmentation=list(target.weight.file=target.weight.file), 
+                args.segmentation=list(target.weight.file=target.weight.file, 
+                alpha=alpha), 
                 normalDB=normalDB, model.homozygous=model.homozygous,
                 model=model, log.file=file.log, post.optimize=FALSE, 
                 min.ploidy=min.ploidy, max.ploidy=max.ploidy, 
@@ -218,7 +221,8 @@ if (file.exists(file.rds) && !force) {
             args.filterVcf=list(snp.blacklist=snp.blacklist, 
                 af.range=af.range, stats.file=stats.file), 
             fun.segmentation=fun.segmentation,    
-            args.segmentation=list(target.weight.file=target.weight.file), 
+            args.segmentation=list(target.weight.file=target.weight.file, 
+                alpha=alpha), 
             args.setMappingBiasVcf=
                 list(normal.panel.vcf.file=normal.panel.vcf.file),
             normalDB=normalDB, model.homozygous=model.homozygous,
@@ -257,12 +261,6 @@ file.loh <- file.path(outdir, paste0(sampleid, sampleidExtension, '_loh.csv'))
 write.csv(cbind(Sampleid=sampleid, callLOH(ret)), file=file.loh, 
     row.names=FALSE, quote=FALSE)
 
-file.genes <- file.path(outdir, paste0(sampleid, sampleidExtension, '_genes.csv'))
-allAlterations <- callAlterations(ret, all.genes=TRUE)
-
-write.csv(cbind(Sampleid=sampleid, gene.symbol=rownames(allAlterations), 
-    allAlterations), row.names=FALSE, file=file.genes, quote=FALSE)
-
 file.seg <- file.path(outdir, paste0(sampleid, sampleidExtension, '_dnacopy.txt'))
 write.table(ret$results[[1]]$seg, file=file.seg, sep="\t", quote=FALSE, 
     row.names=FALSE)
@@ -278,3 +276,10 @@ if (!is.null(ret$input$vcf)) {
     }
     dev.off()
 }
+
+file.genes <- file.path(outdir, paste0(sampleid, sampleidExtension, '_genes.csv'))
+allAlterations <- callAlterations(ret, all.genes=TRUE)
+
+write.csv(cbind(Sampleid=sampleid, gene.symbol=rownames(allAlterations), 
+    allAlterations), row.names=FALSE, file=file.genes, quote=FALSE)
+

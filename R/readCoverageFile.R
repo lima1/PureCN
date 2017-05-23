@@ -23,7 +23,7 @@
 readCoverageFile <- function(file, format, zero=NULL) {
     if (missing(format)) format <- .getFormat(file)
     if (format %in% c("cnn", "cnr")) {    
-        targetCoverage <- .readCoverageCnn(file, zero)
+        targetCoverage <- .readCoverageCnn(file, zero, format)
     } else {
         targetCoverage <- .readCoverageGatk(file, zero)
     }
@@ -33,7 +33,7 @@ readCoverageFile <- function(file, format, zero=NULL) {
 
 .getFormat <- function(file) {
     ext <- file_ext(file)
-    if (ext %in% c("cnn", "cnr")) return("cnn")
+    if (ext %in% c("cnn", "cnr")) return(ext)
     "GATK"    
 }    
 
@@ -71,7 +71,7 @@ readCoverageGatk <- function(file) {
     targetCoverage
 }
 
-.readCoverageCnn <- function(file, zero) {
+.readCoverageCnn <- function(file, zero, format="cnn") {
     if (is.null(zero)) zero <- TRUE
     inputCoverage <- utils::read.table(file, header = TRUE)
     if (zero) inputCoverage$start <- inputCoverage$start + 1
@@ -83,6 +83,9 @@ readCoverageGatk <- function(file) {
     targetCoverage$Gene <- targetCoverage$gene
     targetCoverage$on.target[which(targetCoverage$Gene=="Background")] <- FALSE
     targetCoverage$gene <- NULL
+    if (format=="cnr") {
+        targetCoverage$log.ratio <- targetCoverage$log2
+    }
     targetCoverage$log2 <- NULL
     targetCoverage
 }
@@ -103,7 +106,14 @@ readCoverageGatk <- function(file) {
             sum(dups), dupLines[1])
         coverageGr <- reduce(coverageGr)
     }
-    coverageGr[order(coverageGr)]
+
+    targets <- as.character(coverageGr)
+    coverageGr <- sortSeqlevels(coverageGr)
+    coverageGr <- sort(coverageGr)
+    if (!identical(targets, as.character(coverageGr))) {
+        flog.warn("Target intervals not sorted.")
+    }    
+    coverageGr
 }
 
 .checkLowCoverage <- function(coverage) {

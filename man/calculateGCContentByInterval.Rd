@@ -5,7 +5,9 @@
 \title{Calculates GC content by interval}
 \usage{
 calculateGCContentByInterval(interval.file, reference.file,
-  output.file = NULL)
+  output.file = NULL, off.target = FALSE, average.target.width = 400,
+  min.off.target.width = 20000, average.off.target.width = 2e+05,
+  accessible = NULL, off.target.padding = -500)
 }
 \arguments{
 \item{interval.file}{File specifying the intervals. Interval is expected in
@@ -18,13 +20,29 @@ will automatically convert to 1-based \code{GRanges}.}
 \item{reference.file}{Reference FASTA file.}
 
 \item{output.file}{Optionally, write GC content file.}
+
+\item{off.target}{Include off-target regions.}
+
+\item{average.target.width}{Split large targets to approximately this size.}
+
+\item{min.off.target.width}{Only include off-target regions of that
+size}
+
+\item{average.off.target.width}{Split off-target regions to that}
+
+\item{accessible}{Restrict off-target regions to these accessible regions,
+defined by a GRanges object.}
+
+\item{off.target.padding}{Pad accessible region.}
 }
 \value{
 Returns GC content by interval.
 }
 \description{
 Uses \code{scanFa} from the Rsamtools package to retrieve GC content of
-intervals in a reference FASTA file.
+intervals in a reference FASTA file. Can optimize intervals for copy
+number calling by tiling long intervals and by including off-target regions.
+This optimization largely follows CNVkit.
 }
 \examples{
 
@@ -41,6 +59,10 @@ intervals <- import(bed.file)
 calculateGCContentByInterval(intervals, reference.file, 
     output.file="gc_file.txt")
 
+}
+\references{
+Talevich et al. (2016). CNVkit: Genome-Wide Copy Number 
+Detection and Visualization from Targeted DNA Sequencing. PLoS Comput Biol.
 }
 \author{
 Markus Riester

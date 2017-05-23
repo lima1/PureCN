@@ -32,14 +32,23 @@ calculateLogRatio <- function(normal, tumor) {
     flog.info("Mean coverages: %.0fX (tumor) %.0fX (normal).", 
         mean(tumor$average.coverage, na.rm=TRUE), 
         mean(normal$average.coverage, na.rm=TRUE))
-    total.cov.normal <- sum(as.numeric(normal$coverage), na.rm = TRUE)
-    total.cov.tumor <- sum(as.numeric(tumor$coverage), na.rm = TRUE)
+    if (is.null(tumor$on.target)) tumor$on.target <- TRUE
+    tumor$log.ratio <- 0.
 
-    log.ratio <- log2(tumor$average.coverage/normal$average.coverage) + 
-                 log2(total.cov.normal/total.cov.tumor)
+    for (on.target in c(FALSE, TRUE)) {
+        idx <- tumor$on.target==on.target
+        if (!sum(idx)) next
+        total.cov.normal <- sum(as.numeric(normal[idx]$coverage), na.rm = TRUE)
+        total.cov.tumor <- sum(as.numeric(tumor[idx]$coverage), na.rm = TRUE)
 
-    mean.log.ratio <- mean(subset(log.ratio, !is.infinite(log.ratio)), 
-        na.rm = TRUE)
-    # calibrate
-    log.ratio - mean.log.ratio
+        log.ratio <- log2(tumor[idx]$average.coverage/normal[idx]$average.coverage) + 
+                     log2(total.cov.normal/total.cov.tumor)
+
+        mean.log.ratio <- mean(subset(log.ratio, !is.infinite(log.ratio)), 
+            na.rm = TRUE)
+        # calibrate
+        log.ratio <- log.ratio - mean.log.ratio
+        tumor[idx]$log.ratio <- log.ratio
+    }
+    tumor$log.ratio
 }

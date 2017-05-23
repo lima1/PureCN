@@ -51,6 +51,15 @@ $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \
 Internally, this script uses \Biocpkg{rtracklayer} to parse the
 \Rcode{infile}. Make sure that the file format matches the file extension. 
 
+For deep sequencing hybrid-capture data, you can generate an interval file that 
+includes off-target regions:
+
+\begin{verbatim}
+$ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
+    --fasta hg19.fa --outfile baits_hg19_gcgene.txt \
+    --offtarget 
+\end{verbatim}
+
 See the main vignette how to add gene symbols to the interval file. Symbols are
 necessary to obtain gene-level copy number and LOH calls. For a test run, you
 will not need this.
@@ -127,6 +136,17 @@ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
     --gatkcoverage ${SAMPLEID}.coverage.sample_interval_summary \ 
     --gcgene  baits_hg19_gcgene.txt
 \end{verbatim}
+
+Similar to GATK, this script also takes a text file containing a list of BAM or
+coverage files (one per line). The file extension must be .list:
+
+\begin{verbatim}
+# From a list of BAM files 
+$ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
+    --bam normals.list \
+    --gcgene baits_hg19_gcgene.txt
+\end{verbatim}
+
 
 \subsubsection*{NormalDB}
 

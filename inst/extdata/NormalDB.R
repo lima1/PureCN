@@ -71,7 +71,7 @@ if (is.null(genome)) stop("Need --genome")
         paste0("_", tolower(method), ".txt"), basename(gatk.coverage)))
     outpng.file <- sub("txt$","png", output.file)
     if (file.exists(output.file) && !force) {
-        flog.info(output.file, " exists. Skipping... (--force will overwrite)")
+        flog.info("%s exists. Skipping... (--force will overwrite)", output.file)
     } else {
         png(outpng.file, width=800)
         correctCoverageBias(gatk.coverage, gc.gene.file,
