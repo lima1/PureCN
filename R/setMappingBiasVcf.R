@@ -74,15 +74,16 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     }
 
     psMappingBias <- sapply(seq_len(nrow(nvcf)), function(i) {
-        fa <- apply(geno(nvcf)$AD[i,,],1,function(x) x[2]/sum(x))
+        fa <- sapply(geno(nvcf[i])$AD, function(x) x[2]/sum(x))
         idx <- !is.na(fa) & fa > 0.05 & fa < 0.9
         if (!sum(idx)>=min.normals) return(c(0,0,0,0))
-        c(apply(geno(nvcf)$AD[i,idx,],2,sum), sum(idx), mean(fa[idx]))
+        sumAD <- apply(do.call(rbind, geno(nvcf[i])$AD[idx]),2,sum)
+        c(sumAD, sum(idx), mean(fa[idx]))
     })
     # Add an average "normal" SNP (average coverage and allelic fraction > 0.4)
     # as empirical prior 
     psMappingBias <- .adjustEmpBayes(psMappingBias)*2
-    ponCntHits <- apply(geno(nvcf)$AD[,,1],1, function(x) sum(!is.na(unlist(x))))
+    ponCntHits <- apply(geno(nvcf)$AD, 1, function(x) sum(!is.na(unlist(x)))/2)
     
     ov <- findOverlaps(vcf, nvcf, select="first")
     
@@ -113,7 +114,7 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
 }
 
 .readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file, 
-    max.file.size=1, geno="AD") {
+    max.file.size=1, geno="AD", expand=FALSE) {
     genome <- genome(vcf)[1]    
     if (file.size(normal.panel.vcf.file)/1000^3 > max.file.size || nrow(vcf)< 1000) {
         flog.info("Scanning %s...", normal.panel.vcf.file)
@@ -126,7 +127,8 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
             ScanVcfParam(info=NA, fixed=NA, geno=geno))
         nvcf <- subsetByOverlaps(nvcf, rowRanges(vcf))
     }    
-    expand(nvcf)
+    if (expand) nvcf <- expand(nvcf)
+    nvcf    
 }    
 
 .adjustEmpBayes <- function(x) {
