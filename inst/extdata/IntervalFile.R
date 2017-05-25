@@ -57,7 +57,8 @@ suppressPackageStartupMessages(library(PureCN))
 flog.info("Processing %s...", in.file)
 
 outGC <- calculateGCContentByInterval(intervals, reference.file, 
-    output.file = outfile, off.target=opt$offtarget, accessible=accessible)
+    output.file = outfile, off.target=!is.null(opt$offtarget), 
+    accessible=accessible)
 
 knownGenome <- list(
     hg18="TxDb.Hsapiens.UCSC.hg18.knownGene",
