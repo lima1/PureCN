@@ -6,6 +6,7 @@ Changes in version 1.8.0
 - Code cleanups (switch to GRanges where possible)
 - More robust mapping bias estimation
 - Added support for CNVkit coverage files (*.cnn, *.cnr)
+- IntervalFile.R can annotate targets with gene symbols
 
 API CHANGES
 

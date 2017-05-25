@@ -69,8 +69,9 @@ getCoverageBams <- function(bamFiles, indexFiles, outdir, gc.gene.file,
     gc.gene.file <- gc.gene.file
     force <- force
 
-    if (cpu>1) flog.info("Using %i CPUs.", cpu)
-
+    if (cpu>1) { 
+        flog.info("Using %i CPUs with %s.", cpu, class(bpparam())[1])
+    }
     .getCoverageBam <- function(bam.file, index.file=NULL, outdir, 
         gc.gene.file, force) {
         output.file <- file.path(outdir,  gsub(".bam$","_coverage.txt", 
@@ -96,6 +97,7 @@ getCoverageBams <- function(bamFiles, indexFiles, outdir, gc.gene.file,
     }
     
     param <- new(class(bpparam()), workers=cpu)
+    #param <- bpparam()
     coverageFiles <- unlist(
         bplapply(seq_along(bamFiles), 
             function(i) .getCoverageBam(bamFiles[i], indexFiles[i], outdir, gc.gene.file, force), 

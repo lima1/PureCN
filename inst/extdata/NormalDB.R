@@ -90,6 +90,7 @@ if (length(coverageFiles)) {
         }
         gc.gene.file <- opt$gcgene
         if (is.null(gc.gene.file)) stop("Need --gcgene")
+        flog.info("Performing GC normalization...")
         gc.gene.file <- normalizePath(gc.gene.file, mustWork=TRUE)
         coverageFiles <- sapply(coverageFiles, .gcNormalize, gc.gene.file, 
             method, outdir, force)

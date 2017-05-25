@@ -11,7 +11,8 @@ spec <- matrix(c(
 'infile',       'i', 1, "character",
 'outfile',      'o', 1, "character",
 'offtarget',    't', 0, "logical",
-'accessible',   'b', 1, "character"
+'accessible',   'b', 1, "character",
+'genome',       'g', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
 
@@ -55,6 +56,59 @@ flog.info("Loading PureCN...")
 suppressPackageStartupMessages(library(PureCN))
 flog.info("Processing %s...", in.file)
 
-calculateGCContentByInterval(intervals, reference.file, 
+outGC <- calculateGCContentByInterval(intervals, reference.file, 
     output.file = outfile, off.target=opt$offtarget, accessible=accessible)
 
+knownGenome <- list(
+    hg18="TxDb.Hsapiens.UCSC.hg18.knownGene",
+    hg19="TxDb.Hsapiens.UCSC.hg19.knownGene",
+    hg38="TxDb.Hsapiens.UCSC.hg38.knownGene",
+    mm9="TxDb.Mmusculus.UCSC.mm9.knownGene",
+    mm10="TxDb.Mmusculus.UCSC.mm10.knownGene"
+)
+knownOrg <- list(
+    hg18="org.Hs.eg.db", 
+    hg19="org.Hs.eg.db", 
+    hg38="org.Hs.eg.db", 
+    mm9="org.Mm.eg.db", 
+    mm10="org.Mm.eg.db"
+)
+
+.writeGc <- function(interval.gr, output.file) {
+    tmp <- data.frame(
+        Target=as.character(interval.gr),
+        gc_bias=interval.gr$gc_bias,
+        Gene=interval.gr$Gene,
+        on_target=interval.gr$on.target
+    )    
+    write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE, sep="\t")
+}
+
+.annotateIntervals <- function(outGC, txdb, org, output.file = NULL) {
+    idx <- outGC$on.target
+    id <- transcriptsByOverlaps(txdb, ranges=outGC[idx], columns = "GENEID")
+    id$SYMBOL <-select(org, as.character(id$GENEID), "SYMBOL")[,2]
+    outGC[idx]$Gene <- id$SYMBOL[findOverlaps(outGC[idx], id, select="first")]
+    .writeGc(outGC, output.file)
+}
+if (!is.null(opt$genome) ) {
+    if (is.null(knownGenome[[opt$genome]])) {
+        flog.warn("%s genome not known. %s", genome, 
+        "Will not annotate targets with gene symbols.")
+        q(status=1)
+    }    
+    if (!require(knownGenome[[opt$genome]], character.only=TRUE)) {
+        flog.warn("Install %s to get gene symbol annotation.", 
+            knownGenome[[opt$genome]])
+        q(status=1)
+    }
+    if (!require(knownOrg[[opt$genome]], character.only=TRUE)) {
+        flog.warn("Install %s to get gene symbol annotation.", 
+            knownOrg[[opt$genome]])
+        q(status=1)
+    }
+    .annotateIntervals(outGC, get(knownGenome[[opt$genome]]),
+        get(knownOrg[[opt$genome]]), outfile)
+} else {
+    flog.warn("Specify --genome to get gene symbol annotation.")
+}    

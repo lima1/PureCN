@@ -41,11 +41,11 @@ $ Rscript $PURECN/PureCN.R --help
 Usage: /path/to/PureCN/inst/extdata/PureCN.R [-[-help|h]] ...
 \end{verbatim}
 
-\item Generate a basic interval file from a BED file containing target coordinates:
+\item Generate an interval file from a BED file containing target coordinates:
 
 \begin{verbatim}
 $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
-    --fasta hg19.fa --outfile baits_hg19_gcgene.txt
+    --fasta hg19.fa --outfile baits_hg19_gcgene.txt --genome hg19
 \end{verbatim}
 
 Internally, this script uses \Biocpkg{rtracklayer} to parse the
@@ -57,12 +57,8 @@ includes off-target regions:
 \begin{verbatim}
 $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
     --fasta hg19.fa --outfile baits_hg19_gcgene.txt \
-    --offtarget 
+    --offtarget --genome hg19 
 \end{verbatim}
-
-See the main vignette how to add gene symbols to the interval file. Symbols are
-necessary to obtain gene-level copy number and LOH calls. For a test run, you
-will not need this.
 
 \end{itemize}
 

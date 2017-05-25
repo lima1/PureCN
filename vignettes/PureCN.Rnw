@@ -142,9 +142,9 @@ Section~\ref{secgcbias}). The GC-content for each target is expected in
 
 The \Rcode{Gene} column is optional and only required for providing gene-level
 copy number and LOH calls. This information should be available in the
-technical documentation of your capture kit. Simplistic example code for
-annotating target intervals with gene symbols is given in the Appendix of this
-vignette for testing purposes.
+technical documentation of your capture kit.  The command line script described
+in Section~\ref{cmdinterval} will attempt to annotate the intervals with
+symbols.
 
 \subsection{Generating coverage data without \software{GATK}}
 \label{purecncoverage}
@@ -1023,6 +1023,7 @@ The following section describe command line tools that provide a complete
 pipeline from BAM files.  
 
 \subsection{IntervalFile}
+\label{cmdinterval}
 
 A simple helper script to convert a BED file containing target coordinates into 
 a valid \Rcode{gc.gene.file} (without gene symbols):
@@ -1048,6 +1049,7 @@ Argument name   & Corresponding PureCN argument & PureCN function \\
 --infile -i     & interval.file & \Rfunction{calculateGCContentByInterval} \\
 --offtarget -t  & off.target    & \Rfunction{calculateGCContentByInterval} \\
 --accessible -b & accessible   & \Rfunction{calculateGCContentByInterval} \\
+--genome -g     &  & annotate intervals with gene symbols \\
 --outfile -o   & & \\
 \bottomrule
 \end{tabular}
@@ -1546,31 +1548,6 @@ approach:
 
 \bibliography{PureCN}
 
-\section*{Annotating intervals with gene symbols}
-
-A simple function that annotates intervals with the \textbf{first}
-overlapping interval from a given \software{TxDb} database:
-
-<<annotatesymbols, message=FALSE, warning=FALSE>>=
-library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-library(org.Hs.eg.db) 
-
-.annotateIntervals <- function(gc.gene.file, txdb, output.file = NULL) {
-    gc <- read.delim(gc.gene.file, as.is=TRUE)
-    # misuse this function to convert interval string into data.frame
-    grGC <- readCoverageFile(gc.gene.file)
-    id <- transcriptsByOverlaps(txdb, ranges=grGC, columns = "GENEID")
-    id$SYMBOL <-select(org.Hs.eg.db, as.character(id$GENEID), "SYMBOL")[,2]
-    gc$Gene <- id$SYMBOL[findOverlaps(grGC, id, select="first")]
-    if (!is.null(output.file)) {
-        write.table(gc, file = output.file, row.names = FALSE, 
-            quote = FALSE, sep = "\t")
-    }
-    invisible(gc)
-}
-
-.annotateIntervals(gc.gene.file, TxDb.Hsapiens.UCSC.hg19.knownGene)
-@
 \section*{Session Info}
 <<sessioninfo, results='asis', echo=FALSE>>=
 toLatex(sessionInfo())
