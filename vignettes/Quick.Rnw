@@ -45,20 +45,15 @@ Usage: /path/to/PureCN/inst/extdata/PureCN.R [-[-help|h]] ...
 
 \begin{verbatim}
 $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
-    --fasta hg19.fa --outfile baits_hg19_gcgene.txt --genome hg19
+    --fasta hg19.fa --outfile baits_hg19_gcgene.txt \
+    --offtarget --genome hg19 
 \end{verbatim}
 
 Internally, this script uses \Biocpkg{rtracklayer} to parse the
 \Rcode{infile}. Make sure that the file format matches the file extension. 
 
-For deep sequencing hybrid-capture data, you can generate an interval file that 
-includes off-target regions:
-
-\begin{verbatim}
-$ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
-    --fasta hg19.fa --outfile baits_hg19_gcgene.txt \
-    --offtarget --genome hg19 
-\end{verbatim}
+The \Rcode{--offtarget} flag will include off-target reads. For Amplicon data
+of if your assay contains dense tiling probes, you should exclude them. 
 
 \end{itemize}
 
@@ -162,13 +157,6 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT \
 
 \begin{verbatim}
 cd $OUT/$SAMPLEID
-# From GC-normalized coverage data
-$ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \ 
-    --normal ${SAMPLEID_NORMAL}_coverage_loess.txt \ 
-    --sampleid $SAMPLEID \
-    --vcf ${SAMPLEID}_mutect.vcf \
-    --genome hg19 \
-    --gcgene baits_hg19_gcgene.txt 
 
 # Without a matched normal    
 $ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \ 
@@ -178,9 +166,28 @@ $ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \
     --pool 5 \
     --genome hg19 --gcgene baits_hg19_gcgene.txt 
 
+# With a matched normal    
+$ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \ 
+    --normal ${SAMPLEID_NORMAL}_coverage_loess.txt \ 
+    --sampleid $SAMPLEID \
+    --vcf ${SAMPLEID}_mutect.vcf \
+    --genome hg19 \
+    --normaldb ../normalDB_hg19.rds \
+    --gcgene baits_hg19_gcgene.txt 
+
 # Recreate output after manual curation of Sample_purecn.csv
 $ Rscript $PURECN/PureCN.R --rds ${SAMPLEID}_purecn.rds
 \end{verbatim}
+
+A few recommendations:
+
+\begin{itemize}
+\item Even if matched normals are available, it is often safer to use the
+normal database for coverage normalization. 
+
+\item Providing the normal database in addition to a matched normals is
+optional, but helps ignoring low quality regions in the segmentation.
+\end{itemize}
 
 \subsection*{Session Info}
 <<sessioninfo, results='asis', echo=FALSE>>=

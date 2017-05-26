@@ -59,6 +59,11 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
          "Please regenerate. It will stop working with 1.6.") 
         normalDB$normal.coverage.files <- normalDB$gatk.normal.files
     }    
+    normal <- readCoverageFile(normalDB$normal.coverage.files[1])
+    if (!identical(as.character(normal) , as.character(tumor))) {
+        .stopUserError("tumor.coverage.file and normalDB do not align.")
+    }    
+
     x <- matrix(tumor[normalDB$exons.used]$average.coverage,nrow=1)
     x[is.na(x)] <- 0
 

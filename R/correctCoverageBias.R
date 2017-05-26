@@ -173,6 +173,7 @@ plot.max.density = 50000, purecn.output=NULL) {
         final <- loess(predict(rough, i) ~ i, span = 0.3)
         cor.gc <- predict(final, tumor$gc_bias[idxConsidered])
         cor.gc.factor <- cor.gc/mean(tumor$average.coverage[tumor$ideal], na.rm=TRUE)
+        cor.gc.factor[cor.gc.factor<=0] <- NA
         tumor$gc_bias <- as.integer(tumor$gc_bias*100)/100
 
         pre <- by(tumor$average.coverage[tumor$ideal], tumor$gc_bias[tumor$ideal], median, na.rm=TRUE)

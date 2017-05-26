@@ -56,6 +56,11 @@ flog.info("Loading PureCN...")
 suppressPackageStartupMessages(library(PureCN))
 flog.info("Processing %s...", in.file)
 
+if (is.null(opt$offtarget)) {
+    flog.info("Will not add off-target regions. This is only recommended for%s",
+     " Amplicon data. Add --offtarget to include them.")
+}
+
 outGC <- calculateGCContentByInterval(intervals, reference.file, 
     output.file = outfile, off.target=!is.null(opt$offtarget), 
     accessible=accessible)
@@ -87,9 +92,16 @@ knownOrg <- list(
 
 .annotateIntervals <- function(outGC, txdb, org, output.file = NULL) {
     idx <- outGC$on.target
+#    # First try exons
+#    id <- exonsByOverlaps(txdb, ranges=outGC[idx], columns = "GENEID")
+#    id$SYMBOL <-select(org, as.character(id$GENEID), "SYMBOL")[,2]
+#    outGC[idx]$Gene <- id$SYMBOL[findOverlaps(outGC[idx], id, select="first")]
+#    # Then all transcripts
+#    idx <- outGC$on.target & is.na(outGC)$Gene
     id <- transcriptsByOverlaps(txdb, ranges=outGC[idx], columns = "GENEID")
     id$SYMBOL <-select(org, as.character(id$GENEID), "SYMBOL")[,2]
     outGC[idx]$Gene <- id$SYMBOL[findOverlaps(outGC[idx], id, select="first")]
+    outGC$Gene[is.na(outGC$Gene)] <- "."
     .writeGc(outGC, output.file)
 }
 if (!is.null(opt$genome) ) {

@@ -3,6 +3,8 @@ test_createNormalDatabase <- function() {
         package = "PureCN")
     normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
         package = "PureCN")
+    normal3.coverage.file <- system.file("extdata", "example_normal3.cnn", 
+        package = "PureCN")
     normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
     normalDB <- createNormalDatabase(normal.coverage.files)
     checkIdentical(c(NA, NA), normalDB$sex)
@@ -47,4 +49,7 @@ test_createNormalDatabase <- function() {
         normalDB)
     plotBestNormal(best.normal.coverage.file, tumor.coverage.file, 
         normalDB)
+
+    checkException(findBestNormal(normal3.coverage.file, normalDB, num.normals=2, pool=TRUE))
+    checkTrue(grepl("not align", geterrmessage()))
 }    
