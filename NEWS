@@ -7,6 +7,7 @@ Changes in version 1.8.0
 - More robust mapping bias estimation
 - Added support for CNVkit coverage files (*.cnn, *.cnr)
 - IntervalFile.R can annotate targets with gene symbols
+- Better artifact filtering by using normalDB more efficiently
 
 API CHANGES
 

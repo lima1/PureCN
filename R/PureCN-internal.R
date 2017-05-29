@@ -940,8 +940,10 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     flog.info(strrep("-", 60))
 }    
 .calcGCmetric <- function(gc_bias, coverage, on.target) { 
-    gcbins <- split(coverage[coverage$on.target==on.target]$average.coverage, 
-        gc_bias < 0.5); 
+    idx <- which(coverage$on.target==on.target)
+    if (!length(idx)) return(NA)
+    gcbins <- split(coverage[idx]$average.coverage, 
+        gc_bias[idx] < 0.5)
     mean(gcbins[[1]], na.rm=TRUE)/mean(gcbins[[2]], na.rm=TRUE) 
 }
 .checkGCBias <- function(normal, tumor, max.dropout, on.target=TRUE) {

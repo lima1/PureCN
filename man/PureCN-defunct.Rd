@@ -10,6 +10,9 @@
   The following functions are defunct; use
   the replacement indicated below:
   \itemize{
+    \item{autoCurateResults: no replacement}
     \item{createExonWeightFile: \code{\link{createTargetWeights}}}
+    \item{createSNPBlacklist: \code{\link{setMappingBiasVcf}}}
+    \item{getDiploid: no replacement}
   }
 }

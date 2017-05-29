@@ -6,7 +6,7 @@
 \usage{
 filterTargets(normal, tumor, log.ratio, seg.file, filter.lowhigh.gc = 0.001,
   min.coverage = 15, min.targeted.base = 5, normalDB = NULL,
-  normalDB.min.coverage = 0.25)
+  normalDB.min.coverage = 0.25, normalDB.max.missing = 0.05)
 }
 \arguments{
 \item{normal}{Coverage data for normal sample.}
@@ -38,6 +38,9 @@ likely very different from the true GC content of the probes.}
 
 \item{normalDB.min.coverage}{Exclude targets with coverage lower than 20
 percent of the chromosome median in the pool of normals.}
+
+\item{normalDB.max.missing}{Exclude targets with zero coverage in the
+specified fraction of normal samples.}
 }
 \value{
 \code{logical(length(log.ratio))} specifying which targets should be

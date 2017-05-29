@@ -339,12 +339,12 @@ test_runAbsoluteCN <- function() {
 
     checkEqualsNumeric(0, sum(!(normalDB$exon.median.coverage[!idx] < cutoff | 
         width(tumor[!idx]) < 5 | tumor$average.coverage[!idx] < 15 | 
-        normal$average.coverage[!idx] < 15
+        normal$average.coverage[!idx] < 15 | normalDB$fraction.missing[!idx] > 0.05 
         )))
 
    checkTrue( sum(!(normalDB$exon.median.coverage[idx] < cutoff | 
     width(tumor[idx]) < 5 | tumor$average.coverage[idx] < 15 |
-    normal$average.coverage[idx] < 15
+    normal$average.coverage[idx] < 15 | normalDB$fraction.missing[idx] > 0.05
     )) > 9000)
     
 

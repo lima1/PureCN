@@ -53,7 +53,7 @@ Internally, this script uses \Biocpkg{rtracklayer} to parse the
 \Rcode{infile}. Make sure that the file format matches the file extension. 
 
 The \Rcode{--offtarget} flag will include off-target reads. For Amplicon data
-of if your assay contains dense tiling probes, you should exclude them. 
+or if your assay contains dense tiling probes, you should exclude them. 
 
 \end{itemize}
 
@@ -185,7 +185,7 @@ A few recommendations:
 \item Even if matched normals are available, it is often safer to use the
 normal database for coverage normalization. 
 
-\item Providing the normal database in addition to a matched normals is
+\item Providing the normal database in addition to a matched normal is
 optional, but helps ignoring low quality regions in the segmentation.
 \end{itemize}
 

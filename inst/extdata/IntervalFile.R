@@ -92,14 +92,8 @@ knownOrg <- list(
 
 .annotateIntervals <- function(outGC, txdb, org, output.file = NULL) {
     idx <- outGC$on.target
-#    # First try exons
-#    id <- exonsByOverlaps(txdb, ranges=outGC[idx], columns = "GENEID")
-#    id$SYMBOL <-select(org, as.character(id$GENEID), "SYMBOL")[,2]
-#    outGC[idx]$Gene <- id$SYMBOL[findOverlaps(outGC[idx], id, select="first")]
-#    # Then all transcripts
-#    idx <- outGC$on.target & is.na(outGC)$Gene
     id <- transcriptsByOverlaps(txdb, ranges=outGC[idx], columns = "GENEID")
-    id$SYMBOL <-select(org, as.character(id$GENEID), "SYMBOL")[,2]
+    id$SYMBOL <-suppressWarnings(select(org, sapply(id$GENEID, function(x)x[1]), "SYMBOL")[,2])
     outGC[idx]$Gene <- id$SYMBOL[findOverlaps(outGC[idx], id, select="first")]
     outGC$Gene[is.na(outGC$Gene)] <- "."
     .writeGc(outGC, output.file)

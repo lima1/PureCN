@@ -116,6 +116,10 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
 .readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file, 
     max.file.size=1, geno="AD", expand=FALSE) {
     genome <- genome(vcf)[1]    
+    if (!file.exists(normal.panel.vcf.file)) {
+        .stopUserError("normal.panel.vcf.file %s does not exist.", 
+            normal.panel.vcf.file)
+    }    
     if (file.size(normal.panel.vcf.file)/1000^3 > max.file.size || nrow(vcf)< 1000) {
         flog.info("Scanning %s...", normal.panel.vcf.file)
         nvcf <- readVcf(TabixFile(normal.panel.vcf.file), genome=genome, 

@@ -21,11 +21,9 @@ function from the VariantAnnotation package.}
 then use this information to remove non-heterozygous germline SNPs or
 germline SNPS with biased allelic fractions.}
 
-\item{snp.blacklist}{CSV file with SNP ids with expected allelic fraction
-significantly different from 0.5 in diploid genomes. Can be an array of
-lists. The function \code{\link{createSNPBlacklist}} can provide appropriate
-black lists. Can also be a BED file (either tab or comma separated) of
-blacklisted genomic regions (columns 1-3: chromosome, start, end).}
+\item{snp.blacklist}{A file with blacklisted genomic regions. Must
+be parsable by \code{import} from \code{rtracklayer}, for a example a
+BED file with file extension \sQuote{.bed}.}
 
 \item{af.range}{Exclude SNPs with allelic fraction smaller or greater than
 the two values, respectively. The higher value removes homozygous SNPs,

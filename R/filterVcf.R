@@ -9,11 +9,9 @@
 #' @param use.somatic.status If somatic status and germline data is available,
 #' then use this information to remove non-heterozygous germline SNPs or
 #' germline SNPS with biased allelic fractions.
-#' @param snp.blacklist CSV file with SNP ids with expected allelic fraction
-#' significantly different from 0.5 in diploid genomes. Can be an array of
-#' lists. The function \code{\link{createSNPBlacklist}} can provide appropriate
-#' black lists. Can also be a BED file (either tab or comma separated) of
-#' blacklisted genomic regions (columns 1-3: chromosome, start, end).
+#' @param snp.blacklist A file with blacklisted genomic regions. Must
+#' be parsable by \code{import} from \code{rtracklayer}, for a example a
+#' BED file with file extension \sQuote{.bed}.
 #' @param af.range Exclude SNPs with allelic fraction smaller or greater than
 #' the two values, respectively. The higher value removes homozygous SNPs,
 #' which potentially have allelic fractions smaller than 1 due to artifacts or
@@ -168,27 +166,9 @@ interval.padding = 50) {
 
     if (!is.null(snp.blacklist)) {
         for (i in seq_along(snp.blacklist)) {
-            # TODO clean up in PureCN 1.8
-            snp.blacklist.data <- read.csv(snp.blacklist[i], as.is=TRUE)
-            snp.blacklist.data2 <- try(read.delim(snp.blacklist[i], 
-                as.is=TRUE),silent=TRUE)
-            # temporary hack to support headers. In 1.8, we will use only rtracklayer.
-            if (class(snp.blacklist.data2) == "try-error") {
-                snp.blacklist.data2 <- read.delim(snp.blacklist[i], as.is=TRUE, skip=1)
-            }    
-            if (ncol(snp.blacklist.data2) > ncol(snp.blacklist.data)) {
-                snp.blacklist.data <- snp.blacklist.data2
-            }
-            n <- nrow(vcf)
-            if (sum( rownames(vcf) %in% snp.blacklist.data[,1]) > 1  ) {
-                flog.warn("Old SNP blacklists are deprecated. %s", 
-                    "Use either a BED file or a normal.panel.vcf.file.")
-                vcf <- vcf[!rownames(vcf) %in% snp.blacklist.data[,1],]
-            } else {
-                blackBed <- import(snp.blacklist[i], format="bed")
-                ov <- suppressWarnings(overlapsAny(vcf, blackBed))
-                vcf <- vcf[!ov]
-            }    
+            blackBed <- import(snp.blacklist[i])
+            ov <- suppressWarnings(overlapsAny(vcf, blackBed))
+            vcf <- vcf[!ov]
             flog.info("Removing %i blacklisted SNPs.", n-nrow(vcf))
         }    
     }
