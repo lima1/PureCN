@@ -61,6 +61,7 @@ callableBed <- import(system.file("extdata", "example_callable.bed.gz",
 exclude <- GRanges(seqnames="chr1", IRanges(start=1, 
     end=max(end(callableBed))))
 
+# We can also exclude specific mutations by filtering the input VCF
 myVcfFilter <- function(vcf) seqnames(vcf)!="chr2"
 
 callsCallable <- callMutationBurden(purecn.example.output, 

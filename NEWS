@@ -16,6 +16,7 @@ API CHANGES
 - Changed defaults: 
     - min.normals 2 (from 4) in setMappingBiasVcf
     - normalDB.min.coverage 0.25 (from 0.2) in filterTargets
+    - dropped purecn.output from correctCoverageBias 
 - Minor changes: 
     - Removed gc.data from filterTargets since gc_bias is now added to tumor 
       coverage

@@ -33,7 +33,6 @@ spec <- matrix(c(
 'alpha'          ,'A', 1, "double",
 'outdir',            'o', 1, "character",
 'outvcf',         'u', 0, "logical",
-'twopass',        'T', 0, "logical",
 'sampleid',       'i', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
@@ -97,7 +96,6 @@ if (!is.null(file.rds) && file.exists(file.rds)) {
     
 outdir <- normalizePath(outdir, mustWork=TRUE)
 
-
 library(PureCN)
 library(futile.logger)
 
@@ -128,13 +126,6 @@ if (file.exists(file.rds) && !force) {
     if (is.null(sampleid)) sampleid <- ret$input$sampleid
 } else {    
     tumor.coverage.file.orig <- tumor.coverage.file
-    if (!is.null(opt$twopass)) {
-        flog.info("GC-normalizing tumor because of --twopass flag. %s%s",
-            " Make sure tumor coverage is not already normalized ",
-            "(normal coverage needs to be GC-normalized!).")
-        tumor.coverage.file <- .gcNormalize(tumor.coverage.file.orig, gc.gene.file, 
-            "LOESS", outdir, force, NULL)
-    }    
     if (!is.null(normalDB)) {
         if (!is.null(seg.file)) stop("normalDB and segfile do not work together.")
         normalDB <- readRDS(normalDB)
@@ -163,7 +154,7 @@ if (file.exists(file.rds) && !force) {
         
     file.log <- file.path(outdir, paste0(sampleid, sampleidExtension, '.log'))
 
-    pdf(paste(outdir,"/", sampleid, sampleidExtension, '_segmentation.pdf', sep=''), 
+    pdf(paste0(outdir,"/", sampleid, sampleidExtension, '_segmentation.pdf'), 
         width=10, height=11)
     af.range = c(0.03, 0.97)
     if (!is.null(opt$minaf)) {
@@ -189,29 +180,6 @@ if (file.exists(file.rds) && !force) {
             stop("Unknown segmentation function")
         }
     }     
-    tmpFile <- tempfile(tmpdir=outdir, fileext=".rds")
-    if (!is.null(opt$twopass)) {
-        ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-                tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
-                sampleid=sampleid, plot.cnv=FALSE,
-                genome=genome, seg.file=seg.file,
-                test.purity=seq(min(test.purity),max(test.purity),by=0.05),
-                args.filterVcf=list(snp.blacklist=snp.blacklist, 
-                    af.range=af.range, stats.file=stats.file), 
-                fun.segmentation=fun.segmentation,    
-                args.segmentation=list(target.weight.file=target.weight.file, 
-                alpha=alpha), 
-                normalDB=normalDB, model.homozygous=model.homozygous,
-                model=model, log.file=file.log, post.optimize=FALSE, 
-                min.ploidy=min.ploidy, max.ploidy=max.ploidy, 
-                max.candidate.solutions=5)
-        # store in case it crashes
-        saveRDS(ret, file=tmpFile)
-        flog.info("GC-normalizing tumor second time because of --twopass flag")
-        tumor.coverage.file <- .gcNormalize(tumor.coverage.file.orig, gc.gene.file, 
-            method="LOESS", outdir=outdir, force=TRUE, purecn.output=ret)
-        normal.coverage.file <- .getNormalCoverage(normal.coverage.file)
-    }
         
     ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
             tumor.coverage.file=tumor.coverage.file, vcf.file=tumor.vcf,
@@ -230,7 +198,6 @@ if (file.exists(file.rds) && !force) {
             model=model, log.file=file.log, post.optimize=post.optimize)
     dev.off()
     saveRDS(ret, file=file.rds)
-    if (file.exists(tmpFile)) file.remove(tmpFile)
 }
 
 ### Create output files -------------------------------------------------------

@@ -995,26 +995,6 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     sum(p$ML.C - p$ML.M.SEGMENT == p$ML.M.SEGMENT, na.rm=TRUE)/nrow(p)
 }
 
-.getMajorityStateTargets <- function(ret, id, tumor, n=1) {
-    seg <- ret$results[[id]]$seg
-    states <- sapply(seq(0,7), function(i) sum(seg$num.mark[which(round(seg$C)==i)]))
-    majorityC <- head(order(states,decreasing=TRUE),n)-1
-    chr.hash <- .getChrHash(seqlevels(tumor))
-    majorityGr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
-        IRanges(start=seg$loc.start, end=seg$loc.end))
-    majorityGr <- majorityGr[seg$C %in% majorityC]
-    idx <- overlapsAny(tumor, majorityGr)
-    percentMajority <- sum(idx)/length(idx)*100
-    if (percentMajority < 50 && n < 3) {
-        return(.getMajorityStateTargets(ret,id,tumor,n+1))
-    }
-    flog.info("Majority Copy Number State%s: %s (%.1f%% of targets)", 
-        ifelse(length(majorityC)>1, "s",""), 
-        paste(majorityC, collapse=", "), 
-        percentMajority )
-    idx
-}
-
 # function to adjust log-ratios to segment mean
 .postprocessLogRatios <- function(exon.lrs, seg.mean) {
 

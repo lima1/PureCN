@@ -32,15 +32,6 @@ globalVariables(names=c("..level.."))
 #' package. Using this parameter, change the threshold at which density
 #' estimation is applied. If the \code{plot.gc.bias} parameter is set as
 #' \code{FALSE}, this will be ignored.
-#' @param purecn.output This can be used to provide this function the
-#' output of a \code{\link{runAbsoluteCN}} from the same sample. If provided,
-#' the loess normalization will only use targets assigned to the majority 
-#' copy number state as reference. This represents a two-pass normalization,
-#' in which the raw coverage is first normalized using all targets, and then
-#' again utilizing the available copy number data. In each pass, the raw
-#' coverage should be provided, not the GC-normalized one. This feature is 
-#' useful for trying to rescue precious samples. Do not expect wonders.
-#' @return GC normalized coverage.
 #' @author Angad Singh, Markus Riester
 #' @seealso \code{\link{calculateGCContentByInterval}}
 #' @examples
@@ -63,7 +54,7 @@ globalVariables(names=c("..level.."))
 #' @importFrom utils write.table
 correctCoverageBias <- function(coverage.file, gc.gene.file,
 output.file = NULL, method = c("LOESS","POLYNOMIAL"), plot.gc.bias = FALSE,
-plot.max.density = 50000, purecn.output=NULL) {
+plot.max.density = 50000) {
     if (is.character(coverage.file)) {
         tumor  <- readCoverageFile(coverage.file)
     } else {
@@ -74,7 +65,7 @@ plot.max.density = 50000, purecn.output=NULL) {
 
     method <- match.arg(method)
     if (method=="LOESS") {
-        ret <- .correctCoverageBiasLoess(tumor, purecn.output)
+        ret <- .correctCoverageBiasLoess(tumor)
     } else if(method=="POLYNOMIAL") {
         ret <- .correctCoverageBiasPolynomial(tumor)
     } else {
@@ -132,7 +123,7 @@ plot.max.density = 50000, purecn.output=NULL) {
     invisible(coverage)
 }
 
-.correctCoverageBiasLoess <- function(tumor, purecn.output) {
+.correctCoverageBiasLoess <- function(tumor) {
     if (is.null(tumor$on.target)) tumor$on.target <- TRUE
     gc_bias <- tumor$gc_bias
     for (on.target in c(FALSE, TRUE)) {
@@ -140,15 +131,9 @@ plot.max.density = 50000, purecn.output=NULL) {
         tumor$valid <- idxConsidered
         tumor$gc_bias <- gc_bias
 
-        # taken from TitanCNA
         tumor$valid[tumor$average.coverage <= 0 | tumor$gc_bias < 0] <- FALSE
 
         if (!sum(tumor$valid)) next
-            
-        if (!is.null(purecn.output)) {
-            majorityState <- .getMajorityStateTargets(purecn.output, 1, tumor)
-            tumor$valid[!majorityState] <- FALSE
-        }    
         tumor$ideal <- TRUE
         routlier <- 0.01
         range <- quantile(tumor$average.coverage[tumor$valid], prob = 

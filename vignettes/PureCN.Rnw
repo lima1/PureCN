@@ -1149,13 +1149,6 @@ Rscript PureCN.R --outdir ~/tmp/ --segfile example_seg.txt \
     --funsegmentation none \
     --gcgene  example_gc.gene.file.txt 
 
-# Two-pass loess normalization from NOT YET GC-normalized tumor coverage
-# data (normal controls need to be GC-normalized by the LOESS method)
-Rscript PureCN.R --outdir ~/tmp/ --tumor example_tumor.txt \ 
-    --normaldb normalDB.rds --pool 5 --vcf example_vcf.vcf -i Sample1 \
-    --genome hg19 --gcgene example_gc.gene.file.txt \
-    --twopass --postoptimize
-
 # Recreate output after manual curation of Sample_purecn.csv
 Rscript PureCN.R --rds Sample1_purecn.rds
     
@@ -1197,7 +1190,6 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --funsegmentation -w & fun.segmentation & \Rfunction{runAbsoluteCN} \\ 
 --alpha -A          & alpha & \Rfunction{segmentationCBS} \\
 --sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
---twopass -T        & purecn.output & \Rfunction{correctCoverageBias} \\
 --outvcf -u         & return.vcf & \Rfunction{predictSomatic} \\
 \bottomrule
 \end{tabular}
@@ -1292,6 +1284,8 @@ complaints, etc. please do not hesitate to send us an email.
     \item Used the correct interval files provided by the manufacturer of the
         capture kit and the genome version of the interval file matches the
         reference.
+    \item For hybrid capture data, included off-target reads in the coverage
+        calculation 
     \item BAM files were generated following established best practices and
     tools finished successfully.
     \item Checked standard QC metrics such as AT dropout.
@@ -1341,12 +1335,6 @@ segmentation parameters, such as \Rcode{prune.hclust.h=0.2} or higher.
     specialized third-party segmentation method as described in
     section~\ref{customseg}, since our default is optimized for targeted
     sequencing.
-    \item For smaller targeted panels, copy number events can interfere with
-    the GC-normalization. Try either the \Rcode{POLYNOMIAL} method in
-    \Rfunction{correctCoverageBias} or the two-pass loess normalization
-    (Section~\ref{cmdpurecn}) if the data looks noisy. Third-party segmentation
-    tools (Section~\ref{customseg}) that utilize off-target reads might be also
-    worth trying.
     \end{itemize}
     \item Otherwise, if log-ratio peaks are clean as in 
 Figure~\ref{figure/figureexample2-1}:
@@ -1396,7 +1384,6 @@ Figure~\ref{figure/figureexample2-1}:
     \item \Biocpkg{PureCN} also needs process-matched normal samples, again,
     the more the better. 
 \end{itemize}
-
 
 \paragraph{If you have trouble generating input data PureCN accepts, please check:}
 \label{faqinput}

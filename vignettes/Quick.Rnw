@@ -27,7 +27,8 @@ vignette.
 
 \begin{itemize}
 
-\item Get the path to command line scripts in R:
+\item Start R and enter the following to get the path to the command line
+    scripts:
 
 <<paths>>=
 system.file("extdata", package="PureCN")
@@ -52,8 +53,9 @@ $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \
 Internally, this script uses \Biocpkg{rtracklayer} to parse the
 \Rcode{infile}. Make sure that the file format matches the file extension. 
 
-The \Rcode{--offtarget} flag will include off-target reads. For Amplicon data
-or if your assay contains dense tiling probes, you should exclude them. 
+The \Rcode{--offtarget} flag will include off-target reads. Including them is
+recommended except for Amplicon data or for assays with dense (<200kb) tiling
+probes.
 
 \end{itemize}
 
@@ -87,23 +89,24 @@ Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
     --statsfile ${SAMPLEID}_mutect_stats.txt \
     --snpblacklist hg19_simpleRepeats.bed \
     --genome hg19 --gcgene baits_hg19_gcgene.txt \
-#    --funsegmentation none \
     --force --postoptimize  
+
+#    --funsegmentation none 
 \end{verbatim}
 
 The normal panel VCF file is useful for mapping bias correction and especially
 recommended without matched normals. See the FAQ of the main vignette how to
-generate this file. It is not essential for test runs.
-The \software{MuTect} 1.1.7 stats file (the main output file besides the VCF)
-should be provided for better artifact filtering.
-
-The \Rcode{--funsegmentation} argument controls if the data should to be
-re-segmented using germline BAFs (default). Set this value to \Rcode{none} if
-the provided segmentation should be used as is. 
+generate this file. It is not essential for test runs.  The \software{MuTect}
+1.1.7 stats file (the main output file besides the VCF) should be provided for
+better artifact filtering.
 
 The \Rcode{--postoptimize} flag defines that purity should be optimized using
 both variant allelic fractions and copy number instead of copy number only.
 This results in a significant runtime increase for whole-exome data.
+
+The \Rcode{--funsegmentation} argument controls if the data should to be
+re-segmented using germline BAFs (default). Set this value to \Rcode{none} if
+the provided segmentation should be used as is. 
 
 \subsection*{Run PureCN with internal segmentation}
 

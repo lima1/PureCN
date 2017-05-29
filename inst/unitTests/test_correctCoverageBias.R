@@ -19,25 +19,17 @@ test_correctCoverageBias <- function() {
         package = "PureCN", mustWork = TRUE)
     checkException(correctCoverageBias(normal.coverage.file, interval.file))
 
-    data(purecn.example.output)
-    coveragePass2 <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
-        output.file="test_loess_coverage.txt", 
-        purecn.output=purecn.example.output)
-    corPass2 <- cor(coverage$average.coverage, coveragePass2$average.coverage, 
-        use="complete.obs")
-    checkTrue(corPass2 > 0.99)
     correctCoverageBias(head(x,200), gc.gene.file)
 
     gc.data <- read.delim(gc.gene.file, as.is=TRUE)
     gc.data$Gene <- NULL
     tmpFile <- tempfile()
     write.table(gc.data, file=tmpFile, row.names=FALSE, quote=FALSE, sep="\t")
-    coveragePass3 <- correctCoverageBias(normal.coverage.file, tmpFile, 
-        output.file="test_loess_coverage.txt", 
-        purecn.output=purecn.example.output)
-    corPass3 <- cor(coverage$average.coverage, coveragePass3$average.coverage, 
+    coverage2 <- correctCoverageBias(normal.coverage.file, tmpFile, 
+        output.file="test_loess_coverage.txt")
+    corCov <- cor(coverage$average.coverage, coverage2$average.coverage, 
         use="complete.obs")
-    checkTrue(corPass3 > 0.99)
+    checkTrue(corCov > 0.99)
 
     png(file="test_gc_bias.png",width=960)
     coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
@@ -49,5 +41,4 @@ test_correctCoverageBias <- function() {
     file.remove("test_norm_coverage.txt")
 
     checkException(correctCoverageBias(normal.coverage.file, gc.gene.file, method="HELLOWORLD"))
-
 }
