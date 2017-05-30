@@ -562,7 +562,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # renormalize, in case segmentation function changed means
     exon.lrs <- .postprocessLogRatios(exon.lrs, seg$seg.mean)
 
-    max.exon.ratio <- 7
+    max.exon.ratio <- 4
     
     # show log-ratio histogram
     if (plot.cnv) {
@@ -631,6 +631,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             attempt <- attempt + 1
             total.ploidy <- candidate.solutions$candidates$ploidy[cpi]
             p <- candidate.solutions$candidates$purity[cpi]
+            # optimize purity withing +/- 0.2 in the first attempt, then just
+            # try to match the ploidy
+            idxLocal <- which(abs(test.purity-p) < (0.1+attempt/10))
+            test.purity.local <- test.purity[idxLocal]
+            prior.purity.local <- prior.purity[idxLocal]
             
             flog.info("Testing local optimum %i/%i at purity %.2f and total ploidy %.2f...", 
                 cpi, nrow(candidate.solutions$candidates), p, total.ploidy)
@@ -665,18 +670,18 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 if (iter > 1) {
                   # calculate posterior probabilities of all requested purities
                   total.ploidy <- p * (sum(li * (C)))/sum(li) + (1 - p) * 2  #ploidy
-                  px.rij <- lapply(test.purity, function(px) vapply(which(!is.na(C)), 
+                  px.rij <- lapply(test.purity.local, function(px) vapply(which(!is.na(C)), 
                     function(i) .calcLlikSegment(subclonal = subclonal[i], lr = exon.lrs[[i]] + 
                       log.ratio.offset[i], sd.seg = sd.seg, p = px, Ci = C[i], total.ploidy = total.ploidy, 
                       max.exon.ratio = max.exon.ratio), double(1)))
-                  px.rij.s <- sapply(px.rij, sum, na.rm = TRUE) + log(prior.purity)
+                  px.rij.s <- sapply(px.rij, sum, na.rm = TRUE) + log(prior.purity.local)
                   
                   if (simulated.annealing) 
                     px.rij.s <- px.rij.s * exp(iter/4)
                   
                   px.rij.s <- exp(px.rij.s - max(px.rij.s))
                   # Gibbs sample purity
-                  p <- test.purity[min(which(runif(n = 1, min = 0, max = sum(px.rij.s)) <= 
+                  p <- test.purity.local[min(which(runif(n = 1, min = 0, max = sum(px.rij.s)) <= 
                     cumsum(px.rij.s)))]
                   total.ploidy <- p * (sum(li * (C)))/sum(li) + (1 - p) * 2
                   # Gibbs sample offset
@@ -841,6 +846,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     } else if (.calcFractionBalanced(res.snvllik[[1]]$posteriors) > 0.8 && 
                         weighted.mean(C, li) > 2.7) {
                         flog.info("High ploidy solution in highly balanced genome. Skipping post-optimization.")
+                    } else if (.isRareKaryotype(weighted.mean(C, li))) {
+                        flog.info("Rare karyotype solution. Skipping post-optimization.")
                     } else {    
                         res.snvllik <- c(res.snvllik, lapply(tp[-1], .fitSNVp))
                       px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal = subclonal[i], 

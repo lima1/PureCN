@@ -190,6 +190,13 @@ normal database for coverage normalization.
 
 \item Providing the normal database in addition to a matched normal is
 optional, but helps ignoring low quality regions in the segmentation.
+
+\item The \Rcode{--pool} flag specifies how many normal samples should be used
+to calculate the tumor vs. normal coverage. In a large, homogeneous database,
+this should be set to 10. In a heterogeneous database (for example different
+insert sizes, coverages, library preparation protocols, etc.), this value is set
+to an appropriate group size between 2 and 10. 
+
 \end{itemize}
 
 \subsection*{Session Info}

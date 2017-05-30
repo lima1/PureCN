@@ -96,7 +96,8 @@ if (!is.null(file.rds) && file.exists(file.rds)) {
     
 outdir <- normalizePath(outdir, mustWork=TRUE)
 
-library(PureCN)
+flog.info("Loading PureCN...")
+suppressPackageStartupMessages(library(PureCN))
 library(futile.logger)
 
 ### Run PureCN ----------------------------------------------------------------

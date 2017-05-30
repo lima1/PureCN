@@ -375,6 +375,10 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         return(b)
     paste(a, b, sep = ";")
 }
+.isRareKaryotype <- function(ploidy) {
+    ploidy > 4.5 || ploidy < 1.5
+}
+    
 .flagResult <- function(result, max.non.clonal = 0.2, min.gof, 
     use.somatic.status, model.homozygous) {
     result$flag_comment <- NA
@@ -393,7 +397,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         result$flag_comment <- .appendComment(result$flag_comment, 
             "EXCESSIVE LOSSES")
     }
-    if (result$ploidy > 4.5 || result$ploidy < 1.5) {
+    if (.isRareKaryotype(result$ploidy)) {
         result$flag <- TRUE
         result$flag_comment <- .appendComment(result$flag_comment, 
             "RARE KARYOTYPE")
