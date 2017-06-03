@@ -29,12 +29,14 @@ if (!is.null(opt$version)) {
 force <- !is.null(opt$force)
 outfile <- opt$outfile
 
+if (is.null(opt$infile)) stop("Need --infile.")
+if (is.null(opt$fasta)) stop("Need --fasta.")
+if (is.null(opt$outfile)) stop("Need --outfile.")
+
 if (!force && file.exists(outfile)) {
     stop(outfile, " exists. Use --force to overwrite.")
 }    
 
-if (is.null(opt$infile)) stop("Need --infile.")
-if (is.null(opt$fasta)) stop("Need --fasta.")
 
 in.file <- normalizePath(opt$infile, mustWork=TRUE)
 reference.file <- normalizePath(opt$fasta, mustWork=TRUE)
@@ -94,8 +96,40 @@ knownOrg <- list(
     idx <- outGC$on.target
     id <- transcriptsByOverlaps(txdb, ranges=outGC[idx], columns = "GENEID")
     id$SYMBOL <-suppressWarnings(select(org, sapply(id$GENEID, function(x)x[1]), "SYMBOL")[,2])
-    outGC[idx]$Gene <- id$SYMBOL[findOverlaps(outGC[idx], id, select="first")]
+    idExons <- exonsByOverlaps(txdb, ranges=outGC[idx], columns = "GENEID")
+    idExons$SYMBOL <-suppressWarnings(select(org, sapply(idExons$GENEID, function(x)x[1]), "SYMBOL")[,2])
+	ov <- findOverlaps(outGC[idx], id)
+	ovExons <- findOverlaps(outGC[idx], idExons)
+    
+    # for targets with multiple gene hits, use the one with most overlapping
+    # targets
+	d.f <- data.frame(i=queryHits(ov), SYMBOL=as.character(id$SYMBOL[subjectHits(ov)]))
+	d.f <- d.f[!duplicated(d.f),]
+
+    # remove non-coding transcripts and ORFs
+    d.f <- d.f[!grepl("-AS\\d$", d.f$SYMBOL),]
+    d.f <- d.f[!grepl("^LOC\\d", d.f$SYMBOL),]
+    d.f <- d.f[!grepl("\\dorf\\d", d.f$SYMBOL),]
+    d.f <- d.f[!grepl("^FLJ\\d+$", d.f$SYMBOL),]
+
+    d.f$COUNT <- table(d.f$SYMBOL)[d.f$SYMBOL]
+
+    # in case multiple symbols have the same number of targets, prioritize the ones overlapping exons
+    d.fExons <- data.frame(i = queryHits(ovExons), SYMBOL = as.character(idExons$SYMBOL[subjectHits(ovExons)]))
+    d.f$OverlapsExon <- ifelse(paste(d.f[,1], d.f[,2]) %in% paste(d.fExons[,1], d.fExons[,2]), 1, 2)
+    
+    # reorder and pick the best transcript
+	d.f <- d.f[order(d.f$i, d.f$COUNT, d.f$OverlapsExon),]
+    d.f$FLAG <- duplicated(d.f$i, fromLast=TRUE)
+	d.f <- d.f[!duplicated(d.f$i),]
+
+    # Exclude targets for which we have multiple hits, but only one interval
+    d.f <- d.f[!d.f$FLAG | d.f$COUNT>2,]
+    outGC[idx]$Gene[d.f$i] <- as.character(d.f$SYMBOL)
     outGC$Gene[is.na(outGC$Gene)] <- "."
+
+    flog.warn("Attempted adding gene symbols to intervals. Heuristics have been %s",
+        "used to pick symbols for overlapping genes.")
     .writeGc(outGC, output.file)
 }
 if (!is.null(opt$genome) ) {

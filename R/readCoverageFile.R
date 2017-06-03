@@ -111,7 +111,7 @@ readCoverageGatk <- function(file) {
     coverageGr <- sortSeqlevels(coverageGr)
     coverageGr <- sort(coverageGr)
     if (!identical(targets, as.character(coverageGr))) {
-        flog.warn("Target intervals not sorted.")
+        flog.warn("Target intervals were not sorted.")
     }    
     coverageGr
 }

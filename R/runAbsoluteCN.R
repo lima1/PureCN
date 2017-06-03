@@ -564,7 +564,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
 
     max.exon.ratio <- 4
     
-    # show log-ratio histogram
+    # show log-ratio histogram and on/off-target log-ratios
     if (plot.cnv) {
         if (!is.null(segProvided)) {
             par(mfrow = c(2, 1))
@@ -575,6 +575,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         hist(do.call(c, lapply(seq_len(nrow(seg)), function(i) rep(seg$seg.mean[i], 
             seg$num.mark[i]))), breaks = 100, xlab = "log2 ratio", main = sampleid)
         par(mfrow = c(1, 1))
+        .plotLogRatios(log.ratio, tumor$on.target)
     }
     
     # initialize variables

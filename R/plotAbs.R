@@ -681,3 +681,12 @@ ss) {
    estimatedRate
 }
 
+.plotLogRatios <- function(log.ratio, on.target) {
+    containsOfftarget <- sum(on.target)!=length(on.target)
+    if (!containsOfftarget) return(NULL)
+    myylim <- quantile(subset(log.ratio,
+        !is.infinite(log.ratio)), p=c(0.0001, 1-0.0001),na.rm=TRUE)
+    plot(log.ratio, col=ifelse(on.target, "black", "red"), ylim=myylim, ylab="log2 ratio")
+    legend("bottomleft", legend=c("On-Target", "Off-Target"), ncol=2, fill=c("black", "red"))
+}
+    
