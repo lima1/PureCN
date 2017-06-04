@@ -5,7 +5,7 @@
 \title{Calculate target weights}
 \usage{
 createTargetWeights(tumor.coverage.files, normal.coverage.files,
-  target.weight.file)
+  target.weight.file, plot = FALSE)
 }
 \arguments{
 \item{tumor.coverage.files}{A small number (1-3) of GATK tumor or normal
@@ -16,6 +16,8 @@ coverage samples.}
 with files in \code{tumor.coverage.files}.}
 
 \item{target.weight.file}{Output filename.}
+
+\item{plot}{Diagnostics plot, useful to tune parameters.}
 }
 \value{
 A \code{data.frame} with target weights.

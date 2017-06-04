@@ -8,9 +8,12 @@ Changes in version 1.8.0
 - Added support for CNVkit coverage files (*.cnn, *.cnr)
 - IntervalFile.R can annotate targets with gene symbols
 - Better artifact filtering by using normalDB more efficiently
+- Support for mappability scores
 
 API CHANGES
 
+- Due to novel optimizations of provided bait intervals, we recommend 
+  to regenerate the normal databases.
 - New function: callMutationBurden
 - Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults
 - Changed defaults: 

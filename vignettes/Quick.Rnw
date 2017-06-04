@@ -34,7 +34,8 @@ vignette.
 system.file("extdata", package="PureCN")
 @ 
 
-\item Store this path in an environment variable, for example in BASH:
+\item Exit R and store this path in an environment variable, for example in 
+    BASH:
 
 \begin{verbatim}
 $ export PURECN="/path/to/PureCN/extdata"
@@ -47,7 +48,8 @@ Usage: /path/to/PureCN/inst/extdata/PureCN.R [-[-help|h]] ...
 \begin{verbatim}
 $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
     --fasta hg19.fa --outfile baits_hg19_gcgene.txt \
-    --offtarget --genome hg19 
+    --offtarget --genome hg19 \
+    --mappability wgEncodeCrgMapabilityAlign100mer.bigWig
 \end{verbatim}
 
 Internally, this script uses \Biocpkg{rtracklayer} to parse the
@@ -56,6 +58,11 @@ Internally, this script uses \Biocpkg{rtracklayer} to parse the
 The \Rcode{--offtarget} flag will include off-target reads. Including them is
 recommended except for Amplicon data or for assays with dense (<200kb) tiling
 probes.
+
+The \Rcode{--mappability} argument should provide a \Biocpkg{rtracklayer}
+parsable file with a mappability score in the first meta data column. If provided,
+off-target regions will be restricted to regions specified in this file. 
+On-target regions with low mappability will be excluded.
 
 \end{itemize}
 
@@ -111,9 +118,7 @@ the provided segmentation should be used as is.
 \subsection*{Run PureCN with internal segmentation}
 
 The following describes \Biocpkg{PureCN} runs with internal copy number
-normalization and segmentation. Provided are again minimal examples for
-test runs. See the main vignette how to get optimal results in production
-pipelines.
+normalization and segmentation. 
 
 \subsubsection*{Coverage}
 
@@ -157,6 +162,9 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT \
 \end{verbatim}
 
 \subsubsection*{PureCN}
+
+Provided are again minimal examples for test runs. See the main vignette how to
+get optimal results in production pipelines.
 
 \begin{verbatim}
 cd $OUT/$SAMPLEID

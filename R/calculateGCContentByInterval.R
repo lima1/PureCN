@@ -18,9 +18,15 @@
 #' @param min.off.target.width Only include off-target regions of that
 #' size
 #' @param average.off.target.width Split off-target regions to that
-#' @param accessible Restrict off-target regions to these accessible regions,
-#' defined by a GRanges object.
-#' @param off.target.padding Pad accessible region.
+#' @param off.target.padding Pad off-target regions.
+#' @param mappability Annotate intervals with mappability score. Assumed on a scale
+#' from 0 to 1, with score being 1/(number alignments). Expected as \code{GRanges}
+#' object with first meta column being the score. Regions outside these ranges are
+#' ignored, assuming that \code{mappability} covers the whole accessible genome.
+#' @param min.mappability \code{double(3)} specifying the minimum mappability score
+#' for on-target, off-target, and chrY regions in that order. The chrY regions
+#' are only used for sex determination in \sQuote{PureCN} and are therefore 
+#' treated differently. Requires \code{mappability}.
 #' @return Returns GC content by interval.
 #' @author Markus Riester
 #' @references Talevich et al. (2016). CNVkit: Genome-Wide Copy Number 
@@ -45,10 +51,12 @@
 #' @importFrom rtracklayer import
 #' @importFrom Biostrings letterFrequency
 #' @importFrom BiocGenerics unstrand
+#' @importFrom stats aggregate
+#' @importFrom S4Vectors mcols
 calculateGCContentByInterval <- function(interval.file, reference.file,
 output.file = NULL, off.target=FALSE, average.target.width=400, 
-min.off.target.width=20000, average.off.target.width=200000, accessible=NULL, 
-off.target.padding=-500) {
+min.off.target.width=20000, average.off.target.width=200000,  
+off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
     if (class(interval.file)=="GRanges") {
         interval.gr <- .checkIntervals(interval.file)
     } else {    
@@ -64,18 +72,23 @@ off.target.padding=-500) {
     } else {    
         # split large targets
         if (!is.null(average.target.width)) {
-            interval.gr <- unlist(tile(interval.gr, width=average.target.width))
+            tmp <- tile(interval.gr, width=average.target.width)
+            interval.gr <- unlist(tmp)
             interval.gr$on.target <- TRUE
+            nChanges <- sum(sapply(tmp, length)>1)
+            flog.info("Splitting %i large targets to an average width of %i.",
+                nChanges, average.target.width)
         } 
+        
         # find off-target regions
         if (off.target) {
             if (off.target.padding > 0) {
                 .stopUserError("off.target.padding must be negative.")
             }    
             offRegions <- setdiff(scanFaIndex(reference.file), unstrand(interval.gr))
-            if (!is.null(accessible)) {
-                offRegions <- intersect(offRegions, accessible)
-            }
+            if (!is.null(mappability)) {
+                offRegions <- intersect(offRegions, mappability)
+            }    
             offRegions <- offRegions[width(offRegions)>off.target.padding*-2]
             offRegions <- .padGranges(offRegions, off.target.padding)
                 
@@ -86,13 +99,16 @@ off.target.padding=-500) {
             interval.gr <- merge(interval.gr, offRegions, all=TRUE, sort=TRUE)
         }    
     }
+
+    interval.gr <- .annotateMappability(interval.gr, mappability, 
+        min.mappability) 
+
     x <- scanFa(reference.file, interval.gr)
     GC.count <- letterFrequency(x,"GC")
     all.count <- letterFrequency(x,"ATGC")
     interval.gr$gc_bias <- as.vector(ifelse(all.count==0,NA,GC.count/all.count))
-    # exclude unavailable off-target regions
-    interval.gr <- interval.gr[which(!is.na(interval.gr$gc_bias) | 
-        interval.gr$on.target)]
+    # exclude unavailable regions
+    interval.gr <- interval.gr[which(!is.na(interval.gr$gc_bias))]
     if (is.null(interval.gr$Gene)) interval.gr$Gene <- "."
 
     if (!is.null(output.file)) {
@@ -101,13 +117,42 @@ off.target.padding=-500) {
     invisible(interval.gr)
 }
 
+
+# add mappability score to intervals
+.annotateMappability <- function(interval.gr, mappability, min.mappability) {    
+    interval.gr$mappability <- 1
+    if (!is.null(mappability)) {
+        ov <- findOverlaps(interval.gr, mappability)
+        mappScore <- aggregate(mcols(mappability)[subjectHits(ov),1], by=list(queryHits(ov)), mean)
+        interval.gr$mappability[mappScore[,1]] <- mappScore[,2]
+    } else {
+        flog.warn("No mappability scores provided.")
+        return(interval.gr)
+    }    
+    # remove intervals with low mappability
+    nBefore <- sum(interval.gr$on.target)
+    interval.gr <- interval.gr[
+        (interval.gr$on.target & interval.gr$mappability >= min.mappability[1] ) |
+        (!interval.gr$on.target & interval.gr$mappability >= min.mappability[2] ) ]
+    # remove chrY low mappability    
+    sex.chr <- .getSexChr(seqlevels(interval.gr))[2]
+    interval.gr <- interval.gr[!seqnames(interval.gr) %in% sex.chr |
+        interval.gr$mappability >= min.mappability[3] ]
+    nAfter <- sum(interval.gr$on.target)
+    if (nBefore > nAfter) {
+        flog.info("Removing %i targets with low mappability score (<%.2f).", 
+            nBefore-nAfter, min.mappability[1])
+    }
+    interval.gr
+}
+
 .writeGc <- function(interval.gr, output.file) {
     tmp <- data.frame(
         Target=as.character(interval.gr),
         gc_bias=interval.gr$gc_bias,
+        mappability=interval.gr$mappability,
         Gene=interval.gr$Gene,
         on_target=interval.gr$on.target
     )    
     write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE, sep="\t")
 }
-    

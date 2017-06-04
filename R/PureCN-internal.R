@@ -897,14 +897,6 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     if (sum(!ls %in% chr.hash[,1]) == 0) return(chr.hash)
     data.frame(chr=as.factor(ls), number=seq_along(ls), row.names=ls)
 }
-#.ffpeCleanLogRatio <- function(log.ratio, window=20) {
-#   dlr <- c(0, diff(log.ratio))
-#   start <- seq(1,length(dlr), by=window)
-#   end <- seq(window,length(dlr), by=window)
-#   sds <- sapply(seq_along(end), function(i) sd(dlr[start[i]:end[i]], na.rm=TRUE))
-##   ids <- which(sds > quantile(sds, na.rm=TRUE, p=1-0.001))
-#}
-
 .stopUserError <- function(...) {
     msg <- paste(c(...), collapse="")
     msg <- paste0(msg, "\n\nThis is most likely a user error due to",

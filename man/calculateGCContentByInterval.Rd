@@ -7,7 +7,8 @@
 calculateGCContentByInterval(interval.file, reference.file,
   output.file = NULL, off.target = FALSE, average.target.width = 400,
   min.off.target.width = 20000, average.off.target.width = 2e+05,
-  accessible = NULL, off.target.padding = -500)
+  off.target.padding = -500, mappability = NULL, min.mappability = c(0.5,
+  0.1, 0.7))
 }
 \arguments{
 \item{interval.file}{File specifying the intervals. Interval is expected in
@@ -30,10 +31,17 @@ size}
 
 \item{average.off.target.width}{Split off-target regions to that}
 
-\item{accessible}{Restrict off-target regions to these accessible regions,
-defined by a GRanges object.}
+\item{off.target.padding}{Pad off-target regions.}
 
-\item{off.target.padding}{Pad accessible region.}
+\item{mappability}{Annotate intervals with mappability score. Assumed on a scale
+from 0 to 1, with score being 1/(number alignments). Expected as \code{GRanges}
+object with first meta column being the score. Regions outside these ranges are
+ignored, assuming that \code{mappability} covers the whole accessible genome.}
+
+\item{min.mappability}{\code{double(3)} specifying the minimum mappability score
+for on-target, off-target, and chrY regions in that order. The chrY regions
+are only used for sex determination in \sQuote{PureCN} and are therefore 
+treated differently. Requires \code{mappability}.}
 }
 \value{
 Returns GC content by interval.

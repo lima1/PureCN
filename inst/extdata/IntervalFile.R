@@ -11,7 +11,7 @@ spec <- matrix(c(
 'infile',       'i', 1, "character",
 'outfile',      'o', 1, "character",
 'offtarget',    't', 0, "logical",
-'accessible',   'b', 1, "character",
+'mappability',  'b', 1, "character",
 'genome',       'g', 1, "character"
 ), byrow=TRUE, ncol=4)
 opt <- getopt(spec)
@@ -46,12 +46,12 @@ suppressPackageStartupMessages(library(rtracklayer))
 intervals <- try(import(in.file), silent=TRUE)
 if (class(intervals) == "try-error") intervals <- in.file
 
-accessible <- opt$accessible
+mappability <- opt$mappability
 
-if (!is.null(accessible)) {
-    accessible <- normalizePath(accessible, mustWork=TRUE)
-    flog.info("Loading %s...", accessible)
-    accessible <- import(accessible)
+if (!is.null(mappability)) {
+    mappability <- normalizePath(mappability, mustWork=TRUE)
+    flog.info("Loading %s...", mappability)
+    mappability <- import(mappability)
 }
     
 flog.info("Loading PureCN...")
@@ -65,7 +65,7 @@ if (is.null(opt$offtarget)) {
 
 outGC <- calculateGCContentByInterval(intervals, reference.file, 
     output.file = outfile, off.target=!is.null(opt$offtarget), 
-    accessible=accessible)
+    mappability=mappability)
 
 knownGenome <- list(
     hg18="TxDb.Hsapiens.UCSC.hg18.knownGene",
@@ -86,6 +86,7 @@ knownOrg <- list(
     tmp <- data.frame(
         Target=as.character(interval.gr),
         gc_bias=interval.gr$gc_bias,
+        mappability=interval.gr$mappability,
         Gene=interval.gr$Gene,
         on_target=interval.gr$on.target
     )    

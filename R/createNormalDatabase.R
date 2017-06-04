@@ -100,6 +100,7 @@ max.mean.coverage = NULL, ... ) {
 #' (>20) to estimate target log-ratio standard deviations. Should not overlap
 #' with files in \code{tumor.coverage.files}.
 #' @param target.weight.file Output filename.
+#' @param plot Diagnostics plot, useful to tune parameters.
 #' @return A \code{data.frame} with target weights.
 #' @author Markus Riester
 #' @examples
@@ -117,7 +118,7 @@ max.mean.coverage = NULL, ... ) {
 #' 
 #' @export createTargetWeights
 createTargetWeights <- function(tumor.coverage.files, normal.coverage.files,
-target.weight.file) {
+target.weight.file, plot=FALSE) {
     flog.info("Loading coverage data...")
     tumor.coverage <- lapply(tumor.coverage.files,  readCoverageFile)
     normal.coverage <- lapply(normal.coverage.files,  readCoverageFile)
@@ -138,12 +139,24 @@ target.weight.file) {
     idx <- is.na(zz) | lrs.cnt.na > ncol(lrs)/3
     zz[idx] <- min(zz, na.rm=TRUE)
     ret <- data.frame(Target=as.character(tumor.coverage[[1]]), Weights=zz)
-
+    
     write.table(ret, file=target.weight.file,row.names=FALSE, quote=FALSE, 
         sep="\t")
+    if (plot) .plotTargetWeights(lrs.sd, width(tumor.coverage[[1]]), 
+        tumor.coverage[[1]]$on.target)
     invisible(ret)
 }
 
+.plotTargetWeights <- function(lrs.sd, width, on.target) {
+    par(mfrow=c(1,2))
+    plot(width[on.target], lrs.sd[on.target], ylim=c(0,2),
+        xlab="Target Width", ylab="log2 ratio sd.", main="On-Target")
+    if (sum(!on.target)) {
+        plot(width[!on.target], lrs.sd[!on.target], col="red", ylim=c(0,2),
+            xlab="Target Width", ylab="log2 ratio sd.", main="Off-Target")
+    }
+}
+    
 .readNormals <- function(normal.coverage.files) {
     normals <- lapply(normal.coverage.files, readCoverageFile)
 

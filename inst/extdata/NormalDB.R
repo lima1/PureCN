@@ -109,9 +109,12 @@ if (length(coverageFiles) > 3) {
     suppressPackageStartupMessages(library(PureCN))
     target.weight.file <- .getFileName(outdir,"target_weights",".txt", assay, 
         method, genome)
+    outpng.file <- sub("txt$","png", target.weight.file)
     flog.info("Creating target weights.")
+    png(outpng.file, width=800, height=400)
     createTargetWeights(coverageFiles[1:2], coverageFiles[-(1:2)], 
-        target.weight.file)
+        target.weight.file, plot=TRUE)
+    dev.off()
 } else {
     flog.warn("Not enough coverage files for creating target_weights.txt")
 }
