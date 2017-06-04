@@ -76,8 +76,10 @@ off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
             interval.gr <- unlist(tmp)
             interval.gr$on.target <- TRUE
             nChanges <- sum(sapply(tmp, length)>1)
-            flog.info("Splitting %i large targets to an average width of %i.",
-                nChanges, average.target.width)
+            if (nChanges > 0) {
+                flog.info("Splitting %i large targets to an average width of %i.",
+                    nChanges, average.target.width)
+            }
         } 
         
         # find off-target regions

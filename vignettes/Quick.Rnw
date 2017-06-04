@@ -62,7 +62,8 @@ probes.
 The \Rcode{--mappability} argument should provide a \Biocpkg{rtracklayer}
 parsable file with a mappability score in the first meta data column. If provided,
 off-target regions will be restricted to regions specified in this file. 
-On-target regions with low mappability will be excluded.
+On-target regions with low mappability will be excluded. For a test run, you
+can skip this argument or simply download the file from the UCSC website.
 
 \end{itemize}
 
@@ -163,13 +164,13 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT \
 
 \subsubsection*{PureCN}
 
-Provided are again minimal examples for test runs. See the main vignette how to
-get optimal results in production pipelines.
+Now that the assay-specific files are created and all coverages calculated, we
+run PureCN.R to normalize, segment and determine purity and ploidy:
 
 \begin{verbatim}
 cd $OUT/$SAMPLEID
 
-# Without a matched normal    
+# Without a matched normal (minimal test run)
 $ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \ 
     --normaldb ../normalDB_hg19.rds \
     --sampleid $SAMPLEID \
@@ -177,7 +178,20 @@ $ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \
     --pool 5 \
     --genome hg19 --gcgene baits_hg19_gcgene.txt 
 
-# With a matched normal    
+# Production pipeline run
+$ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \ 
+    --normaldb ../normalDB_hg19.rds \
+    --normal_panel $NORMAL_PANEL \
+    --sampleid $SAMPLEID \
+    --vcf ${SAMPLEID}_mutect.vcf \
+    --statsfile ${SAMPLEID}_mutect_stats.txt \
+    --pool 5 \
+    --genome hg19 --gcgene baits_hg19_gcgene.txt 
+    --snpblacklist hg19_simpleRepeats.bed \
+    --targetweightfile ../target_weights_hg19.txt
+    --force --postoptimize
+
+# With a matched normal (test run)
 $ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \ 
     --normal ${SAMPLEID_NORMAL}_coverage_loess.txt \ 
     --sampleid $SAMPLEID \

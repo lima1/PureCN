@@ -424,22 +424,25 @@ pool of best normals (Section~\ref{bestnormal}).
 
 The \Rcode{normalDB} argument (Section~\ref{bestnormal}) provides a pool of
 normal samples and for example allows the segmentation function to skip targets
-with low coverage in the pool of normals.  If available, a VCF containing all
-variants from the normal samples should be provided via
-\Rcode{args.setMappingBiasVcf} to correct read mapping biases.  The files
-specified in \Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering SNVs more
-efficiently for artifacts as described in Sections~\ref{artifactfiltering} and
-\ref{artifactfiltering2}.  The \Rcode{snp.blacklist} is only necessary if
+with low coverage or common germline deletions in the pool of normals.  If
+available, a VCF containing all variants from the normal samples should be
+provided via \Rcode{args.setMappingBiasVcf} to correct read mapping biases.  The
+files specified in \Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering SNVs
+more efficiently for artifacts as described in Sections~\ref{artifactfiltering}
+and \ref{artifactfiltering2}.  The \Rcode{snp.blacklist} is only necessary if
 neither a matched normal nor a pool of normals is available. 
 
 The \Rcode{post.optimize} flag will increase the runtime by about a factor of
 2-5, but might return slightly more accurate purity estimates. For high quality
 whole-exome data, this is typically not necessary for copy number calling (but
-might be for variant classification, see Section~\ref{predictsomatic}).  The
-\Rcode{plot.cnv} argument allows the segmentation function to generate
+might be for variant classification, see Section~\ref{predictsomatic}). For
+smaller targeted panels, the runtime increase is typically marginal and
+\Rcode{post.optimize} should be always set to \Rcode{TRUE}.
+
+The \Rcode{plot.cnv} argument allows the segmentation function to generate
 additional plots if set to \Rcode{TRUE}.  Finally, \Rcode{verbose} outputs
-important and helpful information about all the steps performed and is
-therefore set to \Rcode{TRUE} by default.
+important and helpful information about all the steps performed and is therefore
+set to \Rcode{TRUE} by default.
 
 \section{Output}
 
@@ -793,6 +796,10 @@ homozygous in normal are automatically removed since they are uninformative.
 For technical reasons, the maximum purity \Biocpkg{PureCN} currently models is
 0.99. We recommend setting \Rcode{test.purity=seq(0.9,0.99,by=0.01)} in
 \Rfunction{runAbsoluteCN} for cell lines. 
+
+Please note that in order to detect homozygous deletions in 100\% pure samples,
+you will need to provide a \Rcode{normalDB} in \Rfunction{runAbsoluteCN} to
+filter low quality targets efficiently (Section~\ref{secrecommended}).
 
 \section{Maximizing the number of heterozygous SNPs}
 \label{secmaxsnps}
