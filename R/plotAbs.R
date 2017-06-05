@@ -686,7 +686,8 @@ ss) {
     if (!containsOfftarget) return(NULL)
     myylim <- quantile(subset(log.ratio,
         !is.infinite(log.ratio)), p=c(0.0001, 1-0.0001),na.rm=TRUE)
-    plot(log.ratio, col=ifelse(on.target, "black", "red"), ylim=myylim, ylab="log2 ratio")
+    plot(log.ratio, col=ifelse(on.target, "black", "red"), 
+        pch=".",cex=3, ylim=myylim, ylab="log2 ratio")
     legend("bottomleft", legend=c("On-Target", "Off-Target"), ncol=2, fill=c("black", "red"))
 }
     

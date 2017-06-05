@@ -83,7 +83,8 @@ Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
 The main VCF (\Rcode{--vcf}) is ideally created by \software{MuTect} 1.1.7.
 Support for \software{MuTect 2} and \software{FreeBayes} is available, but
 poorly tested and only very limited artifact filtering will be performed for
-these callers.  
+these callers. Since germline SNPs are needed to infer allele-specific copy
+numbers, the provided VCF needs to contain both somatic and germline variants.
 
 For a production pipeline run we provide a bit more information about the assay
 and genome:
