@@ -1,39 +1,42 @@
-library('getopt')
-library(futile.logger)
+suppressPackageStartupMessages(library(optparse))
+suppressPackageStartupMessages(library(futile.logger))
 
 ### Parsing command line ------------------------------------------------------
 
-spec <- matrix(c(
-'help' ,        'h', 0, "logical",
-'version',      'v', 0, "logical",
-'force' ,       'f', 0, "logical",
-'fasta',        'a', 1, "character",
-'infile',       'i', 1, "character",
-'outfile',      'o', 1, "character",
-'offtarget',    't', 0, "logical",
-'mappability',  'b', 1, "character",
-'genome',       'g', 1, "character"
-), byrow=TRUE, ncol=4)
-opt <- getopt(spec)
+option_list <- list(
+    make_option(c("-v", "--version"), action="store_true", default=FALSE, 
+        help="Print PureCN version"),
+    make_option(c("-f", "--force"), action="store_true", default=FALSE, 
+        help="Overwrite existing files"),
+    make_option(c("--fasta"), action="store", type="character", default=NULL,
+        help="Reference Fasta file"),
+    make_option(c("--infile"), action="store", type="character", default=NULL,
+        help="Infile specifying target (baits) intervals. Needs to be parsable by rtracklayer."),
+    make_option(c("--outfile"), action="store", type="character", default=NULL,
+        help="Outfile of annotated targets optimized for copy number calling."),
+    make_option(c("--offtarget"), action="store_true", 
+        default=formals(PureCN::calculateGCContentByInterval)$off.target, 
+        help="Include off-target regions [default %default]"),
+    make_option(c("--mappability"), action="store", type="character", 
+        help="File parsable by rtracklayer specifying mappability scores of genomic regions."),
+    make_option(c("--genome"), action="store", type="character", default=NULL,
+        help="Genome version. If one of hg18, hg19, hg38, mm9, mm10, will annotate intervals with gene symbols")
+)
 
-if ( !is.null(opt$help) ) {
-    cat(getopt(spec, usage=TRUE))
-    q(status=1)
-}
+opt <- parse_args(OptionParser(option_list=option_list))
 
-if (!is.null(opt$version)) {
+if (opt$version) {
     message(as.character(packageVersion("PureCN")))
     q(status=1)
 }    
 
-force <- !is.null(opt$force)
 outfile <- opt$outfile
 
 if (is.null(opt$infile)) stop("Need --infile.")
 if (is.null(opt$fasta)) stop("Need --fasta.")
 if (is.null(opt$outfile)) stop("Need --outfile.")
 
-if (!force && file.exists(outfile)) {
+if (!opt$force && file.exists(outfile)) {
     stop(outfile, " exists. Use --force to overwrite.")
 }    
 
@@ -58,13 +61,13 @@ flog.info("Loading PureCN...")
 suppressPackageStartupMessages(library(PureCN))
 flog.info("Processing %s...", in.file)
 
-if (is.null(opt$offtarget)) {
+if (!opt$offtarget) {
     flog.info("Will not add off-target regions. This is only recommended for%s",
      " Amplicon data. Add --offtarget to include them.")
 }
 
 outGC <- calculateGCContentByInterval(intervals, reference.file, 
-    output.file = outfile, off.target=!is.null(opt$offtarget), 
+    output.file = outfile, off.target=opt$offtarget, 
     mappability=mappability)
 
 knownGenome <- list(

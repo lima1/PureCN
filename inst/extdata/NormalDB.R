@@ -1,35 +1,31 @@
-library('getopt')
-library(futile.logger)
+suppressPackageStartupMessages(library(optparse))
+suppressPackageStartupMessages(library(futile.logger))
 
 ### Parsing command line ------------------------------------------------------
 
-spec <- matrix(c(
-'help' ,         'h', 0, "logical",
-'version',       'v', 0, "logical",
-'force' ,        'f', 0, "logical",
-'seed',          'S', 1, "integer", 
-'gcgene',        'c', 1, "character",
-'method',        'm', 1, "character",
-'coveragefiles', 'b', 1, "character",
-'assay',         'a',1, "character",
-'genome',        'g', 1, "character",
-'outdir' ,       'o', 1, "character"
-), byrow=TRUE, ncol=4)
-opt <- getopt(spec)
+option_list <- list(
+    make_option(c("-v", "--version"), action="store_true", default=FALSE, 
+        help="Print PureCN version"),
+    make_option(c("-f", "--force"), action="store_true", default=FALSE, 
+        help="Overwrite existing files"),
+    make_option(c("--maxmeancoverage"), action="store", type="integer", default=NULL,
+        help="Maximum coverage (downscale samples exceeding this cutoff) [default auto]"),
+    make_option(c("--coveragefiles"), action="store", type="character", default=NULL,
+        help="List of input coverage files (supported formats: PureCN, GATK and CNVkit)"),
+    make_option(c("--assay"), action="store", type="character", default="",
+        help="Optional assay name used in output names [default %default]"),
+    make_option(c("--genome"), action="store", type="character", default=NULL,
+        help="Genome version, used in output names [default %default]"),
+    make_option(c("--outdir"), action="store", type="character", default=NULL,
+        help="Output directory to which results should be written")
+)
 
-if ( !is.null(opt$help) ) {
-    cat(getopt(spec, usage=TRUE))
-    q(status=1)
-}
+opt <- parse_args(OptionParser(option_list=option_list))
 
-if (!is.null(opt$version)) {
+if (opt$version) {
     message(as.character(packageVersion("PureCN")))
     q(status=1)
 }    
-
-if (!is.null(opt$seed)) {
-    set.seed(opt$seed)
-}
 
 force <- !is.null(opt$force)
 
@@ -52,63 +48,29 @@ if (is.null(outdir)) {
     stop("need --outdir")
 }
 outdir <- normalizePath(outdir, mustWork=TRUE)
-method <- opt$method
 assay <- opt$assay
-if (is.null(assay)) assay <- ""
 genome <- opt$genome
 if (is.null(genome)) stop("Need --genome")
 
-
-.getFileName <- function(outdir, prefix, suffix, assay, method, genome) {
+.getFileName <- function(outdir, prefix, suffix, assay, genome) {
     if (nchar(assay)) assay <- paste0("_", assay)
-    if (nchar(method)) method <- paste0("_", tolower(method))
     if (nchar(genome)) genome <- paste0("_", genome)
-    file.path(outdir, paste0(prefix, assay, method, genome, suffix))
+    file.path(outdir, paste0(prefix, assay, genome, suffix))
 }
 
-.gcNormalize <- function(gatk.coverage, gc.gene.file, method, outdir, force) {
-    output.file <- file.path(outdir,  gsub(".txt$|_interval_summary",
-        paste0("_", tolower(method), ".txt"), basename(gatk.coverage)))
-    outpng.file <- sub("txt$","png", output.file)
-    if (file.exists(output.file) && !force) {
-        flog.info("%s exists. Skipping... (--force will overwrite)", output.file)
-    } else {
-        png(outpng.file, width=800)
-        correctCoverageBias(gatk.coverage, gc.gene.file,
-            output.file=output.file, method=method, plot.gc.bias=TRUE)
-        dev.off()
-    }
-    output.file 
-}
-     
 flog.info("Loading PureCN...")
 if (length(coverageFiles)) {
     suppressPackageStartupMessages(library(PureCN))
-    if (!is.null(method)) {
-        if (!method %in% c("LOESS", "POLYNOMIAL")) {
-            stop("Unknown GC-normalization method")
-        }
-        gc.gene.file <- opt$gcgene
-        if (is.null(gc.gene.file)) stop("Need --gcgene")
-        flog.info("Performing GC normalization...")
-        gc.gene.file <- normalizePath(gc.gene.file, mustWork=TRUE)
-        coverageFiles <- sapply(coverageFiles, .gcNormalize, gc.gene.file, 
-            method, outdir, force)
-    } else {
-        method <- ""
-        flog.info("--method not specified, assuming coverage files are %s",
-            "GC-normalized")
-    }        
-    flog.info("Creating normalDB.")
-    normalDB <- createNormalDatabase(coverageFiles)
+    flog.info("Creating normalDB. Assuming coverage files are GC-normalized.")
+    normalDB <- createNormalDatabase(coverageFiles, max.mean.coverage=opt$maxmeancoverage)
     saveRDS(normalDB, file=.getFileName(outdir,"normalDB",".rds", assay, 
-        method, genome))
+        genome))
 }
 
 if (length(coverageFiles) > 3) {
     suppressPackageStartupMessages(library(PureCN))
     target.weight.file <- .getFileName(outdir,"target_weights",".txt", assay, 
-        method, genome)
+        genome)
     outpng.file <- sub("txt$","png", target.weight.file)
     flog.info("Creating target weights.")
     png(outpng.file, width=800, height=400)
@@ -118,4 +80,3 @@ if (length(coverageFiles) > 3) {
 } else {
     flog.warn("Not enough coverage files for creating target_weights.txt")
 }
-

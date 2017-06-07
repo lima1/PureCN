@@ -1052,11 +1052,11 @@ Argument name   & Corresponding PureCN argument & PureCN function \\
 --help -h       & & \\
 --version -v    & & \\
 --force -f      & & \\
---fasta -a      & reference.file & \Rfunction{calculateGCContentByInterval} \\
---infile -i     & interval.file & \Rfunction{calculateGCContentByInterval} \\
---offtarget -t  & off.target    & \Rfunction{calculateGCContentByInterval} \\
---accessible -b & accessible   & \Rfunction{calculateGCContentByInterval} \\
---genome -g     &  & annotate intervals with gene symbols \\
+--fasta         & reference.file & \Rfunction{calculateGCContentByInterval} \\
+--infile        & interval.file & \Rfunction{calculateGCContentByInterval} \\
+--offtarget     & off.target    & \Rfunction{calculateGCContentByInterval} \\
+--mappability   & mappability   & \Rfunction{calculateGCContentByInterval} \\
+--genome        &  & annotate intervals with gene symbols \\
 --outfile -o   & & \\
 \bottomrule
 \end{tabular}
@@ -1074,7 +1074,7 @@ Rscript Coverage.R --outdir ~/tmp/ --bam ex1.bam \
      --gcgene ex1_gcgene.txt
 
 # From a GATK DepthOfCoverage file
-Rscript Coverage.R --outdir ~/tmp/ --gatkcoverage example_tumor.txt \ 
+Rscript Coverage.R --outdir ~/tmp/ --coverage example_tumor.txt \ 
     --gcgene  example_gc.gene.file.txt     
 \end{verbatim}
 
@@ -1084,16 +1084,16 @@ Rscript Coverage.R --outdir ~/tmp/ --gatkcoverage example_tumor.txt \
 \toprule
 Argument name       & Corresponding PureCN argument & PureCN function \\
 \midrule
---help -h           & & \\
---version -v        & & \\
---force -f          & & \\
---seed -S           & & \\
---outdir -o         & & \\
---bam -b            & bam.file & \Rfunction{calculateBamCoverageByInterval} \\
---bai -a            & index.file & \Rfunction{calculateBamCoverageByInterval} \\
---gatkcoverage -g   & coverage.file & \Rfunction{correctCoverageBias} \\
---gcgene -c         & gc.gene.file  & \Rfunction{correctCoverageBias} \\
---method -m         & method  & \Rfunction{correctCoverageBias} \\
+--help -h     & & \\
+--version -v  & & \\
+--force -f    & & \\
+--seed        & & \\
+--outdir      & & \\
+--bam         & bam.file & \Rfunction{calculateBamCoverageByInterval} \\
+--bai         & index.file & \Rfunction{calculateBamCoverageByInterval} \\
+--coverage    & coverage.file & \Rfunction{correctCoverageBias} \\
+--gcgene      & gc.gene.file  & \Rfunction{correctCoverageBias} \\
+--method      & method  & \Rfunction{correctCoverageBias} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1165,39 +1165,39 @@ Rscript PureCN.R --rds Sample1_purecn.rds
 \caption{PureCN command line script.}
 \begin{tabular}{lll}
 \toprule
-Argument name       & Corresponding PureCN argument & PureCN function \\
+Argument name      & Corresponding PureCN argument & PureCN function \\
 \midrule
---help -h           & & \\
---version -v        & & \\
---force -f          & & \\
---seed -S           & & \\
---outdir -o         &          &                            \\
---normal -n         & normal.coverage.file   & \Rfunction{runAbsoluteCN}  \\
---tumor -t          & tumor.coverage.file     & \Rfunction{runAbsoluteCN} \\
---vcf -b            & vcf.file          & \Rfunction{runAbsoluteCN}   \\
---rds -r            & file.rds          & \Rfunction{readCurationFile}   \\
---genome -g         & genome             & \Rfunction{runAbsoluteCN}  \\
---gcgene -c         & gc.gene.file      & \Rfunction{runAbsoluteCN}   \\
---segfile -l        & seg.file           & \Rfunction{runAbsoluteCN}  \\
---snpblacklist -s   & snp.blacklist & \Rfunction{filterVcfBasic}     \\
---normal\_panel -p   & normal.panel.vcf.file & \Rfunction{setMappingBiasVcf} \\
---statsfile -a      & stats.file & \Rfunction{filterVcfMuTect}        \\
---targetweightfile -e & target.weight.file & \Rfunction{segmentationCBS} \\
---normaldb -d       & normalDB (serialized with \Rfunction{saveRDS}) & 
+--help -h          & & \\
+--version -v       & & \\
+--force -f         & & \\
+--seed             & & \\
+--out -o           & &                            \\
+--normal           & normal.coverage.file   & \Rfunction{runAbsoluteCN}  \\
+--tumor            & tumor.coverage.file     & \Rfunction{runAbsoluteCN} \\
+--vcf              & vcf.file          & \Rfunction{runAbsoluteCN}   \\
+--rds              & file.rds          & \Rfunction{readCurationFile}   \\
+--genome           & genome             & \Rfunction{runAbsoluteCN}  \\
+--gcgene           & gc.gene.file      & \Rfunction{runAbsoluteCN}   \\
+--segfile          & seg.file           & \Rfunction{runAbsoluteCN}  \\
+--snpblacklist     & snp.blacklist & \Rfunction{filterVcfBasic}     \\
+--normal\_panel    & normal.panel.vcf.file & \Rfunction{setMappingBiasVcf} \\
+--statsfile        & stats.file & \Rfunction{filterVcfMuTect}        \\
+--targetweightfile & target.weight.file & \Rfunction{segmentationCBS} \\
+--normaldb         & normalDB (serialized with \Rfunction{saveRDS}) & 
     \Rfunction{findBestNormal}, \Rfunction{filterTargets} \\
---pool -m           & pool, num.normals & \Rfunction{findBestNormal} \\    
---minaf -j          & af.range & \Rfunction{filterVcfBasic} \\
---minpurity -k      & test.purity & \Rfunction{runAbsoluteCN} \\
---maxpurity -x      & test.purity & \Rfunction{runAbsoluteCN} \\
---minploidy -K      & min.ploidy & \Rfunction{runAbsoluteCN} \\
---maxploidy -X      & max.ploidy & \Rfunction{runAbsoluteCN} \\
---postoptimize -z   & post.optimize & \Rfunction{runAbsoluteCN} \\    
---modelhomozygous -y & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
---model -q          & model & \Rfunction{runAbsoluteCN} \\ 
---funsegmentation -w & fun.segmentation & \Rfunction{runAbsoluteCN} \\ 
---alpha -A          & alpha & \Rfunction{segmentationCBS} \\
---sampleid -i       & sampleid  & \Rfunction{runAbsoluteCN}  \\
---outvcf -u         & return.vcf & \Rfunction{predictSomatic} \\
+--pool             & pool, num.normals & \Rfunction{findBestNormal} \\    
+--minaf            & af.range & \Rfunction{filterVcfBasic} \\
+--minpurity        & test.purity & \Rfunction{runAbsoluteCN} \\
+--maxpurity        & test.purity & \Rfunction{runAbsoluteCN} \\
+--minploidy        & min.ploidy & \Rfunction{runAbsoluteCN} \\
+--maxploidy        & max.ploidy & \Rfunction{runAbsoluteCN} \\
+--postoptimize     & post.optimize & \Rfunction{runAbsoluteCN} \\    
+--modelhomozygous  & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
+--model            & model & \Rfunction{runAbsoluteCN} \\ 
+--funsegmentation  & fun.segmentation & \Rfunction{runAbsoluteCN} \\ 
+--alpha            & alpha & \Rfunction{segmentationCBS} \\
+--sampleid -i      & sampleid  & \Rfunction{runAbsoluteCN}  \\
+--outvcf           & return.vcf & \Rfunction{predictSomatic} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1229,10 +1229,10 @@ Argument name  & Corresponding PureCN argument & PureCN function \\
 --help -h     & & \\
 --version -v  & & \\
 --force -f    & & \\
---rds -r      & file.rds & \Rfunction{readCurationFile}   \\
---callable -a & callable & \Rfunction{callMutationBurden} \\
---exclude -b  & exclude  & \Rfunction{callMutationBurden} \\
---out -o      & & \\
+--rds         & file.rds & \Rfunction{readCurationFile}   \\
+--callable    & callable & \Rfunction{callMutationBurden} \\
+--exclude     & exclude  & \Rfunction{callMutationBurden} \\
+--out         & & \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1380,10 +1380,6 @@ Figure~\ref{figure/figureexample2-1}:
     \item The number of heterozygous SNPs is also important (>1000 per sample).  
     Copy number probes  enriched in SNPs are therefore very helpful 
     (see Section~\ref{secmaxsnps}).
-    \item While \Biocpkg{PureCN} supports to some degree uneven tiling of
-    targets, the more evenly distributed the better. Large gaps are problematic
-    and might require third-party segmentation tools that support off-target
-    reads (Section~\ref{customseg}). 
     \item Whole-genome data is not officially supported and specialized tools
     will likely provide better results.  Third-party segmentation tools
     designed for this data type would be again required.  

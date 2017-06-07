@@ -64,8 +64,25 @@ parsable file with a mappability score in the first meta data column. If provide
 off-target regions will be restricted to regions specified in this file. 
 On-target regions with low mappability will be excluded. For a test run, you
 can skip this argument or simply download the file from the UCSC website.
-
 \end{itemize}
+
+
+\subsection*{Create VCF files}
+
+\Biocpkg{PureCN} does not ship with a variant caller. Use a third-party tool to
+generate a VCF for each sample. A few recommendations:
+
+\begin{itemize}
+    \item Use \software{MuTect} 1.1.7 if possible
+    \item Support for \software{MuTect 2} and \software{FreeBayes} is
+    available, but currently poorly tested and only very limited artifact
+    filtering will be performed for these callers. 
+    \item Since germline SNPs are needed to infer allele-specific copy numbers,
+    the provided VCF needs to contain both somatic and germline variants.
+    \item Run the variant caller with a 50 base pair interval
+    padding to increase the number of heterozygous SNPs
+\end{itemize}
+
 
 \subsection*{Run PureCN with third-party segmentation}
 
@@ -79,12 +96,6 @@ Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
     --vcf ${SAMPLEID}_mutect.vcf \
     --genome hg19 --gcgene baits_hg19_gcgene.txt 
 \end{verbatim}
-
-The main VCF (\Rcode{--vcf}) is ideally created by \software{MuTect} 1.1.7.
-Support for \software{MuTect 2} and \software{FreeBayes} is available, but
-poorly tested and only very limited artifact filtering will be performed for
-these callers. Since germline SNPs are needed to infer allele-specific copy
-numbers, the provided VCF needs to contain both somatic and germline variants.
 
 For a production pipeline run we provide a bit more information about the assay
 and genome:

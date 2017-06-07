@@ -3,7 +3,8 @@ Changes in version 1.8.0
 
 - Support for off-target reads in copy number normalization and segmentation
 - Added mutation burden calculation
-- Code cleanups (switch to GRanges where possible)
+- Code cleanups (switch to GRanges where possible, switch to optparse in 
+  command line tools)
 - More robust mapping bias estimation
 - Added support for CNVkit coverage files (*.cnn, *.cnr)
 - IntervalFile.R can annotate targets with gene symbols
@@ -23,6 +24,9 @@ API CHANGES
     - Removed gc.data from filterTargets since gc_bias is now added to tumor 
       coverage
     - dropped purecn.output from correctCoverageBias (no two-pass anymore)
+    - Coverage.R argument --gatkcoverage renamed to --coverage
+    - Dropped GC-normalization functionality in NormalDB, since this is 
+      now conveniently done in Coverage.R
  
 PLANNED FEATURES FOR 1.8
 
