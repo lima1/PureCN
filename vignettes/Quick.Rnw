@@ -140,7 +140,7 @@ run PureCN.R to normalize, segment and determine purity and ploidy:
 cd $OUT/$SAMPLEID
 
 # Without a matched normal (minimal test run)
-$ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \ 
+$ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \ 
     --normaldb ../normalDB_hg19.rds \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
@@ -148,7 +148,7 @@ $ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \
     --genome hg19 --gcgene baits_hg19_gcgene.txt 
 
 # Production pipeline run
-$ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \ 
+$ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \ 
     --normaldb ../normalDB_hg19.rds \
     --normal_panel $NORMAL_PANEL \
     --sampleid $SAMPLEID \
@@ -161,7 +161,7 @@ $ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \
     --force --postoptimize
 
 # With a matched normal (test run)
-$ Rscript $PURECN/PureCN.R --outdir . --tumor ${SAMPLEID}_coverage_loess.txt \ 
+$ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \ 
     --normal ${SAMPLEID_NORMAL}_coverage_loess.txt \ 
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
@@ -212,7 +212,7 @@ If you already have a segmentation from third-party tools (for example CNVkit,
 EXCAVATOR2). For a test run:
 
 \begin{verbatim}
-Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
+Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
     --segfile $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
     --vcf ${SAMPLEID}_mutect.vcf \
@@ -223,7 +223,7 @@ For a production pipeline run we provide a bit more information about the assay
 and genome:
 
 \begin{verbatim}
-Rscript $PURECN/PureCN.R --outdir $OUT/$SAMPLEID  \
+Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
     --segfile $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.seg \
     --normal_panel $NORMAL_PANEL \
