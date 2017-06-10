@@ -27,6 +27,10 @@ API CHANGES
     - Coverage.R argument --gatkcoverage renamed to --coverage
     - Dropped GC-normalization functionality in NormalDB, since this is 
       now conveniently done in Coverage.R
+    - Renamed PureCN.R --outdir argument to --out. Can now specify a file
+      prefix as in GATK. Filenames are thus not forced to sample id anymore.  
+      If --out is a directory, it will behave like before and will use
+      out/sampleid_suffix as filename.
  
 PLANNED FEATURES FOR 1.8
 

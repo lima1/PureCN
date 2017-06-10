@@ -533,10 +533,12 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
 .toLines <- function(
 ### "segments" already segmented log-ratios into a list for plotting
 ss) {
+    #no lines to draw
+    if (length(ss)<2) return(matrix(1))
     # avoid the corner case when last SNV is in different segment
     if (length(ss)>2) ss[length(ss)] <- ss[length(ss)-1]
 
-    #get brakepoints
+    #get breakpoints
     bp <- sapply(2:(length(ss)),function(i) ss[i] != ss[i-1])
     bp <- c(TRUE, bp)
     xy.start <- cbind(x=which(bp), y=ss[which(bp)])

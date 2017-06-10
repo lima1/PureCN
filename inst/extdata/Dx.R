@@ -4,10 +4,6 @@ suppressPackageStartupMessages(library(futile.logger))
 ### Parsing command line ------------------------------------------------------
 
 option_list <- list(
-    make_option(c("-v", "--version"), action="store_true", default=FALSE, 
-        help="Print PureCN version"),
-    make_option(c("-f", "--force"), action="store_true", default=FALSE, 
-        help="Overwrite existing files"),
     make_option(c("--rds"), action="store", type="character", default=NULL,
         help="PureCN output RDS file"),
     make_option(c("--callable"), action="store", type="character", default=NULL,
@@ -16,7 +12,11 @@ option_list <- list(
         help=paste("File parsable by rtracklayer specifying regions to exclude",
          "from mutation burden calculation, e.g. intronic regions")),
     make_option(c("--out"), action="store", type="character", default=NULL,
-        help="File name prefix to which results should be written")
+        help="File name prefix to which results should be written"),
+    make_option(c("-v", "--version"), action="store_true", default=FALSE, 
+        help="Print PureCN version"),
+    make_option(c("-f", "--force"), action="store_true", default=FALSE, 
+        help="Overwrite existing files")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))

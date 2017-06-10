@@ -4,10 +4,6 @@ suppressPackageStartupMessages(library(futile.logger))
 ### Parsing command line ------------------------------------------------------
 
 option_list <- list(
-    make_option(c("-v", "--version"), action="store_true", default=FALSE, 
-        help="Print PureCN version"),
-    make_option(c("-f", "--force"), action="store_true", default=FALSE, 
-        help="Overwrite existing files"),
     make_option(c("--maxmeancoverage"), action="store", type="integer", default=NULL,
         help="Maximum coverage (downscale samples exceeding this cutoff) [default auto]"),
     make_option(c("--coveragefiles"), action="store", type="character", default=NULL,
@@ -17,7 +13,11 @@ option_list <- list(
     make_option(c("--genome"), action="store", type="character", default=NULL,
         help="Genome version, used in output names [default %default]"),
     make_option(c("--outdir"), action="store", type="character", default=NULL,
-        help="Output directory to which results should be written")
+        help="Output directory to which results should be written"),
+    make_option(c("-v", "--version"), action="store_true", default=FALSE, 
+        help="Print PureCN version"),
+    make_option(c("-f", "--force"), action="store_true", default=FALSE, 
+        help="Overwrite existing files")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))

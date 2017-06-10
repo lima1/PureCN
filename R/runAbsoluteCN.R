@@ -961,7 +961,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         candidates = candidate.solutions, 
         results = results, 
         input = list(tumor = tumor.coverage.file, normal = normal.coverage.file, 
-            log.ratio = GRanges(normal[, 1], log.ratio = log.ratio), 
+            log.ratio = GRanges(normal[, 1], on.target=normal$on.target, log.ratio = log.ratio), 
             log.ratio.sdev = sd.seg, vcf = vcf, sampleid = sampleid, 
             sex = sex, sex.vcf = sex.vcf, chr.hash = chr.hash, centromeres = centromeres,
             args=list(filterVcf = args.filterVcf, filterTargets = args.filterTargets)

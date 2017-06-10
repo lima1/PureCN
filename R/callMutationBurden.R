@@ -78,6 +78,9 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
         }
 
         targetGRanges <- res$input$log.ratio
+        # support for older RDS files
+        if (is.null(targetGRanges$on.target)) targetGRanges$on.target <- TRUE
+        targetGRanges <- targetGRanges[targetGRanges$on.target]
 
         intervalPadding <- res$input$args$filterVcf$interval.padding
         if (is.null(intervalPadding)) intervalPadding <- 50

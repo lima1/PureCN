@@ -5,14 +5,6 @@ suppressPackageStartupMessages(library(BiocParallel))
 ### Parsing command line ------------------------------------------------------
 
 option_list <- list(
-    make_option(c("-v", "--version"), action="store_true", default=FALSE, 
-        help="Print PureCN version"),
-    make_option(c("-f", "--force"), action="store_true", default=FALSE, 
-        help="Overwrite existing files"),
-    make_option(c("--seed"), action="store", type="integer", default=NULL,
-        help="Seed for random number generator [default %default]"),
-    make_option(c("--cpu"), action="store", type="integer", default=1,
-        help="Number of CPUs to use [default %default]"),
     make_option(c("--bam"), action="store", type="character", default=NULL,
         help="Input BAM file"),
     make_option(c("--coverage"), action="store", type="character", default=NULL,
@@ -23,7 +15,15 @@ option_list <- list(
         default=formals(PureCN::correctCoverageBias)$method[[2]], 
         help="Include off-target regions [default %default]"),
     make_option(c("--outdir"), action="store", type="character", default=NULL,
-        help="Output directory to which results should be written")
+        help="Output directory to which results should be written"),
+    make_option(c("--cpu"), action="store", type="integer", default=1,
+        help="Number of CPUs to use [default %default]"),
+    make_option(c("--seed"), action="store", type="integer", default=NULL,
+        help="Seed for random number generator [default %default]"),
+    make_option(c("-v", "--version"), action="store_true", default=FALSE, 
+        help="Print PureCN version"),
+    make_option(c("-f", "--force"), action="store_true", default=FALSE, 
+        help="Overwrite existing files")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
