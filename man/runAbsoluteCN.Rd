@@ -228,8 +228,9 @@ GCContentByInterval} tool or with the
 \code{\link{calculateGCContentByInterval}} function.}
 
 \item{max.dropout}{Measures GC bias as ratio of coverage in AT-rich (GC <
-0.5) versus GC-rich regions (GC >= 0.5). High drop-out might indicate that
-data was not GC-normalized or that the sample quality might be insufficient.
+0.5) versus GC-rich on-target regions (GC >= 0.5). High drop-out might 
+indicate that  data was not GC-normalized or that the sample quality might 
+be insufficient.
 Requires \code{gc.gene.file}.}
 
 \item{max.logr.sdev}{Flag noisy samples with segment log-ratio standard
