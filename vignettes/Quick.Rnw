@@ -62,9 +62,9 @@ GC-content for almost the entire genome, so this command will take a while to
 finish.
 
 The \Rcode{--export} argument is optional. If provided, this script will store
-the modified intervals as BED file for example (again every rtracklayer format
-is supported). This is useful when the coverages are calculated with
-third-party tools like GATK.
+the modified intervals as BED file for example (again every
+\Biocpkg{rtracklayer} format is supported). This is useful when the coverages
+are calculated with third-party tools like GATK.
 
 The \Rcode{--mappability} argument should provide a \Biocpkg{rtracklayer}
 parsable file with a mappability score in the first meta data column. If provided,

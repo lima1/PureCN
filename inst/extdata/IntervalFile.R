@@ -4,10 +4,6 @@ suppressPackageStartupMessages(library(futile.logger))
 ### Parsing command line ------------------------------------------------------
 
 option_list <- list(
-    make_option(c("-v", "--version"), action="store_true", default=FALSE, 
-        help="Print PureCN version"),
-    make_option(c("-f", "--force"), action="store_true", default=FALSE, 
-        help="Overwrite existing files"),
     make_option(c("--fasta"), action="store", type="character", default=NULL,
         help="Reference Fasta file"),
     make_option(c("--infile"), action="store", type="character", default=NULL,
@@ -28,7 +24,11 @@ option_list <- list(
     make_option(c("--mappability"), action="store", type="character", 
         help="File parsable by rtracklayer specifying mappability scores of genomic regions."),
     make_option(c("--genome"), action="store", type="character", default=NULL,
-        help="Genome version. If one of hg18, hg19, hg38, mm9, mm10, will annotate intervals with gene symbols")
+        help="Genome version. If one of hg18, hg19, hg38, mm9, mm10, will annotate intervals with gene symbols"),
+    make_option(c("-v", "--version"), action="store_true", default=FALSE, 
+        help="Print PureCN version"),
+    make_option(c("-f", "--force"), action="store_true", default=FALSE, 
+        help="Overwrite existing files")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
