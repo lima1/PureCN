@@ -14,9 +14,17 @@ option_list <- list(
         help="Infile specifying target (baits) intervals. Needs to be parsable by rtracklayer."),
     make_option(c("--outfile"), action="store", type="character", default=NULL,
         help="Outfile of annotated targets optimized for copy number calling."),
+    make_option(c("--export"), action="store", type="character", default=NULL,
+        help="Export optimized intervals using rtracklayer. The file extension specifies the format."),
     make_option(c("--offtarget"), action="store_true", 
         default=formals(PureCN::calculateGCContentByInterval)$off.target, 
         help="Include off-target regions [default %default]"),
+    make_option(c("--targetwidth"), action="store", type="integer",
+        default=formals(PureCN::calculateGCContentByInterval)$average.target.width, 
+        help="Split large targets to approximately that size [default %default]"),
+    make_option(c("--offtargetwidth"), action="store", type="integer",
+        default=formals(PureCN::calculateGCContentByInterval)$average.off.target.width, 
+        help="Bin off-target regions to approximately that size [default %default]"),
     make_option(c("--mappability"), action="store", type="character", 
         help="File parsable by rtracklayer specifying mappability scores of genomic regions."),
     make_option(c("--genome"), action="store", type="character", default=NULL,
@@ -68,7 +76,8 @@ if (!opt$offtarget) {
 
 outGC <- calculateGCContentByInterval(intervals, reference.file, 
     output.file = outfile, off.target=opt$offtarget, 
-    mappability=mappability)
+    mappability=mappability, average.off.target.width=opt$offtargetwidth,
+    average.target.width=opt$targetwidth)
 
 knownGenome <- list(
     hg18="TxDb.Hsapiens.UCSC.hg18.knownGene",
@@ -140,20 +149,20 @@ if (!is.null(opt$genome) ) {
     if (is.null(knownGenome[[opt$genome]])) {
         flog.warn("%s genome not known. %s", genome, 
         "Will not annotate targets with gene symbols.")
-        q(status=1)
-    }    
-    if (!require(knownGenome[[opt$genome]], character.only=TRUE)) {
+    } else if (!require(knownGenome[[opt$genome]], character.only=TRUE)) {
         flog.warn("Install %s to get gene symbol annotation.", 
             knownGenome[[opt$genome]])
-        q(status=1)
-    }
-    if (!require(knownOrg[[opt$genome]], character.only=TRUE)) {
+    } else if (!require(knownOrg[[opt$genome]], character.only=TRUE)) {
         flog.warn("Install %s to get gene symbol annotation.", 
             knownOrg[[opt$genome]])
-        q(status=1)
+    } else {
+        .annotateIntervals(outGC, get(knownGenome[[opt$genome]]),
+            get(knownOrg[[opt$genome]]), outfile)
     }
-    .annotateIntervals(outGC, get(knownGenome[[opt$genome]]),
-        get(knownOrg[[opt$genome]]), outfile)
 } else {
     flog.warn("Specify --genome to get gene symbol annotation.")
+}    
+
+if (!is.null(opt$export)) {
+    export(outGC, opt$export)
 }    

@@ -44,7 +44,7 @@ are only used for sex determination in \sQuote{PureCN} and are therefore
 treated differently. Requires \code{mappability}.}
 }
 \value{
-Returns GC content by interval.
+Returns GC content by interval as \code{GRanges} object.
 }
 \description{
 Uses \code{scanFa} from the Rsamtools package to retrieve GC content of

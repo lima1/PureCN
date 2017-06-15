@@ -1055,9 +1055,12 @@ Argument name   & Corresponding PureCN argument & PureCN function \\
 --fasta         & reference.file & \Rfunction{calculateGCContentByInterval} \\
 --infile        & interval.file & \Rfunction{calculateGCContentByInterval} \\
 --offtarget     & off.target    & \Rfunction{calculateGCContentByInterval} \\
+--targetwidth   & average.target.width & \Rfunction{calculateGCContentByInterval} \\
+--offtargetwidth   & average.off.target.width & \Rfunction{calculateGCContentByInterval} \\
 --mappability   & mappability   & \Rfunction{calculateGCContentByInterval} \\
 --genome        &  & annotate intervals with gene symbols \\
---outfile -o   & & \\
+--outfile       & & \\
+--export        &  & Use \Rfunction{rtracklayer::export} to export the output  \\
 \bottomrule
 \end{tabular}
 \end{table*}

@@ -372,4 +372,12 @@ test_runAbsoluteCN <- function() {
              genome="hg19", normalDB=normalDB, gc.gene.file=tmpFile, 
              max.candidate.solutions=1)
 
+    # get warning for different on/off-target annotation
+    tumor <- readCoverageFile(tumor.coverage.file)
+    tumor[1]$on.target <- FALSE
+    x <- runAbsoluteCN(normal.coverage.file, tumor, genome="hg19", 
+        max.ploidy = 3, test.purity = seq(0.3, 0.7, by = 0.05),
+        max.candidate.solutions=1,
+        gc.gene.file=gc.gene.file)
+
 }    

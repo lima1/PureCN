@@ -27,7 +27,7 @@
 #' for on-target, off-target, and chrY regions in that order. The chrY regions
 #' are only used for sex determination in \sQuote{PureCN} and are therefore 
 #' treated differently. Requires \code{mappability}.
-#' @return Returns GC content by interval.
+#' @return Returns GC content by interval as \code{GRanges} object.
 #' @author Markus Riester
 #' @references Talevich et al. (2016). CNVkit: Genome-Wide Copy Number 
 #' Detection and Visualization from Targeted DNA Sequencing. PLoS Comput Biol.
@@ -93,6 +93,9 @@ off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
             }    
             offRegions <- offRegions[width(offRegions)>off.target.padding*-2]
             offRegions <- .padGranges(offRegions, off.target.padding)
+
+            flog.info("Tiling off-target regions to an average width of %i.",
+                average.off.target.width)
                 
             offRegions <- unlist(tile(offRegions, width=average.off.target.width))
             offRegions$on.target <- FALSE

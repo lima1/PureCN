@@ -138,8 +138,12 @@ readCoverageGatk <- function(file) {
         if (verbose) flog.info("No Gene column in gc.gene.file. You won't get gene-level calls.")
         inputGC$Gene <- "."
     }
+    if (is.null(inputGC$on_target)) {
+        if (verbose) flog.info("No on_target column in gc.gene.file. Recreate this file with IntervalFile.R.")
+        inputGC$on_target <- TRUE
+    }
     
-    targetGC <- GRanges(inputGC[,1], gc_bias=inputGC$gc_bias, Gene=inputGC$Gene)
+    targetGC <- GRanges(inputGC[,1], ranges=NULL, strand=NULL, inputGC[,-1])
 
     ov <- findOverlaps(tumor, targetGC) 
     if (!identical(as.character(tumor), as.character(targetGC))) {
@@ -153,6 +157,12 @@ readCoverageGatk <- function(file) {
         }    
     }
 
+    if(!is.null(tumor$on.target)) {
+        if (!identical(tumor[queryHits(ov)]$on.target, targetGC[subjectHits(ov)]$on_target)) {
+            flog.warn("Intervals in coverage and gc.gene.file have conflicting on/off-target annotation.")
+            tumor[queryHits(ov)]$on.target <- targetGC[subjectHits(ov)]$on_target
+        }
+    } 
     tumor[queryHits(ov)]$gc_bias <- targetGC[subjectHits(ov)]$gc_bias
     tumor[queryHits(ov)]$Gene <- targetGC[subjectHits(ov)]$Gene
     tumor <- .checkSymbolsChromosome(tumor)

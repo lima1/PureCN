@@ -48,6 +48,7 @@ Usage: /path/to/PureCN/inst/extdata/PureCN.R [-[-help|h]] ...
 $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
     --fasta hg19.fa --outfile baits_hg19_gcgene.txt \
     --offtarget --genome hg19 \
+    --export baits_optimized_hg19.bed \
     --mappability wgEncodeCrgMapabilityAlign100mer.bigWig
 \end{verbatim}
 
@@ -56,8 +57,14 @@ Internally, this script uses \Biocpkg{rtracklayer} to parse the
 See the \Biocpkg{rtracklayer} documentation for problems loading the file.
 
 The \Rcode{--offtarget} flag will include off-target reads. Including them is
-recommended except for Amplicon data or for assays with dense (<200kb) tiling
-probes.
+recommended except for Amplicon data. If provided, this script will calculate
+GC-content for almost the entire genome, so this command will take a while to
+finish.
+
+The \Rcode{--export} argument is optional. If provided, this script will store
+the modified intervals as BED file for example (again every rtracklayer format
+is supported). This is useful when the coverages are calculated with
+third-party tools like GATK.
 
 The \Rcode{--mappability} argument should provide a \Biocpkg{rtracklayer}
 parsable file with a mappability score in the first meta data column. If provided,
