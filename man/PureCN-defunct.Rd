@@ -14,5 +14,6 @@
     \item{createExonWeightFile: \code{\link{createTargetWeights}}}
     \item{createSNPBlacklist: \code{\link{setMappingBiasVcf}}}
     \item{getDiploid: no replacement}
+    \item{readCoverageGatk: \code{\link{readCoverageFile}}}
   }
 }

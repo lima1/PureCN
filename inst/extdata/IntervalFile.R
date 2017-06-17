@@ -24,7 +24,7 @@ option_list <- list(
     make_option(c("--mappability"), action="store", type="character", 
         help="File parsable by rtracklayer specifying mappability scores of genomic regions."),
     make_option(c("--genome"), action="store", type="character", default=NULL,
-        help="Genome version. If one of hg18, hg19, hg38, mm9, mm10, will annotate intervals with gene symbols"),
+        help="Genome version. If one of hg18, hg19, hg38, mm9, mm10, rn4, rn5, rn6 will annotate intervals with gene symbols"),
     make_option(c("-v", "--version"), action="store_true", default=FALSE, 
         help="Print PureCN version"),
     make_option(c("-f", "--force"), action="store_true", default=FALSE, 
@@ -84,14 +84,20 @@ knownGenome <- list(
     hg19="TxDb.Hsapiens.UCSC.hg19.knownGene",
     hg38="TxDb.Hsapiens.UCSC.hg38.knownGene",
     mm9="TxDb.Mmusculus.UCSC.mm9.knownGene",
-    mm10="TxDb.Mmusculus.UCSC.mm10.knownGene"
+    mm10="TxDb.Mmusculus.UCSC.mm10.knownGene",
+    rn4="TxDb.Rnorvegicus.UCSC.rn4.ensGene",
+    rn5="TxDb.Rnorvegicus.UCSC.rn5.ensGene",
+    rn6="TxDb.Rnorvegicus.UCSC.rn6.ensGene"
 )
 knownOrg <- list(
     hg18="org.Hs.eg.db", 
     hg19="org.Hs.eg.db", 
     hg38="org.Hs.eg.db", 
     mm9="org.Mm.eg.db", 
-    mm10="org.Mm.eg.db"
+    mm10="org.Mm.eg.db",
+    rn4="org.Rn.eg.db",
+    rn5="org.Rn.eg.db",
+    rn6="org.Rn.eg.db"
 )
 
 .writeGc <- function(interval.gr, output.file) {
@@ -105,46 +111,6 @@ knownOrg <- list(
     write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE, sep="\t")
 }
 
-.annotateIntervals <- function(outGC, txdb, org, output.file = NULL) {
-    idx <- outGC$on.target
-    id <- transcriptsByOverlaps(txdb, ranges=outGC[idx], columns = "GENEID")
-    id$SYMBOL <-suppressWarnings(select(org, sapply(id$GENEID, function(x)x[1]), "SYMBOL")[,2])
-    idExons <- exonsByOverlaps(txdb, ranges=outGC[idx], columns = "GENEID")
-    idExons$SYMBOL <-suppressWarnings(select(org, sapply(idExons$GENEID, function(x)x[1]), "SYMBOL")[,2])
-	ov <- findOverlaps(outGC[idx], id)
-	ovExons <- findOverlaps(outGC[idx], idExons)
-    
-    # for targets with multiple gene hits, use the one with most overlapping
-    # targets
-	d.f <- data.frame(i=queryHits(ov), SYMBOL=as.character(id$SYMBOL[subjectHits(ov)]))
-	d.f <- d.f[!duplicated(d.f),]
-
-    # remove non-coding transcripts and ORFs
-    d.f <- d.f[!grepl("-AS\\d$", d.f$SYMBOL),]
-    d.f <- d.f[!grepl("^LOC\\d", d.f$SYMBOL),]
-    d.f <- d.f[!grepl("\\dorf\\d", d.f$SYMBOL),]
-    d.f <- d.f[!grepl("^FLJ\\d+$", d.f$SYMBOL),]
-
-    d.f$COUNT <- table(d.f$SYMBOL)[d.f$SYMBOL]
-
-    # in case multiple symbols have the same number of targets, prioritize the ones overlapping exons
-    d.fExons <- data.frame(i = queryHits(ovExons), SYMBOL = as.character(idExons$SYMBOL[subjectHits(ovExons)]))
-    d.f$OverlapsExon <- ifelse(paste(d.f[,1], d.f[,2]) %in% paste(d.fExons[,1], d.fExons[,2]), 1, 2)
-    
-    # reorder and pick the best transcript
-	d.f <- d.f[order(d.f$i, d.f$COUNT, d.f$OverlapsExon),]
-    d.f$FLAG <- duplicated(d.f$i, fromLast=TRUE)
-	d.f <- d.f[!duplicated(d.f$i),]
-
-    # Exclude targets for which we have multiple hits, but only one interval
-    d.f <- d.f[!d.f$FLAG | d.f$COUNT>2,]
-    outGC[idx]$Gene[d.f$i] <- as.character(d.f$SYMBOL)
-    outGC$Gene[is.na(outGC$Gene)] <- "."
-
-    flog.warn("Attempted adding gene symbols to intervals. Heuristics have been %s",
-        "used to pick symbols for overlapping genes.")
-    .writeGc(outGC, output.file)
-}
 if (!is.null(opt$genome) ) {
     if (is.null(knownGenome[[opt$genome]])) {
         flog.warn("%s genome not known. %s", genome, 
@@ -156,8 +122,9 @@ if (!is.null(opt$genome) ) {
         flog.warn("Install %s to get gene symbol annotation.", 
             knownOrg[[opt$genome]])
     } else {
-        .annotateIntervals(outGC, get(knownGenome[[opt$genome]]),
-            get(knownOrg[[opt$genome]]), outfile)
+        outGC <- annotateTargets(outGC, get(knownGenome[[opt$genome]]),
+            get(knownOrg[[opt$genome]]))
+        .writeGc(outGC, outfile)
     }
 } else {
     flog.warn("Specify --genome to get gene symbol annotation.")

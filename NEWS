@@ -15,8 +15,9 @@ API CHANGES
 
 - Due to novel optimizations of provided bait intervals, we recommend 
   to regenerate the normal databases.
-- New function: callMutationBurden
-- Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults
+- New functions: annotateTargets, callMutationBurden
+- Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults,
+    readCoverageGatk
 - Changed defaults: 
     - min.normals 2 (from 4) in setMappingBiasVcf
     - normalDB.min.coverage 0.25 (from 0.2) in filterTargets

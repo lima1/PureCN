@@ -4,18 +4,11 @@
 \alias{readCoverageGatk}
 \title{Read GATK coverage files}
 \usage{
-readCoverageGatk(file)
-}
-\arguments{
-\item{file}{Exon coverage file as produced by GATK.}
-}
-\value{
-A \code{data.frame} with the parsed coverage information.
+readCoverageGatk()
 }
 \description{
-Read coverage file produced by The Genome Analysis Toolkit or by
-\code{\link{calculateBamCoverageByInterval}}. This function
-is deprecated. Please use \code{\link{readCoverageFile}} instead.
+This function is deprecated. Please use 
+\code{\link{readCoverageFile}} instead.
 }
 \seealso{
 \code{\link{calculateBamCoverageByInterval}}

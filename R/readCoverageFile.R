@@ -39,21 +39,16 @@ readCoverageFile <- function(file, format, zero=NULL) {
 
 #' Read GATK coverage files
 #' 
-#' Read coverage file produced by The Genome Analysis Toolkit or by
-#' \code{\link{calculateBamCoverageByInterval}}. This function
-#' is deprecated. Please use \code{\link{readCoverageFile}} instead.
+#' This function is deprecated. Please use 
+#' \code{\link{readCoverageFile}} instead.
 #' 
-#' 
-#' @param file Exon coverage file as produced by GATK.
-#' @return A \code{data.frame} with the parsed coverage information.
 #' @author Markus Riester
 #' @seealso \code{\link{calculateBamCoverageByInterval}}
 #' \code{\link{readCoverageFile}}
 #' 
 #' @export readCoverageGatk
-readCoverageGatk <- function(file) {
-    .Deprecated("readCoverageFile")
-    readCoverageFile(file, format="GATK")
+readCoverageGatk <- function() {
+    .Defunct("readCoverageFile")
 }
 
 .readCoverageGatk <- function(file, zero) {
