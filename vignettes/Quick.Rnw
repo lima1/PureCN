@@ -195,7 +195,7 @@ A few important recommendations:
         example different insert sizes, coverages, library preparation
         protocols, etc.), this value is set to an appropriate group size between
         2 and 10. Consider generating different databases when differences are
-        significant, e.g. for samples with different read sizes or insert size
+        significant, e.g. for samples with different read lengths or insert size
         distributions.
 
     \item The normal panel VCF file is useful for mapping bias correction and
