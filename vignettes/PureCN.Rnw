@@ -152,7 +152,7 @@ calculateGCContentByInterval(intervals, reference.file,
 
 The command line script described in Section~\ref{cmdinterval} provides
 convenient access to this function and also attempts to annotate the intervals
-with symbols using the \Rfunction{annotateTargets} function.
+with gene symbols using the \Rfunction{annotateTargets} function.
 
 \subsection{Coverage data}
 \label{purecncoverage}
@@ -353,7 +353,7 @@ variants, while removing potential artifacts.  Without the stats file,
 Instead of using a pool of normals to find SNPs with extremely biased allelic
 fractions, we can also use a BED file to blacklist regions of low mappability.
 For example the simple repeats track from the UCSC.  This is recommended when
-neither matching normals nor a pool of normal VCF
+neither matching normals nor a large pool of normal VCF
 (Section~\ref{artifactfiltering}) is available. 
 
 <<ucsc_segmental>>=
@@ -1048,7 +1048,7 @@ Argument name   & Corresponding PureCN argument & PureCN function \\
 --mappability   & mappability   & \Rfunction{calculateGCContentByInterval} \\
 --genome        &  & annotate intervals with gene symbols \\
 --outfile       & & \\
---export        &  & Use \Rfunction{rtracklayer::export} to export the output  \\
+--export        &  & \Rfunction{rtracklayer::export}  \\
 \bottomrule
 \end{tabular}
 \end{table*}
