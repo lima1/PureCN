@@ -331,7 +331,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 \end{table*}
 
 \begin{table*}
-\caption{PureCN command line script.}
+\caption{PureCN}
 \begin{tabular}{lll}
 \toprule
 Argument name      & Corresponding PureCN argument & PureCN function \\
