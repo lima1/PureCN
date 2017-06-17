@@ -7,6 +7,8 @@ suppressPackageStartupMessages(library(BiocParallel))
 option_list <- list(
     make_option(c("--bam"), action="store", type="character", default=NULL,
         help="Input BAM file"),
+    make_option(c("--bai"), action="store", type="character", default=NULL,
+        help="BAM index file. Only necessary for non-standard file naming."),
     make_option(c("--coverage"), action="store", type="character", default=NULL,
         help="Input coverage file (supported file formats are GATK and CNVkit)"),
     make_option(c("--gcgene"), action="store", type="character", default=NULL,

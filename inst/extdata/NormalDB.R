@@ -4,10 +4,10 @@ suppressPackageStartupMessages(library(futile.logger))
 ### Parsing command line ------------------------------------------------------
 
 option_list <- list(
-    make_option(c("--maxmeancoverage"), action="store", type="integer", default=NULL,
-        help="Maximum coverage (downscale samples exceeding this cutoff) [default auto]"),
     make_option(c("--coveragefiles"), action="store", type="character", default=NULL,
         help="List of input coverage files (supported formats: PureCN, GATK and CNVkit)"),
+    make_option(c("--maxmeancoverage"), action="store", type="integer", default=NULL,
+        help="Maximum coverage (downscale samples exceeding this cutoff) [default auto]"),
     make_option(c("--assay"), action="store", type="character", default="",
         help="Optional assay name used in output names [default %default]"),
     make_option(c("--genome"), action="store", type="character", default=NULL,
