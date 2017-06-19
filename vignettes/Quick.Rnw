@@ -104,12 +104,12 @@ normalization and segmentation.
 For each sample, tumor and normal:
 
 \begin{verbatim}
-# From a BAM file 
+# Calculate and GC-normalize coverage from a BAM file 
 $ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
     --bam ${SAMPLEID}.bam \
     --gcgene baits_hg19_gcgene.txt
 
-# From a GATK DepthOfCoverage file
+# GC-normalize coverage from a GATK DepthOfCoverage file
 Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
     --gatkcoverage ${SAMPLEID}.coverage.sample_interval_summary \ 
     --gcgene  baits_hg19_gcgene.txt
@@ -119,12 +119,12 @@ Similar to GATK, this script also takes a text file containing a list of BAM or
 coverage files (one per line). The file extension must be .list:
 
 \begin{verbatim}
-# From a list of BAM files 
+# Calculate and GC-normalize coverage from a list of BAM files 
 $ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
     --bam normals.list \
-    --gcgene baits_hg19_gcgene.txt
+    --gcgene baits_hg19_gcgene.txt \
+    --cpu 4
 \end{verbatim}
-
 
 \subsubsection*{NormalDB}
 
@@ -178,8 +178,8 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
     --normaldb ../normalDB_hg19.rds \
     --gcgene baits_hg19_gcgene.txt 
 
-# Recreate output after manual curation of Sample_purecn.csv
-$ Rscript $PURECN/PureCN.R --rds ${SAMPLEID}_purecn.rds
+# Recreate output after manual curation of ${SAMPLEID}.csv
+$ Rscript $PURECN/PureCN.R --rds ${SAMPLEID}.rds
 \end{verbatim}
 
 A few important recommendations:
@@ -213,6 +213,10 @@ A few important recommendations:
         optimized using both variant allelic fractions and copy number instead
         of copy number only.  This results in a significant runtime increase for
         whole-exome data.
+
+    \item If \Rcode{--out} is a directory, it will use the sample id as file
+        prefix for all output files. Otherwise \Biocpkg{PureCN} will use
+        \Rcode{--out} as prefix.   
 \end{itemize}
 
 \subsection*{Run PureCN with third-party segmentation}

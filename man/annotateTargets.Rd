@@ -14,11 +14,15 @@ annotateTargets(x, txdb, org)
 
 \item{org}{A \code{OrgDb} object, e.g. \code{org.Hs.eg.db}.}
 }
+\value{
+A \code{GRanges} object.
+}
 \description{
-This function can be used to add a Gene meta column to a GRanges.
+This function can be used to add a \sQuote{Gene} meta column containing 
+gene symbols to a \code{GRanges} object.
 It applies heuristics to find the protein coding genes that were
-likely meant to target in the assay design in case multiple transcripts
-overlap with target interval.
+likely meant to target in the assay design in case transcripts
+overlap.
 }
 \examples{
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)

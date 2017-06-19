@@ -589,7 +589,11 @@ decrease the classification performance significantly
     \item Exclude variants in regions of low mappability    
     \item Use a somatic posterior probability cutoff of 0.8 and 0.2 for somatic
         and germline variants, respectively.  This appears to be a good
-        compromise of call rate and accuracy.
+        compromise of call rate and accuracy. If the beta-binomial model was
+        selected in the \Rcode{model} argument of Rfunction{runAbsoluteCN},
+        these cutoffs might need to be relaxed to get acceptable call rates.
+    \item Add a \Rcode{Cosmic.CNT} info flag to the VCF or provide a COSMIC VCF
+        in \Rfunction{runAbsoluteCN} (see Section~\ref{seccosmic}). 
 \end{itemize}        
 
 \textbf{Note that the posterior probabilities assume that the purity and ploidy
@@ -905,7 +909,7 @@ low quality targets. Interval coordinates are again expected in either a
 provided, then all targets below the coverage minimum are further excluded.
 
 \subsection{COSMIC annotation}
-
+\label{seccosmic}
 If a matched normal is not available, it is also helpful to provide
 \Rfunction{runAbsoluteCN} the COSMIC database \cite{Forbes2015} via
 \Rcode{cosmic.vcf.file} (or via a \Rcode{Cosmic.CNT} INFO field in the VCF).
@@ -913,6 +917,10 @@ While this has limited effect on purity and ploidy estimation due the sparsity
 of hotspot mutations, it often helps in the manual curation to compare how well
 high confidence germline (dbSNP) vs. somatic (COSMIC) variants fit a particular
 purity/ploidy combination. 
+
+For variant classification (Section~\ref{predictsomatic}), providing COSMIC
+annotation also avoids that hotspot mutations with dbSNP id get assigned a very
+low prior probability of being somatic.
 
 \subsection{Mutation burden}
 
