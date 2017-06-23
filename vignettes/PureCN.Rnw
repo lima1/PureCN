@@ -110,14 +110,14 @@ coverage. To do this, we need to know the locations of the captured genomic
 regions (targets). These are provided by the manufacturer of your capture
 kit\footnote{While \Biocpkg{PureCN} can use a pool of normal samples to learn
 which intervals are reliable and which not, it is highly recommended to provide
-the correct intervals. Garbage in, garbage out.}.  
+the correct intervals. Garbage in, garbage out.}.  Please double check that the
+genome version of the interval file matches the reference.
 
 Default parameters assume that these intervals do NOT include a
 "padding" to include flanking regions of targets.  \Biocpkg{PureCN} will
 automatically include variants in the 50bp flanking regions if the variant
 caller was either run without interval file or with interval padding (See
-section~\ref{faqinput}). Please double check that the genome version of the
-interval file matches the reference.
+section~\ref{faqinput}). 
 
 \Biocpkg{PureCN} will attempt to optimize the targets for copy number calling:
 

@@ -168,6 +168,9 @@
 #' indicate that  data was not GC-normalized or that the sample quality might 
 #' be insufficient.
 #' Requires \code{gc.gene.file}.
+#' @param min.logr.sdev Minimum log-ratio standard deviation used in the 
+#' model. Useful to make fitting more robust to outliers in very clean
+#' data.
 #' @param max.logr.sdev Flag noisy samples with segment log-ratio standard
 #' deviation larger than this. Assay specific and needs to be calibrated.
 #' @param max.segments Flag noisy samples with a large number of segments.
@@ -271,9 +274,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     max.mapping.bias = 0.8, max.pon = 3, iterations = 30, 
     log.ratio.calibration = 0.25, smooth.log.ratio = TRUE, 
     remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001, 
-    gc.gene.file = NULL, max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75, 
-    max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL, 
-    model = c("beta", "betabin"),
+    gc.gene.file = NULL, max.dropout = c(0.95, 1.1), 
+    min.logr.sdev = 0.2, max.logr.sdev = 0.75, 
+    max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
+    cosmic.vcf.file = NULL, model = c("beta", "betabin"),
     post.optimize = FALSE, log.file = NULL, verbose = TRUE) {
 
     if (!verbose) flog.threshold("WARN")
@@ -551,8 +555,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         .stopRuntimeError("Only tiny segments.")
     }
     
-    sd.seg <- median(sapply(exon.lrs, sd), na.rm = TRUE)
-    
+    sd.seg <- max(median(sapply(exon.lrs, sd), na.rm = TRUE), min.logr.sdev)
+   
     # if user provided seg file, then we do not have access to the log-ratios and
     # need to use the user provided noise estimate also, don't do outlier smoothing
     # when we use already segmented data
@@ -633,12 +637,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             attempt <- attempt + 1
             total.ploidy <- candidate.solutions$candidates$ploidy[cpi]
             p <- candidate.solutions$candidates$purity[cpi]
-            # optimize purity withing +/- 0.2 in the first attempt, then just
+            # optimize purity within +/- 0.2 in the first attempt, then just
             # try to match the ploidy
             idxLocal <- which(abs(test.purity-p) < (0.1+attempt/10))
             test.purity.local <- test.purity[idxLocal]
             prior.purity.local <- prior.purity[idxLocal]
-            
+             
             flog.info("Testing local optimum %i/%i at purity %.2f and total ploidy %.2f...", 
                 cpi, nrow(candidate.solutions$candidates), p, total.ploidy)
             
@@ -648,8 +652,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             C.likelihood <- matrix(ncol = length(test.num.copy) + 1, nrow = nrow(seg))
             colnames(C.likelihood) <- c(test.num.copy, "Subclonal")
             for (iter in seq_len(iterations)) {
-                flog.debug("Iteration %i, Purity %.2f, total ploidy %.2f, likelihood %.3f",
-                    iter, p, total.ploidy, llik)
+                flog.debug("Iteration %i, Purity %.2f, total ploidy %.2f, ploidy %.2f, likelihood %.3f, offset %.3f",
+                    iter, p, total.ploidy,  weighted.mean(C, li), llik, mean(log.ratio.offset))
                 # test for convergence
                 if (abs(old.llik - llik) < 0.0001) {
                   cnt.llik.equal <- cnt.llik.equal + 1
@@ -660,6 +664,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                   break
                 subclonal.f <- length(unlist(exon.lrs[subclonal]))/length(unlist(exon.lrs))
                 # should not happen, but sometimes does for very unlikely local optima.
+                flog.debug("Subclonal %.2f", subclonal.f)
                 if (subclonal.f > max.non.clonal + 0.1) 
                   break
                 if (iter == 1) 

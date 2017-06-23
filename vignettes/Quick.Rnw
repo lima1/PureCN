@@ -111,7 +111,7 @@ $ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
 
 # GC-normalize coverage from a GATK DepthOfCoverage file
 Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
-    --gatkcoverage ${SAMPLEID}.coverage.sample_interval_summary \ 
+    --coverage ${SAMPLEID}.coverage.sample_interval_summary \ 
     --gcgene  baits_hg19_gcgene.txt
 \end{verbatim}
 
@@ -139,6 +139,12 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT \
     --coveragefiles example_normal.list \
     --genome hg19 
 \end{verbatim}
+
+\begin{itemize}
+    \item The resulting \Rcode{normalDB\_hg19.rds} file contains absolute paths
+    to the coverage files. It is thus necessary to re-run this command when the
+    coverage files are moved.
+\end{itemize}
 
 \subsubsection*{PureCN}
 

@@ -22,9 +22,9 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   max.mapping.bias = 0.8, max.pon = 3, iterations = 30,
   log.ratio.calibration = 0.25, smooth.log.ratio = TRUE,
   remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001,
-  gc.gene.file = NULL, max.dropout = c(0.95, 1.1), max.logr.sdev = 0.75,
-  max.segments = 300, min.gof = 0.8, plot.cnv = TRUE,
-  cosmic.vcf.file = NULL, model = c("beta", "betabin"),
+  gc.gene.file = NULL, max.dropout = c(0.95, 1.1), min.logr.sdev = 0.2,
+  max.logr.sdev = 0.75, max.segments = 300, min.gof = 0.8,
+  plot.cnv = TRUE, cosmic.vcf.file = NULL, model = c("beta", "betabin"),
   post.optimize = FALSE, log.file = NULL, verbose = TRUE)
 }
 \arguments{
@@ -232,6 +232,10 @@ GCContentByInterval} tool or with the
 indicate that  data was not GC-normalized or that the sample quality might 
 be insufficient.
 Requires \code{gc.gene.file}.}
+
+\item{min.logr.sdev}{Minimum log-ratio standard deviation used in the 
+model. Useful to make fitting more robust to outliers in very clean
+data.}
 
 \item{max.logr.sdev}{Flag noisy samples with segment log-ratio standard
 deviation larger than this. Assay specific and needs to be calibrated.}

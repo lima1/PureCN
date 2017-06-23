@@ -168,7 +168,9 @@ if (file.exists(file.rds) && !opt$force) {
         } else {
             stop("Unknown segmentation function")
         }
-    }     
+    } 
+        
+    # flog.threshold("DEBUG")
         
     ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
             tumor.coverage.file=tumor.coverage.file, vcf.file=opt$vcf,
