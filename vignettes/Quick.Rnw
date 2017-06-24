@@ -363,6 +363,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --snpblacklist     & snp.blacklist & \Rfunction{filterVcfBasic}     \\
 --funsegmentation  & fun.segmentation & \Rfunction{runAbsoluteCN} \\ 
 --alpha            & alpha & \Rfunction{segmentationCBS} \\
+--maxsegments      & max.segments & \Rfunction{runAbsoluteCN} \\
 --targetweightfile & target.weight.file & \Rfunction{segmentationCBS} \\
 --minpurity        & test.purity & \Rfunction{runAbsoluteCN} \\
 --maxpurity        & test.purity & \Rfunction{runAbsoluteCN} \\
@@ -371,6 +372,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --postoptimize     & post.optimize & \Rfunction{runAbsoluteCN} \\    
 --modelhomozygous  & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
 --model            & model & \Rfunction{runAbsoluteCN} \\ 
+--logratiocalibration & log.ratio.calibration & \Rfunction{runAbsoluteCN} \\ 
 --outvcf           & return.vcf & \Rfunction{predictSomatic} \\
 --out -o           & &                            \\
 --seed             & & \\

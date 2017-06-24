@@ -19,7 +19,7 @@ option_list <- list(
     make_option(c("--outdir"), action="store", type="character", default=NULL,
         help="Output directory to which results should be written"),
     make_option(c("--cpu"), action="store", type="integer", default=1,
-        help="Number of CPUs to use [default %default]"),
+        help="Number of CPUs to use when --bam is a list of BAM files [default %default]"),
     make_option(c("--seed"), action="store", type="integer", default=NULL,
         help="Seed for random number generator [default %default]"),
     make_option(c("-v", "--version"), action="store_true", default=FALSE, 

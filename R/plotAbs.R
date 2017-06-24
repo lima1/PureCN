@@ -115,10 +115,14 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                 main <- paste(main, " Bootstrap value:", 
                     round(res$results[[i]]$bootstrap.value, digits=2))
             }    
+            
+            # try to avoid plotting log-ratio outliers from artifacts
+            minLogRatio <- max(min(seg$seg.mean), peak.ideal.means[1]*2)
+            logRatio <- do.call(c, lapply(seq_len(nrow(seg)), function(i)
+                                rep(seg$seg.mean[i], seg$num.mark[i])))
+            logRatio <- logRatio[logRatio>minLogRatio]
 
-            h <- hist(do.call(c, lapply(seq_len(nrow(seg)), function(i)
-                    rep(seg$seg.mean[i], seg$num.mark[i]))),breaks=75, 
-                    plot=FALSE)
+            h <- hist(logRatio,breaks=75, plot=FALSE)
             h$density <- h$counts/sum(h$counts)
             plot(h, freq=FALSE, xlab="log2 ratio",
                 ylab="Fraction Genome", main=main, col="#377EB8", ...)

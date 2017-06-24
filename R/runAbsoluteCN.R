@@ -272,10 +272,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     candidates = NULL, min.coverage = 15, max.coverage.vcf = 300, 
     max.non.clonal = 0.2, max.homozygous.loss = c(0.05, 1e07) , non.clonal.M = 1/3, 
     max.mapping.bias = 0.8, max.pon = 3, iterations = 30, 
-    log.ratio.calibration = 0.25, smooth.log.ratio = TRUE, 
+    log.ratio.calibration = 0.1, smooth.log.ratio = TRUE, 
     remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001, 
     gc.gene.file = NULL, max.dropout = c(0.95, 1.1), 
-    min.logr.sdev = 0.2, max.logr.sdev = 0.75, 
+    min.logr.sdev = 0.15, max.logr.sdev = 0.75, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
     cosmic.vcf.file = NULL, model = c("beta", "betabin"),
     post.optimize = FALSE, log.file = NULL, verbose = TRUE) {
@@ -297,7 +297,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # argument checking
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
         max.homozygous.loss, sampleid, prior.K, prior.contamination, prior.purity,
-        iterations, min.gof, model.homozygous, gc.gene.file)
+        iterations, min.gof, model.homozygous, gc.gene.file, log.ratio.calibration)
     
     test.num.copy <- sort(test.num.copy)
     

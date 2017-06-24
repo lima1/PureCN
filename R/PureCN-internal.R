@@ -275,7 +275,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
     max.non.clonal, max.homozygous.loss, sampleid, prior.K, 
     prior.contamination, prior.purity, iterations, min.gof, model.homozygous, 
-    gc.gene.file) {
+    gc.gene.file, log.ratio.calibration) {
     if (min(test.purity) <= 0 || max(test.purity) > 0.99) 
         .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
@@ -308,6 +308,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     stopifnot(is.numeric(max.ploidy))
     stopifnot(is.numeric(test.purity))
     stopifnot(is.numeric(iterations))
+    stopifnot(is.numeric(log.ratio.calibration))
     stopifnot(is.logical(model.homozygous))
 
     if (iterations < 10 || iterations > 250) {
@@ -750,6 +751,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     # Gibbs sample offset
     test.offset <- seq(sd.seg * -log.ratio.calibration, sd.seg * log.ratio.calibration, 
         by = 0.01)
+    test.offset <- seq(p * -log.ratio.calibration, p * log.ratio.calibration * 0.2, length.out=12)
+
     seg.ids.by.chr <- list(seq_len(nrow(seg)))
     
     lr <- lapply(seq_along(seg.ids.by.chr), function(j) {
@@ -775,6 +778,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
     # Gibbs sample offset
     test.offset <- seq(sd.seg * -log.ratio.calibration, sd.seg * log.ratio.calibration, 
         by = 0.01)
+    test.offset <- seq(p * -log.ratio.calibration, p * log.ratio.calibration * 0.2, length.out=12)
     seg.ids.by.chr <- list(seq_len(nrow(seg)))
     
     lr <- lapply(seq_along(seg.ids.by.chr), function(j) {

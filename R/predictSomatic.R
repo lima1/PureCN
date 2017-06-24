@@ -22,11 +22,14 @@
 #' # the output data was created using a matched normal sample, but in case
 #' # no matched normal is available, this will help predicting somatic vs. 
 #' # germline status
-#' purecn.snvs <- predictSomatic(purecn.example.output)
+#' purecnSnvs <- predictSomatic(purecn.example.output)
+#'
+#' # Prefer GRanges?
+#' purecnSnvs <- GRanges(predictSomatic(purecn.example.output))
 #' 
 #' # write a VCF file
-#' purecn.vcf <- predictSomatic(purecn.example.output, return.vcf=TRUE)
-#' writeVcf(purecn.vcf, file="Sample1_PureCN.vcf")
+#' purecnVcf <- predictSomatic(purecn.example.output, return.vcf=TRUE)
+#' writeVcf(purecnVcf, file="Sample1_PureCN.vcf")
 #' 
 #' @export predictSomatic
 predictSomatic <- function(res, id = 1, return.vcf = FALSE, 
