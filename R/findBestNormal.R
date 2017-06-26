@@ -110,6 +110,7 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
             normal.coverage.files=normal.coverage.files, plot.voom=plot.pool)
           fakeNormal <- tumor
           fakeNormal$average.coverage <- 2^(log2(tumor$average.coverage) - logRatio)
+          fakeNormal$coverage <- fakeNormal$average.coverage * width(fakeNormal)
           return(fakeNormal)
       }
       return(poolCoverage(normals, w=w, ...))

@@ -291,7 +291,7 @@ Argument name   & Corresponding PureCN argument & PureCN function \\
 --targetwidth   & average.target.width & \Rfunction{calculateGCContentByInterval} \\
 --offtargetwidth   & average.off.target.width & \Rfunction{calculateGCContentByInterval} \\
 --mappability   & mappability   & \Rfunction{calculateGCContentByInterval} \\
---genome        &  & annotate intervals with gene symbols \\
+--genome        & txdb, org & \Rfunction{annotateTargets} \\
 --outfile       & & \\
 --export        &  & \Rfunction{rtracklayer::export}  \\
 --version -v    & & \\

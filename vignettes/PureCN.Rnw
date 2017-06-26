@@ -592,7 +592,7 @@ decrease the classification performance significantly
         compromise of call rate and accuracy. If the beta-binomial model was
         selected in the \Rcode{model} argument of \Rfunction{runAbsoluteCN},
         these cutoffs might need to be relaxed to get acceptable call rates.
-    \item Add a \Rcode{Cosmic.CNT} info flag to the VCF or provide a COSMIC VCF
+    \item Add a \Rcode{Cosmic.CNT} info field to the VCF or provide a COSMIC VCF
         in \Rfunction{runAbsoluteCN} (see Section~\ref{seccosmic}). 
 \end{itemize}        
 
@@ -1075,7 +1075,8 @@ complaints, etc. please do not hesitate to send us an email.
         calculation 
     \item BAM files were generated following established best practices and
     tools finished successfully.
-    \item Checked standard QC metrics such as AT dropout.
+    \item Checked standard QC metrics such as AT/GC dropout and duplication 
+    rates.
     \item Tumor and normal data were obtained using the same capture kit and
     pipeline.
     \item Coverage data of tumor and normal were GC-normalized.
