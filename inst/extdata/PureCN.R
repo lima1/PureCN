@@ -228,8 +228,8 @@ file.loh <- paste0(out, '_loh.csv')
 write.csv(cbind(Sampleid=sampleid, callLOH(ret)), file=file.loh, 
     row.names=FALSE, quote=FALSE)
 
-file.seg <- paste0(out, '_dnacopy.txt')
-write.table(ret$results[[1]]$seg, file=file.seg, sep="\t", quote=FALSE, 
+file.seg <- paste0(out, '_dnacopy.seg')
+write.table(ret$results[[1]]$seg[,c(1:6,8)], file=file.seg, sep="\t", quote=FALSE, 
     row.names=FALSE)
 
 file.genes <- paste0(out, '_genes.csv')
