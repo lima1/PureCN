@@ -122,10 +122,10 @@ section~\ref{faqinput}).
 \Biocpkg{PureCN} will attempt to optimize the targets for copy number calling:
 
 \begin{itemize} 
-\item Large targets are splitted to obtain a higher resolution
+\item Large targets are split to obtain a higher resolution
 \item Targets in regions of low mappability are dropped
-\item Optionally, accessible regions inbetween the targets (off-target) regions
-are included so that available coverage information  in on- and off-target
+\item Optionally, accessible regions inbetween the target (off-target) regions
+are included so that available coverage information in on- and off-target
 reads can be used by the segmentation function.
 \end{itemize}
 

@@ -163,6 +163,7 @@ interval.padding = 50) {
     vcf <- vcf[!info(vcf)$DB | geno(vcf)$FA[,tumor.id.in.vcf] < af.range[2]]
     flog.info("Removing %i SNPs with AF < %.3f or AF >= %.3f or less than %i supporting reads or depth < %i.", 
         n-nrow(vcf), af.range[1], af.range[2], cutoffs[1], min.coverage)
+    n <- nrow(vcf)
 
     if (!is.null(snp.blacklist)) {
         for (i in seq_along(snp.blacklist)) {
