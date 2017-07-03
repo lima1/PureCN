@@ -121,6 +121,8 @@ readCoverageGatk <- function() {
 }
 
 .addGCData <- function(tumor, gc.gene.file, verbose=TRUE) {
+    tumor$mappability <- 1
+    tumor$Gene <- "."
     tumor$gc_bias <- NA
     tumor$gc_bias <- as.numeric(tumor$gc_bias)
     tumor$Gene <- "."
@@ -136,6 +138,10 @@ readCoverageGatk <- function() {
     if (is.null(inputGC$on_target)) {
         if (verbose) flog.info("No on_target column in gc.gene.file. Recreate this file with IntervalFile.R.")
         inputGC$on_target <- TRUE
+    }
+    if (is.null(inputGC$mappability)) {
+        if (verbose) flog.info("No mappability column in gc.gene.file.")
+        inputGC$mappability <- 1
     }
     
     targetGC <- GRanges(inputGC[,1], ranges=NULL, strand=NULL, inputGC[,-1])
@@ -158,6 +164,7 @@ readCoverageGatk <- function() {
             tumor[queryHits(ov)]$on.target <- targetGC[subjectHits(ov)]$on_target
         }
     } 
+    tumor[queryHits(ov)]$mappability <- targetGC[subjectHits(ov)]$mappability
     tumor[queryHits(ov)]$gc_bias <- targetGC[subjectHits(ov)]$gc_bias
     tumor[queryHits(ov)]$Gene <- targetGC[subjectHits(ov)]$Gene
     tumor <- .checkSymbolsChromosome(tumor)

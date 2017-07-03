@@ -49,7 +49,7 @@ globalVariables(names=c("..level.."))
 #' @export correctCoverageBias
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_line aes
 #'             xlab ylab theme element_text facet_wrap stat_density2d
-#'             scale_alpha_continuous
+#'             scale_alpha_continuous scale_y_sqrt
 #' @importFrom stats loess lm
 #' @importFrom utils write.table
 correctCoverageBias <- function(coverage.file, gc.gene.file,
@@ -106,6 +106,7 @@ plot.max.density = 50000) {
             print(ggplot(gcPlot, aes_string(x="gc_bias", y="average.coverage")) + 
                 geom_point(color='red', alpha=0.2) + 
                 geom_line(data = plotMed, aes_string(x = 'gcIndex', y = 'gcNum'), color = 'blue') + 
+                scale_y_sqrt() +
                 xlab("GC content") + ylab("Coverage") + 
                 theme(axis.text = element_text(size= 6), axis.title = element_text(size=16)) + 
                 facet_wrap(~ norm_status, nrow=1))
@@ -115,6 +116,7 @@ plot.max.density = 50000) {
             stat_density2d(aes(fill = ..level..), geom="polygon") + 
             scale_alpha_continuous(limits=c(0.1, 0), breaks=seq(0, 0.1, by = 0.025)) + 
             geom_line(data = plotMed, aes_string(x = 'gcIndex',y = 'gcNum'), color = 'red') + 
+            scale_y_sqrt() +
             xlab("GC content") + ylab("Coverage") + 
             theme(axis.text = element_text(size = 16), axis.title = element_text(size = 16)) + 
             facet_wrap(~norm_status, nrow=1))
@@ -127,8 +129,7 @@ plot.max.density = 50000) {
     if (is.null(tumor$on.target)) tumor$on.target <- TRUE
     gc_bias <- tumor$gc_bias
     for (on.target in c(FALSE, TRUE)) {
-        idxConsidered <- tumor$on.target == on.target    
-        tumor$valid <- idxConsidered
+        tumor$valid <- tumor$on.target == on.target
         tumor$gc_bias <- gc_bias
 
         tumor$valid[tumor$average.coverage <= 0 | tumor$gc_bias < 0] <- FALSE
@@ -143,6 +144,7 @@ plot.max.density = 50000) {
             na.rm = TRUE)
         
         tumor$ideal[!tumor$valid | 
+            ( tumor$mappability < 1 & on.target ) |
             tumor$average.coverage <= range[1] |
             tumor$average.coverage > range[2] | 
             tumor$gc_bias < domain[1] | 
@@ -156,7 +158,7 @@ plot.max.density = 50000) {
             span = 0.03)
         i <- seq(0, 1, by = 0.001)
         final <- loess(predict(rough, i) ~ i, span = 0.3)
-        cor.gc <- predict(final, tumor$gc_bias[idxConsidered])
+        cor.gc <- predict(final, tumor$gc_bias[tumor$valid])
         cor.gc.factor <- cor.gc/mean(tumor$average.coverage[tumor$ideal], na.rm=TRUE)
         cor.gc.factor[cor.gc.factor<=0] <- NA
         tumor$gc_bias <- as.integer(tumor$gc_bias*100)/100
@@ -165,8 +167,8 @@ plot.max.density = 50000) {
         medDiploid <- as.data.frame(cbind(as.numeric(names(pre)),as.vector(pre)))
         colnames(medDiploid) <- c("gcIndex","denom")
         
-        tumor$average.coverage[idxConsidered] <- (tumor$average.coverage[idxConsidered] / cor.gc.factor)
-        tumor$coverage[idxConsidered] <- (tumor$coverage[idxConsidered] / cor.gc.factor)
+        tumor$average.coverage[tumor$valid] <- (tumor$average.coverage[tumor$valid] / cor.gc.factor)
+        tumor$coverage[tumor$valid] <- (tumor$coverage[tumor$valid] / cor.gc.factor)
 
         post <- by(tumor$average.coverage[tumor$ideal], tumor$gc_bias[tumor$ideal], median, na.rm=TRUE)
         medDiploid$gcNum <- as.vector(post)

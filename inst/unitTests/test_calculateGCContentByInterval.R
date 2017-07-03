@@ -26,4 +26,18 @@ test_calculateGCContentByInterval <- function() {
     checkTrue(grepl("Interval coordinates should start at 1, not at 0", geterrmessage()))
     gc <- calculateGCContentByInterval(interval.file, reference.file, off.target=TRUE, min.off.target.width=2, off.target.padding=-2)
     checkEqualsNumeric(11, length(gc))
+    mappability.file <- system.file("extdata", "ex2_mappability.bigWig", 
+            package = "PureCN", mustWork = TRUE)
+
+    intervals <- import(bed.file)
+    mappability <- import(mappability.file)
+
+    gcMap <- calculateGCContentByInterval(intervals, reference.file, 
+        mappability=mappability)
+    checkEqualsNumeric(c(1,1,0.7,1,1), gcMap$mappability, tol=0.05)
+    gc2 <- calculateGCContentByInterval(gc, reference.file)
+    checkEqualsNumeric(start(gc), start(gc2))
+    checkEqualsNumeric(end(gc), end(gc2))
+    checkEqualsNumeric(gc$mappability, gc2$mappability)
+    checkEqualsNumeric(gc$gc_bias, gc2$gc_bias)
 }    
