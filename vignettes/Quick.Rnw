@@ -312,6 +312,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --coverage    & coverage.file & \Rfunction{correctCoverageBias} \\
 --gcgene      & gc.gene.file  & \Rfunction{correctCoverageBias} \\
 --method      & method  & \Rfunction{correctCoverageBias} \\
+--keepduplicates  & keep.duplicates  & \Rfunction{calculateBamCoverageByInterval} \\
 --outdir      & & \\
 --cpu         & & Number of CPUs to use\\
 --seed        & & \\

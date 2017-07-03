@@ -10,6 +10,7 @@ Changes in version 1.8.0
 - IntervalFile.R can annotate targets with gene symbols
 - Better artifact filtering by using normalDB more efficiently
 - Support for mappability scores
+- Coverage calculation can now include duplicates 
 
 API CHANGES
 

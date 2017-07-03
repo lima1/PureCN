@@ -5,7 +5,7 @@
 \title{Function to calculate coverage from BAM file}
 \usage{
 calculateBamCoverageByInterval(bam.file, interval.file, output.file = NULL,
-  index.file = bam.file)
+  index.file = bam.file, keep.duplicates = FALSE)
 }
 \arguments{
 \item{bam.file}{Filename of a BAM file.}
@@ -18,6 +18,8 @@ the \code{\link{readCoverageFile}} function.}
 
 \item{index.file}{The bai index. This is expected without the .bai file
 suffix, see \code{?scanBam}.}
+
+\item{keep.duplicates}{Keep or remove duplicated reads.}
 }
 \value{
 Returns total and average coverage by intervals.

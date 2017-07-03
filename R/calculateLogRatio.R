@@ -29,10 +29,10 @@ calculateLogRatio <- function(normal, tumor) {
     if (!identical(as.character(normal), as.character(tumor))) {
         .stopUserError("Interval files in normal and tumor different.")
     }
-    flog.info("Mean coverages: %.0fX (tumor) %.0fX (normal).", 
-        mean(tumor$average.coverage, na.rm=TRUE), 
-        mean(normal$average.coverage, na.rm=TRUE))
     if (is.null(tumor$on.target)) tumor$on.target <- TRUE
+    flog.info("Mean target coverages: %.0fX (tumor) %.0fX (normal).", 
+        mean(tumor$average.coverage[tumor$on.target], na.rm=TRUE), 
+        mean(normal$average.coverage[tumor$on.target], na.rm=TRUE))
     tumor$log.ratio <- 0.
 
     for (on.target in c(FALSE, TRUE)) {

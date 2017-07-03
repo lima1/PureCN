@@ -15,6 +15,7 @@
 #' the \code{\link{readCoverageFile}} function.
 #' @param index.file The bai index. This is expected without the .bai file
 #' suffix, see \code{?scanBam}.
+#' @param keep.duplicates Keep or remove duplicated reads.
 #' @return Returns total and average coverage by intervals.
 #' @author Markus Riester
 #' @seealso \code{\link{calculateGCContentByInterval}
@@ -35,15 +36,17 @@
 #' @importFrom Rsamtools headerTabix ScanBamParam scanBamFlag
 #'             scanBam scanFa scanFaIndex TabixFile
 calculateBamCoverageByInterval <- function(bam.file, interval.file, 
-    output.file = NULL, index.file = bam.file) {
+    output.file = NULL, index.file = bam.file, keep.duplicates = FALSE) {
     intervalGr <- readCoverageFile(interval.file)
 
     param <- ScanBamParam(what=c("pos", "qwidth"), 
                 which=intervalGr, 
                 flag=scanBamFlag(isUnmappedQuery=FALSE, 
-                                 isNotPassingQualityControls=FALSE, 
-                                 isSecondaryAlignment=FALSE,
-                                 isDuplicate=FALSE))
+                             isNotPassingQualityControls=FALSE, 
+                             isSecondaryAlignment=FALSE,
+                             isDuplicate=if (keep.duplicates) NA else FALSE
+                     )
+             )
 
     x <- scanBam(bam.file, index=index.file, param=param)
     intervalGr$coverage <- sapply(seq_along(x), function(i) 

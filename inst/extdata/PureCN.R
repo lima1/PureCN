@@ -126,6 +126,12 @@ flog.info("Loading PureCN...")
 suppressPackageStartupMessages(library(PureCN))
 library(futile.logger)
 
+debug <- FALSE
+if (Sys.getenv("PURECN_DEBUG") != "") {
+    flog.threshold("DEBUG")
+    debug <- TRUE
+}    
+
 ### Run PureCN ----------------------------------------------------------------
 
 if (file.exists(file.rds) && !opt$force) {
@@ -176,8 +182,6 @@ if (file.exists(file.rds) && !opt$force) {
         }
     } 
         
-    if (Sys.getenv("PURECN_DEBUG") != "") flog.threshold("DEBUG")
-        
     ret <- runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
             tumor.coverage.file=tumor.coverage.file, vcf.file=opt$vcf,
             sampleid=sampleid, gc.gene.file=opt$gcgene, plot.cnv=TRUE,
@@ -202,7 +206,13 @@ if (file.exists(file.rds) && !opt$force) {
 
 ### Create output files -------------------------------------------------------
 
-createCurationFile(file.rds)
+curationFile <- createCurationFile(file.rds)
+if (debug) {
+    curationFile$log.ratio.offset <- mean(ret$results[[1]]$log.ratio.offset)
+    curationFile$log.ratio.sdev <- ret$input$log.ratio.sdev
+    curationFile$num.segments <- nrow(ret$results[[1]]$seg)
+    write.csv(curationFile, file=paste0(out, '_debug.csv'), row.names=FALSE)
+}
 file.pdf <- paste0(out, '.pdf')
 pdf(file.pdf, width=10, height=11)
 plotAbs(ret, type='all')
