@@ -500,7 +500,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         end = seg.adjusted$loc.end))
 
     # that will otherwise mess up the log-ratio means, mins and maxs
-    idx <- which(!is.nan(log.ratio) & !is.infinite(log.ratio) & tumor$Gene != ".")
+    idx <- which(!is.nan(log.ratio) & is.finite(log.ratio) & tumor$Gene != ".")
     if (!length(idx)) return(NA)
     tumor <- tumor[idx]
     log.ratio <- log.ratio[idx]
@@ -863,6 +863,10 @@ c(test.num.copy, round(opt.C))[i], prior.K))
        
 .createFakeLogRatios <- function(tumor, seg.file, sampleid, chr.hash, 
     model.homozygous=FALSE) {
+    if (!is.null(tumor$log.ratio)) {
+        flog.info("Found log2-ratio in tumor coverage data.")
+        return(tumor$log.ratio)
+    }    
     if (class(seg.file)=="character") {
         seg <- .loadSegFile(seg.file, sampleid, model.homozygous, verbose=FALSE)    
     } else {

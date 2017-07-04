@@ -122,10 +122,9 @@ readCoverageGatk <- function() {
 
 .addGCData <- function(tumor, gc.gene.file, verbose=TRUE) {
     tumor$mappability <- 1
-    tumor$Gene <- "."
     tumor$gc_bias <- NA
     tumor$gc_bias <- as.numeric(tumor$gc_bias)
-    tumor$Gene <- "."
+    if (is.null(tumor$Gene)) tumor$Gene <- "."
 
     inputGC <- read.delim(gc.gene.file, as.is = TRUE)
     if (is.null(inputGC$gc_bias)) {

@@ -560,7 +560,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # if user provided seg file, then we do not have access to the log-ratios and
     # need to use the user provided noise estimate also, don't do outlier smoothing
     # when we use already segmented data
-    if (!is.null(seg.file)) {
+    if (!is.null(seg.file) && is.null(tumor$log.ratio)) {
         sd.seg <- seg.file.sdev
     }
     
@@ -809,13 +809,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 SA.iterations = iter))
         }
         
-        if (!is.null(gc.gene.file)) {
-            gene.calls <- .getGeneCalls(seg.adjusted, tumor, log.ratio, fun.focal, 
-                args.focal, chr.hash)
-        } else {
-            gene.calls <- NA
-        }
-        
+        gene.calls <- .getGeneCalls(seg.adjusted, tumor, log.ratio, fun.focal, 
+            args.focal, chr.hash)
+
         if (!is.null(vcf.file)) {
             if (post.optimize) {
                 idx <- c(match(p, test.purity), 
