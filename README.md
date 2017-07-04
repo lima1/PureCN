@@ -1,3 +1,5 @@
+[PureCN_example.png](https://postimg.org/image/yer1jeiln/)
+
 ## Installation
 
 To install this package, start R and enter:
@@ -22,3 +24,19 @@ If you want the latest and greatest from the developer branch:
 ```
 biocLite("Bioconductor-mirror/PureCN")
 ```
+
+
+## Tutorials
+
+To get started, open R and enter:
+
+```
+vignette("Quick", package="PureCN")
+```
+
+For the R package, more detailed information:
+
+```
+vignette("PureCN", package="PureCN")
+```
+
