@@ -1,4 +1,4 @@
-[PureCN_example.png](https://postimg.org/image/yer1jeiln/)
+[![PureCN_example.png](https://s9.postimg.org/6emxz4f5b/Pure_CN_example.png)](https://postimg.org/image/yer1jeiln/)
 
 ## Installation
 
