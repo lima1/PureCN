@@ -34,7 +34,7 @@ To get started, open R and enter:
 vignette("Quick", package="PureCN")
 ```
 
-For the R package, more detailed information:
+For the R package and more detailed information:
 
 ```
 vignette("PureCN", package="PureCN")

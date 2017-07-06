@@ -128,7 +128,8 @@ off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
     interval.gr$mappability <- 1
     if (!is.null(mappability)) {
         ov <- findOverlaps(interval.gr, mappability)
-        mappScore <- aggregate(mcols(mappability)[subjectHits(ov),1], by=list(queryHits(ov)), mean)
+        colScore <- if (is.null(mappability$score)) 1 else "score"
+        mappScore <- aggregate(mcols(mappability)[subjectHits(ov),colScore], by=list(queryHits(ov)), mean)
         interval.gr$mappability[mappScore[,1]] <- mappScore[,2]
     } else {
         flog.warn("No mappability scores provided.")
