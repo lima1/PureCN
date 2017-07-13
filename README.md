@@ -28,7 +28,7 @@ biocLite("Bioconductor-mirror/PureCN")
 
 ## Tutorials
 
-To get started, open R and enter:
+To get started:
 
 ```
 vignette("Quick", package="PureCN")

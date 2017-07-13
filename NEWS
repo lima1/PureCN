@@ -11,6 +11,8 @@ Changes in version 1.8.0
 - Better artifact filtering by using normalDB more efficiently
 - Support for mappability scores
 - Coverage calculation can now include duplicates 
+- Segments are now flagged when allele-specific copy number is unreliable
+  due to insufficient number of high quality variants.
 
 API CHANGES
 

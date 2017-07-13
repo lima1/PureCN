@@ -338,8 +338,10 @@ script described in the Quick vignette.
 \label{artifactfiltering2}
 
 By default, \Biocpkg{PureCN} will exclude targets with coverage below 15X from
-segmentation. For SNVs, the same 15X cutoff is applied. \software{MuTect}
-applies more sophisticated artifact tests and flags suspicious variants. If
+segmentation (with a pool of normals, targets are filtered based on the
+coverage and variance in normal database only). For variants in the provided
+VCF, the same 15X cutoff is applied.  \software{MuTect} applies more
+sophisticated artifact tests and flags suspicious variants. If
 \software{MuTect} was run in matched normal mode, then both potential artifacts
 and germline variants are rejected, that means we cannot just filter by the
 PASS/REJECT \software{MuTect} flags. The \Rfunction{filterVcfMuTect} function
@@ -630,6 +632,7 @@ somatic (sum of all somatic state posterior probabilities) \\
 \Rcode{ML.M}  & Maximum likelihood multiplicity \\
 \Rcode{ML.C}  & Maximum likelihood integer copy number \\
 \Rcode{ML.M.SEGMENT} & Maximum likelihood minor segment copy number \\
+\Rcode{M.SEGMENT.FLAGGED} & Segment flag indicating \Rcode{ML.M.SEGMENT} is unreliable \\
 \Rcode{ML.AR}  & Expected allelic fraction of the maximum likelihood state \\
 \Rcode{AR}   & Observed allelic fraction (as provided in VCF) \\
 \Rcode{AR.ADJUSTED} & Observed allelic fraction adjusted for mapping bias\\
@@ -645,7 +648,7 @@ somatic (sum of all somatic state posterior probabilities) \\
 \Rcode{prior.contamination} & Prior probability that variant is contamination 
     from another individual \\
 \Rcode{on.target} & 1 for variants within intervals, 2 for variants in flanking
- regions, 0 for off-target SNVs \\
+ regions, 0 for off-target variants \\
 \Rcode{seg.id}       & Segment id  \\
 \Rcode{pon.count}  & Number of hits in the \Rcode{normal.panel.vcf.file} \\
 \Rcode{gene.symbol} & Gene symbol if available \\ 
@@ -739,7 +742,7 @@ Column name & Description \\
 
 \section{Curation}
 
-For prediction of SNV status (germline vs. somatic, sub-clonal vs. clonal,
+For prediction of variant status (germline vs. somatic, sub-clonal vs. clonal,
 homozygous vs. heterozygous), it is important that both purity and ploidy are
 correct. We provide functionality for curating results:
 
@@ -795,7 +798,7 @@ filter low quality targets efficiently (Section~\ref{secrecommended}).
 \section{Maximizing the number of heterozygous SNPs}
 \label{secmaxsnps}
 
-It is possible to use SNPs in off-target reads in the SNV fitting step by
+It is possible to use SNPs in off-target reads in the variant fitting step by
 running \software{MuTect} without interval file and then setting the
 \Rfunction{filterVcfBasic} argument \Rcode{remove.off.target.snvs} to
 \Rcode{FALSE}. We recommend a large pool of normals in this case and then
@@ -804,7 +807,7 @@ generating SNP blacklists as described in Sections~\ref{artifactfiltering} and
 \software{MuTect} without interval file. 
 
 An often better alternative to including all off-target reads is only including
-SNVs in the flanking regions of targets (between 50-100bp). This will usually
+variants in the flanking regions of targets (between 50-100bp). This will usually
 significantly increase the number of heterozygous SNPs (see
 Section~\ref{faqinput}). These SNPs are automatically added if the variant
 caller was run without interval file or with interval padding.
@@ -1199,8 +1202,8 @@ Figure~\ref{figure/figureexample2-1}:
     \Rfunction{runAbsoluteCN}. If provided, it may help \Biocpkg{PureCN} filter
     artifacts. This requires \software{MuTect} in version 1.1.7.  
     
-    Note that this \software {MuTect} VCF will contain SNVs in off-target reads.
-    By default, \Biocpkg{PureCN} will only keep SNVs in the 50bp flanking
+    Note that this \software {MuTect} VCF will contain variants in off-target reads.
+    By default, \Biocpkg{PureCN} will only keep variants in the 50bp flanking
     regions of the provided targets. We highly recommend finding good values for
     each assay. A good cutoff will maximize the number of heterozygous SNPs and
     keep only an acceptable number of lower quality calls. This cutoff is set

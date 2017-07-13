@@ -12,14 +12,14 @@
 #' @param snp.blacklist A file with blacklisted genomic regions. Must
 #' be parsable by \code{import} from \code{rtracklayer}, for a example a
 #' BED file with file extension \sQuote{.bed}.
-#' @param af.range Exclude SNPs with allelic fraction smaller or greater than
+#' @param af.range Exclude variants with allelic fraction smaller or greater than
 #' the two values, respectively. The higher value removes homozygous SNPs,
 #' which potentially have allelic fractions smaller than 1 due to artifacts or
 #' contamination. If a matched normal is available, this value is ignored,
 #' because homozygosity can be confirmed in the normal.
-#' @param contamination.range Count SNPs in dbSNP with allelic fraction
+#' @param contamination.range Count variants in dbSNP with allelic fraction
 #' in the specified range. If the number of these putative contamination 
-#' SNPs exceeds an expected value and if they are found on almost all 
+#' variants exceeds an expected value and if they are found on almost all 
 #' chromosomes, the sample is flagged as potentially contaminated and extra
 #' contamination estimation steps will be performed later on.
 #' @param min.coverage Minimum coverage in tumor. Variants with lower coverage
@@ -37,7 +37,7 @@
 #' @param remove.off.target.snvs If set to a true value, will remove all SNVs
 #' outside the covered regions.
 #' @param model.homozygous If set to \code{TRUE}, does not remove homozygous
-#' SNPs. Ignored in case a matched normal is provided in the VCF.
+#' variants. Ignored in case a matched normal is provided in the VCF.
 #' @param interval.padding Include variants in the interval flanking regions of
 #' the specified size in bp. Requires \code{target.granges}.
 #' @return A list with elements \item{vcf}{The filtered \code{CollapsedVCF}
@@ -161,7 +161,7 @@ interval.padding = 50) {
     vcf <- vcf[unlist(geno(vcf)$FA[,tumor.id.in.vcf]) >= af.range[1]]
     # remove homozygous germline
     vcf <- vcf[!info(vcf)$DB | geno(vcf)$FA[,tumor.id.in.vcf] < af.range[2]]
-    flog.info("Removing %i SNPs with AF < %.3f or AF >= %.3f or less than %i supporting reads or depth < %i.", 
+    flog.info("Removing %i variants with AF < %.3f or AF >= %.3f or less than %i supporting reads or depth < %i.", 
         n-nrow(vcf), af.range[1], af.range[2], cutoffs[1], min.coverage)
     n <- nrow(vcf)
 
@@ -170,7 +170,7 @@ interval.padding = 50) {
             blackBed <- import(snp.blacklist[i])
             ov <- suppressWarnings(overlapsAny(vcf, blackBed))
             vcf <- vcf[!ov]
-            flog.info("Removing %i blacklisted SNPs.", n-nrow(vcf))
+            flog.info("Removing %i blacklisted variants.", n-nrow(vcf))
         }    
     }
 
@@ -604,7 +604,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     if (percentTargetsWithSNVs > 20) { 
         tmp <- " segmentationPSCBS might produce better results."
     }
-    flog.info("%.1f%% of targets contain SNVs. %s", 
+    flog.info("%.1f%% of targets contain variants. %s", 
         percentTargetsWithSNVs, tmp)
 
     vcf

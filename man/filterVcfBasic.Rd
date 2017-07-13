@@ -25,15 +25,15 @@ germline SNPS with biased allelic fractions.}
 be parsable by \code{import} from \code{rtracklayer}, for a example a
 BED file with file extension \sQuote{.bed}.}
 
-\item{af.range}{Exclude SNPs with allelic fraction smaller or greater than
+\item{af.range}{Exclude variants with allelic fraction smaller or greater than
 the two values, respectively. The higher value removes homozygous SNPs,
 which potentially have allelic fractions smaller than 1 due to artifacts or
 contamination. If a matched normal is available, this value is ignored,
 because homozygosity can be confirmed in the normal.}
 
-\item{contamination.range}{Count SNPs in dbSNP with allelic fraction
+\item{contamination.range}{Count variants in dbSNP with allelic fraction
 in the specified range. If the number of these putative contamination 
-SNPs exceeds an expected value and if they are found on almost all 
+variants exceeds an expected value and if they are found on almost all 
 chromosomes, the sample is flagged as potentially contaminated and extra
 contamination estimation steps will be performed later on.}
 
@@ -58,7 +58,7 @@ whether variants are on or off-target.}
 outside the covered regions.}
 
 \item{model.homozygous}{If set to \code{TRUE}, does not remove homozygous
-SNPs. Ignored in case a matched normal is provided in the VCF.}
+variants. Ignored in case a matched normal is provided in the VCF.}
 
 \item{interval.padding}{Include variants in the interval flanking regions of
 the specified size in bp. Requires \code{target.granges}.}

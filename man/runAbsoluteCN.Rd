@@ -20,11 +20,12 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   max.coverage.vcf = 300, max.non.clonal = 0.2,
   max.homozygous.loss = c(0.05, 1e+07), non.clonal.M = 1/3,
   max.mapping.bias = 0.8, max.pon = 3, iterations = 30,
-  log.ratio.calibration = 0.1, smooth.log.ratio = TRUE,
-  remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001,
-  gc.gene.file = NULL, max.dropout = c(0.95, 1.1), min.logr.sdev = 0.15,
-  max.logr.sdev = 0.75, max.segments = 300, min.gof = 0.8,
-  plot.cnv = TRUE, cosmic.vcf.file = NULL, model = c("beta", "betabin"),
+  min.variants.segment = 5, log.ratio.calibration = 0.1,
+  smooth.log.ratio = TRUE, remove.off.target.snvs = NULL,
+  model.homozygous = FALSE, error = 0.001, gc.gene.file = NULL,
+  max.dropout = c(0.95, 1.1), min.logr.sdev = 0.15, max.logr.sdev = 0.75,
+  max.segments = 300, min.gof = 0.8, plot.cnv = TRUE,
+  cosmic.vcf.file = NULL, model = c("beta", "betabin"),
   post.optimize = FALSE, log.file = NULL, verbose = TRUE)
 }
 \arguments{
@@ -181,7 +182,7 @@ solutions, especially in noisy segmentations.}
 
 \item{non.clonal.M}{Average expected cellular fraction of sub-clonal somatic
 mutations. This is to calculate expected allelic fractions of a single
-sub-clonal bin for SNVs. For all somatic variants, more accurate cellular
+sub-clonal bin for variants. For all somatic variants, more accurate cellular
 fractions are calculated.}
 
 \item{max.mapping.bias}{Exclude variants with high mapping bias from the
@@ -197,6 +198,9 @@ present in dbSNP.}
 \item{iterations}{Maximum number of iterations in the Simulated Annealing
 copy number fit optimization. Note that this an integer optimization problem
 that should converge quickly. Allowed range is 10 to 250.}
+
+\item{min.variants.segment}{Flag segments with fewer variants. The
+minor copy number estimation is not reliable with insufficient variants.}
 
 \item{log.ratio.calibration}{Re-calibrate log-ratios in the window
 \code{sd(log.ratio)*log.ratio.calibration}.}
@@ -215,7 +219,7 @@ SNP state in the likelihood model. Not necessary when matched normal samples
 are available.}
 
 \item{error}{Estimated sequencing error rate. Used to calculate minimum
-number of supporting reads for SNVs using
+number of supporting reads for variants using
 \code{\link{calculatePowerDetectSomatic}}. Also used to calculate the
 probability of homozygous SNP allelic fractions (assuming reference reads
 are sequencing errors).}
@@ -249,7 +253,7 @@ Assay specific and needs to be calibrated.}
 
 \item{cosmic.vcf.file}{Add a \code{Cosmic.CNT} info field to the provided
 \code{vcf.file} using a VCF file containing the COSMIC database. The default
-\code{fun.setPriorVcf} function will give SNVs found in the COSMIC database
+\code{fun.setPriorVcf} function will give variants found in the COSMIC database
 a higher prior probability of being somatic. Not used in likelhood model
 when matched normal is available in \code{vcf.file}. Should be compressed
 and indexed with bgzip and tabix, respectively.}
@@ -262,8 +266,8 @@ unmodeled biases, e.g. amplification biases.
 The amount of expected overdispersion can be controlled via the 
 \code{max.coverage.vcf} argument (the higher, the less expected bias).}
 
-\item{post.optimize}{Optimize purity using final SCNA-fit and SNVs. This
-might take a long time when lots of SNVs need to be fitted, but will
+\item{post.optimize}{Optimize purity using final SCNA-fit and variants. This
+might take a long time when lots of variants need to be fitted, but will
 typically result in a slightly more accurate purity, especially for rather
 silent genomes or very low purities. Otherwise, it will just use the purity
 determined via the SCNA-fit.}

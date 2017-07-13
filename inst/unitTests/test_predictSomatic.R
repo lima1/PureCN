@@ -18,4 +18,8 @@ test_predictSomatic <- function() {
     checkEqualsNumeric(round(ret$GERMLINE.M1, digits=4), info(ret.vcf)$GM1, tol=0.001)
     checkEqualsNumeric(round(ret$POSTERIOR.SOMATIC, digits=4), info(ret.vcf)$PS, tol=0.001)
     checkEquals(ret$gene.symbol, info(ret.vcf)$GS)
+    # test that segments with less than 5 variants are flagged
+    flagged <- lapply(split(ret$seg.id, ret$M.SEGMENT.FLAGGED), table)
+    checkTrue(min(flagged$`FALSE`) >= 5) 
+    checkTrue(max(flagged$`TRUE`) < 5) 
 }

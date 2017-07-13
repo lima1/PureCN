@@ -127,7 +127,7 @@
 #' solutions, especially in noisy segmentations.
 #' @param non.clonal.M Average expected cellular fraction of sub-clonal somatic
 #' mutations. This is to calculate expected allelic fractions of a single
-#' sub-clonal bin for SNVs. For all somatic variants, more accurate cellular
+#' sub-clonal bin for variants. For all somatic variants, more accurate cellular
 #' fractions are calculated.
 #' @param max.mapping.bias Exclude variants with high mapping bias from the
 #' likelihood score calculation. Note that bias is reported on an inverse
@@ -137,6 +137,8 @@
 #' \code{\link{setMappingBiasVcf}}. Should be set to a value high enough 
 #' to be much more likely an artifact and not a true germline variant not
 #' present in dbSNP.
+#' @param min.variants.segment Flag segments with fewer variants. The
+#' minor copy number estimation is not reliable with insufficient variants.
 #' @param iterations Maximum number of iterations in the Simulated Annealing
 #' copy number fit optimization. Note that this an integer optimization problem
 #' that should converge quickly. Allowed range is 10 to 250.
@@ -153,7 +155,7 @@
 #' SNP state in the likelihood model. Not necessary when matched normal samples
 #' are available.
 #' @param error Estimated sequencing error rate. Used to calculate minimum
-#' number of supporting reads for SNVs using
+#' number of supporting reads for variants using
 #' \code{\link{calculatePowerDetectSomatic}}. Also used to calculate the
 #' probability of homozygous SNP allelic fractions (assuming reference reads
 #' are sequencing errors).
@@ -179,7 +181,7 @@
 #' @param plot.cnv Generate segmentation plots.
 #' @param cosmic.vcf.file Add a \code{Cosmic.CNT} info field to the provided
 #' \code{vcf.file} using a VCF file containing the COSMIC database. The default
-#' \code{fun.setPriorVcf} function will give SNVs found in the COSMIC database
+#' \code{fun.setPriorVcf} function will give variants found in the COSMIC database
 #' a higher prior probability of being somatic. Not used in likelhood model
 #' when matched normal is available in \code{vcf.file}. Should be compressed
 #' and indexed with bgzip and tabix, respectively.
@@ -190,8 +192,8 @@
 #' unmodeled biases, e.g. amplification biases.
 #' The amount of expected overdispersion can be controlled via the 
 #' \code{max.coverage.vcf} argument (the higher, the less expected bias).
-#' @param post.optimize Optimize purity using final SCNA-fit and SNVs. This
-#' might take a long time when lots of SNVs need to be fitted, but will
+#' @param post.optimize Optimize purity using final SCNA-fit and variants. This
+#' might take a long time when lots of variants need to be fitted, but will
 #' typically result in a slightly more accurate purity, especially for rather
 #' silent genomes or very low purities. Otherwise, it will just use the purity
 #' determined via the SCNA-fit.
@@ -270,9 +272,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     test.purity = seq(0.15, 0.95, by = 0.01), prior.purity = NULL, 
     prior.K = 0.999, prior.contamination = 0.01, max.candidate.solutions = 20,
     candidates = NULL, min.coverage = 15, max.coverage.vcf = 300, 
-    max.non.clonal = 0.2, max.homozygous.loss = c(0.05, 1e07) , non.clonal.M = 1/3, 
-    max.mapping.bias = 0.8, max.pon = 3, iterations = 30, 
-    log.ratio.calibration = 0.1, smooth.log.ratio = TRUE, 
+    max.non.clonal = 0.2, max.homozygous.loss = c(0.05, 1e07), 
+    non.clonal.M = 1/3, max.mapping.bias = 0.8, max.pon = 3, iterations = 30, 
+    min.variants.segment = 5, log.ratio.calibration = 0.1, smooth.log.ratio = TRUE, 
     remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001, 
     gc.gene.file = NULL, max.dropout = c(0.95, 1.1), 
     min.logr.sdev = 0.15, max.logr.sdev = 0.75, 
@@ -534,7 +536,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             }  
             prior.somatic <- prior.somatic[!is.na(snv.lr)]
             
-            # make sure all SNVs are in covered segments
+            # make sure all variants are in covered segments
             flog.info("Removing %i variants outside segments.", n.vcf.before.filter - nrow(vcf))
         }
         ov <- findOverlaps(seg.gr, vcf)
@@ -827,7 +829,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             cont.rate <- prior.contamination
             .fitSNV <- function(tp, pp) {
                 .fitSNVp <- function(px, cont.rate=prior.contamination) {
-                    flog.info("Fitting SNVs for purity %.2f, tumor ploidy %.2f and contamination %.2f.", 
+                    flog.info("Fitting variants for purity %.2f, tumor ploidy %.2f and contamination %.2f.", 
                         px, weighted.mean(C, li), cont.rate)
                   
                   .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, test.num.copy, 
@@ -836,7 +838,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K, 
                     max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M, 
                     model.homozygous = model.homozygous, error = error, 
-                    max.mapping.bias = max.mapping.bias, max.pon = max.pon)
+                    max.mapping.bias = max.mapping.bias, max.pon = max.pon,
+                    min.variants.segment = min.variants.segment)
                 }
 
                 res.snvllik <- lapply(tp[1], .fitSNVp)
@@ -922,7 +925,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                       snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K,
                       max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M,
                       model.homozygous = model.homozygous, error = error,
-                      max.mapping.bias = max.mapping.bias, max.pon = max.pon)
+                      max.mapping.bias = max.mapping.bias, max.pon = max.pon,
+                      min.variants.segment = min.variants.segment)
             results[[i]]$SNV.posterior <- res.snvllik
             cont.rate <- .plotContamination(
                         results[[i]]$SNV.posterior$posteriors,

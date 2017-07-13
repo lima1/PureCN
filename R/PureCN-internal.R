@@ -23,7 +23,10 @@ max.exon.ratio) {
         x =  vapply(2^lr, function(y) min(y, max.exon.ratio), double(1)), 
         min = 0, max = max.exon.ratio, log = TRUE))
 }
-.calcMsSegmentC <- function(yy, test.num.copy, Ci, prior.K) {
+# Previously calculated likelihood scores do not take the segmentation into
+# account. This will find the most likely segment minor copy number
+.calcMsSegmentC <- function(yy, test.num.copy, Ci, prior.K, mapping.bias.ok, 
+    seg.id, min.variants.segment) {
     max.M <- floor(Ci/2)
     idx.germline <- test.num.copy+length(test.num.copy)+1
     idx.somatic <- test.num.copy+1
@@ -53,20 +56,34 @@ max.exon.ratio) {
         }
         yy
     })    
-    best <- which.max(vapply(yys, function(x) sum(apply(x, 1, max)),double(1)))
-    list(best=yys[[best]], M=test.num.copy[best])
+    # if not enough variants in segment, flag
+    flag <- sum(mapping.bias.ok) < min.variants.segment
+    if (!sum(mapping.bias.ok)) { 
+        mapping.bias.ok <- rep(TRUE, length(mapping.bias.ok))
+    }    
+    #bestAll <- which.max(vapply(yys, function(x) 
+    #    sum(apply(x, 1, max)),double(1)))
+
+    best <- which.max(vapply(yys, function(x) 
+        sum(apply(x[mapping.bias.ok,,drop=FALSE], 1, max)),double(1)))
+  #  if (bestAll != best) {
+  #      flog.debug("mapping bias influences allele-specific call. seg.id %i; Length %i. Sum %i",seg.id, length(mapping.bias.ok), sum(mapping.bias.ok))
+  #  }    
+    list(best=yys[[best]], M=test.num.copy[best], flag=flag)
 }
 
 # calculate likelihood scores for all possible minor copy numbers
-.calcMsSegment <- function(xxi, test.num.copy, opt.C, prior.K) {
+.calcMsSegment <- function(xxi, test.num.copy, opt.C, prior.K, mapping.bias.ok, 
+    seg.id, min.variants.segment) {
     lapply(seq_along(xxi), function(i).calcMsSegmentC( xxi[[i]], test.num.copy,
-c(test.num.copy, round(opt.C))[i], prior.K))
+c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variants.segment))
 }    
 
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
     C.likelihood, C, opt.C, median.C, snv.model, prior.somatic, mapping.bias, snv.lr, 
     sampleid = NULL, cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M,
-    model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8, max.pon) {
+    model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8, max.pon,
+    min.variants.segment) {
     
     .dbeta <- function(x, shape1, shape2, log, size) dbeta(x=x, 
         shape1=shape1, shape2=shape2, log=log)
@@ -116,7 +133,7 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         shape2 <- (1 - ar_all[idx]) * dp_all[idx] + 1
         mInf_all <- log(double(length(shape1)))
 
-        lapply(seq(ncol(C.likelihood)), function(k) {
+        list(vcf.ids=idx, likelihoods=lapply(seq(ncol(C.likelihood)), function(k) {
             Ci <- c(test.num.copy, opt.C[i])[k]       
             priorM <- log(max(Ci,1) + 1 + haploid.penalty)
             
@@ -159,20 +176,26 @@ c(test.num.copy, round(opt.C))[i], prior.K))
                 prob=error/3, log=TRUE) + priorHom + log(1-prior.somatic[idx])
              
             do.call(cbind, p.ar)
-        })
+        }))
         
     })
     
-    tmp <- lapply(seq_along(xx),function(i) .calcMsSegment(xx[[i]], 
-               test.num.copy, opt.C[seg.idx[i]], prior.K))
+    tmp <- lapply(seq_along(xx),function(i) .calcMsSegment(xx[[i]]$likelihoods, 
+               test.num.copy, opt.C[seg.idx[i]], prior.K, 
+               mapping.bias.ok=mapping.bias$bias[xx[[i]]$vcf.ids]>=max.mapping.bias,
+               seg.id=seg.idx[i], min.variants.segment))
 
     xx <- lapply(tmp, lapply, function(x) x$best)
     
+    .extractValues <- function(tmp, field) { 
+        segmentValue <- sapply(seq_along(tmp), function(i) 
+            tmp[[i]][[min(C[seg.idx[i]], max(test.num.copy))+1]][[field]])
+        segmentValue <- unlist(sapply(seq_along(seg.idx), function(i) 
+            rep(segmentValue[i], sum(seg.idx[i]==queryHits(ov)))))
+    }
     # Get segment M's for each SNV
-    segment.M <- sapply(seq_along(tmp), function(i) 
-        tmp[[i]][[min(C[seg.idx[i]], max(test.num.copy))+1]]$M)
-    segment.M <- unlist(sapply(seq_along(seg.idx), function(i) 
-        rep(segment.M[i], sum(seg.idx[i]==queryHits(ov)))))
+    segment.M <- .extractValues(tmp, "M")
+    segment.Flag <- .extractValues(tmp, "flag")
 
     likelihoods <- do.call(rbind, 
         lapply(seq_along(xx), function(i) Reduce("+", 
@@ -196,7 +219,8 @@ c(test.num.copy, round(opt.C))[i], prior.K))
         posteriors, 
         xx, 
         ML.C = C[queryHits(ov)],
-        ML.M.SEGMENT=segment.M
+        ML.M.SEGMENT=segment.M,
+        M.SEGMENT.FLAGGED=segment.Flag
     )
     
     posteriors$ML.AR <- (p * posteriors$ML.M + 
