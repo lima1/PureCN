@@ -64,6 +64,13 @@ off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
     }
     if (is.null(interval.gr$on.target)) interval.gr$on.target <- TRUE    
     
+    # make sure the chromsome naming style is the same in all 3 files
+    # be nice and fix it if necessary
+    interval.gr <- .checkSeqlevelStyleInterval(reference.file, interval.gr)
+    if (!is.null(mappability)) {
+        mappability <- .checkSeqlevelStyleMappability(interval.gr, mappability)
+    }
+     
     containsOfftarget <- sum(interval.gr$on.target)!=length(interval.gr)
 
     if (containsOfftarget) {
@@ -75,7 +82,8 @@ off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
             tmp <- tile(interval.gr, width=average.target.width)
             interval.gr <- unlist(tmp)
             interval.gr$on.target <- TRUE
-            nChanges <- sum(sapply(tmp, length)>1)
+            nChanges <- sum(elementNROWS(tmp) > 1)
+
             if (nChanges > 0) {
                 flog.info("Splitting %i large targets to an average width of %i.",
                     nChanges, average.target.width)
@@ -105,10 +113,13 @@ off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
         }    
     }
 
+
     interval.gr <- .annotateMappability(interval.gr, mappability, 
         min.mappability) 
-
+    
+    flog.info("Calculating GC-content...")
     x <- scanFa(reference.file, interval.gr)
+
     GC.count <- letterFrequency(x,"GC")
     all.count <- letterFrequency(x,"ATGC")
     interval.gr$gc_bias <- as.vector(ifelse(all.count==0,NA,GC.count/all.count))
@@ -162,3 +173,41 @@ off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
     )    
     write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE, sep="\t")
 }
+
+.checkSeqlevelStyleInterval <- function(reference.file, interval.gr) {
+    refSeqlevelStyle <- try(seqlevelsStyle(scanFaIndex(reference.file)), silent=TRUE)
+    # if unknown, we cannot check and correct
+    if (class(refSeqlevelStyle) == "try-error") return(interval.gr)
+    intervalSeqlevelStyle <- try(seqlevelsStyle(interval.gr), silent=TRUE)
+
+    if (class(intervalSeqlevelStyle) == "try-error") {
+        .stopUserError("Chromosome naming style of interval file unknown, should be ",
+            refSeqlevelStyle, ".") 
+    }
+        
+    if (!length(intersect(intervalSeqlevelStyle,refSeqlevelStyle))) {
+        flog.warn("Chromosome naming style of interval file (%s) was different from reference (%s).", 
+            intervalSeqlevelStyle, refSeqlevelStyle)
+        seqlevelsStyle(interval.gr) <- refSeqlevelStyle[1]
+    }        
+    interval.gr
+}
+       
+.checkSeqlevelStyleMappability <- function(interval.gr, mappability) {
+    refSeqlevelStyle <- try(seqlevelsStyle(interval.gr), silent=TRUE)
+    # if unknown, we cannot check and correct
+    if (class(refSeqlevelStyle) == "try-error") return(mappability)
+    mappabilitySeqlevelStyle <- try(seqlevelsStyle(mappability), silent=TRUE)
+
+    if (class(mappabilitySeqlevelStyle) == "try-error") {
+        .stopUserError("Chromosome naming style of mappability file unknown, should be ",
+            refSeqlevelStyle, ".") 
+    }    
+
+    if (!length(intersect(mappabilitySeqlevelStyle,refSeqlevelStyle))) {
+        flog.warn("Chromosome naming style of mappability file (%s) was different from reference (%s).", 
+            mappabilitySeqlevelStyle, refSeqlevelStyle)
+        seqlevelsStyle(mappability) <- refSeqlevelStyle[1]
+    }        
+    mappability
+}       

@@ -49,4 +49,23 @@ test_calculateGCContentByInterval <- function() {
     gcMap <- calculateGCContentByInterval(intervals, reference.file, 
         mappability=mappability)
     checkEqualsNumeric(c(1,1,0.7,1,1), gcMap$mappability, tol=0.05)
+    reference.file <- system.file("extdata", "ex3_reference.fa", 
+        package = "PureCN", mustWork = TRUE)
+    bed.file3 <- system.file("extdata", "ex3_intervals.bed", 
+        package="PureCN", mustWork = TRUE)
+    intervals3 <- import(bed.file3)
+    x <- calculateGCContentByInterval(intervals3, reference.file)
+    checkEqualsNumeric(c(0.4533333,0.5057143,0.5733333,0.4800000,0.3600000), x$gc_bias, tolerance=0.001) 
+    seqlevelsStyle(intervals3) <- "NCBI"
+    x <- calculateGCContentByInterval(intervals3, reference.file)
+    checkEqualsNumeric(c(0.4533333,0.5057143,0.5733333,0.4800000,0.3600000), x$gc_bias, tolerance=0.001)
+    checkException( calculateGCContentByInterval(intervals, reference.file))
+    checkTrue(grepl("Chromosome naming style of interval file", geterrmessage()))
+    mappability.file3 <- system.file("extdata", "ex3_mappability.bed", 
+            package = "PureCN", mustWork = TRUE)
+    mappability3 <- import(mappability.file3)
+    seqlevelsStyle(mappability3) <- "NCBI"
+    x <- calculateGCContentByInterval(intervals3, reference.file, mappability=mappability3)
+    checkEqualsNumeric(c(0.4533333,0.5057143,0.5733333,0.4800000,0.3600000), x$gc_bias, tolerance=0.001)
+    checkEqualsNumeric(c(1,1,0.7,1,1), x$mappability, tol=0.05)
 }    

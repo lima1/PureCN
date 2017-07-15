@@ -7,7 +7,8 @@ Changes in version 1.8.0
   command line tools)
 - More robust mapping bias estimation
 - Added support for CNVkit coverage files (*.cnn, *.cnr)
-- IntervalFile.R can annotate targets with gene symbols
+- IntervalFile.R can annotate targets with gene symbols and automatically
+  convert chromosome naming styles.
 - Better artifact filtering by using normalDB more efficiently
 - Support for mappability scores
 - Coverage calculation can now include duplicates 

@@ -59,9 +59,7 @@ Internally, this script uses \Biocpkg{rtracklayer} to parse the
 See the \Biocpkg{rtracklayer} documentation for problems loading the file.
 
 The \Rcode{--offtarget} flag will include off-target reads. Including them is
-recommended except for Amplicon data. If provided, this script will calculate
-GC-content for almost the entire genome, so this command will take a while to
-finish.
+recommended except for Amplicon data. 
 
 The \Rcode{--export} argument is optional. If provided, this script will store
 the modified intervals as BED file for example (again every
