@@ -8,7 +8,7 @@ calculateGCContentByInterval(interval.file, reference.file,
   output.file = NULL, off.target = FALSE, average.target.width = 400,
   min.off.target.width = 20000, average.off.target.width = 2e+05,
   off.target.padding = -500, mappability = NULL, min.mappability = c(0.5,
-  0.1, 0.7))
+  0.1, 0.7), off.target.seqlevels = c("targeted", "noncircular", "all"))
 }
 \arguments{
 \item{interval.file}{File specifying the intervals. Interval is expected in
@@ -42,6 +42,9 @@ ignored, assuming that \code{mappability} covers the whole accessible genome.}
 for on-target, off-target, and chrY regions in that order. The chrY regions
 are only used for sex determination in \sQuote{PureCN} and are therefore 
 treated differently. Requires \code{mappability}.}
+
+\item{off.target.seqlevels}{Controls how to deal with chromosomes/contigs
+found in the \code{reference.file} but not in the \code{interval.file}.}
 }
 \value{
 Returns GC content by interval as \code{GRanges} object.

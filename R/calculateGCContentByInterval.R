@@ -27,6 +27,8 @@
 #' for on-target, off-target, and chrY regions in that order. The chrY regions
 #' are only used for sex determination in \sQuote{PureCN} and are therefore 
 #' treated differently. Requires \code{mappability}.
+#' @param off.target.seqlevels Controls how to deal with chromosomes/contigs
+#' found in the \code{reference.file} but not in the \code{interval.file}.
 #' @return Returns GC content by interval as \code{GRanges} object.
 #' @author Markus Riester
 #' @references Talevich et al. (2016). CNVkit: Genome-Wide Copy Number 
@@ -53,10 +55,12 @@
 #' @importFrom BiocGenerics unstrand
 #' @importFrom stats aggregate
 #' @importFrom S4Vectors mcols
+#' @importFrom GenomeInfoDb seqlevelsInUse
 calculateGCContentByInterval <- function(interval.file, reference.file,
 output.file = NULL, off.target=FALSE, average.target.width=400, 
 min.off.target.width=20000, average.off.target.width=200000,  
-off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
+off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7),
+off.target.seqlevels=c("targeted", "noncircular", "all")) {
     if (class(interval.file)=="GRanges") {
         interval.gr <- .checkIntervals(interval.file)
     } else {    
@@ -66,9 +70,9 @@ off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
     
     # make sure the chromsome naming style is the same in all 3 files
     # be nice and fix it if necessary
-    interval.gr <- .checkSeqlevelStyleInterval(reference.file, interval.gr)
+    interval.gr <- .checkSeqlevelStyle(scanFaIndex(reference.file), interval.gr, "interval")
     if (!is.null(mappability)) {
-        mappability <- .checkSeqlevelStyleMappability(interval.gr, mappability)
+        mappability <- .checkSeqlevelStyle(scanFaIndex(reference.file), mappability, "mappability")
     }
      
     containsOfftarget <- sum(interval.gr$on.target)!=length(interval.gr)
@@ -108,11 +112,22 @@ off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
             offRegions <- unlist(tile(offRegions, width=average.off.target.width))
             offRegions$on.target <- FALSE
             offRegions <- offRegions[width(offRegions)>=min.off.target.width]
-            offRegions <- offRegions[seqnames(offRegions) %in% seqlevels(interval.gr)]
-            interval.gr <- merge(interval.gr, offRegions, all=TRUE, sort=TRUE)
+            off.target.seqlevels <- match.arg(off.target.seqlevels)
+            seqlevelsBefore <- seqlevelsInUse(offRegions)
+            if (off.target.seqlevels == "targeted") {
+                offRegions <- offRegions[seqnames(offRegions) %in% seqlevels(interval.gr)]
+            } else if (off.target.seqlevels == "noncircular") {
+                offRegions <- offRegions[seqnames(offRegions) %in% 
+                    .getNonCircularSeqnames(reference.file)]
+            }    
+            seqlevelsAfter <- seqlevelsInUse(offRegions)
+            if (!identical(seqlevelsBefore, seqlevelsAfter)) {
+                flog.info("Removing following contigs from off-target regions: %s", 
+                    paste(setdiff(seqlevelsBefore, seqlevelsAfter), collapse=","))
+            }    
+            interval.gr <- merge(offRegions, interval.gr, all = TRUE, sort=TRUE)
         }    
     }
-
 
     interval.gr <- .annotateMappability(interval.gr, mappability, 
         min.mappability) 
@@ -174,40 +189,37 @@ off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7)) {
     write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE, sep="\t")
 }
 
-.checkSeqlevelStyleInterval <- function(reference.file, interval.gr) {
-    refSeqlevelStyle <- try(seqlevelsStyle(scanFaIndex(reference.file)), silent=TRUE)
+.checkSeqlevelStyle <- function(ref, x, name) {
+    refSeqlevelStyle <- try(seqlevelsStyle(ref), silent=TRUE)
     # if unknown, we cannot check and correct
-    if (class(refSeqlevelStyle) == "try-error") return(interval.gr)
-    intervalSeqlevelStyle <- try(seqlevelsStyle(interval.gr), silent=TRUE)
+    if (class(refSeqlevelStyle) == "try-error") return(x)
+    xSeqlevelStyle <- try(seqlevelsStyle(x), silent=TRUE)
 
-    if (class(intervalSeqlevelStyle) == "try-error") {
-        .stopUserError("Chromosome naming style of interval file unknown, should be ",
-            refSeqlevelStyle, ".") 
-    }
-        
-    if (!length(intersect(intervalSeqlevelStyle,refSeqlevelStyle))) {
-        flog.warn("Chromosome naming style of interval file (%s) was different from reference (%s).", 
-            intervalSeqlevelStyle, refSeqlevelStyle)
-        seqlevelsStyle(interval.gr) <- refSeqlevelStyle[1]
-    }        
-    interval.gr
-}
-       
-.checkSeqlevelStyleMappability <- function(interval.gr, mappability) {
-    refSeqlevelStyle <- try(seqlevelsStyle(interval.gr), silent=TRUE)
-    # if unknown, we cannot check and correct
-    if (class(refSeqlevelStyle) == "try-error") return(mappability)
-    mappabilitySeqlevelStyle <- try(seqlevelsStyle(mappability), silent=TRUE)
-
-    if (class(mappabilitySeqlevelStyle) == "try-error") {
-        .stopUserError("Chromosome naming style of mappability file unknown, should be ",
-            refSeqlevelStyle, ".") 
+    if (class(xSeqlevelStyle) == "try-error") {
+        .stopUserError("Chromosome naming style of ", name, 
+            " file unknown, should be ", refSeqlevelStyle, ".") 
     }    
 
-    if (!length(intersect(mappabilitySeqlevelStyle,refSeqlevelStyle))) {
-        flog.warn("Chromosome naming style of mappability file (%s) was different from reference (%s).", 
-            mappabilitySeqlevelStyle, refSeqlevelStyle)
-        seqlevelsStyle(mappability) <- refSeqlevelStyle[1]
+    if (!length(intersect(xSeqlevelStyle,refSeqlevelStyle))) {
+        flog.warn("Chromosome naming style of %s file (%s) was different from reference (%s).", 
+            name, xSeqlevelStyle, refSeqlevelStyle)
+        seqlevelsStyle(x) <- refSeqlevelStyle[1]
     }        
-    mappability
+    x
 }       
+
+.getNonCircularSeqnames <- function(reference.file) {
+    gs <- genomeStyles()
+    style <- try(seqlevelsStyle(scanFaIndex(reference.file)), silent=TRUE)
+    # style not known? then don't exclude any chromosomes, return all
+    if (class(style) == "try-error") {
+        return(seqlevels(scanFaIndex(reference.file)))
+    }    
+    gs <- gs[sapply(gs, function(x) style %in% colnames(x))]
+    gss <- lapply(gs, function(x) list(seqlevels(scanFaIndex(reference.file)), x[[style]] ))
+    # pick the species with the highest relative overlap in chromosome names
+    gs <- gs[[which.min(sapply(gss, function(x) length(setdiff(x[[2]],x[[1]]))/length(x[[2]])))]]
+
+    s <- gs[[style]][!gs$circular] 
+    s[s %in% seqlevels(scanFaIndex(reference.file))]
+}    

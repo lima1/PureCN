@@ -291,11 +291,12 @@ Argument name   & Corresponding PureCN argument & PureCN function \\
 --infile        & interval.file & \Rfunction{calculateGCContentByInterval} \\
 --offtarget     & off.target    & \Rfunction{calculateGCContentByInterval} \\
 --targetwidth   & average.target.width & \Rfunction{calculateGCContentByInterval} \\
---offtargetwidth   & average.off.target.width & \Rfunction{calculateGCContentByInterval} \\
+--offtargetwidth & average.off.target.width & \Rfunction{calculateGCContentByInterval} \\
+--offtargetseqlevels & -off.target.seqlevels & \Rfunction{calculateGCContentByInterval} \\
 --mappability   & mappability   & \Rfunction{calculateGCContentByInterval} \\
 --genome        & txdb, org & \Rfunction{annotateTargets} \\
 --outfile       & & \\
---export        &  & \Rfunction{rtracklayer::export}  \\
+--export        & & \Rfunction{rtracklayer::export}  \\
 --version -v    & & \\
 --force -f      & & \\
 --help -h       & & \\
