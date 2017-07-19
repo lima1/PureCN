@@ -189,20 +189,20 @@ off.target.seqlevels=c("targeted", "noncircular", "all")) {
     write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE, sep="\t")
 }
 
-.checkSeqlevelStyle <- function(ref, x, name) {
+.checkSeqlevelStyle <- function(ref, x, name1, name2="reference") {
     refSeqlevelStyle <- try(seqlevelsStyle(ref), silent=TRUE)
     # if unknown, we cannot check and correct
     if (class(refSeqlevelStyle) == "try-error") return(x)
     xSeqlevelStyle <- try(seqlevelsStyle(x), silent=TRUE)
 
     if (class(xSeqlevelStyle) == "try-error") {
-        .stopUserError("Chromosome naming style of ", name, 
+        .stopUserError("Chromosome naming style of ", name1, 
             " file unknown, should be ", refSeqlevelStyle, ".") 
     }    
 
     if (!length(intersect(xSeqlevelStyle,refSeqlevelStyle))) {
-        flog.warn("Chromosome naming style of %s file (%s) was different from reference (%s).", 
-            name, xSeqlevelStyle, refSeqlevelStyle)
+        flog.warn("Chromosome naming style of %s file (%s) was different from %s (%s).", 
+            name1, xSeqlevelStyle, name2, refSeqlevelStyle)
         seqlevelsStyle(x) <- refSeqlevelStyle[1]
     }        
     x

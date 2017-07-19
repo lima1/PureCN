@@ -29,6 +29,7 @@ annotateTargets <- function(x, txdb, org) {
     } else {
         idx <- seq_along(x)        
     }    
+    txdb <- .checkSeqlevelStyle(x, txdb, "txdb", "interval file") 
     id <- transcriptsByOverlaps(txdb, ranges=x[idx], columns = "GENEID")
     id$SYMBOL <-suppressWarnings(select(org, sapply(id$GENEID, function(x)x[1]), "SYMBOL")[,2])
     idExons <- exonsByOverlaps(txdb, ranges=x[idx], columns = "GENEID")
