@@ -40,3 +40,14 @@ For the R package and more detailed information:
 vignette("PureCN", package="PureCN")
 ```
 
+## Paper
+
+Riester M, Singh A, Brannon A, Yu K, Campbell C, Chiang D and Morrissey M
+(2016). “PureCN: Copy number calling and SNV classification using targeted
+short read sequencing.” _Source Code for Biology and Medicine_, **11**, pp. 13.
+doi: [10.1186/s13029-016-0060-z](http://doi.org/10.1186/s13029-016-0060-z).
+
+
+## License
+
+[Artistic-2.0](https://opensource.org/licenses/Artistic-2.0).

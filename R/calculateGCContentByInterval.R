@@ -73,6 +73,7 @@ off.target.seqlevels=c("targeted", "noncircular", "all")) {
     interval.gr <- .checkSeqlevelStyle(scanFaIndex(reference.file), interval.gr, "interval")
     if (!is.null(mappability)) {
         mappability <- .checkSeqlevelStyle(scanFaIndex(reference.file), mappability, "mappability")
+        mappability <- .remove0MappabilityRegions(mappability)
     }
      
     containsOfftarget <- sum(interval.gr$on.target)!=length(interval.gr)
@@ -178,6 +179,11 @@ off.target.seqlevels=c("targeted", "noncircular", "all")) {
     interval.gr
 }
 
+.remove0MappabilityRegions <- function(mappability) {
+    colScore <- if (is.null(mappability$score)) 1 else "score"
+    mappability[mcols(mappability)[, colScore]>0,]
+}
+        
 .writeGc <- function(interval.gr, output.file) {
     tmp <- data.frame(
         Target=as.character(interval.gr),
