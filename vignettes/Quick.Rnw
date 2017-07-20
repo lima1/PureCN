@@ -142,6 +142,13 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT \
     \item The resulting \Rcode{normalDB\_hg19.rds} file contains absolute paths
     to the coverage files. It is thus necessary to re-run this command when the
     coverage files are moved.
+
+    \item Consider generating different databases when differences are
+    significant, e.g. for samples with different read lengths or insert size
+    distributions
+
+    \item In particular, do not mix normal data obtained with different capture
+    kits (e.g. Agilent SureSelect v4 and v6) 
 \end{itemize}
 
 \subsubsection*{PureCN}
@@ -190,19 +197,17 @@ A few important recommendations:
 
 \begin{itemize}
     \item Even if matched normals are available, it is often safer to use the
-        normal database for coverage normalization. 
+        normal database for coverage normalization
 
     \item Providing the normal database in addition to a matched normal is
-        optional, but helps ignoring low quality regions in the segmentation.
+        optional, but helps ignoring low quality regions in the segmentation
 
     \item The \Rcode{--pool} flag specifies how many normal samples should be
         used to calculate the tumor vs. normal coverage. In a large, homogeneous
         database, this should be set to 10. In a heterogeneous database (for
         example different insert sizes, coverages, library preparation
         protocols, etc.), this value is set to an appropriate group size between
-        2 and 10. Consider generating different databases when differences are
-        significant, e.g. for samples with different read lengths or insert size
-        distributions.
+        2 and 10. 
 
     \item The normal panel VCF file is useful for mapping bias correction and
         especially recommended without matched normals. See the FAQ of the main
@@ -292,7 +297,7 @@ Argument name   & Corresponding PureCN argument & PureCN function \\
 --offtarget     & off.target    & \Rfunction{calculateGCContentByInterval} \\
 --targetwidth   & average.target.width & \Rfunction{calculateGCContentByInterval} \\
 --offtargetwidth & average.off.target.width & \Rfunction{calculateGCContentByInterval} \\
---offtargetseqlevels & -off.target.seqlevels & \Rfunction{calculateGCContentByInterval} \\
+--offtargetseqlevels & off.target.seqlevels & \Rfunction{calculateGCContentByInterval} \\
 --mappability   & mappability   & \Rfunction{calculateGCContentByInterval} \\
 --genome        & txdb, org & \Rfunction{annotateTargets} \\
 --outfile       & & \\
