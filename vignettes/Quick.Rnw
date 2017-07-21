@@ -70,7 +70,9 @@ The \Rcode{--mappability} argument should provide a \Biocpkg{rtracklayer}
 parsable file with a mappability score in the first meta data column. If provided,
 off-target regions will be restricted to regions specified in this file. 
 On-target regions with low mappability will be excluded. For a test run, you
-can skip this argument or simply download the file from the UCSC website.
+can skip this argument or simply download the file from the UCSC website (see
+the FAQ section of the main vignette for instruction how to generate such
+a file).
 \end{itemize}
 
 

@@ -1216,6 +1216,27 @@ Figure~\ref{figure/figureexample2-1}:
         --columns ID --output $OUT/${ID}_bwa_dbsnp.vcf.gz --output-type z \
             $OUT/${ID}_bwa.vcf.gz
     \end{verbatim}
+    \item To generate a mappability file with the \software{GEM} library:
+         \begin{itemize}
+         \item Calculate mappability, set kmer size to length of mapped reads. 
+         \begin{verbatim}
+    REFERENCE="hg38.fa"
+    PREF=`basename $REFERENCE .fa`     
+    THREADS=4
+    KMER=100
+    gem-indexer -T ${THREADS} -c dna -i ${REFERENCE} -o ${PREF}_index
+    gem-mappability -T ${THREADS} -I ${PREF}_index.gem -l ${KMER} \
+        -o ${PREF}_${KMER} -m 2 -e 2
+    gem-2-wig -I ${PREF}_index.gem -i ${PREF}_${KMER}.mappability \
+        -o ${PREF}_${KMER}
+         \end{verbatim}
+        \item Convert to bigWig format, for example using the UCSC
+        \software{wigToBigWig} tool:
+         \begin{verbatim}
+    cut -f1,2 ${REFERENCE}.fai > ${PREF}.sizes
+    wigToBigWig ${PREF}_${KMER}.wig ${PREF}.sizes ${PREF}_${KMER}.bw
+         \end{verbatim}
+         \end{itemize}   
     \item To generate the normal panel VCF (\Rcode{normal.panel.vcf.file})
     with \software{GATK}:
     \begin{itemize}
