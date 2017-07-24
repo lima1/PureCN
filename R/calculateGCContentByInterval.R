@@ -181,7 +181,7 @@ off.target.seqlevels=c("targeted", "noncircular", "all")) {
 
 .remove0MappabilityRegions <- function(mappability) {
     colScore <- if (is.null(mappability$score)) 1 else "score"
-    mappability[mcols(mappability)[, colScore]>0,]
+    mappability[which(mcols(mappability)[, colScore]>0),]
 }
         
 .writeGc <- function(interval.gr, output.file) {

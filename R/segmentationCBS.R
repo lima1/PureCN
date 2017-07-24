@@ -164,48 +164,63 @@ iterations=2, chr.hash ) {
 .pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=NULL, method="ward.D", 
     min.variants=5, chr.hash, iterations=2) {
     for (iter in seq_len(iterations)) {
-    seg <- x$cna$output
-    #message("HCLUST: ", iter, " Num segment LRs: ", length(table(x$cna$output$seg.mean)))
-    seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
-        IRanges(start=seg$loc.start, end=seg$loc.end))
-    ov <- findOverlaps(seg.gr, vcf)
+        seg <- x$cna$output
+        #message("HCLUST: ", iter, " Num segment LRs: ", length(table(x$cna$output$seg.mean)))
+        seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
+            IRanges(start=seg$loc.start, end=seg$loc.end))
+        ov <- findOverlaps(seg.gr, vcf)
 
-    ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
-    ar.r <- ifelse(ar>0.5, 1-ar, ar)
-    dp <- geno(vcf)$DP[, tumor.id.in.vcf]
+        ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
+        ar.r <- ifelse(ar>0.5, 1-ar, ar)
+        dp <- geno(vcf)$DP[, tumor.id.in.vcf]
 
-    xx <- sapply(seq_len(nrow(seg)) , function(i) {
-        weighted.mean(
-            ar.r[subjectHits(ov)][queryHits(ov) == i], 
-            w=sqrt(dp[subjectHits(ov)][queryHits(ov) == i]),
-            na.rm=TRUE)
-    })
+        xx <- sapply(seq_len(nrow(seg)) , function(i) {
+            weighted.mean(
+                ar.r[subjectHits(ov)][queryHits(ov) == i], 
+                w=sqrt(dp[subjectHits(ov)][queryHits(ov) == i]),
+                na.rm=TRUE)
+        })
 
-    if (is.null(h)) {
-        h <- .getPruneH(seg)
-        flog.info("Setting prune.hclust.h parameter to %f.", h)
-    }   
+        if (is.null(h)) {
+            h <- .getPruneH(seg)
+            flog.info("Setting prune.hclust.h parameter to %f.", h)
+        }   
 
-    numVariants <- sapply(seq_len(nrow(seg)), function(i) 
-        sum(queryHits(ov) == i))
-    dx <- cbind(seg$seg.mean,xx)
-    hc <- hclust(dist(dx), method=method)
-    seg.hc <- data.frame(id=1:nrow(dx), dx, num=numVariants, 
-        cluster=cutree(hc,h=h))[hc$order,]
+        numVariants <- sapply(seq_len(nrow(seg)), function(i) 
+            sum(queryHits(ov) == i))
+        dx <- cbind(seg$seg.mean,xx)
+        hc <- hclust(dist(dx), method=method)
+        seg.hc <- data.frame(id=1:nrow(dx), dx, num=numVariants, 
+            cluster=cutree(hc,h=h))[hc$order,]
 
-    # cluster only segments with at least n variants    
-    seg.hc <- seg.hc[seg.hc$num>=min.variants,]
-    clusters <- lapply(unique(seg.hc$cluster), function(i) 
-        seg.hc$id[seg.hc$cluster==i])
-    clusters <- clusters[sapply(clusters, length)>1]
-    
-    x$cna$output$cluster.id <- NA
-    for (i in seq_along(clusters)) {
-        x$cna$output$cluster.id[clusters[[i]]] <- i
-        x$cna$output$seg.mean[clusters[[i]]] <- 
-            weighted.mean(x$cna$output$seg.mean[clusters[[i]]], 
-            x$cna$output$num.mark[clusters[[i]]])
-    }
+        # cluster only segments with at least n variants    
+        seg.hc <- seg.hc[seg.hc$num>=min.variants,]
+        clusters <- lapply(unique(seg.hc$cluster), function(i) 
+            seg.hc$id[seg.hc$cluster==i])
+        clusters <- clusters[sapply(clusters, length)>1]
+        
+        x$cna$output$cluster.id <- NA
+        for (i in seq_along(clusters)) {
+            x$cna$output$cluster.id[clusters[[i]]] <- i
+            x$cna$output$seg.mean[clusters[[i]]] <- 
+                weighted.mean(x$cna$output$seg.mean[clusters[[i]]], 
+                x$cna$output$num.mark[clusters[[i]]])
+        }
+        # merge consecutive segments with the same cluster id 
+        merged <- rep(FALSE, nrow(x$cna$output))
+        for (i in 2:nrow(x$cna$output)) {
+            if (is.na(x$cna$output$cluster.id[i-1]) || 
+                is.na(x$cna$output$cluster.id[i]) || 
+                x$cna$output$chrom[i-1] != x$cna$output$chrom[i]  ||
+                merged[i-1] ||
+                x$cna$output$cluster.id[i-1] != x$cna$output$cluster.id[i]  ) next
+                merged[i] <- TRUE
+
+                x$cna$output$num.mark[i-1] <- x$cna$output$num.mark[i]+x$cna$output$num.mark[i-1]
+                x$cna$output$size[i-1] <- x$cna$output$size[i]+x$cna$output$size[i-1]
+                x$cna$output$loc.end[i-1] <- x$cna$output$loc.end[i]
+        }
+        x$cna$output <- x$cna$output[!merged,]
     }
     #message("HCLUST Num segment LRs: ", length(table(x$cna$output$seg.mean)))
     x
