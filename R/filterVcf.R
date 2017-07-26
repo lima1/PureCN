@@ -173,20 +173,9 @@ interval.padding = 50) {
             flog.info("Removing %i blacklisted variants.", n-nrow(vcf))
         }    
     }
-
-    if (!is.null(geno(vcf)$BQ)) {
-        n.vcf.before.filter <- nrow(vcf)
-        vcf <- vcf[which(as.numeric(geno(vcf)$BQ[,tumor.id.in.vcf])>=min.base.quality)]
-        flog.info("Removing %i low quality variants with BQ < %i.", 
-            n.vcf.before.filter - nrow(vcf), min.base.quality) 
-    } else if (!is.null(rowRanges(vcf)$QUAL)) {
-        n.vcf.before.filter <- nrow(vcf)
-        idx <- which(as.numeric(rowRanges(vcf)$QUAL)>=min.base.quality)
-        if (length(idx)) vcf <- vcf[idx]
-        flog.info("Removing %i low quality variants with BQ < %i.", 
-            n.vcf.before.filter - nrow(vcf), min.base.quality) 
-    }     
     
+    vcf <- .filterVcfByBQ(vcf, tumor.id.in.vcf, min.base.quality)
+
     if (!is.null(target.granges)) {
         vcf <- .annotateVcfTarget(vcf, target.granges, interval.padding)
         if (remove.off.target.snvs) {
@@ -609,3 +598,22 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 
     vcf
 }
+
+.filterVcfByBQ <- function(vcf, tumor.id.in.vcf, min.base.quality) {
+    n.vcf.before.filter <- nrow(vcf)
+    idx <- NULL
+    if (!is.null(geno(vcf)$BQ)) {
+        # Mutect 1
+        idx <- which(as.numeric(geno(vcf)$BQ[,tumor.id.in.vcf])>=min.base.quality)
+    } else if (!is.null(geno(vcf)$MBQ)) {
+        # Mutect 2
+        idx <- which(as.numeric(geno(vcf)$MBQ[,tumor.id.in.vcf])>=min.base.quality)
+    } else if (!is.null(rowRanges(vcf)$QUAL)) {
+        # Freebayes
+        idx <- which(as.numeric(rowRanges(vcf)$QUAL)>=min.base.quality)
+    }
+    if (length(idx)) vcf <- vcf[idx]
+    flog.info("Removing %i low quality variants with BQ < %i.", 
+        n.vcf.before.filter - nrow(vcf), min.base.quality) 
+    vcf
+}         
