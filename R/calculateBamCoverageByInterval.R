@@ -56,6 +56,8 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
     intervalGr$average.coverage <- 
         intervalGr$coverage/width(intervalGr)
 
+    intervalGr$counts <- as.numeric(sapply(x, function(y) length(y$pos)))
+
     if (!is.null(output.file)) {
         .writeCoverage(intervalGr, output.file)
     }    
@@ -66,7 +68,8 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
     tmp <- data.frame(
         Target=as.character(intervalGr), 
         total_coverage=intervalGr$coverage, 
-        average_coverage=intervalGr$average.coverage,
+#        average_coverage=intervalGr$average.coverage,
+        counts=intervalGr$counts,
         on_target=intervalGr$on.target
     )
     write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE)

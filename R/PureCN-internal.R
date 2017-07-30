@@ -616,12 +616,24 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         tumor <- tumor.coverage.file
     }
     normals <- .readNormals(normal.coverage.files)
+    # TODO: remove spring 2018 release
+    useCounts <- .coverageHasCounts(tumor, normals)
+    if (useCounts) {
+        return(do.call(cbind, 
+        lapply(c(list(tumor), normals), function(x) x$counts)))
+    } 
+    flog.info("Coverage file does not contain read count information, %s", 
+        "using total coverage for calculating log-ratios.")
+    do.call(cbind, 
+      lapply(c(list(tumor), normals), function(x) x$coverage))
+}
 
-    countMatrix <- do.call(cbind, 
-        #lapply(c(list(tumor), normals), function(x) x$average.coverage))
-        lapply(c(list(tumor), normals), function(x) x$coverage))
-}    
-
+.coverageHasCounts <- function(tumor, normals) {
+    if (sum(!is.na(tumor$counts))==0) return(FALSE)
+    for (i in seq_along(normals)) 
+        if (sum(!is.na(normals[[i]]$counts))==0) return(FALSE)
+    return(TRUE)        
+}
 .checkSymbolsChromosome <- function(tumor, blank=c("", ".")) {
     if (is.null(tumor$Gene)) {
         tumor$Gene <- "."

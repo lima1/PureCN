@@ -13,12 +13,15 @@ Changes in version 1.8.0
 - Support for mappability scores
 - Coverage calculation can now include duplicates 
 - Segments are now flagged when allele-specific copy number is unreliable
-  due to insufficient number of high quality variants.
+  due to insufficient number of high quality variants
+- findBestNormal pooling now read count based, not coverage based  
+- Experimental support for GATK4
 
 API CHANGES
 
 - Due to novel optimizations of provided bait intervals, we recommend 
-  to regenerate the normal databases.
+  to regenerate the normal databases and recalculate all coverages from
+  BAM files
 - New functions: annotateTargets, callMutationBurden
 - Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults,
     readCoverageGatk
@@ -47,6 +50,7 @@ PLANNED FEATURES FOR 1.8
 - Better performance in high purity samples with significant heterogeneity  
 - LOH database
 - Switch to S4 data structures (maybe)
+- Switch the HDF5 for mapping bias database
 - Whole dataset visualizations (maybe)
 - Better support for known, small deletions and amplifications (e.g. EGFRvIII,
   MYC)

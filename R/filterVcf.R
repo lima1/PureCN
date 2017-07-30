@@ -233,6 +233,10 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
 "poor_mapping_region_alternate_allele_mapq", "poor_mapping_region_mapq0", 
 "possible_contamination", "strand_artifact", "seen_in_panel_of_normals"),
 ... ){
+    if (.detectCaller(vcf) == "MuTect2/GATK4") {
+        flog.info("Detected MuTect2 VCF.")
+        return(filterVcfMuTect2(vcf, tumor.id.in.vcf, ...))
+    }    
     if (is.null(stats.file)) return(
         filterVcfBasic(vcf, tumor.id.in.vcf, ...))
     
@@ -617,3 +621,9 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         n.vcf.before.filter - nrow(vcf), min.base.quality) 
     vcf
 }         
+
+
+.detectCaller <- function(vcf) {
+    if (!is.null(meta(header(vcf))[["GATKCommandLine"]]$Version)) return("MuTect2/GATK4")
+    return("")
+}    

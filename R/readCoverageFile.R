@@ -55,17 +55,22 @@ readCoverageGatk <- function() {
     if (!is.null(zero)) flog.warn("zero ignored for GATK coverage files.")
     inputCoverage <- utils::read.table(file, header = TRUE)
     if (is.null(inputCoverage$total_coverage)) inputCoverage$total_coverage <- NA
-    if (is.null(inputCoverage$average_coverage)) inputCoverage$average_coverage <- NA
+    if (is.null(inputCoverage$counts)) inputCoverage$counts <- NA
     if (is.null(inputCoverage$on_target)) inputCoverage$on_target <- TRUE
 
     targetCoverage <- GRanges(inputCoverage$Target, 
         coverage=inputCoverage$total_coverage, 
-        average.coverage=inputCoverage$average_coverage,
+        average.coverage=NA,
+        counts=inputCoverage$counts,
         on.target=inputCoverage$on_target)
-
+    targetCoverage <- .addAverageCoverage(targetCoverage)
     targetCoverage
 }
 
+.addAverageCoverage <- function(x) {
+    x$average.coverage <- x$coverage/width(x)
+    x
+}    
 .readCoverageCnn <- function(file, zero, format="cnn") {
     if (is.null(zero)) zero <- TRUE
     inputCoverage <- utils::read.table(file, header = TRUE)
@@ -108,6 +113,9 @@ readCoverageGatk <- function() {
     if (!identical(targets, as.character(coverageGr))) {
         flog.warn("Target intervals were not sorted.")
     }    
+    # add fields that might be missing due to old PureCN versions
+    if (is.null(coverageGr$counts)) coverageGr$counts <- NA
+    if (is.null(coverageGr$on.target)) coverageGr$on.target <- TRUE
     coverageGr
 }
 
