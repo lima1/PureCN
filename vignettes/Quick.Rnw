@@ -7,7 +7,7 @@
 \documentclass{article}
 
 <<style-knitr, eval=TRUE, echo=FALSE, results="asis">>=
-BiocStyle::latex2()
+BiocStyle::latex()
 @ 
 
 \usepackage{booktabs} % book-quality tables
