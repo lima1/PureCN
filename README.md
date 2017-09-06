@@ -16,13 +16,14 @@ For outdated R/Bioconductor versions, you can try backporting the latest stable
 version (this should work fine for Bioconductor 3.3 and 3.4):
 
 ```
-biocLite("Bioconductor-mirror/PureCN", ref="release-3.5")
+biocLite("lima1/PureCN", ref="RELEASE_3_5")
 ```
 
-If you want the latest and greatest from the developer branch:
+If you want the latest and greatest from the developer branch (since 1.7.44
+recommended over stable 1.6.3):
 
 ```
-biocLite("Bioconductor-mirror/PureCN")
+biocLite("lima1/PureCN")
 ```
 
 
