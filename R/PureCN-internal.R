@@ -210,8 +210,10 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         subjectHits(ov)[queryHits(ov) == i]))
     rownames(likelihoods) <- vcf.ids
     
+    # for very high-level amplifications, all posteriors can be 0, so make sure
+    # we get valid values here and flag those later.
+    posteriors <- likelihoods/pmax(rowSums(likelihoods),.Machine$double.xmin)
     # this just adds a lot of helpful info to the SNV posteriors
-    posteriors <- likelihoods/rowSums(likelihoods)
     xx <- .extractMLSNVState(posteriors)
     
     posteriors <- cbind(

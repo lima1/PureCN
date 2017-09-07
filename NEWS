@@ -1,58 +1,58 @@
 Changes in version 1.8.0
 ------------------------
 
-- Support for off-target reads in copy number normalization and segmentation
-- Added mutation burden calculation
-- Code cleanups (switch to GRanges where possible, switch to optparse in 
-  command line tools)
-- More robust mapping bias estimation
-- Added support for CNVkit coverage files (*.cnn, *.cnr)
-- IntervalFile.R can annotate targets with gene symbols and automatically
-  convert chromosome naming styles.
-- Better artifact filtering by using normalDB more efficiently
-- Support for mappability scores
-- Coverage calculation can now include duplicates 
-- Segments are now flagged when allele-specific copy number is unreliable
-  due to insufficient number of high quality variants
-- findBestNormal pooling now read count based, not coverage based  
-- Experimental support for GATK4
+NEW FEATURES
+
+    o Support for off-target reads in copy number normalization and segmentation
+    o Added mutation burden calculation
+    o Code cleanups (switch to GRanges where possible, switch to optparse in 
+      command line tools)
+    o More robust mapping bias estimation
+    o Added support for CNVkit coverage files (*.cnn, *.cnr)
+    o IntervalFile.R can annotate targets with gene symbols and automatically
+      convert chromosome naming styles.
+    o Better artifact filtering by using normalDB more efficiently
+    o Support for mappability scores
+    o Coverage calculation can now include duplicates 
+    o Segments are now flagged when allele-specific copy number is unreliable
+      due to insufficient number of high quality variants
+    o findBestNormal pooling now read count based, not coverage based  
+    o Experimental support for GATK4
 
 API CHANGES
 
-- Due to novel optimizations of provided bait intervals, we recommend 
-  to regenerate the normal databases and recalculate all coverages from
-  BAM files
-- New functions: annotateTargets, callMutationBurden
-- Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults,
-    readCoverageGatk
-- Changed defaults: 
-    - min.normals 2 (from 4) in setMappingBiasVcf
-    - normalDB.min.coverage 0.25 (from 0.2) in filterTargets
-    - log.ratio.calibration 0.1 (from 0.25) in runAbsoluteCN; now 
-      relative to purity, not log-ratio noise
-- Minor changes: 
-    - Removed gc.data from filterTargets since gc_bias is now added to tumor 
-      coverage
-    - dropped purecn.output from correctCoverageBias (no two-pass anymore)
-    - Coverage.R argument --gatkcoverage renamed to --coverage
-    - Dropped GC-normalization functionality in NormalDB, since this is 
-      now conveniently done in Coverage.R
-    - Renamed PureCN.R --outdir argument to --out. Can now specify a file
-      prefix as in GATK. Filenames are thus not forced to sample id anymore.  
-      If --out is a directory, it will behave like before and will use
-      out/sampleid_suffix as filename.
+    o Due to novel optimizations of provided bait intervals, we recommend 
+      to regenerate the normal databases and recalculate all coverages from
+      BAM files
+    o New functions: annotateTargets, callMutationBurden
+    o Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults,
+        readCoverageGatk
+    o Changed defaults: 
+        o min.normals 2 (from 4) in setMappingBiasVcf
+        o normalDB.min.coverage 0.25 (from 0.2) in filterTargets
+        o log.ratio.calibration 0.1 (from 0.25) in runAbsoluteCN; now 
+          relative to purity, not logoratio noise
+    o Minor changes: 
+        o Removed gc.data from filterTargets since gc_bias is now added to tumor 
+          coverage
+        o dropped purecn.output from correctCoverageBias (no two-pass anymore)
+        o Coverage.R argument --gatkcoverage renamed to --coverage
+        o Dropped GC-normalization functionality in NormalDB, since this is 
+          now conveniently done in Coverage.R
+        o Renamed PureCN.R --outdir argument to --out. Can now specify a file
+          prefix as in GATK. Filenames are thus not forced to sample id anymore.  
+          If o-out is a directory, it will behave like before and will use
+          out/sampleid_suffix as filename.
  
-PLANNED FEATURES FOR 1.8
+PLANNED FEATURES FOR 1.10
 
-- Better sample summary statistics, like mutation burden, chromosomal 
-  instability
-- Better performance in low purity samples 
-- Better performance in high purity samples with significant heterogeneity  
-- LOH database
-- Switch to S4 data structures (maybe)
-- Switch the HDF5 for mapping bias database
-- Whole dataset visualizations (maybe)
-- Better support for known, small deletions and amplifications (e.g. EGFRvIII,
-  MYC)
-- Support for GATK4
-- Better runtime performance by ignoring unlikely solutions early
+    o More sample summary statistics, like chromosomal instability
+    o Better performance in high purity samples with significant heterogeneity  
+    o LOH database
+    o Switch to S4 data structures (maybe)
+    o Switch the HDF5 for mapping bias database
+    o Whole dataset visualizations (maybe)
+    o Better support for known, small deletions and amplifications (e.g. EGFRvIII,
+      MYC)
+    o Support for GATK4
+    o Better runtime performance by ignoring unlikely solutions early
