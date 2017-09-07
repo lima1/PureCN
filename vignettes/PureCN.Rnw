@@ -967,6 +967,12 @@ flanking bases \\
 \Rcode{callable.bases.all} & Total number of callable bases. With
 default parameters includes off-target regions that were ignored by 
 \Rfunction{runAbsoluteCN}. \\
+\Rcode{somatic.rate.ontarget} & Somatic mutations per megabase in target regions \\
+\Rcode{somatic.rate.ontarget.95.lower} & Lower 95\% of confidence interval \\
+\Rcode{somatic.rate.ontarget.95.upper} & Upper 95\% of confidence interval \\
+\Rcode{private.germline.rate.ontarget} & Private germline mutations per megabase in target regions \\
+\Rcode{private.germline.rate.ontarget.95.lower} & Lower 95\% of confidence interval \\
+\Rcode{private.germline.rate.ontarget.95.upper} & Upper 95\% of confidence interval \\
 \bottomrule
 \end{tabular}
 \label{tbl:callMutationBurden}

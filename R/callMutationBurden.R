@@ -50,6 +50,7 @@
 #'     callable=callableBed, exclude=exclude, fun.countMutation=myVcfFilter)
 #' 
 #' @export callMutationBurden
+#' @importFrom stats qpois
 callMutationBurden <- function(res, id = 1, remove.flagged = TRUE, 
     min.prior.somatic=0.1, min.cellfraction=0, 
     fun.countMutation=function(vcf) width(vcf)==1,
@@ -107,8 +108,8 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
         
     p <- p[p$prior.somatic >= min.prior.somatic]
     if (remove.flagged) p <- p[!p$FLAGGED]
-        
-    data.frame(
+    
+    ret <- data.frame(
         somatic.ontarget=sum(p$ML.SOMATIC & p$on.target==1 & 
             p$CELLFRACTION>min.cellfraction),
         somatic.all=sum(p$ML.SOMATIC & p$CELLFRACTION>min.cellfraction), 
@@ -117,7 +118,25 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
         callable.bases.ontarget=callableBasesOntarget,
         callable.bases.flanking=callableBasesFlanking,
         callable.bases.all=callableBases
-    )    
+    )
+    
+    if (!is.na(ret$callable.bases.ontarget) && ret$callable.bases.ontarget > 0) {
+        lambda <- max(1, ret$somatic.ontarget)
+        delta <- ret$callable.bases.ontarget/1e+6
+        ret <- cbind(ret, data.frame(
+            somatic.rate.ontarget=ret$somatic.ontarget/delta,
+            somatic.rate.ontarget.95.lower=qpois(0.025, lambda=lambda)/delta,
+            somatic.rate.ontarget.95.upper=qpois(0.975, lambda=lambda)/delta
+        ))
+        lambda <- max(1, ret$private.germline.ontarget)
+        ret <- cbind(ret, data.frame(
+            private.germline.rate.ontarget=ret$private.germline.ontarget/delta,
+            private.germline.rate.ontarget.95.lower=qpois(0.025, lambda=lambda)/delta,
+            private.germline.rate.ontarget.95.upper=qpois(0.975, lambda=lambda)/delta
+        ))
+    }  
+          
+    ret
 }
 
 .padGranges <- function(target.granges, interval.padding) {
