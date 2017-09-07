@@ -83,8 +83,6 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
     centromeres = NULL, ...) {
 
-    debug <- TRUE
-        
     if (!requireNamespace("PSCBS", quietly = TRUE)) {
         .stopUserError("segmentationPSCBS requires the PSCBS package.")
     }
@@ -127,27 +125,15 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     d.f <- d.f[order(.strip.chr.name(d.f[,1], chr.hash), d.f$x),]
     d.f$chromosome <- .strip.chr.name(d.f$chromosome, chr.hash)
 
-    #if (!is.null(normal.id.in.vcf)) {
-    #    seg <- PSCBS::segmentByPairedPSCBS(d.f, tauA=tauA, 
-    #        flavor=flavor, ...)
-    #} else {
     if (is.null(undo.SD)) {
         undo.SD <- .getSDundo(log.ratio)
         flog.info("Setting undo.SD parameter to %f.", undo.SD)
     }   
-    knownSegments <- NULL
-    if (!is.null(centromeres)) {
-        knownSegments <- centromeres
-        colnames(knownSegments) <- c("chromosome", "start", "end")
-        knownSegments$length <- knownSegments$end-knownSegments$start+1
-        knownSegments$chromosome <- .strip.chr.name(knownSegments$chromosome,
-            chr.hash)
-        knownSegments <- PSCBS::gapsToSegments(knownSegments)
-    }    
+    knownSegments <- .PSCBSgetKnownSegments(centromeres, chr.hash)
     seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
         flavor=flavor, undoTCN=undo.SD, knownSegments=knownSegments, 
         min.width=3,alphaTCN=alpha, ...)
-    #}    
+
     if (plot.cnv) PSCBS::plotTracks(seg)
     x <- .PSCBSoutput2DNAcopy(seg, sampleid)
 
@@ -156,6 +142,16 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
             method=prune.hclust.method, chr.hash=chr.hash)
     }
     x$cna$output
+}
+
+.PSCBSgetKnownSegments <- function(centromeres, chr.hash) {
+    if (is.null(centromeres)) return(NULL)
+    knownSegments <- centromeres
+    colnames(knownSegments) <- c("chromosome", "start", "end")
+    knownSegments$length <- knownSegments$end-knownSegments$start+1
+    knownSegments$chromosome <- .strip.chr.name(knownSegments$chromosome,
+        chr.hash)
+    PSCBS::gapsToSegments(knownSegments)
 }
 
 .PSCBSoutput2DNAcopy <- function(seg, sampleid) {

@@ -248,7 +248,7 @@ matched normal is available or in case the matched normal has low or uneven
 coverage. 
 
 The \Rfunction{createNormalDatabase} function builds a database of coverage
-files (a command line script proving this functionality is described in
+files (a command line script providing this functionality is described in
 a separate vignette): 
 
 <<normaldb>>=
