@@ -26,23 +26,21 @@ API CHANGES
       BAM files
     o New functions: annotateTargets, callMutationBurden
     o Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults,
-        readCoverageGatk
-    o Changed defaults: 
-        o min.normals 2 (from 4) in setMappingBiasVcf
-        o normalDB.min.coverage 0.25 (from 0.2) in filterTargets
-        o log.ratio.calibration 0.1 (from 0.25) in runAbsoluteCN; now 
-          relative to purity, not logoratio noise
-    o Minor changes: 
-        o Removed gc.data from filterTargets since gc_bias is now added to tumor 
-          coverage
-        o dropped purecn.output from correctCoverageBias (no two-pass anymore)
-        o Coverage.R argument --gatkcoverage renamed to --coverage
-        o Dropped GC-normalization functionality in NormalDB, since this is 
-          now conveniently done in Coverage.R
-        o Renamed PureCN.R --outdir argument to --out. Can now specify a file
-          prefix as in GATK. Filenames are thus not forced to sample id anymore.  
-          If o-out is a directory, it will behave like before and will use
-          out/sampleid_suffix as filename.
+      readCoverageGatk
+    o min.normals defaults to 2 (changed from 4) in setMappingBiasVcf
+    o normalDB.min.coverage defaults to 0.25 (changed from 0.2) in filterTargets
+    o log.ratio.calibration defaults to 0.1 (from 0.25) in runAbsoluteCN; now 
+      relative to purity, not log-ratio noise
+    o Removed gc.data from filterTargets since gc_bias is now added to tumor 
+      coverage
+    o dropped purecn.output from correctCoverageBias (no two-pass anymore)
+    o Coverage.R argument --gatkcoverage renamed to --coverage
+    o Dropped GC-normalization functionality in NormalDB, since this is 
+      now conveniently done in Coverage.R
+    o Renamed PureCN.R --outdir argument to --out. Can now specify a file
+      prefix as in GATK. Filenames are thus not forced to sample id anymore.  
+      If --out is a directory, it will behave like before and will use
+      out/sampleid_suffix as filename.
  
 PLANNED FEATURES FOR 1.10
 
