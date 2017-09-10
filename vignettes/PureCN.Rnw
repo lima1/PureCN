@@ -632,7 +632,10 @@ somatic (sum of all somatic state posterior probabilities) \\
 \Rcode{ML.M}  & Maximum likelihood multiplicity \\
 \Rcode{ML.C}  & Maximum likelihood integer copy number \\
 \Rcode{ML.M.SEGMENT} & Maximum likelihood minor segment copy number \\
-\Rcode{M.SEGMENT.FLAGGED} & Segment flag indicating \Rcode{ML.M.SEGMENT} is unreliable \\
+\Rcode{M.SEGMENT.POSTERIOR} & Posterior probability if \Rcode{ML.M.SEGMENT} \\
+\Rcode{M.SEGMENT.FLAGGED} & Segment flag indicating \Rcode{ML.M.SEGMENT} is
+unreliable, either due to low posterior probability (< 0.5) or few variants (<
+\Rcode{min.variants.segment} \\
 \Rcode{ML.AR}  & Expected allelic fraction of the maximum likelihood state \\
 \Rcode{AR}   & Observed allelic fraction (as provided in VCF) \\
 \Rcode{AR.ADJUSTED} & Observed allelic fraction adjusted for mapping bias\\

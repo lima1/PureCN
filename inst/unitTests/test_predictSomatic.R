@@ -22,4 +22,6 @@ test_predictSomatic <- function() {
     flagged <- lapply(split(ret$seg.id, ret$M.SEGMENT.FLAGGED), table)
     checkTrue(min(flagged$`FALSE`) >= 5) 
     checkTrue(max(flagged$`TRUE`) < 5) 
+    checkTrue(min(ret$M.SEGMENT.POSTERIOR)>0.5)
+    checkEqualsNumeric(1.0, max(ret$M.SEGMENT.POSTERIOR), tol=0.001)
 }

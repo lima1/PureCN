@@ -5,8 +5,6 @@ NEW FEATURES
 
     o Support for off-target reads in copy number normalization and segmentation
     o Added mutation burden calculation
-    o Code cleanups (switch to GRanges where possible, switch to optparse in 
-      command line tools)
     o More robust mapping bias estimation
     o Added support for CNVkit coverage files (*.cnn, *.cnr)
     o IntervalFile.R can annotate targets with gene symbols and automatically
@@ -18,6 +16,10 @@ NEW FEATURES
       due to insufficient number of high quality variants
     o findBestNormal pooling now read count based, not coverage based  
     o Experimental support for GATK4
+    o predictSomatic now reports posterior probabilites of minor segment copy
+      numbers, flags segments if copy numbers are unreliable
+    o Code cleanups (switch to GRanges where possible, switch to optparse in 
+      command line tools)
 
 API CHANGES
 

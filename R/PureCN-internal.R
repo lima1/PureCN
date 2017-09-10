@@ -64,12 +64,18 @@ max.exon.ratio) {
     #bestAll <- which.max(vapply(yys, function(x) 
     #    sum(apply(x, 1, max)),double(1)))
 
-    best <- which.max(vapply(yys, function(x) 
-        sum(apply(x[mapping.bias.ok,,drop=FALSE], 1, max)),double(1)))
+    likelihoodScores <- vapply(yys, function(x) 
+        sum(apply(x[mapping.bias.ok,,drop=FALSE], 1, max)),double(1))
+    best <- which.max(likelihoodScores)
+    # transform and scale 
+    likelihoodScores <- exp(likelihoodScores - likelihoodScores[best])
+    posterior <- likelihoodScores[best]/sum(likelihoodScores, na.rm=TRUE)
+    if (is.na(posterior) || posterior < 0.5) flag <- TRUE 
+
   #  if (bestAll != best) {
   #      flog.debug("mapping bias influences allele-specific call. seg.id %i; Length %i. Sum %i",seg.id, length(mapping.bias.ok), sum(mapping.bias.ok))
   #  }    
-    list(best=yys[[best]], M=test.num.copy[best], flag=flag)
+    list(best=yys[[best]], M=test.num.copy[best], flag=flag, posterior=posterior)
 }
 
 # calculate likelihood scores for all possible minor copy numbers
@@ -196,6 +202,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     # Get segment M's for each SNV
     segment.M <- .extractValues(tmp, "M")
     segment.Flag <- .extractValues(tmp, "flag")
+    segment.Posterior <- .extractValues(tmp, "posterior")
 
     likelihoods <- do.call(rbind, 
         lapply(seq_along(xx), function(i) Reduce("+", 
@@ -222,6 +229,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         xx, 
         ML.C = C[queryHits(ov)],
         ML.M.SEGMENT=segment.M,
+        M.SEGMENT.POSTERIOR=segment.Posterior,
         M.SEGMENT.FLAGGED=segment.Flag
     )
     
