@@ -6,8 +6,8 @@
 #' \code{args.segmentation}.
 #' 
 #' 
-#' @param normal GATK coverage data for normal sample.
-#' @param tumor GATK coverage data for tumor sample.
+#' @param normal Coverage data for normal sample.
+#' @param tumor Coverage data for tumor sample.
 #' @param log.ratio Copy number log-ratios, one for each exon in coverage file.
 #' @param seg If segmentation was provided by the user, this data structure
 #' will contain this segmentation. Useful for minimal segmentation functions.

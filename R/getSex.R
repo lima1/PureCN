@@ -7,7 +7,7 @@
 #' tuned for the assay.
 #' 
 #' 
-#' @param coverage.file GATK coverage file or data read with
+#' @param coverage.file Coverage file or data read with
 #' \code{\link{readCoverageFile}}.
 #' @param min.ratio Min chrX/chrY coverage ratio to call sample as female.
 #' @param min.ratio.na Min chrX/chrY coverage ratio to call sample as

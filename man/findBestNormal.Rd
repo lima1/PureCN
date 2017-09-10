@@ -9,7 +9,7 @@ findBestNormal(tumor.coverage.file, normalDB, pcs = 1:3, num.normals = 1,
   pool = FALSE, pool.weights = c("voom", "equal"), plot.pool = FALSE, ...)
 }
 \arguments{
-\item{tumor.coverage.file}{GATK coverage file of a tumor sample.}
+\item{tumor.coverage.file}{Coverage file or data of a tumor sample.}
 
 \item{normalDB}{Database of normal samples, created with
 \code{\link{createNormalDatabase}}.}

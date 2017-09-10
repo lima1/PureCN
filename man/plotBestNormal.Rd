@@ -9,10 +9,10 @@ plotBestNormal(normal.coverage.files, tumor.coverage.file, normalDB, x = 1,
   col.other.normals = "black", ...)
 }
 \arguments{
-\item{normal.coverage.files}{GATK coverage file of normal files, typically
-identified via \code{\link{findBestNormal}}.}
+\item{normal.coverage.files}{Coverage file names of normal samples, 
+typically identified via \code{\link{findBestNormal}}.}
 
-\item{tumor.coverage.file}{GATK coverage file of a tumor sample.}
+\item{tumor.coverage.file}{Coverage file or data  of a tumor sample.}
 
 \item{normalDB}{Database of normal samples, created with
 \code{\link{createNormalDatabase}}.}

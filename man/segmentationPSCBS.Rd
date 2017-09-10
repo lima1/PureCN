@@ -12,9 +12,9 @@ segmentationPSCBS(normal, tumor, log.ratio, seg, plot.cnv, sampleid,
   ...)
 }
 \arguments{
-\item{normal}{GATK coverage data for normal sample.}
+\item{normal}{Coverage data for normal sample.}
 
-\item{tumor}{GATK coverage data for tumor sample.}
+\item{tumor}{Coverage data for tumor sample.}
 
 \item{log.ratio}{Copy number log-ratios, one for each exon in coverage file.}
 

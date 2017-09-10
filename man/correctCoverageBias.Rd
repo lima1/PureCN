@@ -9,8 +9,8 @@ correctCoverageBias(coverage.file, gc.gene.file, output.file = NULL,
   plot.max.density = 50000)
 }
 \arguments{
-\item{coverage.file}{Exon coverage file as produced by GATK. Either a file
-name or data parsed with the \code{\link{readCoverageFile}} function.}
+\item{coverage.file}{Coverage file or coverage data parsed with the
+\code{\link{readCoverageFile}} function.}
 
 \item{gc.gene.file}{File providing GC content for each exon in the coverage
 files. First column in format CHR:START-END. Second column GC content (0 to
@@ -26,7 +26,8 @@ read with the \code{\link{readCoverageFile}} function.}
 "LOESS" largely follows the GC correction of the TitanCNA package. The
 "POLYNOMIAL" method models the coverage data as a polynomial of degree three
 and normalizes using the EM approach. The "POLYNOMIAL" is expected to be
-more robust for smaller targeted panels.}
+more robust for very small targeted panels. "POLYNOMIAL" does not support
+off-target reads.}
 
 \item{plot.gc.bias}{Optionally, plot GC profiles of the pre-normalized and
 post-normalized coverage. Provides a quick visual check of coverage bias.}
@@ -39,9 +40,8 @@ estimation is applied. If the \code{plot.gc.bias} parameter is set as
 \code{FALSE}, this will be ignored.}
 }
 \description{
-Takes as input coverage data in GATK format (or data read by
-\code{\link{readCoverageFile}}) and a mapping file for GC content, and
-normalize coverage data for bias correction.  Optionally plots the pre and
+Takes as input coverage data and a mapping file for GC content. Will then
+normalize coverage data for GC-bias.  Optionally plots the pre and
 post normalization GC profiles.
 }
 \examples{

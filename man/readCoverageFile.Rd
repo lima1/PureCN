@@ -10,7 +10,8 @@ readCoverageFile(file, format, zero = NULL)
 \item{file}{Target coverage file.}
 
 \item{format}{File format. If missing, derived from the file 
-extension. Currently only GATK DepthofCoverage format supported.}
+extension. Currently only GATK DepthofCoverage and CNVkit formats 
+supported.}
 
 \item{zero}{Start position is 0-based. Default is \code{FALSE}
 for GATK, \code{TRUE} for BED file based intervals.}
@@ -19,8 +20,8 @@ for GATK, \code{TRUE} for BED file based intervals.}
 A \code{data.frame} with the parsed coverage information.
 }
 \description{
-Read coverage file produced by The Genome Analysis Toolkit or by
-\code{\link{calculateBamCoverageByInterval}}.
+Read coverage file produced by external tools like The Genome Analysis 
+Toolkit or by \code{\link{calculateBamCoverageByInterval}}.
 }
 \examples{
 

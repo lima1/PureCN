@@ -3,7 +3,7 @@
 #' Function to find the best matching normal for a provided tumor sample.
 #' 
 #' 
-#' @param tumor.coverage.file GATK coverage file of a tumor sample.
+#' @param tumor.coverage.file Coverage file or data of a tumor sample.
 #' @param normalDB Database of normal samples, created with
 #' \code{\link{createNormalDatabase}}.
 #' @param pcs Principal components to use for distance calculation.
@@ -127,9 +127,9 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
 #' \code{pcs}.
 #' 
 #' 
-#' @param normal.coverage.files GATK coverage file of normal files, typically
-#' identified via \code{\link{findBestNormal}}.
-#' @param tumor.coverage.file GATK coverage file of a tumor sample.
+#' @param normal.coverage.files Coverage file names of normal samples, 
+#' typically identified via \code{\link{findBestNormal}}.
+#' @param tumor.coverage.file Coverage file or data  of a tumor sample.
 #' @param normalDB Database of normal samples, created with
 #' \code{\link{createNormalDatabase}}.
 #' @param x Principal component (PC) to be plotted on x-axis.

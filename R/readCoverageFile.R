@@ -1,12 +1,12 @@
 #' Read coverage file
 #' 
-#' Read coverage file produced by The Genome Analysis Toolkit or by
-#' \code{\link{calculateBamCoverageByInterval}}.
-#' 
+#' Read coverage file produced by external tools like The Genome Analysis 
+#' Toolkit or by \code{\link{calculateBamCoverageByInterval}}.
 #' 
 #' @param file Target coverage file.
 #' @param format File format. If missing, derived from the file 
-#' extension. Currently only GATK DepthofCoverage format supported.
+#' extension. Currently only GATK DepthofCoverage and CNVkit formats 
+#' supported.
 #' @param zero Start position is 0-based. Default is \code{FALSE}
 #' for GATK, \code{TRUE} for BED file based intervals.
 #' @return A \code{data.frame} with the parsed coverage information.
