@@ -12,8 +12,6 @@ NEW FEATURES
     o Better artifact filtering by using normalDB more efficiently
     o Support for mappability scores
     o Coverage calculation can now include duplicates 
-    o Segments are now flagged when allele-specific copy number is unreliable
-      due to insufficient number of high quality variants
     o findBestNormal pooling now read count based, not coverage based  
     o Experimental support for GATK4
     o predictSomatic now reports posterior probabilites of minor segment copy
