@@ -42,15 +42,3 @@ API CHANGES
       If --out is a directory, it will behave like before and will use
       out/sampleid_suffix as filename.
  
-PLANNED FEATURES FOR 1.10
-
-    o More sample summary statistics, like chromosomal instability
-    o Better performance in high purity samples with significant heterogeneity  
-    o LOH database
-    o Switch to S4 data structures (maybe)
-    o Switch the HDF5 for mapping bias database
-    o Whole dataset visualizations (maybe)
-    o Better support for known, small deletions and amplifications (e.g. EGFRvIII,
-      MYC)
-    o Support for GATK4
-    o Better runtime performance by ignoring unlikely solutions early
