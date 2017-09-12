@@ -82,6 +82,7 @@ readCoverageGatk <- function() {
     targetCoverage$depth <- NULL
     targetCoverage$Gene <- targetCoverage$gene
     targetCoverage$on.target[which(targetCoverage$Gene=="Background")] <- FALSE
+    targetCoverage$on.target[which(targetCoverage$Gene=="Antitarget")] <- FALSE
     targetCoverage$gene <- NULL
     if (format=="cnr") {
         targetCoverage$log.ratio <- targetCoverage$log2
