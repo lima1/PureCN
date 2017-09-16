@@ -25,7 +25,8 @@ test_runAbsoluteCN <- function() {
         candidates=purecn.example.output$candidates, 
         genome="hg19",
         args.segmentation=list(target.weight.file=target.weight.file), 
-        max.ploidy=3, max.candidate.solutions=1)
+        test.purity=seq(0.4,0.7,by=0.05), 
+        min.ploidy=1.4, max.ploidy=2.4, max.candidate.solutions=1)
 
 #    checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     
@@ -146,6 +147,7 @@ test_runAbsoluteCN <- function() {
         tumor.coverage.file=tumor.coverage.file, 
         args.filterVcf=list(remove.off.target.snvs=FALSE),
         vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
+        min.ploidy=1.4, max.ploidy=2.4, 
         max.candidate.solutions=1, fun.setMappingBiasVcf=myMappingBiasTestFun)
 
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
@@ -164,7 +166,8 @@ test_runAbsoluteCN <- function() {
         gc.gene.file="tmp.gc", model.homozygous=TRUE,
         tumor.coverage.file=tumor.coverage.file, remove.off.target.snvs=TRUE,
         candidates=purecn.example.output$candidates, 
-        vcf.file=vcf.file, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
+        min.ploidy=1.4, max.ploidy=2.4, 
+        vcf.file=vcf.file, genome="hg19", test.purity=seq(0.4,0.7, by=0.05),
         max.candidate.solutions=1)
     checkTrue(is.na( ret$results[[1]]$gene.calls ))
     checkException(callAlterations(ret))
@@ -211,7 +214,8 @@ test_runAbsoluteCN <- function() {
     ret <- runAbsoluteCN(normal.coverage.file=normCov, 
         tumor.coverage.file=tumorCov, 
         gc.gene.file="tmp3.gc",
-        vcf.file=vcf, genome="hg19", test.purity=seq(0.3,0.7, by=0.05),
+        min.ploidy=1.4, max.ploidy=2.4, 
+        vcf.file=vcf, genome="hg19", test.purity=seq(0.4,0.7, by=0.05),
         max.candidate.solutions=1)
 
     gpnmb <- callAlterations(ret)["GPNMB",]
@@ -228,12 +232,13 @@ test_runAbsoluteCN <- function() {
     # test with a seg.file
     ret <- runAbsoluteCN( tumor.coverage.file = tumor.coverage.file, seg.file=seg.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
-        test.purity=seq(0.3,0.7, by=0.05), sampleid="Sample2")
+        min.ploidy=1.4, max.ploidy=2.4, 
+        test.purity=seq(0.4,0.7, by=0.05), sampleid="Sample2")
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
 
     ret <- runAbsoluteCN( seg.file=seg.file, gc.gene.file=gc.gene.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
-        test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE)
+        test.purity=seq(0.4,0.7, by=0.05),verbose=FALSE)
     
     checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     tmp <- read.delim(seg.file,as.is=TRUE)
@@ -243,7 +248,8 @@ test_runAbsoluteCN <- function() {
     checkException( runAbsoluteCN( seg.file="seg_wrong.tmp", 
         gc.gene.file=gc.gene.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
-        test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE))
+        min.ploidy=1.4, max.ploidy=2.4, 
+        test.purity=seq(0.4,0.7, by=0.05),verbose=FALSE))
     file.remove("seg_wrong.tmp")
     tmp <- read.delim(seg.file,as.is=TRUE)
     tmp2 <- tmp
@@ -254,7 +260,8 @@ test_runAbsoluteCN <- function() {
     checkException( runAbsoluteCN( seg.file="seg.tmp", 
         gc.gene.file=gc.gene.file,
         vcf.file=vcf.file, max.candidate.solutions=1,genome="hg19", 
-        test.purity=seq(0.3,0.7, by=0.05),verbose=FALSE))
+        min.ploidy=1.4, max.ploidy=2.4, 
+        test.purity=seq(0.4,0.7, by=0.05),verbose=FALSE))
     checkTrue(grepl("seg.file contains multiple samples and sampleid missing", 
         geterrmessage()))
 
@@ -347,13 +354,14 @@ test_runAbsoluteCN <- function() {
     normal$average.coverage[idx] < 15 | normalDB$fraction.missing[idx] > 0.05
     )) > 9000)
     
-
     # run with minimal segmentation function:
     testSeg <- function(seg, ...) return(seg)
 
     res <- runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
-        seg.file=seg.file, fun.segmentation=testSeg, max.ploidy = 4, 
-        test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
+        seg.file=seg.file, fun.segmentation=testSeg,
+        min.ploidy=1.4, max.ploidy=2.4, 
+        test.purity=seq(0.4,0.7,by=0.05), 
+        max.candidate.solutions=1,
         genome='hg19')
 
     seg <- read.delim(seg.file)
@@ -376,8 +384,8 @@ test_runAbsoluteCN <- function() {
     tumor <- readCoverageFile(tumor.coverage.file)
     tumor[1]$on.target <- FALSE
     x <- runAbsoluteCN(normal.coverage.file, tumor, genome="hg19", 
-        max.ploidy = 3, test.purity = seq(0.3, 0.7, by = 0.05),
+        min.ploidy=1.4, max.ploidy=2.4, 
+        test.purity=seq(0.4,0.7,by=0.05), 
         max.candidate.solutions=1,
         gc.gene.file=gc.gene.file)
-
 }    
