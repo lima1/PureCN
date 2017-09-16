@@ -549,7 +549,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     # some targets have multipe genes assigned?
     if (sum(grepl(",", dt$Gene))) {
         dt <- dt[, list(Gene = unlist(strsplit(as.character(Gene), ",", fixed=TRUE))), 
-            by = .(seqnames, start, end, C, seg.mean, seg.id, seg.length, LR, focal)]
+            by = list(seqnames, start, end, C, seg.mean, seg.id, seg.length, LR, focal)]
     }
 
     gene.calls <- data.frame(dt[, list(chr = seqnames[1], start = min(start), 
