@@ -38,8 +38,8 @@
 #' @param chr.hash Mapping of non-numerical chromsome names to numerical names
 #' (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are 
 #' properly ordered.
-#' @param centromeres A \code{GRanges} with centromere positions in first
-#' three columns.  If not \code{NULL}, add breakpoints at centromeres. 
+#' @param centromeres A \code{GRanges} with centromere positions.
+#' If not \code{NULL}, add breakpoints at centromeres. 
 #' @param \dots Additional parameters passed to the 
 #' \code{segmentByNonPairedPSCBS} function.
 #' @return \code{data.frame} containing the segmentation.

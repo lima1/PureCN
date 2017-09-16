@@ -1027,7 +1027,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         data(centromeres, envir = environment())
         if (genome %in% names(centromeres)) {
             centromeres <- centromeres[[genome]]
-            if (!is.null(style)) seqlevelsStyle(centromeres) <- style
+            if (!is.null(style)) seqlevelsStyle(centromeres) <- style[1]
         } else {
             centromeres <- NULL
         }

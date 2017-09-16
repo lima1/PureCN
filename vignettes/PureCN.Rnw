@@ -947,13 +947,15 @@ The \Rcode{callableBed} file should be a file parsable by
 \Biocpkg{rtracklayer}. This file can specify genomic regions that are callable,
 for example as obtained by \software{GATK CallableLoci}. This is optional, but
 if provided can be used to accurately calculate mutation rates per
-megabase. Variants outside the callable regions are not counted.
+megabase. Variants outside the callable regions are not counted. Private
+germline rates should be fairly constant across samples; outliers here should be
+manually inspected.
 
 The output columns are explained in Table~\ref{tbl:callMutationBurden}.
 
 \begin{table*}
 \caption{\Rfunction{callMutationBurden} output columns.}
-\begin{tabular}{lp{9.5cm}}
+\begin{tabular}{lp{6cm}}
 \toprule
 Column name & Description \\
 \midrule
@@ -1065,8 +1067,11 @@ single nucleotide variants (SNVs) and indels is planned for Bioconductor 3.5.
 
 If you encounter bugs or have problems running \Biocpkg{PureCN},
 please post them at
-\url{https://support.bioconductor.org/p/new/post/?tag\_val=PureCN} or
-\url{https://github.com/lima1/PureCN/issues}.
+
+\begin{itemize}
+    \item \url{https://support.bioconductor.org/p/new/post/?tag\_val=PureCN} or
+    \item \url{https://github.com/lima1/PureCN/issues}.
+\end{itemize}
 
 If \Biocpkg{PureCN} throws user errors, then there is likely a problem with the
 input files.  If the error message is not self-explanatory, feel free to

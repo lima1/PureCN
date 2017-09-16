@@ -62,8 +62,8 @@ step. See documentation for the \code{hclust} function.}
 (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are 
 properly ordered.}
 
-\item{centromeres}{A \code{GRanges} with centromere positions in first
-three columns.  If not \code{NULL}, add breakpoints at centromeres.}
+\item{centromeres}{A \code{GRanges} with centromere positions.
+If not \code{NULL}, add breakpoints at centromeres.}
 
 \item{\dots}{Additional parameters passed to the 
 \code{segmentByNonPairedPSCBS} function.}
