@@ -1022,11 +1022,12 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     gc.data
 }
 
-.getCentromerePositions <- function(centromeres, genome) {
+.getCentromerePositions <- function(centromeres, genome, style=NULL) {
     if (is.null(centromeres)) {
         data(centromeres, envir = environment())
         if (genome %in% names(centromeres)) {
             centromeres <- centromeres[[genome]]
+            if (!is.null(style)) seqlevelsStyle(centromeres) <- style
         } else {
             centromeres <- NULL
         }

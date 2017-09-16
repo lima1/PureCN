@@ -232,11 +232,10 @@ if (opt$outvcf) {
     vcfanno <- predictSomatic(ret, return.vcf=TRUE, 
         vcf.field.prefix="PureCN.")
     writeVcf(vcfanno, file=file.vcf)    
-} else {
-    file.csv <- paste0(out, '_variants.csv')
-    write.csv(cbind(Sampleid=sampleid, predictSomatic(ret)), file=file.csv, 
-        row.names=FALSE, quote=FALSE)
-}    
+} 
+file.csv <- paste0(out, '_variants.csv')
+write.csv(cbind(Sampleid=sampleid, predictSomatic(ret)), file=file.csv, 
+    row.names=FALSE, quote=FALSE)
 
 file.loh <- paste0(out, '_loh.csv')
 write.csv(cbind(Sampleid=sampleid, callLOH(ret)), file=file.loh, 

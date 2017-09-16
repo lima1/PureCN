@@ -38,7 +38,7 @@
 #' @param chr.hash Mapping of non-numerical chromsome names to numerical names
 #' (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are 
 #' properly ordered.
-#' @param centromeres A \code{data.frame} with centromere positions in first
+#' @param centromeres A \code{GRanges} with centromere positions in first
 #' three columns.  If not \code{NULL}, add breakpoints at centromeres. 
 #' @param \dots Additional parameters passed to the 
 #' \code{segmentByNonPairedPSCBS} function.
@@ -146,8 +146,8 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 
 .PSCBSgetKnownSegments <- function(centromeres, chr.hash) {
     if (is.null(centromeres)) return(NULL)
-    knownSegments <- centromeres
-    colnames(knownSegments) <- c("chromosome", "start", "end")
+    knownSegments <- data.frame(centromeres)
+    colnames(knownSegments)[1] <- "chromosome"
     knownSegments$length <- knownSegments$end-knownSegments$start+1
     knownSegments$chromosome <- .strip.chr.name(knownSegments$chromosome,
         chr.hash)

@@ -73,23 +73,35 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
     segLOH
 }
 
+.getCentromeres <- function(res) {
+    if (is.null(res$input$centromeres) == "GRanges") NULL
+    # TODO remove this support for old data.frame centromeres in PureCN 1.12
+    if (class(res$input$centromeres) == "GRanges" || 
+            is.null(res$input$centromeres)) {
+        res$input$centromeres
+    }    
+    GRanges(res$input$centromeres)    
+}
+    
 .getArmLocations <- function(res) {
     chr.hash <- res$input$chr.hash
-    centromeres <- res$input$centromeres
+    centromeres <- .getCentromeres(res)
 
     chromCoords <- suppressWarnings(t(vapply(split(
         start(res$input$vcf),
         as.character(seqnames(res$input$vcf))), function(x)
         c(min(x), max(x)), c(min=double(1), max=double(1)))))
 
-    centromeres <- cbind(centromeres, chromCoords[match(centromeres$chrom,
-        rownames(chromCoords)),])
+    chromCoords <- chromCoords[as.integer(match(seqnames(centromeres), rownames(chromCoords))),]
+    rownames(chromCoords) <- NULL
+
+    centromeres <- cbind(data.frame(centromeres), chromCoords)
     centromeres <- centromeres[complete.cases(centromeres),]
 
-    pArms <- centromeres[centromeres$min < centromeres$chromStart,
-        c("chrom", "min", "chromStart")]
-    qArms <- centromeres[centromeres$max > centromeres$chromEnd,
-        c("chrom", "chromEnd", "max")]
+    pArms <- centromeres[centromeres$min < centromeres$start,
+        c("seqnames", "min", "start")]
+    qArms <- centromeres[centromeres$max > centromeres$end,
+        c("seqnames", "end", "max")]
     
     colnames(pArms) <- c("chrom", "start", "end")
     colnames(qArms) <- colnames(pArms)

@@ -56,7 +56,7 @@ step. See documentation for the \code{hclust} function.}
 (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are
 properly ordered.}
 
-\item{centromeres}{A \code{data.frame} with centromere positions in first
+\item{centromeres}{A \code{GRanges} object with centromere positions in first
 three columns.  Currently not supported in this function.}
 }
 \value{

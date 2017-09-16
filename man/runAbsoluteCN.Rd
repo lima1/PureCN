@@ -65,8 +65,8 @@ targets with low coverage in the pool of normal samples.}
 
 \item{genome}{Genome version, for example hg19.}
 
-\item{centromeres}{A \code{data.frame} with centromere positions in first
-three columns.  If \code{NULL}, use pre-stored positions for genome versions
+\item{centromeres}{A \code{GRanges} object with centromere positions.
+If \code{NULL}, use pre-stored positions for genome versions
 hg18, hg19 and hg38.}
 
 \item{sex}{Sex of sample. If \code{?}, detect using

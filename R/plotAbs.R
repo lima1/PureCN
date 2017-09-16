@@ -69,6 +69,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
     if (is.null(chr.hash)) {
         chr.hash <- .getChrHash(gsub(":.*$","",res$input$log.ratio[,1]))
     }    
+    centromeres <- .getCentromeres(res)
 
     sd.seg <- ifelse(is.null(res$input$log.ratio.sdev), 0.4, 
         res$input$log.ratio.sdev)
@@ -196,8 +197,12 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
             tmp <- tmp[complete.cases(tmp),,drop=FALSE]
             tmp <- tmp[order(.strip.chr.name(tmp$chr,chr.hash)),]
             tmp$end <- c(tmp[-1,2]-1, nrow(r))
-            cids <- sapply(tmp$chr, function(x) { id <- res$input$centrome[res$input$centrome$chrom==x,2]; which(r$chr[idx]==x & r$start[idx] >= id)[1] })
-
+            cids <- NULL
+            if (!is.null(centromeres)) {
+                cids <- sapply(tmp$chr, function(x) { 
+                    id <- start(centromeres)[which(seqnames(centromeres)==x)]; 
+                    which(r$chr[idx]==x & r$start[idx] >= id)[1] })
+            }
             segment.log.ratio <- res$results[[i]]$seg$seg.mean[r$seg.id]
             segment.log.ratio.lines <- .toLines(ss=segment.log.ratio[idx])
             segment.M.log.ratio.lines <- .toLines(
@@ -224,9 +229,8 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
                     col=mycol, pch=mypch, xlim=range(xLogRatio), ...)
                 centromerePos <- NULL
                 if (!is.null(res$input$centromere)) {
-                    centromerePos <- res$input$centromere$chromStart[
-                        which(res$input$centromere$chrom==chr)]/1000
-                    
+                    centromerePos <- start(centromeres)[
+                        which(seqnames(centromeres)==chr)]/1000
                 }    
 
                 segment.b1.lines[,1] <- x[segment.b1.lines[,1]]

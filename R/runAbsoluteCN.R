@@ -38,8 +38,8 @@
 #' p-values (requires \code{Gene} column in \code{gc.gene.file}) and to filter
 #' targets with low coverage in the pool of normal samples.
 #' @param genome Genome version, for example hg19.
-#' @param centromeres A \code{data.frame} with centromere positions in first
-#' three columns.  If \code{NULL}, use pre-stored positions for genome versions
+#' @param centromeres A \code{GRanges} object with centromere positions.
+#' If \code{NULL}, use pre-stored positions for genome versions
 #' hg18, hg19 and hg38.
 #' @param sex Sex of sample. If \code{?}, detect using
 #' \code{\link{getSexFromCoverage}} function and default parameters.  Default
@@ -290,8 +290,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
 
     model <- match.arg(model)
 
-    centromeres <- .getCentromerePositions(centromeres, genome)
-    
     # defaults to equal priors for all tested purity values
     if (is.null(prior.purity)) {
         prior.purity <- rep(1, length(test.purity))/length(test.purity)
@@ -498,6 +496,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     flog.info("Sample sex: %s", sex)
     flog.info("Segmenting data...")
     segProvided <- .loadSegFile(seg.file, sampleid, model.homozygous)
+
+    centromeres <- .getCentromerePositions(centromeres, genome, 
+        if (is.null(vcf)) NULL else seqlevelsStyle(vcf))
     
     args.segmentation <- c(list(normal = normal, tumor = tumor, log.ratio = log.ratio, 
         seg = segProvided, plot.cnv = plot.cnv,  
