@@ -41,7 +41,7 @@ system.file("extdata", package="PureCN")
 \begin{verbatim}
 $ export PURECN="/path/to/PureCN/extdata"
 $ Rscript $PURECN/PureCN.R --help
-Usage: /path/to/PureCN/inst/extdata/PureCN.R [-[-help|h]] ...
+Usage: /path/to/PureCN/inst/extdata/PureCN.R [options] ...
 \end{verbatim}
 
 \item Generate an interval file from a BED file containing target coordinates:

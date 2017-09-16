@@ -210,10 +210,22 @@ test_runAbsoluteCN <- function() {
     gc3 <- read.delim(gc.gene.file, as.is=TRUE)
     gc3[,1] <- as.character(tumorCov)
     write.table(gc3, file="tmp3.gc", row.names=FALSE, sep="\t", quote=FALSE)
+    gc4 <- gc3
+    gc4$Gene[2:4] <- paste("SCNN1D,XXXL")
+    write.table(gc4, file="tmp4.gc", row.names=FALSE, sep="\t", quote=FALSE)
 
+    set.seed(123)
     ret <- runAbsoluteCN(normal.coverage.file=normCov, 
         tumor.coverage.file=tumorCov, 
-        gc.gene.file="tmp3.gc",
+        gc.gene.file="tmp3.gc", plot.cnv=FALSE,
+        min.ploidy=1.4, max.ploidy=2.4, 
+        vcf.file=vcf, genome="hg19", test.purity=seq(0.4,0.7, by=0.05),
+        max.candidate.solutions=1)
+
+    set.seed(123)
+    ret2 <- runAbsoluteCN(normal.coverage.file=normCov, 
+        tumor.coverage.file=tumorCov, 
+        gc.gene.file="tmp4.gc",plot.cnv=FALSE,
         min.ploidy=1.4, max.ploidy=2.4, 
         vcf.file=vcf, genome="hg19", test.purity=seq(0.4,0.7, by=0.05),
         max.candidate.solutions=1)
@@ -224,6 +236,19 @@ test_runAbsoluteCN <- function() {
     checkTrue(gpnmb$end  <23400000)
     checkTrue(gpnmb$C >= 6) 
     checkEquals("AMPLIFICATION", gpnmb$type) 
+
+    caAret <- callAlterations(ret, all.genes=TRUE)
+    caAret2 <- callAlterations(ret2, all.genes=TRUE)
+    # we added the XXXL gene
+    checkEqualsNumeric(nrow(caAret)+1, nrow(caAret2))
+    checkEqualsNumeric(caAret$C, caAret2[rownames(caAret), "C"])
+    checkEqualsNumeric(caAret$start, caAret2[rownames(caAret), "start"])
+    checkEqualsNumeric(3, caAret2["XXXL","number.targets"])
+    checkEqualsNumeric(1216606, caAret2["XXXL","start"])
+    checkEqualsNumeric(1217696, caAret2["XXXL","end"])
+    checkEqualsNumeric(caAret["SCNN1D", "C"], caAret2["XXXL","C"])
+    checkEqualsNumeric(caAret["SCNN1D", "seg.mean"], caAret2["XXXL","seg.mean"])
+
     # run the plot function to catch crashes
     plotAbs(ret, 1, type="all")
     checkException(plotAbs(ret, 1, type="BAF", chr="chr1"))

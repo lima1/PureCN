@@ -8,7 +8,7 @@ NEW FEATURES
     o More robust mapping bias estimation
     o Added support for CNVkit coverage files (*.cnn, *.cnr)
     o IntervalFile.R can annotate targets with gene symbols and automatically
-      convert chromosome naming styles.
+      convert chromosome naming styles
     o Better artifact filtering by using normalDB more efficiently
     o Support for mappability scores
     o Coverage calculation can now include duplicates 
@@ -16,6 +16,7 @@ NEW FEATURES
     o Experimental support for GATK4
     o predictSomatic now reports posterior probabilites of minor segment copy
       numbers, flags segments if copy numbers are unreliable
+    o Targets can be annotated with multiple gene symbols (comma separated)
     o Code cleanups (switch to GRanges where possible, switch to optparse in 
       command line tools)
 
