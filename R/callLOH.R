@@ -74,11 +74,10 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
 }
 
 .getCentromeres <- function(res) {
-    if (is.null(res$input$centromeres) == "GRanges") NULL
     # TODO remove this support for old data.frame centromeres in PureCN 1.12
     if (class(res$input$centromeres) == "GRanges" || 
             is.null(res$input$centromeres)) {
-        res$input$centromeres
+        return(res$input$centromeres)
     }    
     GRanges(res$input$centromeres)    
 }
