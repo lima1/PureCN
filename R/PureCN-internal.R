@@ -580,6 +580,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
    results
 }
 
+# Calculate p-values bases on coverage only, useful for cases where the purity is too
+# low for ploidy. Heavily inspired by superfreq (TODO: cite when that paper is published)    
 .voomTargets <- function(tumor.coverage.file, normalDB, gc.gene.file, 
     num.normals=NULL, plot.voom=FALSE) {
     
@@ -593,8 +595,15 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     if (nrow(geneCountMatrix)<2) return(NULL)
             
     geneCountMatrix <- geneCountMatrix[complete.cases(geneCountMatrix),]
+    countMatrix <- countMatrix[complete.cases(countMatrix),]
     dge <- edgeR::DGEList(geneCountMatrix, 
             group=c("tumor", rep("normal", ncol(countMatrix)-1)))
+    # use all targets to estimate effective library sizes
+    dgeTarget <- edgeR::DGEList(countMatrix, 
+            group=c("tumor", rep("normal", ncol(countMatrix)-1)))
+    dgeTarget <- edgeR::calcNormFactors(dgeTarget)
+    dge$samples$norm.factors <- dgeTarget$samples$norm.factors
+
     v <- limma::voomWithQualityWeights(dge, plot=plot.voom)
     y <- limma::lmFit(v, design = stats::model.matrix(~dge$samples$group))
     y <- limma::eBayes(y)
