@@ -9,6 +9,8 @@ test_calculateBamCoverageByInterval <- function() {
     
     checkEquals(c(20.95205,43.78357,21.29271), coverage$average.coverage, tolerance=0.01)
     checkEquals(c(610,1158,636), coverage$counts, tolerance=0.01)
+    checkEqualsNumeric(rep(0,3),  unlist(coverage$duplication.rate))
+
     x <- readCoverageFile("ex1_coverage.txt")
     checkEquals(c(20.95205,43.78357,21.29271), x$average.coverage, tolerance=0.01)
     checkEquals(c(610,1158,636), x$counts, tolerance=0.01)

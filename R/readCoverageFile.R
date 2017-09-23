@@ -57,12 +57,14 @@ readCoverageGatk <- function() {
     if (is.null(inputCoverage$total_coverage)) inputCoverage$total_coverage <- NA
     if (is.null(inputCoverage$counts)) inputCoverage$counts <- NA
     if (is.null(inputCoverage$on_target)) inputCoverage$on_target <- TRUE
+    if (is.null(inputCoverage$duplication_rate)) inputCoverage$duplication_rate <- NA
 
     targetCoverage <- GRanges(inputCoverage$Target, 
         coverage=inputCoverage$total_coverage, 
         average.coverage=NA,
         counts=inputCoverage$counts,
-        on.target=inputCoverage$on_target)
+        on.target=inputCoverage$on_target,
+        duplication.rate=inputCoverage$duplication_rate)
     targetCoverage <- .addAverageCoverage(targetCoverage)
     targetCoverage
 }
@@ -84,6 +86,7 @@ readCoverageGatk <- function() {
     targetCoverage$on.target[which(targetCoverage$Gene=="Background")] <- FALSE
     targetCoverage$on.target[which(targetCoverage$Gene=="Antitarget")] <- FALSE
     targetCoverage$gene <- NULL
+    targetCoverage$duplication.rate <- NA
     if (format=="cnr") {
         targetCoverage$log.ratio <- targetCoverage$log2
     }

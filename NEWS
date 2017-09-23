@@ -12,7 +12,9 @@ NEW FEATURES
     o Better artifact filtering by using normalDB more efficiently
     o Support for mappability scores
     o Coverage calculation can now include duplicates 
-    o findBestNormal pooling now read count based, not coverage based  
+    o calculateBamCoverageByInterval now provides fragment counts and 
+      duplication rates
+    o findBestNormal pooling now fragment count based, not coverage based  
     o Experimental support for GATK4
     o predictSomatic now reports posterior probabilites of minor segment copy
       numbers, flags segments if copy numbers are unreliable
@@ -22,7 +24,7 @@ NEW FEATURES
 
 API CHANGES
 
-    o Due to novel optimizations of provided bait intervals, we recommend 
+    o Due to novel optimizations of provided bait intervals, we highly recommend 
       to regenerate the normal databases and recalculate all coverages from
       BAM files
     o New functions: annotateTargets, callMutationBurden

@@ -76,6 +76,7 @@ plot.max.density = 50000) {
     }
     coverage <- ret$coverage
     medDiploid <- ret$medDiploid
+    #coverage <- .correctDuplicationBiasLoess(coverage)
 
     if (!is.null(output.file)) {
         .writeCoverage(coverage, output.file)
@@ -125,6 +126,18 @@ plot.max.density = 50000) {
     invisible(coverage)
 }
 
+#.correctDuplicationBiasLoess <- function(tumor) {
+#    # ALPHA code
+#    if (is.null(tumor$on.target)) tumor$on.target <- TRUE
+#    if (is.null(tumor$duplication.rate)) return(tumor)
+#    idx <- tumor$on.target
+#    fit <- loess(tumor$duplication.rate[idx]~tumor$average.coverage[idx])
+#    corFactor <- 1-predict(fit, tumor$average.coverage[idx])
+#    tumor$coverage[idx] <- tumor$coverage[idx] / corFactor
+#    tumor$counts[idx] <- tumor$counts[idx] / corFactor
+#    .addAverageCoverage(tumor)
+#}
+    
 .correctCoverageBiasLoess <- function(tumor) {
     if (is.null(tumor$on.target)) tumor$on.target <- TRUE
     gc_bias <- tumor$gc_bias

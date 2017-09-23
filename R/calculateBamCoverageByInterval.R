@@ -39,16 +39,21 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
     output.file = NULL, index.file = bam.file, keep.duplicates = FALSE) {
     intervalGr <- readCoverageFile(interval.file)
 
-    param <- ScanBamParam(what=c("pos", "qwidth"), 
+    param <- ScanBamParam(what=c("pos", "qwidth", "flag"), 
                 which=intervalGr, 
                 flag=scanBamFlag(isUnmappedQuery=FALSE, 
                              isNotPassingQualityControls=FALSE, 
                              isSecondaryAlignment=FALSE,
-                             isDuplicate=if (keep.duplicates) NA else FALSE
+                             isDuplicate=NA
                      )
              )
 
-    x <- scanBam(bam.file, index=index.file, param=param)
+    xAll <- scanBam(bam.file, index=index.file, param=param)
+    xDupFiltered <- .filterDuplicates(xAll)
+
+    x <- xDupFiltered
+    if (keep.duplicates) x <- xAll
+
     intervalGr$coverage <- sapply(seq_along(x), function(i) 
         sum(coverage(IRanges(x[[i]][["pos"]], width=x[[i]][["qwidth"]]), 
             shift=-start(intervalGr)[i], width=width(intervalGr)[i] )))
@@ -57,6 +62,8 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
         intervalGr$coverage/width(intervalGr)
 
     intervalGr$counts <- as.numeric(sapply(x, function(y) length(y$pos)))
+    intervalGr$duplication.rate <-1- sapply(xDupFiltered, function(y) length(y$pos))/
+        sapply(xAll, function(y) length(y$pos))
 
     if (!is.null(output.file)) {
         .writeCoverage(intervalGr, output.file)
@@ -70,7 +77,15 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
         total_coverage=intervalGr$coverage, 
 #        average_coverage=intervalGr$average.coverage,
         counts=intervalGr$counts,
-        on_target=intervalGr$on.target
+        on_target=intervalGr$on.target,
+        duplication_rate=intervalGr$duplication.rate
     )
     write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE)
 }
+
+.filterDuplicates <- function(x) {
+    lapply(x, function(y) {
+        idx <- y$flag < 1024
+        lapply(y, function(z) z[idx])
+    })
+}    

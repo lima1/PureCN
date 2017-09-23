@@ -43,7 +43,6 @@ calculateLogRatio <- function(normal, tumor) {
 
         log.ratio <- log2(tumor[idx]$average.coverage/normal[idx]$average.coverage) + 
                      log2(total.cov.normal/total.cov.tumor)
-        
         idxFinite <- is.finite(log.ratio)
         mean.log.ratio <- weighted.mean(log.ratio[idxFinite], 
             width(tumor[idx])[idxFinite])
