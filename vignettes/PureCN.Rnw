@@ -782,21 +782,21 @@ Table~\ref{tbl:flags} for an explanation of all flags.
 
 \begin{table*}
 \caption{\Rfunction{createCurationFile} flags.}
-\begin{tabular}{p{3.5cm}p{7.5cm}}
+\begin{tabular}{lp{6cm}}
 \toprule
 Flag & Description \\
 \midrule
 EXCESSIVE LOH & $> 50$\% of genome in LOH and ploidy $< 2.6$ \\
 EXCESSIVE LOSSES & $\geq 1$\% of genome deleted \\
-HIGH PURITY AND model.homozygous=FALSE & For very high purity samples,
-it is recommmended to set \Rcode{model.homozygous=TRUE}. See
+HIGH PURITY & (when \Rcode{model.homozygous=FALSE}). For very high purity
+samples, it is recommended to set \Rcode{model.homozygous=TRUE}. See
 Section~\ref{sec:celllines}. \\ 
 HIGH AT- OR GC-DROPOUT & High GC-bias exceeding cutoff in \Rcode{max.dropout} \\
 LOW PURITY & Purity $< 30$\% \\
 LOW BOOTSTRAP VALUE & \Rfunction{bootstrapResults} identified multiple plausible solutions \\
 NOISY LOG-RATIO & Log-ratio standard deviation $>$ \Rcode{max.logr.sdev} \\ 
 NOISY SEGMENTATION & More than \Rcode{max.segments} \\ 
-NON-ABERRANT & $\geq 99 $\% of genome has identical copy number and $\geq>0.5$\% has second most common state \\
+NON-ABERRANT & $\geq 99 $\% of genome has identical copy number and $\geq 0.5$\% has second most common state \\
 POLYGENOMIC & $\geq 0.75 \times$ \Rcode{max.non.clonal} fraction of the genome in sub-clonal state \\
 POOR GOF & GoF $<$ \Rcode{min.gof} \\
 POTENTIAL SAMPLE CONTAMINATION & Significant portion of dbSNP variants potentially cross-contaminated \\
@@ -805,7 +805,6 @@ RARE KARYOTYPE & Ploidy $< 1.5$ or  $> 4.5$  \\
 \end{tabular}
 \label{tbl:flags}
 \end{table*}
-
 
 \section{Cell lines}
 \label{sec:celllines}
