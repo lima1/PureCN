@@ -35,6 +35,9 @@ option_list <- list(
         help="VCF Filter: minimum allelic fraction [default %default]"),
     make_option(c("--snpblacklist"), action="store", type="character", default=NULL,
         help="VCF Filter: File parsable by rtracklayer that defines blacklisted regions"),
+    make_option(c("--error"), action="store", type="double", 
+        default=formals(PureCN::runAbsoluteCN)$error,
+        help="VCF Filter: Estimated sequencing error rate for artifact filtering [default %default]"),
     make_option(c("--funsegmentation"), action="store", type="character", default="CBS",
         help="Segmentation: Algorithm. CBS, PSCBS or none [default %default]"),
     make_option(c("--alpha"), action="store", type="double", 
@@ -201,7 +204,8 @@ if (file.exists(file.rds) && !opt$force) {
             normalDB=normalDB, model.homozygous=opt$modelhomozygous,
             min.ploidy=opt$minploidy, max.ploidy=opt$maxploidy, 
             model=opt[["model"]], log.file=file.log, 
-            max.segments=opt$maxsegments, 
+            max.segments=opt$maxsegments,
+            error=opt$error, 
             log.ratio.calibration=opt$logratiocalibration,
             post.optimize=opt$postoptimize)
     dev.off()

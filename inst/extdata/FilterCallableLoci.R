@@ -7,11 +7,11 @@ suppressPackageStartupMessages(library(futile.logger))
 
 option_list <- list(
     make_option(c("--infile"), action="store", type="character", default=NULL,
-        help="Infile specifying target (baits) intervals. Needs to be parsable by rtracklayer."),
+        help="Infile specifying callable intervals. Needs to be parsable by rtracklayer."),
     make_option(c("--genome"), action="store", type="character", default=NULL,
-        help="Genome version. If one of hg18, hg19, hg38, mm9, mm10, rn4, rn5, rn6 will annotate intervals with gene symbols"),
+        help="Genome version to filter non-CDS region. One of hg18, hg19, hg38, mm9, mm10, rn4, rn5, rn6."),
     make_option(c("--outfile"), action="store", type="character", default=NULL,
-        help="Outfile of annotated targets optimized for copy number calling."),
+        help="Outfile with overlapping CDS regions in BED format."),
     make_option(c("-v", "--version"), action="store_true", default=FALSE, 
         help="Print PureCN version"),
     make_option(c("-f", "--force"), action="store_true", default=FALSE, 
