@@ -8,7 +8,7 @@ createNormalDatabase(normal.coverage.files, sex = NULL,
   max.mean.coverage = NULL, ...)
 }
 \arguments{
-\item{normal.coverage.files}{Vector with file names pointing to GATK
+\item{normal.coverage.files}{Vector with file names pointing to 
 coverage files of normal samples.}
 
 \item{sex}{\code{character(length(normal.coverage.files))} with sex for all

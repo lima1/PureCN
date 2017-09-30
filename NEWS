@@ -25,8 +25,8 @@ NEW FEATURES
 API CHANGES
 
     o Due to novel optimizations of provided bait intervals, we highly recommend 
-      to regenerate the normal databases and recalculate all coverages from
-      BAM files
+      to regenerate the interval file and normal databases and recalculate all 
+      coverages from BAM files
     o New functions: annotateTargets, callMutationBurden
     o Defunct functions: createSNPBlacklist, getDiploid, autoCurateResults,
       readCoverageGatk

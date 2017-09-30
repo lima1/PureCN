@@ -8,10 +8,10 @@ createTargetWeights(tumor.coverage.files, normal.coverage.files,
   target.weight.file, plot = FALSE)
 }
 \arguments{
-\item{tumor.coverage.files}{A small number (1-3) of GATK tumor or normal
+\item{tumor.coverage.files}{A small number (1-3) of tumor or normal
 coverage samples.}
 
-\item{normal.coverage.files}{A large number of GATK normal coverage samples
+\item{normal.coverage.files}{A large number of normal coverage samples
 (>20) to estimate target log-ratio standard deviations. Should not overlap
 with files in \code{tumor.coverage.files}.}
 
@@ -23,7 +23,7 @@ with files in \code{tumor.coverage.files}.}
 A \code{data.frame} with target weights.
 }
 \description{
-Creates a target weight file useful for segmentation. Requires a set of GATK
+Creates a target weight file useful for segmentation. Requires a set of 
 coverage files from normal samples. A small number of tumor (or other
 normal) samples is then tested against all normals. Target weights will be
 set proportional to the inverse of coverage standard deviation across all

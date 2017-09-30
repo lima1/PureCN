@@ -1,13 +1,12 @@
 #' Run PureCN implementation of ABSOLUTE
 #' 
-#' This function takes as input tumor and normal control coverage and allelic
-#' fractions of germline variants and somatic mutations. Coverage data is
-#' provided in \sQuote{GATK DepthOfCoverage} format, allelic fraction in VCF 
-#' format (obtained by MuTect). Normal control does not need to be from
-#' the same patient. In case VCF does not contain somatic status, it should
-#' contain dbSNP and optionally COSMIC annotation. Returns purity and ploidy
-#' combinations, sorted by likelihood score. Provides copy number and LOH data,
-#' by both gene and genomic region.
+#' This function takes as input tumor and normal control coverage data and 
+#' a VCF containing allelic fractions of germline variants and somatic 
+#' mutations. Normal control does not need to be from the same patient. 
+#' In case VCF does not contain somatic status, it should contain dbSNP and 
+#' optionally COSMIC annotation. Returns purity and ploidy combinations, 
+#' sorted by likelihood score. Provides copy number and LOH data, by both 
+#' gene and genomic region.
 #' 
 #' 
 #' @param normal.coverage.file Coverage file of normal control (optional

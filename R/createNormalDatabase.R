@@ -6,7 +6,7 @@
 #' tumor file with all normal samples in the database.
 #' 
 #' 
-#' @param normal.coverage.files Vector with file names pointing to GATK
+#' @param normal.coverage.files Vector with file names pointing to 
 #' coverage files of normal samples.
 #' @param sex \code{character(length(normal.coverage.files))} with sex for all
 #' files.  \code{F} for female, \code{M} for male. If all chromosomes are
@@ -86,7 +86,7 @@ max.mean.coverage = NULL, ... ) {
 
 #' Calculate target weights
 #' 
-#' Creates a target weight file useful for segmentation. Requires a set of GATK
+#' Creates a target weight file useful for segmentation. Requires a set of 
 #' coverage files from normal samples. A small number of tumor (or other
 #' normal) samples is then tested against all normals. Target weights will be
 #' set proportional to the inverse of coverage standard deviation across all
@@ -94,9 +94,9 @@ max.mean.coverage = NULL, ... ) {
 #' thus down-weighted.
 #' 
 #' 
-#' @param tumor.coverage.files A small number (1-3) of GATK tumor or normal
+#' @param tumor.coverage.files A small number (1-3) of tumor or normal
 #' coverage samples.
-#' @param normal.coverage.files A large number of GATK normal coverage samples
+#' @param normal.coverage.files A large number of normal coverage samples
 #' (>20) to estimate target log-ratio standard deviations. Should not overlap
 #' with files in \code{tumor.coverage.files}.
 #' @param target.weight.file Output filename.
