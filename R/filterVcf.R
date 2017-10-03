@@ -269,7 +269,7 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
     n <- nrow(vcf)
 
     ids <- sort(unique(unlist(sapply(ignore, grep, stats$failure_reasons))))
-    vcf <- vcf[-ids]
+    if (length(ids)) vcf <- vcf[-ids]
 
     flog.info("Removing %i MuTect calls due to blacklisted failure reasons.", 
         n-nrow(vcf))
@@ -465,6 +465,10 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         # try to add an DB field based on rownames
         vcf <- .addDbField(vcf)
     }
+    if (is.null(info(vcf)$SOMATIC)) {
+        # try to add an DB field based on rownames
+        vcf <- .addSomaticField(vcf)
+    }
     if (is.null(geno(vcf)$AD)) {
         vcf <- .addADField(vcf)
     }
@@ -492,6 +496,17 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         row.names="DB")
     info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
     info(vcf)$DB <- db
+    vcf
+}
+.addSomaticField <- function(vcf) {
+    # add SOMATIC flag only for GATK4 MuTect2 output
+    if (is.null(info(vcf)$P_GERMLINE)) return(vcf)
+    newInfo <- DataFrame(
+        Number=0, Type="Flag",
+        Description="Somatic event",
+        row.names="SOMATIC")
+    info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
+    info(vcf)$SOMATIC <- unlist(info(vcf)$P_GERMLINE < log10(0.5))
     vcf
 }
 

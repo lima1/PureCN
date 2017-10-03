@@ -38,8 +38,7 @@ ignore=c("clustered_events", "t_lod", "str_contraction",
     n <- nrow(vcf)
 
     ids <- sort(unique(unlist(sapply(ignore, grep, fixed(vcf)$FILTER))))
-    vcf <- vcf[-ids]
-
+    if (length(ids)) vcf <- vcf[-ids]
     flog.info("Removing %i MuTect2 calls due to blacklisted failure reasons.", 
         n-nrow(vcf))
     filterVcfBasic(vcf, tumor.id.in.vcf, ...)
