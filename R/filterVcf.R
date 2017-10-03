@@ -500,7 +500,10 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 }
 .addSomaticField <- function(vcf) {
     # add SOMATIC flag only for GATK4 MuTect2 output
-    if (is.null(info(vcf)$P_GERMLINE)) return(vcf)
+    if (is.null(info(vcf)$P_GERMLINE) || ncol(vcf) < 2) {
+        return(vcf)
+    }
+                
     newInfo <- DataFrame(
         Number=0, Type="Flag",
         Description="Somatic event",
