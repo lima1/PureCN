@@ -25,10 +25,9 @@ A list with elements \code{vcf}, \code{flag} and
 described in \code{flag_comment}.
 }
 \description{
-Function to remove artifacts and low confidence/quality calls from a MuTect
-generated VCF file. Also applies filters defined in \code{filterVcfBasic}.
-This function will only keep variants listed in the stats file and those not
-matching the specified failure reasons.
+Function to remove artifacts and low confidence/quality calls from a 
+GATK4/MuTect2 generated VCF file. Also applies filters defined in 
+\code{filterVcfBasic}.
 }
 \examples{
 
