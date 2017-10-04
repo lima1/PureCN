@@ -1244,7 +1244,10 @@ Figure~\ref{figure/figureexample2-1}:
     output file is the stats or call-stats file; this can be provided in
     addition to the required VCF file via \Rcode{args.filterVcf} in
     \Rfunction{runAbsoluteCN}. If provided, it may help \Biocpkg{PureCN} filter
-    artifacts. This requires \software{MuTect} in version 1.1.7.  
+    artifacts. This requires \software{MuTect} in version 1.1.7.  This version
+    is currently available at
+    \url{https://software.broadinstitute.org/gatk/download/mutect} and requires
+    Java 1.7 (it does not work with Java 1.8).
     
     Note that this \software {MuTect} VCF will contain variants in off-target
     reads.  By default, \Biocpkg{PureCN} will remove variants outside the
