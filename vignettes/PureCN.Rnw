@@ -1230,7 +1230,7 @@ Figure~\ref{figure/figureexample2-1}:
         officially supported and well tested. A minimal example 
         \software{MuTect} call would be:
     \begin{verbatim}
-    $JAVA -Xmx6g -jar $MUTECT \
+    $JAVA7 -Xmx6g -jar $MUTECT \
     --analysis_type MuTect -R $REFERENCE \
     --dbsnp $DBSNP_VCF \
     --cosmic $COSMIC_VCF \

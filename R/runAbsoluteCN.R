@@ -400,8 +400,13 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     tumor <- tumor[targetsUsed, ]
     normal <- normal[targetsUsed, ]
     log.ratio <- log.ratio[targetsUsed]
-    flog.info("Using %i targets.", length(tumor))
+    flog.info("Using %i intervals (%i on-target, %i off-target).", length(tumor), 
+        sum(tumor$on.target, na.rm=TRUE), sum(!tumor$on.target, na.rm=TRUE))
 
+    if (!sum(!tumor$on.target, na.rm=TRUE)) {
+        flog.info("No off-target intervals. If this is hybrid-capture data,%s",
+            " consider adding them.")
+    }
     if (smooth.log.ratio) {
         CNA.obj <- smooth.CNA(
             .getCNAobject(log.ratio, normal, chr.hash, "sample"))

@@ -614,13 +614,8 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     targetsWithSNVs <- overlapsAny(target.granges.padding, vcf)
     percentTargetsWithSNVs <- sum(targetsWithSNVs,na.rm=TRUE)/
         length(targetsWithSNVs)*100
-    tmp <- ""
-    if (percentTargetsWithSNVs > 20) { 
-        tmp <- " segmentationPSCBS might produce better results."
-    }
-    flog.info("%.1f%% of targets contain variants. %s", 
-        percentTargetsWithSNVs, tmp)
-
+    flog.info("%.1f%% of targets contain variants.", 
+        percentTargetsWithSNVs)
     vcf
 }
 
