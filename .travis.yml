@@ -4,5 +4,11 @@ r: bioc-devel
 r_packages:
   - covr
 
+before_install:
+  - tlmgr install bera
+  - tlmgr install nowidow
+  - tlmgr install parnotes
+  - tlmgr install marginfix
+
 after_success:
   - Rscript -e 'library(covr); codecov()'
