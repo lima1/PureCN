@@ -10,5 +10,6 @@ before_install:
   - tlmgr install parnotes
   - tlmgr install marginfix
 
-after_success:
-  - Rscript -e 'library(covr); codecov()'
+# currently too slow    
+# after_success:
+#   - Rscript -e 'library(covr); codecov()'
