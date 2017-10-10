@@ -101,6 +101,8 @@ off.target.seqlevels=c("targeted", "noncircular", "all")) {
                 .stopUserError("off.target.padding must be negative.")
             }    
             offRegions <- setdiff(scanFaIndex(reference.file), unstrand(interval.gr))
+            offRegions <- .dropShortUntargeted(offRegions, interval.gr)
+
             if (!is.null(mappability)) {
                 offRegions <- intersect(offRegions, mappability)
             }    
@@ -149,7 +151,16 @@ off.target.seqlevels=c("targeted", "noncircular", "all")) {
     invisible(interval.gr)
 }
 
-
+# this function removes short chromosomes that have no probes (mainly a
+# general way to remove chrM)
+.dropShortUntargeted <- function(offRegions, interval.gr) {
+    idx <- seqlevels(offRegions) %in% seqlevels(interval.gr) |
+        seqlengths(offRegions) > 100000
+    offRegions <- offRegions[seqnames(offRegions) %in% seqlevels(offRegions)[idx]]
+    seqlevels(offRegions) <- seqlevelsInUse(offRegions)
+    offRegions
+}
+    
 # add mappability score to intervals
 .annotateMappability <- function(interval.gr, mappability, min.mappability) {    
     interval.gr$mappability <- 1
