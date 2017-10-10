@@ -55,7 +55,7 @@
 #' @importFrom BiocGenerics unstrand
 #' @importFrom stats aggregate
 #' @importFrom S4Vectors mcols
-#' @importFrom GenomeInfoDb seqlevelsInUse
+#' @importFrom GenomeInfoDb seqlevelsInUse seqlengths seqlevels<-
 calculateGCContentByInterval <- function(interval.file, reference.file,
 output.file = NULL, off.target=FALSE, average.target.width=400, 
 min.off.target.width=20000, average.off.target.width=200000,  
