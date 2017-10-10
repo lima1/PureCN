@@ -62,10 +62,16 @@ createCurationFile <- function(file.rds, overwrite.uncurated = TRUE,
 }
 
 .getSexFromRds <- function(rds) {
+    # if run without VCF, then we don't have sex information from VCF
+    if (is.null(rds$input$sex.vcf)) return(rds$input$sex)
+    
+    # conflict of coverage and snp based sex genotyper?
     if (!is.na(rds$input$sex) && !is.na(rds$input$sex.vcf)) {
         if (rds$input$sex == rds$input$sex.vcf) return(rds$input$sex)
         return(paste("Coverage:", rds$input$sex, "VCF:", rds$input$sex.vcf))     
     } 
+    # believe coverage based more than VCF in case we have only limited 
+    # number of SNPs on chrX
     if (!is.na(rds$input$sex)) {
         return(rds$input$sex)
     }    

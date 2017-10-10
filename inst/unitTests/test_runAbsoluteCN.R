@@ -28,6 +28,13 @@ test_runAbsoluteCN <- function() {
         test.purity=seq(0.4,0.7,by=0.05), 
         min.ploidy=1.4, max.ploidy=2.4, max.candidate.solutions=1)
 
+    tmpFile <- tempfile(fileext=".rds")
+    saveRDS(ret, tmpFile)
+    # test for createCurationFile crash (#14) without VCF
+    createCurationFile(tmpFile)
+    readCurationFile(tmpFile)
+    file.remove(tmpFile)
+
 #    checkEqualsNumeric(ret$results[[1]]$purity, 0.65, tolerance=0.1)
     
     # chromosomes in segmentation ordered numerically, not alphabetically
