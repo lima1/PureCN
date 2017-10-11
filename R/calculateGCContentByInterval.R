@@ -60,7 +60,7 @@ calculateGCContentByInterval <- function(interval.file, reference.file,
 output.file = NULL, off.target=FALSE, average.target.width=400, 
 min.off.target.width=20000, average.off.target.width=200000,  
 off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7),
-off.target.seqlevels=c("targeted", "noncircular", "all")) {
+off.target.seqlevels=c("targeted", "all")) {
     if (class(interval.file)=="GRanges") {
         interval.gr <- .checkIntervals(interval.file)
     } else {    
@@ -101,7 +101,8 @@ off.target.seqlevels=c("targeted", "noncircular", "all")) {
                 .stopUserError("off.target.padding must be negative.")
             }    
             offRegions <- setdiff(scanFaIndex(reference.file), unstrand(interval.gr))
-            offRegions <- .dropShortUntargeted(offRegions, interval.gr)
+            offRegions <- .dropShortUntargetedSeqLevels(offRegions, interval.gr, 
+                average.off.target.width)
 
             if (!is.null(mappability)) {
                 offRegions <- intersect(offRegions, mappability)
@@ -119,9 +120,6 @@ off.target.seqlevels=c("targeted", "noncircular", "all")) {
             seqlevelsBefore <- seqlevelsInUse(offRegions)
             if (off.target.seqlevels == "targeted") {
                 offRegions <- offRegions[seqnames(offRegions) %in% seqlevels(interval.gr)]
-            } else if (off.target.seqlevels == "noncircular") {
-                offRegions <- offRegions[seqnames(offRegions) %in% 
-                    .getNonCircularSeqnames(reference.file)]
             }    
             seqlevelsAfter <- seqlevelsInUse(offRegions)
             if (!identical(seqlevelsBefore, seqlevelsAfter)) {
@@ -153,9 +151,9 @@ off.target.seqlevels=c("targeted", "noncircular", "all")) {
 
 # this function removes short chromosomes that have no probes (mainly a
 # general way to remove chrM)
-.dropShortUntargeted <- function(offRegions, interval.gr) {
+.dropShortUntargetedSeqLevels <- function(offRegions, interval.gr, minSize) {
     idx <- seqlevels(offRegions) %in% seqlevels(interval.gr) |
-        seqlengths(offRegions) > 100000
+        seqlengths(offRegions) >= minSize
     offRegions <- offRegions[seqnames(offRegions) %in% seqlevels(offRegions)[idx]]
     seqlevels(offRegions) <- seqlevelsInUse(offRegions)
     offRegions
@@ -225,18 +223,3 @@ off.target.seqlevels=c("targeted", "noncircular", "all")) {
     x
 }       
 
-.getNonCircularSeqnames <- function(reference.file) {
-    gs <- genomeStyles()
-    style <- try(seqlevelsStyle(scanFaIndex(reference.file)), silent=TRUE)
-    # style not known? then don't exclude any chromosomes, return all
-    if (class(style) == "try-error") {
-        return(seqlevels(scanFaIndex(reference.file)))
-    }    
-    gs <- gs[sapply(gs, function(x) style %in% colnames(x))]
-    gss <- lapply(gs, function(x) list(seqlevels(scanFaIndex(reference.file)), x[[style]] ))
-    # pick the species with the highest relative overlap in chromosome names
-    gs <- gs[[which.min(sapply(gss, function(x) length(setdiff(x[[2]],x[[1]]))/length(x[[2]])))]]
-
-    s <- gs[[style]][!gs$circular] 
-    s[s %in% seqlevels(scanFaIndex(reference.file))]
-}    

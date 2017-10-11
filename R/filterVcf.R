@@ -98,7 +98,8 @@ interval.padding = 50) {
         cutoffs <- min.supporting.reads
     }
     n <- nrow(vcf)
-    
+    .checkVcfNotEmpty(vcf)
+        
     .sufficientReads <- function(vcf, ref, depths, cutoffs) {
         idx <- rep(TRUE, nrow(vcf))
 
@@ -117,8 +118,9 @@ interval.padding = 50) {
     }    
     idxNotAlt <- .sufficientReads(vcf,ref=FALSE, depths, cutoffs)
     vcf <- vcf[idxNotAlt]
+    .checkVcfNotEmpty(vcf)
     idxNotHomozygous <- .sufficientReads(vcf,ref=TRUE, depths, cutoffs)
-
+    if (!sum(idxNotHomozygous)) .stopUserError("None of the heterozygous variants in provided VCF passed filtering.")
     #--------------------------------------------------------------------------
 
     # heurestic to find potential contamination
@@ -638,7 +640,10 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     vcf
 }         
 
-
+.checkVcfNotEmpty <- function(vcf) {
+    if (!nrow(vcf)) .stopUserError("None of the variants in provided VCF passed filtering.")
+}
+    
 .detectCaller <- function(vcf) {
     gatkVersion <- meta(header(vcf))[["GATKCommandLine"]]$Version[1]
     if (!is.null(gatkVersion) && grepl("^4", gatkVersion)) return("MuTect2/GATK4")

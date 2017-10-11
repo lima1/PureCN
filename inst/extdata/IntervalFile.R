@@ -19,7 +19,7 @@ option_list <- list(
         help="Bin off-target regions to approximately that size [default %default]"),
     make_option(c("--offtargetseqlevels"), action="store", type="character",
         default=formals(PureCN::calculateGCContentByInterval)$off.target.seqlevels[[2]], 
-        help="Controls how to deal with chromosomes/contigs not found in infile. One of targeted, noncircular, all [default %default]"),
+        help="Controls how to deal with chromosomes/contigs not found in infile. One of targeted, all [default %default]"),
     make_option(c("--mappability"), action="store", type="character", 
         help="File parsable by rtracklayer specifying mappability scores of genomic regions."),
     make_option(c("--genome"), action="store", type="character", default=NULL,
