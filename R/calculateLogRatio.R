@@ -30,9 +30,16 @@ calculateLogRatio <- function(normal, tumor) {
         .stopUserError("Interval files in normal and tumor different.")
     }
     if (is.null(tumor$on.target)) tumor$on.target <- TRUE
+
+    avgCovTumor <- mean(tumor$average.coverage[tumor$on.target], na.rm=TRUE)
+    avgCovNormal <- mean(normal$average.coverage[tumor$on.target], na.rm=TRUE)
+
     flog.info("Mean target coverages: %.0fX (tumor) %.0fX (normal).", 
-        mean(tumor$average.coverage[tumor$on.target], na.rm=TRUE), 
-        mean(normal$average.coverage[tumor$on.target], na.rm=TRUE))
+        avgCovTumor, avgCovNormal)
+    if (avgCovNormal/avgCovTumor < 0.25 || avgCovNormal/avgCovTumor > 4) {
+        flog.warn("Large difference in coverage of tumor and normal.")
+    }    
+    
     tumor$log.ratio <- 0.
 
     for (on.target in c(FALSE, TRUE)) {

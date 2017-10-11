@@ -1326,6 +1326,10 @@ for artifact filtering. A few recommendations:
     \item Without matched normals, we need process-matched normals for coverage
     normalization. We recommend at least 2, ideally more than 5 
     from 2-3 different library preparation and sequencing batches.
+    \item These normals used for coverage normalization should be ideally
+    sequenced to similar coverage as the tumor samples. This is completely
+    different from matched normals for germline calling where 30-40X provide
+    sufficient power to detect heterozygosity.
     \item For artifact removal, the more normals available, the more rare
     artifacts are removed. We recommend at least 10, 50 or more are ideal.
     The more artifacts are removed, the less likely \Biocpkg{PureCN} output
