@@ -45,101 +45,110 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     if (min.normals < 2) .stopUserError("min.normals must be >=2.")
 
     mappingBias <- 1
-    if (!is.null(info(vcf)$SOMATIC) && ncol(vcf)>1) {
+    if (!is.null(info(vcf)$SOMATIC) && ncol(vcf) > 1) {
          normal.id.in.vcf <- .getNormalIdInVcf(vcf, tumor.id.in.vcf)
-         faAll <- as.numeric(geno(vcf)$FA[!info(vcf)$SOMATIC,normal.id.in.vcf])
-         mappingBias <- mean(faAll, na.rm=TRUE)*2
-         flog.info("Found SOMATIC annotation in VCF. Setting mapping bias to %.3f.", 
-            mappingBias) 
-    }     
+         faAll <- as.numeric(geno(vcf)$FA[!info(vcf)$SOMATIC, normal.id.in.vcf])
+         mappingBias <- mean(faAll, na.rm=TRUE) * 2
+         flog.info("Found SOMATIC annotation in VCF. Setting mapping bias to %.3f.",
+            mappingBias)
+    }
     if (is.null(info(vcf)$SOMATIC) && is.null(normal.panel.vcf.file)) {
         flog.info(
             "VCF does not contain somatic status. For best results, consider%s%s",
             " providing normal.panel.vcf.file when matched normals are not ",
             "available.")
     }    
-    tmp <- rep(mappingBias, nrow(vcf)) 
+    tmp <- rep(mappingBias, nrow(vcf))
     # Defines the maximum value for the mapping bias scaling factor.
     # 1 assumes that the reference allele can never have
     # a lower mappability than the alt allele.
     max.bias <- 1.2
-    tmp[tmp>max.bias] <- max.bias
+    tmp[tmp > max.bias] <- max.bias
     if (is.null(normal.panel.vcf.file)) {
-        return(list(bias=tmp))
-    } 
+        return(list(bias = tmp))
+    }
     nvcf <- .readNormalPanelVcfLarge(vcf, normal.panel.vcf.file)
     if (nrow(nvcf) < 1) {
         flog.warn("setMappingBiasVcf: no hits in %s.", normal.panel.vcf.file)
-        return(list(bias=tmp))
+        return(list(bias = tmp))
     }
 
     psMappingBias <- sapply(seq_len(nrow(nvcf)), function(i) {
-        fa <- sapply(geno(nvcf[i])$AD, function(x) x[2]/sum(x))
+        fa <- sapply(geno(nvcf[i])$AD, function(x) x[2] / sum(x))
         idx <- !is.na(fa) & fa > 0.05 & fa < 0.9
-        if (!sum(idx)>=min.normals) return(c(0,0,0,0))
-        sumAD <- apply(do.call(rbind, geno(nvcf[i])$AD[idx]),2,sum)
+        if (!sum(idx) >= min.normals) return(c(0, 0, 0, 0))
+        sumAD <- apply(do.call(rbind, geno(nvcf[i])$AD[idx]), 2, sum)
         c(sumAD, sum(idx), mean(fa[idx]))
     })
     # Add an average "normal" SNP (average coverage and allelic fraction > 0.4)
-    # as empirical prior 
-    psMappingBias <- .adjustEmpBayes(psMappingBias)*2
-    ponCntHits <- apply(geno(nvcf)$AD, 1, function(x) sum(!is.na(unlist(x)))/2)
+    # as empirical prior
+    psMappingBias <- .adjustEmpBayes(psMappingBias) * 2
+    ponCntHits <- apply(geno(nvcf)$AD, 1, function(x)
+        sum(!is.na(unlist(x))) / 2)
     
-    ov <- findOverlaps(vcf, nvcf, select="first")
-    
+    ov <- findOverlaps(vcf, nvcf, select = "first")
+
     ponCnt <- integer(length(tmp))
 
     tmp[!is.na(ov)] <- psMappingBias[ov][!is.na(ov)]
-    tmp[tmp>max.bias] <- max.bias
+    tmp[tmp > max.bias] <- max.bias
 
     ponCnt[!is.na(ov)] <- ponCntHits[ov][!is.na(ov)]
     if (smooth) {
-        tmpSmoothed <- .smoothVectorByChromosome(tmp, as.character(seqnames(vcf)), 
-            smooth.n)
+        tmpSmoothed <- .smoothVectorByChromosome(tmp, 
+            as.character(seqnames(vcf)), smooth.n)
         # only smooth variants not found in database
         tmp[is.na(ov)] <- tmpSmoothed[is.na(ov)]
     }
-    return(list(bias=tmp, pon.count=ponCnt))
+    return(list(bias = tmp, pon.count = ponCnt))
 }
 
 .smoothVectorByChromosome <- function(x, chr, smooth.n) {
     .filter <- function(x, ...) {
-        if (length(x) < smooth.n*5) return(x)
+        if (length(x) < smooth.n * 5) return(x)
         stats::filter(x, ...)
-    }       
+    }
     fN <- rep(1/smooth.n, smooth.n)
-    y <- do.call(c, lapply(split(x, factor(as.character(chr), levels=unique(chr))), .filter, fN, sides=2))
+    y <- do.call(c, lapply(
+            split(x, factor(as.character(chr), levels = unique(chr))),
+            .filter, fN, sides = 2))
+
     y[is.na(y)] <- x[is.na(y)]
     as.numeric(y)
 }
 
-.readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file, 
+.readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file,
     max.file.size=1, geno="AD", expand=FALSE) {
-    genome <- genome(vcf)[1]    
+    genome <- genome(vcf)[1]
     if (!file.exists(normal.panel.vcf.file)) {
-        .stopUserError("normal.panel.vcf.file ", normal.panel.vcf.file, 
+        .stopUserError("normal.panel.vcf.file ", normal.panel.vcf.file,
             " does not exist.")
-    }    
-    if (file.size(normal.panel.vcf.file)/1000^3 > max.file.size || nrow(vcf)< 1000) {
+    }
+    if (file.size(normal.panel.vcf.file) / 1000^3 > max.file.size ||
+        nrow(vcf) < 1000) {
         flog.info("Scanning %s...", normal.panel.vcf.file)
-        nvcf <- readVcf(TabixFile(normal.panel.vcf.file), genome=genome, 
-            ScanVcfParam(which = rowRanges(vcf), info=NA, fixed=NA, 
-            geno=geno))
+        nvcf <- readVcf(TabixFile(normal.panel.vcf.file), genome = genome,
+            ScanVcfParam(which = rowRanges(vcf), info = NA, fixed = NA,
+            geno = geno))
     } else {
         flog.info("Loading %s...", normal.panel.vcf.file)
-        nvcf <- readVcf(normal.panel.vcf.file, genome=genome,
-            ScanVcfParam(info=NA, fixed=NA, geno=geno))
+        nvcf <- readVcf(normal.panel.vcf.file, genome = genome,
+            ScanVcfParam(info = NA, fixed = NA, geno = geno))
         nvcf <- subsetByOverlaps(nvcf, rowRanges(vcf))
-    }    
+    }
     if (expand) nvcf <- expand(nvcf)
-    nvcf    
-}    
+    nvcf
+}
 
 .adjustEmpBayes <- function(x) {
-    xg <- x[,x[4,]>0.4]
-    shape1 <- sum(xg[1,])/sum(xg[3,])
-    shape2 <- sum(xg[2,])/sum(xg[3,])
-    x[1,] <- x[1,]+shape1
-    x[2,] <- x[2,]+shape1
-    apply(x, 2, function(y) y[2]/sum(y[1:2]))
-}    
+    # get all SNPs without dramatic bias
+    xg <- x[, x[4, ] > 0.4]
+    # calculate the average number of ref and alt reads per sample
+    shape1 <- sum(xg[1, ]) / sum(xg[3, ])
+    shape2 <- sum(xg[2, ]) / sum(xg[3, ])
+    # add those as empirical bayes estimate to all SNPs
+    x[1, ] <- x[1, ] + shape1
+    x[2, ] <- x[2, ] + shape2
+    # get the alt allelic fraction for all SNPs
+    apply(x, 2, function(y) y[2] / sum(y[1:2]))
+}
