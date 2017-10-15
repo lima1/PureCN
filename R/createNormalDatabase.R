@@ -34,7 +34,7 @@
 #' @export createNormalDatabase
 #' @importFrom stats prcomp
 createNormalDatabase <- function(normal.coverage.files, sex = NULL,
-max.mean.coverage = NULL, ... ) {
+max.mean.coverage = NULL, ...) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
     normals <- .readNormals(normal.coverage.files)
 
@@ -45,7 +45,7 @@ max.mean.coverage = NULL, ... ) {
     z <- apply(normals.m[idx,],2,mean)
     if (is.null(max.mean.coverage)) max.mean.coverage <- 
         quantile(round(z), p=0.8)
-    if (!is.na(max.mean.coverage) && length(normals)>8) { 
+    if (!is.na(max.mean.coverage) && length(normals)>8) {
         flog.info("Setting maximum coverage in normalDB to %.0f", 
             max.mean.coverage)
         z <- sapply(max.mean.coverage/z, min,1)
@@ -55,13 +55,13 @@ max.mean.coverage = NULL, ... ) {
     sex.determined <- sapply(normals,getSexFromCoverage)
     if (is.null(sex)) {
         sex <- sex.determined
-    } else {   
+    } else {
         if (length(sex) != length(normals)) {
             .stopUserError("Length of normal.coverage.files and sex different")
         } 
         idx.sex <- sex %in% c(NA, "F", "M", "diploid")
         sex[!idx.sex] <- NA
-        if(sum(!idx.sex)>0) warning("Unexpected values in sex ignored.")   
+        if (sum(!idx.sex)>0) warning("Unexpected values in sex ignored.")
         for (i in seq_along(sex.determined)) {
             if (!is.na(sex.determined[i]) && sex[i] != "diploid" &&
                 sex.determined[i] != sex[i]) {
@@ -75,9 +75,9 @@ max.mean.coverage = NULL, ... ) {
         pca=normals.pca, 
         exons.used=idx, 
         coverage=apply(normals.m, 2, mean, na.rm=TRUE), 
-        exon.median.coverage=apply(normals.m,1,median, na.rm=TRUE),
-        exon.log2.sd.coverage=apply(log2(normals.m+1),1,sd, na.rm=TRUE),
-        fraction.missing=apply(normals.m,1,function(x) 
+        exon.median.coverage=apply(normals.m, 1, median, na.rm=TRUE),
+        exon.log2.sd.coverage=apply(log2(normals.m+1), 1, sd, na.rm=TRUE),
+        fraction.missing=apply(normals.m, 1, function(x)
             sum(is.na(x)|x<0.01))/ncol(normals.m),
         sex=sex
     )

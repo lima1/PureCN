@@ -240,7 +240,7 @@ plot.max.density = 50000) {
     newsum <- sum(p3*x*x*x+p2*x*x+p1*x+p0)+sum(oldp3*x*x*x+oldp2*x*x+oldp1*x+oldp0)
     if(abs(newsum-oldsum)<5) break
         itercount=itercount+1
-        if(itercount==100) break
+        if (itercount==100) break
 
     oldsum <- newsum
     oldp0 <- p0
@@ -312,7 +312,7 @@ max_cnv <- 10
   #Normalize
   coverage$NormalizedCoverage <- 0
   medDiploid <- data.frame()
-  for(i in seq(pmin,pmax,0.01)) {
+  for (i in seq(pmin,pmax,0.01)) {
     # Big window limits
     i_low  <- i - 0.05
     i_high <- i + 0.05
@@ -321,8 +321,9 @@ max_cnv <- 10
     medvals <- c(rep(NA,10))
     ct <- 1
 
-    for(j in seq(i_low, i_high, interval)) { # Compute median of all small windows
-          if(i>=imin & i<=imax)
+    for(j in seq(i_low, i_high, interval)) {
+        # Compute median of all small windows
+          if (i>=imin & i<=imax)
         medvals[ct] <- median(coverage$average.coverage[which(coverage$diploid==TRUE & j<=coverage$gc_bias & coverage$gc_bias<j+0.01)], na.rm=TRUE)
           else
         medvals[ct] <- median(coverage$average.coverage[which(coverage$usable==TRUE & j<=coverage$gc_bias & coverage$gc_bias<j+0.01)], na.rm=TRUE)
@@ -347,4 +348,3 @@ max_cnv <- 10
 
   ret
 }
-

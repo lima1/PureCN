@@ -29,7 +29,7 @@
 #'      remove.chrs=c("chrX", "chrY"))
 #' 
 #' @export poolCoverage
-poolCoverage <- function(all.data, remove.chrs=c(), w = NULL) { 
+poolCoverage <- function(all.data, remove.chrs=c(), w = NULL) {
 
     pool <- all.data[[1]]
 

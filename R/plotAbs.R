@@ -64,7 +64,7 @@ type = c("hist", "overview", "overview2", "BAF", "AF", "volcano", "all",
 "contamination"),
 chr = NULL, germline.only = TRUE, show.contour = FALSE, purity = NULL, 
 ploidy = NULL, alpha = TRUE, show.segment.means = c("SNV", "segments", "both"),
-max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
+max.mapping.bias = 0.8, palette.name = "Paired", ...) {
     chr.hash <- res$input$chr.hash
     if (is.null(chr.hash)) {
         chr.hash <- .getChrHash(gsub(":.*$","",res$input$log.ratio[,1]))
@@ -74,7 +74,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ... ) {
     sd.seg <- ifelse(is.null(res$input$log.ratio.sdev), 0.4, 
         res$input$log.ratio.sdev)
 
-    .ar <- function(C) { 
+    .ar <- function(C) {
         (purity * C + 2*(1-purity))/( purity*ploidy + 2*(1-purity))  
     }
     .ardnorm <- function(x,C) dnorm(x, mean=log2(.ar(C)), sd=sd.seg, log=TRUE)

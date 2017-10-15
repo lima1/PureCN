@@ -107,18 +107,18 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     log.ratio <- log.ratio[well.covered.exon.idx]
     ov <- findOverlaps(vcf, tumor)
     d.f <- cbind(as.data.frame(tumor[subjectHits(ov)]), 
-        CT=2^(log.ratio+1)[subjectHits(ov)], 
+        CT=2 ^ (log.ratio+1)[subjectHits(ov)], 
         betaT=unlist(geno(vcf[queryHits(ov)])$FA[,tumor.id.in.vcf]), 
         betaN=NA,
-        x=start(vcf[queryHits(ov)]) )
+        x=start(vcf[queryHits(ov)]))
     
     if (!is.null(normal.id.in.vcf)) {
         d.f$betaN <- unlist(geno(vcf[queryHits(ov)])$FA[,normal.id.in.vcf])
     }
          
     d.f.2 <- cbind(as.data.frame(tumor[-subjectHits(ov)]), 
-        CT=2^(log.ratio+1)[-subjectHits(ov)], betaT=NA, betaN=NA,
-        x=start(tumor[-subjectHits(ov)]) )
+        CT=2 ^ (log.ratio+1)[-subjectHits(ov)], betaT=NA, betaN=NA,
+        x=start(tumor[-subjectHits(ov)]))
     
     d.f <- rbind(d.f, d.f.2)
     colnames(d.f)[1] <- "chromosome"

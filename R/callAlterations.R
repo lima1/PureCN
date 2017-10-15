@@ -35,9 +35,9 @@ log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, all.genes = FALSE) {
             "gc.gene.file.")
     }
      
-    amp.ids <- ( res$results[[id]]$gene.calls$focal & 
-                 res$results[[id]]$gene.calls$C >= cutoffs[2] ) |
-                 res$results[[id]]$gene.calls$C >= cutoffs[3] 
+    amp.ids <- (res$results[[id]]$gene.calls$focal &
+                res$results[[id]]$gene.calls$C >= cutoffs[2]) |
+                res$results[[id]]$gene.calls$C >= cutoffs[3] 
 
     del.ids <- res$results[[id]]$gene.calls$C < cutoffs[1]
 
@@ -114,7 +114,7 @@ log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, all.genes = FALSE) {
 #' @export callAlterationsFromSegmentation
 callAlterationsFromSegmentation <- function(sampleid, chr, start, end, 
     num.mark = NA, seg.mean, C, gc.gene.file, fun.focal=findFocal,
-    args.focal=list(), ... ){
+    args.focal=list(), ...){
     seg <- data.frame(
         ID=sampleid,
         chrom=chr,

@@ -60,12 +60,12 @@ max.ploidy = NULL) {
     curation$Purity <- suppressWarnings(as.numeric(curation$Purity))
     curation$Ploidy <- suppressWarnings(as.numeric(curation$Ploidy))
     
-    if (is.na(curation$Purity) || is.na( curation$Ploidy ) ||
+    if (is.na(curation$Purity) || is.na(curation$Ploidy) ||
         curation$Purity < 0 || curation$Purity > 1 ||
-        curation$Ploidy < 0 || curation$Ploidy > 8 ) {
+        curation$Ploidy < 0 || curation$Ploidy > 8) {
         .stopUserError("Purity or Ploidy not numeric or in expected range.")
     }    
-    ## Find purity/ploidy solution most similar to curation
+    # Find purity/ploidy solution most similar to curation
     diffCurated <- vapply(res$results, function(x) {
         abs(x$purity-curation$Purity) + (abs(x$ploidy-curation$Ploidy)/6)
     }, double(1))

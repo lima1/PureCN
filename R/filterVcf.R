@@ -93,7 +93,7 @@ interval.padding = 50) {
             calculatePowerDetectSomatic(d, ploidy=2, purity=1, error=error, 
                 verbose=FALSE)$k)
         depths <- c(0,depths)
-    } else { 
+    } else {
         depths <- 0
         cutoffs <- min.supporting.reads
     }
@@ -126,7 +126,7 @@ interval.padding = 50) {
     # heurestic to find potential contamination
     #--------------------------------------------------------------------------
     idx <- info(vcf)$DB & idxNotHomozygous &
-        ( unlist(geno(vcf)$FA[,tumor.id.in.vcf]) <  contamination.range[2] | 
+        (unlist(geno(vcf)$FA[,tumor.id.in.vcf]) < contamination.range[2] |
         unlist(geno(vcf)$FA[,tumor.id.in.vcf]) > (1 - contamination.range[2]))
 
     fractionContaminated <- sum(idx)/sum(info(vcf)$DB & idxNotHomozygous)
@@ -236,7 +236,7 @@ filterVcfMuTect <- function(vcf, tumor.id.in.vcf = NULL, stats.file = NULL,
 ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events", 
 "poor_mapping_region_alternate_allele_mapq", "poor_mapping_region_mapq0", 
 "possible_contamination", "strand_artifact", "seen_in_panel_of_normals"),
-... ){
+...){
     if (is.null(stats.file) && .detectCaller(vcf) == "MuTect2/GATK4") {
         flog.info("Detected MuTect2 VCF.")
         return(filterVcfMuTect2(vcf, tumor.id.in.vcf, ...))
@@ -361,9 +361,9 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         colnames(geno(vcf)$DP))])
     
     # calculate probability that true allelic fraction in normal is 0.5
-    pBeta <-pbeta(1/2, 
-            shape1=arAll*dpAll+1, 
-            shape2=(1-arAll)*dpAll+1,log.p=FALSE)
+    pBeta <-pbeta(1/2,
+            shape1 = arAll*dpAll+1,
+            shape2 = (1-arAll)*dpAll+1,log.p=FALSE)
     
     # keep only somatic, non-biased and if allelic ratio is close
     # enough. The latter is useful for ultra-deep sequencing, when
@@ -451,7 +451,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     return(TRUE)
 }    
 .readAndCheckVcf <- function(vcf.file, genome) {
-    if (class(vcf.file) == "character") {    
+    if (class(vcf.file) == "character") {
         vcf <- readVcf(vcf.file, genome)
     } else if (class(vcf.file) != "CollapsedVCF") {
         .stopUserError("vcf.file neither a filename nor a CollapsedVCF ", 
@@ -491,10 +491,10 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
      db <- grepl("^rs",rownames(vcf))
      if (!sum(db)) {
         .stopUserError("vcf.file has no DB info field for dbSNP membership.")
-     } else  { 
+     } else {
         flog.warn("vcf.file has no DB info field for dbSNP membership.%s",
             " Guessing it based on ID.")
-     }   
+     }
     newInfo <- DataFrame(
         Number=0, Type="Flag",
         Description="dbSNP Membership",
@@ -521,7 +521,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 .addADField <- function(vcf, field="AD") {
     # FreeBayes
     if (!length(setdiff(c("DP","AO", "RO"),names(geno(vcf))))) {
-        matrixAD <- do.call(cbind, lapply(samples(header(vcf)), function(j) { 
+        matrixAD <- do.call(cbind, lapply(samples(header(vcf)), function(j) {
             ao <- unlist(geno(vcf)$AO[,j])
             ro <- unlist(geno(vcf)$RO[,j])
             AD <- lapply(seq_along(ao), function(i) as.integer(c(ro[i], ao[i])))
@@ -535,7 +535,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
             row.names=field)
         geno(header(vcf)) <- rbind(geno(header(vcf)), newGeno)
         geno(vcf)[[field]] <- matrixAD
-    } else {   
+    } else {
         .stopUserError("vcf.file has no AD geno field containing read depths ",
             "of ref and alt.")
     }
@@ -589,7 +589,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 .calcTargetedGenome <- function(granges) {
     tmp <- reduce(granges)
     sum(width(tmp))/(1000^2)
-}    
+}
 
 .annotateVcfTarget <- function(vcf, target.granges, interval.padding) {
     target.granges.padding <- .padGranges(target.granges, interval.padding)

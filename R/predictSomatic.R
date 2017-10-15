@@ -110,14 +110,14 @@ ifelse(x=="logical", "Flag", ifelse(x=="integer", "Integer", "Float"))))
         Type=c("Flag", "Float", "Float", "Float", "String"),
         Description=c("Sub-clonal copy number gain", "Cellular fraction", 
             "Posterior probability variant is somatic mutation.", 
-            "Copy number log-ratio", "Gene Symbol" ),
+            "Copy number log-ratio", "Gene Symbol"),
         row.names=idxColsMisc
     )
     info(header(vcf)) <- rbind(info(header(vcf)), newInfoPosterior, newInfoMl,
 newInfoMisc)
     idxColsMisc <- match(idxColsMisc, colnames(pp))
-    pp[, idxColsPp] <- round( pp[, idxColsPp], digits=4)
-    pp[, idxColsMisc[2:4]] <- round( pp[, idxColsMisc[2:4]], digits=4)
+    pp[, idxColsPp] <- round(pp[, idxColsPp], digits=4)
+    pp[, idxColsMisc[2:4]] <- round(pp[, idxColsMisc[2:4]], digits=4)
     
     info(vcf) <- cbind(info(vcf), pp[, c(idxColsPp, idxCols, idxColsMisc)])
     vcf

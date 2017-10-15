@@ -81,7 +81,7 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
         if (!is.na(sex)) {
             idx.normals <- which(normalDB$sex == sex)
         }
-        if (length(idx.normals) < 2) { 
+        if (length(idx.normals) < 2) {
             flog.warn("Not enough samples of sex %s %s", sex, 
                 "in database. Ignoring sex.")
             idx.normals <- seq_along(normalDB$normal.coverage.files)
@@ -94,8 +94,8 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
     }    
 
     best.match <- order(sapply(idx.normals, function(i) 
-        dist( rbind(predict(normalDB$pca, x)[1,idx.pcs], 
-              predict(normalDB$pca)[i,idx.pcs]))[1]
+        dist(rbind(predict(normalDB$pca, x)[1,idx.pcs], 
+             predict(normalDB$pca)[i,idx.pcs]))[1]
     ))
 
     normal.coverage.files <- normalDB$normal.coverage.files[idx.normals][head(best.match, num.normals)]
@@ -105,11 +105,11 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
       flog.info("Pooling %s.", paste(basename(normal.coverage.files), 
         collapse=", "))
       w <- NULL
-      if (pool.weights == "voom" && num.normals > 1) {  
+      if (pool.weights == "voom" && num.normals > 1) {
           logRatio <- .voomLogRatio(tumor, 
             normal.coverage.files=normal.coverage.files, plot.voom=plot.pool)
           fakeNormal <- tumor
-          fakeNormal$average.coverage <- 2^(log2(tumor$average.coverage) - logRatio)
+          fakeNormal$average.coverage <- 2 ^ (log2(tumor$average.coverage) - logRatio)
           fakeNormal$coverage <- fakeNormal$average.coverage * width(fakeNormal)
           return(fakeNormal)
       }
@@ -162,7 +162,7 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
 #' @export plotBestNormal
 plotBestNormal <- function(normal.coverage.files, tumor.coverage.file,
     normalDB, x = 1, y = 2, col.tumor = "red", col.best.normal = "blue",
-    col.other.normals = "black", ... ) {
+    col.other.normals = "black", ...) {
     if (is.character(tumor.coverage.file)) {
         tumor  <- readCoverageFile(tumor.coverage.file)
     } else {
@@ -174,7 +174,7 @@ plotBestNormal <- function(normal.coverage.files, tumor.coverage.file,
     xx <- predict(normalDB$pca,xx)
     xx <- rbind(xx, normalDB$pca$x)
     plot(xx[,x],xx[,y],col=c(col.tumor, 
-        ifelse( normalDB$normal.coverage.files %in% 
+        ifelse(normalDB$normal.coverage.files %in% 
         normal.coverage.files, col.best.normal, col.other.normals)),
         xlab=paste("PC",x), ylab=paste("PC",y),...)
 }

@@ -22,7 +22,7 @@
 #' @export readCoverageFile
 readCoverageFile <- function(file, format, zero=NULL) {
     if (missing(format)) format <- .getFormat(file)
-    if (format %in% c("cnn", "cnr")) {    
+    if (format %in% c("cnn", "cnr")) {
         targetCoverage <- .readCoverageCnn(file, zero, format)
     } else {
         targetCoverage <- .readCoverageGatk(file, zero)
@@ -98,9 +98,9 @@ readCoverageGatk <- function() {
     if (min(width(coverageGr))<2) {
         flog.warn("Coverage data contains single nucleotide intervals.")
     }    
-    if(min(start(coverageGr))<1) {
+    if (min(start(coverageGr))<1) {
         .stopUserError("Interval coordinates should start at 1, not at 0")
-    }    
+    }
     ov <- findOverlaps(coverageGr, coverageGr)
     dups <- duplicated(queryHits(ov))
     
@@ -164,12 +164,12 @@ readCoverageGatk <- function() {
         # user probably used the wrong file for the assay
         if (length(ov) < length(tumor)/2) {
             .stopUserError("tumor.coverage.file and gc.gene.file do not align.")
-        } else {    
+        } else {
             flog.warn("tumor.coverage.file and gc.gene.file do not align.")
-        }    
+        }
     }
 
-    if(!is.null(tumor$on.target)) {
+    if (!is.null(tumor$on.target)) {
         if (!identical(tumor[queryHits(ov)]$on.target, targetGC[subjectHits(ov)]$on_target)) {
             flog.warn("Intervals in coverage and gc.gene.file have conflicting on/off-target annotation.")
             tumor[queryHits(ov)]$on.target <- targetGC[subjectHits(ov)]$on_target
@@ -181,4 +181,3 @@ readCoverageGatk <- function() {
     tumor <- .checkSymbolsChromosome(tumor)
     return(tumor)
 }
-    

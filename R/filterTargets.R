@@ -78,7 +78,7 @@ filterTargets <- function(normal, tumor, log.ratio, seg.file,
     targetsUsed <- .filterTargetsTotalNormalCoverage(targetsUsed, normal,
         min.targeted.base, min.coverage)
 
-    if (!is.null(normalDB)) { 
+    if (!is.null(normalDB)) {
         min.coverage <- min.coverage/10000
         flog.info("normalDB provided. Setting minimum coverage for segmentation to %.4fX.", min.coverage)
     } else {
@@ -132,7 +132,7 @@ normalDB.min.coverage, normalDB.max.missing) {
 
     nAfter <- sum(targetsUsed)
 
-    if (nAfter < nBefore) { 
+    if (nAfter < nBefore) {
         flog.info("Removing %i targets with low coverage in normalDB.", 
             nBefore-nAfter)
     }
@@ -142,7 +142,7 @@ normalDB.min.coverage, normalDB.max.missing) {
         normalDB$fraction.missing <= normalDB.max.missing
     nAfter <- sum(targetsUsed)
 
-    if (nAfter < nBefore) { 
+    if (nAfter < nBefore) {
         flog.info("Removing %i targets with zero coverage in more than %.0f%% of normalDB.", 
             nBefore-nAfter, normalDB.max.missing*100)
     }
@@ -156,7 +156,7 @@ normalDB.min.coverage, normalDB.max.missing) {
     targetsUsed <- targetsUsed & seqnames(tumor) %in% chr.hash$chr
     nAfter <- sum(targetsUsed)
 
-    if ( nAfter < nBefore) { 
+    if (nAfter < nBefore) {
         flog.info("Removing %i targets on chromosomes outside chr.hash.", 
             nBefore-nAfter)
     }
@@ -175,7 +175,7 @@ normalDB.min.coverage, normalDB.max.missing) {
     targetsUsed
 }
 
-.filterTargetsTotalNormalCoverage <- function(targetsUsed, normal, 
+.filterTargetsTotalNormalCoverage <- function(targetsUsed, normal,
     min.targeted.base, min.coverage) {
     if (is.null(min.targeted.base) || is.null(min.coverage)) {
         return(targetsUsed)
@@ -198,13 +198,13 @@ normalDB.min.coverage, normalDB.max.missing) {
     total.cov.normal <- sum(as.numeric(normal$coverage), na.rm = TRUE)
     total.cov.tumor <- sum(as.numeric(tumor$coverage), na.rm = TRUE)
 
-    f <- max(total.cov.normal/total.cov.tumor,1)
+    f <- max(total.cov.normal / total.cov.tumor, 1)
 
-    well.covered.exon.idx <- ((normal$average.coverage >= min.coverage) & 
-        (tumor$average.coverage >= min.coverage)) | 
-        ((normal$average.coverage >= 1.5 * f * min.coverage) &  
-        (tumor$average.coverage >= 0.5 * min.coverage))
-    #MR: fix for missing chrX/Y 
+    well.covered.exon.idx <- (normal$average.coverage >= min.coverage &
+        tumor$average.coverage >= min.coverage) | 
+        (normal$average.coverage >= 1.5 * f * min.coverage &  
+        tumor$average.coverage >= 0.5 * min.coverage)
+    #MR: fix for missing chrX/Y
     well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
 
     nBefore <- sum(targetsUsed)

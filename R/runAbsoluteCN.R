@@ -311,7 +311,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         }
     }
     if (is.null(tumor.coverage.file)) {
-        if ((is.null(seg.file) && is.null(log.ratio)) || is.null(gc.gene.file)) {
+        if ( (is.null(seg.file) && is.null(log.ratio)) || 
+            is.null(gc.gene.file)) {
             .stopUserError("Missing tumor.coverage.file requires seg.file or ", 
                            "log.ratio and gc.gene.file.")
         }
@@ -394,7 +395,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # chr.hash is an internal data structure, so we need to do this separately.
     targetsUsed <- .filterTargetsChrHash(targetsUsed, tumor, chr.hash)
     targetsUsed <- which(targetsUsed)
-    if (length(tumor) != length(normal) || length(tumor) != length(log.ratio)) { 
+    if (length(tumor) != length(normal) || 
+        length(tumor) != length(log.ratio)) {
         .stopRuntimeError("Mis-aligned coverage data.")
     }
     tumor <- tumor[targetsUsed, ]
@@ -418,7 +420,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (is.null(seg.file)) {
         if (!is.null(gc.gene.file)) {
             dropoutWarning <- .checkGCBias(normal, tumor, max.dropout)
-            #.checkGCBias(normal, tumor, max.dropout, on.target=FALSE)
         } else {
             flog.info("No gc.gene.file provided. Cannot check if data was GC-normalized. Was it?")
         }
@@ -528,7 +529,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         
         # Add segment log-ratio to off-target snvs.  For on-target, use observed
         # log-ratio.
-        sd.ar <- sd(unlist(geno(vcf)$FA[, tumor.id.in.vcf]))
         snv.lr <- seg$seg.mean[ov]
         ov.vcfexon <- findOverlaps(vcf, tumor)
         snv.lr[queryHits(ov.vcfexon)] <- log.ratio[subjectHits(ov.vcfexon)]
@@ -639,7 +639,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     .optimizeSolution <- function(cpi) {
         
         max.attempts <- 4
-        attempt = 0
+        attempt <- 0
         while (attempt < max.attempts) {
             attempt <- attempt + 1
             total.ploidy <- candidate.solutions$candidates$ploidy[cpi]
@@ -775,7 +775,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     .stopRuntimeError("Could not fit SCNAs.")
                   }
                   id <- min(which(z <= cumsum(p.rij)))
-                  old.C <- C[i]
                   opt.C <- (2^(seg$seg.mean + log.ratio.offset) * total.ploidy)/p - 
                     ((2 * (1 - p))/p)
                   opt.C[opt.C < 0] <- 0
@@ -800,7 +799,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         seg.adjusted <- seg
         seg.adjusted$C <- C
         seg.adjusted$size <- li
-        llik.snv <- NULL
         SNV.posterior <- NULL
         
         if (subclonal.f > max.non.clonal) {
@@ -852,14 +850,14 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 if (post.optimize && length(tp)>1) {
                     GoF <- .getGoF(list(SNV.posterior=res.snvllik[[1]]))
                     idx <- 1
-                    if (GoF < (min.gof-0.05)) { 
+                    if (GoF < (min.gof-0.05)) {
                         flog.info("Poor goodness-of-fit (%.3f). Skipping post-optimization.", GoF)
                     } else if (.calcFractionBalanced(res.snvllik[[1]]$posteriors) > 0.8 && 
                         weighted.mean(C, li) > 2.7) {
                         flog.info("High ploidy solution in highly balanced genome. Skipping post-optimization.")
                     } else if (.isRareKaryotype(weighted.mean(C, li))) {
                         flog.info("Rare karyotype solution. Skipping post-optimization.")
-                    } else {    
+                    } else {
                         res.snvllik <- c(res.snvllik, lapply(tp[-1], .fitSNVp))
                       px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal = subclonal[i], 
                         lr = exon.lrs[[i]] + log.ratio.offset[i], sd.seg = sd.seg, p = px, 
@@ -968,7 +966,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         flog.warn("Could not find valid purity and ploidy solution.")
     }
     .logFooter()
-    list(   
+    list(
         candidates = candidate.solutions, 
         results = results, 
         input = list(tumor = tumor.coverage.file, normal = normal.coverage.file, 
@@ -979,5 +977,3 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         )
     )
 }
-
-

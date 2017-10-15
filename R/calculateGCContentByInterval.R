@@ -63,7 +63,7 @@ off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7),
 off.target.seqlevels=c("targeted", "all")) {
     if (class(interval.file)=="GRanges") {
         interval.gr <- .checkIntervals(interval.file)
-    } else {    
+    } else {
         interval.gr <- readCoverageFile(interval.file)
     }
     if (is.null(interval.gr$on.target)) interval.gr$on.target <- TRUE    
@@ -81,7 +81,7 @@ off.target.seqlevels=c("targeted", "all")) {
     if (containsOfftarget) {
         flog.warn("Intervals contain off-target regions. %s",
             "Will not change intervals.")
-    } else {    
+    } else {
         # split large targets
         if (!is.null(average.target.width)) {
             tmp <- tile(interval.gr, width=average.target.width)
@@ -120,18 +120,18 @@ off.target.seqlevels=c("targeted", "all")) {
             seqlevelsBefore <- seqlevelsInUse(offRegions)
             if (off.target.seqlevels == "targeted") {
                 offRegions <- offRegions[seqnames(offRegions) %in% seqlevels(interval.gr)]
-            }    
+            }
             seqlevelsAfter <- seqlevelsInUse(offRegions)
             if (!identical(seqlevelsBefore, seqlevelsAfter)) {
                 flog.info("Removing following contigs from off-target regions: %s", 
                     paste(setdiff(seqlevelsBefore, seqlevelsAfter), collapse=","))
-            }    
+            }
             interval.gr <- merge(offRegions, interval.gr, all = TRUE, sort=TRUE)
-        }    
+        }
     }
 
     interval.gr <- .annotateMappability(interval.gr, mappability, 
-        min.mappability) 
+        min.mappability)
     
     flog.info("Calculating GC-content...")
     x <- scanFa(reference.file, interval.gr)
@@ -160,7 +160,7 @@ off.target.seqlevels=c("targeted", "all")) {
 }
     
 # add mappability score to intervals
-.annotateMappability <- function(interval.gr, mappability, min.mappability) {    
+.annotateMappability <- function(interval.gr, mappability, min.mappability) {
     interval.gr$mappability <- 1
     if (!is.null(mappability)) {
         ov <- findOverlaps(interval.gr, mappability)
@@ -174,8 +174,8 @@ off.target.seqlevels=c("targeted", "all")) {
     # remove intervals with low mappability
     nBefore <- sum(interval.gr$on.target)
     interval.gr <- interval.gr[
-        (interval.gr$on.target & interval.gr$mappability >= min.mappability[1] ) |
-        (!interval.gr$on.target & interval.gr$mappability >= min.mappability[2] ) ]
+        (interval.gr$on.target & interval.gr$mappability >= min.mappability[1]) |
+        (!interval.gr$on.target & interval.gr$mappability >= min.mappability[2]) ]
     # remove chrY low mappability    
     sex.chr <- .getSexChr(seqlevels(interval.gr))[2]
     interval.gr <- interval.gr[!seqnames(interval.gr) %in% sex.chr |
@@ -222,4 +222,3 @@ off.target.seqlevels=c("targeted", "all")) {
     }        
     x
 }       
-

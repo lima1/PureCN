@@ -145,4 +145,3 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
     end(target.granges.padding) <- end(target.granges.padding)+interval.padding
     return(target.granges.padding)
 }
-

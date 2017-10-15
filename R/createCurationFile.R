@@ -55,7 +55,7 @@ createCurationFile <- function(file.rds, overwrite.uncurated = TRUE,
         } else {
             write.csv(d.f.curation, file=filename, row.names=FALSE)
         }       
-    } else {   
+    } else {
         write.csv(d.f.curation, file=filename, row.names=FALSE)
     }
     invisible(d.f.curation)

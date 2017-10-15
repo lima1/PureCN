@@ -100,8 +100,8 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     x$cna$output[idx.enough.markers,]
 }
 
-.findCNNLOH <- function( x, vcf, tumor.id.in.vcf, alpha=0.005, min.variants=7, 
-iterations=2, chr.hash ) {
+.findCNNLOH <- function(x, vcf, tumor.id.in.vcf, alpha=0.005, min.variants=7, 
+iterations=2, chr.hash) {
     for (iter in seq_len(iterations)) {
         seg <- x$cna$output
         seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
@@ -110,31 +110,28 @@ iterations=2, chr.hash ) {
         ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
         ar.r <- ifelse(ar>0.5, 1-ar, ar)
 
-        segs <- split(seg, seq_len(nrow(seg)) )
+        segs <- split(seg, seq_len(nrow(seg)))
         foundCNNLOH <- FALSE
-        for (i in seq_len(nrow(seg)) ) {
-            sar <-ar.r[subjectHits(ov)][queryHits(ov)==i]
+        for (i in seq_len(nrow(seg))) {
+            sar <- ar.r[subjectHits(ov)][queryHits(ov)==i]
             if (length(sar) < 2 * min.variants) next
             min.variants.x <- max(min.variants, length(sar)*0.05)    
             bp <- which.min(sapply(seq(min.variants.x, length(sar)-min.variants.x, by=1), 
-                function(i) sum(c( sd(sar[seq_len(i)]),
+                function(i) sum(c(sd(sar[seq_len(i)]),
                     sd(sar[seq(i+1,length(sar))])))
             ))
             bp <- bp + min.variants.x-1
             x1 <- sar[seq_len(bp)]
             x2 <- sar[seq(bp+1,length(sar))]
             tt <- t.test(x1, x2, exact=FALSE)
-            if ( ( abs(mean(x1) - mean(x2)) > 0.05 && tt$p.value < alpha) || 
-                (  abs(mean(x1) - mean(x2)) > 0.025 && tt$p.value < alpha && 
-                    min(length(x1), length(x2)) > min.variants*3) 
+            if ((abs(mean(x1) - mean(x2)) > 0.05 && tt$p.value < alpha) || 
+                (abs(mean(x1) - mean(x2)) > 0.025 && tt$p.value < alpha && 
+                min(length(x1), length(x2)) > min.variants * 3)
                 ) {
                 segs[[i]] <- rbind(segs[[i]], segs[[i]])            
                 bpPosition <-  start(vcf[subjectHits(ov)][queryHits(ov)==i])[bp]
                 segs[[i]]$loc.end[1] <- bpPosition
                 segs[[i]]$loc.start[2] <- bpPosition+1
-                #message("Iteration: ", iter, " Found CNNLOH on ", seg$chrom[i], 
-                #    " Means: ", mean(x1), " ", mean(x2), 
-                #    " Lengths: ", length(x1), " ", length(x2)) 
                 foundCNNLOH <- TRUE    
             }
         }
@@ -165,7 +162,6 @@ iterations=2, chr.hash ) {
     min.variants=5, chr.hash, iterations=2) {
     for (iter in seq_len(iterations)) {
         seg <- x$cna$output
-        #message("HCLUST: ", iter, " Num segment LRs: ", length(table(x$cna$output$seg.mean)))
         seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
             IRanges(start=seg$loc.start, end=seg$loc.end))
         ov <- findOverlaps(seg.gr, vcf)
@@ -213,7 +209,7 @@ iterations=2, chr.hash ) {
                 is.na(x$cna$output$cluster.id[i]) || 
                 x$cna$output$chrom[i-1] != x$cna$output$chrom[i]  ||
                 merged[i-1] ||
-                x$cna$output$cluster.id[i-1] != x$cna$output$cluster.id[i]  ) next
+                x$cna$output$cluster.id[i-1] != x$cna$output$cluster.id[i]) next
                 merged[i] <- TRUE
 
                 x$cna$output$num.mark[i-1] <- x$cna$output$num.mark[i]+x$cna$output$num.mark[i-1]
@@ -222,7 +218,6 @@ iterations=2, chr.hash ) {
         }
         x$cna$output <- x$cna$output[!merged,]
     }
-    #message("HCLUST Num segment LRs: ", length(table(x$cna$output$seg.mean)))
     x
 }
     
@@ -315,7 +310,7 @@ max.segments=NULL, chr.hash=chr.hash) {
 
     while (try.again < 2) {
         flog.info("Setting undo.SD parameter to %f.", sdundo)
-        if (!is.null(weights)) { 
+        if (!is.null(weights)) {
             # MR: this shouldn't happen. In doubt, count them as median.
             weights[is.na(weights)] <- median(weights, na.rm=TRUE)
             segment.CNA.obj <- segment(CNA.obj, 
@@ -345,9 +340,7 @@ max.segments=NULL, chr.hash=chr.hash) {
 }
 
 .getCNAobject <- function(log.ratio, normal, chr.hash, sampleid) {
-    CNA(log.ratio, .strip.chr.name(seqnames(normal), chr.hash), 
-        floor((start(normal) + end(normal))/2), 
-        data.type="logratio", sampleid=sampleid)
+    CNA(log.ratio, .strip.chr.name(seqnames(normal), chr.hash),
+        floor( (start(normal) + end(normal)) / 2), 
+        data.type = "logratio", sampleid = sampleid)
 }
-    
-

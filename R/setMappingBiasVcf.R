@@ -57,7 +57,7 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
             "VCF does not contain somatic status. For best results, consider%s%s",
             " providing normal.panel.vcf.file when matched normals are not ",
             "available.")
-    }    
+    }
     tmp <- rep(mappingBias, nrow(vcf))
     # Defines the maximum value for the mapping bias scaling factor.
     # 1 assumes that the reference allele can never have
@@ -85,7 +85,7 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     psMappingBias <- .adjustEmpBayes(psMappingBias) * 2
     ponCntHits <- apply(geno(nvcf)$AD, 1, function(x)
         sum(!is.na(unlist(x))) / 2)
-    
+
     ov <- findOverlaps(vcf, nvcf, select = "first")
 
     ponCnt <- integer(length(tmp))
@@ -95,7 +95,7 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
 
     ponCnt[!is.na(ov)] <- ponCntHits[ov][!is.na(ov)]
     if (smooth) {
-        tmpSmoothed <- .smoothVectorByChromosome(tmp, 
+        tmpSmoothed <- .smoothVectorByChromosome(tmp,
             as.character(seqnames(vcf)), smooth.n)
         # only smooth variants not found in database
         tmp[is.na(ov)] <- tmpSmoothed[is.na(ov)]
@@ -108,7 +108,7 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         if (length(x) < smooth.n * 5) return(x)
         stats::filter(x, ...)
     }
-    fN <- rep(1/smooth.n, smooth.n)
+    fN <- rep(1 / smooth.n, smooth.n)
     y <- do.call(c, lapply(
             split(x, factor(as.character(chr), levels = unique(chr))),
             .filter, fN, sides = 2))

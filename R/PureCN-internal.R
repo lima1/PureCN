@@ -34,7 +34,6 @@ max.exon.ratio) {
         for (i in test.num.copy) {
             n.cases.germ <- ifelse(Mi==Ci-Mi,1,2)
             tmp <- unique(c(0, 1,Mi, Ci-Mi))
-            #tmp <- tmp[tmp>0]
             n.cases.somatic <- length(tmp)
             Cx <- max(i,Ci)
 
@@ -45,7 +44,6 @@ max.exon.ratio) {
                 if (i<=1) {
                     yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(prior.K) - log(n.cases.somatic)
                 } else {
-                    #message(paste(i, Mi, Ci, max.M, n.cases.somatic, n.cases.germ, Cx))
                     yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] +
                         log(1-prior.K) - log(Cx + 1 - n.cases.somatic)
                 }    
@@ -58,11 +56,9 @@ max.exon.ratio) {
     })    
     # if not enough variants in segment, flag
     flag <- sum(mapping.bias.ok) < min.variants.segment
-    if (!sum(mapping.bias.ok)) { 
+    if (!sum(mapping.bias.ok)) {
         mapping.bias.ok <- rep(TRUE, length(mapping.bias.ok))
-    }    
-    #bestAll <- which.max(vapply(yys, function(x) 
-    #    sum(apply(x, 1, max)),double(1)))
+    }
 
     likelihoodScores <- vapply(yys, function(x) 
         sum(apply(x[mapping.bias.ok,,drop=FALSE], 1, max)),double(1))
@@ -72,16 +68,13 @@ max.exon.ratio) {
     posterior <- likelihoodScores[best]/sum(likelihoodScores, na.rm=TRUE)
     if (is.na(posterior) || posterior < 0.5) flag <- TRUE 
 
-  #  if (bestAll != best) {
-  #      flog.debug("mapping bias influences allele-specific call. seg.id %i; Length %i. Sum %i",seg.id, length(mapping.bias.ok), sum(mapping.bias.ok))
-  #  }    
     list(best=yys[[best]], M=test.num.copy[best], flag=flag, posterior=posterior)
 }
 
 # calculate likelihood scores for all possible minor copy numbers
 .calcMsSegment <- function(xxi, test.num.copy, opt.C, prior.K, mapping.bias.ok, 
     seg.id, min.variants.segment) {
-    lapply(seq_along(xxi), function(i).calcMsSegmentC( xxi[[i]], test.num.copy,
+    lapply(seq_along(xxi), function(i).calcMsSegmentC(xxi[[i]], test.num.copy,
 c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variants.segment))
 }    
 
@@ -98,8 +91,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
             size <- pmin(size, max.coverage.vcf)
             dbetabinom.ab(x=round(x*size),shape1=shape1, shape2=shape2, 
                 size=size, log=TRUE)
-         }   
-    }    
+         }
+    }
 
     prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
     prior.somatic <- prior.somatic - (prior.cont*prior.somatic)
@@ -121,7 +114,6 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     subclonal <- apply(C.likelihood[queryHits(ov), ], 1, which.max) == ncol(C.likelihood)
     
     seg.idx <- which(seq_len(nrow(C.likelihood)) %in% queryHits(ov))
-    sd.ar <- sd(unlist(geno(vcf)$FA[, tumor.id.in.vcf]))
 
     ar_all <- unlist(geno(vcf)$FA[, tumor.id.in.vcf])
     ar_all <- ar_all/mapping.bias$bias
@@ -140,20 +132,20 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         mInf_all <- log(double(length(shape1)))
 
         list(vcf.ids=idx, likelihoods=lapply(seq(ncol(C.likelihood)), function(k) {
-            Ci <- c(test.num.copy, opt.C[i])[k]       
+            Ci <- c(test.num.copy, opt.C[i])[k]
             priorM <- log(max(Ci,1) + 1 + haploid.penalty)
             
-            skip <- test.num.copy > Ci | C.likelihood[i, k] <=0
+            skip <- test.num.copy > Ci | C.likelihood[i, k] <= 0
 
             p.ar <- lapply(c(0, 1), function(g) {
                 cns <- test.num.copy
                 if (!g) cns[1] <- non.clonal.M
-                dbetax <- (p * cns + g * (1-p))/(p * Ci + 2 * (1-p))
+                dbetax <- (p * cns + g * (1-p)) / (p * Ci + 2 * (1-p))
                 l <- lapply(seq_along(test.num.copy), function(j) {
                     if (skip[j]) return(mInf_all)
-                    .dbeta(x = dbetax[j], 
-                    shape1 = shape1,  
-                    shape2 = shape2, log = TRUE, size=dp_all[idx]) - priorM
+                    .dbeta(x = dbetax[j],
+                    shape1 = shape1,
+                    shape2 = shape2, log = TRUE, size = dp_all[idx]) - priorM
                 })
                 do.call(cbind,l)
             })
@@ -162,9 +154,9 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
                   (p * Ci + 2 * (1 - p)),shape1=shape1, shape2=shape2, 
                   log=TRUE, size=dp_all[idx]) - priorM
 
-            p.ar.cont.2 <- .dbeta(x = (cont.rate)/(p * Ci + 2 * (1 - p)), 
-                  shape1=shape1, shape2=shape2,log=TRUE,size=dp_all[idx]) -
-                                  priorM
+            p.ar.cont.2 <- .dbeta(x = cont.rate / (p * Ci + 2 * (1 - p)), 
+                  shape1 = shape1, shape2 = shape2, log = TRUE, 
+                  size = dp_all[idx]) - priorM
 
             # add prior probabilities for somatic vs germline
             p.ar[[1]] <- p.ar[[1]] + log(prior.somatic[idx])
@@ -193,7 +185,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 
     xx <- lapply(tmp, lapply, function(x) x$best)
     
-    .extractValues <- function(tmp, field) { 
+    .extractValues <- function(tmp, field) {
         segmentValue <- sapply(seq_along(tmp), function(i) 
             tmp[[i]][[min(C[seg.idx[i]], max(test.num.copy))+1]][[field]])
         segmentValue <- unlist(sapply(seq_along(seg.idx), function(i) 
@@ -235,8 +227,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     
     posteriors$ML.AR <- (p * posteriors$ML.M + 
         ifelse(posteriors$ML.SOMATIC, 0, 1) * 
-        (1 - p))/(p * posteriors$ML.C + 2 * (1 - p))
-    posteriors$ML.AR[ posteriors$ML.AR > 1] <- 1 
+        (1 - p)) / (p * posteriors$ML.C + 2 * (1 - p))
+    posteriors$ML.AR[posteriors$ML.AR > 1] <- 1 
 
     posteriors$AR <- unlist(geno(vcf[vcf.ids])$FA[, tumor.id.in.vcf])
     posteriors$AR.ADJUSTED <- posteriors$AR / mapping.bias$bias[vcf.ids]
@@ -247,14 +239,14 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         posteriors$ML.M == 0 | posteriors$ML.C == 1)
     
     posteriors$CN.SUBCLONAL <- subclonal
-    posteriors$CELLFRACTION <-  (posteriors$AR/posteriors$ML.M)*
-        (p*posteriors$ML.C+2*(1-p))/p
+    posteriors$CELLFRACTION <-  (posteriors$AR/posteriors$ML.M) *
+        (p*posteriors$ML.C + 2 * (1-p)) / p
     posteriors$CELLFRACTION[!posteriors$ML.SOMATIC] <- NA
 
-    rm.snv.posteriors <- apply(likelihoods, 1, max) 
-    idx.ignore <- rm.snv.posteriors == 0 | 
+    rm.snv.posteriors <- apply(likelihoods, 1, max)
+    idx.ignore <- rm.snv.posteriors == 0 |
         posteriors$MAPPING.BIAS < max.mapping.bias
-    posteriors$FLAGGED <- idx.ignore    
+    posteriors$FLAGGED <- idx.ignore
 
     posteriors$log.ratio <- snv.lr[vcf.ids]
     posteriors$depth <-as.numeric(geno(vcf[vcf.ids])$DP[, tumor.id.in.vcf])
@@ -267,7 +259,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     if (!is.null(mapping.bias$pon.count)) {
         posteriors$pon.count <- mapping.bias$pon.count[vcf.ids]
         idx.ignore <- idx.ignore | 
-            ( posteriors$pon.count > max.pon & !info(vcf[vcf.ids])$DB )
+            (posteriors$pon.count > max.pon & !info(vcf[vcf.ids])$DB)
         posteriors$FLAGGED <- idx.ignore    
     }
     # change seqnames to chr
@@ -323,7 +315,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 
     tmp <- sapply(prior.purity, .checkFraction, "prior.purity")
 
-    if (!is.null(sampleid) && ( class(sampleid) != "character" ||
+    if (!is.null(sampleid) && (class(sampleid) != "character" ||
         length(sampleid) != 1)) {
         .stopUserError("sampleid not a character string.")
     }
@@ -367,12 +359,13 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     idx.duplicated <- rep(FALSE, length(results))
 
     for (i in seq_len(length(results)-1)) {
-        for (j in seq(i+1,length(results)) ) {
-            if ( abs( results[[i]]$purity - results[[j]]$purity ) < 0.1 &&
-                 abs( results[[i]]$ploidy - results[[j]]$ploidy ) / results[[i]]$ploidy < 0.1) {
+        for (j in seq(i+1,length(results))) {
+            if (abs(results[[i]]$purity - results[[j]]$purity) < 0.1 &&
+                abs(results[[i]]$ploidy - results[[j]]$ploidy) / 
+                results[[i]]$ploidy < 0.1) {
                 idx.duplicated[j] <- TRUE
-            }    
-        }    
+            } 
+        }
     }
     results[!idx.duplicated]
 }
@@ -382,14 +375,15 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     idx.duplicated <- rep(FALSE, nrow(candidates))
 
     for (i in seq_len(nrow(candidates)-1)) {
-        for (j in seq(i+1,nrow(candidates)) ) {
-            if ( abs( candidates$purity[i] - candidates$purity[j] ) < 0.1 &&
-                 abs( candidates$tumor.ploidy[i] - candidates$tumor.ploidy[j] ) / candidates$tumor.ploidy[i] < 0.1) {
+        for (j in seq(i+1,nrow(candidates))) {
+            if (abs(candidates$purity[i] - candidates$purity[j]) < 0.1 &&
+                abs(candidates$tumor.ploidy[i] - candidates$tumor.ploidy[j]) / 
+                candidates$tumor.ploidy[i] < 0.1) {
                 idx.duplicated[j] <- TRUE
-            }    
-        }    
+            } 
+        }
     }
-    candidates[!idx.duplicated,]
+    candidates[!idx.duplicated, ]
 }
 .findLocalMinima <- function(m) {
     loc.min <- matrix(nrow = 0, ncol = 2)
@@ -453,7 +447,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     if (!is.null(result$GoF) && result$GoF < min.gof) {
         result$flag <- TRUE
         result$flag_comment <- .appendComment(result$flag_comment, 
-            paste0("POOR GOF (", round(result$GoF*100,digits=1),"%)") )
+            paste0("POOR GOF (", round(result$GoF*100,digits=1),"%)"))
     }
 
     fraction.loh <- .getFractionLoh(result)
@@ -701,19 +695,18 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
                 log.ratio.offset, max.exon.ratio, sd.seg, dt, b, D, test.num.copy))
             subclonal <- vapply(llik.all, which.max, double(1)) == 1
             subclonal.f <- length(unlist(exon.lrs[subclonal]))/length(unlist(exon.lrs))
-            if (subclonal.f > max.non.clonal) 
-                return(-Inf)
-            llik <- sum(vapply(llik.all, max, double(1)))
+            if (subclonal.f > max.non.clonal) return(-Inf)
+            sum(vapply(llik.all, max, double(1)))
         })
     })
     mm <- sapply(mm, function(x) unlist(x))
     colnames(mm) <- test.purity
     rownames(mm) <- ploidy.grid
 
-    if (!sum(as.vector(is.finite(mm))) ) {
+    if (!sum(as.vector(is.finite(mm)))) {
         .stopUserError("Cannot find valid purity/ploidy solution. ", 
             "This happens when input segmentations are garbage.")
-    }    
+    }
 
     ai <- .findLocalMinima(mm)
     candidates <- data.frame(ploidy = as.numeric(rownames(mm)[ai[, 1]]), purity = as.numeric(colnames(mm)[ai[, 
@@ -729,14 +722,14 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         t2 <- which.min(abs(as.numeric(colnames(mm)) - grid[i+1]))
         if (t2-t1 < 2) next
         
-        if ( sum(candidates$purity>grid[i] & 
+        if (sum(candidates$purity>grid[i] & 
             candidates$purity< grid[i+1], na.rm=TRUE) < 1) next
 
         # Nothing close to diplod in this range? Then add.
         if (min(abs(2 - candidates$tumor.ploidy[candidates$purity>grid[i] & 
-            candidates$purity< grid[i+1] ])) > 0.3) {
+            candidates$purity< grid[i+1]])) > 0.3) {
 
-            mm.05 <- mm[,seq(t1+1,t2),drop=FALSE]
+            mm.05 <- mm[, seq(t1+1, t2), drop=FALSE]
             
             # Find row most similar to normal diploid
             diploidRowId <- which.min(abs(2-as.numeric(row.names(mm.05))))
@@ -780,20 +773,16 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
                     sum(y$seg$size[y$seg$C == i])/sum(y$seg$size)))
     complexity <- apply(cs,1, function(z) sum(z>0.001))
     n <- sum(results[[1]]$seg$num.mark, na.rm=TRUE)
-    penalty <- -complexity*log(n)
+    -complexity*log(n)
 }
 
 .rankResults <- function(results) {
     if (length(results) < 1) return(results)  
-    # max.ll <- max(sapply(results, function(z) z$log.likelihood)) max.snv.ll <-
-    # max(sapply(results, function(z) z$SNV.posterior$llik))
     complexity <- .calcComplexityCopyNumber(results) 
     for (i in seq_along(results)) {
         if (is.null(results[[i]]$SNV.posterior)) {
             results[[i]]$total.log.likelihood <- results[[i]]$log.likelihood
         } else {
-            # results[[i]]$total.log.likelihood <- (results[[i]]$log.likelihood/max.ll) +
-            # 2*(results[[i]]$SNV.posterior$llik/max.snv.ll)
             results[[i]]$total.log.likelihood <- results[[i]]$log.likelihood/2 + results[[i]]$SNV.posterior$llik
         }
         results[[i]]$total.log.likelihood <- results[[i]]$total.log.likelihood + complexity[i]
@@ -803,10 +792,9 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     results <- results[idx.opt]
     
     # remove solutions with -inf likelihood score
-    results <- results[!is.infinite(sapply(results, function(z) z$total.log.likelihood))]
-    
-    results
+    results[!is.infinite(sapply(results, function(z) z$total.log.likelihood))]
 }
+
 .sampleOffsetFast <- function(test.num.copy, seg, exon.lrs, sd.seg, p, C, total.ploidy, 
     max.exon.ratio, simulated.annealing, log.ratio.calibration = 0.25) {
     # Gibbs sample offset
@@ -972,7 +960,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         " invalid input data or parameters (PureCN ", 
         packageVersion("PureCN"), ").")
     flog.fatal(paste(strwrap(msg),"\n"))
-    stop( paste(strwrap(msg),"\n"), call.= FALSE)
+    stop(paste(strwrap(msg),"\n"), call.= FALSE)
 }
 .stopRuntimeError <- function(...) {
     msg <- paste(c(...), collapse="")
@@ -980,7 +968,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         " invalid input data or parameters. Please report bug (PureCN ", 
         packageVersion("PureCN"), ").")
     flog.fatal(paste(strwrap(msg),"\n"))
-    stop( paste(strwrap(msg),"\n"), call.= FALSE)
+    stop(paste(strwrap(msg),"\n"), call.= FALSE)
 }
 .logHeader <- function(l) {
     flog.info(strrep("-", 60))
@@ -1004,12 +992,12 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     flog.info("Done.")
     flog.info(strrep("-", 60))
 }    
-.calcGCmetric <- function(gc_bias, coverage, on.target) { 
+.calcGCmetric <- function(gc_bias, coverage, on.target) {
     idx <- which(coverage$on.target==on.target)
     if (!length(idx)) return(NA)
     gcbins <- split(coverage[idx]$average.coverage, 
         gc_bias[idx] < 0.5)
-    mean(gcbins[[1]], na.rm=TRUE)/mean(gcbins[[2]], na.rm=TRUE) 
+    mean(gcbins[[1]], na.rm=TRUE) / mean(gcbins[[2]], na.rm=TRUE) 
 }
 .checkGCBias <- function(normal, tumor, max.dropout, on.target=TRUE) {
 

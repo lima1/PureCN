@@ -56,7 +56,7 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
 
     intervalGr$coverage <- sapply(seq_along(x), function(i) 
         sum(coverage(IRanges(x[[i]][["pos"]], width=x[[i]][["qwidth"]]), 
-            shift=-start(intervalGr)[i], width=width(intervalGr)[i] )))
+            shift=-start(intervalGr)[i], width=width(intervalGr)[i])))
 
     intervalGr$average.coverage <- 
         intervalGr$coverage/width(intervalGr)

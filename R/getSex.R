@@ -43,14 +43,14 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
     xx <- split(x$average.coverage, as.character(seqnames(x)))
     
     # for small panels the median appears more robust.
-    if (length(xx[[sex.chr[2]]]) < 10) {    
+    if (length(xx[[sex.chr[2]]]) < 10) {
         avg.coverage <- sapply(xx, median, na.rm=TRUE)
     } else {
         if (remove.outliers) xx <- lapply(xx, .removeOutliers)
         avg.coverage <- sapply(xx, mean, na.rm=TRUE)
     }    
 
-    if (is.na(avg.coverage[sex.chr[1]]) || is.na(avg.coverage[sex.chr[2]]) ) {
+    if (is.na(avg.coverage[sex.chr[1]]) || is.na(avg.coverage[sex.chr[2]])) {
         flog.warn(
             "Allosome coverage missing, cannot determine sex.")
         return(NA)
@@ -58,8 +58,8 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
     
     avg.autosome.coverage <- mean(avg.coverage[-match(sex.chr, 
         names(avg.coverage))],na.rm=TRUE)
-    autosome.ratio <- avg.autosome.coverage/(avg.coverage[sex.chr[1]]+0.0001)
-    if (autosome.ratio > 5) { 
+    autosome.ratio <- avg.autosome.coverage / (avg.coverage[sex.chr[1]]+0.0001)
+    if (autosome.ratio > 5) {
         flog.info("Allosome coverage very low, cannot determine sex.")
         return(NA)
     }
@@ -152,7 +152,7 @@ getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4,
     chrX <- seqnames(vcf) == sex.chr[1]
 
     homozygous <- geno(vcf)$FA[,tumor.id.in.vcf] > homozygous.cutoff
-    if ( sum(homozygous)/length(homozygous) < 0.001 ) {
+    if (sum(homozygous)/length(homozygous) < 0.001) {
         flog.info("No homozygous variants in VCF, provide unfiltered VCF.")
         return(NA)
     }
@@ -162,9 +162,9 @@ getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4,
         return(NA)
     }    
     res <- fisher.test(homozygous, as.vector(chrX))
-    flog.info("%i homozygous and %i heterozygous variants on chrX.", 
-        sum( homozygous & as.vector(chrX)), 
-        sum( !homozygous & as.vector(chrX)))
+    flog.info("%i homozygous and %i heterozygous variants on chrX.",
+        sum(homozygous & as.vector(chrX)),
+        sum(!homozygous & as.vector(chrX)))
     sex <- "F"    
     if (res$estimate >= min.or.na) sex <- NA
     if (res$estimate >= min.or && res$p.value > max.pv) sex <- NA
@@ -184,7 +184,7 @@ getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4,
             " normal = ", sex.normal)
     }
     sex <- sex.tumor    
-    if (is.na(sex)) sex = "?"
+    if (is.na(sex)) sex <- "?"
     sex
 }
 .fixAllosomeCoverage <- function(sex, tumor) {
@@ -206,4 +206,3 @@ getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4,
     }       
     seg[!seg$chrom %in% remove.chrs,]
 }
-

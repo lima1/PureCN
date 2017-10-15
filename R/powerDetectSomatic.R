@@ -58,7 +58,7 @@ verbose=TRUE) {
     if (coverage < 2) .stopUserError("coverage not in expected range (>=2)")
     if (error < 0 || error > 1) .stopUserError("error not in expected range.")
     if (fpr <= 0 || fpr > 1) .stopUserError("fpr not in expected range.")
-    if (cell.fraction <= 0 || cell.fraction > 1) { 
+    if (cell.fraction <= 0 || cell.fraction > 1) {
         .stopUserError("cell.fraction not in expected range.")
     }
     
@@ -71,7 +71,7 @@ verbose=TRUE) {
      if (verbose) message("Minimum ", k, " supporting reads.")
 
      # find allelic fraction to test
-     if (is.null(f)) {     
+     if (is.null(f)) {
          if (is.null(purity) || is.null(ploidy)) {
              .stopUserError("Need either f or purity and ploidy.")
          }    
@@ -88,7 +88,7 @@ verbose=TRUE) {
      
      # calculate power
      .d <- function(k) {
-         ( fpr - .pk(k) ) / ( .pk(k - 1) - .pk(k) )
+         (fpr - .pk(k)) / (.pk(k - 1) - .pk(k))
      }     
      power <- 1 - sum(dbinom(0:(k-1), size=coverage, prob=f)) + 
               .d(k) * dbinom(k, size=coverage, prob=f)

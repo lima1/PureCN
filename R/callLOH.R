@@ -112,4 +112,3 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
     armLocations$size <- armLocations$end-armLocations$start+1
     armLocations
 }
-
