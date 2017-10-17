@@ -51,6 +51,18 @@ if (!opt$force && file.exists(outfile)) {
     stop(outfile, " exists. Use --force to overwrite.")
 }    
 
+.checkOutputDir <-function(filename) {
+    if (!is.null(filename)) {
+        dname <- dirname(filename)
+        if (!file.exists(dname)) {
+            flog.fatal("Output directory %s does not exist.", dname)
+            q(status=1)
+        }
+    }
+}
+
+.checkOutputDir(opt$outfile)
+.checkOutputDir(opt$export)
 
 in.file <- normalizePath(opt$infile, mustWork=TRUE)
 reference.file <- normalizePath(opt$fasta, mustWork=TRUE)
@@ -126,8 +138,8 @@ if (!is.null(opt$genome) ) {
         flog.warn("Install %s to get gene symbol annotation.", 
             knownOrg[[opt$genome]])
     } else {
-        outGC <- annotateTargets(outGC, get(knownGenome[[opt$genome]]),
-            get(knownOrg[[opt$genome]]))
+        outGC <- suppressMessages(annotateTargets(outGC, 
+            get(knownGenome[[opt$genome]]), get(knownOrg[[opt$genome]])))
         .writeGc(outGC, outfile)
     }
 } else {
