@@ -4,6 +4,13 @@
 
 [![PureCN_example.png](https://s9.postimg.org/6emxz4f5b/Pure_CN_example.png)](https://postimg.org/image/yer1jeiln/)
 
+## Summary
+
+A tool developed for tumor-only diagnostic sequencing using hybrid-capture
+protocols. It provides copy number adjusted for purity and ploidy and can
+classify mutations by somatic status and clonality. It requires a pool of
+process-matched normals for coverage normalization and artifact filtering.
+
 ## Installation
 
 To install this package, start R and enter:
@@ -17,14 +24,13 @@ Note that if your R/Bioconductor version is outdated, this will install an old
 and unsupported version.
 
 For outdated R/Bioconductor versions, you can try backporting the latest stable
-version (this should work fine for Bioconductor 3.3 and 3.4):
+version (this should work fine for Bioconductor 3.3 and later):
 
 ```
-biocLite("lima1/PureCN", ref="RELEASE_3_5")
+biocLite("lima1/PureCN", ref="RELEASE_3_6")
 ```
 
-If you want the latest and greatest from the developer branch (since 1.7.44
-recommended over stable 1.6.3):
+If you want the latest and greatest from the developer branch:
 
 ```
 biocLite("lima1/PureCN")
@@ -44,6 +50,8 @@ For the R package and more detailed information:
 ```
 vignette("PureCN", package="PureCN")
 ```
+
+These tutorials are also available on the [Bioconductor](https://bioconductor.org/packages/devel/bioc/html/PureCN.html) project page.
 
 ## Paper
 
