@@ -37,20 +37,6 @@ readCoverageFile <- function(file, format, zero=NULL) {
     "GATK"    
 }    
 
-#' Read GATK coverage files
-#' 
-#' This function is deprecated. Please use 
-#' \code{\link{readCoverageFile}} instead.
-#' 
-#' @author Markus Riester
-#' @seealso \code{\link{calculateBamCoverageByInterval}}
-#' \code{\link{readCoverageFile}}
-#' 
-#' @export readCoverageGatk
-readCoverageGatk <- function() {
-    .Defunct("readCoverageFile")
-}
-
 .readCoverageGatk <- function(file, zero) {
     if (!is.null(zero)) flog.warn("zero ignored for GATK coverage files.")
     inputCoverage <- utils::read.table(file, header = TRUE)
