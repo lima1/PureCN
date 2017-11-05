@@ -50,7 +50,7 @@
 #'     callable=callableBed, exclude=exclude, fun.countMutation=myVcfFilter)
 #' 
 #' @export callMutationBurden
-#' @importFrom stats qpois
+#' @importFrom stats binom.test
 callMutationBurden <- function(res, id = 1, remove.flagged = TRUE, 
     min.prior.somatic=0.1, min.cellfraction=0, 
     fun.countMutation=function(vcf) width(vcf)==1,
@@ -121,18 +121,22 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
     )
     
     if (!is.na(ret$callable.bases.ontarget) && ret$callable.bases.ontarget > 0) {
-        lambda <- max(1, ret$somatic.ontarget)
         delta <- ret$callable.bases.ontarget/1e+6
+        ci <- binom.test(x = ret$somatic.ontarget, 
+            n = ret$callable.bases.ontarget)$conf.int
         ret <- cbind(ret, data.frame(
-            somatic.rate.ontarget=ret$somatic.ontarget/delta,
-            somatic.rate.ontarget.95.lower=qpois(0.025, lambda=lambda)/delta,
-            somatic.rate.ontarget.95.upper=qpois(0.975, lambda=lambda)/delta
+            somatic.rate.ontarget = ret$somatic.ontarget/delta,
+            somatic.rate.ontarget.95.lower = ci[1] * 1e+6,
+            somatic.rate.ontarget.95.upper = ci[2] * 1e+6
         ))
-        lambda <- max(1, ret$private.germline.ontarget)
+        # if multiple CI methods were provided, then ret contains multiple rows
+        # now
+        ci <- binom.test(x = ret$private.germline.ontarget, 
+            n = ret$callable.bases.ontarget)$conf.int
         ret <- cbind(ret, data.frame(
-            private.germline.rate.ontarget=ret$private.germline.ontarget/delta,
-            private.germline.rate.ontarget.95.lower=qpois(0.025, lambda=lambda)/delta,
-            private.germline.rate.ontarget.95.upper=qpois(0.975, lambda=lambda)/delta
+            private.germline.rate.ontarget = ret$private.germline.ontarget/delta,
+            private.germline.rate.ontarget.95.lower = ci[1] * 1e+6,
+            private.germline.rate.ontarget.95.upper = ci[2] * 1e+6
         ))
     }  
           
