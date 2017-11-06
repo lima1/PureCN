@@ -1,9 +1,9 @@
 #' Predict germline vs. somatic status
-#' 
+#'
 #' This function takes as input the output of a \code{\link{runAbsoluteCN}} run
 #' and provides SNV posterior probabilities for all possible states.
-#' 
-#' 
+#'
+#'
 #' @param res Return object of the \code{\link{runAbsoluteCN}} function.
 #' @param id Candidate solutions to be analyzed. \code{id=1} will analyze the
 #' maximum likelihood solution.
@@ -17,7 +17,7 @@
 #' @author Markus Riester
 #' @seealso \code{\link{runAbsoluteCN}}
 #' @examples
-#' 
+#'
 #' data(purecn.example.output)
 #' # the output data was created using a matched normal sample, but in case
 #' # no matched normal is available, this will help predicting somatic vs. 
@@ -63,11 +63,11 @@ predictSomatic <- function(res, id = 1, return.vcf = FALSE,
     idxColsPp <- grep("^SOMATIC|^GERMLINE", colnames(pp))
     colnames(pp)[idxColsPp] <- gsub("OMATIC\\.|ERMLINE\\.", "",
         colnames(pp)[idxColsPp])
-    colnames(pp)[colnames(pp)=="CN.SUBCLONAL"] <- "CS" 
-    colnames(pp)[colnames(pp)=="CELLFRACTION"] <- "CF" 
-    colnames(pp)[colnames(pp)=="POSTERIOR.SOMATIC"] <- "PS" 
-    colnames(pp)[colnames(pp)=="log.ratio"] <- "LR" 
-    colnames(pp)[colnames(pp)=="gene.symbol"] <- "GS" 
+    colnames(pp)[colnames(pp) == "CN.SUBCLONAL"] <- "CS"
+    colnames(pp)[colnames(pp) == "CELLFRACTION"] <- "CF"
+    colnames(pp)[colnames(pp) == "POSTERIOR.SOMATIC"] <- "PS"
+    colnames(pp)[colnames(pp) == "log.ratio"] <- "LR"
+    colnames(pp)[colnames(pp) == "gene.symbol"] <- "GS"
 
     descriptionPp <- paste0(ifelse(grepl("^S", colnames(pp)[idxColsPp]),
         "Somatic", "Germline"), gsub("^.*M(\\d)", 
@@ -83,17 +83,17 @@ predictSomatic <- function(res, id = 1, return.vcf = FALSE,
     idxCols <- grep("^ML", colnames(pp))
     colnames(pp) <- paste0(prefix, colnames(pp))
     newInfoPosterior <- DataFrame(
-        Number=1, 
-        Type="Float", 
-        Description=descriptionPp, 
-        row.names=colnames(pp)[idxColsPp]
+        Number = 1, 
+        Type = "Float", 
+        Description = descriptionPp, 
+        row.names = colnames(pp)[idxColsPp]
     )
     infoType <- as.character(sapply(sapply(pp[idxCols], class), function(x)
 ifelse(x=="logical", "Flag", ifelse(x=="integer", "Integer", "Float"))))
     newInfoMl <- DataFrame(
-        Number=ifelse(infoType=="Flag", 0, 1),
-        Type=infoType, 
-        Description=c(
+        Number = ifelse(infoType == "Flag", 0, 1),
+        Type = infoType, 
+        Description = c(
         "Maximum likelihood state is a somatic state",
         "Maximum likelihood multiplicity",
         "Maximum likelihood integer copy number",
@@ -101,24 +101,24 @@ ifelse(x=="logical", "Flag", ifelse(x=="integer", "Integer", "Float"))))
         "Expected allelic fraction of the maximum likelihood state",
         "TRUE if segment is most likely in LOH"
         ),
-        row.names=colnames(pp)[idxCols]
+        row.names = colnames(pp)[idxCols]
     )
 
     idxColsMisc <- paste0(prefix, c("CS", "CF", "PS", "LR", "GS"))
     newInfoMisc <- DataFrame(
-        Number=c(0,1,1,1,1),
-        Type=c("Flag", "Float", "Float", "Float", "String"),
-        Description=c("Sub-clonal copy number gain", "Cellular fraction", 
-            "Posterior probability variant is somatic mutation.", 
+        Number = c(0, 1, 1, 1, 1),
+        Type = c("Flag", "Float", "Float", "Float", "String"),
+        Description = c("Sub-clonal copy number gain", "Cellular fraction",
+            "Posterior probability variant is somatic mutation.",
             "Copy number log-ratio", "Gene Symbol"),
-        row.names=idxColsMisc
+        row.names = idxColsMisc
     )
     info(header(vcf)) <- rbind(info(header(vcf)), newInfoPosterior, newInfoMl,
-newInfoMisc)
+        newInfoMisc)
     idxColsMisc <- match(idxColsMisc, colnames(pp))
-    pp[, idxColsPp] <- round(pp[, idxColsPp], digits=4)
-    pp[, idxColsMisc[2:4]] <- round(pp[, idxColsMisc[2:4]], digits=4)
-    
+    pp[, idxColsPp] <- round(pp[, idxColsPp], digits = 4)
+    pp[, idxColsMisc[2:4]] <- round(pp[, idxColsMisc[2:4]], digits = 4)
+  
     info(vcf) <- cbind(info(vcf), pp[, c(idxColsPp, idxCols, idxColsMisc)])
     vcf
 }
