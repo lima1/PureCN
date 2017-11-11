@@ -2,8 +2,8 @@ Package: PureCN
 Type: Package
 Title: Copy number calling and SNV classification using
     targeted short read sequencing
-Version: 1.9.2
-Date: 2017-11-05
+Version: 1.9.3
+Date: 2017-11-10
 Authors@R: c(person("Markus", "Riester", role=c("aut", "cre"),
         email="markus.riester@novartis.com"),
     person("Angad P.", "Singh", role="aut"))
@@ -42,12 +42,12 @@ Imports:
     limma
 Suggests:
     PSCBS,
-    RUnit,
     BiocStyle,
     knitr,
     optparse,
     TxDb.Hsapiens.UCSC.hg19.knownGene,
-    org.Hs.eg.db
+    org.Hs.eg.db,
+    testthat
 VignetteBuilder: knitr
 License: Artistic-2.0
 URL: https://github.com/lima1/PureCN

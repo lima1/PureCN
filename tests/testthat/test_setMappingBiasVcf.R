@@ -1,0 +1,26 @@
+test_that("test_setMappingBiasVcf", {
+    vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
+    vcf <- readVcf(vcf.file, "hg19")
+    vcf.bias <- round(setMappingBiasVcf(vcf)$bias, digits = 3)
+    expected <- rep(0.977, 2331)
+    expect_equal(vcf.bias, expected)
+    vcf <- readVcf(vcf.file, "hg19", param = ScanVcfParam(samples = "LIB-02240e4"))
+    vcf.bias <- round(setMappingBiasVcf(vcf)$bias, digits = 3)
+    expected <- rep(1, 2331)
+    expect_equal(vcf.bias, expected)
+    normal_panel <- system.file("extdata", "normalpanel.vcf.gz", 
+        package = "PureCN")
+    vcf <- readVcf(vcf.file, "hg19")
+    mb <- setMappingBiasVcf(vcf, normal.panel.vcf.file = normal_panel)
+    idx <- mb$pon.count > 0
+    expect_equal(head(mb$pon.count[idx], 3), c(15, 5, 27))
+    expect_equal(head(mb$bias[idx], 3), c(0.3362525, 1.0002354, 
+        1.0119481), tolerance = 0.001)
+    nvcf <- readVcf(normal_panel, genome = "hg19")
+    idx <- overlapsAny(vcf, nvcf)
+    expect_equal(sum(!mb$pon.count[idx] > 0), 0)
+    expect_equal(sum(mb$pon.count[!idx] > 0), 0)
+    expect_error(setMappingBiasVcf(vcf, normal.panel.vcf.file = normal_panel, 
+        min.normals = 1))
+})
+
