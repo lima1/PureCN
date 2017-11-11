@@ -1,4 +1,6 @@
-test_that("test_findFocal", {
+context("findFocal")
+
+test_that("Example data is called correctly", {
     data(purecn.example.output)
     ret <- findFocal(purecn.example.output$results[[1]]$seg)
     expect_equal(class(ret), "logical")
@@ -7,4 +9,3 @@ test_that("test_findFocal", {
     expect_true(min(purecn.example.output$results[[1]]$seg[ret, 
         "C"]) >= 5)
 })
-

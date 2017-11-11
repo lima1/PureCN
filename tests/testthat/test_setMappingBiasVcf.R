@@ -1,6 +1,9 @@
-test_that("test_setMappingBiasVcf", {
-    vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
-    vcf <- readVcf(vcf.file, "hg19")
+context("setMappingBiasVcf")
+
+vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
+vcf <- readVcf(vcf.file, "hg19")
+
+test_that("Mapping bias without normal panel matches", {
     vcf.bias <- round(setMappingBiasVcf(vcf)$bias, digits = 3)
     expected <- rep(0.977, 2331)
     expect_equal(vcf.bias, expected)
@@ -8,9 +11,11 @@ test_that("test_setMappingBiasVcf", {
     vcf.bias <- round(setMappingBiasVcf(vcf)$bias, digits = 3)
     expected <- rep(1, 2331)
     expect_equal(vcf.bias, expected)
+})
+
+test_that("Mapping bias with normal panel matches", {
     normal_panel <- system.file("extdata", "normalpanel.vcf.gz", 
         package = "PureCN")
-    vcf <- readVcf(vcf.file, "hg19")
     mb <- setMappingBiasVcf(vcf, normal.panel.vcf.file = normal_panel)
     idx <- mb$pon.count > 0
     expect_equal(head(mb$pon.count[idx], 3), c(15, 5, 27))
@@ -23,4 +28,3 @@ test_that("test_setMappingBiasVcf", {
     expect_error(setMappingBiasVcf(vcf, normal.panel.vcf.file = normal_panel, 
         min.normals = 1))
 })
-

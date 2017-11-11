@@ -1,20 +1,22 @@
-test_that("test_correctCoverageBias", {
-    normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-        package = "PureCN")
-    gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
-        package = "PureCN")
+context("correctCoverageBias")
+
+normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+    package = "PureCN")
+interval.file <- system.file("extdata", "ex2_intervals.txt", 
+    package = "PureCN", mustWork = TRUE)
+gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    package = "PureCN")
+
+test_that("Example data matches after normalization", {
+    output.file <- tempfile(fileext = ".txt")
     coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
-        output.file = "test_loess_coverage.txt")
+        output.file = output.file)
     expect_equal(class(coverage)[1], "GRanges")
     expect_equal(length(coverage), 10049)
     correctCoverageBias(normal.coverage.file, gc.gene.file, plot.max.density = 100, 
         plot.gc.bias = TRUE)
-    x <- readCoverageFile("test_loess_coverage.txt")
+    x <- readCoverageFile(output.file)
     expect_equal(x$average.coverage, coverage$average.coverage)
-    file.remove("test_loess_coverage.txt")
-    interval.file <- system.file("extdata", "ex2_intervals.txt", 
-        package = "PureCN", mustWork = TRUE)
-    expect_error(correctCoverageBias(normal.coverage.file, interval.file))
     correctCoverageBias(head(x, 200), gc.gene.file)
     gc.data <- read.delim(gc.gene.file, as.is = TRUE)
     gc.data$Gene <- NULL
@@ -22,20 +24,25 @@ test_that("test_correctCoverageBias", {
     write.table(gc.data, file = tmpFile, row.names = FALSE, quote = FALSE, 
         sep = "\t")
     coverage2 <- correctCoverageBias(normal.coverage.file, tmpFile, 
-        output.file = "test_loess_coverage.txt")
+        output.file = output.file)
     corCov <- cor(coverage$average.coverage, coverage2$average.coverage, 
         use = "complete.obs")
     expect_true(corCov > 0.99)
-    png(file = "test_gc_bias.png", width = 960)
+    output.png <- tempfile(fileext = ".png")
+    png(file = output.png, width = 960)
     coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
-        output.file = "test_norm_coverage.txt", method = "POLYNOMIAL", 
+        output.file = output.file, method = "POLYNOMIAL", 
         plot.gc.bias = TRUE)
     dev.off()
-    file.remove("test_gc_bias.png")
-    x <- readCoverageFile("test_norm_coverage.txt")
+    file.remove(output.png)
+
+    x <- readCoverageFile(output.file)
     expect_equal(x$average.coverage, coverage$average.coverage)
-    file.remove("test_norm_coverage.txt")
+    file.remove(output.file)
+})
+
+test_that("Exceptions happen with wrong input", {
+    expect_error(correctCoverageBias(normal.coverage.file, interval.file))
     expect_error(correctCoverageBias(normal.coverage.file, gc.gene.file, 
         method = "HELLOWORLD"))
 })
-

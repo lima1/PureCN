@@ -1,4 +1,6 @@
-test_that("test_callAlterations", {
+context("callAlterations")
+
+test_that("Example is called correctly", {
     data(purecn.example.output)
     calls <- callAlterations(purecn.example.output)
     expect_true(sum(calls$C < 6 & calls$C > 0.5) == 0)
@@ -11,4 +13,3 @@ test_that("test_callAlterations", {
     expect_true(esr2$start > 64694600)
     expect_true(esr2$end < 64761128)
 })
-

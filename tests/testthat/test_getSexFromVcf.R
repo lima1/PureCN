@@ -1,4 +1,6 @@
-test_that("test_getSexFromVcf", {
+context("getSexFromVcf")
+
+test_that("Example data is called correctly", {
     vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
     vcf <- readVcf(vcf.file, "hg19")
     sex <- getSexFromVcf(vcf)
@@ -7,4 +9,3 @@ test_that("test_getSexFromVcf", {
     getSexFromVcf(vcfs, "LIB-02240e4")
     expect_true(is.na(sex))
 })
-

@@ -1,8 +1,13 @@
-test_that("test_callLOH", {
+context("callLOH")
+
+test_that("Example is called correctly", {
     data(purecn.example.output)
     ret <- callLOH(purecn.example.output)
     expect_equal(class(ret), "data.frame")
     expect_equal(ncol(ret), 7)
+})
+
+test_that("NCBI-style chromosome names work", {
     normal.coverage.file <- system.file("extdata", "example_normal.txt", 
         package = "PureCN")
     tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
@@ -21,4 +26,3 @@ test_that("test_callLOH", {
     loh <- callLOH(ret)
     expect_equal(unique(loh$chr), as.character(1:22))
 })
-

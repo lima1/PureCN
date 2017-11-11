@@ -1,4 +1,6 @@
-test_that("test_callAlterationsFromSegmentations", {
+context("callAlterationsFromSegmentation")
+
+test_that("Example is called correctly", {
     data(purecn.example.output)
     seg <- purecn.example.output$results[[1]]$seg
     gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
@@ -12,4 +14,3 @@ test_that("test_callAlterationsFromSegmentations", {
         "AMPLIFICATION", ])), sort(rownames(calls2[calls2$type == 
         "AMPLIFICATION", ])))
 })
-

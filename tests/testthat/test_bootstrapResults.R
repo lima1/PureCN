@@ -1,4 +1,6 @@
-test_that("test_bootstrapResults", {
+context("bootstrapResults")
+
+test_that("Bootstrapping removed solutions", {
     data(purecn.example.output)
     set.seed(123)
     ret <- bootstrapResults(purecn.example.output, n = 100)

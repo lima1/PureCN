@@ -1,32 +1,51 @@
-test_that("test_createCurationFile", {
-    data(purecn.example.output)
-    file.rds <- file.path(tempdir(), "Sample1_PureCN.rds")
-    saveRDS(purecn.example.output, file = file.rds)
+context("createCurationFile")
+
+data(purecn.example.output)
+file.rds <- tempfile(fileext = ".rds")
+saveRDS(purecn.example.output, file = file.rds)
+
+test_that("Example data is processed correctly", {
     ret <- createCurationFile(file.rds)
     expect_equal(ret$Purity, purecn.example.output$results[[1]]$purity)
     expect_equal(ret$Ploidy, purecn.example.output$results[[1]]$ploidy)
     expect_false(ret$Curated)
     expect_true(ret$Flagged)
     expect_equal(as.character(ret$Sampleid), purecn.example.output$input$sampleid)
+})
+
+test_that("Default curation file stores the first result", {
     retx <- readCurationFile(file.rds)
     expect_equal(retx$results[[1]]$purity, purecn.example.output$results[[1]]$purity)
     expect_equal(retx$results[[1]]$ploidy, purecn.example.output$results[[1]]$ploidy)
+})
+
+test_that("min.ploidy=2 ignores the first result", {
     retx <- readCurationFile(file.rds, min.ploidy = 2)
     expect_equal(retx$results[[1]]$purity, purecn.example.output$results[[2]]$purity)
     expect_equal(retx$results[[1]]$ploidy, purecn.example.output$results[[2]]$ploidy)
+})
+
+test_that("max.ploidy=2 ignores higher ploidy solutions", {
     retx <- readCurationFile(file.rds, max.ploidy = 2)
     expect_equal(sapply(retx$results, function(x) x$ploidy) < 
         2, rep(TRUE, length(retx$results)))
+})
+
+test_that("report.best.only works as expected", {
     retx <- readCurationFile(file.rds, report.best.only = TRUE)
     expect_equal(retx$results[[1]]$purity, purecn.example.output$results[[1]]$purity)
     expect_equal(retx$results[[1]]$ploidy, purecn.example.output$results[[1]]$ploidy)
     expect_equal(length(retx$results), 1)
+})
+
+
+test_that("overwriting works as expected", {
     retx <- purecn.example.output
     retx$results[[1]]$purity <- 0.8
     saveRDS(retx, file = file.rds)
     filename <- file.path(dirname(file.rds), paste0(gsub(".rds$", 
         "", basename(file.rds)), ".csv"))
-    createCurationFile(file.rds, overwrite.uncurated = FALSE)
+    expect_warning(createCurationFile(file.rds, overwrite.uncurated = FALSE))
     ret <- read.csv(filename, as.is = TRUE)
     expect_equal(ret$Purity, purecn.example.output$results[[1]]$purity)
     expect_equal(ret$Ploidy, purecn.example.output$results[[1]]$ploidy)
@@ -37,7 +56,7 @@ test_that("test_createCurationFile", {
     ret$Curated <- TRUE
     write.csv(ret, file = filename, row.names = FALSE)
     saveRDS(purecn.example.output, file = file.rds)
-    createCurationFile(file.rds)
+    expect_warning(createCurationFile(file.rds))
     ret <- read.csv(filename, as.is = TRUE)
     expect_true(ret$Curated)
     expect_equal(ret$Purity, 0.8)
@@ -56,8 +75,8 @@ test_that("test_createCurationFile", {
     expect_true(is.na(retx))
     ret$Failed <- "true"
     write.csv(ret, file = filename, row.names = FALSE)
-    expect_error(readCurationFile(file.rds, remove.failed = TRUE))
-    expect_true(grepl("logical", geterrmessage()))
-    file.remove(file.rds)
+    expect_error(readCurationFile(file.rds, remove.failed = TRUE), "logical")
     file.remove(filename)
 })
+
+file.remove(file.rds)

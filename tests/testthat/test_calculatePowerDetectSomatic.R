@@ -1,4 +1,6 @@
-test_that("test_calculatePowerDetectSomatic", {
+context("calculatePowerDetectSomatic")
+
+test_that("Power is calculated correctly for examples", {
     p1 <- calculatePowerDetectSomatic(coverage = 5, purity = 1, 
         ploidy = 2)$power
     p2 <- calculatePowerDetectSomatic(coverage = 5, f = 0.5)$power
@@ -10,6 +12,9 @@ test_that("test_calculatePowerDetectSomatic", {
     p4 <- calculatePowerDetectSomatic(coverage = 330, purity = 0.2, 
         ploidy = 2, cell.fraction = 0.2)$power
     expect_equal(p4, 0.8, tolerance=0.001)
+})
+
+test_that("Exceptions happen with wrong input", {
     expect_error(calculatePowerDetectSomatic(coverage = 5))
     expect_error(calculatePowerDetectSomatic(coverage = 5, f = 1.1))
     expect_error(calculatePowerDetectSomatic(coverage = 1, f = 0.9))
@@ -19,4 +24,3 @@ test_that("test_calculatePowerDetectSomatic", {
         ploidy = -1))
     expect_error(calculatePowerDetectSomatic(coverage = 5, cell.fraction = 1.1))
 })
-
