@@ -11,5 +11,7 @@ before_install:
   - tlmgr install parnotes
   - tlmgr install marginfix
 
+r_check_args:  --no-vignettes --timings
+
 after_success:
    - travis_wait Rscript -e 'library(covr); codecov()'
