@@ -2,12 +2,6 @@ language: r
 r: bioc-release
 cache: packages
 
-r_binary_packages:
-    - openssl
-    - jsonlite
-    - digest  
-    - git2r  
-
 r_packages:
   - covr
 
