@@ -12,4 +12,4 @@ before_install:
   - tlmgr install marginfix
 
 after_success:
-   - Rscript -e 'library(covr); codecov()'
+   - travis_wait Rscript -e 'library(covr); codecov()'
