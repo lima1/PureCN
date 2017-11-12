@@ -1,4 +1,6 @@
-test_that("test_poolCoverage", {
+context("poolCoverage")
+
+test_that("Example coverage is averaged", {
     normal.coverage.file <- system.file("extdata", "example_normal.txt", 
         package = "PureCN")
     normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
@@ -11,4 +13,3 @@ test_that("test_poolCoverage", {
     expect_equal(coverage[[1]]$coverage + coverage[[2]]$coverage, 
         pool$coverage)
 })
-

@@ -1,4 +1,6 @@
-test_that("test_readCoverageFile", {
+context("readCoverageFile")
+
+test_that("Example data matches and pooling works", {
     tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
         package = "PureCN")
     coverage <- readCoverageFile(tumor.coverage.file)
@@ -11,12 +13,19 @@ test_that("test_readCoverageFile", {
     pool <- poolCoverage(list(coverage), remove.chrs = "chr21")
     expect_equal(sum(is.na(pool[seqnames(coverage) == "chr21"]$coverage)), 
         179)
+})
+
+test_that("Overlapping intervals were merged and warned", {    
     tumor.overlapping.coverage.file <- system.file("extdata", 
         "test_coverage_overlapping_intervals.txt", package = "PureCN")
-    coverage <- readCoverageFile(tumor.overlapping.coverage.file)
+    expect_output(coverage <- readCoverageFile(tumor.overlapping.coverage.file),
+                  "WARN")
     expect_equal(length(coverage), 3)
     expect_equal(start(coverage), c(1216042, 1216606, 1216791))
     expect_equal(end(coverage), c(1216050, 1216678, 1217991))
+})
+
+test_that("CNVkit *cnn example data is parsed correctly", {    
     coverageFile <- system.file("extdata", "example_normal3.cnn", 
         package = "PureCN")
     coverage <- readCoverageFile(coverageFile)
@@ -30,6 +39,9 @@ test_that("test_readCoverageFile", {
     expect_equal(start(coverage), c(762097, 861281, 865591, 866325))
     expect_equal(end(coverage), c(762270, 861490, 865791, 866498))
     expect_equal(coverage$on.target, c(TRUE, TRUE, TRUE, TRUE))
+})
+
+test_that("CNVkit *cnr example data is parsed correctly", {    
     coverageFile <- system.file("extdata", "example_normal4.cnr", 
         package = "PureCN")
     coverage <- readCoverageFile(coverageFile)
@@ -41,4 +53,3 @@ test_that("test_readCoverageFile", {
     expect_equal(coverage$on.target, c(FALSE, FALSE, FALSE, FALSE, 
         TRUE))
 })
-

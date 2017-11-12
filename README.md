@@ -4,7 +4,7 @@
 
 [![PureCN_example.png](https://s9.postimg.org/6emxz4f5b/Pure_CN_example.png)](https://postimg.org/image/yer1jeiln/)
 
-## Summary
+## PureCN
 
 A tool developed for tumor-only diagnostic sequencing using hybrid-capture
 protocols. It provides copy number adjusted for purity and ploidy and can

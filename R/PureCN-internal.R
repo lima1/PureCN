@@ -27,6 +27,8 @@ max.exon.ratio) {
 # account. This will find the most likely segment minor copy number
 .calcMsSegmentC <- function(yy, test.num.copy, Ci, prior.K, mapping.bias.ok, 
     seg.id, min.variants.segment) {
+    prior.M <- list(0.2,0.15,c(0.1,0.25),c(0.1,0.3),c(0.1,0.2,0.55))
+    prior.M <- c(list(1), lapply(prior.M, function(x) c(x, 1-sum(x))))
     max.M <- floor(Ci/2)
     idx.germline <- test.num.copy+length(test.num.copy)+1
     idx.somatic <- test.num.copy+1
