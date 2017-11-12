@@ -14,4 +14,4 @@ before_install:
 r_check_args:  --no-vignettes --timings
 
 after_success:
-   - travis_wait Rscript -e 'library(covr); codecov()'
+  - travis_wait 20 Rscript codecov.R
