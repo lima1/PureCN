@@ -115,6 +115,7 @@ test_that("Example data with VCF produces expected output", {
     expect_equal(0.93, ret$results[[1]]$GoF, tolerance = 0.01)
     expect_equal(as.numeric(colnames(ret$candidates$all)), c(seq(0.3, 
         0.34, by = 1/50), seq(0.35, 0.7, by = 1/30)))
+    plotAbs(ret, type = "overview")
 })
 
 test_that("Mapping bias function works", {
