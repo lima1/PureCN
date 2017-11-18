@@ -4,6 +4,12 @@ Changes in version 1.10.0
     o More accurate confidence intervals in callMutationBurden
     o Code cleanups (switch to testthat, removed several obsolete and minor features)
     
+API CHANGES
+
+    o plotAbs ids changed to id (this function now only plots a single
+      purity/ploidy solution)
+
+
 
 Changes in version 1.8.0
 ------------------------
