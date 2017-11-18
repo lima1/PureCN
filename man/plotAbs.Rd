@@ -4,9 +4,8 @@
 \alias{plotAbs}
 \title{Plots for analyzing PureCN solutions}
 \usage{
-plotAbs(res, ids = NULL, type = c("hist", "overview", "overview2", "BAF",
-  "AF", "volcano", "all", "contamination"), chr = NULL,
-  germline.only = TRUE, show.contour = FALSE, purity = NULL,
+plotAbs(res, ids = NULL, type = c("hist", "overview", "BAF", "AF", "all"),
+  chr = NULL, germline.only = TRUE, show.contour = FALSE, purity = NULL,
   ploidy = NULL, alpha = TRUE, show.segment.means = c("SNV", "segments",
   "both"), max.mapping.bias = 0.8, palette.name = "Paired", ...)
 }
@@ -18,16 +17,14 @@ plot for the maximum likelihood solution.}
 
 \item{type}{Different types of plots. \code{hist} will plot a histogram,
 assigning log-ratio peaks to integer values. \code{overview} will plot all
-local optima, sorted by likelihood. \code{overview2} adds additional
-barplots showing likelihood and goodness-of-fit scores.  \code{BAF} plots
+local optima, sorted by likelihood. \code{BAF} plots
 something like a B-allele frequency plot known from SNP arrays: it plots
 allele frequencies of germline variants (or most likely germline when status
 is not available) against copy number. \code{AF} plots observed allelic
 fractions against expected (purity), maximum likelihood (optimal
-multiplicity) allelic fractions. \code{volcano} plots coverage p-values
-against log-ratios on the gene-level. \code{all} plots all, and is useful
-for generate a PDF for a sample for manual inspection. \code{contamination}
-plots expected contamination rate per chromosome.}
+multiplicity) allelic fractions. 
+\code{all} plots all, and is useful
+for generate a PDF for a sample for manual inspection.}
 
 \item{chr}{If \code{NULL}, show all chromosomes, otherwise only the ones
 specified (\code{type="BAF"} only).}

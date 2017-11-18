@@ -905,9 +905,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     for (i in seq_along(results)) {
         if (grepl("CONTAMINATION", vcf.filtering$flag_comment)) {
-            cont.rate <- .plotContamination(
+            cont.rate <- .estimateContamination(
                 results[[i]]$SNV.posterior$posteriors, 
-                max.mapping.bias, plot=FALSE)
+                max.mapping.bias)
             if (cont.rate > prior.contamination) {
                 flog.info("Initial guess of contamination rate: %.3f", cont.rate)
             }    
@@ -931,9 +931,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                       max.mapping.bias = max.mapping.bias, max.pon = max.pon,
                       min.variants.segment = min.variants.segment)
             results[[i]]$SNV.posterior <- res.snvllik
-            cont.rate <- .plotContamination(
+            cont.rate <- .estimateContamination(
                         results[[i]]$SNV.posterior$posteriors,
-                                    max.mapping.bias, plot=FALSE)
+                                    max.mapping.bias)
                     flog.info("Optimized contamination rate: %.3f", cont.rate)
             results[[i]]$SNV.posterior$posterior.contamination <- cont.rate
         }
@@ -955,12 +955,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         flag_comment = vcf.filtering$flag_comment, dropout = dropoutWarning, 
         use.somatic.status = args.filterVcf$use.somatic.status, 
         model.homozygous = model.homozygous)
-    
-    if (!is.null(gc.gene.file) && !is.null(normalDB) && length(results) && 
-        !is.null(results[[1]]$gene.calls)) {
-        results <- .addVoomToGeneCalls(results, tumor.coverage.file, normalDB, 
-            gc.gene.file)
-    }
     
     if (length(results) < 1) {
         flog.warn("Could not find valid purity and ploidy solution.")

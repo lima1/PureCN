@@ -345,7 +345,6 @@ test_that("normalDB objects are used correctly", {
     normal <- readCoverageFile(normal.coverage.file)
     idx <- overlapsAny(tumor, ret$input$log.ratio)
     cutoff <- median(normalDB$exon.median.coverage) * 0.3
-    plotAbs(ret, 1, type = "volcano")
     expect_equal(sum(!(normalDB$exon.median.coverage[!idx] < 
         cutoff | width(tumor[!idx]) < 5 | tumor$average.coverage[!idx] < 
         15 | normal$average.coverage[!idx] < 15 | normalDB$fraction.missing[!idx] > 

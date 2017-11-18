@@ -226,9 +226,9 @@ pdf(file.pdf, width=10, height=11)
 plotAbs(ret, type='all')
 dev.off()
 
-file.png <- paste0(out, '_contamination.png')
-png(file.png, width=800)
-plotAbs(ret,1, type='contamination')
+file.png <- paste0(out, '_local_optima.png')
+png(file.png, width=600)
+plotAbs(ret,1, type='overview')
 dev.off()
 
 if (opt$outvcf) {

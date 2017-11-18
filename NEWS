@@ -2,8 +2,7 @@ Changes in version 1.10.0
 -------------------------
 
     o More accurate confidence intervals in callMutationBurden
-    o Code cleanups (switch to testthat)
-
+    o Code cleanups (switch to testthat, removed several obsolete and minor features)
     
 
 Changes in version 1.8.0

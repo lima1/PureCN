@@ -9,16 +9,14 @@
 #' plot for the maximum likelihood solution.
 #' @param type Different types of plots. \code{hist} will plot a histogram,
 #' assigning log-ratio peaks to integer values. \code{overview} will plot all
-#' local optima, sorted by likelihood. \code{overview2} adds additional
-#' barplots showing likelihood and goodness-of-fit scores.  \code{BAF} plots
+#' local optima, sorted by likelihood. \code{BAF} plots
 #' something like a B-allele frequency plot known from SNP arrays: it plots
 #' allele frequencies of germline variants (or most likely germline when status
 #' is not available) against copy number. \code{AF} plots observed allelic
 #' fractions against expected (purity), maximum likelihood (optimal
-#' multiplicity) allelic fractions. \code{volcano} plots coverage p-values
-#' against log-ratios on the gene-level. \code{all} plots all, and is useful
-#' for generate a PDF for a sample for manual inspection. \code{contamination}
-#' plots expected contamination rate per chromosome.
+#' multiplicity) allelic fractions. 
+#' \code{all} plots all, and is useful
+#' for generate a PDF for a sample for manual inspection. 
 #' @param chr If \code{NULL}, show all chromosomes, otherwise only the ones
 #' specified (\code{type="BAF"} only).
 #' @param germline.only If \code{TRUE}, show only variants most likely being
@@ -60,8 +58,7 @@
 #'             rect strwidth symbols barplot
 #' @importFrom ggplot2 geom_boxplot geom_hline labs
 plotAbs <- function(res, ids = NULL, 
-type = c("hist", "overview", "overview2", "BAF", "AF", "volcano", "all",
-"contamination"),
+type = c("hist", "overview", "BAF", "AF", "all"),
 chr = NULL, germline.only = TRUE, show.contour = FALSE, purity = NULL, 
 ploidy = NULL, alpha = TRUE, show.segment.means = c("SNV", "segments", "both"),
 max.mapping.bias = 0.8, palette.name = "Paired", ...) {
@@ -466,13 +463,7 @@ max.mapping.bias = 0.8, palette.name = "Paired", ...) {
                     col=mycol.palette$color, pch=mycol.palette$pch)
             }
         }
-    } else if (type == "volcano") {
-        .plotVolcano(res$results[[ids[1]]]$gene.calls, palette.name=palette.name)
-    } else if (type == "contamination") {
-        .plotContamination(res$results[[ids[1]]]$SNV.posterior$posteriors, 
-            max.mapping.bias)   
     } else if (type == "all") {
-        plotAbs(res, type="overview2")
         if (is.null(ids)) ids <- seq_along(res$results)
         for (i in ids) {
             par(mfrow=c(1,1))
@@ -490,7 +481,6 @@ max.mapping.bias = 0.8, palette.name = "Paired", ...) {
         myfont <-  ifelse(sapply(res$results, function(x) x$flag), 1, 1)
         main <- NULL
         parm <- par("mar")
-        if (type=="overview2") par(mfrow=c(2,2))
         par(mar= c(5, 4, 4, 4) + 0.1)
         #if ("darkgrey" %in% myfont) main="Italics: SCNA-fitting flagged."
         xc <- .matrixTotalPloidyToTumorPloidy(res$candidates$all)
@@ -517,23 +507,6 @@ max.mapping.bias = 0.8, palette.name = "Paired", ...) {
         text( sapply(res$results, function(x) min(0.95, x$purity))-0.02,
             sapply(res$results, function(x) x$ploidy)-0.1, 
             seq_along(res$results), col=mycol, cex=1.2,font=myfont)
-        if (type=="overview2") {
-            if (!is.null(res$results[[1]]$gene.calls) && 
-                !is.na(res$results[[1]]$gene.calls) && 
-                !is.null(res$results[[1]]$gene.calls$pvalue)) {
-                .plotVolcano(res$results[[1]]$gene.calls, 
-                    palette.name=palette.name)
-            }    
-            x <- sapply(res$results, function(x) x$GoF)
-            barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
-                main="Goodness-of-fit", las=2, col="#377EB8")
-            if (!is.null(res$input$vcf)) {
-                x <- sapply(res$results, function(x) 
-                    x$SNV.posterior$llik)
-                barplot(x-min(x), offset=min(x), names.arg=seq_along(x),
-                    main="SNV likelihood score", las=2, col="#377EB8")
-            }
-        }
         par(mar=parm)
     }
 }
@@ -600,29 +573,6 @@ ss) {
     par(xpd = pxpd)
 }
 
-.plotVolcano <- function(gene.calls, num.genes=50, max.pvalue=0.001, 
-    palette.name) {
-    if (is.null(gene.calls) || is.na(gene.calls) || is.null(gene.calls$pvalue)) {
-        .stopUserError("Type 'volcano' requires gene-level calls and a normalDB.")
-    } 
-    colorLookUp <- data.frame(chr=unique(gene.calls$chr), color=NA)
-    rownames(colorLookUp) <- colorLookUp$chr
-    colorLookUp$color <- colorRampPalette(brewer.pal(palette.name,n=12))(nrow(colorLookUp))
-    plotCol <- rep("black", nrow(gene.calls))
-    idx <- gene.calls$pvalue < 0.001
-    plotCol[idx] <- colorLookUp[gene.calls$chr[idx],"color"]
-    plot(gene.calls$.voom.gene.mean, -log10(gene.calls$pvalue), 
-        xlab="Coverage log-ratio tumor vs. normal",
-        ylab="-log10(p-value)", col=plotCol) 
-    if (length(which(idx))) {
-        legend("topleft", legend=unique(gene.calls$chr[idx]),fill=unique(plotCol[idx]))
-        abline(h=-log10(max.pvalue), lty=2, col="grey")
-        idx <- head(order(gene.calls$pvalue),num.genes)
-        text(gene.calls$.voom.gene.mean[idx], -log10(gene.calls$pvalue)[idx], 
-            label=rownames(gene.calls)[idx], pos=2)
-    }
-}    
-
 .getVariantPosteriors <- function(res, i, max.mapping.bias=NULL) {
     r <- res$results[[i]]$SNV.posterior$posteriors
     if (!is.null(r) && !is.null(max.mapping.bias)) {
@@ -657,39 +607,6 @@ ss) {
     r$group <- factor(r$group, levels=groupLevels)
     r
 }            
-
-
-.plotContamination <- function(pp,  max.mapping.bias=NULL, min.fraction.chromosomes=0.8, plot=TRUE) {
-    if (is.null(max.mapping.bias)) max.mapping.bias=0
-
-    idx <- pp$GERMLINE.CONTHIGH+pp$GERMLINE.CONTLOW > 0.5 & 
-        pp$MAPPING.BIAS >= max.mapping.bias
-    if (!length(which(idx))) return(0)
-    df <- data.frame(
-        chr=pp$chr[idx], 
-        AR=sapply(pp$AR.ADJUSTED[idx], function(x) ifelse(x>0.5, 1-x,x)),
-        HIGHLOW=ifelse(pp$GERMLINE.CONTHIGH>pp$GERMLINE.CONTLOW, 
-            "HIGH", "LOW")[idx]
-    )
-    df$chr <- factor(df$chr, levels=unique(df$chr))
-    # take the chromosome median and then average. the low count
-    # might be biased in case contamination rate is < AR cutoff
-
-    estimatedRate <- weighted.mean( 
-        sapply(split(df$AR, df$HIGHLOW), median), 
-        sapply(split(df$AR, df$HIGHLOW), length)
-    )
-    fractionChrs <- sum(unique(pp$chr) %in% df$chr)/length(unique(pp$chr))
-    estimatedRate <- if (fractionChrs >= min.fraction.chromosomes) estimatedRate else 0
-
-    if (plot) {
-        gp <- ggplot(df, aes_string(x="chr",y="AR",fill="HIGHLOW"))+geom_boxplot()+
-        geom_hline(yintercept=estimatedRate, color="grey", linetype="dashed")+
-        labs(fill="")
-        print(gp)
-   }     
-   estimatedRate
-}
 
 .plotLogRatios <- function(log.ratio, on.target) {
     containsOfftarget <- sum(on.target)!=length(on.target)

@@ -28,17 +28,6 @@ test_that("Example data matches after normalization", {
     corCov <- cor(coverage$average.coverage, coverage2$average.coverage, 
         use = "complete.obs")
     expect_true(corCov > 0.99)
-    output.png <- tempfile(fileext = ".png")
-    png(file = output.png, width = 960)
-    coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
-        output.file = output.file, method = "POLYNOMIAL", 
-        plot.gc.bias = TRUE)
-    dev.off()
-    file.remove(output.png)
-
-    x <- readCoverageFile(output.file)
-    expect_equal(x$average.coverage, coverage$average.coverage)
-    file.remove(output.file)
 })
 
 test_that("Exceptions happen with wrong input", {

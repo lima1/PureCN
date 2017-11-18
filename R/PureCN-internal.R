@@ -560,50 +560,6 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     gene.calls    
 }
 
-.addVoomToGeneCalls <- function(results, tumor.coverage.file, normalDB, 
-    gc.gene.file) {
-    y <- .voomTargets(tumor.coverage.file, normalDB, gc.gene.file,
-        num.normals=10, plot.voom=FALSE)
-    if (is.null(y)) return(results)
-
-    logFC <- y$coefficients[rownames(results[[1]]$gene.calls),2]
-    p <- y$p.value[rownames(results[[1]]$gene.calls),2]
-
-    for (i in seq_along(results)) {
-        results[[i]]$gene.calls$.voom.gene.mean <- logFC
-        results[[i]]$gene.calls$pvalue <- p
-   }
-   results
-}
-
-# Calculate p-values bases on coverage only, useful for cases where the purity is too
-# low for ploidy. Heavily inspired by superfreq (TODO: cite when that paper is published)    
-.voomTargets <- function(tumor.coverage.file, normalDB, gc.gene.file, 
-    num.normals=NULL, plot.voom=FALSE) {
-    
-    countMatrix <- .voomCountMatrix(tumor.coverage.file, normalDB=normalDB, num.normals=num.normals)
-    gc.data <- read.delim(gc.gene.file, as.is=TRUE)
-    gc.pos <- .checkSymbolsChromosome(GRanges(gc.data[,1], Gene=gc.data$Gene))
-
-    geneCountMatrix <- do.call(rbind, lapply(split(data.frame(countMatrix), gc.pos$Gene),
-         apply, 2, sum, na.rm=TRUE))
-    
-    if (nrow(geneCountMatrix)<2) return(NULL)
-            
-    geneCountMatrix <- geneCountMatrix[complete.cases(geneCountMatrix),]
-    countMatrix <- countMatrix[complete.cases(countMatrix),]
-    dge <- edgeR::DGEList(geneCountMatrix, 
-            group=c("tumor", rep("normal", ncol(countMatrix)-1)))
-    # use all targets to estimate effective library sizes
-    dgeTarget <- edgeR::DGEList(countMatrix, 
-            group=c("tumor", rep("normal", ncol(countMatrix)-1)))
-    dgeTarget <- edgeR::calcNormFactors(dgeTarget)
-    dge$samples$norm.factors <- dgeTarget$samples$norm.factors
-
-    v <- limma::voomWithQualityWeights(dge, plot=plot.voom)
-    y <- limma::lmFit(v, design = stats::model.matrix(~dge$samples$group))
-    y <- limma::eBayes(y)
-}
 
 .voomLogRatio <- function(tumor.coverage.file, normal.coverage.files=NULL, 
     normalDB=NULL, num.normals=NULL, plot.voom=TRUE) {
@@ -1060,4 +1016,28 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     })
 
     return(exon.lrs)
-}    
+}
+
+.estimateContamination <- function(pp,  max.mapping.bias=NULL, min.fraction.chromosomes=0.8) {
+    if (is.null(max.mapping.bias)) max.mapping.bias=0
+
+    idx <- pp$GERMLINE.CONTHIGH + pp$GERMLINE.CONTLOW > 0.5 & 
+        pp$MAPPING.BIAS >= max.mapping.bias
+
+    if (!length(which(idx))) return(0)
+    df <- data.frame(
+        chr=pp$chr[idx], 
+        AR=sapply(pp$AR.ADJUSTED[idx], function(x) ifelse(x>0.5, 1-x,x)),
+        HIGHLOW=ifelse(pp$GERMLINE.CONTHIGH>pp$GERMLINE.CONTLOW, 
+            "HIGH", "LOW")[idx]
+    )
+    # take the chromosome median and then average. the low count
+    # might be biased in case contamination rate is < AR cutoff
+    estimatedRate <- weighted.mean( 
+        sapply(split(df$AR, df$HIGHLOW), median), 
+        sapply(split(df$AR, df$HIGHLOW), length)
+    )
+    fractionChrs <- sum(unique(pp$chr) %in% df$chr)/length(unique(pp$chr))
+    estimatedRate <- if (fractionChrs >= min.fraction.chromosomes) estimatedRate else 0
+    estimatedRate
+}

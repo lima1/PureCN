@@ -701,8 +701,6 @@ Column name       & Description \\
 \Rfunction{fun.focal} argument in \Rfunction{runAbsoluteCN} \\
 \Rcode{breakpoints} & Number of breakpoints between \Rcode{start} and 
 \Rcode{end} \\
-\Rcode{pvalue} & Gene p-value against pool of normals. 
-Requires \Rcode{normalDB}. Not adjusted for multiple testing. \\
 \Rcode{num.snps.segment} & Number of SNPs in this segment informative for 
     LOH detection\\
 \Rcode{loh}         & \Rcode{TRUE} if segment is in LOH, \Rcode{FALSE} if not 

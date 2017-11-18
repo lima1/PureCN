@@ -5,8 +5,7 @@
 \title{Correct for GC bias}
 \usage{
 correctCoverageBias(coverage.file, gc.gene.file, output.file = NULL,
-  method = c("LOESS", "POLYNOMIAL"), plot.gc.bias = FALSE,
-  plot.max.density = 50000)
+  plot.gc.bias = FALSE, plot.max.density = 50000)
 }
 \arguments{
 \item{coverage.file}{Coverage file or coverage data parsed with the
@@ -21,13 +20,6 @@ generated with GATK GCContentByInterval tool or with the
 
 \item{output.file}{Optionally, write file with GC corrected coverage. Can be
 read with the \code{\link{readCoverageFile}} function.}
-
-\item{method}{Two options for normalization are available: The default
-"LOESS" largely follows the GC correction of the TitanCNA package. The
-"POLYNOMIAL" method models the coverage data as a polynomial of degree three
-and normalizes using the EM approach. The "POLYNOMIAL" is expected to be
-more robust for very small targeted panels. "POLYNOMIAL" does not support
-off-target reads.}
 
 \item{plot.gc.bias}{Optionally, plot GC profiles of the pre-normalized and
 post-normalized coverage. Provides a quick visual check of coverage bias.}
@@ -50,11 +42,7 @@ normal.coverage.file <- system.file("extdata", "example_normal.txt",
     package="PureCN")
 gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
     package="PureCN")
-# normalize using default LOESS method
 coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file)
-# normalize with POLYNOMIAL method for small panels
-coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
-    method="POLYNOMIAL", plot.gc.bias=TRUE)
 
 }
 \seealso{
