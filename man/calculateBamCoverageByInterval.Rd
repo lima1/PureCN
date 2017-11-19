@@ -34,15 +34,16 @@ filters.
 }
 \examples{
 
-bam.file <- system.file("extdata", "ex1.bam", package="PureCN", 
+bam.file <- system.file("extdata", "ex1.bam", package = "PureCN",
     mustWork = TRUE)
-interval.file <- system.file("extdata", "ex1_intervals.txt", 
-    package="PureCN", mustWork = TRUE)
+interval.file <- system.file("extdata", "ex1_intervals.txt",
+    package = "PureCN", mustWork = TRUE)
 
-# Calculate raw coverage from BAM file. These need to be corrected for GC-bias
-# using the correctCoverageBias function before determining purity and ploidy.
-coverage <- calculateBamCoverageByInterval(bam.file=bam.file, 
-    interval.file=interval.file)
+# Calculate raw coverage from BAM file. These need to be corrected for
+# GC-bias using the correctCoverageBias function before determining purity
+# and ploidy.
+coverage <- calculateBamCoverageByInterval(bam.file = bam.file,
+    interval.file = interval.file)
 
 }
 \seealso{

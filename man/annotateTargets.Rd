@@ -9,7 +9,7 @@ annotateTargets(x, txdb, org)
 \arguments{
 \item{x}{A \code{GRanges} object with interals to annotate}
 
-\item{txdb}{A \code{TxDb} database, e.g. 
+\item{txdb}{A \code{TxDb} database, e.g.
 \code{TxDb.Hsapiens.UCSC.hg19.knownGene}}
 
 \item{org}{A \code{OrgDb} object, e.g. \code{org.Hs.eg.db}.}
@@ -18,7 +18,7 @@ annotateTargets(x, txdb, org)
 A \code{GRanges} object.
 }
 \description{
-This function can be used to add a \sQuote{Gene} meta column containing 
+This function can be used to add a \sQuote{Gene} meta column containing
 gene symbols to a \code{GRanges} object.
 It applies heuristics to find the protein coding genes that were
 likely meant to target in the assay design in case transcripts
@@ -28,7 +28,7 @@ overlap.
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 library(org.Hs.eg.db)
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt",
     package="PureCN")
 x <- head(readCoverageFile(normal.coverage.file),100)
 x <- annotateTargets(x,TxDb.Hsapiens.UCSC.hg19.knownGene, org.Hs.eg.db)

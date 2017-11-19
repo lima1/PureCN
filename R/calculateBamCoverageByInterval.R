@@ -1,13 +1,13 @@
 #' Function to calculate coverage from BAM file
-#' 
+#'
 #' Takes a BAM file and an interval file as input and returns coverage for each
 #' interval. Coverage should be then GC-normalized using the
 #' \code{\link{correctCoverageBias}} function before determining purity and
 #' ploidy with \code{\link{runAbsoluteCN}}. Uses the \code{scanBam} function
 #' and applies low quality, duplicate reads as well as secondary alignment
 #' filters.
-#' 
-#' 
+#'
+#'
 #' @param bam.file Filename of a BAM file.
 #' @param interval.file File specifying the intervals. Interval is expected in
 #' first column in format CHR:START-END. The \code{gc.gene.file} can be used.
@@ -21,66 +21,66 @@
 #' @seealso \code{\link{calculateGCContentByInterval}
 #' \link{correctCoverageBias} \link{runAbsoluteCN}}
 #' @examples
-#' 
-#' bam.file <- system.file("extdata", "ex1.bam", package="PureCN", 
+#'
+#' bam.file <- system.file("extdata", "ex1.bam", package = "PureCN",
 #'     mustWork = TRUE)
-#' interval.file <- system.file("extdata", "ex1_intervals.txt", 
-#'     package="PureCN", mustWork = TRUE)
-#' 
-#' # Calculate raw coverage from BAM file. These need to be corrected for GC-bias
-#' # using the correctCoverageBias function before determining purity and ploidy.
-#' coverage <- calculateBamCoverageByInterval(bam.file=bam.file, 
-#'     interval.file=interval.file)
-#' 
+#' interval.file <- system.file("extdata", "ex1_intervals.txt",
+#'     package = "PureCN", mustWork = TRUE)
+#'
+#' # Calculate raw coverage from BAM file. These need to be corrected for
+#' # GC-bias using the correctCoverageBias function before determining purity
+#' # and ploidy.
+#' coverage <- calculateBamCoverageByInterval(bam.file = bam.file,
+#'     interval.file = interval.file)
+#'
 #' @export calculateBamCoverageByInterval
 #' @importFrom Rsamtools headerTabix ScanBamParam scanBamFlag
 #'             scanBam scanFa scanFaIndex TabixFile
-calculateBamCoverageByInterval <- function(bam.file, interval.file, 
+calculateBamCoverageByInterval <- function(bam.file, interval.file,
     output.file = NULL, index.file = bam.file, keep.duplicates = FALSE) {
     intervalGr <- readCoverageFile(interval.file)
 
-    param <- ScanBamParam(what=c("pos", "qwidth", "flag"), 
-                which=intervalGr, 
-                flag=scanBamFlag(isUnmappedQuery=FALSE, 
-                             isNotPassingQualityControls=FALSE, 
-                             isSecondaryAlignment=FALSE,
-                             isDuplicate=NA
+    param <- ScanBamParam(what = c("pos", "qwidth", "flag"),
+                which = intervalGr,
+                flag = scanBamFlag(isUnmappedQuery = FALSE,
+                             isNotPassingQualityControls = FALSE,
+                             isSecondaryAlignment = FALSE,
+                             isDuplicate = NA
                      )
              )
 
-    xAll <- scanBam(bam.file, index=index.file, param=param)
+    xAll <- scanBam(bam.file, index = index.file, param = param)
     xDupFiltered <- .filterDuplicates(xAll)
 
     x <- xDupFiltered
     if (keep.duplicates) x <- xAll
 
-    intervalGr$coverage <- sapply(seq_along(x), function(i) 
-        sum(coverage(IRanges(x[[i]][["pos"]], width=x[[i]][["qwidth"]]), 
-            shift=-start(intervalGr)[i], width=width(intervalGr)[i])))
+    intervalGr$coverage <- sapply(seq_along(x), function(i)
+        sum(coverage(IRanges(x[[i]][["pos"]], width = x[[i]][["qwidth"]]),
+            shift = -start(intervalGr)[i], width = width(intervalGr)[i])))
 
-    intervalGr$average.coverage <- 
-        intervalGr$coverage/width(intervalGr)
+    intervalGr$average.coverage <- intervalGr$coverage / width(intervalGr)
 
     intervalGr$counts <- as.numeric(sapply(x, function(y) length(y$pos)))
-    intervalGr$duplication.rate <-1- sapply(xDupFiltered, function(y) length(y$pos))/
+    intervalGr$duplication.rate <- 1 -
+        sapply(xDupFiltered, function(y) length(y$pos)) /
         sapply(xAll, function(y) length(y$pos))
 
     if (!is.null(output.file)) {
         .writeCoverage(intervalGr, output.file)
-    }    
+    }
     invisible(intervalGr)
 }
 
 .writeCoverage <- function(intervalGr, output.file) {
     tmp <- data.frame(
-        Target=as.character(intervalGr), 
-        total_coverage=intervalGr$coverage, 
-#        average_coverage=intervalGr$average.coverage,
-        counts=intervalGr$counts,
-        on_target=intervalGr$on.target,
-        duplication_rate=intervalGr$duplication.rate
+        Target = as.character(intervalGr),
+        total_coverage = intervalGr$coverage,
+        counts = intervalGr$counts,
+        on_target = intervalGr$on.target,
+        duplication_rate = intervalGr$duplication.rate
     )
-    write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE)
+    write.table(tmp, file = output.file, row.names = FALSE, quote = FALSE)
 }
 
 .filterDuplicates <- function(x) {
@@ -88,4 +88,4 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
         idx <- y$flag < 1024
         lapply(y, function(z) z[idx])
     })
-}    
+}

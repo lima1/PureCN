@@ -43,68 +43,66 @@ globalVariables(names=c("..level.."))
 #' @importFrom stats loess lm
 #' @importFrom utils write.table
 correctCoverageBias <- function(coverage.file, gc.gene.file,
-output.file = NULL, plot.gc.bias = FALSE,
-plot.max.density = 50000) {
+output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
     if (is.character(coverage.file)) {
-        tumor  <- readCoverageFile(coverage.file)
+        raw  <- readCoverageFile(coverage.file)
     } else {
-        tumor <- coverage.file
+        raw <- coverage.file
     }    
     
-    tumor <- .addGCData(tumor, gc.gene.file, verbose=FALSE)
-
-    ret <- .correctCoverageBiasLoess(tumor)
-
-    coverage <- ret$coverage
-    medDiploid <- ret$medDiploid
-    #coverage <- .correctDuplicationBiasLoess(coverage)
+    raw <- .addGCData(raw, gc.gene.file, verbose=FALSE)
+    ret <- .correctCoverageBiasLoess(raw)
 
     if (!is.null(output.file)) {
-        .writeCoverage(coverage, output.file)
+        .writeCoverage(ret$coverage, output.file)
     }
+    if (plot.gc.bias) {
+        .plotGcBias(raw, ret$coverage, ret$medDiploid, plot.max.density)
+    }
+    invisible(ret$coverage)
+}
 
-    if (plot.gc.bias==TRUE) {
-        if (length(coverage) < plot.max.density) {
-            density <- "Low"
-        } else {
-            density <- "High"
-        }
-        tumor$norm_status <- "Pre-normalized"
-        coverage$norm_status <- "Post-normalized"
-        tumCov <- rbind(as.data.frame(tumor)[,c("coverage","average.coverage","gc_bias","norm_status")],
-            as.data.frame(coverage)[,c("coverage","average.coverage","gc_bias","norm_status")])
+.plotGcBias <- function(raw, normalized, medDiploid, plot.max.density) {
+    if (length(normalized) < plot.max.density) {
+        density <- "Low"
+    } else {
+        density <- "High"
+    }
+    raw$norm_status <- "Pre-normalized"
+    normalized$norm_status <- "Post-normalized"
+    ids <- c("coverage","average.coverage","gc_bias","norm_status")
+    tumCov <- rbind(as.data.frame(raw)[,ids],
+                    as.data.frame(normalized)[,ids])
 
-        gcPlot <- tumCov[which(tumCov$average.coverage<quantile(tumCov$average.coverage,0.999, na.rm=TRUE)),]
-        gcPlot$norm_status <- factor(gcPlot$norm_status, levels = c("Pre-normalized","Post-normalized"))
-        plotMed <- medDiploid[,c("gcIndex","denom")]
-        colnames(plotMed) <- c("gcIndex","gcNum")
-        plotMed$norm_status <- "Pre-normalized"
-        medDiploid$norm_status <- "Post-normalized"
-        plotMed <- rbind(plotMed,medDiploid[,c("gcIndex","gcNum","norm_status")])
-        plotMed$norm_status <- factor(plotMed$norm_status, 
-            levels=c("Pre-normalized","Post-normalized"))
+    gcPlot <- tumCov[which(tumCov$average.coverage<quantile(tumCov$average.coverage,0.999, na.rm=TRUE)),]
+    gcPlot$norm_status <- factor(gcPlot$norm_status, levels = c("Pre-normalized","Post-normalized"))
+    plotMed <- medDiploid[,c("gcIndex","denom")]
+    colnames(plotMed) <- c("gcIndex","gcNum")
+    plotMed$norm_status <- "Pre-normalized"
+    medDiploid$norm_status <- "Post-normalized"
+    plotMed <- rbind(plotMed,medDiploid[,c("gcIndex","gcNum","norm_status")])
+    plotMed$norm_status <- factor(plotMed$norm_status, 
+        levels = c("Pre-normalized","Post-normalized"))
 
-        if (density == "Low") {
-            print(ggplot(gcPlot, aes_string(x="gc_bias", y="average.coverage")) + 
-                geom_point(color='red', alpha=0.2) + 
-                geom_line(data = plotMed, aes_string(x = 'gcIndex', y = 'gcNum'), color = 'blue') + 
-                scale_y_sqrt() +
-                xlab("GC content") + ylab("Coverage") + 
-                theme(axis.text = element_text(size= 6), axis.title = element_text(size=16)) + 
-                facet_wrap(~ norm_status, nrow=1))
-        } else if (density == "High") {
-            print(ggplot(gcPlot, aes_string(x="gc_bias", y="average.coverage")) + 
-            geom_point(color="blue", alpha = 0.1) + 
-            stat_density2d(aes(fill = ..level..), geom="polygon") + 
-            scale_alpha_continuous(limits=c(0.1, 0), breaks=seq(0, 0.1, by = 0.025)) + 
-            geom_line(data = plotMed, aes_string(x = 'gcIndex',y = 'gcNum'), color = 'red') + 
+    if (density == "Low") {
+        print(ggplot(gcPlot, aes_string(x = "gc_bias", y = "average.coverage")) + 
+            geom_point(color = "red", alpha = 0.2) +
+            geom_line(data = plotMed, aes_string(x = "gcIndex", y = "gcNum"), color = "blue") + 
             scale_y_sqrt() +
-            xlab("GC content") + ylab("Coverage") + 
-            theme(axis.text = element_text(size = 16), axis.title = element_text(size = 16)) + 
-            facet_wrap(~norm_status, nrow=1))
-        }
+            xlab("GC content") + ylab("Coverage") +
+            theme(axis.text = element_text(size = 6), axis.title = element_text(size = 16)) + 
+            facet_wrap(~ norm_status, nrow=1))
+    } else if (density == "High") {
+        print(ggplot(gcPlot, aes_string(x = "gc_bias", y = "average.coverage")) + 
+        geom_point(color="blue", alpha = 0.1) + 
+        stat_density2d(aes(fill = ..level..), geom = "polygon") + 
+        scale_alpha_continuous(limits = c(0.1, 0), breaks = seq(0, 0.1, by = 0.025)) + 
+        geom_line(data = plotMed, aes_string(x = "gcIndex",y = "gcNum"), color = "red") + 
+        scale_y_sqrt() +
+        xlab("GC content") + ylab("Coverage") + 
+        theme(axis.text = element_text(size = 16), axis.title = element_text(size = 16)) + 
+        facet_wrap(~norm_status, nrow = 1))
     }
-    invisible(coverage)
 }
 
 #.correctDuplicationBiasLoess <- function(tumor) {
@@ -171,7 +169,5 @@ plot.max.density = 50000) {
         tumor$ideal <- NULL
         tumor$valid <- NULL
     }
-    ret <- list(coverage = tumor, medDiploid=medDiploid)
-    ret
+    list(coverage = tumor, medDiploid=medDiploid)
 }
-
