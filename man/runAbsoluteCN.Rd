@@ -23,7 +23,7 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   min.variants.segment = 5, log.ratio.calibration = 0.1,
   smooth.log.ratio = TRUE, remove.off.target.snvs = NULL,
   model.homozygous = FALSE, error = 0.001, gc.gene.file = NULL,
-  max.dropout = c(0.95, 1.1), min.logr.sdev = 0.15, max.logr.sdev = 0.75,
+  max.dropout = c(0.95, 1.1), min.logr.sdev = 0.15, max.logr.sdev = 0.6,
   max.segments = 300, min.gof = 0.8, plot.cnv = TRUE,
   cosmic.vcf.file = NULL, model = c("beta", "betabin"),
   post.optimize = FALSE, log.file = NULL, verbose = TRUE)

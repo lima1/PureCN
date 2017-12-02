@@ -106,11 +106,12 @@ findBestNormal <- function(tumor.coverage.file, normalDB, pcs=1:3,
         collapse=", "))
       w <- NULL
       if (pool.weights == "voom" && num.normals > 1) {
-          logRatio <- .voomLogRatio(tumor, 
+          vmlogRatio <- .voomLogRatio(tumor, 
             normal.coverage.files=normal.coverage.files, plot.voom=plot.pool)
           fakeNormal <- tumor
-          fakeNormal$average.coverage <- 2 ^ (log2(tumor$average.coverage) - logRatio)
+          fakeNormal$average.coverage <- 2 ^ (log2(tumor$average.coverage) - vmlogRatio$logRatio)
           fakeNormal$coverage <- fakeNormal$average.coverage * width(fakeNormal)
+          fakeNormal$se <- vmlogRatio$logRatioSe
           return(fakeNormal)
       }
       return(poolCoverage(normals, w=w, ...))

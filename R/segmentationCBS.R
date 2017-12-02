@@ -321,8 +321,8 @@ max.segments=NULL, chr.hash=chr.hash) {
                 undo.splits=undo.splits, undo.SD=sdundo, 
                 verbose=0, alpha=alpha)
         } 
-        if (is.null(max.segments) || nrow(segment.CNA.obj$output) 
-            < max.segments) break
+        if (sdundo <= 0 || is.null(max.segments) || 
+            nrow(segment.CNA.obj$output) < max.segments) break
         sdundo <- sdundo * 1.5
         try.again <- try.again + 1
     }

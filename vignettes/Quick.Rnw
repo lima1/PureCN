@@ -77,12 +77,11 @@ the modified intervals as BED file for example (again every
 are calculated with third-party tools like GATK.
 
 The \Rcode{--mappability} argument should provide a \Biocpkg{rtracklayer}
-parsable file with a mappability score in the first meta data column. If provided,
-off-target regions will be restricted to regions specified in this file. 
-On-target regions with low mappability will be excluded. For a test run, you
-can skip this argument or simply download the file from the UCSC website (see
-the FAQ section of the main vignette for instruction how to generate such
-a file).
+parsable file with a mappability score in the first meta data column. If
+provided, off-target regions will be restricted to regions specified in this
+file.  On-target regions with low mappability will be excluded. For hg19,
+download the file from the UCSC website. See the FAQ section of the main
+vignette for instruction how to generate such a file for other references.
 \end{itemize}
 
 
@@ -110,7 +109,7 @@ normalization and segmentation.
 
 \subsubsection*{Coverage}
 
-For each sample, tumor and normal:
+For each sample, tumor and normal, calculate GC-normalized coverages:
 
 \begin{verbatim}
 # Calculate and GC-normalize coverage from a BAM file 
@@ -137,8 +136,8 @@ $ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
 
 \subsubsection*{NormalDB}
 
-To build a normal database, copy the paths to all GC-normalized normal coverage
-files in a single text file, line-by-line:
+To build a normal database for coverage normalization, copy the paths to all
+GC-normalized normal coverage files in a single text file, line-by-line:
 
 \begin{verbatim}
 ls -a normal*loess.txt | cat > example_normal.list
@@ -148,6 +147,8 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT \
     --coveragefiles example_normal.list \
     --genome hg19 
 \end{verbatim}
+
+Important recommendations:
 
 \begin{itemize}
     \item The resulting \Rcode{normalDB\_hg19.rds} file contains absolute paths
@@ -188,10 +189,11 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
     --pool 5 \
     --genome hg19 --gcgene baits_hg19_gcgene.txt 
     --snpblacklist hg19_simpleRepeats.bed \
-    --targetweightfile ../target_weights_hg19.txt
-    --force --postoptimize
+    --targetweightfile ../target_weights_hg19.txt \
+    --force --postoptimize --seed 123
 
-# With a matched normal (test run)
+# With a matched normal (test run; for production pipelines we recommend the
+# unmatched workflow described above)
 $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \ 
     --normal ${SAMPLEID_NORMAL}_coverage_loess.txt \ 
     --sampleid $SAMPLEID \
@@ -204,7 +206,7 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
 $ Rscript $PURECN/PureCN.R --rds ${SAMPLEID}.rds
 \end{verbatim}
 
-A few important recommendations:
+Important recommendations:
 
 \begin{itemize}
     \item Even if matched normals are available, it is often safer to use the
@@ -269,9 +271,10 @@ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --snpblacklist hg19_simpleRepeats.bed \
     --genome hg19 \
     --funsegmentation none \
-    --force --postoptimize  
-
+    --force --postoptimize --seed 123
 \end{verbatim}
+
+Important recommendations:
 
 \begin{itemize}
     \item The \Rcode{--funsegmentation} argument controls if the data should to
@@ -395,6 +398,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --modelhomozygous  & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
 --model            & model & \Rfunction{runAbsoluteCN} \\ 
 --logratiocalibration & log.ratio.calibration & \Rfunction{runAbsoluteCN} \\ 
+--maxnonclonal     & max.non.clonal & \Rfunction{runAbsoluteCN} \\ 
 --outvcf           & return.vcf & \Rfunction{predictSomatic} \\
 --out -o           & &                            \\
 --seed             & & \\

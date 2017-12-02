@@ -573,8 +573,12 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     y <- limma::lmFit(v, design = stats::model.matrix(~dge$samples$group))
     y <- limma::eBayes(y)
     logRatio <- rep(NA, nrow(countMatrix))
+    logRatioSe <- logRatio
     logRatio[idx] <- y$coefficients[,2]
-    logRatio
+    # this extracts the standard error out of the eBayes fit object, see 
+    # the confint argument of the toptable function in voom
+    logRatioSe[idx] <- sqrt(y$s2.post) * y$stdev.unscaled[,2]
+    list(logRatio=logRatio, logRatioSe=logRatioSe)
 }
 
 .voomCountMatrix <- function(tumor.coverage.file, normal.coverage.files=NULL, 

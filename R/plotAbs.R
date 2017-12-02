@@ -64,6 +64,9 @@ ploidy = NULL, alpha = TRUE, show.segment.means = c("SNV", "segments", "both"),
 max.mapping.bias = 0.8, palette.name = "Paired", ...) {
     type <- match.arg(type)
 
+    if (!is.numeric(id) || id < 1 || id > length(res$results)) { 
+        .stopUserError("No solution with id ", id)
+    }
     if (is.null(purity)) purity <- res$results[[id]]$purity
     if (is.null(ploidy)) ploidy <- res$results[[id]]$ploidy
 
@@ -252,7 +255,6 @@ ss) {
         .stopUserError("runAbsoluteCN was run without a VCF file.")
     }
     r <- .getVariantPosteriors(res, id, NULL)
-    if (is.null(r)) next
     GoF <- res$results[[id]]$GOF
     if (is.null(GoF)) {
         GoF <- .getGoF(res$results[[id]])
@@ -436,7 +438,6 @@ ss) {
         .stopUserError("runAbsoluteCN was run without a VCF file.")
     }
     r <- .getVariantPosteriors(res, id, max.mapping.bias)
-    if (is.null(r)) next
 
     vcf <- res$input$vcf[res$results[[id]]$SNV.posterior$vcf.ids]
     # brwer.pal requires at least 3 levels

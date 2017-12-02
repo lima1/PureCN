@@ -68,6 +68,9 @@ option_list <- list(
     make_option(c("--logratiocalibration"), action = "store", type = "double",
         default = formals(PureCN::runAbsoluteCN)$log.ratio.calibration,
         help = "Parameter defining the extend to which log-ratios might be miscalibrated [default %default]."),
+    make_option(c("--maxnonclonal"), action = "store", type = "double",
+        default = formals(PureCN::runAbsoluteCN)$max.non.clonal,
+        help = "Maximum genomic fraction assigned to a subclonal copy number state. [default %default]."),
     make_option(c("--outvcf"), action = "store_true", default = FALSE,
         help = "Output: Annotate input VCF with posterior probabilities. Otherwise produce CSV file."),
     make_option(c("--out"), action = "store", type = "character", default = NULL,
@@ -207,6 +210,7 @@ if (file.exists(file.rds) && !opt$force) {
             max.segments = opt$maxsegments,
             error = opt$error,
             log.ratio.calibration = opt$logratiocalibration,
+            max.non.clonal = opt$maxnonclonal,
             post.optimize = opt$postoptimize)
     dev.off()
     saveRDS(ret, file = file.rds)
@@ -228,7 +232,7 @@ plotAbs(ret, type = "all")
 dev.off()
 
 file.pdf <- paste0(out, "_local_optima.pdf")
-pdf(file.pdf, width = 6, height = 6)
+pdf(file.pdf, width = 5, height = 5)
 plotAbs(ret, 1, type = "overview")
 dev.off()
 

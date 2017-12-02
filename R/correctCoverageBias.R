@@ -159,7 +159,6 @@ output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
         medDiploid <- as.data.frame(cbind(as.numeric(names(pre)),as.vector(pre)))
         colnames(medDiploid) <- c("gcIndex","denom")
         
-#        tumor$average.coverage[tumor$valid] <- (tumor$average.coverage[tumor$valid] / cor.gc.factor)
         tumor$coverage[tumor$valid] <- (tumor$coverage[tumor$valid] / cor.gc.factor)
         tumor$counts[tumor$valid] <- (tumor$counts[tumor$valid] / cor.gc.factor)
         tumor <- .addAverageCoverage(tumor)
