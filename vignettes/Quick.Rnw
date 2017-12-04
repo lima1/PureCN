@@ -394,6 +394,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --maxpurity        & test.purity & \Rfunction{runAbsoluteCN} \\
 --minploidy        & min.ploidy & \Rfunction{runAbsoluteCN} \\
 --maxploidy        & max.ploidy & \Rfunction{runAbsoluteCN} \\
+--maxcopynumber    & test.num.copy & \Rfunction{runAbsoluteCN} \\
 --postoptimize     & post.optimize & \Rfunction{runAbsoluteCN} \\    
 --modelhomozygous  & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
 --model            & model & \Rfunction{runAbsoluteCN} \\ 

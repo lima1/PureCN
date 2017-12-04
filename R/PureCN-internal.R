@@ -303,12 +303,18 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
     max.non.clonal, max.homozygous.loss, sampleid, prior.K, 
     prior.contamination, prior.purity, iterations, min.gof, model.homozygous, 
-    gc.gene.file, log.ratio.calibration) {
+    gc.gene.file, log.ratio.calibration, test.num.copy) {
     if (min(test.purity) <= 0 || max(test.purity) > 0.99) 
         .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
         .stopUserError("min.ploidy or max.ploidy not within expected range.")
 
+    if (min(test.num.copy) < 0) 
+        .stopUserError("test.num.copy not within expected range.")
+    
+    if (min(test.num.copy) > 0 || max(test.num.copy)>8) 
+        flog.warn("test.num.copy outside recommended range.")
+                   
     .checkFraction(max.non.clonal, "max.non.clonal")
     .checkFraction(max.homozygous.loss[1], "max.homozygous.loss")
     .checkFraction(prior.K, "prior.K")

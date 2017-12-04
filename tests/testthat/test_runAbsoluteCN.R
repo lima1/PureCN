@@ -58,6 +58,16 @@ test_that("Exceptions happen with incorrect input data", {
         normal.coverage.file = normal.coverage.file, min.ploidy = "a", 
         genome = "hg19"), "min.ploidy")
     expect_error(runAbsoluteCN(tumor.coverage.file = tumor.coverage.file, 
+        normal.coverage.file = normal.coverage.file, test.num.copy = -1:7, 
+        genome = "hg19"), "test.num.copy")
+    expect_error(expect_warning(runAbsoluteCN(tumor.coverage.file = tumor.coverage.file, 
+        normal.coverage.file = normal.coverage.file, test.num.copy = 0:10, 
+        genome = "hg19", max.non.clonal = 1.1), "test.num.copy outside"))
+    expect_error(expect_warning(runAbsoluteCN(tumor.coverage.file = tumor.coverage.file, 
+        normal.coverage.file = normal.coverage.file, test.num.copy = 2:7, 
+        genome = "hg19", max.non.clonal = 1.1), "test.num.copy outside"))
+
+    expect_error(runAbsoluteCN(tumor.coverage.file = tumor.coverage.file, 
         normal.coverage.file = normal.coverage.file, test.purity = "a", 
         genome = "hg19"), "test.purity")
     expect_error(runAbsoluteCN(tumor.coverage.file, tumor.coverage.file, 

@@ -294,6 +294,12 @@ iterations=2, chr.hash) {
     return(0.25)
 }    
 
+.fixStartEndPos <- function(segment.CNA.obj, normal) {
+    segment.CNA.obj$output$loc.start <- start(normal[segment.CNA.obj$segRows$startRow])
+    segment.CNA.obj$output$loc.end <- end(normal[segment.CNA.obj$segRows$endRow])
+    segment.CNA.obj
+}
+
 # ExomeCNV version without the x11() calls 
 .CNV.analyze2 <-
 function(normal, tumor, log.ratio=NULL, weights=NULL, sdundo=NULL,
@@ -326,6 +332,8 @@ max.segments=NULL, chr.hash=chr.hash) {
         sdundo <- sdundo * 1.5
         try.again <- try.again + 1
     }
+
+    segment.CNA.obj <- .fixStartEndPos(segment.CNA.obj, normal)
 
     if (plot.cnv) {
         plot(segment.CNA.obj, plot.type="s")

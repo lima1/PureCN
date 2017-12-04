@@ -296,7 +296,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # argument checking
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
         max.homozygous.loss, sampleid, prior.K, prior.contamination, prior.purity,
-        iterations, min.gof, model.homozygous, gc.gene.file, log.ratio.calibration)
+        iterations, min.gof, model.homozygous, gc.gene.file, log.ratio.calibration,
+        test.num.copy)
     
     test.num.copy <- sort(test.num.copy)
     
@@ -783,7 +784,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     C[i] <- opt.C[i]
                     subclonal[i] <- TRUE
                   } else if (test.num.copy[id] == max(test.num.copy) && 
-                             opt.C[i] > test.num.copy[id] + 1) {
+                             opt.C[i] > test.num.copy[id] + 1.5) {
+                    # rounded ideal integer copy number is max copy number + 2   
                     C[i] <- opt.C[i]
                     subclonal[i] <- TRUE
                   } else {
@@ -970,6 +972,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         input = list(tumor = tumor.coverage.file, normal = normal.coverage.file, 
             log.ratio = GRanges(normal[, 1], on.target=normal$on.target, log.ratio = log.ratio), 
             log.ratio.sdev = sd.seg, vcf = vcf, sampleid = sampleid, 
+            test.num.copy = test.num.copy,
             sex = sex, sex.vcf = sex.vcf, chr.hash = chr.hash, centromeres = centromeres,
             args=list(filterVcf = args.filterVcf, filterTargets = args.filterTargets)
         )
