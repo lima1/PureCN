@@ -64,4 +64,4 @@ doi: [10.1186/s13029-016-0060-z](http://doi.org/10.1186/s13029-016-0060-z).
 
 [![PureCN_example.png](https://s9.postimg.org/6emxz4f5b/Pure_CN_example.png)](https://postimg.org/image/yer1jeiln/)
 
-Copy number profile obtained by a 500 gene targeted panel. 
+Copy number profile obtained by a 500-gene panel. 
