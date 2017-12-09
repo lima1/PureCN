@@ -582,14 +582,18 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     countMatrix <- .voomCountMatrix(tumor.coverage.file, normalDB=normalDB, num.normals=num.normals)
     gc.data <- read.delim(gc.gene.file, as.is=TRUE)
     gc.pos <- .checkSymbolsChromosome(GRanges(gc.data[,1], Gene=gc.data$Gene))
-
-    geneCountMatrix <- do.call(rbind, lapply(split(data.frame(countMatrix), gc.pos$Gene),
-         apply, 2, sum, na.rm=TRUE))
     
+    # support exons with multiple gene annotations
+    tmp <- strsplit(gc.pos$Gene, ",")
+    tmp <- do.call(rbind, lapply(seq_along(tmp), function(i) data.frame(Gene=tmp[[i]], Index=i)))
+    geneIndex <- split(tmp$Index, tmp$Gene)
+    geneCountMatrix <- do.call(rbind, lapply(lapply(geneIndex, function(i) 
+                        countMatrix[i, , drop = FALSE]), 
+                        apply, 2, sum, na.rm=TRUE))
     if (nrow(geneCountMatrix)<2) return(NULL)
-            
     geneCountMatrix <- geneCountMatrix[complete.cases(geneCountMatrix),]
     countMatrix <- countMatrix[complete.cases(countMatrix),]
+    
     dge <- edgeR::DGEList(geneCountMatrix, 
             group=c("tumor", rep("normal", ncol(countMatrix)-1)))
     # use all targets to estimate effective library sizes

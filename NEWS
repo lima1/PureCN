@@ -1,3 +1,10 @@
+Changes in version 1.8.1
+------------------------
+
+    o Fixes a crash when gc.gene.file listed multiple symbols per exon 
+      (https://github.com/lima1/PureCN/issues/16)
+
+
 Changes in version 1.8.0
 ------------------------
 
