@@ -2,8 +2,7 @@
 [![Coverage](https://img.shields.io/codecov/c/github/lima1/PureCN.svg)](https://codecov.io/gh/lima1/PureCN)
 [![License: Artistic-2.0](https://img.shields.io/badge/License-Artistic%202.0-0298c3.svg)](https://opensource.org/licenses/Artistic-2.0)
 
-[![PureCN_example.png](https://s9.postimg.org/6emxz4f5b/Pure_CN_example.png)](https://postimg.org/image/yer1jeiln/)
-
+<div style="text-align: right"> :mount_fuji: </div>
 # PureCN
 
 A tool developed for tumor-only diagnostic sequencing using hybrid-capture
@@ -59,3 +58,9 @@ Riester M, Singh A, Brannon A, Yu K, Campbell C, Chiang D and Morrissey M
 (2016). “PureCN: Copy number calling and SNV classification using targeted
 short read sequencing.” _Source Code for Biology and Medicine_, **11**, pp. 13.
 doi: [10.1186/s13029-016-0060-z](http://doi.org/10.1186/s13029-016-0060-z).
+
+---
+
+[![PureCN_example.png](https://s9.postimg.org/6emxz4f5b/Pure_CN_example.png)](https://postimg.org/image/yer1jeiln/)
+
+Copy number profile obtained by a 500 gene targeted panel. 
