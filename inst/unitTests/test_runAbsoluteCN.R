@@ -10,6 +10,8 @@ test_runAbsoluteCN <- function() {
     vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
     gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
         package = "PureCN")
+    gc.gene.file2 <- system.file("extdata", "example_gc.gene.file2.txt", 
+        package = "PureCN")
     seg.file <- system.file("extdata", "example_seg.txt", 
         package = "PureCN")
     cosmic.vcf.file <- system.file("extdata", "example_cosmic.vcf.gz", 
@@ -355,6 +357,14 @@ test_runAbsoluteCN <- function() {
         geterrmessage()))
     
     normalDB <- createNormalDatabase(normal.coverage.files)
+    
+    # check bug https://github.com/lima1/PureCN/issues/16
+    ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+                        tumor.coverage.file=tumor.coverage.file, 
+                        genome='hg19', vcf.file=vcf.file,
+                        sampleid='Sample1', gc.gene.file=gc.gene.file2,
+                        max.ploidy=3, test.purity=seq(0.3,0.7,by=0.05), 
+                        max.candidate.solutions=1, normalDB=normalDB)
 
     tmp <- normalDB
     tmp$normal.coverage.files <- NULL
