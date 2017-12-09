@@ -2,7 +2,9 @@
 [![Coverage](https://img.shields.io/codecov/c/github/lima1/PureCN.svg)](https://codecov.io/gh/lima1/PureCN)
 [![License: Artistic-2.0](https://img.shields.io/badge/License-Artistic%202.0-0298c3.svg)](https://opensource.org/licenses/Artistic-2.0)
 
-# :mount_fuji: PureCN
+<img align="right" width="40" height="40" src="https://emojipedia-us.s3.amazonaws.com/thumbs/120/apple/118/mount-fuji_1f5fb.png">
+
+# PureCN
 
 A tool developed for tumor-only diagnostic sequencing using hybrid-capture
 protocols. It provides copy number adjusted for purity and ploidy and can
