@@ -16,6 +16,9 @@
 #' coverage higher than this value will be normalized to have mean coverage
 #' equal to this value. If \code{NULL}, use the 80 percentile as cutoff.
 #' If \code{NA}, does not use a maximum value.
+#' @param coverage.outliers Exclude samples with coverages below or above
+#' the specified cutoffs (fractions of the normal sample coverages median).
+#' Only for databases with more than 5 samples.
 #' @param \dots Arguments passed to the \code{prcomp} function.
 #' @return A normal database that can be used in the
 #' \code{\link{findBestNormal}} function to retrieve good matching normal
@@ -34,15 +37,32 @@
 #' @export createNormalDatabase
 #' @importFrom stats prcomp
 createNormalDatabase <- function(normal.coverage.files, sex = NULL,
-max.mean.coverage = NULL, ...) {
+max.mean.coverage = NULL, coverage.outliers = c(0.25, 4), ...) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
     normals <- .readNormals(normal.coverage.files)
 
     normals.m <- do.call(cbind, 
         lapply(normals, function(x) x$average.coverage))
-    idx <- complete.cases(normals.m)
+    idx <- complete.cases(normals.m) 
 
     z <- apply(normals.m[idx,],2,mean)
+    idx.failed <- rep(FALSE, length(normals))
+
+    if (length(normals) > 5) {
+        idx.failed <- z < median(z) * coverage.outliers[1] | 
+                      z > median(z) * coverage.outliers[2]
+        if (sum(idx.failed)) {              
+            flog.info("Dropping %s due to outlier coverage.", 
+                paste(basename(normal.coverage.files[idx.failed]),collapse=", "))
+        }
+        normals <- normals[!idx.failed]
+        normals.m <- normals.m[,!idx.failed,drop = FALSE]
+        normal.coverage.files <- normal.coverage.files[!idx.failed]
+    }
+    # recalculate without dropped samples
+    idx <- complete.cases(normals.m)
+    z <- apply(normals.m[idx,],2,mean)
+
     if (is.null(max.mean.coverage)) max.mean.coverage <- 
         quantile(round(z), p=0.8)
     if (!is.na(max.mean.coverage) && length(normals)>8) {
@@ -56,9 +76,10 @@ max.mean.coverage = NULL, ...) {
     if (is.null(sex)) {
         sex <- sex.determined
     } else {
-        if (length(sex) != length(normals)) {
+        if (length(sex) != length(idx.failed)) {
             .stopUserError("Length of normal.coverage.files and sex different")
-        } 
+        }
+        sex <- sex[!idx.failed]
         idx.sex <- sex %in% c(NA, "F", "M", "diploid")
         sex[!idx.sex] <- NA
         if (sum(!idx.sex)>0) warning("Unexpected values in sex ignored.")
@@ -87,18 +108,14 @@ max.mean.coverage = NULL, ...) {
 #' Calculate target weights
 #' 
 #' Creates a target weight file useful for segmentation. Requires a set of 
-#' coverage files from normal samples. A small number of tumor (or other
-#' normal) samples is then tested against all normals. Target weights will be
+#' coverage files from normal samples. Target weights will be
 #' set proportional to the inverse of coverage standard deviation across all
 #' normals. Targets with high variance in coverage in the pool of normals are
 #' thus down-weighted.
 #' 
 #' 
-#' @param tumor.coverage.files A small number (1-3) of tumor or normal
-#' coverage samples.
-#' @param normal.coverage.files A large number of normal coverage samples
-#' (>20) to estimate target log-ratio standard deviations. Should not overlap
-#' with files in \code{tumor.coverage.files}.
+#' @param normal.coverage.files A set of normal coverage samples
+#' to estimate target log-ratio standard deviations. 
 #' @param target.weight.file Output filename.
 #' @param plot Diagnostics plot, useful to tune parameters.
 #' @return A \code{data.frame} with target weights.
@@ -111,17 +128,17 @@ max.mean.coverage = NULL, ...) {
 #' normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
 #'     package="PureCN")
 #' normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
-#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-#'     package="PureCN")
 #' 
-#' createTargetWeights(tumor.coverage.file, normal.coverage.files, target.weight.file)
+#' createTargetWeights(normal.coverage.files, target.weight.file)
 #' 
 #' @export createTargetWeights
-createTargetWeights <- function(tumor.coverage.files, normal.coverage.files,
-target.weight.file, plot=FALSE) {
+createTargetWeights <- function(normal.coverage.files,
+target.weight.file, plot = FALSE) {
     flog.info("Loading coverage data...")
-    tumor.coverage <- lapply(tumor.coverage.files,  readCoverageFile)
     normal.coverage <- lapply(normal.coverage.files,  readCoverageFile)
+    
+    tumor.coverage <- list(poolCoverage(normal.coverage, w=rep(1, length(normal.coverage))/length(normal.coverage)))
+
     lrs <- lapply(tumor.coverage, function(tc) sapply(normal.coverage, 
             function(nc) calculateLogRatio(nc, tc)))
 
@@ -133,12 +150,14 @@ target.weight.file, plot=FALSE) {
     lrs.cnt.na <- apply(lrs,1, function(x) sum(is.na(x)))
     # get the 70% of sd by chromosome and use this to normalize weight=1
     chrom <-  as.character(seqnames(tumor.coverage[[1]]))
-    sd70ByChr <- sapply(split(lrs.sd, chrom),quantile, probs=0.7, names=FALSE, na.rm=TRUE)[chrom]
-    zz <- sd70ByChr/lrs.sd
-    zz[zz>1] <-1
+    sdCutoffByChr <- sapply(split(lrs.sd, chrom), quantile, probs = 0.7, 
+        names = FALSE, na.rm = TRUE)[chrom]
+
+    zz <- sdCutoffByChr/lrs.sd
+    zz[zz > 1] <- 1
     idx <- is.na(zz) | lrs.cnt.na > ncol(lrs)/3
     zz[idx] <- min(zz, na.rm=TRUE)
-    ret <- data.frame(Target=as.character(tumor.coverage[[1]]), Weights=zz)
+    ret <- data.frame(Target = as.character(tumor.coverage[[1]]), Weights = zz)
     
     write.table(ret, file=target.weight.file,row.names=FALSE, quote=FALSE, 
         sep="\t")

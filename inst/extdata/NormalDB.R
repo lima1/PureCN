@@ -74,7 +74,7 @@ if (length(coverageFiles) > 3) {
     outpng.file <- sub("txt$","png", target.weight.file)
     flog.info("Creating target weights.")
     png(outpng.file, width=800, height=400)
-    createTargetWeights(coverageFiles[1:2], coverageFiles[-(1:2)], 
+    createTargetWeights(normalDB$normal.coverage.files, 
         target.weight.file, plot=TRUE)
     dev.off()
 } else {

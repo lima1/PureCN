@@ -3,13 +3,18 @@ Changes in version 1.10.0
 
     o More accurate confidence intervals in callMutationBurden
     o More accurate copy numbers for high-level amplifications 
-    o Code cleanups (switch to testthat, removed several obsolete and minor features)
+    o Code cleanups (switch to testthat, removed several obsolete and minor 
+      features)
+    o Very low or high coverage samples are now by default dropped in normal 
+      database creation (less than 25% or more than 4 times the median sample 
+      coverage)
     
 API CHANGES
 
     o plotAbs ids changed to id (this function now only plots a single
       purity/ploidy solution)
     o changed default of runAbsoluteCN max.logr.sdev to 0.6 (from 0.75)
+    o createTargetWeights does not require tumor coverages anymore
 
 
 

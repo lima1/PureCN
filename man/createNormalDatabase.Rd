@@ -5,7 +5,7 @@
 \title{Create database of normal samples}
 \usage{
 createNormalDatabase(normal.coverage.files, sex = NULL,
-  max.mean.coverage = NULL, ...)
+  max.mean.coverage = NULL, coverage.outliers = c(0.25, 4), ...)
 }
 \arguments{
 \item{normal.coverage.files}{Vector with file names pointing to 
@@ -20,6 +20,10 @@ necessarily improve copy number normalization. Internally, samples with
 coverage higher than this value will be normalized to have mean coverage
 equal to this value. If \code{NULL}, use the 80 percentile as cutoff.
 If \code{NA}, does not use a maximum value.}
+
+\item{coverage.outliers}{Exclude samples with coverages below or above
+the specified cutoffs (fractions of the normal sample coverages median).
+Only for databases with more than 5 samples.}
 
 \item{\dots}{Arguments passed to the \code{prcomp} function.}
 }

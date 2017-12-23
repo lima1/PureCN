@@ -83,6 +83,10 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         target.weights <- target.weights[match(as.character(tumor), 
             target.weights[,1]),2]
         flog.info("Target weights found, will use weighted CBS.")
+        #if (!is.null(normal$se)) {
+        #    flog.info("Log-ratio standard errors found, will use them in weights.")
+        #    target.weights <- (target.weights + (1 / normal$se^2))/2
+        #}     
     }
     x <- .CNV.analyze2(normal, tumor, log.ratio=log.ratio, plot.cnv=plot.cnv, 
         sampleid=sampleid, alpha=alpha, 
@@ -274,13 +278,15 @@ iterations=2, chr.hash) {
     isFakeLogRatio <- sum(abs(diff(log.ratio))<0.0001)/
         length(log.ratio)>0.9
     if (isFakeLogRatio) return(0)
+    # a crude way of estimating purity - in heigher purity samples, we
+    # can undo a little bit more aggressively 
     q <- quantile(log.ratio,p=c(d, 1-d))
     q.diff <- abs(q[1] - q[2])
     if (q.diff < 0.5) return(0.5)
     if (q.diff < 1) return(0.75)
     if (q.diff < 1.5) return(1)
     return(1.25)
-}    
+}
 
 .getPruneH <- function(seg, d=0.05) {
     seg <- seg[seg$num.mark>=1,]
@@ -303,30 +309,42 @@ iterations=2, chr.hash) {
 # ExomeCNV version without the x11() calls 
 .CNV.analyze2 <-
 function(normal, tumor, log.ratio=NULL, weights=NULL, sdundo=NULL,
-undo.splits="sdundo", alpha=0.01, sampleid=NULL, plot.cnv=TRUE,
-max.segments=NULL, chr.hash=chr.hash) {
+undo.splits="sdundo", alpha, eta=0.05, nperm=10000, sampleid=NULL,
+plot.cnv=TRUE, max.segments=NULL, chr.hash=chr.hash) {
     
     if (is.null(sdundo)) {
         sdundo <- .getSDundo(log.ratio)
     }   
      
     CNA.obj <- .getCNAobject(log.ratio, normal, chr.hash, sampleid)
+    
+    # default parameters, then speed-up the segmentation by using precomputed
+    # simulations 
+    if (nperm == 10000 & alpha == 0.005 & eta == 0.05) {
+        flog.info("Loading pre-computed boundaries for DNAcopy...")
+        data(purecn.DNAcopy.bdry, package = "PureCN", 
+              envir = environment())
+        sbdry <- get("purecn.DNAcopy.bdry", envir = environment())
+    }
+    else {
+        max.ones <- floor(nperm * alpha) + 1
+        sbdry <- getbdry(eta, nperm, max.ones)
+    }
 
     try.again <- 0
-
     while (try.again < 2) {
         flog.info("Setting undo.SD parameter to %f.", sdundo)
         if (!is.null(weights)) {
             # MR: this shouldn't happen. In doubt, count them as median.
             weights[is.na(weights)] <- median(weights, na.rm=TRUE)
             segment.CNA.obj <- segment(CNA.obj, 
-                undo.splits=undo.splits, undo.SD=sdundo, 
-                verbose=0, alpha=alpha,weights=weights)
+                undo.splits = undo.splits, undo.SD = sdundo, sbdry = sbdry,
+                nperm = nperm, verbose = 0, alpha = alpha, weights = weights)
         } else {
             segment.CNA.obj <- segment(CNA.obj, 
-                undo.splits=undo.splits, undo.SD=sdundo, 
-                verbose=0, alpha=alpha)
-        } 
+                undo.splits = undo.splits, undo.SD = sdundo, sbdry = sbdry,
+                nperm = nperm, verbose = 0, alpha = alpha)
+        }
         if (sdundo <= 0 || is.null(max.segments) || 
             nrow(segment.CNA.obj$output) < max.segments) break
         sdundo <- sdundo * 1.5

@@ -18,7 +18,7 @@ data(purecn.example.output)
 test_that("VCF is not necessary to produce output", {
     set.seed(123)
     target.weight.file <- tempfile(fileext = ".txt")
-    createTargetWeights(tumor.coverage.file, normal.coverage.files,
+    createTargetWeights(normal.coverage.files,
         target.weight.file)
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
         tumor.coverage.file = tumor.coverage.file,

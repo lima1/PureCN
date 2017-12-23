@@ -36,13 +36,20 @@ poolCoverage <- function(all.data, remove.chrs=c(), w = NULL) {
     if (length(all.data) == 1) {
         return(.removeChr(pool, remove.chrs))
     }
-    if (is.null(w)) w <- rep(1,length(all.data))
-
-    for (i in 2:length(all.data)) {
-        pool$coverage <- pool$coverage + (w[i] * all.data[[i]]$coverage)
-        pool$average.coverage <- pool$average.coverage + 
-            (w[i] * all.data[[i]]$average.coverage)
+    if (is.null(w)) {
+        w <- rep(1,length(all.data))
+    } else if (length(w) != length(all.data)) {
+        .stopUserError("all.data and w have different lengths.")
     }
+
+    pool$coverage <- 0
+    pool$counts <- 0
+
+    for (i in seq_along(all.data)) {
+        pool$coverage <- pool$coverage + (w[i] * all.data[[i]]$coverage)
+        pool$counts <- pool$counts + (w[i] * all.data[[i]]$counts)
+    }
+    pool <- .addAverageCoverage(pool)
     return(.removeChr(pool, remove.chrs))
 }
 

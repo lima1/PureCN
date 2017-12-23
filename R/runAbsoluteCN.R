@@ -520,8 +520,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         seg <- .fixAllosomeSegmentation(sex, seg)
     }
 
-    seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), IRanges(start = round(seg$loc.start), 
-        end = seg$loc.end))
+
+    seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), 
+                IRanges(start = round(seg$loc.start), end = seg$loc.end))
+
+    flog.info("Found %i segments with median size of %.2fMb.",
+              length(seg.gr), median(width(seg.gr)/1e+6))
 
     snv.lr <- NULL
     

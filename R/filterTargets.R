@@ -25,8 +25,8 @@
 #' likely very different from the true GC content of the probes.
 #' @param normalDB Normal database, created with
 #' \code{\link{createNormalDatabase}}.
-#' @param normalDB.min.coverage Exclude targets with coverage lower than 20
-#' percent of the chromosome median in the pool of normals.
+#' @param normalDB.min.coverage Exclude targets with coverage lower than 
+#' the specified fraction of the chromosome median in the pool of normals.
 #' @param normalDB.max.missing Exclude targets with zero coverage in the
 #' specified fraction of normal samples.
 #' @return \code{logical(length(log.ratio))} specifying which targets should be

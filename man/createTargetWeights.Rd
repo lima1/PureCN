@@ -4,16 +4,11 @@
 \alias{createTargetWeights}
 \title{Calculate target weights}
 \usage{
-createTargetWeights(tumor.coverage.files, normal.coverage.files,
-  target.weight.file, plot = FALSE)
+createTargetWeights(normal.coverage.files, target.weight.file, plot = FALSE)
 }
 \arguments{
-\item{tumor.coverage.files}{A small number (1-3) of tumor or normal
-coverage samples.}
-
-\item{normal.coverage.files}{A large number of normal coverage samples
-(>20) to estimate target log-ratio standard deviations. Should not overlap
-with files in \code{tumor.coverage.files}.}
+\item{normal.coverage.files}{A set of normal coverage samples
+to estimate target log-ratio standard deviations.}
 
 \item{target.weight.file}{Output filename.}
 
@@ -24,8 +19,7 @@ A \code{data.frame} with target weights.
 }
 \description{
 Creates a target weight file useful for segmentation. Requires a set of 
-coverage files from normal samples. A small number of tumor (or other
-normal) samples is then tested against all normals. Target weights will be
+coverage files from normal samples. Target weights will be
 set proportional to the inverse of coverage standard deviation across all
 normals. Targets with high variance in coverage in the pool of normals are
 thus down-weighted.
@@ -38,10 +32,8 @@ normal.coverage.file <- system.file("extdata", "example_normal.txt",
 normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
     package="PureCN")
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN")
 
-createTargetWeights(tumor.coverage.file, normal.coverage.files, target.weight.file)
+createTargetWeights(normal.coverage.files, target.weight.file)
 
 }
 \author{
