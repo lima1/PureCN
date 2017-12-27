@@ -135,7 +135,7 @@ output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
                tumor$average.coverage > 0 & 
                tumor$reptiming >= domain[1] &
                tumor$reptiming <= domain[2]
-
+        if (!sum(idx)) next
         fit <- lm(log(tumor$average.coverage[idx])~tumor$reptiming[idx])
         corFactor <- exp(predict(fit) -
             log(mean(tumor$average.coverage[idx], na.rm=TRUE)))

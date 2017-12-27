@@ -16,7 +16,7 @@ API CHANGES
       purity/ploidy solution)
     o changed default of runAbsoluteCN max.logr.sdev to 0.6 (from 0.75)
     o createTargetWeights does not require tumor coverages anymore
-    o calculateBamCoverageByInterval was renamed to preprocessIntervals
+    o calculateGCContentByInterval was renamed to preprocessIntervals
 
 
 

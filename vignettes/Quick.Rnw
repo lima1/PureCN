@@ -311,13 +311,16 @@ Rscript $PureCN/Dx.R --out . --rds ${SAMPLEID}.rds \
 \toprule
 Argument name   & Corresponding PureCN argument & PureCN function \\
 \midrule
---fasta         & reference.file & \Rfunction{calculateGCContentByInterval} \\
---infile        & interval.file & \Rfunction{calculateGCContentByInterval} \\
---offtarget     & off.target    & \Rfunction{calculateGCContentByInterval} \\
---targetwidth   & average.target.width & \Rfunction{calculateGCContentByInterval} \\
---offtargetwidth & average.off.target.width & \Rfunction{calculateGCContentByInterval} \\
---offtargetseqlevels & off.target.seqlevels & \Rfunction{calculateGCContentByInterval} \\
---mappability   & mappability   & \Rfunction{calculateGCContentByInterval} \\
+--fasta         & reference.file & \Rfunction{preprocessIntervals} \\
+--infile        & interval.file & \Rfunction{preprocessIntervals} \\
+--offtarget     & off.target    & \Rfunction{preprocessIntervals} \\
+--targetwidth   & average.target.width & \Rfunction{preprocessIntervals} \\
+--offtargetwidth & average.off.target.width & \Rfunction{preprocessIntervals} \\
+--offtargetseqlevels & off.target.seqlevels & \Rfunction{preprocessIntervals} \\
+--mappability   & mappability   & \Rfunction{preprocessIntervals} \\
+--minmappability & min.mappability   & \Rfunction{preprocessIntervals} \\
+--reptiming     & reptiming   & \Rfunction{preprocessIntervals} \\
+--reptimingbinsize &    &  \\
 --genome        & txdb, org & \Rfunction{annotateTargets} \\
 --outfile       & & \\
 --export        & & \Rfunction{rtracklayer::export}  \\

@@ -13,16 +13,19 @@ option_list <- list(
         default = formals(PureCN::preprocessIntervals)$off.target, 
         help = "Include off-target regions [default %default]"),
     make_option(c("--targetwidth"), action = "store", type = "integer",
-        default=formals(PureCN::preprocessIntervals)$average.target.width, 
+        default = formals(PureCN::preprocessIntervals)$average.target.width, 
         help = "Split large targets to approximately that size [default %default]"),
     make_option(c("--offtargetwidth"), action = "store", type = "integer",
         default = formals(PureCN::preprocessIntervals)$average.off.target.width, 
         help = "Bin off-target regions to approximately that size [default %default]"),
     make_option(c("--offtargetseqlevels"), action = "store", type = "character",
-        default=formals(PureCN::preprocessIntervals)$off.target.seqlevels[[2]], 
+        default = formals(PureCN::preprocessIntervals)$off.target.seqlevels[[2]], 
         help = "Controls how to deal with chromosomes/contigs not found in infile. One of targeted, all [default %default]"),
     make_option(c("--mappability"), action = "store", type = "character", 
         help = "File parsable by rtracklayer specifying mappability scores of genomic regions."),
+    make_option(c("--minmappability"), action = "store", type = "character", 
+        default = paste(eval(formals(PureCN::preprocessIntervals)$min.mappability), collapse=","),
+        help = "Minimum mappability for on-target, off-target and chrY regions [default %default]"),
     make_option(c("--reptiming"), action = "store", type = "character", 
         help = "File parsable by rtracklayer specifying replication timing scores of genomic regions."),
     make_option(c("--reptimingbinsize"), action = "store", type = "integer", default = 100000,
@@ -110,9 +113,12 @@ if (!opt$offtarget) {
      " Amplicon data. Add --offtarget to include them.")
 }
 
-outGC <- preprocessIntervals(intervals, reference.file, 
-    output.file = outfile, off.target = opt$offtarget, 
-    mappability = mappability, average.off.target.width = opt$offtargetwidth,
+min.mappability <- as.numeric(strsplit(opt$minmappability, ",")[[1]])
+
+outGC <- preprocessIntervals(intervals, reference.file,
+    output.file = outfile, off.target = opt$offtarget,
+    mappability = mappability, min.mappability = min.mappability,
+    average.off.target.width = opt$offtargetwidth,
     reptiming = reptiming, off.target.seqlevels = opt$offtargetseqlevels,
     average.target.width = opt$targetwidth)
 

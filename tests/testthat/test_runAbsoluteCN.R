@@ -156,7 +156,8 @@ test_that("Mapping bias function works", {
 })
 
 test_that("Missing Gene column in gc.gene.file is handled correctly", {
-    gc_data <- read.delim(gc.gene.file, as.is = TRUE)[, -3]
+    gc_data <- read.delim(gc.gene.file, as.is = TRUE)
+    gc_data$Gene <- NULL
     output.file <- tempfile(".txt")
     write.table(gc_data, file = output.file, row.names = FALSE, sep = "\t", 
         quote = FALSE)
