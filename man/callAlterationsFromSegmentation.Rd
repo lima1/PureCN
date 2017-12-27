@@ -26,9 +26,8 @@ callAlterationsFromSegmentation(sampleid, chr, start, end, num.mark = NA,
 \item{gc.gene.file}{A mapping file that assigns GC content and gene symbols
 to each exon in the coverage files. Used for generating gene-level calls.
 First column in format CHR:START-END. Second column GC content (0 to 1).
-Third column gene symbol. This file can be generated with the \sQuote{GATK
-GCContentByInterval} tool or with the
-\code{\link{calculateGCContentByInterval}} function.}
+Third column gene symbol. This file is generated with the 
+\code{\link{preprocessIntervals}} function.}
 
 \item{fun.focal}{Function for identifying focal amplifications. Defaults to
 \code{\link{findFocal}}.}

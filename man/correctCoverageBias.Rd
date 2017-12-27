@@ -14,9 +14,8 @@ correctCoverageBias(coverage.file, gc.gene.file, output.file = NULL,
 \item{gc.gene.file}{File providing GC content for each exon in the coverage
 files. First column in format CHR:START-END. Second column GC content (0 to
 1).  Third column provides gene symbols, which are optional, but used in
-\code{\link{runAbsoluteCN}} to generate gene level calls. This file can be
-generated with GATK GCContentByInterval tool or with the
-\code{\link{calculateGCContentByInterval}} function.}
+\code{\link{runAbsoluteCN}} to generate gene level calls. This file is 
+generated with the \code{\link{preprocessIntervals}} function.}
 
 \item{output.file}{Optionally, write file with GC corrected coverage. Can be
 read with the \code{\link{readCoverageFile}} function.}
@@ -46,7 +45,7 @@ coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file)
 
 }
 \seealso{
-\code{\link{calculateGCContentByInterval}}
+\code{\link{preprocessIntervals}}
 }
 \author{
 Angad Singh, Markus Riester

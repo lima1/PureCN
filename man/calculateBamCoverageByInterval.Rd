@@ -47,7 +47,7 @@ coverage <- calculateBamCoverageByInterval(bam.file = bam.file,
 
 }
 \seealso{
-\code{\link{calculateGCContentByInterval}
+\code{\link{preprocessIntervals}
 \link{correctCoverageBias} \link{runAbsoluteCN}}
 }
 \author{

@@ -13,9 +13,8 @@ globalVariables(names=c("..level.."))
 #' @param gc.gene.file File providing GC content for each exon in the coverage
 #' files. First column in format CHR:START-END. Second column GC content (0 to
 #' 1).  Third column provides gene symbols, which are optional, but used in
-#' \code{\link{runAbsoluteCN}} to generate gene level calls. This file can be
-#' generated with GATK GCContentByInterval tool or with the
-#' \code{\link{calculateGCContentByInterval}} function.
+#' \code{\link{runAbsoluteCN}} to generate gene level calls. This file is 
+#' generated with the \code{\link{preprocessIntervals}} function.
 #' @param output.file Optionally, write file with GC corrected coverage. Can be
 #' read with the \code{\link{readCoverageFile}} function.
 #' @param plot.gc.bias Optionally, plot GC profiles of the pre-normalized and
@@ -27,7 +26,7 @@ globalVariables(names=c("..level.."))
 #' estimation is applied. If the \code{plot.gc.bias} parameter is set as
 #' \code{FALSE}, this will be ignored.
 #' @author Angad Singh, Markus Riester
-#' @seealso \code{\link{calculateGCContentByInterval}}
+#' @seealso \code{\link{preprocessIntervals}}
 #' @examples
 #' 
 #' normal.coverage.file <- system.file("extdata", "example_normal.txt", 

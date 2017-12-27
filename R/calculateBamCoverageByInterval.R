@@ -18,7 +18,7 @@
 #' @param keep.duplicates Keep or remove duplicated reads.
 #' @return Returns total and average coverage by intervals.
 #' @author Markus Riester
-#' @seealso \code{\link{calculateGCContentByInterval}
+#' @seealso \code{\link{preprocessIntervals}
 #' \link{correctCoverageBias} \link{runAbsoluteCN}}
 #' @examples
 #'

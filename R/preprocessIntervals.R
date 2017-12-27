@@ -1,9 +1,9 @@
-#' Calculates GC content by interval
+#' Preprocess intervals
 #' 
-#' Uses \code{scanFa} from the Rsamtools package to retrieve GC content of
-#' intervals in a reference FASTA file. Can optimize intervals for copy
-#' number calling by tiling long intervals and by including off-target regions.
-#' This optimization largely follows CNVkit. 
+#' Optimize intervals for copy number calling by tiling long intervals and by 
+#' including off-target regions. Uses \code{scanFa} from the Rsamtools package 
+#' to retrieve GC content of intervals in a reference FASTA file. If provided,
+#' will annotate intervals with mappability and replication timing scores.
 #' 
 #' @param interval.file File specifying the intervals. Interval is expected in
 #' first column in format CHR:START-END.  Instead of a file, a \code{GRanges}
@@ -44,25 +44,30 @@
 #'     package="PureCN", mustWork = TRUE)
 #' bed.file <- system.file("extdata", "ex2_intervals.bed", 
 #'     package="PureCN", mustWork = TRUE)
-#' calculateGCContentByInterval(interval.file, reference.file, 
+#' preprocessIntervals(interval.file, reference.file, 
 #'     output.file="gc_file.txt")
 #' 
 #' intervals <- import(bed.file)
-#' calculateGCContentByInterval(intervals, reference.file, 
+#' preprocessIntervals(intervals, reference.file, 
 #'     output.file="gc_file.txt")
 #' 
-#' @export calculateGCContentByInterval
+#' @export preprocessIntervals
 #' @importFrom rtracklayer import
 #' @importFrom Biostrings letterFrequency
 #' @importFrom BiocGenerics unstrand
 #' @importFrom stats aggregate
 #' @importFrom S4Vectors mcols
 #' @importFrom GenomeInfoDb seqlevelsInUse seqlengths seqlevels<-
-calculateGCContentByInterval <- function(interval.file, reference.file,
-output.file = NULL, off.target=FALSE, average.target.width=400, 
-min.off.target.width=20000, average.off.target.width=200000,  
-off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7),
-reptiming=NULL, off.target.seqlevels=c("targeted", "all")) {
+preprocessIntervals <- function(interval.file, reference.file,
+                                output.file = NULL, off.target = FALSE,
+                                average.target.width = 400,
+                                min.off.target.width = 20000,
+                                average.off.target.width = 200000,
+                                off.target.padding = -500, mappability = NULL,
+                                min.mappability = c(0.5, 0.1, 0.7), 
+                                reptiming = NULL,
+                                off.target.seqlevels=c("targeted", "all")) {
+
     if (class(interval.file)=="GRanges") {
         interval.gr <- .checkIntervals(interval.file)
     } else {
@@ -155,6 +160,18 @@ reptiming=NULL, off.target.seqlevels=c("targeted", "all")) {
     }    
     invisible(interval.gr)
 }
+
+#' Calculates GC content by interval
+#'
+#' This function was renamed to \code{\link{preprocessIntervals}}.
+#'
+#' @param ... Arguments passed to \code{\link{preprocessIntervals}}.
+#' 
+#' @export calculateGCContentByInterval
+calculateGCContentByInterval <- function(...) {
+    .Deprecated("preprocessIntervals")
+    preprocessIntervals(...)
+}    
 
 # this function removes short chromosomes that have no probes (mainly a
 # general way to remove chrM)
