@@ -6,7 +6,7 @@ ret <- predictSomatic(purecn.example.output)
 test_that("Gene symbol annotation matches", {
     expect_equal(class(ret), "data.frame")
     expect_equal(nrow(ret), nrow(purecn.example.output$results[[1]]$SNV.posterior$posteriors))
-    esr2 <- ret[ret$gene.symbol == "ESR2", ]
+    esr2 <- ret[which(ret$gene.symbol == "ESR2"), ]
     expect_equal(as.character(esr2$chr), "chr14")
     expect_true(esr2$start > 64699747)
     expect_true(esr2$end < 64761128)
