@@ -674,7 +674,9 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 
     if (!sum(as.vector(is.finite(mm)))) {
         .stopUserError("Cannot find valid purity/ploidy solution. ", 
-            "This happens when input segmentations are garbage.")
+            "This happens when input segmentations are garbage, most likely ",
+            "due to a catastrophic sample QC failure. Re-check standard QC ",
+            "metrics for this sample.")
     }
 
     ai <- .findLocalMinima(mm)

@@ -594,8 +594,8 @@ decrease the classification performance significantly
 \end{itemize}        
 
 \textbf{Note that the posterior probabilities assume that the purity and ploidy
-combination is correct. Before classifying variants, it is thus important to
-manually curate samples.} 
+combination is correct. Before classifying variants, it is thus recommended to
+manually curate flagged samples.}
 
 \begin{table*}
 \caption{\Rfunction{predictSomatic} output columns.}

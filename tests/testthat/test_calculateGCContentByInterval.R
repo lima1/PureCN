@@ -44,6 +44,17 @@ test_that("Exceptions happen with wrong input", {
     file.remove(interval.file2)
 })
 
+test_that("reptiming annotated correctly", {
+    reptiming.file <- system.file("extdata", "ex2_reptiming.bed",
+        package = "PureCN", mustWork = TRUE)
+
+    reptiming <- import(reptiming.file)
+    intervals <- import(bed.file)
+    gr <- calculateGCContentByInterval(intervals, reference.file, 
+        reptiming = reptiming)
+    expect_equal(c(17.5, 11.0, 50, 10.0, 10.0), gr$reptiming)
+})
+
 test_that("Offtarget settings work as expected", {
     gc <- calculateGCContentByInterval(interval.file, reference.file, 
         off.target = TRUE, min.off.target.width = 2, off.target.padding = -2)

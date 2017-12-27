@@ -52,12 +52,14 @@ output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
     
     raw <- .addGCData(raw, gc.gene.file, verbose=FALSE)
     ret <- .correctCoverageBiasLoess(raw)
+    if (plot.gc.bias) {
+        .plotGcBias(raw, ret$coverage, ret$medDiploid, plot.max.density)
+    }
+
+    ret$coverage <- .correctRepTimingBiasLinear(ret$coverage)
 
     if (!is.null(output.file)) {
         .writeCoverage(ret$coverage, output.file)
-    }
-    if (plot.gc.bias) {
-        .plotGcBias(raw, ret$coverage, ret$medDiploid, plot.max.density)
     }
     invisible(ret$coverage)
 }
@@ -116,6 +118,33 @@ output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
 #    tumor$counts[idx] <- tumor$counts[idx] / corFactor
 #    .addAverageCoverage(tumor)
 #}
+
+.correctRepTimingBiasLinear <- function(tumor) {
+    # ALPHA code
+    if (is.null(tumor$on.target)) tumor$on.target <- TRUE
+    if (is.null(tumor$reptiming) || sum(!is.na(tumor$reptiming))<100) {
+        return(tumor)
+    }
+    doutlier <- 0.001
+    domain <- quantile(tumor$reptiming, probs = c(doutlier, 1 - doutlier), na.rm = TRUE)
+        
+    for (on.target in c(FALSE, TRUE)) {
+        # ignore problematic intervals (missing or outlier data)
+        idx <- tumor$on.target == on.target & 
+               !is.na(tumor$reptiming) & 
+               !is.na(tumor$average.coverage) & 
+               tumor$average.coverage > 0 & 
+               tumor$reptiming >= domain[1] &
+               tumor$reptiming <= domain[2]
+
+        fit <- lm(log(tumor$average.coverage[idx])~tumor$reptiming[idx])
+        corFactor <- exp(predict(fit) -
+            log(mean(tumor$average.coverage[idx], na.rm=TRUE)))
+        tumor$coverage[idx] <- tumor$coverage[idx] / corFactor
+        tumor$counts[idx] <- tumor$counts[idx] / corFactor
+    }
+    .addAverageCoverage(tumor)
+}
     
 .correctCoverageBiasLoess <- function(tumor) {
     if (is.null(tumor$on.target)) tumor$on.target <- TRUE

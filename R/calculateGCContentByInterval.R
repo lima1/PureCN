@@ -27,6 +27,8 @@
 #' for on-target, off-target, and chrY regions in that order. The chrY regions
 #' are only used for sex determination in \sQuote{PureCN} and are therefore 
 #' treated differently. Requires \code{mappability}.
+#' @param reptiming Annotate intervals with replication timing score. Expected as 
+#' \code{GRanges} object with first meta column being the score. 
 #' @param off.target.seqlevels Controls how to deal with chromosomes/contigs
 #' found in the \code{reference.file} but not in the \code{interval.file}.
 #' @return Returns GC content by interval as \code{GRanges} object.
@@ -60,7 +62,7 @@ calculateGCContentByInterval <- function(interval.file, reference.file,
 output.file = NULL, off.target=FALSE, average.target.width=400, 
 min.off.target.width=20000, average.off.target.width=200000,  
 off.target.padding=-500, mappability=NULL, min.mappability=c(0.5,0.1,0.7),
-off.target.seqlevels=c("targeted", "all")) {
+reptiming=NULL, off.target.seqlevels=c("targeted", "all")) {
     if (class(interval.file)=="GRanges") {
         interval.gr <- .checkIntervals(interval.file)
     } else {
@@ -74,6 +76,9 @@ off.target.seqlevels=c("targeted", "all")) {
     if (!is.null(mappability)) {
         mappability <- .checkSeqlevelStyle(scanFaIndex(reference.file), mappability, "mappability")
         mappability <- .remove0MappabilityRegions(mappability)
+    }
+    if (!is.null(reptiming)) {
+        reptiming <- .checkSeqlevelStyle(scanFaIndex(reference.file), reptiming, "reptiming")
     }
      
     containsOfftarget <- sum(interval.gr$on.target)!=length(interval.gr)
@@ -132,7 +137,9 @@ off.target.seqlevels=c("targeted", "all")) {
 
     interval.gr <- .annotateMappability(interval.gr, mappability, 
         min.mappability)
-    
+
+    interval.gr <- .annotateRepTiming(interval.gr, reptiming)
+        
     flog.info("Calculating GC-content...")
     x <- scanFa(reference.file, interval.gr)
 
@@ -161,16 +168,9 @@ off.target.seqlevels=c("targeted", "all")) {
     
 # add mappability score to intervals
 .annotateMappability <- function(interval.gr, mappability, min.mappability) {
-    interval.gr$mappability <- 1
-    if (!is.null(mappability)) {
-        ov <- findOverlaps(interval.gr, mappability)
-        colScore <- if (is.null(mappability$score)) 1 else "score"
-        mappScore <- aggregate(mcols(mappability)[subjectHits(ov),colScore], by=list(queryHits(ov)), mean)
-        interval.gr$mappability[mappScore[,1]] <- mappScore[,2]
-    } else {
-        flog.warn("No mappability scores provided.")
-        return(interval.gr)
-    }    
+    interval.gr <- .addScoreToGr(interval.gr, mappability, "mappability")
+    if (is.null(mappability)) return(interval.gr)
+
     # remove intervals with low mappability
     nBefore <- sum(interval.gr$on.target)
     interval.gr <- interval.gr[
@@ -187,6 +187,21 @@ off.target.seqlevels=c("targeted", "all")) {
     }
     interval.gr
 }
+.annotateRepTiming <- function(interval.gr, reptiming) {
+    .addScoreToGr(interval.gr, reptiming, "reptiming")
+}
+.addScoreToGr <- function(interval.gr, y, label) {
+    mcols(interval.gr)[[label]] <- NA
+    if (!is.null(y)) {
+        ov <- findOverlaps(interval.gr, y)
+        colScore <- if (is.null(y$score)) 1 else "score"
+        mappScore <- aggregate(mcols(y)[subjectHits(ov),colScore], by=list(queryHits(ov)), mean)
+        mcols(interval.gr)[[label]][mappScore[,1]] <- mappScore[,2]
+    } else {
+        flog.warn("No %s scores provided.", label)
+    }    
+    return(interval.gr)
+}
 
 .remove0MappabilityRegions <- function(mappability) {
     colScore <- if (is.null(mappability$score)) 1 else "score"
@@ -198,6 +213,7 @@ off.target.seqlevels=c("targeted", "all")) {
         Target=as.character(interval.gr),
         gc_bias=interval.gr$gc_bias,
         mappability=interval.gr$mappability,
+        reptiming=interval.gr$reptiming,
         Gene=interval.gr$Gene,
         on_target=interval.gr$on.target
     )    

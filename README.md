@@ -8,6 +8,8 @@ A tool developed for tumor-only diagnostic sequencing using hybrid-capture
 protocols. It provides copy number adjusted for purity and ploidy and can
 classify mutations by somatic status and clonality. It requires a pool of
 process-matched normals for coverage normalization and artifact filtering.
+PureCN was parameterized using large collections of diverse samples, ranging
+from low coverage whole-exome to ultra-deep sequenced plasma gene-panels.
 
 ## Installation
 

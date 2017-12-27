@@ -59,7 +59,8 @@ $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \
     --fasta hg19.fa --outfile baits_hg19_gcgene.txt \
     --offtarget --genome hg19 \
     --export baits_optimized_hg19.bed \
-    --mappability wgEncodeCrgMapabilityAlign100mer.bigWig
+    --mappability wgEncodeCrgMapabilityAlign100mer.bigWig \
+    --reptiming wgEncodeUwRepliSeqK562WaveSignalRep1.bigWig
 \end{verbatim}
 
 Internally, this script uses \Biocpkg{rtracklayer} to parse the
@@ -82,6 +83,10 @@ provided, off-target regions will be restricted to regions specified in this
 file.  On-target regions with low mappability will be excluded. For hg19,
 download the file from the UCSC website. See the FAQ section of the main
 vignette for instruction how to generate such a file for other references.
+
+Similarly, the \Rcode{--reptiming} argument takes a replication timing score in
+the same format.  If provided, GC-normalized and log-transformed coverage is
+tested for a linear relationship with this score and normalized accordingly.
 \end{itemize}
 
 

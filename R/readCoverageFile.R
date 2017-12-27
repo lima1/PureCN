@@ -120,6 +120,8 @@ readCoverageFile <- function(file, format, zero=NULL) {
 
 .addGCData <- function(tumor, gc.gene.file, verbose=TRUE) {
     tumor$mappability <- 1
+    tumor$reptiming <- NA
+    tumor$reptiming <- as.numeric(tumor$reptiming)
     tumor$gc_bias <- NA
     tumor$gc_bias <- as.numeric(tumor$gc_bias)
     if (is.null(tumor$Gene)) tumor$Gene <- "."
@@ -139,6 +141,10 @@ readCoverageFile <- function(file, format, zero=NULL) {
     if (is.null(inputGC$mappability)) {
         if (verbose) flog.info("No mappability column in gc.gene.file.")
         inputGC$mappability <- 1
+    }
+    if (is.null(inputGC$reptiming)) {
+        if (verbose) flog.info("No reptiming column in gc.gene.file.")
+        inputGC$reptiming <- NA
     }
     
     targetGC <- GRanges(inputGC[,1], ranges=NULL, strand=NULL, inputGC[,-1])
@@ -162,6 +168,7 @@ readCoverageFile <- function(file, format, zero=NULL) {
         }
     } 
     tumor[queryHits(ov)]$mappability <- targetGC[subjectHits(ov)]$mappability
+    tumor[queryHits(ov)]$reptiming <- targetGC[subjectHits(ov)]$reptiming
     tumor[queryHits(ov)]$gc_bias <- targetGC[subjectHits(ov)]$gc_bias
     tumor[queryHits(ov)]$Gene <- targetGC[subjectHits(ov)]$Gene
     tumor <- .checkSymbolsChromosome(tumor)

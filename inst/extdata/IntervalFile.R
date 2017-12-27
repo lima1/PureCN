@@ -23,6 +23,10 @@ option_list <- list(
         help = "Controls how to deal with chromosomes/contigs not found in infile. One of targeted, all [default %default]"),
     make_option(c("--mappability"), action = "store", type = "character", 
         help = "File parsable by rtracklayer specifying mappability scores of genomic regions."),
+    make_option(c("--reptiming"), action = "store", type = "character", 
+        help = "File parsable by rtracklayer specifying replication timing scores of genomic regions."),
+    make_option(c("--reptimingbinsize"), action = "store", type = "integer", default = 100000,
+        help = "Average the replication timing data into bins of the specified size [default %default]"),
     make_option(c("--genome"), action = "store", type = "character", 
         default = NULL,
         help = "Genome version. If one of hg18, hg19, hg38, mm9, mm10, rn4, rn5, rn6 will annotate intervals with gene symbols"),
@@ -87,6 +91,20 @@ flog.info("Loading PureCN...")
 suppressPackageStartupMessages(library(PureCN))
 flog.info("Processing %s...", in.file)
 
+reptiming <- opt$reptiming
+if (!is.null(reptiming)) {
+    reptiming <- normalizePath(reptiming, mustWork = TRUE)
+    flog.info("Loading %s...", reptiming)
+    reptiming <- import(reptiming)
+    if (opt$reptimingbinsize > 0) {
+        flog.info("Averaging reptiming into bins of size %i...", opt$reptimingbinsize)
+        bins <- tileGenome(seqinfo(scanFaIndex(reference.file)), tilewidth = opt$reptimingbinsize, 
+            cut.last.tile.in.chrom=TRUE)
+        reptiming <- PureCN:::.addScoreToGr(bins, reptiming, "score")
+        reptiming <- reptiming[!is.na(score(reptiming))]
+    }
+}
+
 if (!opt$offtarget) {
     flog.info("Will not add off-target regions. This is only recommended for%s",
      " Amplicon data. Add --offtarget to include them.")
@@ -95,7 +113,7 @@ if (!opt$offtarget) {
 outGC <- calculateGCContentByInterval(intervals, reference.file, 
     output.file = outfile, off.target = opt$offtarget, 
     mappability = mappability, average.off.target.width = opt$offtargetwidth,
-    off.target.seqlevels = opt$offtargetseqlevels,
+    reptiming = reptiming, off.target.seqlevels = opt$offtargetseqlevels,
     average.target.width = opt$targetwidth)
 
 knownGenome <- list(
@@ -124,6 +142,7 @@ knownOrg <- list(
         Target = as.character(interval.gr),
         gc_bias = interval.gr$gc_bias,
         mappability = interval.gr$mappability,
+        reptiming = interval.gr$reptiming,
         Gene = interval.gr$Gene,
         on_target = interval.gr$on.target
     )    
