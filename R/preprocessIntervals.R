@@ -75,7 +75,7 @@ preprocessIntervals <- function(interval.file, reference.file,
     }
     if (is.null(interval.gr$on.target)) interval.gr$on.target <- TRUE    
     
-    # make sure the chromsome naming style is the same in all 3 files
+    # make sure the chromsome naming style is the same in all provided files
     # be nice and fix it if necessary
     interval.gr <- .checkSeqlevelStyle(scanFaIndex(reference.file), interval.gr, "interval")
     if (!is.null(mappability)) {
@@ -92,71 +92,27 @@ preprocessIntervals <- function(interval.file, reference.file,
         flog.warn("Intervals contain off-target regions. %s",
             "Will not change intervals.")
     } else {
-        # split large targets
-        if (!is.null(average.target.width)) {
-            tmp <- tile(interval.gr, width=average.target.width)
-            interval.gr <- unlist(tmp)
-            interval.gr$on.target <- TRUE
-            nChanges <- sum(elementNROWS(tmp) > 1)
+        interval.gr <- .splitIntervals(interval.gr, average.target.width)
 
-            if (nChanges > 0) {
-                flog.info("Splitting %i large targets to an average width of %i.",
-                    nChanges, average.target.width)
-            }
-        } 
-        
         # find off-target regions
         if (off.target) {
-            if (off.target.padding > 0) {
-                .stopUserError("off.target.padding must be negative.")
-            }    
-            offRegions <- setdiff(scanFaIndex(reference.file), unstrand(interval.gr))
-            offRegions <- .dropShortUntargetedSeqLevels(offRegions, interval.gr, 
-                average.off.target.width)
-
-            if (!is.null(mappability)) {
-                offRegions <- intersect(offRegions, mappability)
-            }    
-            offRegions <- offRegions[width(offRegions)>off.target.padding*-2]
-            offRegions <- .padGranges(offRegions, off.target.padding)
-
-            flog.info("Tiling off-target regions to an average width of %i.",
-                average.off.target.width)
-                
-            offRegions <- unlist(tile(offRegions, width=average.off.target.width))
-            offRegions$on.target <- FALSE
-            offRegions <- offRegions[width(offRegions)>=min.off.target.width]
             off.target.seqlevels <- match.arg(off.target.seqlevels)
-            seqlevelsBefore <- seqlevelsInUse(offRegions)
-            if (off.target.seqlevels == "targeted") {
-                offRegions <- offRegions[seqnames(offRegions) %in% seqlevels(interval.gr)]
-            }
-            seqlevelsAfter <- seqlevelsInUse(offRegions)
-            if (!identical(seqlevelsBefore, seqlevelsAfter)) {
-                flog.info("Removing following contigs from off-target regions: %s", 
-                    paste(setdiff(seqlevelsBefore, seqlevelsAfter), collapse=","))
-            }
-            interval.gr <- merge(offRegions, interval.gr, all = TRUE, sort=TRUE)
+            interval.gr <- .annotateIntervalsOfftarget(interval.gr, 
+                reference.file, mappability, off.target.padding,
+                min.off.target.width, average.off.target.width, 
+                off.target.seqlevels)
         }
     }
 
-    interval.gr <- .annotateMappability(interval.gr, mappability, 
+    interval.gr <- .annotateIntervalsMappability(interval.gr, mappability, 
         min.mappability)
-
-    interval.gr <- .annotateRepTiming(interval.gr, reptiming)
+    interval.gr <- .annotateIntervalsReptiming(interval.gr, reptiming)
+    interval.gr <- .annotateIntervalsGC(interval.gr, reference.file)
         
-    flog.info("Calculating GC-content...")
-    x <- scanFa(reference.file, interval.gr)
-
-    GC.count <- letterFrequency(x,"GC")
-    all.count <- letterFrequency(x,"ATGC")
-    interval.gr$gc_bias <- as.vector(ifelse(all.count==0,NA,GC.count/all.count))
-    # exclude unavailable regions
-    interval.gr <- interval.gr[which(!is.na(interval.gr$gc_bias))]
     if (is.null(interval.gr$Gene)) interval.gr$Gene <- "."
 
     if (!is.null(output.file)) {
-        .writeGc(interval.gr, output.file)
+        .writeIntervals(interval.gr, output.file)
     }    
     invisible(interval.gr)
 }
@@ -182,9 +138,57 @@ calculateGCContentByInterval <- function(...) {
     seqlevels(offRegions) <- seqlevelsInUse(offRegions)
     offRegions
 }
+
+.annotateIntervalsOfftarget <- function(interval.gr, reference.file, 
+                                        mappability, off.target.padding,
+                                        min.off.target.width,
+                                        average.off.target.width, 
+                                        off.target.seqlevels) {
+
+    if (off.target.padding > 0) {
+        .stopUserError("off.target.padding must be negative.")
+    }    
+    offRegions <- setdiff(scanFaIndex(reference.file), unstrand(interval.gr))
+    offRegions <- .dropShortUntargetedSeqLevels(offRegions, interval.gr, 
+        average.off.target.width)
+
+    if (!is.null(mappability)) {
+        offRegions <- intersect(offRegions, mappability)
+    }    
+    offRegions <- offRegions[width(offRegions)>off.target.padding*-2]
+    offRegions <- .padGranges(offRegions, off.target.padding)
+
+    flog.info("Tiling off-target regions to an average width of %i.",
+        average.off.target.width)
+        
+    offRegions <- unlist(tile(offRegions, width=average.off.target.width))
+    offRegions$on.target <- FALSE
+    offRegions <- offRegions[width(offRegions)>=min.off.target.width]
+    seqlevelsBefore <- seqlevelsInUse(offRegions)
+    if (off.target.seqlevels == "targeted") {
+        offRegions <- offRegions[seqnames(offRegions) %in% seqlevels(interval.gr)]
+    }
+    seqlevelsAfter <- seqlevelsInUse(offRegions)
+    if (!identical(seqlevelsBefore, seqlevelsAfter)) {
+        flog.info("Removing following contigs from off-target regions: %s", 
+            paste(setdiff(seqlevelsBefore, seqlevelsAfter), collapse=","))
+    }
+    merge(offRegions, interval.gr, all = TRUE, sort=TRUE)
+}
+
+# add GC content 
+.annotateIntervalsGC <- function(interval.gr, reference.file) {
+    flog.info("Calculating GC-content...")
+    x <- scanFa(reference.file, interval.gr)
+    GC.count <- letterFrequency(x,"GC")
+    all.count <- letterFrequency(x,"ATGC")
+    interval.gr$gc_bias <- as.vector(ifelse(all.count==0,NA,GC.count/all.count))
+    # exclude unavailable regions
+    interval.gr[which(!is.na(interval.gr$gc_bias))]
+}
     
 # add mappability score to intervals
-.annotateMappability <- function(interval.gr, mappability, min.mappability) {
+.annotateIntervalsMappability <- function(interval.gr, mappability, min.mappability) {
     interval.gr <- .addScoreToGr(interval.gr, mappability, "mappability")
     if (is.null(mappability)) return(interval.gr)
 
@@ -204,9 +208,11 @@ calculateGCContentByInterval <- function(...) {
     }
     interval.gr
 }
-.annotateRepTiming <- function(interval.gr, reptiming) {
+
+.annotateIntervalsReptiming <- function(interval.gr, reptiming) {
     .addScoreToGr(interval.gr, reptiming, "reptiming")
 }
+
 .addScoreToGr <- function(interval.gr, y, label) {
     mcols(interval.gr)[[label]] <- NA
     if (!is.null(y)) {
@@ -220,12 +226,28 @@ calculateGCContentByInterval <- function(...) {
     return(interval.gr)
 }
 
+.splitIntervals <- function(interval.gr, average.target.width) {
+    # split large targets
+    if (!is.null(average.target.width)) {
+        tmp <- tile(interval.gr, width=average.target.width)
+        interval.gr <- unlist(tmp)
+        interval.gr$on.target <- TRUE
+        nChanges <- sum(elementNROWS(tmp) > 1)
+
+        if (nChanges > 0) {
+            flog.info("Splitting %i large targets to an average width of %i.",
+                nChanges, average.target.width)
+        }
+    }
+    interval.gr
+}
+
 .remove0MappabilityRegions <- function(mappability) {
     colScore <- if (is.null(mappability$score)) 1 else "score"
     mappability[which(mcols(mappability)[, colScore]>0),]
 }
         
-.writeGc <- function(interval.gr, output.file) {
+.writeIntervals <- function(interval.gr, output.file) {
     tmp <- data.frame(
         Target=as.character(interval.gr),
         gc_bias=interval.gr$gc_bias,
