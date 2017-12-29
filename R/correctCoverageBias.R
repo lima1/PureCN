@@ -62,8 +62,6 @@ output.file = NULL, plot.bias = FALSE, plot.max.density = 50000) {
     ret <- .correctRepTimingBiasLinear(ret$coverage)
     if (plot.bias) {
         gp2 <- .plotRepBias(raw, ret$coverage, ret$lmFit, plot.max.density)
-        #gptrans <- coord_trans(y = "sqrt")
-        #print(grid.arrange(gp1 + gptrans, gp2 + gptrans, nrow = 2))
         print(grid.arrange(gp1, gp2, nrow = 2))
     }
 
@@ -121,7 +119,7 @@ output.file = NULL, plot.bias = FALSE, plot.max.density = 50000) {
     plotMed <- rbind(plotMed,medDiploid[,c("gcIndex","gcNum","norm_status")])
     plotMed$norm_status <- factor(plotMed$norm_status, 
         levels = c("Pre-normalized","Post-normalized"))
-    plotMed$on.target <- "on-target"
+    plotMed$on.target <- factor("on-target", levels=c("on-target", "off-target"))
     gp <- gp + geom_line(data = plotMed, aes_string(x = "gcIndex", y = "gcNum"), color = "blue") +
           xlab("GC content")
     gp
@@ -130,17 +128,15 @@ output.file = NULL, plot.bias = FALSE, plot.max.density = 50000) {
 .plotRepBias <- function(raw, normalized, lmFit, plot.max.density) {
     gp <- .createCoverageGgplot(raw, normalized, plot.max.density, "reptiming", log=TRUE) +
             xlab("Replication Timing")
-    tmp <- range(gp$data$reptiming, na.rm=TRUE)
-    x <- seq(tmp[1], tmp[2], length.out=100)
-    coefs <- do.call(rbind, lapply(lmFit, function(x) x$coefficients))
-    rownames(coefs) <- NULL
-
-
-    plotMed <- data.frame(coefs, norm_status=rep(c("Pre-normalized","Post-normalized"), 2))
+    plotMed <- do.call(rbind, lapply(lmFit, function(x) 
+        data.frame(rbind(x$before$coefficients, x$after$coefficients), 
+            norm_status=c("Pre-normalized", "Post-normalized"), 
+            on.target=x$on.target)))
     colnames(plotMed)[1:2] <- c("intercept", "slope")
     plotMed$norm_status <- factor(plotMed$norm_status, 
         levels = c("Pre-normalized","Post-normalized"))
-    plotMed$on.target <- c("off-target", "off-target", "on-target", "on-target")
+    plotMed$on.target <- factor(ifelse(plotMed$on.target, "on-target", "off-target"), 
+        levels=c("on-target", "off-target"))
     gp <- gp + geom_abline(data = plotMed, 
         aes_string(intercept = "intercept", slope = "slope"), color = "blue")
     gp  
@@ -179,13 +175,13 @@ output.file = NULL, plot.bias = FALSE, plot.max.density = 50000) {
                tumor$reptiming <= domain[2]
         if (!sum(idx)) next
         fit <- lm(log(tumor$average.coverage[idx])~tumor$reptiming[idx])
-        corFactor <- exp(predict(fit) -
-            log(mean(tumor$average.coverage[idx], na.rm=TRUE)))
+        corFactor <- exp(predict(fit)-mean(predict(fit)))
+
         tumor$coverage[idx] <- tumor$coverage[idx] / corFactor
         tumor$counts[idx] <- tumor$counts[idx] / corFactor
         tumor <- .addAverageCoverage(tumor)
         fitAfter <- lm(log(tumor$average.coverage[idx])~tumor$reptiming[idx])
-        lmFit <- c(lmFit, list(before=fit, after=fitAfter))
+        lmFit[[length(lmFit) + 1]] <- list(before=fit, after=fitAfter, on.target=on.target)
     }
     list(coverage=tumor, lmFit=lmFit)
 }

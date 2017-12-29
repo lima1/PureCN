@@ -214,25 +214,29 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 
 \section{GC-bias}
 \label{secgcbias}
-The algorithm works best when the coverage files are GC-normalized. We can
-easily create GC-normalized coverage files
-(Figure~\ref{figure/figuregccorrect-1}).
+The algorithm works best when the coverage files are normalized for
+library-specific biases such as GC-content and replication timing
+(Figure~\ref{figure/figuregccorrect-1}). 
 
 <<figuregccorrect, fig.show='hide', fig.width=7, fig.height=7, warning=FALSE>>=
 correctCoverageBias(normal.coverage.file, gc.gene.file, 
     output.file="example_normal_loess.txt", plot.bias=TRUE)
 @
 \incfig{figure/figuregccorrect-1}{0.95\textwidth}{Coverage before and after
-GC-normalization.} 
-{This plot shows coverage as a function of target GC-content before and after
-normalization. Each dot is a target interval. The example data is already
-GC-normalized; real data will show more dramatic differences.}
+normalization for GC-content and replication timing.} 
+{This plot shows coverage as a function of target GC-content and replication
+timing before and after normalization. Each dot is a target interval. The
+example files are already GC-normalized; real data will show more dramatic
+differences.}
 
 \textbf{All the following steps in this vignette assume that the coverage data
 are GC-normalized.} The example coverage files are already GC-normalized.
 We provide a convenient command line script for
 generating GC-normalized coverage data from BAM files or from \software{GATK}
 coverage files (see Quick vignette).
+
+Assay-specific biases such as probe density or mappability are later
+efficiently removed by using a pool of normal samples.
 
 \section{Pool of normals}
 
