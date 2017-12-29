@@ -95,16 +95,16 @@ output.file = NULL, plot.bias = FALSE, plot.max.density = 50000) {
         gp <- ggplot(tumCov, aes_string(x = x, y = "average.coverage")) + 
             geom_point(color = "red", alpha = 0.2) +
             ylab(paste0(if (log) "Log-" else "", "Coverage")) +
-            theme(axis.text = element_text(size = 6), axis.title = element_text(size = 16)) + 
+            theme(axis.text = element_text(size = 14), axis.title = element_text(size = 16)) + 
             facet_wrap(~ on.target + norm_status, ncol = 2, scales = "free_y")
     } else if (density == "High") {
         gp <- ggplot(tumCov, aes_string(x = x, y = "average.coverage")) + 
-        geom_point(color="blue", alpha = 0.1) + 
-        stat_density2d(aes(fill = ..level..), geom = "polygon") + 
-        scale_alpha_continuous(limits = c(0.1, 0), breaks = seq(0, 0.1, by = 0.025)) + 
-        ylab("Coverage") + 
-        theme(axis.text = element_text(size = 16), axis.title = element_text(size = 16)) + 
-        facet_wrap(~on.target + norm_status, ncol = 2, scales = "free_y")
+            geom_point(color="blue", alpha = 0.1) + 
+            stat_density2d(aes(fill = ..level..), geom = "polygon") + 
+            scale_alpha_continuous(limits = c(0.1, 0), breaks = seq(0, 0.1, by = 0.025)) + 
+            ylab(paste0(if (log) "Log-" else "", "Coverage")) +
+            theme(axis.text = element_text(size = 14), axis.title = element_text(size = 16)) + 
+            facet_wrap(~on.target + norm_status, ncol = 2, scales = "free_y")
     }
     gp
 }
