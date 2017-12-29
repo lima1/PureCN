@@ -4,21 +4,21 @@ normal.coverage.file <- system.file("extdata", "example_normal.txt",
     package = "PureCN")
 interval.file <- system.file("extdata", "ex2_intervals.txt", 
     package = "PureCN", mustWork = TRUE)
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+interval.file2 <- system.file("extdata", "example_intervals.txt", 
     package = "PureCN")
 
 test_that("Example data matches after normalization", {
     output.file <- tempfile(fileext = ".txt")
-    coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file, 
+    coverage <- correctCoverageBias(normal.coverage.file, interval.file2, 
         output.file = output.file)
     expect_equal(class(coverage)[1], "GRanges")
     expect_equal(length(coverage), 10049)
-    correctCoverageBias(normal.coverage.file, gc.gene.file, plot.max.density = 100, 
+    correctCoverageBias(normal.coverage.file, interval.file2, plot.max.density = 100, 
         plot.bias = TRUE)
     x <- readCoverageFile(output.file)
     expect_equal(x$average.coverage, coverage$average.coverage)
-    correctCoverageBias(head(x, 200), gc.gene.file)
-    gc.data <- read.delim(gc.gene.file, as.is = TRUE)
+    correctCoverageBias(head(x, 200), interval.file2)
+    gc.data <- read.delim(interval.file2, as.is = TRUE)
     gc.data$Gene <- NULL
     tmpFile <- tempfile()
     write.table(gc.data, file = tmpFile, row.names = FALSE, quote = FALSE, 
@@ -32,6 +32,4 @@ test_that("Example data matches after normalization", {
 
 test_that("Exceptions happen with wrong input", {
     expect_error(correctCoverageBias(normal.coverage.file, interval.file))
-    expect_error(correctCoverageBias(normal.coverage.file, gc.gene.file, 
-        method = "HELLOWORLD"))
 })

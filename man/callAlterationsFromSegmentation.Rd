@@ -5,7 +5,7 @@
 \title{Calling of amplifications and deletions from segmentations}
 \usage{
 callAlterationsFromSegmentation(sampleid, chr, start, end, num.mark = NA,
-  seg.mean, C, gc.gene.file, fun.focal = findFocal, args.focal = list(),
+  seg.mean, C, interval.file, fun.focal = findFocal, args.focal = list(),
   ...)
 }
 \arguments{
@@ -23,7 +23,7 @@ callAlterationsFromSegmentation(sampleid, chr, start, end, num.mark = NA,
 
 \item{C}{The segment integer copy number.}
 
-\item{gc.gene.file}{A mapping file that assigns GC content and gene symbols
+\item{interval.file}{A mapping file that assigns GC content and gene symbols
 to each exon in the coverage files. Used for generating gene-level calls.
 First column in format CHR:START-END. Second column GC content (0 to 1).
 Third column gene symbol. This file is generated with the 
@@ -50,12 +50,12 @@ file can contain multiple samples.
 
 data(purecn.example.output)
 seg <- purecn.example.output$results[[1]]$seg
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+interval.file <- system.file("extdata", "example_intervals.txt", 
         package = "PureCN")
 
 calls <- callAlterationsFromSegmentation(sampleid=seg$ID, chr=seg$chrom,
     start=seg$loc.start, end=seg$loc.end, num.mark=seg$num.mark,
-    seg.mean=seg$seg.mean, C=seg$C, gc.gene.file=gc.gene.file)
+    seg.mean=seg$seg.mean, C=seg$C, interval.file=interval.file)
 
 }
 \author{

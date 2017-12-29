@@ -118,7 +118,7 @@ readCoverageFile <- function(file, format, zero=NULL) {
     }    
 }
 
-.addGCData <- function(tumor, gc.gene.file, verbose=TRUE) {
+.addGCData <- function(tumor, interval.file, verbose=TRUE) {
     tumor$mappability <- 1
     tumor$reptiming <- NA
     tumor$reptiming <- as.numeric(tumor$reptiming)
@@ -126,24 +126,24 @@ readCoverageFile <- function(file, format, zero=NULL) {
     tumor$gc_bias <- as.numeric(tumor$gc_bias)
     if (is.null(tumor$Gene)) tumor$Gene <- "."
 
-    inputGC <- read.delim(gc.gene.file, as.is = TRUE)
+    inputGC <- read.delim(interval.file, as.is = TRUE)
     if (is.null(inputGC$gc_bias)) {
-        .stopUserError("No gc_bias column in gc.gene.file.")
+        .stopUserError("No gc_bias column in interval.file.")
     }    
     if (is.null(inputGC$Gene)) {
-        if (verbose) flog.info("No Gene column in gc.gene.file. You won't get gene-level calls.")
+        if (verbose) flog.info("No Gene column in interval.file. You won't get gene-level calls.")
         inputGC$Gene <- "."
     }
     if (is.null(inputGC$on_target)) {
-        if (verbose) flog.info("No on_target column in gc.gene.file. Recreate this file with IntervalFile.R.")
+        if (verbose) flog.info("No on_target column in interval.file. Recreate this file with IntervalFile.R.")
         inputGC$on_target <- TRUE
     }
     if (is.null(inputGC$mappability)) {
-        if (verbose) flog.info("No mappability column in gc.gene.file.")
+        if (verbose) flog.info("No mappability column in interval.file.")
         inputGC$mappability <- 1
     }
     if (is.null(inputGC$reptiming)) {
-        if (verbose) flog.info("No reptiming column in gc.gene.file.")
+        if (verbose) flog.info("No reptiming column in interval.file.")
         inputGC$reptiming <- NA
     }
     
@@ -155,15 +155,15 @@ readCoverageFile <- function(file, format, zero=NULL) {
         # quality regions, we just ignore those, otherwise we stop because 
         # user probably used the wrong file for the assay
         if (length(ov) < length(tumor)/2) {
-            .stopUserError("tumor.coverage.file and gc.gene.file do not align.")
+            .stopUserError("tumor.coverage.file and interval.file do not align.")
         } else {
-            flog.warn("tumor.coverage.file and gc.gene.file do not align.")
+            flog.warn("tumor.coverage.file and interval.file do not align.")
         }
     }
 
     if (!is.null(tumor$on.target)) {
         if (!identical(tumor[queryHits(ov)]$on.target, targetGC[subjectHits(ov)]$on_target)) {
-            flog.warn("Intervals in coverage and gc.gene.file have conflicting on/off-target annotation.")
+            flog.warn("Intervals in coverage and interval.file have conflicting on/off-target annotation.")
             tumor[queryHits(ov)]$on.target <- targetGC[subjectHits(ov)]$on_target
         }
     } 

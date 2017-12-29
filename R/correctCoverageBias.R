@@ -10,10 +10,9 @@ globalVariables(names=c("..level.."))
 #' 
 #' @param coverage.file Coverage file or coverage data parsed with the
 #' \code{\link{readCoverageFile}} function.
-#' @param gc.gene.file File providing GC content for each exon in the coverage
-#' files. First column in format CHR:START-END. Second column GC content (0 to
-#' 1).  Third column provides gene symbols, which are optional, but used in
-#' \code{\link{runAbsoluteCN}} to generate gene level calls. This file is 
+#' @param interval.file File providing GC content for each exon in the coverage
+#' files. First column in format CHR:START-END. Additional optional columns
+#' provide gene symbols, mappability and replication timing. This file is
 #' generated with the \code{\link{preprocessIntervals}} function.
 #' @param output.file Optionally, write file with GC corrected coverage. Can be
 #' read with the \code{\link{readCoverageFile}} function.
@@ -25,15 +24,16 @@ globalVariables(names=c("..level.."))
 #' package. Using this parameter, change the threshold at which density
 #' estimation is applied. If the \code{plot.bias} parameter is set as
 #' \code{FALSE}, this will be ignored.
+#' @param gc.gene.file Deprecated and renamed to \code{interval.file}.
 #' @author Angad Singh, Markus Riester
 #' @seealso \code{\link{preprocessIntervals}}
 #' @examples
 #' 
 #' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
 #'     package="PureCN")
-#' gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+#' interval.file <- system.file("extdata", "example_intervals.txt", 
 #'     package="PureCN")
-#' coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file)
+#' coverage <- correctCoverageBias(normal.coverage.file, interval.file)
 #' 
 #' @export correctCoverageBias
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_line aes
@@ -43,16 +43,23 @@ globalVariables(names=c("..level.."))
 #' @importFrom gridExtra grid.arrange
 #' @importFrom stats loess lm
 #' @importFrom utils write.table
-correctCoverageBias <- function(coverage.file, gc.gene.file,
-output.file = NULL, plot.bias = FALSE, plot.max.density = 50000) {
+correctCoverageBias <- function(coverage.file, interval.file,
+output.file = NULL, plot.bias = FALSE, plot.max.density = 50000, 
+gc.gene.file = NULL) {
 
     if (is.character(coverage.file)) {
         raw  <- readCoverageFile(coverage.file)
     } else {
         raw <- coverage.file
     }    
+
+    # TODO Remove in 1.12
+    if (!is.null(gc.gene.file)) {
+        flog.warn("gc.gene.file was renamed to interval.file.")
+        if (is.null(interval.file)) interval.file <-gc.gene.file
+    }
     
-    raw <- .addGCData(raw, gc.gene.file, verbose=FALSE)
+    raw <- .addGCData(raw, interval.file, verbose=FALSE)
     ret <- .correctCoverageBiasLoess(raw)
     if (plot.bias) {
         gp1 <- .plotGcBias(raw, ret$coverage, ret$medDiploid, plot.max.density)
@@ -91,15 +98,16 @@ output.file = NULL, plot.bias = FALSE, plot.max.density = 50000) {
         levels = c("on-target", "off-target"))
     tumCov$norm_status <- factor(tumCov$norm_status, levels = c("Pre-normalized","Post-normalized"))
     if (log) tumCov$average.coverage <- log(tumCov$average.coverage)
+
+    gp <- ggplot(tumCov, aes_string(x = x, y = "average.coverage"))
     if (density == "Low") {
-        gp <- ggplot(tumCov, aes_string(x = x, y = "average.coverage")) +
-            geom_point(color = "red", alpha = 0.2) +
+        gp <- gp + geom_point(color = "red", alpha = 0.2)
     } else if (density == "High") {
-        gp <- ggplot(tumCov, aes_string(x = x, y = "average.coverage")) +
-            geom_point(color="blue", alpha = 0.1) +
+        gp <- gp + geom_point(color="blue", alpha = 0.1) +
             stat_density2d(aes(fill = ..level..), geom = "polygon") +
             scale_alpha_continuous(limits = c(0.1, 0), breaks = seq(0, 0.1, by = 0.025))
     }
+
     gp+ylab(paste0(if (log) "Log-" else "", "Coverage")) +
        facet_wrap(~on.target + norm_status, ncol = 2, scales = "free_y")
 }

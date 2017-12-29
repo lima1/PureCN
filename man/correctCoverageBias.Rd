@@ -4,17 +4,16 @@
 \alias{correctCoverageBias}
 \title{Correct for GC bias}
 \usage{
-correctCoverageBias(coverage.file, gc.gene.file, output.file = NULL,
-  plot.bias = FALSE, plot.max.density = 50000)
+correctCoverageBias(coverage.file, interval.file, output.file = NULL,
+  plot.bias = FALSE, plot.max.density = 50000, gc.gene.file = NULL)
 }
 \arguments{
 \item{coverage.file}{Coverage file or coverage data parsed with the
 \code{\link{readCoverageFile}} function.}
 
-\item{gc.gene.file}{File providing GC content for each exon in the coverage
-files. First column in format CHR:START-END. Second column GC content (0 to
-1).  Third column provides gene symbols, which are optional, but used in
-\code{\link{runAbsoluteCN}} to generate gene level calls. This file is 
+\item{interval.file}{File providing GC content for each exon in the coverage
+files. First column in format CHR:START-END. Additional optional columns
+provide gene symbols, mappability and replication timing. This file is
 generated with the \code{\link{preprocessIntervals}} function.}
 
 \item{output.file}{Optionally, write file with GC corrected coverage. Can be
@@ -29,6 +28,8 @@ distribution. This uses the \code{stat_density} function from the ggplot2
 package. Using this parameter, change the threshold at which density
 estimation is applied. If the \code{plot.bias} parameter is set as
 \code{FALSE}, this will be ignored.}
+
+\item{gc.gene.file}{Deprecated and renamed to \code{interval.file}.}
 }
 \description{
 Takes as input coverage data and a mapping file for GC content. Will then
@@ -39,9 +40,9 @@ post normalization GC profiles.
 
 normal.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+interval.file <- system.file("extdata", "example_intervals.txt", 
     package="PureCN")
-coverage <- correctCoverageBias(normal.coverage.file, gc.gene.file)
+coverage <- correctCoverageBias(normal.coverage.file, interval.file)
 
 }
 \seealso{

@@ -56,7 +56,7 @@ Usage: /path/to/PureCN/inst/extdata/PureCN.R [options] ...
 
 \begin{verbatim}
 $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
-    --fasta hg19.fa --outfile baits_hg19_gcgene.txt \
+    --fasta hg19.fa --outfile baits_hg19_intervals.txt \
     --offtarget --genome hg19 \
     --export baits_optimized_hg19.bed \
     --mappability wgEncodeCrgMapabilityAlign100mer.bigWig \
@@ -93,7 +93,9 @@ tested for a linear relationship with this score and normalized accordingly.
 \subsection*{Create VCF files}
 
 \Biocpkg{PureCN} does not ship with a variant caller. Use a third-party tool to
-generate a VCF for each sample. A few recommendations:
+generate a VCF for each sample. 
+
+Important recommendations:
 
 \begin{itemize}
     \item Use \software{MuTect} 1.1.7 if possible
@@ -120,12 +122,12 @@ For each sample, tumor and normal, calculate GC-normalized coverages:
 # Calculate and GC-normalize coverage from a BAM file 
 $ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
     --bam ${SAMPLEID}.bam \
-    --gcgene baits_hg19_gcgene.txt
+    --intervals baits_hg19_intervals.txt
 
 # GC-normalize coverage from a GATK DepthOfCoverage file
 Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
     --coverage ${SAMPLEID}.coverage.sample_interval_summary \ 
-    --gcgene  baits_hg19_gcgene.txt
+    --intervals  baits_hg19_intervals.txt
 \end{verbatim}
 
 Similar to GATK, this script also takes a text file containing a list of BAM or
@@ -135,7 +137,7 @@ coverage file names (one per line). The file extension must be .list:
 # Calculate and GC-normalize coverage from a list of BAM files 
 $ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
     --bam normals.list \
-    --gcgene baits_hg19_gcgene.txt \
+    --intervals baits_hg19_intervals.txt \
     --cpu 4
 \end{verbatim}
 
@@ -182,7 +184,7 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
     --pool 5 \
-    --genome hg19 --gcgene baits_hg19_gcgene.txt 
+    --genome hg19 --intervals baits_hg19_intervals.txt 
 
 # Production pipeline run
 $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \ 
@@ -192,7 +194,7 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
     --vcf ${SAMPLEID}_mutect.vcf \
     --statsfile ${SAMPLEID}_mutect_stats.txt \
     --pool 5 \
-    --genome hg19 --gcgene baits_hg19_gcgene.txt 
+    --genome hg19 --intervals baits_hg19_intervals.txt 
     --snpblacklist hg19_simpleRepeats.bed \
     --targetweightfile ../target_weights_hg19.txt \
     --force --postoptimize --seed 123
@@ -205,7 +207,7 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
     --vcf ${SAMPLEID}_mutect.vcf \
     --genome hg19 \
     --normaldb ../normalDB_hg19.rds \
-    --gcgene baits_hg19_gcgene.txt 
+    --intervals baits_hg19_intervals.txt 
 
 # Recreate output after manual curation of ${SAMPLEID}.csv
 $ Rscript $PURECN/PureCN.R --rds ${SAMPLEID}.rds
@@ -256,7 +258,7 @@ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
     --segfile $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
     --vcf ${SAMPLEID}_mutect.vcf \
-    --genome hg19 --gcgene baits_hg19_gcgene.txt 
+    --genome hg19 --intervals baits_hg19_intervals.txt 
 \end{verbatim}
 
 See the main vignette for more details and file formats.
@@ -340,7 +342,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --bam         & bam.file & \Rfunction{calculateBamCoverageByInterval} \\
 --bai         & index.file & \Rfunction{calculateBamCoverageByInterval} \\
 --coverage    & coverage.file & \Rfunction{correctCoverageBias} \\
---gcgene      & gc.gene.file  & \Rfunction{correctCoverageBias} \\
+--intervals      & interval.file  & \Rfunction{correctCoverageBias} \\
 --method      & method  & \Rfunction{correctCoverageBias} \\
 --keepduplicates  & keep.duplicates  & \Rfunction{calculateBamCoverageByInterval} \\
 --outdir      & & \\
@@ -389,7 +391,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --sex              & sex                & \Rfunction{runAbsoluteCN}  \\
 --pool             & pool, num.normals & \Rfunction{findBestNormal} \\    
 --genome           & genome             & \Rfunction{runAbsoluteCN}  \\
---gcgene           & gc.gene.file      & \Rfunction{runAbsoluteCN}   \\
+--intervals        & interval.file      & \Rfunction{runAbsoluteCN}   \\
 --statsfile        & stats.file & \Rfunction{filterVcfMuTect}        \\
 --minaf            & af.range & \Rfunction{filterVcfBasic} \\
 --snpblacklist     & snp.blacklist & \Rfunction{filterVcfBasic}     \\

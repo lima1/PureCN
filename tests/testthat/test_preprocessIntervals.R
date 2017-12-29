@@ -33,6 +33,10 @@ test_that("GC-bias of example reference and intervals (BED format) matches", {
 })
 
 test_that("Exceptions happen with wrong input", {
+    expect_error(preprocessIntervals(interval.file, 
+        reference.file, off.target =TRUE, off.target.padding = 5), 
+        "must be negative")
+
     interval.file2 <- tempfile(fileext = ".txt")
     idata <- read.delim(interval.file, as.is = TRUE)
     idata[3, 1] <- "seq2:0-149"
@@ -55,6 +59,14 @@ test_that("reptiming annotated correctly", {
     expect_equal(c(17.5, 11.0, 50, 10.0, 10.0), gr$reptiming)
 })
 
+test_that("long targets are split correctly", {
+    gr <- preprocessIntervals(interval.file, reference.file, 
+        average.target.width = 200)
+    expect_equal(c(175,175), width(gr)[2:3])
+    gr <- preprocessIntervals(interval.file, reference.file)
+    expect_equal(sum(c(175,175)), width(gr)[2])
+})
+    
 test_that("Offtarget settings work as expected", {
     gc <- preprocessIntervals(interval.file, reference.file, 
         off.target = TRUE, min.off.target.width = 2, off.target.padding = -2)

@@ -208,7 +208,7 @@ tumor.coverage.file <- system.file("extdata", "example_tumor.txt",
 seg.file <- system.file("extdata", "example_seg.txt",
     package = "PureCN")
 vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+interval.file <- system.file("extdata", "example_intervals.txt", 
     package="PureCN")
 @
 
@@ -219,7 +219,7 @@ library-specific biases such as GC-content and replication timing
 (Figure~\ref{figure/figuregccorrect-1}). 
 
 <<figuregccorrect, fig.show='hide', fig.width=7, fig.height=7, warning=FALSE>>=
-correctCoverageBias(normal.coverage.file, gc.gene.file, 
+correctCoverageBias(normal.coverage.file, interval.file, 
     output.file="example_normal_loess.txt", plot.bias=TRUE)
 @
 \incfig{figure/figuregccorrect-1}{0.95\textwidth}{Coverage before and after
@@ -398,7 +398,7 @@ ret <-runAbsoluteCN(normal.coverage.file=pool,
 # normal.coverage.file=normal.coverage.file, 
     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, 
     genome="hg19", sampleid="Sample1", 
-    gc.gene.file=gc.gene.file, normalDB=normalDB,
+    interval.file=interval.file, normalDB=normalDB,
 # args.setMappingBiasVcf=list(normal.panel.vcf.file=normal.panel.vcf.file),
 # args.filterVcf=list(snp.blacklist=snp.blacklist, 
 # stats.file=mutect.stats.file), 
@@ -876,7 +876,7 @@ which case the provided \Rcode{sampleid} must match a sample in the column
 Since its likelihood model is exon-based, \Biocpkg{PureCN} currently still
 requires an interval file to generate simulated target-level log-ratios from a
 segmentation file.  For simplicity, this interval file is expected either via
-the \Rcode{tumor.coverage.file} or via the \Rcode{gc.gene.file} argument (see
+the \Rcode{tumor.coverage.file} or via the \Rcode{interval.file} argument (see
 Figure~\ref{figure/figurecustombaf-1}). Note that \Biocpkg{PureCN} will
 re-segment the simulated log-ratios using the default
 \Rfunction{segmentationCBS} function, in particular to identify regions of
@@ -890,7 +890,7 @@ check that the log-ratios are similar to the ones obtained by the default
 
 <<customseg>>=
 retSegmented <- runAbsoluteCN(seg.file=seg.file, 
-    gc.gene.file=gc.gene.file, vcf.file=vcf.file, 
+    interval.file=interval.file, vcf.file=vcf.file, 
     max.candidate.solutions=1, genome="hg19",
     test.purity=seq(0.3,0.7,by=0.05), verbose=FALSE, 
     plot.cnv=FALSE)
@@ -922,7 +922,7 @@ log.ratio <- calculateLogRatio(readCoverageFile(normal.coverage.file),
     readCoverageFile(tumor.coverage.file))
 
 retLogRatio <- runAbsoluteCN(log.ratio=log.ratio,
-    gc.gene.file=gc.gene.file, vcf.file=vcf.file, 
+    interval.file=interval.file, vcf.file=vcf.file, 
     max.candidate.solutions=1, genome="hg19",
     test.purity=seq(0.3,0.7,by=0.05), verbose=FALSE, 
     normalDB=normalDB, plot.cnv=FALSE)
@@ -934,7 +934,7 @@ highly recommended to compare the log-ratios obtained by \Biocpkg{PureCN} and
 the third-party tool, since some pipelines automatically adjust log-ratios for
 a default purity value. Note that this example uses a pool of normals to filter
 low quality targets. Interval coordinates are again expected in either a
-\Rcode{gc.gene.file} or a \Rcode{tumor.coverage.file}. If a tumor coverage file is
+\Rcode{interval.file} or a \Rcode{tumor.coverage.file}. If a tumor coverage file is
 provided, then all targets below the coverage minimum are further excluded.
 
 \subsection{COSMIC annotation}

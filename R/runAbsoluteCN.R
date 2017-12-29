@@ -15,7 +15,7 @@
 #' \code{\link{correctCoverageBias}}.  Needs to be either a file name or data
 #' read with the \code{\link{readCoverageFile}} function.
 #' @param tumor.coverage.file Coverage file of tumor. If \code{NULL},
-#' requires \code{seg.file} and an interval file via \code{gc.gene.file}.
+#' requires \code{seg.file} and an interval file via \code{interval.file}.
 #' Should be already GC-normalized with \code{\link{correctCoverageBias}}.
 #' Needs to be either a file name or data read with the
 #' \code{\link{readCoverageFile}} function.
@@ -34,7 +34,7 @@
 #' do not expect very useful results without a VCF file.
 #' @param normalDB Normal database, created with
 #' \code{\link{createNormalDatabase}}. If provided, used to calculate gene-level
-#' p-values (requires \code{Gene} column in \code{gc.gene.file}) and to filter
+#' p-values (requires \code{Gene} column in \code{interval.file}) and to filter
 #' targets with low coverage in the pool of normal samples.
 #' @param genome Genome version, for example hg19.
 #' @param centromeres A \code{GRanges} object with centromere positions.
@@ -143,8 +143,6 @@
 #' that should converge quickly. Allowed range is 10 to 250.
 #' @param log.ratio.calibration Re-calibrate log-ratios in the window
 #' \code{sd(log.ratio)*log.ratio.calibration}.
-#' @param remove.off.target.snvs Deprecated. Use the corresponding argument in
-#' \code{args.filterVcf}.
 #' @param smooth.log.ratio Smooth \code{log.ratio} using the \code{DNAcopy}
 #' package.
 #' @param model.homozygous Homozygous germline SNPs are uninformative and by
@@ -158,16 +156,17 @@
 #' \code{\link{calculatePowerDetectSomatic}}. Also used to calculate the
 #' probability of homozygous SNP allelic fractions (assuming reference reads
 #' are sequencing errors).
-#' @param gc.gene.file A mapping file that assigns GC content and gene symbols
+#' @param interval.file A mapping file that assigns GC content and gene symbols
 #' to each exon in the coverage files. Used for generating gene-level calls.
 #' First column in format CHR:START-END. Second column GC content (0 to 1).
 #' Third column gene symbol. This file is generated with the
 #' \code{\link{preprocessIntervals}} function.
+#' @param gc.gene.file Deprecated and renamed to \code{interval.file}.
 #' @param max.dropout Measures GC bias as ratio of coverage in AT-rich (GC <
 #' 0.5) versus GC-rich on-target regions (GC >= 0.5). High drop-out might 
 #' indicate that  data was not GC-normalized or that the sample quality might 
 #' be insufficient.
-#' Requires \code{gc.gene.file}.
+#' Requires \code{interval.file}.
 #' @param min.logr.sdev Minimum log-ratio standard deviation used in the 
 #' model. Useful to make fitting more robust to outliers in very clean
 #' data.
@@ -218,7 +217,7 @@
 #'     package='PureCN')
 #' vcf.file <- system.file('extdata', 'example_vcf.vcf', 
 #'     package='PureCN')
-#' gc.gene.file <- system.file('extdata', 'example_gc.gene.file.txt', 
+#' interval.file <- system.file('extdata', 'example_intervals.txt', 
 #'     package='PureCN')
 #' 
 #' # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
@@ -226,7 +225,7 @@
 #' # samples.
 #' ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
 #'     tumor.coverage.file=tumor.coverage.file, genome='hg19', vcf.file=vcf.file,
-#'     sampleid='Sample1', gc.gene.file=gc.gene.file,
+#'     sampleid='Sample1', interval.file=interval.file,
 #'     max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 #' 
 #' 
@@ -241,7 +240,7 @@
 #' 
 #' res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=funSeg, max.ploidy = 4,
 #'     test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
-#'     genome='hg19', gc.gene.file=gc.gene.file)
+#'     genome='hg19', interval.file=interval.file)
 #' 
 #' @export runAbsoluteCN
 #' @import DNAcopy
@@ -273,8 +272,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     max.non.clonal = 0.2, max.homozygous.loss = c(0.05, 1e07), 
     non.clonal.M = 1/3, max.mapping.bias = 0.8, max.pon = 3, iterations = 30, 
     min.variants.segment = 5, log.ratio.calibration = 0.1, smooth.log.ratio = TRUE, 
-    remove.off.target.snvs = NULL, model.homozygous = FALSE, error = 0.001, 
-    gc.gene.file = NULL, max.dropout = c(0.95, 1.1), 
+    model.homozygous = FALSE, error = 0.001, 
+    interval.file = NULL, gc.gene.file = NULL, max.dropout = c(0.95, 1.1), 
     min.logr.sdev = 0.15, max.logr.sdev = 0.6, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
     cosmic.vcf.file = NULL, model = c("beta", "betabin"),
@@ -282,6 +281,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
 
     if (!verbose) flog.threshold("WARN")
     if (!is.null(log.file)) flog.appender(appender.tee(log.file))
+
+    # TODO Remove in 1.12
+    if (!is.null(gc.gene.file)) {
+        flog.warn("gc.gene.file was renamed to interval.file.")
+        if (is.null(interval.file)) interval.file <-gc.gene.file
+    }
 
      # log function arguments     
     try(.logHeader(as.list(match.call())[-1]), silent=TRUE)
@@ -295,7 +300,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # argument checking
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
         max.homozygous.loss, sampleid, prior.K, prior.contamination, prior.purity,
-        iterations, min.gof, model.homozygous, gc.gene.file, log.ratio.calibration,
+        iterations, min.gof, model.homozygous, interval.file, log.ratio.calibration,
         test.num.copy)
     
     test.num.copy <- sort(test.num.copy)
@@ -312,11 +317,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     }
     if (is.null(tumor.coverage.file)) {
         if ( (is.null(seg.file) && is.null(log.ratio)) || 
-            is.null(gc.gene.file)) {
+            is.null(interval.file)) {
             .stopUserError("Missing tumor.coverage.file requires seg.file or ", 
-                           "log.ratio and gc.gene.file.")
+                           "log.ratio and interval.file.")
         }
-        tumor <- .gcGeneToCoverage(gc.gene.file, min.coverage + 1)
+        tumor <- .gcGeneToCoverage(interval.file, min.coverage + 1)
         tumor.coverage.file <- tumor
     } else if (is.character(tumor.coverage.file)) {
         tumor.coverage.file <- normalizePath(tumor.coverage.file, mustWork = TRUE)
@@ -376,8 +381,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     sex <- .getSex(match.arg(sex), normal, tumor)
     tumor <- .fixAllosomeCoverage(sex, tumor)
     
-    if (!is.null(gc.gene.file)) {
-        tumor <- .addGCData(tumor, gc.gene.file)
+    if (!is.null(interval.file)) {
+        tumor <- .addGCData(tumor, interval.file)
     }
     
     args.filterTargets <- c(list(normal=normal, tumor = tumor, 
@@ -418,10 +423,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     dropoutWarning <- FALSE
     # clean up noisy targets, but not if the segmentation was already provided.
     if (is.null(seg.file)) {
-        if (!is.null(gc.gene.file)) {
+        if (!is.null(interval.file)) {
             dropoutWarning <- .checkGCBias(normal, tumor, max.dropout)
         } else {
-            flog.info("No gc.gene.file provided. Cannot check if data was GC-normalized. Was it?")
+            flog.info("No interval.file provided. Cannot check if data was GC-normalized. Was it?")
         }
     }
     

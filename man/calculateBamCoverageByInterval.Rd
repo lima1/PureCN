@@ -11,7 +11,7 @@ calculateBamCoverageByInterval(bam.file, interval.file, output.file = NULL,
 \item{bam.file}{Filename of a BAM file.}
 
 \item{interval.file}{File specifying the intervals. Interval is expected in
-first column in format CHR:START-END. The \code{gc.gene.file} can be used.}
+first column in format CHR:START-END.}
 
 \item{output.file}{Optionally, write minimal coverage file. Can be read with
 the \code{\link{readCoverageFile}} function.}

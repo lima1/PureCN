@@ -12,13 +12,15 @@ Changes in version 1.10.0
     
 API CHANGES
 
+    o renamed gc.gene.file to interval.file since it now provides more than
+      GC-content and gene symbols
     o plotAbs ids changed to id (this function now only plots a single
       purity/ploidy solution)
     o changed default of runAbsoluteCN max.logr.sdev to 0.6 (from 0.75)
     o createTargetWeights does not require tumor coverages anymore
     o calculateGCContentByInterval was renamed to preprocessIntervals
-    o renamed plot.gc.bias to plot.bias in correctCoverageBias
-
+    o renamed plot.gc.bias to plot.bias in correctCoverageBias since it now
+      also includes replication timing
 
 
 Changes in version 1.8.0

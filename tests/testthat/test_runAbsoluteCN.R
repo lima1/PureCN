@@ -8,7 +8,7 @@ normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package = "PureCN")
 vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+interval.file <- system.file("extdata", "example_intervals.txt", 
     package = "PureCN")
 seg.file <- system.file("extdata", "example_seg.txt", package = "PureCN")
 cosmic.vcf.file <- system.file("extdata", "example_cosmic.vcf.gz", 
@@ -155,15 +155,15 @@ test_that("Mapping bias function works", {
         2)
 })
 
-test_that("Missing Gene column in gc.gene.file is handled correctly", {
-    gc_data <- read.delim(gc.gene.file, as.is = TRUE)
+test_that("Missing Gene column in interval.file is handled correctly", {
+    gc_data <- read.delim(interval.file, as.is = TRUE)
     gc_data$Gene <- NULL
     output.file <- tempfile(".txt")
     write.table(gc_data, file = output.file, row.names = FALSE, sep = "\t", 
         quote = FALSE)
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
-        gc.gene.file = output.file, model.homozygous = TRUE, tumor.coverage.file = tumor.coverage.file, 
-        remove.off.target.snvs = TRUE, candidates = purecn.example.output$candidates, 
+        interval.file = output.file, model.homozygous = TRUE, tumor.coverage.file = tumor.coverage.file, 
+        candidates = purecn.example.output$candidates, 
         min.ploidy = 1.4, max.ploidy = 2.4, vcf.file = vcf.file, 
         genome = "hg19", test.purity = seq(0.4, 0.7, by = 0.05), 
         max.candidate.solutions = 1)
@@ -191,14 +191,14 @@ test_that("Different chromosome naming styles throw exceptions", {
         genome = "hg19", vcf.file = vcf),
         "Different chromosome names in coverage and VCF")
     expect_error(runAbsoluteCN(normal.coverage.file = normCov, 
-        tumor.coverage.file = tumorCov, gc.gene.file = gc.gene.file, 
+        tumor.coverage.file = tumorCov, interval.file = interval.file, 
         vcf.file = vcf, genome = "hg19", test.purity = seq(0.3, 
             0.7, by = 0.05), max.candidate.solutions = 1),
-        "tumor.coverage.file and gc.gene.file do not")
+        "tumor.coverage.file and interval.file do not")
 
     output.file1 <- tempfile(fileext = ".txt")
     output.file2 <- tempfile(fileext = ".txt")
-    gc1 <- read.delim(gc.gene.file, as.is = TRUE)
+    gc1 <- read.delim(interval.file, as.is = TRUE)
     gc1[, 1] <- as.character(tumorCov)
     write.table(gc1, file = output.file1, row.names = FALSE, sep = "\t", 
         quote = FALSE)
@@ -208,12 +208,12 @@ test_that("Different chromosome naming styles throw exceptions", {
         quote = FALSE)
     set.seed(123)
     ret <- runAbsoluteCN(normal.coverage.file = normCov, tumor.coverage.file = tumorCov, 
-        gc.gene.file = output.file1, plot.cnv = FALSE, min.ploidy = 1.4, 
+        interval.file = output.file1, plot.cnv = FALSE, min.ploidy = 1.4, 
         max.ploidy = 2.4, vcf.file = vcf, genome = "hg19", test.purity = seq(0.4, 
             0.7, by = 0.05), max.candidate.solutions = 1)
     set.seed(123)
     ret2 <- runAbsoluteCN(normal.coverage.file = normCov, tumor.coverage.file = tumorCov, 
-        gc.gene.file = output.file2, plot.cnv = FALSE, min.ploidy = 1.4, 
+        interval.file = output.file2, plot.cnv = FALSE, min.ploidy = 1.4, 
         max.ploidy = 2.4, vcf.file = vcf, genome = "hg19", test.purity = seq(0.4, 
             0.7, by = 0.05), max.candidate.solutions = 1)
     gpnmb <- callAlterations(ret)["GPNMB", ]
@@ -245,7 +245,7 @@ test_that("Run with example seg.file works", {
         genome = "hg19", min.ploidy = 1.4, max.ploidy = 2.4, 
         test.purity = seq(0.4, 0.7, by = 0.05), sampleid = "Sample2")
     expect_equal(0.65, ret$results[[1]]$purity)
-    ret <- runAbsoluteCN(seg.file = seg.file, gc.gene.file = gc.gene.file, 
+    ret <- runAbsoluteCN(seg.file = seg.file, interval.file = interval.file, 
         vcf.file = vcf.file, max.candidate.solutions = 1, genome = "hg19", 
         test.purity = seq(0.4, 0.7, by = 0.05), verbose = FALSE)
     expect_equal(0.65, ret$results[[1]]$purity)
@@ -254,7 +254,7 @@ test_that("Run with example seg.file works", {
     output.file <- tempfile(fileext = ".seg")
     write.table(tmp, file = output.file, quote = FALSE, row.names = FALSE, 
         sep = "\t")
-    expect_error(runAbsoluteCN(seg.file = output.file, gc.gene.file = gc.gene.file, 
+    expect_error(runAbsoluteCN(seg.file = output.file, interval.file = interval.file, 
         vcf.file = vcf.file, max.candidate.solutions = 1, genome = "hg19", 
         min.ploidy = 1.4, max.ploidy = 2.4, test.purity = seq(0.4, 
             0.7, by = 0.05), verbose = FALSE))
@@ -266,17 +266,17 @@ test_that("Run with example seg.file works", {
     output.file <- tempfile(fileext = ".seg")
     write.table(tmp, file = output.file, quote = FALSE, row.names = FALSE, 
         sep = "\t")
-    expect_error(runAbsoluteCN(seg.file = output.file, gc.gene.file = gc.gene.file, 
+    expect_error(runAbsoluteCN(seg.file = output.file, interval.file = interval.file, 
         vcf.file = vcf.file, max.candidate.solutions = 1, genome = "hg19", 
         min.ploidy = 1.4, max.ploidy = 2.4, test.purity = seq(0.4, 
             0.7, by = 0.05), verbose = FALSE),
         "seg.file contains multiple samples and sampleid missing")
-    expect_error(runAbsoluteCN(seg.file = output.file, gc.gene.file = gc.gene.file, 
+    expect_error(runAbsoluteCN(seg.file = output.file, interval.file = interval.file, 
         sampleid = "Sample3", vcf.file = vcf.file, max.candidate.solutions = 1, 
         genome = "hg19", test.purity = seq(0.3, 0.7, by = 0.05), 
         verbose = FALSE),
         "contains multiple samples and sampleid does not match")
-    ret <- runAbsoluteCN(seg.file = output.file, gc.gene.file = gc.gene.file, 
+    ret <- runAbsoluteCN(seg.file = output.file, interval.file = interval.file, 
         sampleid = "Sample1", vcf.file = vcf.file, max.candidate.solutions = 1, 
         genome = "hg19", test.purity = seq(0.3, 0.7, by = 0.05), 
         verbose = FALSE, max.ploidy = 2.5)
@@ -295,13 +295,13 @@ test_that("Run with example seg.file works", {
 test_that("Run with provided log-ratios works", {
     log.ratio <- calculateLogRatio(readCoverageFile(normal.coverage.file), 
         readCoverageFile(tumor.coverage.file))
-    ret <- runAbsoluteCN(log.ratio = log.ratio, gc.gene.file = gc.gene.file, 
+    ret <- runAbsoluteCN(log.ratio = log.ratio, interval.file = interval.file, 
         vcf.file = vcf.file, max.candidate.solutions = 1, genome = "hg19",
         min.ploidy = 1.5, max.ploidy = 2.1, plot.cnv = FALSE,
         test.purity = seq(0.4, 0.7, by = 0.05))
     expect_equal(0.65, ret$results[[1]]$purity)
     ret <- runAbsoluteCN(log.ratio = log.ratio, seg.file = seg.file, 
-        gc.gene.file = gc.gene.file, vcf.file = vcf.file, max.candidate.solutions = 1, 
+        interval.file = interval.file, vcf.file = vcf.file, max.candidate.solutions = 1, 
         min.ploidy = 1.5, max.ploidy = 2.1,
         genome = "hg19", test.purity = seq(0.3, 0.7, by = 0.05))
     expect_equal(0.65, ret$results[[1]]$purity)
@@ -349,7 +349,7 @@ test_that("normalDB objects are used correctly", {
 
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
         tumor.coverage.file = tumor.coverage.file, genome = "hg19", 
-        vcf.file = vcf.file, sampleid = "Sample1", gc.gene.file = gc.gene.file, 
+        vcf.file = vcf.file, sampleid = "Sample1", interval.file = interval.file, 
         normalDB = normalDB, args.filterTargets = list(filter.lowhigh.gc = 0), 
         plot.cnv = FALSE, max.ploidy = 3, test.purity = seq(0.4, 
             0.7, by = 0.05), max.candidate.solutions = 1)
@@ -373,6 +373,6 @@ test_that("Missing on.target column in coverage data is handled gracefully", {
     x <- runAbsoluteCN(normal.coverage.file, tumor, genome = "hg19", 
         min.ploidy = 1.4, max.ploidy = 2.4, test.purity = seq(0.4, 
             0.7, by = 0.05), plot.cnv = FALSE,
-        max.candidate.solutions = 1, gc.gene.file = gc.gene.file)
+        max.candidate.solutions = 1, interval.file = interval.file)
 })
 

@@ -10,7 +10,7 @@
 #'
 #' @param bam.file Filename of a BAM file.
 #' @param interval.file File specifying the intervals. Interval is expected in
-#' first column in format CHR:START-END. The \code{gc.gene.file} can be used.
+#' first column in format CHR:START-END. 
 #' @param output.file Optionally, write minimal coverage file. Can be read with
 #' the \code{\link{readCoverageFile}} function.
 #' @param index.file The bai index. This is expected without the .bai file

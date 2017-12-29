@@ -32,7 +32,7 @@ log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, all.genes = FALSE) {
     if (class(res$results[[id]]$gene.calls) != "data.frame") {
         .stopUserError("This function requires gene-level calls.\n",
             "Please add a column 'Gene' containing gene symbols to the ",
-            "gc.gene.file.")
+            "interval.file.")
     }
      
     amp.ids <- (res$results[[id]]$gene.calls$focal &
@@ -87,7 +87,7 @@ log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, all.genes = FALSE) {
 #' @param num.mark Optionally, the number of probes or markers in each segment.
 #' @param seg.mean The segment mean.
 #' @param C The segment integer copy number.
-#' @param gc.gene.file A mapping file that assigns GC content and gene symbols
+#' @param interval.file A mapping file that assigns GC content and gene symbols
 #' to each exon in the coverage files. Used for generating gene-level calls.
 #' First column in format CHR:START-END. Second column GC content (0 to 1).
 #' Third column gene symbol. This file is generated with the 
@@ -103,16 +103,16 @@ log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, all.genes = FALSE) {
 #' 
 #' data(purecn.example.output)
 #' seg <- purecn.example.output$results[[1]]$seg
-#' gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+#' interval.file <- system.file("extdata", "example_intervals.txt", 
 #'         package = "PureCN")
 #' 
 #' calls <- callAlterationsFromSegmentation(sampleid=seg$ID, chr=seg$chrom,
 #'     start=seg$loc.start, end=seg$loc.end, num.mark=seg$num.mark,
-#'     seg.mean=seg$seg.mean, C=seg$C, gc.gene.file=gc.gene.file)
+#'     seg.mean=seg$seg.mean, C=seg$C, interval.file=interval.file)
 #' 
 #' @export callAlterationsFromSegmentation
 callAlterationsFromSegmentation <- function(sampleid, chr, start, end, 
-    num.mark = NA, seg.mean, C, gc.gene.file, fun.focal=findFocal,
+    num.mark = NA, seg.mean, C, interval.file, fun.focal=findFocal,
     args.focal=list(), ...){
     seg <- data.frame(
         ID=sampleid,
@@ -124,7 +124,7 @@ callAlterationsFromSegmentation <- function(sampleid, chr, start, end,
     )    
     seg.adjusted <- data.frame(seg, C=C, size=seg$loc.end-seg$loc.start+1)
 
-    tumor <- .addGCData(.gcGeneToCoverage(gc.gene.file, 16), gc.gene.file)
+    tumor <- .addGCData(.gcGeneToCoverage(interval.file, 16), interval.file)
     chr.hash <- .getChrHash(seqlevels(tumor))
     segs <- split(seg.adjusted, seg$ID)
     gene.calls <- lapply(segs, function(s) {

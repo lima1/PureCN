@@ -21,12 +21,12 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   max.homozygous.loss = c(0.05, 1e+07), non.clonal.M = 1/3,
   max.mapping.bias = 0.8, max.pon = 3, iterations = 30,
   min.variants.segment = 5, log.ratio.calibration = 0.1,
-  smooth.log.ratio = TRUE, remove.off.target.snvs = NULL,
-  model.homozygous = FALSE, error = 0.001, gc.gene.file = NULL,
-  max.dropout = c(0.95, 1.1), min.logr.sdev = 0.15, max.logr.sdev = 0.6,
-  max.segments = 300, min.gof = 0.8, plot.cnv = TRUE,
-  cosmic.vcf.file = NULL, model = c("beta", "betabin"),
-  post.optimize = FALSE, log.file = NULL, verbose = TRUE)
+  smooth.log.ratio = TRUE, model.homozygous = FALSE, error = 0.001,
+  interval.file = NULL, gc.gene.file = NULL, max.dropout = c(0.95, 1.1),
+  min.logr.sdev = 0.15, max.logr.sdev = 0.6, max.segments = 300,
+  min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL,
+  model = c("beta", "betabin"), post.optimize = FALSE, log.file = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{normal.coverage.file}{Coverage file of normal control (optional
@@ -36,7 +36,7 @@ exons).  Should be already GC-normalized with
 read with the \code{\link{readCoverageFile}} function.}
 
 \item{tumor.coverage.file}{Coverage file of tumor. If \code{NULL},
-requires \code{seg.file} and an interval file via \code{gc.gene.file}.
+requires \code{seg.file} and an interval file via \code{interval.file}.
 Should be already GC-normalized with \code{\link{correctCoverageBias}}.
 Needs to be either a file name or data read with the
 \code{\link{readCoverageFile}} function.}
@@ -60,7 +60,7 @@ do not expect very useful results without a VCF file.}
 
 \item{normalDB}{Normal database, created with
 \code{\link{createNormalDatabase}}. If provided, used to calculate gene-level
-p-values (requires \code{Gene} column in \code{gc.gene.file}) and to filter
+p-values (requires \code{Gene} column in \code{interval.file}) and to filter
 targets with low coverage in the pool of normal samples.}
 
 \item{genome}{Genome version, for example hg19.}
@@ -208,9 +208,6 @@ minor copy number estimation is not reliable with insufficient variants.}
 \item{smooth.log.ratio}{Smooth \code{log.ratio} using the \code{DNAcopy}
 package.}
 
-\item{remove.off.target.snvs}{Deprecated. Use the corresponding argument in
-\code{args.filterVcf}.}
-
 \item{model.homozygous}{Homozygous germline SNPs are uninformative and by
 default removed. In 100 percent pure samples such as cell lines, however,
 heterozygous germline SNPs appear homozygous in case of LOH. Setting this
@@ -224,17 +221,19 @@ number of supporting reads for variants using
 probability of homozygous SNP allelic fractions (assuming reference reads
 are sequencing errors).}
 
-\item{gc.gene.file}{A mapping file that assigns GC content and gene symbols
+\item{interval.file}{A mapping file that assigns GC content and gene symbols
 to each exon in the coverage files. Used for generating gene-level calls.
 First column in format CHR:START-END. Second column GC content (0 to 1).
 Third column gene symbol. This file is generated with the
 \code{\link{preprocessIntervals}} function.}
 
+\item{gc.gene.file}{Deprecated and renamed to \code{interval.file}.}
+
 \item{max.dropout}{Measures GC bias as ratio of coverage in AT-rich (GC <
 0.5) versus GC-rich on-target regions (GC >= 0.5). High drop-out might 
 indicate that  data was not GC-normalized or that the sample quality might 
 be insufficient.
-Requires \code{gc.gene.file}.}
+Requires \code{interval.file}.}
 
 \item{min.logr.sdev}{Minimum log-ratio standard deviation used in the 
 model. Useful to make fitting more robust to outliers in very clean
@@ -297,7 +296,7 @@ tumor.coverage.file <- system.file('extdata', 'example_tumor.txt',
     package='PureCN')
 vcf.file <- system.file('extdata', 'example_vcf.vcf', 
     package='PureCN')
-gc.gene.file <- system.file('extdata', 'example_gc.gene.file.txt', 
+interval.file <- system.file('extdata', 'example_intervals.txt', 
     package='PureCN')
 
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
@@ -305,7 +304,7 @@ gc.gene.file <- system.file('extdata', 'example_gc.gene.file.txt',
 # samples.
 ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
     tumor.coverage.file=tumor.coverage.file, genome='hg19', vcf.file=vcf.file,
-    sampleid='Sample1', gc.gene.file=gc.gene.file,
+    sampleid='Sample1', interval.file=interval.file,
     max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 
 
@@ -320,7 +319,7 @@ funSeg <- function(seg, ...) return(seg)
 
 res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=funSeg, max.ploidy = 4,
     test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
-    genome='hg19', gc.gene.file=gc.gene.file)
+    genome='hg19', interval.file=interval.file)
 
 }
 \references{

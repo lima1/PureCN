@@ -18,9 +18,9 @@ test_that("snp.blacklist filtering works", {
 
 test_that("stats.file filtering works", {
     x <- filterVcfBasic(vcf)
-    gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    interval.file <- system.file("extdata", "example_intervals.txt", 
         package = "PureCN")
-    vcfMutectFilter <- filterVcfMuTect(vcf, stats.file = gc.gene.file)
+    vcfMutectFilter <- filterVcfMuTect(vcf, stats.file = interval.file)
     expect_equal(nrow(vcfMutectFilter$vcf), nrow(x$vcf))
     output.file <- tempfile(fileext = ".txt")
     cat("#testfile\n", file = output.file)

@@ -21,7 +21,7 @@ is already segmented via the provided segmentation file.}
 
 \item{filter.lowhigh.gc}{Quantile q (defines lower q and upper 1-q) for
 removing targets with outlier GC profile. Assuming that GC correction might
-not have been worked on those. Requires \code{gc.gene.file}.}
+not have been worked on those. Requires \code{interval.file}.}
 
 \item{min.coverage}{Minimum coverage in both normal and tumor. Targets with
 lower coverage are ignored. If a \code{normalDB} is provided, then this
@@ -65,7 +65,7 @@ tumor.coverage.file <- system.file("extdata", "example_tumor.txt",
     package="PureCN")
 vcf.file <- system.file("extdata", "example_vcf.vcf", 
     package="PureCN")
-gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+interval.file <- system.file("extdata", "example_intervals.txt", 
     package="PureCN")
 
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
@@ -73,7 +73,7 @@ gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt",
 # samples.
 ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
     tumor.coverage.file=tumor.coverage.file, genome="hg19", vcf.file=vcf.file,
-    sampleid="Sample1", gc.gene.file=gc.gene.file, normalDB=normalDB,
+    sampleid="Sample1", interval.file=interval.file, normalDB=normalDB,
     args.filterTargets=list(min.targeted.base=10), max.ploidy=4, 
     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 

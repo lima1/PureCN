@@ -40,13 +40,13 @@ test_that("Provided sex is handled correctly", {
 })
 
 test_that("Exceptions happen with wrong input", {
-    gc.gene.file <- system.file("extdata", "example_gc.gene.file.txt", 
+    interval.file <- system.file("extdata", "example_intervals.txt", 
         package = "PureCN")
     normal <- readCoverageFile(normal.coverage.file)
-    correctCoverageBias(normal, gc.gene.file)
+    correctCoverageBias(normal, interval.file)
     output.file <- tempfile(fileext = ".txt")
     expect_output(correctCoverageBias(normal[sample(length(normal)), 
-        ], gc.gene.file, output.file), "WARN")
+        ], interval.file, output.file), "WARN")
     createNormalDatabase(c(normal.coverage.files, output.file))
     tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
         package = "PureCN")
