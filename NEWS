@@ -17,6 +17,7 @@ API CHANGES
     o changed default of runAbsoluteCN max.logr.sdev to 0.6 (from 0.75)
     o createTargetWeights does not require tumor coverages anymore
     o calculateGCContentByInterval was renamed to preprocessIntervals
+    o renamed plot.gc.bias to plot.bias in correctCoverageBias
 
 
 

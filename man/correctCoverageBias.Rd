@@ -5,7 +5,7 @@
 \title{Correct for GC bias}
 \usage{
 correctCoverageBias(coverage.file, gc.gene.file, output.file = NULL,
-  plot.gc.bias = FALSE, plot.max.density = 50000)
+  plot.bias = FALSE, plot.max.density = 50000)
 }
 \arguments{
 \item{coverage.file}{Coverage file or coverage data parsed with the
@@ -20,14 +20,14 @@ generated with the \code{\link{preprocessIntervals}} function.}
 \item{output.file}{Optionally, write file with GC corrected coverage. Can be
 read with the \code{\link{readCoverageFile}} function.}
 
-\item{plot.gc.bias}{Optionally, plot GC profiles of the pre-normalized and
+\item{plot.bias}{Optionally, plot profiles of the pre-normalized and
 post-normalized coverage. Provides a quick visual check of coverage bias.}
 
 \item{plot.max.density}{By default, if the number of intervals in the
 probe-set is > 50000, uses a kernel density estimate to plot the coverage
 distribution. This uses the \code{stat_density} function from the ggplot2
 package. Using this parameter, change the threshold at which density
-estimation is applied. If the \code{plot.gc.bias} parameter is set as
+estimation is applied. If the \code{plot.bias} parameter is set as
 \code{FALSE}, this will be ignored.}
 }
 \description{

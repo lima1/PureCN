@@ -218,9 +218,9 @@ The algorithm works best when the coverage files are GC-normalized. We can
 easily create GC-normalized coverage files
 (Figure~\ref{figure/figuregccorrect-1}).
 
-<<figuregccorrect, fig.show='hide', fig.width=7, fig.height=4, warning=FALSE>>=
+<<figuregccorrect, fig.show='hide', fig.width=7, fig.height=7, warning=FALSE>>=
 correctCoverageBias(normal.coverage.file, gc.gene.file, 
-    output.file="example_normal_loess.txt", plot.gc.bias=TRUE)
+    output.file="example_normal_loess.txt", plot.bias=TRUE)
 @
 \incfig{figure/figuregccorrect-1}{0.95\textwidth}{Coverage before and after
 GC-normalization.} 

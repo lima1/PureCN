@@ -14,7 +14,7 @@ test_that("Example data matches after normalization", {
     expect_equal(class(coverage)[1], "GRanges")
     expect_equal(length(coverage), 10049)
     correctCoverageBias(normal.coverage.file, gc.gene.file, plot.max.density = 100, 
-        plot.gc.bias = TRUE)
+        plot.bias = TRUE)
     x <- readCoverageFile(output.file)
     expect_equal(x$average.coverage, coverage$average.coverage)
     correctCoverageBias(head(x, 200), gc.gene.file)

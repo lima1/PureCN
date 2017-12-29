@@ -17,13 +17,13 @@ globalVariables(names=c("..level.."))
 #' generated with the \code{\link{preprocessIntervals}} function.
 #' @param output.file Optionally, write file with GC corrected coverage. Can be
 #' read with the \code{\link{readCoverageFile}} function.
-#' @param plot.gc.bias Optionally, plot GC profiles of the pre-normalized and
+#' @param plot.bias Optionally, plot profiles of the pre-normalized and
 #' post-normalized coverage. Provides a quick visual check of coverage bias.
 #' @param plot.max.density By default, if the number of intervals in the
 #' probe-set is > 50000, uses a kernel density estimate to plot the coverage
 #' distribution. This uses the \code{stat_density} function from the ggplot2
 #' package. Using this parameter, change the threshold at which density
-#' estimation is applied. If the \code{plot.gc.bias} parameter is set as
+#' estimation is applied. If the \code{plot.bias} parameter is set as
 #' \code{FALSE}, this will be ignored.
 #' @author Angad Singh, Markus Riester
 #' @seealso \code{\link{preprocessIntervals}}
@@ -38,11 +38,14 @@ globalVariables(names=c("..level.."))
 #' @export correctCoverageBias
 #' @importFrom ggplot2 ggplot aes_string geom_point geom_line aes
 #'             xlab ylab theme element_text facet_wrap stat_density2d
-#'             scale_alpha_continuous scale_y_sqrt
+#'             scale_alpha_continuous scale_y_sqrt geom_abline
+#'             coord_trans
+#' @importFrom gridExtra grid.arrange
 #' @importFrom stats loess lm
 #' @importFrom utils write.table
 correctCoverageBias <- function(coverage.file, gc.gene.file,
-output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
+output.file = NULL, plot.bias = FALSE, plot.max.density = 50000) {
+
     if (is.character(coverage.file)) {
         raw  <- readCoverageFile(coverage.file)
     } else {
@@ -51,11 +54,18 @@ output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
     
     raw <- .addGCData(raw, gc.gene.file, verbose=FALSE)
     ret <- .correctCoverageBiasLoess(raw)
-    if (plot.gc.bias) {
-        .plotGcBias(raw, ret$coverage, ret$medDiploid, plot.max.density)
+    if (plot.bias) {
+        gp1 <- .plotGcBias(raw, ret$coverage, ret$medDiploid, plot.max.density)
     }
-
-    ret$coverage <- .correctRepTimingBiasLinear(ret$coverage)
+    
+    raw <- ret$coverage
+    ret <- .correctRepTimingBiasLinear(ret$coverage)
+    if (plot.bias) {
+        gp2 <- .plotRepBias(raw, ret$coverage, ret$lmFit, plot.max.density)
+        #gptrans <- coord_trans(y = "sqrt")
+        #print(grid.arrange(gp1 + gptrans, gp2 + gptrans, nrow = 2))
+        print(grid.arrange(gp1, gp2, nrow = 2))
+    }
 
     if (!is.null(output.file)) {
         .writeCoverage(ret$coverage, output.file)
@@ -63,7 +73,7 @@ output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
     invisible(ret$coverage)
 }
 
-.plotGcBias <- function(raw, normalized, medDiploid, plot.max.density) {
+.createCoverageGgplot <- function(raw, normalized, plot.max.density, x, log = FALSE) {
     if (length(normalized) < plot.max.density) {
         density <- "Low"
     } else {
@@ -71,12 +81,39 @@ output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
     }
     raw$norm_status <- "Pre-normalized"
     normalized$norm_status <- "Post-normalized"
-    ids <- c("coverage","average.coverage","gc_bias","norm_status")
+    ids <- c("coverage","average.coverage","gc_bias", "reptiming", "norm_status", "on.target")
     tumCov <- rbind(as.data.frame(raw)[,ids],
                     as.data.frame(normalized)[,ids])
 
-    gcPlot <- tumCov[which(tumCov$average.coverage<quantile(tumCov$average.coverage,0.999, na.rm=TRUE)),]
-    gcPlot$norm_status <- factor(gcPlot$norm_status, levels = c("Pre-normalized","Post-normalized"))
+    tumCov <- tumCov[which(tumCov$average.coverage<quantile(tumCov$average.coverage,0.999, na.rm=TRUE)),]
+    if (sum(!tumCov$on.target)) {
+        tumCov <- tumCov[which(tumCov$on.target | tumCov$average.coverage<quantile(tumCov$average.coverage[!tumCov$on.target],0.99, na.rm=TRUE)),]
+    }
+    tumCov$on.target <- factor(ifelse(tumCov$on.target, "on-target", "off-target"), 
+        levels = c("on-target", "off-target"))
+    tumCov$norm_status <- factor(tumCov$norm_status, levels = c("Pre-normalized","Post-normalized"))
+    if (log) tumCov$average.coverage <- log(tumCov$average.coverage)
+    if (density == "Low") {
+        gp <- ggplot(tumCov, aes_string(x = x, y = "average.coverage")) + 
+            geom_point(color = "red", alpha = 0.2) +
+            ylab(paste0(if (log) "Log-" else "", "Coverage")) +
+            theme(axis.text = element_text(size = 6), axis.title = element_text(size = 16)) + 
+            facet_wrap(~ on.target + norm_status, ncol = 2, scales = "free_y")
+    } else if (density == "High") {
+        gp <- ggplot(tumCov, aes_string(x = x, y = "average.coverage")) + 
+        geom_point(color="blue", alpha = 0.1) + 
+        stat_density2d(aes(fill = ..level..), geom = "polygon") + 
+        scale_alpha_continuous(limits = c(0.1, 0), breaks = seq(0, 0.1, by = 0.025)) + 
+        ylab("Coverage") + 
+        theme(axis.text = element_text(size = 16), axis.title = element_text(size = 16)) + 
+        facet_wrap(~on.target + norm_status, ncol = 2, scales = "free_y")
+    }
+    gp
+}
+
+.plotGcBias <- function(raw, normalized, medDiploid, plot.max.density) {
+    gp <- .createCoverageGgplot(raw, normalized, plot.max.density, "gc_bias")
+
     plotMed <- medDiploid[,c("gcIndex","denom")]
     colnames(plotMed) <- c("gcIndex","gcNum")
     plotMed$norm_status <- "Pre-normalized"
@@ -84,26 +121,29 @@ output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
     plotMed <- rbind(plotMed,medDiploid[,c("gcIndex","gcNum","norm_status")])
     plotMed$norm_status <- factor(plotMed$norm_status, 
         levels = c("Pre-normalized","Post-normalized"))
+    plotMed$on.target <- "on-target"
+    gp <- gp + geom_line(data = plotMed, aes_string(x = "gcIndex", y = "gcNum"), color = "blue") +
+          xlab("GC content")
+    gp
+}
 
-    if (density == "Low") {
-        print(ggplot(gcPlot, aes_string(x = "gc_bias", y = "average.coverage")) + 
-            geom_point(color = "red", alpha = 0.2) +
-            geom_line(data = plotMed, aes_string(x = "gcIndex", y = "gcNum"), color = "blue") + 
-            scale_y_sqrt() +
-            xlab("GC content") + ylab("Coverage") +
-            theme(axis.text = element_text(size = 6), axis.title = element_text(size = 16)) + 
-            facet_wrap(~ norm_status, nrow=1))
-    } else if (density == "High") {
-        print(ggplot(gcPlot, aes_string(x = "gc_bias", y = "average.coverage")) + 
-        geom_point(color="blue", alpha = 0.1) + 
-        stat_density2d(aes(fill = ..level..), geom = "polygon") + 
-        scale_alpha_continuous(limits = c(0.1, 0), breaks = seq(0, 0.1, by = 0.025)) + 
-        geom_line(data = plotMed, aes_string(x = "gcIndex",y = "gcNum"), color = "red") + 
-        scale_y_sqrt() +
-        xlab("GC content") + ylab("Coverage") + 
-        theme(axis.text = element_text(size = 16), axis.title = element_text(size = 16)) + 
-        facet_wrap(~norm_status, nrow = 1))
-    }
+.plotRepBias <- function(raw, normalized, lmFit, plot.max.density) {
+    gp <- .createCoverageGgplot(raw, normalized, plot.max.density, "reptiming", log=TRUE) +
+            xlab("Replication Timing")
+    tmp <- range(gp$data$reptiming, na.rm=TRUE)
+    x <- seq(tmp[1], tmp[2], length.out=100)
+    coefs <- do.call(rbind, lapply(lmFit, function(x) x$coefficients))
+    rownames(coefs) <- NULL
+
+
+    plotMed <- data.frame(coefs, norm_status=rep(c("Pre-normalized","Post-normalized"), 2))
+    colnames(plotMed)[1:2] <- c("intercept", "slope")
+    plotMed$norm_status <- factor(plotMed$norm_status, 
+        levels = c("Pre-normalized","Post-normalized"))
+    plotMed$on.target <- c("off-target", "off-target", "on-target", "on-target")
+    gp <- gp + geom_abline(data = plotMed, 
+        aes_string(intercept = "intercept", slope = "slope"), color = "blue")
+    gp  
 }
 
 #.correctDuplicationBiasLoess <- function(tumor) {
@@ -126,7 +166,9 @@ output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
     }
     doutlier <- 0.001
     domain <- quantile(tumor$reptiming, probs = c(doutlier, 1 - doutlier), na.rm = TRUE)
-        
+    
+    lmFit <- list()
+            
     for (on.target in c(FALSE, TRUE)) {
         # ignore problematic intervals (missing or outlier data)
         idx <- tumor$on.target == on.target & 
@@ -141,8 +183,11 @@ output.file = NULL, plot.gc.bias = FALSE, plot.max.density = 50000) {
             log(mean(tumor$average.coverage[idx], na.rm=TRUE)))
         tumor$coverage[idx] <- tumor$coverage[idx] / corFactor
         tumor$counts[idx] <- tumor$counts[idx] / corFactor
+        tumor <- .addAverageCoverage(tumor)
+        fitAfter <- lm(log(tumor$average.coverage[idx])~tumor$reptiming[idx])
+        lmFit <- c(lmFit, list(before=fit, after=fitAfter))
     }
-    .addAverageCoverage(tumor)
+    list(coverage=tumor, lmFit=lmFit)
 }
     
 .correctCoverageBiasLoess <- function(tumor) {

@@ -149,9 +149,9 @@ if (!is.null(bam.file)) {
     if (file.exists(output.file) && !force) {
         flog.info("%s exists. Skipping... (--force will overwrite)", output.file)
     } else {
-        png(outpng.file, width = 800)
+        png(outpng.file, width = 800, height = 800)
         correctCoverageBias(gatk.coverage, gc.gene.file,
-            output.file = output.file, plot.gc.bias = TRUE)
+            output.file = output.file, plot.bias = TRUE)
         dev.off()
    }
 }
