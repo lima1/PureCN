@@ -20,8 +20,8 @@ source("https://bioconductor.org/biocLite.R")
 biocLite("PureCN")
 ```
 
-Note that if your R/Bioconductor version is outdated, this will install an old
-and unsupported version.
+If your R/Bioconductor version is outdated, this will install an old and
+unsupported version.
 
 For outdated R/Bioconductor versions, you can try backporting the latest stable
 version (this should work fine for Bioconductor 3.3 and later):

@@ -97,6 +97,11 @@ test_that("Offtarget settings work as expected", {
         mappability = mappability)
     expect_equal(gcMap$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
 
+    expect_output(gcMap <- preprocessIntervals(intervals, reference.file,
+        mappability = mappability, min.mappability=c(1,1,1)),
+        "Removing 1 targets with low mappability score")
+    expect_equal(gcMap$mappability, c(1, 1, 1, 1), tolerance = 0.001)
+
     gcMap <- preprocessIntervals(intervals, reference.file, 
         mappability = mappability, off.target = TRUE, 
         off.target.padding = -5, min.off.target.width = 10)

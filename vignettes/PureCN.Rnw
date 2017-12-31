@@ -222,8 +222,8 @@ In coverage normalization, we distinguish between assay- and library-specific
 biases.  Assay-specific biases, for example due to probe density, probe capture
 efficiency and read mappability, are best removed with a pool of normal samples
 (Section~\ref{bestnormal}). In other words, by examining the coverage of
-particular exons in a pool of normals, we can estimate how well this assay can
-capture these exons and can then adjust the tumor coverage accordingly.
+particular exons in a pool of normals, we can estimate how well this assay
+captures these exons and will then adjust the tumor coverage accordingly.
 
 Other biases are library-specific, meaning a patient sample captured in
 different libraries may display dramatically different coverage profiles across
