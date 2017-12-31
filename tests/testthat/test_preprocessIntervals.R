@@ -45,6 +45,10 @@ test_that("Exceptions happen with wrong input", {
     expect_error(preprocessIntervals(interval.file2, 
         reference.file),
         "Interval coordinates should start at 1, not at 0")
+    expect_error(preprocessIntervals(interval.file, reference.file, 
+        off.target = TRUE),
+        "after filtering for mappability")
+
     file.remove(interval.file2)
 })
 
@@ -85,12 +89,26 @@ test_that("Offtarget settings work as expected", {
             mappability = mappability)
         expect_equal(gcMap$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
     }
+
     mappability.file <- system.file("extdata", "ex2_mappability.bed", 
         package = "PureCN", mustWork = TRUE)
     mappability <- import(mappability.file)
     gcMap <- preprocessIntervals(intervals, reference.file, 
         mappability = mappability)
     expect_equal(gcMap$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
+
+    gcMap <- preprocessIntervals(intervals, reference.file, 
+        mappability = mappability, off.target = TRUE, 
+        off.target.padding = -5, min.off.target.width = 10)
+    expect_equal(gcMap$mappability, c(1, 1, 1, 1, 0.7, 1, 1, 1, 1), 
+        tolerance = 0.001)
+
+    expect_output(gr <-preprocessIntervals(intervals[1:2], reference.file, 
+        off.target = TRUE, off.target.padding = -5, 
+        average.off.target.width = 100, min.off.target.width = 10), 
+        "contigs from off-target regions: seq2")
+    expect_equal("seq1", seqlevelsInUse(gr))
+
     reference.file <- system.file("extdata", "ex3_reference.fa", 
         package = "PureCN", mustWork = TRUE)
     bed.file3 <- system.file("extdata", "ex3_intervals.bed", 
@@ -114,6 +132,7 @@ test_that("Offtarget settings work as expected", {
     expect_equal(x$gc_bias, c(0.4533333, 0.5057143, 0.5733333, 
         0.48, 0.36), tolerance = 0.001)
     expect_equal(x$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
+
 })
 
 file.remove(output.file)

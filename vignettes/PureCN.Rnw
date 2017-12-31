@@ -75,9 +75,12 @@ In addition, we need to know a little bit more about the assay.  This is the
 annoying step, since here the user needs to provide some information.  Most
 importantly, we need to know the positions of all targets.  Then we need to
 correct for GC-bias, for which we need GC-content for each target.  Optionally,
-if gene-level calls are wanted, we also need for each target a gene symbol.  To
-obtain best results, we can finally use a pool of normal samples to
-automatically learn more about the assay and its biases and common artifacts. 
+if gene-level calls are wanted, we also need for each target a gene symbol. We
+may also observe subtile differences in coverage of tumor compared to
+normal due to varying proliferation rates and we can provide replication
+timing data to check and correct for such a bias. To obtain best results,
+we can finally use a pool of normal samples to automatically learn more
+about the assay and its biases and common artifacts.
 
 The next sections will show how to do all this with \Biocpkg{PureCN} alone or
 with the help of \software{GATK} and/or existing copy number pipelines. 
@@ -212,10 +215,31 @@ interval.file <- system.file("extdata", "example_intervals.txt",
     package="PureCN")
 @
 
-\section{GC-bias}
+\section{Library-specific coverage bias}
 \label{secgcbias}
-The algorithm works best when the coverage files are normalized for
-library-specific biases such as GC-content and replication timing
+
+In coverage normalization, we distinguish between assay- and library-specific
+biases.  Assay-specific biases, for example due to probe density, probe capture
+efficiency and read mappability, are best removed with a pool of normal samples
+(Section~\ref{bestnormal}). In other words, by examining the coverage of
+particular exons in a pool of normals, we can estimate how well this assay can
+capture these exons and can then adjust the tumor coverage accordingly.
+
+Other biases are library-specific, meaning a patient sample captured in
+different libraries may display dramatically different coverage profiles across
+libraries. Data from great sequencing centers usually show relatively small
+technical variance nowadays, but some biases are not completely avoidable. The
+most important library-specific bias is due to GC-content, i.e. regions of high
+AT- or GC-content are not always captured with exactly the same efficieny in
+tumor and normals.
+
+We usually also observe that early replicating regions have a slightly higher
+coverage than late replicating regions. Since there is often a significant
+difference in proliferation rates of tumor and normal, the pool of normals
+might also not completely adjust for this small bias.
+
+As first step, we thus correct the raw coverage of all samples, tumor and
+normal, for these two major sources of library-specific coverage biases
 (Figure~\ref{figure/figuregccorrect-1}). 
 
 <<figuregccorrect, fig.show='hide', fig.width=7, fig.height=7, warning=FALSE>>=
@@ -230,13 +254,11 @@ example files are already GC-normalized; real data will show more dramatic
 differences.}
 
 \textbf{All the following steps in this vignette assume that the coverage data
-are GC-normalized.} The example coverage files are already GC-normalized.
-We provide a convenient command line script for
-generating GC-normalized coverage data from BAM files or from \software{GATK}
-coverage files (see Quick vignette).
+are normalized.} The example coverage files are already GC-normalized.  We
+provide a convenient command line script for generating normalized coverage
+data from BAM files or from \software{GATK} coverage files (see Quick
+vignette).
 
-Assay-specific biases such as probe density or mappability are later
-efficiently removed by using a pool of normal samples.
 
 \section{Pool of normals}
 

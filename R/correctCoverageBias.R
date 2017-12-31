@@ -69,7 +69,7 @@ gc.gene.file = NULL) {
     ret <- .correctRepTimingBiasLinear(ret$coverage)
     if (plot.bias) {
         gp2 <- .plotRepBias(raw, ret$coverage, ret$lmFit, plot.max.density)
-        print(grid.arrange(gp1, gp2, nrow = 2))
+        grid.arrange(gp1, gp2, nrow = 2)
     }
 
     if (!is.null(output.file)) {
@@ -86,13 +86,17 @@ gc.gene.file = NULL) {
     }
     raw$norm_status <- "Pre-normalized"
     normalized$norm_status <- "Post-normalized"
-    ids <- c("coverage","average.coverage","gc_bias", "reptiming", "norm_status", "on.target")
-    tumCov <- rbind(as.data.frame(raw)[,ids],
-                    as.data.frame(normalized)[,ids])
+    ids <- c("coverage","average.coverage","gc_bias", "reptiming", 
+             "norm_status", "on.target")
+    tumCov <- rbind(as.data.frame(raw)[, ids],
+                    as.data.frame(normalized)[, ids])
 
-    tumCov <- tumCov[which(tumCov$average.coverage<quantile(tumCov$average.coverage,0.999, na.rm=TRUE)),]
+    tumCov <- tumCov[which(tumCov$average.coverage < 
+        quantile(tumCov$average.coverage, 0.999, na.rm = TRUE)),]
+
     if (sum(!tumCov$on.target)) {
-        tumCov <- tumCov[which(tumCov$on.target | tumCov$average.coverage<quantile(tumCov$average.coverage[!tumCov$on.target],0.99, na.rm=TRUE)),]
+        tumCov <- tumCov[which(tumCov$on.target | tumCov$average.coverage < 
+            quantile(tumCov$average.coverage[!tumCov$on.target], 0.99, na.rm=TRUE)),]
     }
     tumCov$on.target <- factor(ifelse(tumCov$on.target, "on-target", "off-target"), 
         levels = c("on-target", "off-target"))
@@ -103,12 +107,13 @@ gc.gene.file = NULL) {
     if (density == "Low") {
         gp <- gp + geom_point(color = "red", alpha = 0.2)
     } else if (density == "High") {
-        gp <- gp + geom_point(color="blue", alpha = 0.1) +
+        gp <- gp + geom_point(color = "blue", alpha = 0.1) +
             stat_density2d(aes(fill = ..level..), geom = "polygon") +
-            scale_alpha_continuous(limits = c(0.1, 0), breaks = seq(0, 0.1, by = 0.025))
+            scale_alpha_continuous(limits = c(0.1, 0), 
+                                   breaks = seq(0, 0.1, by = 0.025))
     }
 
-    gp+ylab(paste0(if (log) "Log-" else "", "Coverage")) +
+    gp + ylab(paste0(if (log) "Log-" else "", "Coverage")) +
        facet_wrap(~on.target + norm_status, ncol = 2, scales = "free_y")
 }
 

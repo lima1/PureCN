@@ -156,6 +156,10 @@ calculateGCContentByInterval <- function(...) {
         offRegions <- intersect(offRegions, mappability)
     }    
     offRegions <- offRegions[width(offRegions)>off.target.padding*-2]
+    if (!length(offRegions)) {
+        .stopUserError("No off-target regions after filtering for mappability ",
+            "and off.target.padding")
+    }
     offRegions <- .padGranges(offRegions, off.target.padding)
 
     flog.info("Tiling off-target regions to an average width of %i.",
@@ -166,7 +170,8 @@ calculateGCContentByInterval <- function(...) {
     offRegions <- offRegions[width(offRegions)>=min.off.target.width]
     seqlevelsBefore <- seqlevelsInUse(offRegions)
     if (off.target.seqlevels == "targeted") {
-        offRegions <- offRegions[seqnames(offRegions) %in% seqlevels(interval.gr)]
+        offRegions <- offRegions[seqnames(offRegions) %in% 
+            seqlevelsInUse(interval.gr)]
     }
     seqlevelsAfter <- seqlevelsInUse(offRegions)
     if (!identical(seqlevelsBefore, seqlevelsAfter)) {
