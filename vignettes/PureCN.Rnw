@@ -230,7 +230,7 @@ different libraries may display dramatically different coverage profiles across
 libraries. Data from great sequencing centers usually show relatively small
 technical variance nowadays, but some biases are not completely avoidable. The
 most important library-specific bias is due to GC-content, i.e. regions of high
-AT- or GC-content are not always captured with exactly the same efficieny in
+AT- or GC-content are not always captured with exactly the same efficiency in
 tumor and normals.
 
 We usually also observe that early replicating regions have a slightly higher

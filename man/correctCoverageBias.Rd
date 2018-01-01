@@ -2,7 +2,7 @@
 % Please edit documentation in R/correctCoverageBias.R
 \name{correctCoverageBias}
 \alias{correctCoverageBias}
-\title{Correct for GC bias}
+\title{Correct for library-specific coverage biases}
 \usage{
 correctCoverageBias(coverage.file, interval.file, output.file = NULL,
   plot.bias = FALSE, plot.max.density = 50000, gc.gene.file = NULL)
@@ -32,9 +32,9 @@ estimation is applied. If the \code{plot.bias} parameter is set as
 \item{gc.gene.file}{Deprecated and renamed to \code{interval.file}.}
 }
 \description{
-Takes as input coverage data and a mapping file for GC content. Will then
-normalize coverage data for GC-bias.  Optionally plots the pre and
-post normalization GC profiles.
+Takes as input coverage data and a mapping file for GC content and 
+optionally replication timing. Will then normalize coverage data for 
+GC-bias.  Plots the pre and post normalization GC profiles.
 }
 \examples{
 

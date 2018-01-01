@@ -1,11 +1,11 @@
 # Make CMD check happy
 globalVariables(names=c("..level.."))
 
-#' Correct for GC bias
+#' Correct for library-specific coverage biases
 #' 
-#' Takes as input coverage data and a mapping file for GC content. Will then
-#' normalize coverage data for GC-bias.  Optionally plots the pre and
-#' post normalization GC profiles.
+#' Takes as input coverage data and a mapping file for GC content and 
+#' optionally replication timing. Will then normalize coverage data for 
+#' GC-bias.  Plots the pre and post normalization GC profiles.
 #' 
 #' 
 #' @param coverage.file Coverage file or coverage data parsed with the
