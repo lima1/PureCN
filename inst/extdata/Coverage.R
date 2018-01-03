@@ -150,12 +150,15 @@ if (!is.null(bam.file)) {
     output.file <- file.path(outdir,  gsub(".txt$|_interval_summary",
         "_loess.txt", basename(gatk.coverage)))
     outpng.file <- sub("txt$", "png", output.file)
+    output.qc.file <- sub(".txt$", "_qc.txt", output.file)
+
     if (file.exists(output.file) && !force) {
         flog.info("%s exists. Skipping... (--force will overwrite)", output.file)
     } else {
         png(outpng.file, width = 800, height = 800)
         correctCoverageBias(gatk.coverage, interval.file,
-            output.file = output.file, plot.bias = TRUE)
+            output.file = output.file, output.qc.file = output.qc.file, 
+                plot.bias = TRUE)
         dev.off()
    }
 }

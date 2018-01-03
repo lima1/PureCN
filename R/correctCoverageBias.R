@@ -24,6 +24,7 @@ globalVariables(names=c("..level.."))
 #' package. Using this parameter, change the threshold at which density
 #' estimation is applied. If the \code{plot.bias} parameter is set as
 #' \code{FALSE}, this will be ignored.
+#' @param output.qc.file Write miscellaneous coverage QC metrics to file.
 #' @param gc.gene.file Deprecated and renamed to \code{interval.file}.
 #' @author Angad Singh, Markus Riester
 #' @seealso \code{\link{preprocessIntervals}}
@@ -45,14 +46,14 @@ globalVariables(names=c("..level.."))
 #' @importFrom utils write.table
 correctCoverageBias <- function(coverage.file, interval.file,
 output.file = NULL, plot.bias = FALSE, plot.max.density = 50000, 
-gc.gene.file = NULL) {
+output.qc.file = NULL, gc.gene.file = NULL) {
 
     if (is.character(coverage.file)) {
         raw  <- readCoverageFile(coverage.file)
     } else {
         raw <- coverage.file
     }    
-
+    
     # TODO Remove in 1.12
     if (!is.null(gc.gene.file)) {
         flog.warn("gc.gene.file was renamed to interval.file.")
@@ -65,19 +66,46 @@ gc.gene.file = NULL) {
         gp1 <- .plotGcBias(raw, ret$coverage, ret$medDiploid, plot.max.density)
     }
     
-    raw <- ret$coverage
-    ret <- .correctRepTimingBiasLinear(ret$coverage)
+    gc <- ret$coverage
+    ret <- .correctRepTimingBiasLinear(gc)
     if (plot.bias) {
-        gp2 <- .plotRepBias(raw, ret$coverage, ret$lmFit, plot.max.density)
+        gp2 <- .plotRepBias(gc, ret$coverage, ret$lmFit, plot.max.density)
         grid.arrange(gp1, gp2, nrow = 2)
     }
-
     if (!is.null(output.file)) {
         .writeCoverage(ret$coverage, output.file)
+    }
+    if (!is.null(output.qc.file)) {
+        .writeQCFile(raw, gc, ret$coverage, output.qc.file)
     }
     invisible(ret$coverage)
 }
 
+.MoM <- function(x, plot = FALSE) {
+    if (length(x) < 10) return(NA)
+    x <- median(x, na.rm = TRUE) / mean(x, na.rm = TRUE)
+}
+
+.writeQCFile <- function(raw, gc, final, output.qc.file) {
+    mom <- unlist(lapply(list(raw, gc, final), function(x) sapply(c(TRUE, FALSE), function(b) 
+        .MoM(x[which(x$on.target == b)]$average.coverage))))
+
+    meanOn     <- mean(raw[which(raw$on.target)]$average.coverage, na.rm = TRUE)
+    meanOff    <- mean(raw[which(!raw$on.target)]$average.coverage, na.rm = TRUE)
+    meanDupOn  <- mean(raw[which(raw$on.target)]$duplication.rate, na.rm = TRUE)
+    meanDupOff <- mean(raw[which(!raw$on.target)]$duplication.rate, na.rm = TRUE)
+    
+    qc <- c(meanOn, meanOff, meanDupOn, meanDupOff, mom)
+
+    qc <- data.frame(matrix(qc, nrow=1))
+    colnames(qc)[1:2] <- c("mean.coverage.ontarget", "mean.coverage.offtarget")
+    colnames(qc)[3:4] <- c("mean.duplication.ontarget", "mean.duplication.offtarget")
+    colnames(qc)[5:10] <- paste0("mom.", c("raw", "raw", "post.gc", "post.gc", 
+                             "post.reptiming", "post.reptiming"),
+                             ".", rep(c("ontarget", "offtarget"),3))
+    write.table(qc, file = output.qc.file, row.names = FALSE, quote = FALSE)
+}
+    
 .createCoverageGgplot <- function(raw, normalized, plot.max.density, x, log = FALSE) {
     if (length(normalized) < plot.max.density) {
         density <- "Low"

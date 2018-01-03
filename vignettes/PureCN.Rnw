@@ -234,13 +234,17 @@ AT- or GC-content are not always captured with exactly the same efficiency in
 tumor and normals.
 
 We usually also observe that early replicating regions have a slightly higher
-coverage than late replicating regions. Since there is often a significant
-difference in proliferation rates of tumor and normal, the pool of normals
-might also not completely adjust for this small bias.
+coverage than late replicating regions \cite{Koren2014, Kleinheinz210807}.
+Since there is often a significant difference in proliferation rates of tumor
+and normal, the pool of normals might also not completely adjust for this small
+bias.
 
 As first step, we thus correct the raw coverage of all samples, tumor and
 normal, for these two major sources of library-specific coverage biases
-(Figure~\ref{figure/figuregccorrect-1}). 
+(Figure~\ref{figure/figuregccorrect-1}). For GC-normalization, we use a 2-step
+loess normalization \cite(Ha2014}. For the replication timing bias, a linear
+model of log-transformed coverage and provided replication timing score is
+used.
 
 <<figuregccorrect, fig.show='hide', fig.width=7, fig.height=7, warning=FALSE>>=
 correctCoverageBias(normal.coverage.file, interval.file, 
