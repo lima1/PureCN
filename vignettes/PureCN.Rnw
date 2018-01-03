@@ -242,7 +242,7 @@ bias.
 As first step, we thus correct the raw coverage of all samples, tumor and
 normal, for these two major sources of library-specific coverage biases
 (Figure~\ref{figure/figuregccorrect-1}). For GC-normalization, we use a 2-step
-loess normalization \cite(Ha2014}. For the replication timing bias, a linear
+loess normalization \cite{Ha2014}. For the replication timing bias, a linear
 model of log-transformed coverage and provided replication timing score is
 used.
 
