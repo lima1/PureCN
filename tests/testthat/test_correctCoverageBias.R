@@ -41,4 +41,15 @@ test_that("Example data qc matches", {
     x <- read.delim(output.qc.file, sep=" ")
     expect_equal(1, nrow(x))
     expect_equal(10, ncol(x))
+    file.remove(output.qc.file)
 })
+
+test_that("Example data without reptiming works", {
+    x <- read.delim(interval.file2)
+    interval.file3 <- tempfile(fileext = ".txt")
+    x$reptiming <- NULL
+    write.table(x, file=interval.file3, row.names=FALSE, quote=FALSE, sep="\t")
+    coverage <- correctCoverageBias(normal.coverage.file, interval.file3, 
+                                   plot.bias=TRUE)
+    expect_equal(nrow(x), length(coverage))
+})              

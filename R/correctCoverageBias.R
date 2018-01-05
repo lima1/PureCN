@@ -69,8 +69,13 @@ output.qc.file = NULL, gc.gene.file = NULL) {
     gc <- ret$coverage
     ret <- .correctRepTimingBiasLinear(gc)
     if (plot.bias) {
-        gp2 <- .plotRepBias(gc, ret$coverage, ret$lmFit, plot.max.density)
-        grid.arrange(gp1, gp2, nrow = 2)
+        # reptiming available?
+        if (!is.null(ret$lmFit)) {
+            gp2 <- .plotRepBias(gc, ret$coverage, ret$lmFit, plot.max.density)
+            grid.arrange(gp1, gp2, nrow = 2)
+        } else {
+            print(gp1)    
+        }    
     }
     if (!is.null(output.file)) {
         .writeCoverage(ret$coverage, output.file)
@@ -194,7 +199,7 @@ output.qc.file = NULL, gc.gene.file = NULL) {
     # ALPHA code
     if (is.null(tumor$on.target)) tumor$on.target <- TRUE
     if (is.null(tumor$reptiming) || sum(!is.na(tumor$reptiming))<100) {
-        return(tumor)
+        return(list(coverage=tumor, lmFit=NULL))
     }
     doutlier <- 0.001
     domain <- quantile(tumor$reptiming, probs = c(doutlier, 1 - doutlier), na.rm = TRUE)

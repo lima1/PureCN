@@ -122,7 +122,8 @@ automatically include variants in the 50bp flanking regions if the variant
 caller was either run without interval file or with interval padding (See
 section~\ref{faqinput}). 
 
-\Biocpkg{PureCN} will attempt to optimize the targets for copy number calling:
+\Biocpkg{PureCN} will attempt to optimize the targets for copy number calling
+(similar to \cite{Talevich2016}):
 
 \begin{itemize} 
 \item Large targets are split to obtain a higher resolution
@@ -221,9 +222,10 @@ interval.file <- system.file("extdata", "example_intervals.txt",
 In coverage normalization, we distinguish between assay- and library-specific
 biases.  Assay-specific biases, for example due to probe density, probe capture
 efficiency and read mappability, are best removed with a pool of normal samples
-(Section~\ref{bestnormal}). In other words, by examining the coverage of
-particular exons in a pool of normals, we can estimate how well this assay
-captures these exons and will then adjust the tumor coverage accordingly.
+(Section~\ref{bestnormal}, \cite{Talevich2016}). In other words, by examining
+the coverage of particular exons in a pool of normals, we can estimate how well
+this assay captures these exons and will then adjust the tumor coverage
+accordingly.
 
 Other biases are library-specific, meaning a patient sample captured in
 different libraries may display dramatically different coverage profiles across
