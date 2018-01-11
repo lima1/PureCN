@@ -406,6 +406,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --maxploidy        & max.ploidy & \Rfunction{runAbsoluteCN} \\
 --maxcopynumber    & test.num.copy & \Rfunction{runAbsoluteCN} \\
 --postoptimize     & post.optimize & \Rfunction{runAbsoluteCN} \\    
+--bootstrapn       & n & \Rfunction{bootstrapResults} \\
 --modelhomozygous  & model.homozygous & \Rfunction{runAbsoluteCN} \\ 
 --model            & model & \Rfunction{runAbsoluteCN} \\ 
 --logratiocalibration & log.ratio.calibration & \Rfunction{runAbsoluteCN} \\ 

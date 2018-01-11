@@ -69,6 +69,9 @@ option_list <- list(
         help = "Post-optimization [default %default]"),
     make_option(c("--bootstrapn"), action = "store", type = "integer", default = 0,
         help = "Number of bootstrap replicates [default %default]"),
+    make_option(c("--speedupheuristics"), action = "store", type = "integer", 
+        default =  max(eval(formals(PureCN::runAbsoluteCN)$speedup.heuristics)),
+        help = "Tries to avoid spending computation time on unlikely local optima [default %default]"),
     make_option(c("--modelhomozygous"), action = "store_true", default = FALSE,
         help = "Model homozygous variants in very pure samples [default %default]"),
     make_option(c("--model"), action = "store", type = "character",
@@ -222,7 +225,8 @@ if (file.exists(file.rds) && !opt$force) {
             error = opt$error,
             log.ratio.calibration = opt$logratiocalibration,
             max.non.clonal = opt$maxnonclonal,
-            post.optimize = opt$postoptimize)
+            post.optimize = opt$postoptimize,
+            speedup.heuristics = opt$speedupheuristics)
     dev.off()
     if (opt$bootstrapn > 0) {
         ret <- bootstrapResults(ret, n = opt$bootstrapn) 

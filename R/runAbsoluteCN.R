@@ -641,6 +641,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             candidate.solutions$candidates <- .filterDuplicatedCandidates(
                 rbind(candidate.solutions$candidates, 
                       c(2, somatic.purity, NA, 2)))
+            
+        }
+        if (!is.null(vcf.file) && speedup.heuristics > 1) {
+            candidate.solutions$candidates <- .filterUnlikelyCandidates(
+                candidate.solutions$candidates, vcf, tumor.id.in.vcf)
         }
     }
     

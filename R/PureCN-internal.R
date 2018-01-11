@@ -1054,3 +1054,23 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     estimatedRate <- if (fractionChrs >= min.fraction.chromosomes) estimatedRate else 0
     estimatedRate
 }
+
+.filterUnlikelyCandidates <- function(candidates, vcf, tumor.id.in.vcf) {
+    # nothing to filter with unique solutions and we need the SNPs
+    if (nrow(candidates) < 2 || is.null(vcf)) {
+        return(candidates)
+    }
+    shape <- mean(geno(vcf)$DP[,tumor.id.in.vcf], na.rm = TRUE) / 2
+    # Assume the most likely state fits terribly and another one perfectly,
+    # which solution can make up for the poor SCNA fit
+    d <- sapply(c(0.35, 0.5), function(x) dbeta(x, shape, shape, log = TRUE))
+    dd <- nrow(vcf) * diff(d)
+    # can be NA for manually added optima to test
+    idx <- is.na(candidates$llik) | 
+           candidates$llik > candidates$llik[1] - dd
+    if (sum(!idx)>0) {
+        flog.info("Skipping %i local optima with very small log-likelihood.", sum(!idx))
+        candidates <- candidates[idx,]
+    }
+    candidates
+}

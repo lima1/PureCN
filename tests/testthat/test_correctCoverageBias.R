@@ -52,4 +52,5 @@ test_that("Example data without reptiming works", {
     coverage <- correctCoverageBias(normal.coverage.file, interval.file3, 
                                    plot.bias=TRUE)
     expect_equal(nrow(x), length(coverage))
-})              
+    file.remove(interval.file3)
+})
