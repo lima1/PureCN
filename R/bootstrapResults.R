@@ -9,7 +9,7 @@
 #' @param res Return object of the \code{\link{runAbsoluteCN}} function.
 #' @param n Number of bootstrap replicates.
 #' @param top Include solution if it appears in the top \code{n} solutions of
-#' any bootstrap replicate.
+#' any bootstrap replicate. If \code{NULL}, do not filter solutions.
 #' @return Returns the \code{\link{runAbsoluteCN}} object with low likelihood
 #' solutions removed. Also adds a bootstrap value to each solution. This value
 #' is the fraction of bootstrap replicates in which the solution ranked first.
@@ -23,8 +23,9 @@
 #'
 #' @export bootstrapResults
 #' @importFrom utils head
-bootstrapResults <- function(res, n = 500, top = 2) {
+bootstrapResults <- function(res, n = 500, top = NULL) {
     if (length(res$results) < 2) return(res)
+    if (is.null(top)) top <- length(res$results)    
     res$results <- .bootstrapResults(res$results, n = n, top = top)
     res
 }

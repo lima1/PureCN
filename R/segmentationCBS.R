@@ -370,3 +370,25 @@ plot.cnv=TRUE, max.segments=NULL, chr.hash=chr.hash) {
         floor( (start(normal) + end(normal)) / 2), 
         data.type = "logratio", sampleid = sampleid)
 }
+
+.getSizeDomState <- function(seg) {
+    if (is.null(seg$cluster.id)) seg$cluster.id <- NA
+    seg$cluster.id[is.na(seg$cluster.id)] <- -1
+    seg$size <- .getSegSizes(seg)
+    segs <- split(seg, seg$cluster.id)
+
+    sizes <- sapply(segs, function(x) sum(x$size))
+    # they should all have the same seg.mean within cluster, but take
+    # the mean to be safe
+    seg.means <- sapply(segs, function(x) mean(x$seg.mean, na.rm = TRUE))
+
+    idx <- order(sizes, decreasing = TRUE)
+    sizes <- sizes[idx]
+    seg.means <- seg.means[idx]
+
+    id <- if (names(sizes[1]) == "-1") 2 else 1
+    fraction.genome <- if (id > length(sizes)) 0 else sizes[id] / sum(sizes)
+    seg.mean <- if (id > length(sizes)) Inf else seg.means[id]
+        
+    list(fraction.genome = fraction.genome, seg.mean = seg.mean)
+}

@@ -194,6 +194,10 @@
 #' typically result in a slightly more accurate purity, especially for rather
 #' silent genomes or very low purities. Otherwise, it will just use the purity
 #' determined via the SCNA-fit.
+#' @param speedup.heuristics Tries to avoid spending computation time on
+#' local optima that are unlikely correct. Set to 0 to turn this off, to 1 to 
+#' only apply heuristics that in worst case will decrease accuracy slightly or 
+#' to 2 to turn on all heuristics. 
 #' @param log.file If not \code{NULL}, store verbose output to file.
 #' @param verbose Verbose output.
 #' @return A list with elements \item{candidates}{Results of the grid search.}
@@ -277,7 +281,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     min.logr.sdev = 0.15, max.logr.sdev = 0.6, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
     cosmic.vcf.file = NULL, model = c("beta", "betabin"),
-    post.optimize = FALSE, log.file = NULL, verbose = TRUE) {
+    post.optimize = FALSE, speedup.heuristics = 2,log.file = NULL, 
+    verbose = TRUE) {
 
     if (!verbose) flog.threshold("WARN")
     if (!is.null(log.file)) flog.appender(appender.tee(log.file))
@@ -524,7 +529,14 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         seg <- .fixAllosomeSegmentation(sex, seg)
     }
 
-
+    if (speedup.heuristics > 1) {
+        ds <- .getSizeDomState(seg)
+        if (ds$fraction.genome > 0.5 && abs(ds$seg.mean) < 0.1) {
+            max.ploidy <- 3
+            flog.info("Highly dominant copy number state with small log-ratio.%s",
+                " Skipping search for high ploidy solutions.")
+        }
+    }
     seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), 
                 IRanges(start = round(seg$loc.start), end = seg$loc.end))
 
@@ -864,12 +876,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 if (post.optimize && length(tp)>1) {
                     GoF <- .getGoF(list(SNV.posterior=res.snvllik[[1]]))
                     idx <- 1
-                    if (GoF < (min.gof-0.05)) {
+                    if (GoF < (min.gof-0.05) && speedup.heuristics > 0) {
                         flog.info("Poor goodness-of-fit (%.3f). Skipping post-optimization.", GoF)
                     } else if (.calcFractionBalanced(res.snvllik[[1]]$posteriors) > 0.8 && 
-                        weighted.mean(C, li) > 2.7) {
+                        weighted.mean(C, li) > 2.7 && speedup.heuristics > 0) {
                         flog.info("High ploidy solution in highly balanced genome. Skipping post-optimization.")
-                    } else if (.isRareKaryotype(weighted.mean(C, li))) {
+                    } else if (.isRareKaryotype(weighted.mean(C, li)) && speedup.heuristics > 0) {
                         flog.info("Rare karyotype solution. Skipping post-optimization.")
                     } else {
                         res.snvllik <- c(res.snvllik, lapply(tp[-1], .fitSNVp))

@@ -67,6 +67,8 @@ option_list <- list(
         help = "Maximum allele-specific integer copy number [default %default]"),
     make_option(c("--postoptimize"), action = "store_true", default = FALSE,
         help = "Post-optimization [default %default]"),
+    make_option(c("--bootstrapn"), action = "store", type = "integer", default = 0,
+        help = "Number of bootstrap replicates [default %default]"),
     make_option(c("--modelhomozygous"), action = "store_true", default = FALSE,
         help = "Model homozygous variants in very pure samples [default %default]"),
     make_option(c("--model"), action = "store", type = "character",
@@ -222,6 +224,9 @@ if (file.exists(file.rds) && !opt$force) {
             max.non.clonal = opt$maxnonclonal,
             post.optimize = opt$postoptimize)
     dev.off()
+    if (opt$bootstrapn > 0) {
+        ret <- bootstrapResults(ret, n = opt$bootstrapn) 
+    }
     saveRDS(ret, file = file.rds)
 }
 
@@ -235,6 +240,7 @@ if (debug) {
     write.csv(curationFile, file = paste0(out, "_debug.csv"),
         row.names = FALSE)
 }
+
 file.pdf <- paste0(out, ".pdf")
 pdf(file.pdf, width = 10, height = 11)
 plotAbs(ret, type = "all")
