@@ -348,7 +348,9 @@ every sample:
 
 <<calculatemappingbias>>=
 # speed-up future runtimes by pre-calculating variant mapping biases
-normal.panel.vcf.file <- system.file("extdata", "normalpanel.vcf.gz", package="PureCN")
+normal.panel.vcf.file <- system.file("extdata", "normalpanel.vcf.gz", 
+                                     package="PureCN")
+
 bias <- calculateMappingBiasVcf(normal.panel.vcf.file, genome = "h19")
 saveRDS(bias, "mapping_bias.rds")
 normal.panel.vcf.file <- "mapping_bias.rds"
