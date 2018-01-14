@@ -12,7 +12,9 @@
 #' VCF.
 #' @param normal.panel.vcf.file Combined VCF file of a panel of normals,
 #' expects allelic fractions as FA genotype field. Should be compressed and
-#' indexed with bgzip and tabix, respectively.
+#' indexed with bgzip and tabix, respectively. You can provide a precomputed
+#' mapping bias database here 
+#' (obtained by \code{\link{calculateMappingBiasVcf}}).
 #' @param min.normals Minimum number of normals with heterozygous SNP for
 #' calculating position-specific mapping bias. Requires
 #' \code{normal.panel.vcf.file}.
@@ -67,33 +69,26 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     if (is.null(normal.panel.vcf.file)) {
         return(list(bias = tmp))
     }
-    nvcf <- .readNormalPanelVcfLarge(vcf, normal.panel.vcf.file)
-    if (nrow(nvcf) < 1) {
-        flog.warn("setMappingBiasVcf: no hits in %s.", normal.panel.vcf.file)
-        return(list(bias = tmp))
+
+    if (file_ext(normal.panel.vcf.file) == "rds") {
+        mappingBias <- readRDS(normal.panel.vcf.file)
+        ov <- findOverlaps(vcf, mappingBias, select = "first")
+    } else {
+        nvcf <- .readNormalPanelVcfLarge(vcf, normal.panel.vcf.file)
+        if (nrow(nvcf) < 1) {
+            flog.warn("setMappingBiasVcf: no hits in %s.", normal.panel.vcf.file)
+            return(list(bias = tmp))
+        }
+        mappingBias <- .calculateMappingBias(nvcf, min.normals)
+        ov <- findOverlaps(vcf, nvcf, select = "first")
     }
-
-    psMappingBias <- sapply(seq_len(nrow(nvcf)), function(i) {
-        fa <- sapply(geno(nvcf[i])$AD, function(x) x[2] / sum(x))
-        idx <- !is.na(fa) & fa > 0.05 & fa < 0.9
-        if (!sum(idx) >= min.normals) return(c(0, 0, 0, 0))
-        sumAD <- apply(do.call(rbind, geno(nvcf[i])$AD[idx]), 2, sum)
-        c(sumAD, sum(idx), mean(fa[idx]))
-    })
-    # Add an average "normal" SNP (average coverage and allelic fraction > 0.4)
-    # as empirical prior
-    psMappingBias <- .adjustEmpBayes(psMappingBias) * 2
-    ponCntHits <- apply(geno(nvcf)$AD, 1, function(x)
-        sum(!is.na(unlist(x))) / 2)
-
-    ov <- findOverlaps(vcf, nvcf, select = "first")
 
     ponCnt <- integer(length(tmp))
 
-    tmp[!is.na(ov)] <- psMappingBias[ov][!is.na(ov)]
+    tmp[!is.na(ov)] <- mappingBias$bias[ov][!is.na(ov)]
     tmp[tmp > max.bias] <- max.bias
 
-    ponCnt[!is.na(ov)] <- ponCntHits[ov][!is.na(ov)]
+    ponCnt[!is.na(ov)] <- mappingBias$pon.count[ov][!is.na(ov)]
     if (smooth) {
         tmpSmoothed <- .smoothVectorByChromosome(tmp,
             as.character(seqnames(vcf)), smooth.n)
@@ -103,6 +98,29 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     return(list(bias = tmp, pon.count = ponCnt))
 }
 
+.calculateMappingBias <- function(nvcf, min.normals) {
+    # TODO: deal with tri-allelic sites
+    alt <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][2])
+    ref <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][1])
+    fa  <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][2]/sum(x[[1]]))
+    psMappingBias <- sapply(seq_len(nrow(nvcf)), function(i) {
+        idx <- !is.na(fa[i,]) & fa[i,] > 0.05 & fa[i,] < 0.9
+        if (!sum(idx) >= min.normals) return(c(0, 0, 0, 0))
+        c(sum(ref[i,idx]), sum(alt[i,idx]), sum(idx), mean(fa[i, idx]))
+    })
+    # Add an average "normal" SNP (average coverage and allelic fraction > 0.4)
+    # as empirical prior
+    psMappingBias <- .adjustEmpBayes(psMappingBias) * 2
+    ponCntHits <- apply(geno(nvcf)$AD, 1, function(x)
+        sum(!is.na(unlist(x))) / 2)
+
+    tmp <- rowRanges(nvcf)
+    mcols(tmp) <- NULL
+    tmp$bias <- psMappingBias
+    tmp$pon.count <- ponCntHits
+    tmp
+}
+    
 .smoothVectorByChromosome <- function(x, chr, smooth.n) {
     .filter <- function(x, ...) {
         if (length(x) < smooth.n * 5) return(x)

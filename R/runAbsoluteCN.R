@@ -281,7 +281,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     min.logr.sdev = 0.15, max.logr.sdev = 0.6, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
     cosmic.vcf.file = NULL, model = c("beta", "betabin"),
-    post.optimize = FALSE, speedup.heuristics = 2,log.file = NULL, 
+    post.optimize = FALSE, speedup.heuristics = 2, log.file = NULL,
     verbose = TRUE) {
 
     if (!verbose) flog.threshold("WARN")
@@ -532,6 +532,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (speedup.heuristics > 1) {
         ds <- .getSizeDomState(seg)
         if (ds$fraction.genome > 0.5 && abs(ds$seg.mean) < 0.1) {
+            min.ploidy <- 1.5
             max.ploidy <- 3
             flog.info("Highly dominant copy number state with small log-ratio.%s",
                 " Skipping search for high ploidy solutions.")
@@ -642,10 +643,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 rbind(candidate.solutions$candidates, 
                       c(2, somatic.purity, NA, 2)))
             
-        }
-        if (!is.null(vcf.file) && speedup.heuristics > 1) {
-            candidate.solutions$candidates <- .filterUnlikelyCandidates(
-                candidate.solutions$candidates, vcf, tumor.id.in.vcf)
         }
     }
     
@@ -842,7 +839,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 ML.C = C, ML.Subclonal = subclonal), SNV.posterior = SNV.posterior, 
                 fraction.subclonal = subclonal.f, fraction.homozygous.loss = sum(li[which(C < 
                   0.01)])/sum(li), gene.calls = NA, log.ratio.offset = log.ratio.offset, 
-                SA.iterations = iter))
+                SA.iterations = iter, candidate.id = cpi))
         }
         
         gene.calls <- .getGeneCalls(seg.adjusted, tumor, log.ratio, fun.focal, 
@@ -921,8 +918,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             sum(li[which(C < 0.01)])/sum(li), fraction.balanced = 
             .calcFractionBalanced(SNV.posterior$posteriors),
             gene.calls = gene.calls,
-            log.ratio.offset = log.ratio.offset, SA.iterations = iter, failed =
-            FALSE)
+            log.ratio.offset = log.ratio.offset, SA.iterations = iter, 
+            candidate.id = cpi, failed = FALSE)
     }
     
     results <- lapply(seq_len(nrow(candidate.solutions$candidates)), .optimizeSolution)

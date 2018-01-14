@@ -153,6 +153,12 @@ ls -a normal*loess.txt | cat > example_normal.list
 $ Rscript $PURECN/NormalDB.R --outdir $OUT \
     --coveragefiles example_normal.list \
     --genome hg19 
+
+# When normal panel VCF is available (highly recommended for unmatched samples)
+$ Rscript $PURECN/NormalDB.R --outdir $OUT \
+    --coveragefiles example_normal.list \
+    --genome hg19 --normal_panel $NORMAL_PANEL
+    
 \end{verbatim}
 
 Important recommendations:
@@ -167,7 +173,15 @@ Important recommendations:
     distributions
 
     \item In particular, do not mix normal data obtained with different capture
-    kits (e.g. Agilent SureSelect v4 and v6) 
+    kits (e.g. Agilent SureSelect v4 and v6)
+
+    \item Provide a normal panel VCF here to precompute mapping bias for faster
+    runtimes
+
+    \item For ideal results, examine the target\_weights.png file to find good 
+    off-target bin widths. You will need to re-run IntervalFile.R with the
+    \code{--offtargetwidth} parameter and re-calculate the coverages.
+
 \end{itemize}
 
 \subsubsection*{PureCN}
@@ -362,6 +376,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 Argument name       & Corresponding PureCN argument & PureCN function \\
 \midrule
 --coveragefiles    & normal.coverage.files & \Rfunction{createNormalDatabase} \\
+--normal\_panel    & normal.panel.vcf.file & \Rfunction{calculateMappingBiasVcf} \\
 --maxmeancoverage  & max.mean.coverage & \Rfunction{createNormalDatabase} \\ 
 --assay -a          & Optional assay name & Used in output file names. \\
 --genome -g        & Optional genome version & Used in output file names. \\

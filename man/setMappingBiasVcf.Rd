@@ -16,7 +16,9 @@ VCF.}
 
 \item{normal.panel.vcf.file}{Combined VCF file of a panel of normals,
 expects allelic fractions as FA genotype field. Should be compressed and
-indexed with bgzip and tabix, respectively.}
+indexed with bgzip and tabix, respectively. You can provide a precomputed
+mapping bias database here 
+(obtained by \code{\link{calculateMappingBiasVcf}}).}
 
 \item{min.normals}{Minimum number of normals with heterozygous SNP for
 calculating position-specific mapping bias. Requires

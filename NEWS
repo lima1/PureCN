@@ -21,6 +21,9 @@ API CHANGES
     o calculateGCContentByInterval was renamed to preprocessIntervals
     o renamed plot.gc.bias to plot.bias in correctCoverageBias since it now
       also includes replication timing
+    o added calculateMappingBiasVcf to pre-compute mapping bias from a
+      panel of normal VCF, thus avoiding time consuming loading and parsing
+      of huge VCFs  
 
 
 Changes in version 1.8.0
