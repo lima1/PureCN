@@ -180,7 +180,7 @@ Important recommendations:
 
     \item For ideal results, examine the target\_weights.png file to find good 
     off-target bin widths. You will need to re-run IntervalFile.R with the
-    \code{--offtargetwidth} parameter and re-calculate the coverages.
+    \Rcode{--offtargetwidth} parameter and re-calculate the coverages.
 
 \end{itemize}
 
