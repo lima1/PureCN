@@ -11,9 +11,9 @@
 #' @param tumor.id.in.vcf Id of tumor in case multiple samples are stored in
 #' VCF.
 #' @param normal.panel.vcf.file Combined VCF file of a panel of normals,
-#' expects allelic fractions as FA genotype field. Should be compressed and
-#' indexed with bgzip and tabix, respectively. You can provide a precomputed
-#' mapping bias database here 
+#' reference and alt counts as AD genotype field. Should be compressed and
+#' indexed with bgzip and tabix, respectively. One can provide a precomputed
+#' mapping bias database 
 #' (obtained by \code{\link{calculateMappingBiasVcf}}).
 #' @param min.normals Minimum number of normals with heterozygous SNP for
 #' calculating position-specific mapping bias. Requires
@@ -72,7 +72,6 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
 
     if (file_ext(normal.panel.vcf.file) == "rds") {
         mappingBias <- readRDS(normal.panel.vcf.file)
-        ov <- findOverlaps(vcf, mappingBias, select = "first")
     } else {
         nvcf <- .readNormalPanelVcfLarge(vcf, normal.panel.vcf.file)
         if (nrow(nvcf) < 1) {
@@ -80,8 +79,8 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
             return(list(bias = tmp))
         }
         mappingBias <- .calculateMappingBias(nvcf, min.normals)
-        ov <- findOverlaps(vcf, nvcf, select = "first")
     }
+    ov <- findOverlaps(vcf, mappingBias, select = "first")
 
     ponCnt <- integer(length(tmp))
 

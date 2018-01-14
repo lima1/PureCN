@@ -32,7 +32,7 @@ test_that("Mapping bias with normal panel matches", {
 test_that("Precomputed mapping bias matches", {
     normal_panel <- system.file("extdata", "normalpanel.vcf.gz", 
         package = "PureCN")
-    mb <- calculateMappingBiasVcf(normal_panel)
+    mb <- calculateMappingBiasVcf(normal_panel, genome = "hg19")
     ov <- findOverlaps(vcf, mb, select = "first")
     idx <- !is.na(ov)
     expect_equivalent(head(mb$pon.count[ov[idx]], 3), c(15, 5, 27))

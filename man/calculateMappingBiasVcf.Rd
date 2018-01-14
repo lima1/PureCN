@@ -5,11 +5,11 @@
 \title{Calculate Mapping Bias}
 \usage{
 calculateMappingBiasVcf(normal.panel.vcf.file, min.normals = 2,
-  yieldSize = 5000)
+  yieldSize = 5000, genome)
 }
 \arguments{
 \item{normal.panel.vcf.file}{Combined VCF file of a panel of normals,
-expects allelic fractions as FA genotype field. Should be compressed and
+reference and alt counts as AD genotype field. Should be compressed and
 indexed with bgzip and tabix, respectively.}
 
 \item{min.normals}{Minimum number of normals with heterozygous SNP for
@@ -17,6 +17,8 @@ calculating position-specific mapping bias. Requires
 \code{normal.panel.vcf.file}.}
 
 \item{yieldSize}{See \code{TabixFile}}
+
+\item{genome}{See \code{readVcf}}
 }
 \value{
 A \code{GRanges} object with mapping bias and number of normal
@@ -29,7 +31,7 @@ panel of normals VCF.
 \examples{
 
 normal.panel.vcf <- system.file("extdata", "normalpanel.vcf.gz", package="PureCN")
-bias <- calculateMappingBiasVcf(normal.panel.vcf)
+bias <- calculateMappingBiasVcf(normal.panel.vcf, genome = "h19")
 saveRDS(bias, "mapping_bias.rds")
 
 }

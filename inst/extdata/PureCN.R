@@ -48,6 +48,9 @@ option_list <- list(
     make_option(c("--alpha"), action = "store", type = "double",
         default = formals(PureCN::segmentationCBS)$alpha,
         help = "Segmentation: significance of breakpoints [default %default]"),
+    make_option(c("--undosd"), action = "store", type = "double",
+        default = formals(PureCN::segmentationCBS)$undo.SD,
+        help = "Segmentation: DNAcopy undo.SD argument. If NULL, tries to find a sensible default [default %default]"),
     make_option(c("--maxsegments"), action = "store", type = "double",
         default = formals(PureCN::runAbsoluteCN)$max.segments,
         help = "Segmentation: Flag noisy samples with many segments [default %default]"),
@@ -219,7 +222,7 @@ if (file.exists(file.rds) && !opt$force) {
                 interval.padding = opt$padding),
             fun.segmentation = fun.segmentation,
             args.segmentation = list(target.weight.file = opt$targetweightfile,
-                alpha = opt$alpha),
+                alpha = opt$alpha, undo.SD = opt$undosd),
             args.setMappingBiasVcf =
                 list(normal.panel.vcf.file = opt$normal_panel),
             normalDB = normalDB, model.homozygous = opt$modelhomozygous,

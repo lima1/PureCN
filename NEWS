@@ -2,7 +2,8 @@ Changes in version 1.10.0
 -------------------------
 
     o More accurate confidence intervals in callMutationBurden
-    o More accurate copy numbers for high-level amplifications 
+    o More accurate copy numbers for high-level amplifications
+    o Runtime performance improvements
     o Support for replication timing scores in coverage normalization
     o Very low or high coverage samples are now by default dropped in normal 
       database creation (less than 25% or more than 4 times the median sample 
@@ -22,8 +23,8 @@ API CHANGES
     o renamed plot.gc.bias to plot.bias in correctCoverageBias since it now
       also includes replication timing
     o added calculateMappingBiasVcf to pre-compute mapping bias from a
-      panel of normal VCF, thus avoiding time consuming loading and parsing
-      of huge VCFs  
+      panel of normal VCF, thus avoiding time loading and parsing
+      of huge VCFs
 
 
 Changes in version 1.8.0

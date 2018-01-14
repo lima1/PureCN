@@ -99,7 +99,7 @@ if (!is.null(opt$normal_panel)) {
     } else {
         suppressPackageStartupMessages(library(PureCN))
         flog.info("Creating mapping bias database.")
-        bias <- calculateMappingBiasVcf(opt$normal_panel)
+        bias <- calculateMappingBiasVcf(opt$normal_panel, genome = genome)
         saveRDS(bias, file = output.file)
     }
 }

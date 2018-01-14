@@ -5,32 +5,33 @@
 #'
 #'
 #' @param normal.panel.vcf.file Combined VCF file of a panel of normals,
-#' expects allelic fractions as FA genotype field. Should be compressed and
+#' reference and alt counts as AD genotype field. Should be compressed and
 #' indexed with bgzip and tabix, respectively.
 #' @param min.normals Minimum number of normals with heterozygous SNP for
 #' calculating position-specific mapping bias. Requires
 #' \code{normal.panel.vcf.file}.
 #' @param yieldSize See \code{TabixFile}
+#' @param genome See \code{readVcf}
 #' @return A \code{GRanges} object with mapping bias and number of normal
 #' samples with this variant.
 #' @author Markus Riester
 #' @examples
 #'
 #' normal.panel.vcf <- system.file("extdata", "normalpanel.vcf.gz", package="PureCN")
-#' bias <- calculateMappingBiasVcf(normal.panel.vcf)
+#' bias <- calculateMappingBiasVcf(normal.panel.vcf, genome = "h19")
 #' saveRDS(bias, "mapping_bias.rds")
 #'
 #' @importFrom GenomicRanges GRangesList
 #' @export calculateMappingBiasVcf
 calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
-                                    yieldSize = 5000) {
+                                    yieldSize = 5000, genome) {
     tab <- TabixFile(normal.panel.vcf.file, yieldSize = yieldSize)
     open(tab)
-    param <- ScanVcfParam(geno=c("AD"), fixed = NA, info = NA)
+    param <- ScanVcfParam(geno = c("AD"), fixed = NA, info = NA)
     cntVar <- 0
     cntStep <- 1
     ret <- GRangesList()
-    while (nrow(vcf_yield <- readVcf(tab, "hg19", param = param))) {
+    while (nrow(vcf_yield <- readVcf(tab, genome = genome, param = param))) {
         flog.info("Processing variants %i to %i...", cntVar + 1, cntVar + yieldSize)
         if (!(cntStep %% 10)) {
             flog.info("Position %s:%i", as.character(seqnames(vcf_yield)[1]), start(vcf_yield)[1])

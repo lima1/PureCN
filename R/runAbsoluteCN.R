@@ -36,7 +36,7 @@
 #' \code{\link{createNormalDatabase}}. If provided, used to calculate gene-level
 #' p-values (requires \code{Gene} column in \code{interval.file}) and to filter
 #' targets with low coverage in the pool of normal samples.
-#' @param genome Genome version, for example hg19.
+#' @param genome Genome version, for example hg19. See \code{readVcf}.
 #' @param centromeres A \code{GRanges} object with centromere positions.
 #' If \code{NULL}, use pre-stored positions for genome versions
 #' hg18, hg19 and hg38.

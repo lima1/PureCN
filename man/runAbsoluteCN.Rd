@@ -63,7 +63,7 @@ do not expect very useful results without a VCF file.}
 p-values (requires \code{Gene} column in \code{interval.file}) and to filter
 targets with low coverage in the pool of normal samples.}
 
-\item{genome}{Genome version, for example hg19.}
+\item{genome}{Genome version, for example hg19. See \code{readVcf}.}
 
 \item{centromeres}{A \code{GRanges} object with centromere positions.
 If \code{NULL}, use pre-stored positions for genome versions

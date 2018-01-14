@@ -15,9 +15,9 @@ function from the VariantAnnotation package.}
 VCF.}
 
 \item{normal.panel.vcf.file}{Combined VCF file of a panel of normals,
-expects allelic fractions as FA genotype field. Should be compressed and
-indexed with bgzip and tabix, respectively. You can provide a precomputed
-mapping bias database here 
+reference and alt counts as AD genotype field. Should be compressed and
+indexed with bgzip and tabix, respectively. One can provide a precomputed
+mapping bias database 
 (obtained by \code{\link{calculateMappingBiasVcf}}).}
 
 \item{min.normals}{Minimum number of normals with heterozygous SNP for

@@ -413,6 +413,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --error            & error & \Rfunction{runAbsoluteCN}     \\
 --funsegmentation  & fun.segmentation & \Rfunction{runAbsoluteCN} \\ 
 --alpha            & alpha & \Rfunction{segmentationCBS} \\
+--undosd           & undo.SD & \Rfunction{segmentationCBS} \\
 --maxsegments      & max.segments & \Rfunction{runAbsoluteCN} \\
 --targetweightfile & target.weight.file & \Rfunction{segmentationCBS} \\
 --minpurity        & test.purity & \Rfunction{runAbsoluteCN} \\
