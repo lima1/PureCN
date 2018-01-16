@@ -149,7 +149,7 @@ if (!is.null(file.rds) && file.exists(file.rds)) {
     
 normalizePath(dirname(out), mustWork = TRUE)
 
-flog.info("Loading PureCN...")
+flog.info("Loading PureCN %s...", Biobase::package.version("PureCN"))
 suppressPackageStartupMessages(library(PureCN))
 library(futile.logger)
 

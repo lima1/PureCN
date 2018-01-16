@@ -5,10 +5,12 @@
 #' 
 #' @param file Target coverage file.
 #' @param format File format. If missing, derived from the file 
-#' extension. Currently only GATK DepthofCoverage and CNVkit formats 
-#' supported.
+#' extension. Currently GATK3 DepthofCoverage, GATK4 CollectFragmentCounts 
+#' (hdf5), and CNVkit formats supported.
 #' @param zero Start position is 0-based. Default is \code{FALSE}
 #' for GATK, \code{TRUE} for BED file based intervals.
+#' @param read.length For output formats which do not provide both counts 
+#' and total coverages, approximate them using the specified read length.
 #' @return A \code{data.frame} with the parsed coverage information.
 #' @author Markus Riester
 #' @seealso \code{\link{calculateBamCoverageByInterval}}
@@ -19,13 +21,16 @@
 #' coverage <- readCoverageFile(tumor.coverage.file)
 #' 
 #' @importFrom tools file_ext
+#' @importFrom rhdf5 H5Fopen
 #' @export readCoverageFile
-readCoverageFile <- function(file, format, zero=NULL) {
+readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     if (missing(format)) format <- .getFormat(file)
     if (format %in% c("cnn", "cnr")) {
         targetCoverage <- .readCoverageCnn(file, zero, format)
+    } else if (format %in% c("hdf5")) {
+        targetCoverage <- .readCoverageGatk4(file, zero, format, read.length)
     } else {
-        targetCoverage <- .readCoverageGatk(file, zero)
+        targetCoverage <- .readCoverageGatk3(file, zero)
     }
     .checkLowCoverage(targetCoverage)
     .checkIntervals(targetCoverage)
@@ -34,10 +39,11 @@ readCoverageFile <- function(file, format, zero=NULL) {
 .getFormat <- function(file) {
     ext <- file_ext(file)
     if (ext %in% c("cnn", "cnr")) return(ext)
-    "GATK"    
-}    
+    if (ext %in% c("hdf5", "h5")) return("hdf5")
+    "GATK"
+}
 
-.readCoverageGatk <- function(file, zero) {
+.readCoverageGatk3 <- function(file, zero) {
     if (!is.null(zero)) flog.warn("zero ignored for GATK coverage files.")
     inputCoverage <- utils::read.table(file, header = TRUE)
     if (is.null(inputCoverage$total_coverage)) inputCoverage$total_coverage <- NA
@@ -52,6 +58,20 @@ readCoverageFile <- function(file, format, zero=NULL) {
         on.target=inputCoverage$on_target,
         duplication.rate=inputCoverage$duplication_rate)
     targetCoverage <- .addAverageCoverage(targetCoverage)
+    targetCoverage
+}
+
+.readCoverageGatk4 <- function(file, zero, format, read.length) {
+    if (!is.null(zero)) flog.warn("zero ignored for GATK coverage files.")
+    x <- H5Fopen(file)
+    intervals <- data.frame(x$intervals$transposed_index_start_end)
+    intervals[, 1] <- x$intervals$indexed_contig_names[intervals[, 1] + 1]
+    targetCoverage <- GRanges(intervals[, 1], IRanges(intervals[, 2], intervals[, 3]))
+    targetCoverage$counts <- x$counts$values[,1]
+    # TODO
+    targetCoverage$coverage <- targetCoverage$counts * read.length * 2
+    targetCoverage <- .addAverageCoverage(targetCoverage)
+    targetCoverage$on.target <- TRUE
     targetCoverage
 }
 

@@ -53,3 +53,16 @@ test_that("CNVkit *cnr example data is parsed correctly", {
     expect_equal(coverage$on.target, c(FALSE, FALSE, FALSE, FALSE, 
         TRUE))
 })
+
+test_that("GATK4 *hdf5 example data is parsed correctly", {
+    coverageFile <- system.file("extdata", "example_normal5.hdf5", 
+        package = "PureCN")
+    coverage <- readCoverageFile(coverageFile)
+    expect_equal(length(coverage), 10)
+    expect_equal(head(start(coverage)), 
+        c(3598833, 3599562, 3607444, 3624039, 3638537, 3639872))
+    expect_equal(head(coverage$counts), 
+        c(127, 305, 78, 699, 566, 344))
+
+    expect_equal(head(coverage$on.target), rep(TRUE, 6))
+})

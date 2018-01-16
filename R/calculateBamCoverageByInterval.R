@@ -16,6 +16,7 @@
 #' @param index.file The bai index. This is expected without the .bai file
 #' suffix, see \code{?scanBam}.
 #' @param keep.duplicates Keep or remove duplicated reads.
+#' @param ... Additional parameters passed to \code{ScanBamParam}.
 #' @return Returns total and average coverage by intervals.
 #' @author Markus Riester
 #' @seealso \code{\link{preprocessIntervals}
@@ -37,7 +38,8 @@
 #' @importFrom Rsamtools headerTabix ScanBamParam scanBamFlag
 #'             scanBam scanFa scanFaIndex TabixFile
 calculateBamCoverageByInterval <- function(bam.file, interval.file,
-    output.file = NULL, index.file = bam.file, keep.duplicates = FALSE) {
+    output.file = NULL, index.file = bam.file, keep.duplicates = FALSE,
+    ...) {
     intervalGr <- readCoverageFile(interval.file)
 
     param <- ScanBamParam(what = c("pos", "qwidth", "flag"),
@@ -46,7 +48,8 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
                              isNotPassingQualityControls = FALSE,
                              isSecondaryAlignment = FALSE,
                              isDuplicate = NA
-                     )
+                     ),
+                ...
              )
 
     xAll <- scanBam(bam.file, index = index.file, param = param)

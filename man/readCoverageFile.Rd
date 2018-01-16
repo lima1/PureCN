@@ -4,17 +4,20 @@
 \alias{readCoverageFile}
 \title{Read coverage file}
 \usage{
-readCoverageFile(file, format, zero = NULL)
+readCoverageFile(file, format, zero = NULL, read.length = 100)
 }
 \arguments{
 \item{file}{Target coverage file.}
 
 \item{format}{File format. If missing, derived from the file 
-extension. Currently only GATK DepthofCoverage and CNVkit formats 
-supported.}
+extension. Currently GATK3 DepthofCoverage, GATK4 CollectFragmentCounts 
+(hdf5), and CNVkit formats supported.}
 
 \item{zero}{Start position is 0-based. Default is \code{FALSE}
 for GATK, \code{TRUE} for BED file based intervals.}
+
+\item{read.length}{For output formats which do not provide both counts 
+and total coverages, approximate them using the specified read length.}
 }
 \value{
 A \code{data.frame} with the parsed coverage information.

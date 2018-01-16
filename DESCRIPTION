@@ -2,8 +2,8 @@ Package: PureCN
 Type: Package
 Title: Copy number calling and SNV classification using
     targeted short read sequencing
-Version: 1.9.18
-Date: 2018-01-14
+Version: 1.9.19
+Date: 2018-01-15
 Authors@R: c(person("Markus", "Riester", role=c("aut", "cre"),
         email="markus.riester@novartis.com"),
     person("Angad P.", "Singh", role="aut"))
@@ -40,6 +40,7 @@ Imports:
     VGAM,
     edgeR,
     tools,
+    rhdf5,
     limma
 Suggests:
     PSCBS,

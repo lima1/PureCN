@@ -20,6 +20,8 @@ option_list <- list(
     make_option(c("--keepduplicates"), action = "store_true", 
         default = formals(PureCN::calculateBamCoverageByInterval)$keep.duplicates, 
         help = "Count reads marked as duplicates [default %default]"),
+    make_option(c("--removemapq0"), action = "store_true", default = FALSE, 
+        help = "Not count reads marked with mapping quality 0 [default %default]"),
     make_option(c("--outdir"), action = "store", type = "character", 
         default = NULL,
         help = "Output directory to which results should be written"),
@@ -73,7 +75,7 @@ interval.file <- normalizePath(interval.file, mustWork = TRUE)
 }
 
 getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file, 
-    force = FALSE, cpu = 1, keep.duplicates = FALSE) {
+    force = FALSE, cpu = 1, keep.duplicates = FALSE, removemapq0 = FALSE) {
 
     bamFiles <- bamFiles
     indexFiles <- indexFiles
@@ -102,7 +104,8 @@ getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file,
         } else {
             PureCN::calculateBamCoverageByInterval(bam.file = bam.file,
                 interval.file = interval.file, output.file = output.file,
-                index.file = index.file, keep.duplicates = keep.duplicates)
+                index.file = index.file, keep.duplicates = keep.duplicates,
+                mapqFilter = if (removemapq0) 1 else NA)
         }
         output.file
     }
@@ -121,7 +124,8 @@ getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file,
 coverageFiles <- NULL
 indexFiles <- NULL
 
-flog.info("Loading PureCN...")
+flog.info("Loading PureCN %s...", Biobase::package.version("PureCN"))
+
 suppressPackageStartupMessages(library(PureCN))
     
 if (!is.null(bam.file)) {
@@ -142,7 +146,7 @@ if (!is.null(bam.file)) {
     }    
 
     coverageFiles <- getCoverageBams(bamFiles, indexFiles, outdir, 
-        interval.file, force, opt$cpu, opt$keepduplicates) 
+        interval.file, force, opt$cpu, opt$keepduplicates, opt$removemapq0) 
 }
 
 ### GC-normalize coverage -----------------------------------------------------
