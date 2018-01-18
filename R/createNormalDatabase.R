@@ -1,9 +1,7 @@
 #' Create database of normal samples
 #' 
-#' Function to create a database of normal samples, used to find a good match
-#' for tumor copy number normalization. Internally, this function determines
-#' the sex of the samples and trains a PCA that is later used for clustering a
-#' tumor file with all normal samples in the database.
+#' Function to create a database of normal samples, used to normalize
+#' tumor coverages.
 #' 
 #' 
 #' @param normal.coverage.files Vector with file names pointing to 
@@ -19,12 +17,16 @@
 #' @param coverage.outliers Exclude samples with coverages below or above
 #' the specified cutoffs (fractions of the normal sample coverages median).
 #' Only for databases with more than 5 samples.
+#' @param min.coverage Exclude targets with coverage lower than 
+#' the specified fraction of the chromosome median in the pool of normals.
+#' @param max.missing Exclude targets with zero coverage in the
+#' specified fraction of normal samples.
 #' @param \dots Arguments passed to the \code{prcomp} function.
 #' @return A normal database that can be used in the
-#' \code{\link{findBestNormal}} function to retrieve good matching normal
-#' samples for a given tumor sample.
+#' \code{\link{calculateTangentNormal}} function to retrieve a coverage
+#' normalization sample for a given tumor sample.
 #' @author Markus Riester
-#' @seealso \code{\link{findBestNormal}}
+#' @seealso \code{\link{calculateTangentNormal}}
 #' @examples
 #' 
 #' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
@@ -35,17 +37,19 @@
 #' normalDB <- createNormalDatabase(normal.coverage.files)
 #' 
 #' @export createNormalDatabase
-#' @importFrom stats prcomp
+#' @importFrom Matrix tcrossprod
 createNormalDatabase <- function(normal.coverage.files, sex = NULL,
-max.mean.coverage = NULL, coverage.outliers = c(0.25, 4), ...) {
+max.mean.coverage = NULL, coverage.outliers = c(0.25, 4), 
+min.coverage = 0.1, max.missing = 0.03, ...) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
     normals <- .readNormals(normal.coverage.files)
 
     normals.m <- do.call(cbind, 
-        lapply(normals, function(x) x$average.coverage))
-    idx <- complete.cases(normals.m) 
+        lapply(normals, function(x) x$counts))
 
-    z <- apply(normals.m[idx,],2,mean)
+    normals.m[is.na(normals.m)] <- 0
+
+    z <- apply(normals.m,2,mean)
     idx.failed <- rep(FALSE, length(normals))
 
     if (length(normals) > 5) {
@@ -59,19 +63,6 @@ max.mean.coverage = NULL, coverage.outliers = c(0.25, 4), ...) {
         normals.m <- normals.m[,!idx.failed,drop = FALSE]
         normal.coverage.files <- normal.coverage.files[!idx.failed]
     }
-    # recalculate without dropped samples
-    idx <- complete.cases(normals.m)
-    z <- apply(normals.m[idx,],2,mean)
-
-    if (is.null(max.mean.coverage)) max.mean.coverage <- 
-        quantile(round(z), p=0.8)
-    if (!is.na(max.mean.coverage) && length(normals)>8) {
-        flog.info("Setting maximum coverage in normalDB to %.0f", 
-            max.mean.coverage)
-        z <- sapply(max.mean.coverage/z, min,1)
-        normals.m <- scale(normals.m, 1/z, center=FALSE)
-    }
-    normals.pca <- prcomp(t(normals.m[idx,]), ...)
     sex.determined <- sapply(normals,getSexFromCoverage)
     if (is.null(sex)) {
         sex <- sex.determined
@@ -91,20 +82,155 @@ max.mean.coverage = NULL, coverage.outliers = c(0.25, 4), ...) {
             }    
         }    
     }
+
+    groups <- lapply(c(TRUE, FALSE), function(on.target) {
+        idx <- normals[[1]]$on.target == on.target
+        intervals <- normals[[1]][idx]
+        if (length(intervals)) {
+            flog.info("Processing %s-target regions...", 
+                ifelse(on.target, "on", "off") )
+        }    
+        .standardizeNormals(normals.m[idx,], normals[[1]][idx], min.coverage, 
+            max.missing, sex)
+    })
+    
+    # merge back some on-target and off-target interval statistics 
+    intervals.used <- logical(length(normals[[1]]))
+    fraction.missing <- double(length(normals[[1]]))
+    intervals.used[normals[[1]]$on.target] <- groups[[1]]$intervals.used
+    fraction.missing[normals[[1]]$on.target] <- groups[[1]]$fraction.missing
+
+    if (!is.null(groups[[2]]$intervals.used)) {
+        intervals.used[!normals[[1]]$on.target] <- groups[[2]]$intervals.used
+        fraction.missing[!normals[[1]]$on.target] <- groups[[2]]$fraction.missing
+    }
+        
     list(
         normal.coverage.files=normal.coverage.files, 
-        pca=normals.pca, 
-        exons.used=idx, 
-        coverage=apply(normals.m, 2, mean, na.rm=TRUE), 
-        exon.median.coverage=apply(normals.m, 1, median, na.rm=TRUE),
-        exon.log2.sd.coverage=apply(log2(normals.m+1), 1, sd, na.rm=TRUE),
-        fraction.missing=apply(normals.m, 1, function(x)
-            sum(is.na(x)|x<0.01))/ncol(normals.m),
-        sex=sex
+        groups=groups,
+        intervals.used=intervals.used,
+        sex=sex,
+        version=3
     )
 }
 
+.standardizeNormals <- function(counts, intervals, min.coverage, max.missing, sex) {
+    if (!length(intervals)) return(list(present = FALSE))
+    # recalculate without dropped samples
+    fcnts <- apply(counts, 2, function(x) x/sum(x))
+    fcnts_interval_medians <- apply(fcnts, 1, median, na.rm=TRUE)
+    fraction.missing <- apply(counts, 1, function(x)
+                    sum(is.na(x)|x<=0))/ncol(counts)
 
+    intervals.used <- .filterTargetsCreateNormalDB(intervals, 
+        fcnts_interval_medians, fraction.missing, min.coverage, max.missing) 
+
+    fcnts <- apply(counts[intervals.used,], 2, function(x) x/sum(x))
+    fcnts_interval_medians <- apply(fcnts, 1, median)
+    fcnts_std <- apply(fcnts,2,function(x) x/fcnts_interval_medians)
+    fcnts_interval_non_zero_medians <- apply(fcnts_std, 1, function(x) median(x[x>0]))
+    fcnts_std_imp <- apply(fcnts_std, 2, function(x) { x[x<=0] <- fcnts_interval_non_zero_medians[x<=0]; x})
+    p=0.001
+    li <- quantile(as.vector(fcnts_std_imp),probs=c(p, 1-p))
+    fcnts_std_trunc <- fcnts_std_imp
+    fcnts_std_trunc[fcnts_std_imp<li[1]] <- li[1]
+    fcnts_std_trunc[fcnts_std_imp>li[2]] <- li[2]
+    fcnts_std_final <- apply(fcnts_std_trunc, 2, function(x) log2(x/median(x)))
+    fcnts_std_final - median(apply(fcnts_std_final,2,median))
+
+    list(
+        projection=svd(fcnts_std_final)[[2]],
+        intervals.used=intervals.used,
+        exon.median.coverage=fcnts_interval_medians,
+        fraction.missing=fraction.missing,
+        present=TRUE
+    )
+}
+
+.denoiseSample <- function(x, normalDB, num.eigen) {
+    fcnts <- x$counts[normalDB$intervals.used]
+    fcnts <- fcnts/sum(fcnts, na.rm=TRUE)
+    fcnts_std <- fcnts/normalDB$exon.median.coverage
+    fcnts_std[which(fcnts_std==0)] <- normalDB$exon.median.coverage[which(fcnts_std==0)]
+
+    fcnts_std_final <- log2(fcnts_std/median(fcnts_std, na.rm = TRUE))
+    x$log.ratio.std <- 0.
+    x$log.ratio.std[!normalDB$intervals.used] <- NA
+    x$log.ratio <- x$log.ratio.std
+    x$log.ratio.std[normalDB$intervals.used] <- fcnts_std_final
+    if (num.eigen > ncol(normalDB$projection)) num.eigen <- ncol(normalDB$projection)
+    P <- normalDB$projection[,seq(1,num.eigen)]    
+    x$log.ratio[normalDB$intervals.used] <- fcnts_std_final - 
+        as.vector(tcrossprod(fcnts_std_final %*% P, P))
+    x
+}
+
+#' Calculate tangent normal
+#' 
+#' Reimplementation of GATK4 denoising. Please cite the relevant GATK
+#' publication if you use this in a publication.
+#' 
+#' 
+#' @param tumor.coverage.file Coverage file or data  of a tumor sample.
+#' @param normalDB Database of normal samples, created with
+#' \code{\link{createNormalDatabase}}.
+#' @param num.eigen Number of eigen vectors used.
+#' @param ignore.sex If \code{FALSE}, detects sex of sample and returns best
+#' normals with matching sex.
+#' @param sex Sex of sample. If \code{NULL}, determine with
+#' \code{\link{getSexFromCoverage}} and default parameters. Valid values are
+#' \code{F} for female, \code{M} for male. If all chromosomes are diploid,
+#' specify \code{diploid}.
+#' @seealso \code{\link{createNormalDatabase}}
+#' @author Markus Riester
+#' @examples
+#'
+#' tumor.coverage.file <- system.file('extdata', 'example_tumor.txt', 
+#'     package='PureCN')
+#' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+#'     package="PureCN")
+#' normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
+#'     package="PureCN")
+#' normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+#' normalDB <- createNormalDatabase(normal.coverage.files)
+#' pool <- calculateTangentNormal(tumor.coverage.file, normalDB)
+#' 
+#' @export calculateTangentNormal
+calculateTangentNormal <- function(tumor.coverage.file, normalDB, 
+                                   num.eigen = 20, ignore.sex = FALSE, 
+                                   sex = NULL) {
+
+    if (is.character(tumor.coverage.file)) {
+        tumor  <- readCoverageFile(tumor.coverage.file)
+    } else {
+        tumor <- tumor.coverage.file
+    }
+
+    normal <- readCoverageFile(normalDB$normal.coverage.files[1])
+    if (!identical(as.character(normal) , as.character(tumor))) {
+        .stopUserError("tumor.coverage.file and normalDB do not align.")
+    }
+
+    tumor$log.ratio <- 0.
+    tumor$log.ratio.std <- 0.
+    denoised <- .denoiseSample(tumor[tumor$on.target], normalDB$groups[[1]], num.eigen)
+    ov <- findOverlaps(tumor, denoised)
+    tumor$log.ratio[queryHits(ov)] <- denoised$log.ratio[subjectHits(ov)]
+    tumor$log.ratio.std[queryHits(ov)] <- denoised$log.ratio.std[subjectHits(ov)]
+
+    if (normalDB$groups[[2]]$present) {
+        denoised <- .denoiseSample(tumor[!tumor$on.target], normalDB$groups[[2]], num.eigen)
+        ov <- findOverlaps(tumor, denoised)
+        tumor$log.ratio[queryHits(ov)] <- denoised$log.ratio[subjectHits(ov)]
+        tumor$log.ratio.std[queryHits(ov)] <- denoised$log.ratio.std[subjectHits(ov)]
+    }
+        
+    fakeNormal <- tumor
+    fakeNormal$average.coverage <- 2 ^ (log2(tumor$average.coverage) - tumor$log.ratio)
+    fakeNormal$coverage <- fakeNormal$average.coverage * width(fakeNormal)
+    fakeNormal
+}
+    
 #' Calculate target weights
 #' 
 #' Creates a target weight file useful for segmentation. Requires a set of 
@@ -187,4 +313,33 @@ target.weight.file, plot = FALSE) {
         }
     }
     normals
+}
+
+.filterTargetsCreateNormalDB <- function(intervals, 
+exon.median.coverage, fraction.missing,
+min.coverage, max.missing) {
+    
+    nBefore <- length(intervals)
+    intervals.used <- is.finite(fraction.missing) 
+    intervals.used <- intervals.used & !is.na(exon.median.coverage) & 
+        exon.median.coverage >= quantile(exon.median.coverage,  p=min.coverage)[1]
+        
+    nAfter <- sum(intervals.used)
+
+    if (nAfter < nBefore) {
+        flog.info("Removing %i targets with low coverage in normalDB.", 
+            nBefore-nAfter)
+    }
+
+    nBefore <- sum(intervals.used)
+    intervals.used <- intervals.used & !is.na(fraction.missing) &
+        fraction.missing <= max.missing
+    nAfter <- sum(intervals.used)
+
+    if (nAfter < nBefore) {
+        flog.info("Removing %i targets with zero coverage in more than %.0f%% of normalDB.", 
+            nBefore-nAfter, max.missing*100)
+    }
+
+    intervals.used
 }

@@ -17,15 +17,7 @@
 #' normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
 #'     package="PureCN")
 #' normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
-#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-#'     package="PureCN")
-#' 
-#' normalDB <- createNormalDatabase(normal.coverage.files)
-#' 
-#' # get the best 2 normals and average them
-#' best.normal.coverage.files <- findBestNormal(tumor.coverage.file, normalDB, 
-#'     num.normals=2)
-#' pool <- poolCoverage(lapply(best.normal.coverage.files, readCoverageFile),
+#' pool <- poolCoverage(lapply(normal.coverage.files, readCoverageFile),
 #'      remove.chrs=c("chrX", "chrY"))
 #' 
 #' @export poolCoverage

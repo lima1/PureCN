@@ -292,30 +292,13 @@ saveRDS(normalDB, file="normalDB.rds")
 Again, please make sure that all coverage files were GC-normalized prior to
 building the database (Section~\ref{secgcbias}).  Internally,
 \Rfunction{createNormalDatabase} determines the sex of the samples and trains a
-PCA that is later used for clustering a tumor file with all normal samples in
-the database. This clustering is performed by the \Rfunction{findBestNormal}
-function:
+PCA that is later used for denoising tumor coverage:
 
 <<normaldbpca>>=
 normalDB <- readRDS("normalDB.rds")
 # get the best 2 normals and average them
-pool <- findBestNormal(tumor.coverage.file, normalDB, 
-    num.normals=2, pool=TRUE, remove.chrs=c("chrX", "chrY"))
+pool <- calculateTangentNormal(tumor.coverage.file, normalDB)
 @
-
-This function will by default optimize averaging weights using the
-\Rfunction{voomWithQualityWeights} function of the \Biocpkg{limma} package. The
-\Rcode{num.normals} should be set to a value between 2 and 10. More than 10
-usually results in long runtimes with no significant gain in accuracy. 
-
-Giving recommendations for optimal parameters is hard since they depend on the
-size, coverage and variance of the pool of normals. It is worth experimenting
-with different strategies and the \Rfunction{plotBestNormal} function might be
-helpful. 
-
-Note that this example removes coverage from sex chromosomes; if the normal
-database contains a sufficient number of samples with matching sex,
-\Rfunction{findBestNormal} will return only normal samples with matching sex.
 
 \subsection{Artifact filtering}
 \label{artifactfiltering}

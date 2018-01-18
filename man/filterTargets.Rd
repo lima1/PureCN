@@ -5,8 +5,7 @@
 \title{Remove low quality targets}
 \usage{
 filterTargets(normal, tumor, log.ratio, seg.file, filter.lowhigh.gc = 0.001,
-  min.coverage = 15, min.targeted.base = 5, normalDB = NULL,
-  normalDB.min.coverage = 0.25, normalDB.max.missing = 0.03, max.se = 3)
+  min.coverage = 15, min.targeted.base = 5, normalDB = NULL)
 }
 \arguments{
 \item{normal}{Coverage data for normal sample.}
@@ -35,16 +34,6 @@ likely very different from the true GC content of the probes.}
 
 \item{normalDB}{Normal database, created with
 \code{\link{createNormalDatabase}}.}
-
-\item{normalDB.min.coverage}{Exclude targets with coverage lower than 
-the specified fraction of the chromosome median in the pool of normals.}
-
-\item{normalDB.max.missing}{Exclude targets with zero coverage in the
-specified fraction of normal samples.}
-
-\item{max.se}{Exclude targets with log-ratio standard error larger than
-the specified cutoff. Requires a pooled normal obtained by
-\code{\link{findBestNormal}}.}
 }
 \value{
 \code{logical(length(log.ratio))} specifying which targets should be

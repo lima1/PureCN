@@ -12,5 +12,6 @@
   the replacement indicated below:
   \itemize{
     \item{calculateGCContentByInterval: \code{\link{preprocessIntervals}}}
+    \item{findBestNormal: \code{\link{calculateTangentNormal}}}
   }
 }

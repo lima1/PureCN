@@ -4,62 +4,8 @@
 \alias{plotBestNormal}
 \title{Plot the PCA of tumor and its best normal(s)}
 \usage{
-plotBestNormal(normal.coverage.files, tumor.coverage.file, normalDB, x = 1,
-  y = 2, col.tumor = "red", col.best.normal = "blue",
-  col.other.normals = "black", ...)
-}
-\arguments{
-\item{normal.coverage.files}{Coverage file names of normal samples, 
-typically identified via \code{\link{findBestNormal}}.}
-
-\item{tumor.coverage.file}{Coverage file or data  of a tumor sample.}
-
-\item{normalDB}{Database of normal samples, created with
-\code{\link{createNormalDatabase}}.}
-
-\item{x}{Principal component (PC) to be plotted on x-axis.}
-
-\item{y}{PC to be plotted on y-axis.}
-
-\item{col.tumor}{Color of tumor in plot.}
-
-\item{col.best.normal}{Color of best normals in plot.}
-
-\item{col.other.normals}{Color of other normals in plot.}
-
-\item{\dots}{Arguments passed to the \code{plot} function.}
-}
-\value{
-Returns \code{NULL}.
+plotBestNormal()
 }
 \description{
-This function can be used to understand how a best normal is chosen by the
-\code{\link{findBestNormal}} function. It can be also used to tune the best
-normal selection by finding good parameter values for \code{num.normals} and
-\code{pcs}.
-}
-\examples{
-
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
-     package="PureCN")
-normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
-normalDB <- createNormalDatabase(normal.coverage.files)
-
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN")
-best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
-plotBestNormal(best.normal.coverage.file, tumor.coverage.file, normalDB)
-
-# Display sample sex. The first point in the plot is always tumor.
-plotBestNormal(best.normal.coverage.file, tumor.coverage.file, normalDB,  
-    pch=c(1,ifelse(normalDB$sex=="F", 1, 2)))
-
-}
-\seealso{
-\code{\link{createNormalDatabase} \link{findBestNormal}}
-}
-\author{
-Markus Riester
+This method is defunct with no replacement
 }

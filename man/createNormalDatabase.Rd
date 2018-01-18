@@ -5,7 +5,8 @@
 \title{Create database of normal samples}
 \usage{
 createNormalDatabase(normal.coverage.files, sex = NULL,
-  max.mean.coverage = NULL, coverage.outliers = c(0.25, 4), ...)
+  max.mean.coverage = NULL, coverage.outliers = c(0.25, 4),
+  min.coverage = 0.1, max.missing = 0.03, ...)
 }
 \arguments{
 \item{normal.coverage.files}{Vector with file names pointing to 
@@ -25,18 +26,22 @@ If \code{NA}, does not use a maximum value.}
 the specified cutoffs (fractions of the normal sample coverages median).
 Only for databases with more than 5 samples.}
 
+\item{min.coverage}{Exclude targets with coverage lower than 
+the specified fraction of the chromosome median in the pool of normals.}
+
+\item{max.missing}{Exclude targets with zero coverage in the
+specified fraction of normal samples.}
+
 \item{\dots}{Arguments passed to the \code{prcomp} function.}
 }
 \value{
 A normal database that can be used in the
-\code{\link{findBestNormal}} function to retrieve good matching normal
-samples for a given tumor sample.
+\code{\link{calculateTangentNormal}} function to retrieve a coverage
+normalization sample for a given tumor sample.
 }
 \description{
-Function to create a database of normal samples, used to find a good match
-for tumor copy number normalization. Internally, this function determines
-the sex of the samples and trains a PCA that is later used for clustering a
-tumor file with all normal samples in the database.
+Function to create a database of normal samples, used to normalize
+tumor coverages.
 }
 \examples{
 
@@ -49,7 +54,7 @@ normalDB <- createNormalDatabase(normal.coverage.files)
 
 }
 \seealso{
-\code{\link{findBestNormal}}
+\code{\link{calculateTangentNormal}}
 }
 \author{
 Markus Riester

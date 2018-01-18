@@ -23,8 +23,6 @@ option_list <- list(
     make_option(c("--sex"), action = "store", type = "character",
         default = formals(PureCN::runAbsoluteCN)$sex[[2]],
         help = "Input: Sex of sample. ? (detect), diplod (non-diploid chromosomes removed), F or M [default %default]"),
-    make_option(c("--pool"), action = "store", type = "integer", default = 10,
-        help = "Pool n best normals for log-ratio calculation [default %default]"),
     make_option(c("--genome"), action = "store", type = "character",
                 default = NULL, help = "Assay: Genome version [default %default]"),
     make_option(c("--intervals"), action = "store", type = "character", default = NULL,
@@ -125,7 +123,6 @@ seg.file <- opt$segfile
 normalDB <- opt$normaldb
 sampleid <- opt$sampleid
 out <- opt[["out"]]
-pool <- opt$pool
 file.rds <- opt$rds
 
 .getFilePrefix <- function(out, sampleid) {
@@ -176,15 +173,8 @@ if (file.exists(file.rds) && !opt$force) {
     .getNormalCoverage <- function(normal.coverage.file) {
         if (!is.null(normalDB)) {
             if (is.null(normal.coverage.file)) {
-                if (!is.null(pool)) {
-                    num.normals <- pool
-                    pool <- TRUE
-                } else {
-                    num.normals <- 1
-                    pool <- FALSE
-                }
-                normal.coverage.file <- findBestNormal(tumor.coverage.file,
-                    normalDB, pool = pool, num.normals = num.normals)
+                normal.coverage.file <- calculateTangentNormal(tumor.coverage.file,
+                    normalDB)
             }
         } else if (is.null(normal.coverage.file) && is.null(seg.file)) {
             stop("Need either normalDB or normal.coverage.file")

@@ -30,7 +30,7 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     } else if (format %in% c("hdf5")) {
         targetCoverage <- .readCoverageGatk4(file, zero, format, read.length)
     } else {
-        targetCoverage <- .readCoverageGatk3(file, zero)
+        targetCoverage <- .readCoverageGatk3(file, zero, read.length)
     }
     .checkLowCoverage(targetCoverage)
     .checkIntervals(targetCoverage)
@@ -43,11 +43,11 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     "GATK"
 }
 
-.readCoverageGatk3 <- function(file, zero) {
+.readCoverageGatk3 <- function(file, zero, read.length) {
     if (!is.null(zero)) flog.warn("zero ignored for GATK coverage files.")
     inputCoverage <- utils::read.table(file, header = TRUE)
     if (is.null(inputCoverage$total_coverage)) inputCoverage$total_coverage <- NA
-    if (is.null(inputCoverage$counts)) inputCoverage$counts <- NA
+    if (is.null(inputCoverage$counts)) inputCoverage$counts <- inputCoverage$total_coverage / read.length
     if (is.null(inputCoverage$on_target)) inputCoverage$on_target <- TRUE
     if (is.null(inputCoverage$duplication_rate)) inputCoverage$duplication_rate <- NA
 

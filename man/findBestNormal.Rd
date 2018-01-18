@@ -45,23 +45,8 @@ Filename of the best matching normal.
 }
 \description{
 Function to find the best matching normal for a provided tumor sample.
-}
-\examples{
-
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-    package="PureCN")
-normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
-normalDB <- createNormalDatabase(normal.coverage.files)
-
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN")
-best.normal.coverage.file <- findBestNormal(tumor.coverage.file, normalDB)
-
-pool <- findBestNormal(tumor.coverage.file, normalDB, num.normals=2, 
-    pool=TRUE)
-
+This function is deprecated and most features are not relevant with
+the replacement function \code{\link{calculateTangentNormal}}.
 }
 \seealso{
 \code{\link{createNormalDatabase} \link{getSexFromCoverage}}

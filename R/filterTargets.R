@@ -25,13 +25,6 @@
 #' likely very different from the true GC content of the probes.
 #' @param normalDB Normal database, created with
 #' \code{\link{createNormalDatabase}}.
-#' @param normalDB.min.coverage Exclude targets with coverage lower than 
-#' the specified fraction of the chromosome median in the pool of normals.
-#' @param normalDB.max.missing Exclude targets with zero coverage in the
-#' specified fraction of normal samples.
-#' @param max.se Exclude targets with log-ratio standard error larger than
-#' the specified cutoff. Requires a pooled normal obtained by
-#' \code{\link{findBestNormal}}.
 #' @return \code{logical(length(log.ratio))} specifying which targets should be
 #' used in segmentation.
 #' @author Markus Riester
@@ -63,10 +56,8 @@
 #' @export filterTargets
 filterTargets <- function(normal, tumor, log.ratio, seg.file, 
     filter.lowhigh.gc = 0.001, min.coverage = 15, min.targeted.base = 5, 
-    normalDB = NULL, normalDB.min.coverage = 0.25, normalDB.max.missing=0.03,
-    max.se = 3) {
-    # NA's in log.ratio confuse the CBS function
-    targetsUsed <- !is.na(log.ratio) & !is.infinite(log.ratio) 
+    normalDB = NULL) {
+    targetsUsed <- .filterTargetsNotNA(log.ratio)
     # With segmentation file, ignore all filters
     if (!is.null(seg.file)) return(targetsUsed)
 
@@ -75,8 +66,8 @@ filterTargets <- function(normal, tumor, log.ratio, seg.file,
         targetsUsed <- .filterTargetsLowHighGC(targetsUsed, tumor,
             filter.lowhigh.gc)
     }
-    targetsUsed <- .filterTargetsNormalDB(targetsUsed, tumor, normalDB,
-        normalDB.min.coverage, normalDB.max.missing)
+    targetsUsed <- .filterTargetsNormalDB(targetsUsed, tumor, normalDB)
+
     targetsUsed <- .filterTargetsTargetedBase(targetsUsed, tumor,
         min.targeted.base)
     targetsUsed <- .filterTargetsTotalNormalCoverage(targetsUsed, normal,
@@ -91,8 +82,6 @@ filterTargets <- function(normal, tumor, log.ratio, seg.file,
         
     targetsUsed <- .filterTargetsCoverage(targetsUsed, normal, tumor, 
         min.coverage)
-
-    targetsUsed <- .filterTargetsLogRatioSE(targetsUsed, normal, max.se)
 
     return(targetsUsed)
 }
@@ -114,7 +103,21 @@ filterTargets <- function(normal, tumor, log.ratio, seg.file,
     tmp <- readCoverageFile(normalDB$normal.coverage.files[1])
     return(identical(tmp$Target, tumor$Target))
 }
-    
+
+.filterTargetsNotNA <- function(log.ratio) {
+    nBefore <- length(log.ratio) 
+    # NA's in log.ratio confuse the CBS function
+    targetsUsed <- !is.na(log.ratio) & !is.infinite(log.ratio) 
+    nAfter <- sum(targetsUsed)
+
+    if (nAfter < nBefore) {
+        flog.info("Removing %i intervals with missing log.ratio.", 
+            nBefore-nAfter)
+    }
+
+    targetsUsed
+}
+        
 .filterTargetsNormalDB <- function(targetsUsed, tumor, normalDB,
 normalDB.min.coverage, normalDB.max.missing) {
     if (is.null(normalDB)) return(targetsUsed)
@@ -124,35 +127,14 @@ normalDB.min.coverage, normalDB.max.missing) {
         return(targetsUsed)
     }    
 
-    nBefore <- sum(targetsUsed)
-    key <- paste(as.character(seqnames(tumor)), tumor$on.target)
-    min.coverage <- (sapply(split(normalDB$exon.median.coverage, 
-        key), median, na.rm=TRUE)*normalDB.min.coverage)[key]
-    
-    # should not happen, but just in case
-    min.coverage[is.na(min.coverage)] <- median(min.coverage, na.rm=TRUE)
-    
-    targetsUsed <- targetsUsed & !is.na(normalDB$exon.median.coverage) & 
-        normalDB$exon.median.coverage >= min.coverage
-        
-
+    nBefore <- sum(targetsUsed) 
+    targetsUsed <- targetsUsed & normalDB$intervals.used
     nAfter <- sum(targetsUsed)
 
     if (nAfter < nBefore) {
-        flog.info("Removing %i targets with low coverage in normalDB.", 
+        flog.info("Removing %i targets excluded in normalDB.", 
             nBefore-nAfter)
     }
-
-    nBefore <- sum(targetsUsed)
-    targetsUsed <- targetsUsed & !is.na(normalDB$fraction.missing) &
-        normalDB$fraction.missing <= normalDB.max.missing
-    nAfter <- sum(targetsUsed)
-
-    if (nAfter < nBefore) {
-        flog.info("Removing %i targets with zero coverage in more than %.0f%% of normalDB.", 
-            nBefore-nAfter, normalDB.max.missing*100)
-    }
-
     targetsUsed
 }
 
@@ -220,19 +202,6 @@ normalDB.min.coverage, normalDB.max.missing) {
         flog.info("Removing %i low coverage (< %.4fX) targets.", nBefore-nAfter, 
             min.coverage)
     }    
-    targetsUsed
-}
-
-.filterTargetsLogRatioSE <- function(targetsUsed, normal, max.se) {
-    if (is.null(normal$se)) return(targetsUsed)
-
-    nBefore <- sum(targetsUsed)
-    targetsUsed <- targetsUsed & (is.na(normal$se) | normal$se <= max.se)
-    nAfter <- sum(targetsUsed)
-    if (nAfter < nBefore) {
-        flog.info("Removing %i noisy (standard error > %.1f) targets.", nBefore-nAfter, 
-            max.se)
-    }
     targetsUsed
 }
 

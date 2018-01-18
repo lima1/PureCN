@@ -567,44 +567,6 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 }
 
 
-.voomLogRatio <- function(tumor.coverage.file, normal.coverage.files=NULL, 
-    normalDB=NULL, num.normals=NULL, plot.voom=TRUE) {
-    countMatrix <- .voomCountMatrix(tumor.coverage.file, normal.coverage.files, 
-                                    normalDB, num.normals)
-    
-    idx <- complete.cases(countMatrix)
-    dge <- edgeR::DGEList(countMatrix[idx,], 
-            group=c("tumor", rep("normal", ncol(countMatrix)-1)))
-    v <- limma::voomWithQualityWeights(dge, plot=plot.voom)
-    y <- limma::lmFit(v, design = stats::model.matrix(~dge$samples$group))
-    y <- limma::eBayes(y)
-    logRatio <- rep(NA, nrow(countMatrix))
-    logRatioSe <- logRatio
-    logRatio[idx] <- y$coefficients[,2]
-    # this extracts the standard error out of the eBayes fit object, see 
-    # the confint argument of the toptable function in voom
-    logRatioSe[idx] <- sqrt(y$s2.post) * y$stdev.unscaled[,2]
-    list(logRatio=logRatio, logRatioSe=logRatioSe)
-}
-
-.voomCountMatrix <- function(tumor.coverage.file, normal.coverage.files=NULL, 
-                             normalDB, num.normals) {
-    if (is.null(normal.coverage.files)) {
-        if (!is.null(num.normals)) {
-            normal.coverage.files <- findBestNormal(tumor.coverage.file, 
-                normalDB, num.normals=num.normals)
-        } else {
-            normal.coverage.files <- normalDB[[1]]
-        }    
-    }
-    if (is.character(tumor.coverage.file)) {
-        tumor <- readCoverageFile(tumor.coverage.file)
-    } else {
-        tumor <- tumor.coverage.file
-    }
-    normals <- .readNormals(normal.coverage.files)
-    .extractCountMatrix(c(list(tumor), normals))
-}
 .extractCountMatrix <- function(coverages) {
     useCounts <- .coverageHasCounts(coverages)
     if (useCounts) {
