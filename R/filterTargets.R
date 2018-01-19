@@ -92,10 +92,10 @@ filterTargets <- function(normal, tumor, log.ratio, seg.file,
         .stopUserError("normalDB not a valid normalDB object. ",
             "Use createNormalDatabase to create one.")
     }    
-# TODO: remove in 1.6
-    if (!is.null(normalDB$gatk.normal.files)) {
-        normalDB$normal.coverage.files <- normalDB$gatk.normal.files
-    }    
+    if (is.null(normalDB$version)) {
+        .stopUserError("normalDB incompatible with this PureCN version. ",
+                       "Please re-run NormalDB.R.")
+    }
     if (is.null(normalDB$normal.coverage.files) ||
         !length(normalDB$normal.coverage.files)) {
         .stopUserError("normalDB appears to be empty.")

@@ -296,7 +296,6 @@ PCA that is later used for denoising tumor coverage:
 
 <<normaldbpca>>=
 normalDB <- readRDS("normalDB.rds")
-# get the best 2 normals and average them
 pool <- calculateTangentNormal(tumor.coverage.file, normalDB)
 @
 

@@ -197,7 +197,6 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
     --normaldb ../normalDB_hg19.rds \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
-    --pool 5 \
     --genome hg19 --intervals baits_hg19_intervals.txt 
 
 # Production pipeline run
@@ -207,7 +206,6 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
     --statsfile ${SAMPLEID}_mutect_stats.txt \
-    --pool 5 \
     --genome hg19 --intervals baits_hg19_intervals.txt 
     --snpblacklist hg19_simpleRepeats.bed \
     --targetweightfile ../target_weights_hg19.txt \
@@ -235,13 +233,6 @@ Important recommendations:
 
     \item Providing the normal database in addition to a matched normal is
         optional, but helps ignoring low quality regions in the segmentation
-
-    \item The \Rcode{--pool} flag specifies how many normal samples should be
-        used to calculate the tumor vs. normal coverage. In a large, homogeneous
-        database, this should be set to 10. In a heterogeneous database (for
-        example different insert sizes, coverages, library preparation
-        protocols, etc.), this value is set to an appropriate group size between
-        2 and 10. 
 
     \item The normal panel VCF file is useful for mapping bias correction and
         especially recommended without matched normals. See the FAQ of the main
@@ -404,7 +395,6 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
     \Rfunction{findBestNormal}, \Rfunction{filterTargets} \\
 --segfile          & seg.file           & \Rfunction{runAbsoluteCN}  \\
 --sex              & sex                & \Rfunction{runAbsoluteCN}  \\
---pool             & pool, num.normals & \Rfunction{findBestNormal} \\    
 --genome           & genome             & \Rfunction{runAbsoluteCN}  \\
 --intervals        & interval.file      & \Rfunction{runAbsoluteCN}   \\
 --statsfile        & stats.file & \Rfunction{filterVcfMuTect}        \\
