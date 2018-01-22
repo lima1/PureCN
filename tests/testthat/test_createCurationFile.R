@@ -38,7 +38,6 @@ test_that("report.best.only works as expected", {
     expect_equal(length(retx$results), 1)
 })
 
-
 test_that("overwriting works as expected", {
     retx <- purecn.example.output
     retx$results[[1]]$purity <- 0.8
@@ -77,6 +76,14 @@ test_that("overwriting works as expected", {
     write.csv(ret, file = filename, row.names = FALSE)
     expect_error(readCurationFile(file.rds, remove.failed = TRUE), "logical")
     file.remove(filename)
+})
+
+test_that("warning occurs with missing curation file", {
+    ret <- createCurationFile(file.rds)
+    file.remove(gsub(".rds", ".csv", file.rds))
+    expect_output(retx <- readCurationFile(file.rds), "does not exist, creating")
+    expect_equal(retx$results[[1]]$purity, purecn.example.output$results[[1]]$purity)
+    expect_equal(retx$results[[1]]$ploidy, purecn.example.output$results[[1]]$ploidy)
 })
 
 file.remove(file.rds)

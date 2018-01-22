@@ -272,12 +272,14 @@ iterations=2, chr.hash) {
     x
 }
 
+.isFakeLogRatio <- function(log.ratio) {
+    sum(abs(diff(log.ratio))<0.0001)/length(log.ratio)>0.9
+}
+
 .getSDundo <- function(log.ratio, d=0.1) {
     # did user provide segmentation? Then the sd of the log-ratio
     # is wrong and shouldn't be used 
-    isFakeLogRatio <- sum(abs(diff(log.ratio))<0.0001)/
-        length(log.ratio)>0.9
-    if (isFakeLogRatio) return(0)
+    if (.isFakeLogRatio(log.ratio)) return(0)
     # a crude way of estimating purity - in heigher purity samples, we
     # can undo a little bit more aggressively 
     q <- quantile(log.ratio,p=c(d, 1-d))

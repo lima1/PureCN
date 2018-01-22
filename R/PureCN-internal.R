@@ -809,6 +809,11 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     if (identical(colnames(seg), required.colnames2)) {
         colnames(seg) <- required.colnames
     }    
+
+    if (!identical(as.character(as.numeric(seg$chrom)), as.character(seg$chrom))) {
+        flog.warn("Expecting numeric chromosome names in seg.file, assuming file is properly sorted.")
+        seg$chrom <- .strip.chr.name(seg$chrom, .getChrHash(seg$chrom))
+    }    
     
     # The smallest possible log-ratio is about 8
     # for 0.99 purity and high ploidy.
@@ -827,6 +832,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     segs <- split(seg, seg$ID)
     matchedSeg <- match(make.names(sampleid), make.names(names(segs)))
 
+
+
     if (length(segs)==1) {
         if (!is.null(sampleid) && is.na(matchedSeg)) {
             flog.warn("Provided sampleid (%s) does not match %s found in %s",
@@ -844,11 +851,15 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 }
        
 .createFakeLogRatios <- function(tumor, seg.file, sampleid, chr.hash, 
-    model.homozygous=FALSE) {
+    model.homozygous=FALSE, max.logr.sdev) {
     if (!is.null(tumor$log.ratio)) {
-        flog.info("Found log2-ratio in tumor coverage data.")
-        return(tumor$log.ratio)
-    }    
+        if (sd(tumor$log.ratio, na.rm = TRUE) < max.logr.sdev) {
+            flog.info("Found log2-ratio in tumor coverage data.")
+            return(tumor$log.ratio)
+        } else {
+            flog.info("Provided log2-ratio looks too noisy, using segmentation only.")
+        }
+    }
     if (class(seg.file)=="character") {
         seg <- .loadSegFile(seg.file, sampleid, model.homozygous, verbose=FALSE)    
     } else {

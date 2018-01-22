@@ -272,7 +272,8 @@ For a production pipeline run we provide a bit more information about the assay
 and genome:
 
 \begin{verbatim}
-# Recommended CNVkit example
+# Recommended CNVkit example (CNVkit runs without normal reference samples
+# will unlikely provide good results)
 Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
     --tumor $OUT/$SAMPLEID/${SAMPLEID}.cnr \

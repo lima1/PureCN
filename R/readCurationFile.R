@@ -37,6 +37,10 @@ remove.failed = FALSE, report.best.only=FALSE, min.ploidy = NULL,
 max.ploidy = NULL) {
     flog.info("Reading %s...", file.rds)
     res <- readRDS(file.rds)
+    if (!file.exists(file.curation)) {
+        flog.warn("Curation file %s does not exist, creating one.", file.curation)
+        createCurationFile(file.rds)
+    }
     curation <- read.csv(file.curation, as.is=TRUE, nrows=1)
     .checkLogical <- function(field) {
         if (!is.logical(curation[[field]])) {

@@ -359,7 +359,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             if (is.null(normal.coverage.file)) 
                 normal <- tumor
             log.ratio <- .createFakeLogRatios(tumor, seg.file, sampleid, 
-                                              chr.hash, model.homozygous)
+                                              chr.hash, model.homozygous, max.logr.sdev)
             smooth.log.ratio <- FALSE
             if (is.null(sampleid)) 
                 sampleid <- read.delim(seg.file, as.is=TRUE)[1, 1]
@@ -589,7 +589,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # if user provided seg file, then we do not have access to the log-ratios and
     # need to use the user provided noise estimate also, don't do outlier smoothing
     # when we use already segmented data
-    if (!is.null(seg.file) && is.null(tumor$log.ratio)) {
+    if (!is.null(seg.file) && ( is.null(tumor$log.ratio) || .isFakeLogRatio(log.ratio)) ) {
         sd.seg <- seg.file.sdev
     }
     
