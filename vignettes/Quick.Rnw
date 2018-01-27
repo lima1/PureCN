@@ -55,10 +55,12 @@ Usage: /path/to/PureCN/inst/extdata/PureCN.R [options] ...
 \item Generate an interval file from a BED file containing target coordinates:
 
 \begin{verbatim}
+export OUT_REF="reference_files"
+
 $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
-    --fasta hg19.fa --outfile baits_hg19_intervals.txt \
+    --fasta hg19.fa --outfile $OUT_REF/baits_hg19_intervals.txt \
     --offtarget --genome hg19 \
-    --export baits_optimized_hg19.bed \
+    --export $OUT_REF/baits_optimized_hg19.bed \
     --mappability wgEncodeCrgMapabilityAlign100mer.bigWig \
     --reptiming wgEncodeUwRepliSeqK562WaveSignalRep1.bigWig
 \end{verbatim}
@@ -87,8 +89,10 @@ vignette for instruction how to generate such a file for other references.
 Similarly, the \Rcode{--reptiming} argument takes a replication timing score in
 the same format.  If provided, GC-normalized and log-transformed coverage is
 tested for a linear relationship with this score and normalized accordingly.
-\end{itemize}
 
+Generation of this interval file is not needed when CNVkit is used to generate
+coverage data (covered at the end of this tutorial). 
+\end{itemize}
 
 \subsection*{Create VCF files}
 
@@ -122,12 +126,12 @@ For each sample, tumor and normal, calculate GC-normalized coverages:
 # Calculate and GC-normalize coverage from a BAM file 
 $ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
     --bam ${SAMPLEID}.bam \
-    --intervals baits_hg19_intervals.txt
+    --intervals $OUT_REF/baits_hg19_intervals.txt
 
 # GC-normalize coverage from a GATK DepthOfCoverage file
 Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
     --coverage ${SAMPLEID}.coverage.sample_interval_summary \ 
-    --intervals  baits_hg19_intervals.txt
+    --intervals $OUT_REF/baits_hg19_intervals.txt
 \end{verbatim}
 
 Similar to GATK, this script also takes a text file containing a list of BAM or
@@ -137,7 +141,7 @@ coverage file names (one per line). The file extension must be .list:
 # Calculate and GC-normalize coverage from a list of BAM files 
 $ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
     --bam normals.list \
-    --intervals baits_hg19_intervals.txt \
+    --intervals $OUT_REF/baits_hg19_intervals.txt \
     --cpu 4
 \end{verbatim}
 
@@ -150,15 +154,14 @@ GC-normalized normal coverage files in a single text file, line-by-line:
 ls -a normal*loess.txt | cat > example_normal.list
 
 # From already GC-normalized files
-$ Rscript $PURECN/NormalDB.R --outdir $OUT \
+$ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
     --coveragefiles example_normal.list \
-    --genome hg19 
+    --genome hg19 --assay agilent_v6
 
 # When normal panel VCF is available (highly recommended for unmatched samples)
-$ Rscript $PURECN/NormalDB.R --outdir $OUT \
+$ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
     --coveragefiles example_normal.list \
-    --genome hg19 --normal_panel $NORMAL_PANEL
-    
+    --genome hg19 --normal_panel $NORMAL_PANEL --assay agilent_v6
 \end{verbatim}
 
 Important recommendations:
@@ -182,6 +185,8 @@ Important recommendations:
     off-target bin widths. You will need to re-run IntervalFile.R with the
     \Rcode{--offtargetwidth} parameter and re-calculate the coverages.
 
+    \item The \Rcode{--assay} argument is optional and is only used to add the
+    provided assay name to all output files
 \end{itemize}
 
 \subsubsection*{PureCN}
@@ -194,21 +199,23 @@ cd $OUT/$SAMPLEID
 
 # Without a matched normal (minimal test run)
 $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \ 
-    --normaldb ../normalDB_hg19.rds \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
-    --genome hg19 --intervals baits_hg19_intervals.txt 
+    --normaldb $OUT_REF/normalDB_hg19.rds \
+    --intervals $OUT_REF/baits_hg19_intervals.txt \
+    --genome hg19 
 
 # Production pipeline run
 $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \ 
-    --normaldb ../normalDB_hg19.rds \
-    --normal_panel $NORMAL_PANEL \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
     --statsfile ${SAMPLEID}_mutect_stats.txt \
-    --genome hg19 --intervals baits_hg19_intervals.txt 
+    --normaldb $OUT_REF/normalDB_hg19.rds \
+    --normal_panel $OUT_REF/mapping_bias_hg19.rds \
+    --intervals $OUT_REF/baits_hg19_intervals.txt \
+    --targetweightfile $OUT_REF/target_weights_hg19.txt \
     --snpblacklist hg19_simpleRepeats.bed \
-    --targetweightfile ../target_weights_hg19.txt \
+    --genome hg19 \
     --force --postoptimize --seed 123
 
 # With a matched normal (test run; for production pipelines we recommend the
@@ -217,9 +224,9 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
     --normal ${SAMPLEID_NORMAL}_coverage_loess.txt \ 
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
-    --genome hg19 \
-    --normaldb ../normalDB_hg19.rds \
-    --intervals baits_hg19_intervals.txt 
+    --normaldb $OUT_REF/normalDB_hg19.rds \
+    --intervals $OUT_REF/baits_hg19_intervals.txt \
+    --genome hg19
 
 # Recreate output after manual curation of ${SAMPLEID}.csv
 $ Rscript $PURECN/PureCN.R --rds ${SAMPLEID}.rds
@@ -263,25 +270,33 @@ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
     --segfile $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
     --vcf ${SAMPLEID}_mutect.vcf \
-    --genome hg19 --intervals baits_hg19_intervals.txt 
+    --intervals $OUT_REF/baits_hg19_intervals.txt \
+    --genome hg19 
 \end{verbatim}
 
 See the main vignette for more details and file formats.
 
-For a production pipeline run we provide a bit more information about the assay
-and genome:
+For a production pipeline run we provide again more information about the assay
+and genome. Here is an example for recommended CNVkit run (CNVkit runs without
+normal reference samples are not recommended):
 
 \begin{verbatim}
-# Recommended CNVkit example (CNVkit runs without normal reference samples
-# will unlikely provide good results)
+# Provide a normal panel VCF to remove mapping biases, pre-compute 
+# position-specific bias for much faster runtimes with large panels
+# This needs to be done only once for each assay
+Rscript $PURECN/NormalDB.R --outdir $OUT_REF --normal_panel $NORMAL_PANEL \
+    --assay agilent_v6 --genome hg19 --force
+
+# Export the segmentation in DNAcopy format
 cnvkit.py export seg $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.cns --enumerate-chroms \
     -o $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.seg
 
+# Run PureCN by providing the *.cnr and *.seg files 
 Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
     --tumor $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.cnr \
     --segfile $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.seg \
-    --normal_panel $NORMAL_PANEL \
+    --normal_panel $OUT_REF/mapping_bias_agilent_v6_hg19.rds \
     --vcf ${SAMPLEID}_mutect.vcf \
     --statsfile ${SAMPLEID}_mutect_stats.txt \
     --snpblacklist hg19_simpleRepeats.bed \
@@ -296,6 +311,8 @@ Important recommendations:
     \item The \Rcode{--funsegmentation} argument controls if the data should to
         be re-segmented using germline BAFs (default). Set this value to
         \Rcode{none} if the provided segmentation should be used as is. 
+    \item Since CNVkit provides all necessary information in the *.cnr output
+        files, the \Rcode{--intervals} argument is not required.     
 \end{itemize}
 
 \subsection*{Dx}

@@ -1,14 +1,15 @@
 Changes in version 1.10.0
 -------------------------
 
-    o More accurate confidence intervals in callMutationBurden
-    o More accurate copy numbers for high-level amplifications
+    o New normal database format
     o Runtime performance improvements
     o Support for replication timing scores in coverage normalization
-    o New normal database format
+    o More accurate confidence intervals in callMutationBurden
+    o More accurate copy numbers for high-level amplifications
     o Very low or high coverage samples are now by default dropped in normal 
       database creation (less than 25% or more than 4 times the median sample 
       coverage)
+    o Improved support for third-party upstream tools  
     o Code cleanups (switch to testthat, removed several obsolete and minor 
       features)
     

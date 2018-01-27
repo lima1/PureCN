@@ -38,11 +38,6 @@ if (opt$version) {
     files
 }
 
-if (is.null(opt$coveragefiles)) {
-    stop("need --coveragefiles.")
-}
-
-coverageFiles <- .checkFileList(opt$coveragefiles)
 outdir <- opt$outdir
 if (is.null(outdir)) {
     stop("need --outdir")
@@ -57,6 +52,27 @@ if (is.null(genome)) stop("Need --genome")
     if (nchar(genome)) genome <- paste0("_", genome)
     file.path(outdir, paste0(prefix, assay, genome, suffix))
 }
+
+if (!is.null(opt$normal_panel)) {
+    output.file <- .getFileName(outdir,"mapping_bias",".rds", assay, genome)
+    if (file.exists(output.file) && !opt$force) {
+        flog.info("%s already exists. Skipping... (--force will overwrite)",
+            output.file)
+    } else {
+        suppressPackageStartupMessages(library(PureCN))
+        flog.info("Creating mapping bias database.")
+        bias <- calculateMappingBiasVcf(opt$normal_panel, genome = genome)
+        saveRDS(bias, file = output.file)
+    }
+}
+    
+if (is.null(opt$coveragefiles)) {
+    if (is.null(opt$normal_panel)) stop("need --coveragefiles.")
+    flog.warn("No --coveragefiles provided. Cannot generate normal database.")
+    q(status=1)
+}
+
+coverageFiles <- .checkFileList(opt$coveragefiles)
 
 flog.info("Loading PureCN %s...", Biobase::package.version("PureCN"))
 if (length(coverageFiles)) {
@@ -91,15 +107,3 @@ if (length(coverageFiles) > 3) {
     flog.warn("Not enough coverage files for creating target_weights.txt")
 }
 
-if (!is.null(opt$normal_panel)) {
-    output.file <- .getFileName(outdir,"mapping_bias",".rds", assay, genome)
-    if (file.exists(output.file) && !opt$force) {
-        flog.info("%s already exists. Skipping... (--force will overwrite)",
-            output.file)
-    } else {
-        suppressPackageStartupMessages(library(PureCN))
-        flog.info("Creating mapping bias database.")
-        bias <- calculateMappingBiasVcf(opt$normal_panel, genome = genome)
-        saveRDS(bias, file = output.file)
-    }
-}

@@ -853,7 +853,12 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 .createFakeLogRatios <- function(tumor, seg.file, sampleid, chr.hash, 
     model.homozygous=FALSE, max.logr.sdev) {
     if (!is.null(tumor$log.ratio)) {
-        if (sd(tumor$log.ratio, na.rm = TRUE) < max.logr.sdev) {
+         # calculate log.ratio sd in chunks of size 25 to estimate the 
+         # segmented sd
+         .robustSd <- function(d, size = 25) median(
+            sapply(split(d, ceiling(seq_along(d) / size)), sd, na.rm = TRUE))
+
+        if (.robustSd(tumor$log.ratio) < max.logr.sdev) {
             flog.info("Found log2-ratio in tumor coverage data.")
             return(tumor$log.ratio)
         } else {
