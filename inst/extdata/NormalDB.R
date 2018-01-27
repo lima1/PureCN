@@ -53,6 +53,7 @@ if (is.null(genome)) stop("Need --genome")
     file.path(outdir, paste0(prefix, assay, genome, suffix))
 }
 
+flog.info("Loading PureCN %s...", Biobase::package.version("PureCN"))
 if (!is.null(opt$normal_panel)) {
     output.file <- .getFileName(outdir,"mapping_bias",".rds", assay, genome)
     if (file.exists(output.file) && !opt$force) {
@@ -74,7 +75,6 @@ if (is.null(opt$coveragefiles)) {
 
 coverageFiles <- .checkFileList(opt$coveragefiles)
 
-flog.info("Loading PureCN %s...", Biobase::package.version("PureCN"))
 if (length(coverageFiles)) {
     output.file <- .getFileName(outdir,"normalDB",".rds", assay, genome)
     if (file.exists(output.file) && !opt$force) {
