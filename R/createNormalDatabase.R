@@ -132,14 +132,15 @@ min.coverage = 0.1, max.missing = 0.03, ...) {
     
     # do we need a sex-aware database?
     if ("F" %in% sex && "M" %in% sex) {
-        fcnts_interval_medians_F <- apply(fcnts[, which(sex=="F")], 1, median)
-        fcnts_interval_medians_M <- apply(fcnts[, which(sex=="M")], 1, median)
+        fcnts_interval_medians_F <- apply(fcnts[, which(sex=="F"), drop = FALSE], 1, median)
+        fcnts_interval_medians_M <- apply(fcnts[, which(sex=="M"), drop = FALSE], 1, median)
         sex.chr <- .getSexChr(seqlevels(intervals))
         idx <- as.character(seqnames(intervals)[intervals.used]) %in% sex.chr
         fcnts_interval_medians_F[!idx] <- fcnts_interval_medians[!idx]
         fcnts_interval_medians_M[!idx] <- fcnts_interval_medians[!idx]
         fcnts_std <- fcnts
         for (i in seq(ncol(fcnts))) {
+            if (is.null(sex[i]) || is.na(sex[i])) sex[i] <- "?"
             iv <- switch(sex[i],
                 "F"=fcnts_interval_medians_F,
                 "M"=fcnts_interval_medians_M,
@@ -174,7 +175,7 @@ min.coverage = 0.1, max.missing = 0.03, ...) {
 .denoiseSample <- function(x, normalDB, num.eigen, sex) {
     fcnts <- x$counts[normalDB$intervals.used]
     fcnts <- fcnts/sum(fcnts, na.rm=TRUE)
-    if (is.null(sex)) sex <- "?"
+    if (is.null(sex) || is.na(sex)) sex <- "?"
     iv <- switch(sex,
         "F"=normalDB$interval.median.coverage$F,
         "M"=normalDB$interval.median.coverage$M,
