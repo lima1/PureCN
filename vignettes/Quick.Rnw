@@ -55,8 +55,8 @@ Usage: /path/to/PureCN/inst/extdata/PureCN.R [options] ...
 \item Generate an interval file from a BED file containing target coordinates:
 
 \begin{verbatim}
-export OUT_REF="reference_files"
-
+# specify path where PureCN should store reference files
+$ export OUT_REF="reference_files"
 $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
     --fasta hg19.fa --outfile $OUT_REF/baits_hg19_intervals.txt \
     --offtarget --genome hg19 \
