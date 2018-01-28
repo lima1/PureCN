@@ -92,7 +92,7 @@ filterTargets <- function(normal, tumor, log.ratio, seg.file,
         .stopUserError("normalDB not a valid normalDB object. ",
             "Use createNormalDatabase to create one.")
     }    
-    if (is.null(normalDB$version)) {
+    if (is.null(normalDB$version) || normalDB$version < 4) {
         .stopUserError("normalDB incompatible with this PureCN version. ",
                        "Please re-run NormalDB.R.")
     }

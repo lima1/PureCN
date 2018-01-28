@@ -110,7 +110,7 @@ min.coverage = 0.1, max.missing = 0.03, ...) {
         groups=groups,
         intervals.used=intervals.used,
         sex=sex,
-        version=3
+        version=4
     )
 }
 
@@ -127,7 +127,29 @@ min.coverage = 0.1, max.missing = 0.03, ...) {
 
     fcnts <- apply(counts[intervals.used,], 2, function(x) x/sum(x))
     fcnts_interval_medians <- apply(fcnts, 1, median)
-    fcnts_std <- apply(fcnts,2,function(x) x/fcnts_interval_medians)
+    fcnts_interval_medians_F <- fcnts_interval_medians
+    fcnts_interval_medians_M <- fcnts_interval_medians
+    
+    # do we need a sex-aware database?
+    if ("F" %in% sex && "M" %in% sex) {
+        fcnts_interval_medians_F <- apply(fcnts[, which(sex=="F")], 1, median)
+        fcnts_interval_medians_M <- apply(fcnts[, which(sex=="M")], 1, median)
+        sex.chr <- .getSexChr(seqlevels(intervals))
+        idx <- as.character(seqnames(intervals)[intervals.used]) %in% sex.chr
+        fcnts_interval_medians_F[!idx] <- fcnts_interval_medians[!idx]
+        fcnts_interval_medians_M[!idx] <- fcnts_interval_medians[!idx]
+        fcnts_std <- fcnts
+        for (i in seq(ncol(fcnts))) {
+            iv <- switch(sex[i],
+                "F"=fcnts_interval_medians_F,
+                "M"=fcnts_interval_medians_M,
+                fcnts_interval_medians)
+
+            fcnts_std[, i] <- fcnts_std[,i] / iv
+        }
+    } else {  
+        fcnts_std <- apply(fcnts,2,function(x) x/fcnts_interval_medians)
+    }
     fcnts_interval_non_zero_medians <- apply(fcnts_std, 1, function(x) median(x[x>0]))
     fcnts_std_imp <- apply(fcnts_std, 2, function(x) { x[x<=0] <- fcnts_interval_non_zero_medians[x<=0]; x})
     p=0.001
@@ -139,19 +161,27 @@ min.coverage = 0.1, max.missing = 0.03, ...) {
     fcnts_std_final - median(apply(fcnts_std_final,2,median))
 
     list(
-        projection=svd(fcnts_std_final)[[2]],
-        intervals.used=intervals.used,
-        exon.median.coverage=fcnts_interval_medians,
-        fraction.missing=fraction.missing,
+        projection = svd(fcnts_std_final)[[2]],
+        intervals.used = intervals.used,
+        interval.median.coverage = list(all = fcnts_interval_medians,
+                                        F = fcnts_interval_medians_F,        
+                                        M = fcnts_interval_medians_M),
+        fraction.missing = fraction.missing,
         present=TRUE
     )
 }
 
-.denoiseSample <- function(x, normalDB, num.eigen) {
+.denoiseSample <- function(x, normalDB, num.eigen, sex) {
     fcnts <- x$counts[normalDB$intervals.used]
     fcnts <- fcnts/sum(fcnts, na.rm=TRUE)
-    fcnts_std <- fcnts/normalDB$exon.median.coverage
-    fcnts_std[which(fcnts_std==0)] <- normalDB$exon.median.coverage[which(fcnts_std==0)]
+    if (is.null(sex)) sex <- "?"
+    iv <- switch(sex,
+        "F"=normalDB$interval.median.coverage$F,
+        "M"=normalDB$interval.median.coverage$M,
+        normalDB$interval.median.coverage$all)
+
+    fcnts_std <- fcnts/iv
+    fcnts_std[which(fcnts_std==0)] <- iv[which(fcnts_std==0)]
 
     fcnts_std_final <- log2(fcnts_std/median(fcnts_std, na.rm = TRUE))
     x$log.ratio.std <- 0.
@@ -211,15 +241,22 @@ calculateTangentNormal <- function(tumor.coverage.file, normalDB,
         .stopUserError("tumor.coverage.file and normalDB do not align.")
     }
 
+    if (!ignore.sex && !is.null(normalDB$sex) && 
+        sum(!is.na(normalDB$sex))>0) {
+        if (is.null(sex)) {
+            sex <- getSexFromCoverage(tumor)
+        }
+        flog.info("Sample sex: %s", sex)
+    }
     tumor$log.ratio <- 0.
     tumor$log.ratio.std <- 0.
-    denoised <- .denoiseSample(tumor[tumor$on.target], normalDB$groups[[1]], num.eigen)
+    denoised <- .denoiseSample(tumor[tumor$on.target], normalDB$groups[[1]], num.eigen, sex)
     ov <- findOverlaps(tumor, denoised)
     tumor$log.ratio[queryHits(ov)] <- denoised$log.ratio[subjectHits(ov)]
     tumor$log.ratio.std[queryHits(ov)] <- denoised$log.ratio.std[subjectHits(ov)]
 
     if (normalDB$groups[[2]]$present) {
-        denoised <- .denoiseSample(tumor[!tumor$on.target], normalDB$groups[[2]], num.eigen)
+        denoised <- .denoiseSample(tumor[!tumor$on.target], normalDB$groups[[2]], num.eigen, sex)
         ov <- findOverlaps(tumor, denoised)
         tumor$log.ratio[queryHits(ov)] <- denoised$log.ratio[subjectHits(ov)]
         tumor$log.ratio.std[queryHits(ov)] <- denoised$log.ratio.std[subjectHits(ov)]
@@ -227,6 +264,8 @@ calculateTangentNormal <- function(tumor.coverage.file, normalDB,
         
     fakeNormal <- tumor
     fakeNormal$average.coverage <- 2 ^ (log2(tumor$average.coverage) - tumor$log.ratio)
+    # Fix NA's
+    fakeNormal$average.coverage[tumor$average.coverage == 0] <- 0
     fakeNormal$coverage <- fakeNormal$average.coverage * width(fakeNormal)
     fakeNormal
 }
@@ -316,13 +355,13 @@ target.weight.file, plot = FALSE) {
 }
 
 .filterTargetsCreateNormalDB <- function(intervals, 
-exon.median.coverage, fraction.missing,
+interval.median.coverage, fraction.missing,
 min.coverage, max.missing) {
     
     nBefore <- length(intervals)
     intervals.used <- is.finite(fraction.missing) 
-    intervals.used <- intervals.used & !is.na(exon.median.coverage) & 
-        exon.median.coverage >= quantile(exon.median.coverage,  p=min.coverage)[1]
+    intervals.used <- intervals.used & !is.na(interval.median.coverage) & 
+        interval.median.coverage >= quantile(interval.median.coverage,  p=min.coverage)[1]
         
     nAfter <- sum(intervals.used)
 
