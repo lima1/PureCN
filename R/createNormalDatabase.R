@@ -182,7 +182,10 @@ min.coverage = 0.1, max.missing = 0.03, ...) {
         normalDB$interval.median.coverage$all)
 
     fcnts_std <- fcnts/iv
-    fcnts_std[which(fcnts_std==0)] <- iv[which(fcnts_std==0)]
+    # impute intervals which have no data in sample but in database
+    # otherwise the projection will return only NA
+    idxMissing <- which(fcnts_std==0 | is.na(fcnts_std))
+    fcnts_std[idxMissing] <- iv[idxMissing]
 
     fcnts_std_final <- log2(fcnts_std/median(fcnts_std, na.rm = TRUE))
     x$log.ratio.std <- 0.
