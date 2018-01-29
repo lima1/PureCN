@@ -4,7 +4,7 @@
 \alias{bootstrapResults}
 \title{Filter unlikely purity/ploidy solutions}
 \usage{
-bootstrapResults(res, n = 500, top = NULL)
+bootstrapResults(res, n = 500, top = NULL, reorder = FALSE)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
@@ -13,6 +13,8 @@ bootstrapResults(res, n = 500, top = NULL)
 
 \item{top}{Include solution if it appears in the top \code{n} solutions of
 any bootstrap replicate. If \code{NULL}, do not filter solutions.}
+
+\item{reorder}{Reorder results by bootstrap value.}
 }
 \value{
 Returns the \code{\link{runAbsoluteCN}} object with low likelihood

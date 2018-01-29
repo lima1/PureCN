@@ -681,9 +681,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             cnt.llik.equal <- 0
             C.likelihood <- matrix(ncol = length(test.num.copy) + 1, nrow = nrow(seg))
             colnames(C.likelihood) <- c(test.num.copy, "Subclonal")
+            sd.seg.orig <- sd.seg
             for (iter in seq_len(iterations)) {
-                flog.debug("Iteration %i, Purity %.2f, total ploidy %.2f, ploidy %.2f, likelihood %.3f, offset %.3f",
-                    iter, p, total.ploidy,  weighted.mean(C, li), llik, mean(log.ratio.offset))
+                flog.debug("Iteration %i, Purity %.2f, total ploidy %.2f, ploidy %.2f, likelihood %.3f, offset %.3f error %.3f",
+                    iter, p, total.ploidy,  weighted.mean(C, li), llik, mean(log.ratio.offset), sd.seg)
                 # test for convergence
                 if (abs(old.llik - llik) < 0.0001) {
                   cnt.llik.equal <- cnt.llik.equal + 1
@@ -694,7 +695,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                   break
                 subclonal.f <- length(unlist(exon.lrs[subclonal]))/length(unlist(exon.lrs))
                 # should not happen, but sometimes does for very unlikely local optima.
-                flog.debug("Subclonal %.2f", subclonal.f)
+                if (subclonal.f > 0) flog.debug("Subclonal %.2f", subclonal.f)
                 if (subclonal.f > max.non.clonal + 0.1) 
                   break
                 if (iter == 1) 
@@ -722,10 +723,14 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     cumsum(px.rij.s)))]
                   total.ploidy <- p * (sum(li * (C)))/sum(li) + (1 - p) * 2
                   # Gibbs sample offset
-                  if (iter > 2) 
+                  if (iter > 2) {
                     log.ratio.offset <- .sampleOffset(subclonal, seg, exon.lrs, sd.seg, 
                       p, C, total.ploidy, max.exon.ratio, simulated.annealing, iter, 
                       log.ratio.calibration)
+                    sd.seg <- .sampleError(subclonal, seg, exon.lrs, sd.seg.orig, 
+                      p, C, total.ploidy, max.exon.ratio, simulated.annealing, iter, 
+                      log.ratio.calibration, log.ratio.offset)
+                   }
                 }
                 
                 if (!sum(!is.na(C))) {
@@ -768,9 +773,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     p.rij <- p.rij + log.prior.ploidy
                   
                   frac.homozygous.loss <- vapply(test.num.copy, function(Ci) (sum(li[-i] * 
-                    ifelse(C[-i] == 0, 1, 0)) + li[i] * ifelse(Ci == 0, 1, 0))/sum(li), 
+                    ifelse(C[-i] < 0.5, 1, 0)) + li[i] * ifelse(Ci < 0.5, 1, 0))/sum(li), 
                     double(1))
-
                   if (li[i] > max.homozygous.loss[2] && test.num.copy[1]<1) {
                        frac.homozygous.loss[1] <- 1
                   }     
@@ -801,7 +805,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                   opt.C <- (2^(seg$seg.mean + log.ratio.offset) * total.ploidy)/p - 
                     ((2 * (1 - p))/p)
                   opt.C[opt.C < 0] <- 0
-                  if (id > length(test.num.copy)) {
+                  # if the sub-clonal event is a homozygous loss, we might reach our limit 
+                  if (id > length(test.num.copy) && opt.C[i] <= 0 && is.infinite(min(log.prior.homozygous.loss,na.rm=TRUE))) {
+                    C[i] <- 1
+                    subclonal[i] <- FALSE             
+                  } else if (id > length(test.num.copy)) {
                     # optimal non-integer copy number
                     C[i] <- opt.C[i]
                     subclonal[i] <- TRUE
@@ -839,7 +847,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 ML.C = C, ML.Subclonal = subclonal), SNV.posterior = SNV.posterior, 
                 fraction.subclonal = subclonal.f, fraction.homozygous.loss = sum(li[which(C < 
                   0.01)])/sum(li), gene.calls = NA, log.ratio.offset = log.ratio.offset, 
-                SA.iterations = iter, candidate.id = cpi))
+                  log.ratio.sdev = sd.seg, SA.iterations = iter, candidate.id = cpi))
         }
         
         gene.calls <- .getGeneCalls(seg.adjusted, tumor, log.ratio, fun.focal, 
@@ -918,7 +926,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             sum(li[which(C < 0.01)])/sum(li), fraction.balanced = 
             .calcFractionBalanced(SNV.posterior$posteriors),
             gene.calls = gene.calls,
-            log.ratio.offset = log.ratio.offset, SA.iterations = iter, 
+            log.ratio.offset = log.ratio.offset, log.ratio.sdev = sd.seg, SA.iterations = iter, 
             candidate.id = cpi, failed = FALSE)
     }
     

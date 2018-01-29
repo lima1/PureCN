@@ -10,6 +10,7 @@
 #' @param n Number of bootstrap replicates.
 #' @param top Include solution if it appears in the top \code{n} solutions of
 #' any bootstrap replicate. If \code{NULL}, do not filter solutions.
+#' @param reorder Reorder results by bootstrap value.
 #' @return Returns the \code{\link{runAbsoluteCN}} object with low likelihood
 #' solutions removed. Also adds a bootstrap value to each solution. This value
 #' is the fraction of bootstrap replicates in which the solution ranked first.
@@ -23,14 +24,15 @@
 #'
 #' @export bootstrapResults
 #' @importFrom utils head
-bootstrapResults <- function(res, n = 500, top = NULL) {
+bootstrapResults <- function(res, n = 500, top = NULL, reorder = FALSE) {
     if (length(res$results) < 2) return(res)
     if (is.null(top)) top <- length(res$results)    
-    res$results <- .bootstrapResults(res$results, n = n, top = top)
+    res$results <- .bootstrapResults(res$results, n = n, top = top, 
+        reorder = reorder)
     res
 }
 
-.bootstrapResults <- function(results, n, top) {
+.bootstrapResults <- function(results, n, top, reorder) {
     ## Sample SNVs with replacement and recalculate log-likelihood.
     .bootstrapResult <- function(result) {
         lliks <- log(apply(result$SNV.posterior$likelihoods[
@@ -51,9 +53,11 @@ bootstrapResults <- function(res, n = 500, top = NULL) {
 
     ## Return only solutions that had ranked high in at least one replicate.
     best <- as.vector(best)
-    results <- results[unique(best)]
-    results <- results[order(sapply(results, function(x) x$bootstrap.value),
-        decreasing = TRUE)]
+    results <- results[sort(unique(best))]
+    if (reorder) {
+        results <- results[order(sapply(results, function(x) x$bootstrap.value),
+            decreasing = TRUE)]
+    }    
     .flagBootstrap(results)
 }
 

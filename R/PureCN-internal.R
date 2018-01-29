@@ -729,7 +729,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 }
 
 .sampleOffsetFast <- function(test.num.copy, seg, exon.lrs, sd.seg, p, C, total.ploidy, 
-    max.exon.ratio, simulated.annealing, log.ratio.calibration = 0.25) {
+    max.exon.ratio, simulated.annealing, log.ratio.calibration) {
     # Gibbs sample offset
     test.offset <- seq(sd.seg * -log.ratio.calibration, sd.seg * log.ratio.calibration, 
         by = 0.01)
@@ -755,6 +755,25 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     })
     do.call(c, lapply(seq_along(lr), function(i) rep(lr[[i]], length(seg.ids.by.chr[[i]]))))
 }
+.sampleError <- function(subclonal, seg, exon.lrs, sd.seg, p, C, total.ploidy, max.exon.ratio, 
+    simulated.annealing, iter, log.ratio.calibration, log.ratio.offset) {
+    # Gibbs sample error
+    test.error <- seq(sd.seg, sd.seg + sd.seg * 0.2, length.out = 5)
+
+    seg.ids <- seq_len(nrow(seg))
+    
+    px.error <- lapply(test.error, function(error) vapply(seg.ids, 
+        function(i) .calcLlikSegment(subclonal[i], exon.lrs[[i]] + log.ratio.offset[i], error, 
+            p, C[i], total.ploidy, max.exon.ratio), double(1))
+    )
+    px.error.s <- sapply(px.error, sum, na.rm = TRUE)
+    if (simulated.annealing) 
+        px.error.s <- px.error.s * exp(iter/4)
+    px.error.s <- exp(px.error.s - max(px.error.s))
+    error <- test.error[min(which(runif(n = 1, min = 0, max = sum(px.error.s)) <= 
+        cumsum(px.error.s)))]
+}
+
 .sampleOffset <- function(subclonal, seg, exon.lrs, sd.seg, p, C, total.ploidy, max.exon.ratio, 
     simulated.annealing, iter, log.ratio.calibration = 0.25) {
     # Gibbs sample offset
