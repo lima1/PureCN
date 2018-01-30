@@ -20,6 +20,9 @@
 #' VCF.
 #' @param min.cosmic.cnt Minimum number of hits in the COSMIC database to 
 #' call variant as likely somatic.
+#' @param DB.info.flag Flag in INFO of VCF that marks presence in common
+#' germline databases. Defaults to \code{DB} that may contain somatic variants
+#' if it is from an unfiltered dbSNP VCF.
 #' @return A \code{numeric(nrow(vcf))} vector with the prior probability of
 #' somatic status for each variant in the \code{CollapsedVCF}.
 #' @author Markus Riester
@@ -34,7 +37,8 @@
 #' @export setPriorVcf
 setPriorVcf <- function(vcf, prior.somatic = c(0.5, 0.0005, 0.999, 0.0001,
                                                0.995, 0.5),
-                        tumor.id.in.vcf = NULL, min.cosmic.cnt = 4) {
+                        tumor.id.in.vcf = NULL, min.cosmic.cnt = 4, 
+                        DB.info.flag = "DB") {
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
     }
@@ -48,7 +52,7 @@ setPriorVcf <- function(vcf, prior.somatic = c(0.5, 0.0005, 0.999, 0.0001,
             tmp[3], tmp[4])
     } else {
          tmp <- prior.somatic
-         prior.somatic <- ifelse(info(vcf)$DB,
+         prior.somatic <- ifelse(info(vcf)[[DB.info.flag]],
             prior.somatic[2], prior.somatic[1])
          if (!is.null(info(vcf)$Cosmic.CNT)) {
              flog.info("Found COSMIC annotation in VCF.")
@@ -57,7 +61,7 @@ setPriorVcf <- function(vcf, prior.somatic = c(0.5, 0.0005, 0.999, 0.0001,
 
              prior.somatic[which(info(vcf)$Cosmic.CNT >= min.cosmic.cnt)] <- tmp[5]
              prior.somatic[which(info(vcf)$Cosmic.CNT >= min.cosmic.cnt & 
-                info(vcf)$DB)] <- tmp[6]
+                info(vcf)[[DB.info.flag]])] <- tmp[6]
          } else {
              flog.info("Setting somatic prior probabilities for dbSNP hits to %f or to %f otherwise.", 
                 tmp[2], tmp[1])

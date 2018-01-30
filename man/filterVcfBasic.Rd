@@ -9,7 +9,7 @@ filterVcfBasic(vcf, tumor.id.in.vcf = NULL, use.somatic.status = TRUE,
   contamination.range = c(0.01, 0.075), min.coverage = 15,
   min.base.quality = 25, min.supporting.reads = NULL, error = 0.001,
   target.granges = NULL, remove.off.target.snvs = TRUE,
-  model.homozygous = FALSE, interval.padding = 50)
+  model.homozygous = FALSE, interval.padding = 50, DB.info.flag = "DB")
 }
 \arguments{
 \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf}
@@ -62,6 +62,10 @@ variants. Ignored in case a matched normal is provided in the VCF.}
 
 \item{interval.padding}{Include variants in the interval flanking regions of
 the specified size in bp. Requires \code{target.granges}.}
+
+\item{DB.info.flag}{Flag in INFO of VCF that marks presence in common
+germline databases. Defaults to \code{DB} that may contain somatic variants
+if it is from an unfiltered dbSNP VCF.}
 }
 \value{
 A list with elements \item{vcf}{The filtered \code{CollapsedVCF}

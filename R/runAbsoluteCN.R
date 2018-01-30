@@ -182,6 +182,9 @@
 #' a higher prior probability of being somatic. Not used in likelhood model
 #' when matched normal is available in \code{vcf.file}. Should be compressed
 #' and indexed with bgzip and tabix, respectively.
+#' @param DB.info.flag Flag in INFO of VCF that marks presence in common
+#' germline databases. Defaults to \code{DB} that may contain somatic variants
+#' if it is from an unfiltered dbSNP VCF.
 #' @param model Use either a beta or a beta-binomial distribution for fitting
 #' observed to expected allelic fractions of alterations in \code{vcf.file}. 
 #' The latter can be useful to account for significant overdispersion, for example 
@@ -276,11 +279,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     max.non.clonal = 0.2, max.homozygous.loss = c(0.05, 1e07), 
     non.clonal.M = 1/3, max.mapping.bias = 0.8, max.pon = 3, iterations = 30, 
     min.variants.segment = 5, log.ratio.calibration = 0.1, smooth.log.ratio = TRUE, 
-    model.homozygous = FALSE, error = 0.001, 
+    model.homozygous = FALSE, error = 0.001,
     interval.file = NULL, gc.gene.file = NULL, max.dropout = c(0.95, 1.1), 
     min.logr.sdev = 0.15, max.logr.sdev = 0.6, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
-    cosmic.vcf.file = NULL, model = c("beta", "betabin"),
+    cosmic.vcf.file = NULL, DB.info.flag = "DB", model = c("beta", "betabin"),
     post.optimize = FALSE, speedup.heuristics = 2, log.file = NULL,
     verbose = TRUE) {
 
@@ -446,7 +449,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     if (!is.null(vcf.file)) {
         flog.info("Loading VCF...")
-        vcf <- .readAndCheckVcf(vcf.file, genome=genome)
+        vcf <- .readAndCheckVcf(vcf.file, genome = genome, 
+            DB.info.flag = DB.info.flag)
         
         if (length(intersect(seqlevels(tumor), seqlevels(vcf))) < 1) {
             .stopUserError("Different chromosome names in coverage and VCF.")
@@ -481,6 +485,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         
         args.filterVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf, 
             model.homozygous = model.homozygous, error = error, 
+            DB.info.flag = DB.info.flag,
             target.granges = tumor[tumor$on.target]), args.filterVcf)
         if (is.null(args.filterVcf$min.coverage)) {
             args.filterVcf$min.coverage <- min.coverage
@@ -494,8 +499,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             vcf <- .addCosmicCNT(vcf, cosmic.vcf.file)
         }
         
-        args.setPriorVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf),
-            args.setPriorVcf)
+        args.setPriorVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf, 
+            DB.info.flag = DB.info.flag), args.setPriorVcf)
         prior.somatic <- do.call(fun.setPriorVcf, 
             .checkArgs(args.setPriorVcf, "setPriorVcf"))
         
@@ -504,7 +509,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         args.setMappingBiasVcf$tumor.id.in.vcf <- tumor.id.in.vcf
         mapping.bias <- do.call(fun.setMappingBiasVcf,
             .checkArgs(args.setMappingBiasVcf, "setMappingBiasVcf"))
-        idxHqGermline <- prior.somatic < 0.5 & mapping.bias$bias >= max.mapping.bias
+        idxHqGermline <- prior.somatic < 0.1 & mapping.bias$bias >= max.mapping.bias
         vcf.germline <- vcf[idxHqGermline]
     }
     

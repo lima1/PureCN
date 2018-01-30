@@ -96,7 +96,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
          }
     }
 
-    prior.cont <- ifelse(info(vcf)$DB, cont.rate, 0)
+    prior.cont <- ifelse(prior.somatic < 0.1, cont.rate, 0)
     prior.somatic <- prior.somatic - (prior.cont*prior.somatic)
     priorHom <- if (model.homozygous) -log(3) else log(0)
 
@@ -261,8 +261,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     if (!is.null(mapping.bias$pon.count)) {
         posteriors$pon.count <- mapping.bias$pon.count[vcf.ids]
         idx.ignore <- idx.ignore | 
-            (posteriors$pon.count > max.pon & !info(vcf[vcf.ids])$DB)
-        posteriors$FLAGGED <- idx.ignore    
+            (posteriors$pon.count > max.pon & posteriors$prior.somatic > 0.5)
+        posteriors$FLAGGED <- idx.ignore
     }
     # change seqnames to chr
     colnames(posteriors)[1] <- "chr"    

@@ -25,8 +25,9 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   interval.file = NULL, gc.gene.file = NULL, max.dropout = c(0.95, 1.1),
   min.logr.sdev = 0.15, max.logr.sdev = 0.6, max.segments = 300,
   min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL,
-  model = c("beta", "betabin"), post.optimize = FALSE,
-  speedup.heuristics = 2, log.file = NULL, verbose = TRUE)
+  DB.info.flag = "DB", model = c("beta", "betabin"),
+  post.optimize = FALSE, speedup.heuristics = 2, log.file = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{normal.coverage.file}{Coverage file of normal control (optional
@@ -255,6 +256,10 @@ Assay specific and needs to be calibrated.}
 a higher prior probability of being somatic. Not used in likelhood model
 when matched normal is available in \code{vcf.file}. Should be compressed
 and indexed with bgzip and tabix, respectively.}
+
+\item{DB.info.flag}{Flag in INFO of VCF that marks presence in common
+germline databases. Defaults to \code{DB} that may contain somatic variants
+if it is from an unfiltered dbSNP VCF.}
 
 \item{model}{Use either a beta or a beta-binomial distribution for fitting
 observed to expected allelic fractions of alterations in \code{vcf.file}. 

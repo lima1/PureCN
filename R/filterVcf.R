@@ -40,6 +40,9 @@
 #' variants. Ignored in case a matched normal is provided in the VCF.
 #' @param interval.padding Include variants in the interval flanking regions of
 #' the specified size in bp. Requires \code{target.granges}.
+#' @param DB.info.flag Flag in INFO of VCF that marks presence in common
+#' germline databases. Defaults to \code{DB} that may contain somatic variants
+#' if it is from an unfiltered dbSNP VCF.
 #' @return A list with elements \item{vcf}{The filtered \code{CollapsedVCF}
 #' object.} \item{flag}{A flag (\code{logical(1)}) if problems were
 #' identified.} \item{flag_comment}{A comment describing the flagging.}
@@ -63,7 +66,7 @@ use.somatic.status = TRUE, snp.blacklist = NULL, af.range = c(0.03, 0.97),
 contamination.range = c(0.01, 0.075), min.coverage = 15, min.base.quality = 25,
 min.supporting.reads = NULL, error = 0.001, target.granges = NULL,
 remove.off.target.snvs = TRUE, model.homozygous = FALSE, 
-interval.padding = 50) {
+interval.padding = 50, DB.info.flag = "DB") {
     flag <- NA
     flag_comment <- NA
 
@@ -125,11 +128,11 @@ interval.padding = 50) {
 
     # heurestic to find potential contamination
     #--------------------------------------------------------------------------
-    idx <- info(vcf)$DB & idxNotHomozygous &
+    idx <- info(vcf)[[DB.info.flag]] & idxNotHomozygous &
         (unlist(geno(vcf)$FA[,tumor.id.in.vcf]) < contamination.range[2] |
         unlist(geno(vcf)$FA[,tumor.id.in.vcf]) > (1 - contamination.range[2]))
 
-    fractionContaminated <- sum(idx)/sum(info(vcf)$DB & idxNotHomozygous)
+    fractionContaminated <- sum(idx)/sum(info(vcf)[[DB.info.flag]] & idxNotHomozygous)
     minFractionContaminated <- 0.02
 
     if (fractionContaminated > 0) {
@@ -162,7 +165,7 @@ interval.padding = 50) {
     vcf <- vcf[unlist(geno(vcf)$DP[,tumor.id.in.vcf]) >= min.coverage]
     vcf <- vcf[unlist(geno(vcf)$FA[,tumor.id.in.vcf]) >= af.range[1]]
     # remove homozygous germline
-    vcf <- vcf[!info(vcf)$DB | geno(vcf)$FA[,tumor.id.in.vcf] < af.range[2]]
+    vcf <- vcf[!info(vcf)[[DB.info.flag]] | geno(vcf)$FA[,tumor.id.in.vcf] < af.range[2]]
     flog.info("Removing %i variants with AF < %.3f or AF >= %.3f or less than %i supporting reads or depth < %i.", 
         n-nrow(vcf), af.range[1], af.range[2], cutoffs[1], min.coverage)
     n <- nrow(vcf)
@@ -188,7 +191,7 @@ interval.padding = 50) {
                 n.vcf.before.filter - nrow(vcf))
         }        
     }
-    if (!is.null(info(vcf)$DB) && sum(info(vcf)$DB) < nrow(vcf)/2) {
+    if (!is.null(info(vcf)[[DB.info.flag]]) && sum(info(vcf)[[DB.info.flag]]) < nrow(vcf)/2) {
         flog.warn("Less than half of variants in dbSNP. Make sure that VCF %s", 
             "contains both germline and somatic variants.")
     }
@@ -299,7 +302,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }    
     return(TRUE)
 }    
-.readAndCheckVcf <- function(vcf.file, genome) {
+.readAndCheckVcf <- function(vcf.file, genome, DB.info.flag = "DB") {
     if (class(vcf.file) == "character") {
         vcf <- readVcf(vcf.file, genome)
     } else if (class(vcf.file) != "CollapsedVCF") {
@@ -314,10 +317,14 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         vcf <- vcf[which(!triAllelic)]
         flog.info("Removing %i triallelic sites.",n-nrow(vcf))
     }    
-    if (is.null(info(vcf)$DB)) {
+    if (is.null(info(vcf)[[DB.info.flag]])) {
         # try to add an DB field based on rownames
-        vcf <- .addDbField(vcf)
+        vcf <- .addDbField(vcf, DB.info.flag)
     }
+    cntLikelyGL <- sum(info(vcf)[[DB.info.flag]], na.rm = TRUE)
+    flog.info("Found %i (%.1f%%) variants annotated as likely germline (%s INFO flag).",
+        cntLikelyGL, cntLikelyGL/length(vcf)*100, DB.info.flag)
+
     if (is.null(info(vcf)$SOMATIC)) {
         # try to add a SOMATIC flag for callers that do not
         # provide one (matched tumor/normal cases only)
@@ -336,7 +343,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }
     vcf     
 }    
-.addDbField <- function(vcf) {
+.addDbField <- function(vcf, DB.info.flag = "DB") {
      db <- grepl("^rs",rownames(vcf))
      if (!sum(db)) {
         .stopUserError("vcf.file has no DB info field for dbSNP membership.")
@@ -345,11 +352,12 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
             " Guessing it based on ID.")
      }
     newInfo <- DataFrame(
-        Number=0, Type="Flag",
-        Description="dbSNP Membership",
-        row.names="DB")
+        Number = 0, 
+        Type = "Flag",
+        Description = "dbSNP Membership",
+        row.names = DB.info.flag)
     info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
-    info(vcf)$DB <- db
+    info(vcf)[[DB.info.flag]] <- db
     vcf
 }
 .addSomaticField <- function(vcf) {
