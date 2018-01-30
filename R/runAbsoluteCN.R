@@ -777,7 +777,18 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     double(1))
                   if (li[i] > max.homozygous.loss[2] && test.num.copy[1]<1) {
                        frac.homozygous.loss[1] <- 1
-                  }     
+                  }
+                  # in noisy segmentations, a whole chromosome arm can be lost. try
+                  # to catch this corner case by limiting the total losses per chromosome
+                  # skip this test for small toy examples where the tiling produces long
+                  # segments in any case
+                  #idxChr <- which(seg$chrom == seg$chrom[i])
+                  #if (sum(li[idxChr], na.rm=TRUE) > max.homozygous.loss[2] * 1.2 && 
+                  #   test.num.copy[1] < 1 && 
+                  #   sum(seg$num.mark[idxChr], na.rm = TRUE) > 1000) {
+                  #        frac.homozygous.loss[1] <- 1
+                  #}
+
                   log.prior.homozygous.loss <- log(ifelse(frac.homozygous.loss > 
                     max.homozygous.loss[1], 0, 1))
                   if (iter > 1) 

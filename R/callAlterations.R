@@ -61,7 +61,7 @@ log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, all.genes = FALSE) {
         calls$num.snps.segment <- sapply(calls$seg.id, function(i) 
             sum(segids==i,na.rm=TRUE))
         calls$M <- bm$posteriors$ML.M.SEGMENT[match(calls$seg.id, segids)] 
-        calls$flagged <- bm$posteriors$M.SEGMENT.FLAGGED[match(calls$seg.id, segids)] 
+        calls$M.flagged <- bm$posteriors$M.SEGMENT.FLAGGED[match(calls$seg.id, segids)] 
         calls$loh <- bm$posteriors$ML.M.SEGMENT[match(calls$seg.id, segids)] == 0 
     }
     
