@@ -422,6 +422,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --minaf            & af.range & \Rfunction{filterVcfBasic} \\
 --snpblacklist     & snp.blacklist & \Rfunction{filterVcfBasic}     \\
 --error            & error & \Rfunction{runAbsoluteCN}     \\
+--dbinfoflag       & DB.info.flag & \Rfunction{runAbsoluteCN}     \\
 --funsegmentation  & fun.segmentation & \Rfunction{runAbsoluteCN} \\ 
 --alpha            & alpha & \Rfunction{segmentationCBS} \\
 --undosd           & undo.SD & \Rfunction{segmentationCBS} \\
