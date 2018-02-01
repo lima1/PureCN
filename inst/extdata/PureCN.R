@@ -91,7 +91,7 @@ option_list <- list(
         default = formals(PureCN::runAbsoluteCN)$max.non.clonal,
         help = "Maximum genomic fraction assigned to a subclonal copy number state [default %default]"),
     make_option(c("--outvcf"), action = "store_true", default = FALSE,
-        help = "Output: Annotate input VCF with posterior probabilities. Otherwise produce CSV file."),
+        help = "Output: Annotate input VCF with posterior probabilities. Otherwise only produce CSV file."),
     make_option(c("--out"), action = "store", type = "character", default = NULL,
         help = paste("Output: File name prefix to which results should be written.",
         "If out is a directory, will use out/sampleid.")),

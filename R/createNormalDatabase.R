@@ -267,9 +267,8 @@ calculateTangentNormal <- function(tumor.coverage.file, normalDB,
     }
         
     fakeNormal <- tumor
-    fakeNormal$average.coverage <- 2 ^ (log2(tumor$average.coverage) - tumor$log.ratio)
-    # Fix NA's
-    fakeNormal$average.coverage[tumor$average.coverage == 0] <- 0
+    idxNA <- is.na(fakeNormal$log.ratio)
+    fakeNormal$average.coverage[!idxNA] <- (2 ^ (log2(tumor$average.coverage) - tumor$log.ratio))[!idxNA]
     fakeNormal$coverage <- fakeNormal$average.coverage * width(fakeNormal)
     fakeNormal
 }
