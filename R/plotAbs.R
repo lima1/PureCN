@@ -235,7 +235,8 @@ ss) {
     minLogRatio <- max(min(seg$seg.mean), peak.ideal.means[1]*2)
     logRatio <- do.call(c, lapply(seq_len(nrow(seg)), function(i)
                         rep(seg$seg.mean[i], seg$num.mark[i])))
-    logRatio <- logRatio[logRatio > minLogRatio]
+    minLogRatio <- min(minLogRatio, quantile(logRatio, p=0.05))
+    logRatio <- logRatio[logRatio >= minLogRatio]
     
     # estimate genome fractions
     h <- hist(logRatio, breaks = 75, plot = FALSE)
