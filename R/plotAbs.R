@@ -37,6 +37,8 @@
 #' mapping bias of 1 has no bias. (\code{type="AF"} and \code{type="BAF"}
 #' only).
 #' @param palette.name The default \code{RColorBrewer} palette.
+#' @param col.snps The color used for germline SNPs.
+#' @param col.chr.shading The color used for shading alternate chromosomes.
 #' @param \dots Additonal parameters passed to the \code{plot} function.
 #' @return Returns \code{NULL}.
 #' @author Markus Riester
@@ -61,7 +63,8 @@ plotAbs <- function(res, id = 1,
 type = c("hist", "overview", "BAF", "AF", "all"),
 chr = NULL, germline.only = TRUE, show.contour = FALSE, purity = NULL, 
 ploidy = NULL, alpha = TRUE, show.segment.means = c("SNV", "segments", "both"),
-max.mapping.bias = 0.8, palette.name = "Paired", ...) {
+max.mapping.bias = 0.8, palette.name = "Paired", 
+col.snps = "#2b6391", col.chr.shading = "#f0f0f0", ...) {
     type <- match.arg(type)
 
     if (!is.numeric(id) || id < 1 || id > length(res$results)) { 
@@ -71,10 +74,10 @@ max.mapping.bias = 0.8, palette.name = "Paired", ...) {
     if (is.null(ploidy)) ploidy <- res$results[[id]]$ploidy
 
     if (type == "hist") {
-        .plotTypeHist(res, id, purity, ploidy, ...)
+        .plotTypeHist(res, id, purity, ploidy, col.snps, ...)
     } else if (type == "BAF") {
         .plotTypeBAF(res, id, chr, alpha, max.mapping.bias, 
-                     germline.only, ...)
+                     germline.only, col.snps, col.chr.shading, ...)
     } else if (type == "AF") {
         .plotTypeAF(res, id, purity, ploidy, alpha, max.mapping.bias, 
                     match.arg(show.segment.means), palette.name, ...)
@@ -213,7 +216,7 @@ ss) {
         function(x) x$C[1]), function(j) .calcExpectedRatio(j, purity, ploidy)))
 }
 
-.plotTypeHist <- function(res, id, purity, ploidy, ...) {
+.plotTypeHist <- function(res, id, purity, ploidy, col.snps, ...) {
     seg <- res$results[[id]]$seg
 
     custom.solution <- purity != res$results[[id]]$purity &&
@@ -235,7 +238,7 @@ ss) {
     minLogRatio <- max(min(seg$seg.mean), peak.ideal.means[1]*2)
     logRatio <- do.call(c, lapply(seq_len(nrow(seg)), function(i)
                         rep(seg$seg.mean[i], seg$num.mark[i])))
-    minLogRatio <- min(minLogRatio, quantile(logRatio, p=0.05))
+    minLogRatio <- min(minLogRatio, quantile(logRatio, p=0.01))
     logRatio <- logRatio[logRatio >= minLogRatio]
     
     # estimate genome fractions
@@ -243,7 +246,7 @@ ss) {
     h$density <- h$counts / sum(h$counts)
 
     plot(h, freq = FALSE, xlab = "log2 ratio",
-        ylab = "Fraction Genome", main=main, col = "#377EB8", ...)
+        ylab = "Fraction Genome", main=main, col = col.snps, ...)
     abline(v= peak.ideal.means, lty = 3, lwd = 2, col = "darkgrey")
     axis(side = 3, at = peak.ideal.means, 
         labels=names(peak.ideal.means), tick = FALSE, padj = 1)
@@ -251,7 +254,7 @@ ss) {
 }
 
 .plotTypeBAF <- function(res, id, chr, alpha, max.mapping.bias, 
-                         germline.only, ...) {
+                         germline.only, col.snps, col.chr.shading, ...) {
     if (is.null(res$input$vcf)) {
         .stopUserError("runAbsoluteCN was run without a VCF file.")
     }
@@ -293,7 +296,6 @@ ss) {
     if (!is.null(max.mapping.bias)) {
         idx <- idx & r$MAPPING.BIAS >= max.mapping.bias
     }
-    mycol <- "#377EB8"
     mypch <- ifelse(r$GERMLINE.CONTHIGH > 0.5, 2, 
         ifelse(r$GERMLINE.CONTLOW>0.5, 3, 1))[idx]
     myalpha <- ifelse(alpha && nrow(r) > 2000, 2000/nrow(r), 1)
@@ -346,7 +348,7 @@ ss) {
         xLogRatio <- start(logRatio)/1000
         plot(x, r$AR[idx],ylab="B-Allele Frequency", 
             xlab="Pos (kbp)",main=paste(main, " Chromosome:", chr), 
-            col=mycol, pch=mypch, xlim=range(xLogRatio), ...)
+            col=col.snps, pch=mypch, xlim=range(xLogRatio), ...)
         centromerePos <- NULL
         if (!is.null(res$input$centromere)) {
             centromerePos <- start(centromeres)[
@@ -366,7 +368,7 @@ ss) {
             col = adjustcolor("grey", alpha.f = ifelse(myalpha<1, 0.75, 1)), 
             ylim = range(segment.log.ratio*1.1),
             ...)
-        points(x, r$log.ratio[idx], col=mycol, pch=mypch)
+        points(x, r$log.ratio[idx], col=col.snps, pch=mypch)
         segment.log.ratio.lines[,1] <- x[segment.log.ratio.lines[,1]]
         lines(segment.log.ratio.lines, col = "black", lwd = 3)
         segment.M.log.ratio.lines[,1] <- x[segment.M.log.ratio.lines[,1]]
@@ -385,9 +387,9 @@ ss) {
         plot(r$AR[idx],ylab="B-Allele Frequency", xlab="SNV Index",
             main=main, type="n", ...)
         rect(tmp$start, par("usr")[3], tmp$end+1, par("usr")[4], 
-             col = ifelse(seq(nrow(tmp))%%2, "#deebf7", "white"), border = NA)
+             col = ifelse(seq(nrow(tmp))%%2, col.chr.shading, "white"), border = NA)
         rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4])
-        points(r$AR[idx], col=adjustcolor(mycol, alpha.f=myalpha), pch=mypch)
+        points(r$AR[idx], col=adjustcolor(col.snps, alpha.f=myalpha), pch=mypch)
         lines(segment.b1.lines, col = "black", lwd = 3)
         lines(segment.b2.lines, col = "black", lwd = 3)
         axis(side = 3, at = (tmp[,3]+tmp[,2])/2,
@@ -408,9 +410,9 @@ ss) {
             xlab = "SNV Index", 
             main = main, ylim = myylim, type = "n", ...)
         rect(tmp$start, par("usr")[3], tmp$end+1, par("usr")[4], 
-             col=ifelse(seq(nrow(tmp))%%2, "#deebf7", "white"), border=NA)
+             col=ifelse(seq(nrow(tmp))%%2, col.chr.shading, "white"), border=NA)
         rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4])
-        points(r$log.ratio[idx], col=adjustcolor(mycol, alpha.f=myalpha), pch=mypch)
+        points(r$log.ratio[idx], col=adjustcolor(col.snps, alpha.f=myalpha), pch=mypch)
         lines(segment.log.ratio.lines, col = "black", lwd = 3)
         lines(segment.M.log.ratio.lines, col = "grey", lwd = 3)
 
@@ -425,7 +427,7 @@ ss) {
             ylim = c(0,min(7, max(r$ML.C[!r$ML.SOMATIC]))), col = "grey",
             type ="n", ... )
         rect(tmp$start, par("usr")[3], tmp$end+1, par("usr")[4], 
-             col=ifelse(seq(nrow(tmp))%%2, "#deebf7", "white"), border = NA)
+             col=ifelse(seq(nrow(tmp))%%2, col.chr.shading, "white"), border = NA)
         rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4])
         points(r$ML.M.SEGMENT[idx], col = "grey")
         points(r$ML.C[idx], col = "black")

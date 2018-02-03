@@ -7,7 +7,8 @@
 plotAbs(res, id = 1, type = c("hist", "overview", "BAF", "AF", "all"),
   chr = NULL, germline.only = TRUE, show.contour = FALSE, purity = NULL,
   ploidy = NULL, alpha = TRUE, show.segment.means = c("SNV", "segments",
-  "both"), max.mapping.bias = 0.8, palette.name = "Paired", ...)
+  "both"), max.mapping.bias = 0.8, palette.name = "Paired",
+  col.snps = "#2b6391", col.chr.shading = "#f0f0f0", ...)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
@@ -54,6 +55,10 @@ mapping bias of 1 has no bias. (\code{type="AF"} and \code{type="BAF"}
 only).}
 
 \item{palette.name}{The default \code{RColorBrewer} palette.}
+
+\item{col.snps}{The color used for germline SNPs.}
+
+\item{col.chr.shading}{The color used for shading alternate chromosomes.}
 
 \item{\dots}{Additonal parameters passed to the \code{plot} function.}
 }

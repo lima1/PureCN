@@ -289,7 +289,7 @@ test_that("Run with example seg.file works", {
         max.candidate.solutions = 1, genome = "hg19")
     seg <- read.delim(seg.file)
     expect_equal(nrow(res$results[[1]]$seg), nrow(seg))
-    expect_equal(res$results[[1]]$seg$seg.mean, seg$seg.mean)
+    expect_equal(res$results[[1]]$seg$seg.mean, seg$seg.mean, tol=0.005)
 })
 
 test_that("Run with provided log-ratios works", {

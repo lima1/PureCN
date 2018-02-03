@@ -865,7 +865,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         .stopUserError("seg.file contains multiple samples and sampleid does not match any.")
     } else {
         seg <- segs[[matchedSeg]]
-    }    
+    }
+    seg$seg.mean <- seg$seg.mean - weighted.mean(seg$seg.mean, seg$num.mark, na.rm = TRUE)
     seg
 }
        
