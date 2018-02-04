@@ -27,6 +27,9 @@ API CHANGES
     o added calculateMappingBiasVcf to pre-compute mapping bias from a
       panel of normal VCF, thus avoiding time loading and parsing
       of huge VCFs
+    o max.homozygous.loss now defines the maximum fraction of a chromosome 
+      lost, not the whole genome, to avoid wrong maximum likelihood solutions with 
+      completely deleted chromosome arms
 
 
 Changes in version 1.8.0

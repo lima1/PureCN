@@ -120,10 +120,8 @@
 #' scores.
 #' @param max.non.clonal Maximum genomic fraction assigned to a subclonal copy
 #' number state.
-#' @param max.homozygous.loss \code{double(2)} with maximum genomic fraction 
+#' @param max.homozygous.loss \code{double(2)} with maximum chromosome fraction 
 #' assigned to homozygous loss and maximum size of a homozygous loss segment.  
-#' These are set to a fairly high default value to not exclude correct
-#' solutions, especially in noisy segmentations.
 #' @param non.clonal.M Average expected cellular fraction of sub-clonal somatic
 #' mutations. This is to calculate expected allelic fractions of a single
 #' sub-clonal bin for variants. For all somatic variants, more accurate cellular
@@ -776,23 +774,20 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     0, 1))
                   if (iter > 1) 
                     p.rij <- p.rij + log.prior.ploidy
-                  
-                  frac.homozygous.loss <- vapply(test.num.copy, function(Ci) (sum(li[-i] * 
-                    ifelse(C[-i] < 0.5, 1, 0)) + li[i] * ifelse(Ci < 0.5, 1, 0))/sum(li), 
+
+                  liChr <- li
+                  idxOtherChrs <- which(seg$chrom != seg$chrom[i])
+                  # with small panels, we cannot avoid too long segments and thus
+                  # allow chromosomes with lots of deletions in this case
+                  if (sum(seg$num.mark[-idxOtherChrs], na.rm = TRUE) > 500) {
+                    liChr[idxOtherChrs] <- 0
+                  }
+                  frac.homozygous.loss <- vapply(test.num.copy, function(Ci) (sum(liChr[-i] * 
+                    ifelse(C[-i] < 0.5, 1, 0)) + liChr[i] * ifelse(Ci < 0.5, 1, 0))/sum(liChr), 
                     double(1))
                   if (li[i] > max.homozygous.loss[2] && test.num.copy[1]<1) {
                        frac.homozygous.loss[1] <- 1
                   }
-                  # in noisy segmentations, a whole chromosome arm can be lost. try
-                  # to catch this corner case by limiting the total losses per chromosome
-                  # skip this test for small toy examples where the tiling produces long
-                  # segments in any case
-                  #idxChr <- which(seg$chrom == seg$chrom[i])
-                  #if (sum(li[idxChr], na.rm=TRUE) > max.homozygous.loss[2] * 1.2 && 
-                  #   test.num.copy[1] < 1 && 
-                  #   sum(seg$num.mark[idxChr], na.rm = TRUE) > 1000) {
-                  #        frac.homozygous.loss[1] <- 1
-                  #}
 
                   log.prior.homozygous.loss <- log(ifelse(frac.homozygous.loss > 
                     max.homozygous.loss[1], 0, 1))

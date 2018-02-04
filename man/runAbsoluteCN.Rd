@@ -176,10 +176,8 @@ scores.}
 \item{max.non.clonal}{Maximum genomic fraction assigned to a subclonal copy
 number state.}
 
-\item{max.homozygous.loss}{\code{double(2)} with maximum genomic fraction 
-assigned to homozygous loss and maximum size of a homozygous loss segment.  
-These are set to a fairly high default value to not exclude correct
-solutions, especially in noisy segmentations.}
+\item{max.homozygous.loss}{\code{double(2)} with maximum chromosome fraction 
+assigned to homozygous loss and maximum size of a homozygous loss segment.}
 
 \item{non.clonal.M}{Average expected cellular fraction of sub-clonal somatic
 mutations. This is to calculate expected allelic fractions of a single
