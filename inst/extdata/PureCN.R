@@ -255,20 +255,6 @@ pdf(file.pdf, width = 5, height = 5)
 plotAbs(ret, 1, type = "overview")
 dev.off()
 
-if (opt$outvcf) {
-    file.vcf <- paste0(out, ".vcf")
-    vcfanno <- predictSomatic(ret, return.vcf = TRUE,
-        vcf.field.prefix = "PureCN.")
-    writeVcf(vcfanno, file = file.vcf)
-}
-file.csv <- paste0(out, "_variants.csv")
-write.csv(cbind(Sampleid = sampleid, predictSomatic(ret)), file = file.csv,
-    row.names = FALSE, quote = FALSE)
-
-file.loh <- paste0(out, "_loh.csv")
-write.csv(cbind(Sampleid = sampleid, callLOH(ret)), file = file.loh,
-    row.names = FALSE, quote = FALSE)
-
 file.seg <- paste0(out, "_dnacopy.seg")
 seg <- ret$results[[1]]$seg
 seg <- seg[, c(1:6, match("C", colnames(seg)))]
@@ -282,6 +268,20 @@ write.csv(cbind(Sampleid = sampleid, gene.symbol = rownames(allAlterations),
     allAlterations), row.names = FALSE, file = file.genes, quote = FALSE)
 
 if (!is.null(ret$input$vcf)) {
+    if (opt$outvcf) {
+        file.vcf <- paste0(out, ".vcf")
+        vcfanno <- predictSomatic(ret, return.vcf = TRUE,
+            vcf.field.prefix = "PureCN.")
+        writeVcf(vcfanno, file = file.vcf)
+    }
+    file.csv <- paste0(out, "_variants.csv")
+    write.csv(cbind(Sampleid = sampleid, predictSomatic(ret)), file = file.csv,
+        row.names = FALSE, quote = FALSE)
+
+    file.loh <- paste0(out, "_loh.csv")
+    write.csv(cbind(Sampleid = sampleid, callLOH(ret)), file = file.loh,
+        row.names = FALSE, quote = FALSE)
+
     file.pdf <- paste0(out, "_chromosomes.pdf")
     pdf(file.pdf, width = 9, height = 10)
     vcf <- ret$input$vcf[ret$results[[1]]$SNV.posterior$vcf.ids]

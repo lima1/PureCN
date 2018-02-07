@@ -323,7 +323,7 @@ test_that("Betabin model runs with example data", {
         min.ploidy = 1.5, max.ploidy = 2.1, plot.cnv = FALSE, 
         cosmic.vcf.file = cosmic.vcf.file, model = "betabin", 
         test.purity = seq(0.3, 0.7, by = 0.01))
-    expect_equal(0.65, ret$results[[1]]$purity)
+    expect_equal(0.65, ret$results[[1]]$purity, tol=0.1)
 })
 
 test_that("max.ploidy works", {
