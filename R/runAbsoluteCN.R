@@ -479,7 +479,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             }
         }
         n.vcf.before.filter <- nrow(vcf)
-        flog.info("Found %i variants in VCF file.", n.vcf.before.filter)
         
         args.filterVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf, 
             model.homozygous = model.homozygous, error = error, 

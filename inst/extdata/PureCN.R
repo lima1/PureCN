@@ -201,7 +201,11 @@ if (file.exists(file.rds) && !opt$force) {
             stop("Unknown segmentation function")
         }
     }
-
+    mutect.ignore <- eval(formals(PureCN::filterVcfMuTect)$ignore)
+    if (opt$error < formals(PureCN::runAbsoluteCN)$error && !is.null(opt$statsfile)) {
+        flog.info("Low specified error, will keep fstar_tumor_lod flagged variants")
+        mutect.ignore <- mutect.ignore[-match("fstar_tumor_lod", mutect.ignore)]
+    }    
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
             tumor.coverage.file = tumor.coverage.file, vcf.file = opt$vcf,
             sampleid = sampleid, gc.gene.file = opt$gcgene, plot.cnv = TRUE,
@@ -212,6 +216,7 @@ if (file.exists(file.rds) && !opt$force) {
             sex = opt$sex,
             args.filterVcf = list(snp.blacklist = snp.blacklist,
                 af.range = af.range, stats.file = opt$statsfile,
+                ignore = mutect.ignore,
                 interval.padding = opt$padding),
             fun.segmentation = fun.segmentation,
             args.segmentation = list(target.weight.file = opt$targetweightfile,

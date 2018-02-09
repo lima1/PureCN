@@ -5,7 +5,7 @@
 \title{Call mutation burden}
 \usage{
 callMutationBurden(res, id = 1, remove.flagged = TRUE,
-  min.prior.somatic = 0.1, min.cellfraction = 0,
+  min.prior.somatic = 0.1, max.prior.somatic = 1, min.cellfraction = 0,
   fun.countMutation = function(vcf) width(vcf) == 1, callable = NULL,
   exclude = NULL)
 }
@@ -20,6 +20,11 @@ callMutationBurden(res, id = 1, remove.flagged = TRUE,
 
 \item{min.prior.somatic}{Exclude variants with somatic prior
 probability lower than this cutoff.}
+
+\item{max.prior.somatic}{Exclude variants with somatic prior
+probability higher than this cutoff. This is useful for removing
+hotspot mutations in small panels that might inflate the mutation
+burden.}
 
 \item{min.cellfraction}{Exclude variants with cellular fraction
 lower than this cutoff. These are sub-clonal mutations or artifacts

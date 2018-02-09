@@ -1223,18 +1223,20 @@ Figure~\ref{figure/figureexample2-1}:
     (see Section~\ref{secmaxsnps}).
     \item \Biocpkg{PureCN} also needs process-matched normal samples, again,
     the more the better. 
-    \item Samples with tumor purities below 20\% usually cannot be analyzed with this
-    algorithm and \Biocpkg{PureCN} might return very wrong purity estimates. 
+    \item Samples with tumor purities below 15-20\% usually cannot be analyzed
+    with this algorithm and \Biocpkg{PureCN} might return very wrong purity
+    estimates. In high coverage samples with low duplication rates, this limit
+    can be close to 10\%.
     \item Whole-genome data is not officially supported and specialized tools
     will likely provide better results.  Third-party segmentation tools
-    designed for this data type would be again required.  
+    designed for this data type would be again required.
     \item Amplicon sequencing data is also not officially supported. If the
-        assay contains tiling probes (at least with 1Mb spacing) and uses a
-        barcode protocol that reduces PCR bias of measured allelic fractions,
-        then this method might produce acceptable results. Setting the
-        \Rcode{model} argument of \Rfunction{runAbsoluteCN} to \Rcode{betabin}
-        is recommended. Specialized segmentation tools might be again better
-        than our default.
+    assay contains tiling probes (at least with 1Mb spacing) and uses a
+    barcode protocol that reduces PCR bias of measured allelic fractions,
+    then this method might produce acceptable results. Setting the
+    \Rcode{model} argument of \Rfunction{runAbsoluteCN} to \Rcode{betabin}
+    is recommended. Specialized segmentation tools might be again better
+    than our default.
 \end{itemize}
 
 \paragraph{If you have trouble generating input data PureCN accepts, please check:}

@@ -11,6 +11,9 @@ option_list <- list(
     make_option(c("--exclude"), action="store", type="character", default=NULL, 
         help=paste("File parsable by rtracklayer specifying regions to exclude",
          "from mutation burden calculation, e.g. intronic regions")),
+    make_option(c("--maxpriorsomatic"), action = "store", type = "double",
+        default = formals(PureCN::callMutationBurden)$max.prior.somatic,
+        help = "Can be used to exclude hotspot mutations with high somatic prior probability [default %default]"),
     make_option(c("--out"), action="store", type="character", default=NULL,
         help="File name prefix to which results should be written"),
     make_option(c("-v", "--version"), action="store_true", default=FALSE, 
@@ -87,5 +90,6 @@ if (!opt$force && file.exists(outfileMb)) {
 }    
 
 flog.info("Calling mutation burden...")
-mb <- callMutationBurden(res, callable=callable, exclude=exclude)
+mb <- callMutationBurden(res, callable=callable, exclude=exclude, 
+        max.prior.somatic = opt$maxpriorsomatic)
 write.csv(cbind(Sampleid=sampleid, mb), file=outfileMb, row.names=FALSE, quote=FALSE)

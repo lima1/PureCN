@@ -277,8 +277,8 @@ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
 See the main vignette for more details and file formats.
 
 For a production pipeline run we provide again more information about the assay
-and genome. Here is an example for recommended CNVkit run (CNVkit runs without
-normal reference samples are not recommended):
+and genome. Here an CNVkit example (CNVkit runs without normal reference
+samples are not recommended):
 
 \begin{verbatim}
 # Provide a normal panel VCF to remove mapping biases, pre-compute 
@@ -458,6 +458,7 @@ Argument name  & Corresponding PureCN argument & PureCN function \\
 --rds         & file.rds & \Rfunction{readCurationFile}   \\
 --callable    & callable & \Rfunction{callMutationBurden} \\
 --exclude     & exclude  & \Rfunction{callMutationBurden} \\
+--maxpriorsomatic & max.prior.somatic  & \Rfunction{callMutationBurden} \\
 --out         & & \\
 --version -v  & & \\
 --force -f    & & \\

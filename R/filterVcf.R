@@ -311,11 +311,12 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     } else {
         vcf <- vcf.file
     } 
+    flog.info("Found %i variants in VCF file.", length(vcf))
     triAllelic <- elementNROWS(alt(vcf))>1
     if (sum(triAllelic)) {
         n <- nrow(vcf)
         vcf <- vcf[which(!triAllelic)]
-        flog.info("Removing %i triallelic sites.",n-nrow(vcf))
+        flog.info("Removing %i triallelic sites.",n-length(vcf))
     }    
     if (is.null(info(vcf)[[DB.info.flag]])) {
         # try to add an DB field based on rownames

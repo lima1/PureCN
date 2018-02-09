@@ -10,6 +10,10 @@
 #' \code{\link{predictSomatic}}.
 #' @param min.prior.somatic Exclude variants with somatic prior
 #' probability lower than this cutoff.
+#' @param max.prior.somatic Exclude variants with somatic prior
+#' probability higher than this cutoff. This is useful for removing
+#' hotspot mutations in small panels that might inflate the mutation
+#' burden.
 #' @param min.cellfraction Exclude variants with cellular fraction
 #' lower than this cutoff. These are sub-clonal mutations or artifacts
 #' with very low allelic fraction.
@@ -51,10 +55,10 @@
 #' 
 #' @export callMutationBurden
 #' @importFrom stats binom.test
-callMutationBurden <- function(res, id = 1, remove.flagged = TRUE, 
-    min.prior.somatic=0.1, min.cellfraction=0, 
+callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
+    min.prior.somatic = 0.1, max.prior.somatic = 1, min.cellfraction = 0,
     fun.countMutation=function(vcf) width(vcf)==1,
-    callable=NULL, exclude=NULL) {
+    callable = NULL, exclude = NULL) {
 
     if (is.null(res$input$vcf)) {
         .stopUserError("runAbsoluteCN was run without a VCF file.")
@@ -106,7 +110,9 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
         p <- p[which(fun.countMutation(vcf))]
     } 
         
-    p <- p[p$prior.somatic >= min.prior.somatic]
+    p <- p[p$prior.somatic >= min.prior.somatic & 
+           p$prior.somatic <= max.prior.somatic]
+           
     if (remove.flagged) p <- p[!p$FLAGGED]
     
     ret <- data.frame(
