@@ -2,7 +2,7 @@
 % Please edit documentation in R/bootstrapResults.R
 \name{bootstrapResults}
 \alias{bootstrapResults}
-\title{Filter unlikely purity/ploidy solutions}
+\title{Bootstrapping variant fits}
 \usage{
 bootstrapResults(res, n = 500, top = NULL, reorder = FALSE)
 }
@@ -17,15 +17,14 @@ any bootstrap replicate. If \code{NULL}, do not filter solutions.}
 \item{reorder}{Reorder results by bootstrap value.}
 }
 \value{
-Returns the \code{\link{runAbsoluteCN}} object with low likelihood
-solutions removed. Also adds a bootstrap value to each solution. This value
+Returns a \code{\link{runAbsoluteCN}} object with added a bootstrap 
+value to each solution. This value
 is the fraction of bootstrap replicates in which the solution ranked first.
 }
 \description{
-This function bootstraps SNVs, then re-ranks solutions by using the
-bootstrap estimate of the likelihood score, and then keeps only solutions
-that were ranked highest in any bootstrap replicate. Large-scale copy number
-artifacts can cause true purity/ploidy solutions rank low.
+This function bootstraps variants, then optionally re-ranks solutions by 
+using the bootstrap estimate of the likelihood score, and then optionally
+removes solutions that never ranked high in any bootstrap replicate.
 }
 \examples{
 

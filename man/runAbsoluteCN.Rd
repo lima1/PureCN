@@ -45,13 +45,14 @@ Needs to be either a file name or data read with the
 \item{log.ratio}{Copy number log-ratios for all exons in the coverage files.
 If \code{NULL}, calculated based on coverage files.}
 
-\item{seg.file}{Segmented data. Optional, to support matched SNP6 data.  If
-\code{NULL}, use coverage files or \code{log.ratio} to segment the data.}
+\item{seg.file}{Segmented data. Optional, to support matched SNP6 data or
+third-pary segmentation tools.  If \code{NULL}, use coverage files or 
+\code{log.ratio} to segment the data.}
 
 \item{seg.file.sdev}{If \code{seg.file} provided, the log-ratio standard
 deviation, used to model likelihood of sub-clonal copy number events.}
 
-\item{vcf.file}{VCF file, tested with \sQuote{MuTect 1} output files.
+\item{vcf.file}{VCF file.
 Optional, but typically needed to select between local optima of similar
 likelihood. Can also be a \code{CollapsedVCF}, read with the \code{readVcf}
 function.  Requires a DB info flag for dbSNP membership. The default
@@ -202,7 +203,7 @@ that should converge quickly. Allowed range is 10 to 250.}
 minor copy number estimation is not reliable with insufficient variants.}
 
 \item{log.ratio.calibration}{Re-calibrate log-ratios in the window
-\code{sd(log.ratio)*log.ratio.calibration}.}
+\code{purity*log.ratio.calibration}.}
 
 \item{smooth.log.ratio}{Smooth \code{log.ratio} using the \code{DNAcopy}
 package.}

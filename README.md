@@ -30,7 +30,8 @@ version (this should work fine for Bioconductor 3.3 and later):
 biocLite("lima1/PureCN", ref="RELEASE_3_6")
 ```
 
-If you want the latest and greatest from the developer branch:
+If you want the latest and greatest from the developer branch (currently
+recommended for new users):
 
 ```
 biocLite("lima1/PureCN")
@@ -51,7 +52,7 @@ For the R package and more detailed information:
 vignette("PureCN", package="PureCN")
 ```
 
-These tutorials are also available on the [Bioconductor](https://bioconductor.org/packages/devel/bioc/html/PureCN.html) project page.
+These tutorials are also available on the Bioconductor project page ([devel](https://bioconductor.org/packages/devel/bioc/html/PureCN.html), [stable](https://doi.org/doi:10.18129/B9.bioc.PureCN)).
 
 ## Paper
 
