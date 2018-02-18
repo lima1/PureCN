@@ -189,6 +189,14 @@ Important recommendations:
 
     \item The \Rcode{--assay} argument is optional and is only used to add the
     provided assay name to all output files
+
+    \item If you get a warning that you likely used the wrong baits file, this
+    means more than 5\% of targets have close to 0 coverage. A BED file with
+    the low coverage targets will be generated in \Rcode{--outdir}.  If for any
+    reason you do not have access to the correct file, you should at least
+    re-run the IntervalFile.R command and provide this BED file with
+    \Rcode{--exclude}.
+
 \end{itemize}
 
 \subsubsection*{PureCN}

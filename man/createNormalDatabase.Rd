@@ -6,7 +6,7 @@
 \usage{
 createNormalDatabase(normal.coverage.files, sex = NULL,
   max.mean.coverage = NULL, coverage.outliers = c(0.25, 4),
-  min.coverage = 0.1, max.missing = 0.03, ...)
+  min.coverage = 0.1, max.missing = 0.03, low.coverage = 5, ...)
 }
 \arguments{
 \item{normal.coverage.files}{Vector with file names pointing to 
@@ -31,6 +31,9 @@ the specified fraction of the chromosome median in the pool of normals.}
 
 \item{max.missing}{Exclude targets with zero coverage in the
 specified fraction of normal samples.}
+
+\item{low.coverage}{Specifies the maximum number of total reads 
+to call a target low coverage.}
 
 \item{\dots}{Arguments passed to the \code{prcomp} function.}
 }

@@ -29,6 +29,8 @@
 #' treated differently. Requires \code{mappability}.
 #' @param reptiming Annotate intervals with replication timing score. Expected as 
 #' \code{GRanges} object with first meta column being the score. 
+#' @param exclude Any target that overlaps with this \code{GRanges} object
+#' will be excluded. 
 #' @param off.target.seqlevels Controls how to deal with chromosomes/contigs
 #' found in the \code{reference.file} but not in the \code{interval.file}.
 #' @return Returns GC content by interval as \code{GRanges} object.
@@ -65,7 +67,7 @@ preprocessIntervals <- function(interval.file, reference.file,
                                 average.off.target.width = 200000,
                                 off.target.padding = -500, mappability = NULL,
                                 min.mappability = c(0.5, 0.1, 0.7), 
-                                reptiming = NULL,
+                                reptiming = NULL, exclude = NULL,
                                 off.target.seqlevels=c("targeted", "all")) {
 
     if (class(interval.file)=="GRanges") {
@@ -93,6 +95,7 @@ preprocessIntervals <- function(interval.file, reference.file,
             "Will not change intervals.")
     } else {
         interval.gr <- .splitIntervals(interval.gr, average.target.width)
+        interval.gr <- .excludeIntervals(interval.gr, exclude)
 
         # find off-target regions
         if (off.target) {
@@ -243,6 +246,20 @@ calculateGCContentByInterval <- function(...) {
             flog.info("Splitting %i large targets to an average width of %i.",
                 nChanges, average.target.width)
         }
+    }
+    interval.gr
+}
+
+.excludeIntervals <- function(interval.gr, exclude) {
+    if (is.null(exclude)) return(interval.gr)
+    nBefore <- length(interval.gr)
+    interval.gr <- interval.gr[which(!overlapsAny(interval.gr, exclude) | 
+                                     !interval.gr$on.target)]
+
+    nAfter <- length(interval.gr)
+    if (nBefore > nAfter) {
+        flog.info("Removing %i targets overlapping with exclude", 
+            nBefore - nAfter)
     }
     interval.gr
 }

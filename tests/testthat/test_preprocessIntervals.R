@@ -32,6 +32,16 @@ test_that("GC-bias of example reference and intervals (BED format) matches", {
     expect_equal(y$gc_bias, x$gc_bias)
 })
 
+test_that("exclude option works", {
+    x <- read.delim(output.file, as.is = TRUE)
+    intervals <- import(bed.file)
+    y <- preprocessIntervals(intervals, reference.file,
+        exclude=intervals[2])
+    expect_equal(y$gc_bias, x$gc_bias[-2])
+    expect_equal(as.character(y), x$Target[-2])
+    expect_equal(y$gc_bias, x$gc_bias[-2])
+})
+
 test_that("Exceptions happen with wrong input", {
     expect_error(preprocessIntervals(interval.file, 
         reference.file, off.target =TRUE, off.target.padding = 5), 

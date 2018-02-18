@@ -38,6 +38,8 @@ option_list <- list(
         help = "Outfile of annotated targets optimized for copy number calling."),
     make_option(c("--export"), action = "store", type = "character", default = NULL,
         help = "Export optimized intervals using rtracklayer. The file extension specifies the format."),
+    make_option(c("--exclude"), action = "store", type = "character", 
+        help = "File parsable by rtracklayer specifying baits that should be excluded from --infile."),
     make_option(c("-v", "--version"), action = "store_true", default = FALSE,
         help = "Print PureCN version"),
     make_option(c("-f", "--force"), action = "store_true", default = FALSE,
@@ -73,6 +75,7 @@ if (!opt$force && file.exists(outfile)) {
 
 .checkOutputDir(opt$outfile)
 .checkOutputDir(opt$export)
+.checkOutputDir(opt$exclude)
 
 in.file <- normalizePath(opt$infile, mustWork = TRUE)
 reference.file <- normalizePath(opt$fasta, mustWork = TRUE)
@@ -89,8 +92,14 @@ if (!is.null(mappability)) {
     flog.info("Loading %s...", mappability)
     mappability <- import(mappability)
 }
+exclude <- opt$exclude
+if (!is.null(exclude)) {
+    exclude <- normalizePath(exclude, mustWork = TRUE)
+    flog.info("Loading %s...", exclude)
+    exclude <- import(exclude)
+}
 
-flog.info("Loading PureCN...")
+flog.info("Loading PureCN %s...", Biobase::package.version("PureCN"))
 suppressPackageStartupMessages(library(PureCN))
 flog.info("Processing %s...", in.file)
 
@@ -120,7 +129,7 @@ outGC <- preprocessIntervals(intervals, reference.file,
     mappability = mappability, min.mappability = min.mappability,
     average.off.target.width = opt$offtargetwidth,
     reptiming = reptiming, off.target.seqlevels = opt$offtargetseqlevels,
-    average.target.width = opt$targetwidth)
+    exclude = exclude, average.target.width = opt$targetwidth)
 
 knownGenome <- list(
     hg18 = "TxDb.Hsapiens.UCSC.hg18.knownGene",

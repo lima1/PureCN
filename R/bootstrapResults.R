@@ -10,7 +10,7 @@
 #' @param top Include solution if it appears in the top \code{n} solutions of
 #' any bootstrap replicate. If \code{NULL}, do not filter solutions.
 #' @param reorder Reorder results by bootstrap value.
-#' @return Returns a \code{\link{runAbsoluteCN}} object with added a bootstrap 
+#' @return Returns a \code{\link{runAbsoluteCN}} object with added bootstrap 
 #' value to each solution. This value
 #' is the fraction of bootstrap replicates in which the solution ranked first.
 #' @author Markus Riester

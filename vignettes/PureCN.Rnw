@@ -1039,16 +1039,16 @@ default parameters includes off-target regions that were ignored by
 
 It is important to correctly handle heterozygous common SNPs that do not have an
 expected allelic fraction of 0.5 in normal samples. These can be SNPs in poor
-quality regions (as described previously, see
+quality regions (as already described, see
 Section~\ref{artifactfilteringvcf}), but also SNPs from cross-sample
-contaminated DNA.  Without matched normals, detection of those problematic SNPs
+contaminated DNA. Without matched normals, detection of those problematic SNPs
 is not trivial. 
 
 For cross-sample contamination, \Biocpkg{PureCN} by default always tests for a
 1\% contamination and assigns common SNPs to a contamination state when allelic
 fractions are either close to 0 or close to 1 and when this cannot be explained
 by CNAs. The main purpose of these states is to provide a bin for common SNPs
-that for artifactual reasons do not fit any state.
+that for artifactual reasons do not fit any other state.
 
 This tool applies a simple heuristic to flag samples for cross-contamination:
 Given the coverage and putative contamination rate based on allelic fractions of
@@ -1065,7 +1065,7 @@ on chrX for males, which in turn often results in a \Biocpkg{PureCN} warning
 that sex inferred from coverage and VCF are in conflict.
 
 By default, cross-contamination is tested in the range from 1 to 7.5\%.
-Catastrophic failures with higher contamination might not be flagged.
+Catastrophic failures with higher contamination might not get flagged.
 
 \subsection{Power to detect somatic mutations}
 

@@ -85,6 +85,11 @@ if (length(coverageFiles)) {
         flog.info("Creating normalDB. Assuming coverage files are GC-normalized.")
         normalDB <- createNormalDatabase(coverageFiles, max.mean.coverage=opt$maxmeancoverage)
         saveRDS(normalDB, file = output.file)
+        if (length(normalDB$low.coverage.targets) > 0) {
+            output.low.coverage.file <- .getFileName(outdir,"low_coverage_targets",".bed", assay, genome)
+            suppressPackageStartupMessages(library(rtracklayer))
+            export(normalDB$low.coverage.targets, output.low.coverage.file)
+        }
     }
 }
 

@@ -21,6 +21,8 @@
 #' the specified fraction of the chromosome median in the pool of normals.
 #' @param max.missing Exclude targets with zero coverage in the
 #' specified fraction of normal samples.
+#' @param low.coverage Specifies the maximum number of total reads 
+#' to call a target low coverage.
 #' @param \dots Arguments passed to the \code{prcomp} function.
 #' @return A normal database that can be used in the
 #' \code{\link{calculateTangentNormal}} function to retrieve a coverage
@@ -40,13 +42,15 @@
 #' @importFrom Matrix tcrossprod
 createNormalDatabase <- function(normal.coverage.files, sex = NULL,
 max.mean.coverage = NULL, coverage.outliers = c(0.25, 4), 
-min.coverage = 0.1, max.missing = 0.03, ...) {
+min.coverage = 0.1, max.missing = 0.03, low.coverage = 5, ...) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
     normals <- .readNormals(normal.coverage.files)
 
     normals.m <- do.call(cbind, 
         lapply(normals, function(x) x$counts))
 
+    low.coverage.targets <- .warnLowCoverageTargets(normals.m, normals[[1]], 
+        low.coverage)
     normals.m[is.na(normals.m)] <- 0
 
     z <- apply(normals.m,2,mean)
@@ -83,6 +87,7 @@ min.coverage = 0.1, max.missing = 0.03, ...) {
         }    
     }
 
+
     groups <- lapply(c(TRUE, FALSE), function(on.target) {
         idx <- normals[[1]]$on.target == on.target
         intervals <- normals[[1]][idx]
@@ -106,14 +111,29 @@ min.coverage = 0.1, max.missing = 0.03, ...) {
     }
         
     list(
-        normal.coverage.files=normal.coverage.files, 
-        groups=groups,
-        intervals.used=intervals.used,
-        sex=sex,
-        version=4
+        normal.coverage.files = normal.coverage.files, 
+        groups = groups,
+        intervals.used = intervals.used,
+        sex = sex,
+        low.coverage.targets = low.coverage.targets,
+        version = 5
     )
 }
 
+.warnLowCoverageTargets <- function(counts, intervals, low.coverage) {
+    all.low <- apply(counts, 1, max) <= low.coverage
+    low.intervals <- intervals[which(all.low & intervals$on.target)]
+    mcols(low.intervals) <- NULL
+    n.low <- length(low.intervals)
+    if (n.low > 0) {
+        flog.info("%i on-target bins with low coverage in all samples.", n.low)
+    }
+    if (n.low > sum(intervals$on.target, na.rm = TRUE) * 0.05) {
+        flog.warn("You are likely not using the correct baits file!")
+    }
+    low.intervals    
+}
+     
 .standardizeNormals <- function(counts, intervals, min.coverage, max.missing, sex) {
     if (!length(intervals)) return(list(present = FALSE))
     # recalculate without dropped samples

@@ -10,6 +10,8 @@ Changes in version 1.10.0
       database creation (less than 25% or more than 4 times the median sample 
       coverage)
     o Improved support for third-party upstream tools  
+    o More checks for wrong or sub-optimal input and providing suggestions for
+      fixing those issues
     o Code cleanups (switch to testthat, removed several obsolete and minor 
       features)
     
