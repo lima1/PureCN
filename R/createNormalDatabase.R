@@ -22,7 +22,7 @@
 #' @param max.missing Exclude targets with zero coverage in the
 #' specified fraction of normal samples.
 #' @param low.coverage Specifies the maximum number of total reads 
-#' to call a target low coverage.
+#' (NOT average coverage) to call a target low coverage.
 #' @param \dots Arguments passed to the \code{prcomp} function.
 #' @return A normal database that can be used in the
 #' \code{\link{calculateTangentNormal}} function to retrieve a coverage
@@ -42,7 +42,7 @@
 #' @importFrom Matrix tcrossprod
 createNormalDatabase <- function(normal.coverage.files, sex = NULL,
 max.mean.coverage = NULL, coverage.outliers = c(0.25, 4), 
-min.coverage = 0.1, max.missing = 0.03, low.coverage = 5, ...) {
+min.coverage = 0.1, max.missing = 0.03, low.coverage = 15, ...) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
     normals <- .readNormals(normal.coverage.files)
 

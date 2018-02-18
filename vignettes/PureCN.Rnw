@@ -1053,7 +1053,7 @@ that for artifactual reasons do not fit any other state.
 This tool applies a simple heuristic to flag samples for cross-contamination:
 Given the coverage and putative contamination rate based on allelic fractions of
 potentially contaminated SNPs, how many SNPs do we expect to detect based on our
-power to detect variants at that contamination rate. If the expected number is
+power to detect variants at that contamination rate? If the expected number is
 much higher than observed, then significant contamination is unlikely; 
 observed SNPs close to 0 or 1 are more likely artifacts or the contamination
 rate is much lower than the minimum tested. Otherwise \Biocpkg{PureCN} will
