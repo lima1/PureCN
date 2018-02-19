@@ -258,7 +258,7 @@ calculateGCContentByInterval <- function(...) {
 
     nAfter <- length(interval.gr)
     if (nBefore > nAfter) {
-        flog.info("Removing %i targets overlapping with exclude", 
+        flog.info("Removing %i targets overlapping with exclude.", 
             nBefore - nAfter)
     }
     interval.gr

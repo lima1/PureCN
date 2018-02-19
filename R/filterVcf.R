@@ -323,7 +323,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         vcf <- .addDbField(vcf, DB.info.flag)
     }
     cntLikelyGL <- sum(info(vcf)[[DB.info.flag]], na.rm = TRUE)
-    flog.info("Found %i (%.1f%%) variants annotated as likely germline (%s INFO flag).",
+    flog.info("%i (%.1f%%) variants annotated as likely germline (%s INFO flag).",
         cntLikelyGL, cntLikelyGL/length(vcf)*100, DB.info.flag)
 
     if (is.null(info(vcf)$SOMATIC)) {

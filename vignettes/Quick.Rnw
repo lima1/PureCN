@@ -190,7 +190,7 @@ Important recommendations:
     \item The \Rcode{--assay} argument is optional and is only used to add the
     provided assay name to all output files
 
-    \item A warning pointing to the likely use of wrong baits file
+    \item A warning pointing to the likely use of a wrong baits file
     means that more than 5\% of targets have close to 0 coverage in all normal
     samples. A BED file with the low coverage targets will be generated in
     \Rcode{--outdir}.  If for any reason there is no access to the correct
