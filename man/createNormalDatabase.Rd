@@ -6,7 +6,7 @@
 \usage{
 createNormalDatabase(normal.coverage.files, sex = NULL,
   max.mean.coverage = NULL, coverage.outliers = c(0.25, 4),
-  min.coverage = 0.1, max.missing = 0.03, low.coverage = 15, ...)
+  min.coverage = 0.25, max.missing = 0.03, low.coverage = 15, ...)
 }
 \arguments{
 \item{normal.coverage.files}{Vector with file names pointing to 

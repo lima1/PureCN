@@ -42,7 +42,7 @@
 #' @importFrom Matrix tcrossprod
 createNormalDatabase <- function(normal.coverage.files, sex = NULL,
 max.mean.coverage = NULL, coverage.outliers = c(0.25, 4), 
-min.coverage = 0.1, max.missing = 0.03, low.coverage = 15, ...) {
+min.coverage = 0.25, max.missing = 0.03, low.coverage = 15, ...) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
     normals <- .readNormals(normal.coverage.files)
 
@@ -383,8 +383,13 @@ min.coverage, max.missing) {
     
     nBefore <- length(intervals)
     intervals.used <- is.finite(fraction.missing) 
+
+    key <- paste(as.character(seqnames(intervals)), intervals$on.target)
+    min.coverage <- (sapply(split(interval.median.coverage, 
+            key), median, na.rm=TRUE)*min.coverage)[key]
+
     intervals.used <- intervals.used & !is.na(interval.median.coverage) & 
-        interval.median.coverage >= quantile(interval.median.coverage,  p=min.coverage)[1]
+        interval.median.coverage >= min.coverage
         
     nAfter <- sum(intervals.used)
 
