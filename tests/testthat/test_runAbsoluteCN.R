@@ -245,10 +245,20 @@ test_that("Run with example seg.file works", {
         genome = "hg19", min.ploidy = 1.4, max.ploidy = 2.4, 
         test.purity = seq(0.4, 0.7, by = 0.05), sampleid = "Sample2")
     expect_equal(0.65, ret$results[[1]]$purity)
+
+    # check for https://github.com/lima1/PureCN/issues/19
+    vcf <- purecn.example.output$input$vcf
+    vcf.id <- match("chr2231775021xxx", names(vcf))
+    end(vcf[vcf.id]) <- 236403333
+
     ret <- runAbsoluteCN(seg.file = seg.file, interval.file = interval.file, 
-        vcf.file = vcf.file, max.candidate.solutions = 1, genome = "hg19", 
+        vcf.file = vcf, max.candidate.solutions = 1, genome = "hg19", 
         test.purity = seq(0.4, 0.7, by = 0.05), verbose = FALSE)
     expect_equal(0.65, ret$results[[1]]$purity)
+    tmp <- predictSomatic(ret)[ret$results[[1]]$SNV.posterior$vcf.ids==vcf.id,]
+    expect_equal(2, nrow(tmp))
+    expect_equal(2, sum(tmp$FLAGGED))
+    expect_equal(rep("chr2231775021xxx",2), as.character(tmp$ID))
     tmp <- read.delim(seg.file, as.is = TRUE)
     colnames(tmp)[1:4] <- c("Name", "Chromosome", "Start", "End")
     output.file <- tempfile(fileext = ".seg")

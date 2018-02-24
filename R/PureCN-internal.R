@@ -218,13 +218,18 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     xx <- .extractMLSNVState(posteriors)
     
     posteriors <- cbind(
-        as.data.frame(rowRanges(vcf[vcf.ids]))[, 1:3], 
-        posteriors, 
+        as.data.frame(rowRanges(vcf[vcf.ids]), row.names=NULL)[, 1:3],
+        ID = names(vcf[vcf.ids]),
+        REF = as.character(ref(vcf[vcf.ids])),
+        ALT = sapply(alt(vcf[vcf.ids]), function(x) 
+                     paste(as.character(x), collapse=";")),
+        posteriors,
         xx, 
         ML.C = C[queryHits(ov)],
-        ML.M.SEGMENT=segment.M,
-        M.SEGMENT.POSTERIOR=segment.Posterior,
-        M.SEGMENT.FLAGGED=segment.Flag
+        ML.M.SEGMENT = segment.M,
+        M.SEGMENT.POSTERIOR = segment.Posterior,
+        M.SEGMENT.FLAGGED = segment.Flag,
+        row.names = NULL
     )
     
     posteriors$ML.AR <- (p * posteriors$ML.M + 
@@ -247,7 +252,9 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 
     rm.snv.posteriors <- apply(likelihoods, 1, max)
     idx.ignore <- rm.snv.posteriors == 0 |
-        posteriors$MAPPING.BIAS < max.mapping.bias
+        posteriors$MAPPING.BIAS < max.mapping.bias |
+        posteriors$start != posteriors$end
+
     posteriors$FLAGGED <- idx.ignore
 
     posteriors$log.ratio <- snv.lr[vcf.ids]
@@ -256,7 +263,6 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     posteriors$prior.contamination <- prior.cont[vcf.ids]
     posteriors$on.target <- info(vcf[vcf.ids])$OnTarget
     posteriors$seg.id <- queryHits(ov)
-
 
     if (!is.null(mapping.bias$pon.count)) {
         posteriors$pon.count <- mapping.bias$pon.count[vcf.ids]
