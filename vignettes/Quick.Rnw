@@ -181,7 +181,9 @@ Important recommendations:
     kits (e.g. Agilent SureSelect v4 and v6)
 
     \item Provide a normal panel VCF here to precompute mapping bias for faster
-    runtimes
+    runtimes. The only requirement for the VCF is an \Rcode{AD} format field
+    containing the number of reference and alt reads for all samples. See the
+    example file \Rcode{\$PURECN/normalpanel.vcf.gz}.
 
     \item For ideal results, examine the target\_weights.png file to find good 
     off-target bin widths. You will need to re-run IntervalFile.R with the
@@ -338,6 +340,11 @@ grep CALLABLE ${SAMPLEID}_callable_status.bed > \
 
 Rscript $PureCN/Dx.R --out . --rds ${SAMPLEID}.rds \
     --callable ${SAMPLEID}_callable_status_filtered.bed
+
+# search for known mutations signatures in COSMIC
+Rscript $PureCN/Dx.R --out . --rds ${SAMPLEID}.rds \
+    --callable ${SAMPLEID}_callable_status_filtered.bed \
+    --signatures
 \end{verbatim}
 \clearpage
 
@@ -470,6 +477,7 @@ Argument name  & Corresponding PureCN argument & PureCN function \\
 --callable    & callable & \Rfunction{callMutationBurden} \\
 --exclude     & exclude  & \Rfunction{callMutationBurden} \\
 --maxpriorsomatic & max.prior.somatic  & \Rfunction{callMutationBurden} \\
+--signatures & & \Rfunction{deconstructSigs::whichSignatures} \\
 --out         & & \\
 --version -v  & & \\
 --force -f    & & \\

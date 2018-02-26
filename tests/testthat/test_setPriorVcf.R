@@ -1,7 +1,7 @@
 context("setPriorVcf")
 
 test_that("Example data matches expected values", {
-    vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
+    vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package = "PureCN")
     vcf <- readVcf(vcf.file, "hg19")
     vcf.priorsomatic <- setPriorVcf(vcf)
     expected <- c(2322, 9)

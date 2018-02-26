@@ -213,7 +213,7 @@ tumor.coverage.file <- system.file("extdata", "example_tumor.txt",
     package="PureCN") 
 seg.file <- system.file("extdata", "example_seg.txt",
     package = "PureCN")
-vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package="PureCN")
 interval.file <- system.file("extdata", "example_intervals.txt", 
     package="PureCN")
 @
@@ -512,7 +512,7 @@ plotAbs(ret, 1, type="BAF")
 @
 \incfig{figure/figureexample3-1}{0.95\textwidth}{B-allele frequency plot.}{Each
 dot is a (predicted) germline SNP. The first panel shows the allelic fractions
-as provided in the VCF file.  The alternating blue and white background colors
+as provided in the VCF file.  The alternating grey and white background colors
 visualize odd and even chromosome numbers, respectively. The black lines
 visualize the expected (not the average!) allelic fractions in the segment.
 These are calculated using the estimated purity and the total and minor segment

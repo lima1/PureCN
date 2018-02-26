@@ -1,6 +1,6 @@
 context("setMappingBiasVcf")
 
-vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
+vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package = "PureCN")
 vcf <- readVcf(vcf.file, "hg19")
 
 test_that("Mapping bias without normal panel matches", {
@@ -47,4 +47,7 @@ test_that("Precomputed mapping bias matches", {
     expect_equal(head(mb$bias[idx], 3), c(0.3362525, 1.0002354, 
         1.0119481), tolerance = 0.001)
     file.remove(normal_panel_precomp)
+
+    vcf.single.file <- system.file("extdata", "example_single.vcf.gz", package = "PureCN")
+    expect_error(calculateMappingBiasVcf(vcf.single.file), "only a single sample")
 })

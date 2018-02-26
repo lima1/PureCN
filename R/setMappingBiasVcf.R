@@ -33,7 +33,7 @@
 #' 
 #' # This function is typically only called by runAbsoluteCN via 
 #' # fun.setMappingBiasVcf and args.setMappingBiasVcf.
-#' vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+#' vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package="PureCN")
 #' vcf <- readVcf(vcf.file, "hg19")
 #' vcf.bias <- setMappingBiasVcf(vcf)        
 #' 
@@ -98,6 +98,9 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
 }
 
 .calculateMappingBias <- function(nvcf, min.normals) {
+    if (ncol(nvcf) < 2) {
+        .stopUserError("The normal.panel.vcf.file contains only a single sample.")
+    }
     # TODO: deal with tri-allelic sites
     alt <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][2])
     ref <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][1])

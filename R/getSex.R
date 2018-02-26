@@ -117,7 +117,7 @@ getSexFromCoverage <- function(coverage.file, min.ratio = 25, min.ratio.na = 20,
 #' @seealso \code{\link{getSexFromCoverage}}
 #' @examples
 #' 
-#' vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+#' vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package="PureCN")
 #' vcf <- readVcf(vcf.file, "hg19")
 #' # This example vcf is already filtered and contains no homozygous calls,
 #' # which are necessary for determining sex from chromosome X.

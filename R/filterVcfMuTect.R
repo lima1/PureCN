@@ -25,7 +25,7 @@
 #' ### This function is typically only called by runAbsolute via the 
 #' ### fun.filterVcf and args.filterVcf comments.
 #' library(VariantAnnotation)    
-#' vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+#' vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package="PureCN")
 #' vcf <- readVcf(vcf.file, "hg19")
 #' vcf.filtered <- filterVcfMuTect(vcf)        
 #' 
@@ -47,7 +47,14 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
     if (is.null(stats$contig) || is.null(stats$position)) {
         flog.warn("MuTect stats file lacks contig and position columns.")
         return(filterVcfBasic(vcf, tumor.id.in.vcf, ...))
-    }    
+    }
+
+    # check for excessive nearby_gap_events
+    if ("nearby_gap_events" %in% ignore &&
+        sum(grepl("nearby_gap_events", stats$failure_reasons))/nrow(stats) > 0.5) {
+        ignore <- ignore[-match("nearby_gap_events", ignore)]
+        flog.warn("Excessive nearby_gap_events, ignoring this flag. Check your data.")
+    }
 
     gr.stats <- GRanges(seqnames=stats$contig, 
         IRanges(start=stats$position, end=stats$position))

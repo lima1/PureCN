@@ -52,7 +52,7 @@
 #' 
 #' # This function is typically only called by runAbsolute via 
 #' # fun.filterVcf and args.filterVcf.
-#' vcf.file <- system.file("extdata", "example_vcf.vcf", package="PureCN")
+#' vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package="PureCN")
 #' vcf <- readVcf(vcf.file, "hg19")
 #' vcf.filtered <- filterVcfBasic(vcf)        
 #' 

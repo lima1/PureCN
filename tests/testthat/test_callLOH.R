@@ -12,7 +12,7 @@ test_that("NCBI-style chromosome names work", {
         package = "PureCN")
     tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
         package = "PureCN")
-    vcf.file <- system.file("extdata", "example_vcf.vcf", package = "PureCN")
+    vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package = "PureCN")
     vcf <- readVcf(vcf.file)
     normal <- readCoverageFile(normal.coverage.file)
     tumor <- readCoverageFile(tumor.coverage.file)

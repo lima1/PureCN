@@ -16,6 +16,8 @@ option_list <- list(
         help = "Can be used to exclude hotspot mutations with high somatic prior probability [default %default]"),
     make_option(c("--out"), action="store", type="character", default=NULL,
         help="File name prefix to which results should be written"),
+    make_option(c("--signatures"), action="store_true", default=FALSE, 
+        help="Attempt the deconstruction of COSMIC signatures (requires deconstructSigs package)."),
     make_option(c("-v", "--version"), action="store_true", default=FALSE, 
         help="Print PureCN version"),
     make_option(c("-f", "--force"), action="store_true", default=FALSE, 
@@ -82,7 +84,7 @@ sampleid <- res$input$sampleid
 }
 outPrefix <- .getOutPrefix(opt, infileRds, sampleid)
      
-outfileMb <- paste0(outPrefix, '_mutation_burden.csv')
+outfileMb <- paste0(outPrefix, "_mutation_burden.csv")
 
 
 if (!opt$force && file.exists(outfileMb)) {
@@ -93,3 +95,32 @@ flog.info("Calling mutation burden...")
 mb <- callMutationBurden(res, callable=callable, exclude=exclude, 
         max.prior.somatic = opt$maxpriorsomatic)
 write.csv(cbind(Sampleid=sampleid, mb), file=outfileMb, row.names=FALSE, quote=FALSE)
+
+if (require(deconstructSigs) && opt$signatures) {
+    x <- predictSomatic(res)
+    x$Sampleid <- res$input$sampleid
+
+    flog.info("deconstructSigs package found.")
+    s <- x[ x$ML.SOMATIC & x$prior.somatic > 0.1 & !x$FLAGGED ,]
+
+    if (nrow(s) >= 10) {
+        sigs.input <- mut.to.sigs.input(s, 
+                        sample.id = "Sampleid", chr = "chr", pos = "start", 
+                        ref = "REF", alt = "ALT")
+
+        sigs <- whichSignatures(tumor.ref = sigs.input, 
+                                signatures.ref = signatures.cosmic, 
+                                contexts.needed = TRUE, 
+                                tri.counts.method = "default")
+
+        outfile <- paste0(outPrefix, "_signatures.pdf")
+        pdf(outfile)
+        plotSignatures(sigs)
+        makePie(sigs)
+        dev.off()
+        outfile <- paste0(outPrefix, "_signatures.csv")
+        write.csv(sigs$weights, file = outfile)
+    } else {
+        flog.warn("Not enough somatic calls to deconstruct signatures.")
+    }
+}
