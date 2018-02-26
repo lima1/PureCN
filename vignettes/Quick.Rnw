@@ -341,7 +341,8 @@ grep CALLABLE ${SAMPLEID}_callable_status.bed > \
 Rscript $PureCN/Dx.R --out . --rds ${SAMPLEID}.rds \
     --callable ${SAMPLEID}_callable_status_filtered.bed
 
-# search for known mutations signatures in COSMIC
+# search for the COSMIC mutation signatures 
+# (http://cancer.sanger.ac.uk/cosmic/signatures) 
 Rscript $PureCN/Dx.R --out . --rds ${SAMPLEID}.rds \
     --callable ${SAMPLEID}_callable_status_filtered.bed \
     --signatures

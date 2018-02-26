@@ -103,10 +103,20 @@ if (require(deconstructSigs) && opt$signatures) {
     flog.info("deconstructSigs package found.")
     s <- x[ x$ML.SOMATIC & x$prior.somatic > 0.1 & !x$FLAGGED ,]
 
+    genome <- genome(res$input$vcf)[1]
+    bsg <- NULL
+    if (genome != "hg19") { 
+        bsgPkg <- paste0("BSgenome.Hsapiens.UCSC.", genome)
+        if (!require(bsgPkg, character.only = TRUE)) { 
+            flog.fatal("%s not found.", bsgPkg)
+            q(status=0)
+        }
+        bsg <- get(bsgPkg)
+    }
     if (nrow(s) >= 10) {
         sigs.input <- mut.to.sigs.input(s, 
                         sample.id = "Sampleid", chr = "chr", pos = "start", 
-                        ref = "REF", alt = "ALT")
+                        ref = "REF", alt = "ALT", bsg = bsg)
 
         sigs <- whichSignatures(tumor.ref = sigs.input, 
                                 signatures.ref = signatures.cosmic, 
