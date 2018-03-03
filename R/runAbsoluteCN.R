@@ -959,25 +959,26 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 flog.info("Initial guess of contamination rate: %.3f", cont.rate)
             }    
         }
-        ## optimize contamination. we just re-run the fitting 
-        if (grepl("CONTAMINATION", vcf.filtering$flag_comment) && 
-            cont.rate>prior.contamination) {
-            flog.info("Optimizing contamination rate of optimum %i/%i...", 
-                i, length(results))
-                 
-            res.snvllik <-
-                .calcSNVLLik(vcf, tumor.id.in.vcf,
-                      ov, results[[i]]$purity, test.num.copy, results[[i]]$C.likelihood, 
-                      results[[i]]$C.posterior$ML.C,
-                      results[[i]]$C.posterior$Opt.C,
-                      median.C = median(rep(results[[i]]$seg$C, results[[i]]$seg$num.mark)),
-                      snv.model = model, prior.somatic, mapping.bias,
-                      snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K,
-                      max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M,
-                      model.homozygous = model.homozygous, error = error,
-                      max.mapping.bias = max.mapping.bias, max.pon = max.pon,
-                      min.variants.segment = min.variants.segment)
-            results[[i]]$SNV.posterior <- res.snvllik
+        ## optimize contamination. we just re-run the fitting if necessary (
+        if (grepl("CONTAMINATION", vcf.filtering$flag_comment)) {
+            if (cont.rate > prior.contamination) {
+                flog.info("Optimizing contamination rate of optimum %i/%i...", 
+                    i, length(results))
+                     
+                res.snvllik <-
+                    .calcSNVLLik(vcf, tumor.id.in.vcf,
+                          ov, results[[i]]$purity, test.num.copy, results[[i]]$C.likelihood, 
+                          results[[i]]$C.posterior$ML.C,
+                          results[[i]]$C.posterior$Opt.C,
+                          median.C = median(rep(results[[i]]$seg$C, results[[i]]$seg$num.mark)),
+                          snv.model = model, prior.somatic, mapping.bias,
+                          snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K,
+                          max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M,
+                          model.homozygous = model.homozygous, error = error,
+                          max.mapping.bias = max.mapping.bias, max.pon = max.pon,
+                          min.variants.segment = min.variants.segment)
+                results[[i]]$SNV.posterior <- res.snvllik
+            }    
             cont.rate <- .estimateContamination(
                         results[[i]]$SNV.posterior$posteriors,
                                     max.mapping.bias)
