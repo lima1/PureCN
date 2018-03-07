@@ -103,6 +103,8 @@ flog.info("Loading PureCN %s...", Biobase::package.version("PureCN"))
 suppressPackageStartupMessages(library(PureCN))
 flog.info("Processing %s...", in.file)
 
+seqinfoRef <- seqinfo(scanFaIndex(reference.file))
+
 reptiming <- opt$reptiming
 if (!is.null(reptiming)) {
     reptiming <- normalizePath(reptiming, mustWork = TRUE)
@@ -110,7 +112,7 @@ if (!is.null(reptiming)) {
     reptiming <- import(reptiming)
     if (opt$reptimingbinsize > 0) {
         flog.info("Averaging reptiming into bins of size %i...", opt$reptimingbinsize)
-        bins <- tileGenome(seqinfo(scanFaIndex(reference.file)), tilewidth = opt$reptimingbinsize, 
+        bins <- tileGenome(seqinfoRef, tilewidth = opt$reptimingbinsize, 
             cut.last.tile.in.chrom=TRUE)
         reptiming <- PureCN:::.addScoreToGr(bins, reptiming, "score")
         reptiming <- reptiming[!is.na(score(reptiming))]
@@ -167,8 +169,9 @@ knownOrg <- list(
 
 if (!is.null(opt$genome) ) {
     if (is.null(knownGenome[[opt$genome]])) {
-        flog.warn("%s genome not known. %s", genome, 
-        "Will not annotate targets with gene symbols.")
+        flog.warn("%s genome not known. %s Known genomes: %s", opt$genome, 
+        "Will not annotate targets with gene symbols.", 
+        paste(names(knownGenome), collapse=", "))
     } else if (!require(knownGenome[[opt$genome]], character.only = TRUE)) {
         flog.warn("Install %s to get gene symbol annotation.", 
             knownGenome[[opt$genome]])
