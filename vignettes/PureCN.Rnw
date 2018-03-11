@@ -1379,13 +1379,13 @@ Figure~\ref{figure/figureexample2-1}:
         \end{verbatim}
         \item Merge the VCFs:
         \begin{verbatim}
-    CMD="java  -Xmx12g -jar $GATK3 -T CombineVariants --minimumN 5 -R $REFERENCE"
+    CMD="java  -Xmx12g -jar $GATK3 -T CombineVariants --minimumN 3 -R $REFERENCE"
     for VCF in $OUT/*bwa_mutect_artifact_detection_mode_no_none.vcf;
     do
         CMD="$CMD --variant $VCF"
     done
-    CMD="$CMD -o $OUT/normals_merged_min5.vcf"
-    echo $CMD > $OUT/merge_normals_min5.sh
+    CMD="$CMD -o $OUT/normals_merged_min3.vcf"
+    echo $CMD > $OUT/merge_normals_min3.sh
         \end{verbatim}
     \end{itemize}
 \end{itemize}

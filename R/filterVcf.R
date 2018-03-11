@@ -345,13 +345,21 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     vcf     
 }    
 .addDbField <- function(vcf, DB.info.flag = "DB") {
-     db <- grepl("^rs",rownames(vcf))
-     if (!sum(db)) {
-        .stopUserError("vcf.file has no DB info field for dbSNP membership.")
-     } else {
-        flog.warn("vcf.file has no DB info field for dbSNP membership.%s",
-            " Guessing it based on ID.")
-     }
+    if (!is.null(info(vcf)$POP_AF)) {
+        db <- info(vcf)$POP_AF > 0.001
+        db <- sapply(db, function(x) x[[1]])
+        flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
+           " Found and used population allele frequency > 0.001 instead.")
+    } else {
+        db <- grepl("^rs",rownames(vcf))
+        
+        if (!sum(db)) {
+           .stopUserError("vcf.file has no DB info field for membership in germline databases.")
+        } else {
+           flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
+               " Guessing it based on available dbSNP ID.")
+        }
+    }
     newInfo <- DataFrame(
         Number = 0, 
         Type = "Flag",
@@ -361,6 +369,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     info(vcf)[[DB.info.flag]] <- db
     vcf
 }
+
 .addSomaticField <- function(vcf) {
     # add SOMATIC flag only for GATK4 MuTect2 output
     if (is.null(info(vcf)$P_GERMLINE) || ncol(vcf) < 2) {
