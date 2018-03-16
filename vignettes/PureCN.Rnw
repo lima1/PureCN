@@ -85,6 +85,9 @@ about the assay and its biases and common artifacts.
 The next sections will show how to do all this with \Biocpkg{PureCN} alone or
 with the help of \software{GATK} and/or existing copy number pipelines. 
 
+\textbf{All the steps described in the following are available in easy to use
+command line scripts described in a separate vignette.}
+
 \section{Basic input files}
 
 \subsection{VCF}
@@ -96,7 +99,7 @@ of the flag is customizable in \Rfunction{runAbsoluteCN}}. Without DB flag,
 variant ids starting with \Rcode{rs} are assumed to be in dbSNP. Population
 allele frequencies are expected in a POP\_AF info field. These frquencies are
 currently only used to infer membership in germline databases when the DB flag
-is missing; in future version they will be used calculate somatic prior
+is missing; in future versions they will be used calculate somatic prior
 probabilites more accurately.
 
 If a matched normal is available, then somatic status information is currently
@@ -989,9 +992,9 @@ low prior probability of being somatic.
 
 \subsection{ExAC and gnomAD annotation}
 
-\Biocpkg{PureCN} is not annotating input VCFs with data from common germline
-databases such as ExAC itself.  See Section~\ref{secinputvcf} for ways to tell
-\Biocpkg{PureCN} where to find either a summary binary flag (i.e. likely
+\Biocpkg{PureCN} is not automatically annotating input VCFs with data from
+common germline databases such as ExAC. See Section~\ref{secinputvcf} for ways
+to tell \Biocpkg{PureCN} where to find either a summary binary flag (i.e. likely
 germline yes/no) or population allele frequencies.
 
 \subsection{Mutation burden}
@@ -1182,7 +1185,7 @@ complaints, etc. please do not hesitate to send us an email.
 \begin{itemize}
     \item Used the correct interval files provided by the manufacturer of the
     capture kit and the genome version of the interval file matches the
-    reference. Ideally use the baits file, not the targets file (in Agilent
+    reference. Ideally used the baits file, not the targets file (in Agilent
     data, the baits files are called "covered" and the targets are "regions").
     \item For hybrid capture data, included off-target reads in the coverage
         calculation 
@@ -1197,7 +1200,7 @@ complaints, etc. please do not hesitate to send us an email.
     \item Maximized the number of high coverage heterozygous SNPs, for example
     by running \software{MuTect} with a 50-75bp interval padding
     (Section~\ref{secmaxsnps}).  The \Rfunction{runAbsoluteCN} output lists the
-    percentage of targets with variants and this should be around 10\%.
+    percentage of targets with variants and this should be around 10-15\%.
     Ultra-deep sequencing data can provide good SNP allelic fractions in the
     100-200bp flanking regions.
     \item If a pool of normal samples is available, followed the steps in
