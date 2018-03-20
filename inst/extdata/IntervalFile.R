@@ -83,8 +83,13 @@ reference.file <- normalizePath(opt$fasta, mustWork = TRUE)
 suppressPackageStartupMessages(library(rtracklayer))
 
 intervals <- try(import(in.file), silent = TRUE)
-if (class(intervals) == "try-error") intervals <- in.file
-
+if (class(intervals) == "try-error") { 
+    intervals <- in.file
+} else {
+    if (sum(c("MT", "chrM", "chMT", "MT") %in% seqlevels(intervals))) {
+        flog.warn("--infile contains mitochondrion sequence. It is highly recommended to exclude those baits.")
+    }
+}    
 mappability <- opt$mappability
 
 if (!is.null(mappability)) {
@@ -105,7 +110,7 @@ flog.info("Processing %s...", in.file)
 
 seqinfoRef <- seqinfo(scanFaIndex(reference.file))
 
-reptiming <- opt$reptiming
+reptiming <- opt[["reptiming"]]
 if (!is.null(reptiming)) {
     reptiming <- normalizePath(reptiming, mustWork = TRUE)
     flog.info("Loading %s...", reptiming)

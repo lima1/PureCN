@@ -292,9 +292,14 @@ ss) {
             paste(unique(r$chr), collapse = ","))
         }
         if (germline.only) idx[r$ML.SOMATIC[idx]] <- FALSE
+
     }    
     if (!is.null(max.mapping.bias)) {
         idx <- idx & r$MAPPING.BIAS >= max.mapping.bias
+    }
+    if (!sum(idx)) {
+        flog.warn("No variants to plot")
+        return(invisible())
     }
     mypch <- ifelse(r$GERMLINE.CONTHIGH > 0.5, 2, 
         ifelse(r$GERMLINE.CONTLOW>0.5, 3, 1))[idx]

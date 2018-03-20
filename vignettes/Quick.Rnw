@@ -55,7 +55,7 @@ $ Rscript $PURECN/PureCN.R --help
 Usage: /path/to/PureCN/inst/extdata/PureCN.R [options] ...
 \end{verbatim}
 
-\item Generate an interval file from a BED file containing target coordinates:
+\item Generate an interval file from a BED file containing baits coordinates:
 
 \begin{verbatim}
 # specify path where PureCN should store reference files
@@ -71,6 +71,8 @@ $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \
 Internally, this script uses \Biocpkg{rtracklayer} to parse the
 \Rcode{infile}. Make sure that the file format matches the file extension. 
 See the \Biocpkg{rtracklayer} documentation for problems loading the file.
+Make sure that the genome version of the baits file matches the reference. 
+Do not include chrM baits in case the capture kit includes some.
 
 The \Rcode{--offtarget} flag will include off-target reads. Including them is
 recommended except for Amplicon data. 
