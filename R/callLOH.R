@@ -91,34 +91,31 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
         as.character(seqnames(res$input$vcf))), function(x)
         c(min(x), max(x)), c(min=double(1), max=double(1)))))
 
-    if (is.null(centromeres)) {
+    if (!is.null(centromeres)) {
+        # split segments by centromere if available
+        chromCoords <- chromCoords[as.integer(match(seqnames(centromeres), rownames(chromCoords))),]
+        rownames(chromCoords) <- NULL
+
+        centromeres <- cbind(data.frame(centromeres), chromCoords)
+        centromeres <- centromeres[complete.cases(centromeres),]
+
+        pArms <- centromeres[centromeres$min < centromeres$start,
+            c("seqnames", "min", "start")]
+        qArms <- centromeres[centromeres$max > centromeres$end,
+            c("seqnames", "end", "max")]
+        
+        colnames(pArms) <- c("chrom", "start", "end")
+        colnames(qArms) <- colnames(pArms)
+        pArms$arm <- "p"
+        qArms$arm <- "q"
+        armLocations <- rbind(pArms, qArms)
+    } else {
         armLocations <- data.frame(
                             chrom=rownames(chromCoords),
                             start=chromCoords[,1],
                             end=chromCoords[,2],
-                            arm="",
-                            size=chromCoords[,2]-chromCoords[,1]+1)
-        armLocations <- armLocations[order(match(armLocations$chrom,
-            chr.hash[,1])),]
-        return(armLocations)
+                            arm="")
     }    
-
-    chromCoords <- chromCoords[as.integer(match(seqnames(centromeres), rownames(chromCoords))),]
-    rownames(chromCoords) <- NULL
-
-    centromeres <- cbind(data.frame(centromeres), chromCoords)
-    centromeres <- centromeres[complete.cases(centromeres),]
-
-    pArms <- centromeres[centromeres$min < centromeres$start,
-        c("seqnames", "min", "start")]
-    qArms <- centromeres[centromeres$max > centromeres$end,
-        c("seqnames", "end", "max")]
-    
-    colnames(pArms) <- c("chrom", "start", "end")
-    colnames(qArms) <- colnames(pArms)
-    pArms$arm <- "p"
-    qArms$arm <- "q"
-    armLocations <- rbind(pArms, qArms)
     armLocations <- armLocations[order(match(armLocations$chrom,
         chr.hash[,1])),]
     armLocations$size <- armLocations$end-armLocations$start+1

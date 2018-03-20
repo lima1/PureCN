@@ -26,7 +26,7 @@ option_list <- list(
     make_option(c("--minmappability"), action = "store", type = "character", 
         default = paste(eval(formals(PureCN::preprocessIntervals)$min.mappability), collapse=","),
         help = "Minimum mappability for on-target, off-target and chrY regions [default %default]"),
-    make_option(c("--reptiming"), action = "store", type = "character", 
+    make_option(c("--reptiming"), action = "store", type = "character", default = NULL,
         help = "File parsable by rtracklayer specifying replication timing scores of genomic regions."),
     make_option(c("--reptimingbinsize"), action = "store", type = "integer", default = 100000,
         help = "Average the replication timing data into bins of the specified size [default %default]"),
@@ -86,7 +86,7 @@ intervals <- try(import(in.file), silent = TRUE)
 if (class(intervals) == "try-error") { 
     intervals <- in.file
 } else {
-    if (sum(c("MT", "chrM", "chMT", "MT") %in% seqlevels(intervals))) {
+    if (sum(c("MT", "chrM", "chMT") %in% seqlevels(intervals))) {
         flog.warn("--infile contains mitochondrion sequence. It is highly recommended to exclude those baits.")
     }
 }    
