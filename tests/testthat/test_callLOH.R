@@ -26,3 +26,10 @@ test_that("NCBI-style chromosome names work", {
     loh <- callLOH(ret)
     expect_equal(unique(loh$chr), as.character(1:22))
 })
+
+test_that("No crash without centromeres", {
+    x <- purecn.example.output
+    x$input$centromeres <- NULL
+    loh <- callLOH(x)
+    expect_equal(7, ncol(loh))
+})
