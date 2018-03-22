@@ -97,6 +97,8 @@ option_list <- list(
         "If out is a directory, will use out/sampleid.")),
     make_option(c("--seed"), action = "store", type = "integer", default = NULL,
         help = "Seed for random number generator [default %default]"),
+    make_option(c("--parallel"), action = "store_true", default = FALSE,
+        help = "Use BiocParallel to fit local optima in parallel."),
     make_option(c("-v", "--version"), action = "store_true", default = FALSE,
         help = "Print PureCN version"),
     make_option(c("-f", "--force"), action = "store_true", default = FALSE,
@@ -206,6 +208,11 @@ if (file.exists(file.rds) && !opt$force) {
         flog.info("Low specified error, will keep fstar_tumor_lod flagged variants")
         mutect.ignore <- mutect.ignore[-match("fstar_tumor_lod", mutect.ignore)]
     }    
+    BPPARAM <- NULL
+    if (!is.null(opt$parallel)) {
+        suppressPackageStartupMessages(library(BiocParallel))
+        BPPARAM <- bpparam()
+    }
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
             tumor.coverage.file = tumor.coverage.file, vcf.file = opt$vcf,
             sampleid = sampleid, gc.gene.file = opt$gcgene, plot.cnv = TRUE,
@@ -231,7 +238,8 @@ if (file.exists(file.rds) && !opt$force) {
             log.ratio.calibration = opt$logratiocalibration,
             max.non.clonal = opt$maxnonclonal,
             post.optimize = opt$postoptimize,
-            speedup.heuristics = opt$speedupheuristics)
+            speedup.heuristics = opt$speedupheuristics,
+            BPPARAM = BPPARAM)
     dev.off()
     if (opt$bootstrapn > 0) {
         ret <- bootstrapResults(ret, n = opt$bootstrapn) 

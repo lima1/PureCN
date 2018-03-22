@@ -26,8 +26,8 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   min.logr.sdev = 0.15, max.logr.sdev = 0.6, max.segments = 300,
   min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL,
   DB.info.flag = "DB", model = c("beta", "betabin"),
-  post.optimize = FALSE, speedup.heuristics = 2, log.file = NULL,
-  verbose = TRUE)
+  post.optimize = FALSE, speedup.heuristics = 2, BPPARAM = NULL,
+  log.file = NULL, verbose = TRUE)
 }
 \arguments{
 \item{normal.coverage.file}{Coverage file of normal control (optional
@@ -278,6 +278,9 @@ determined via the SCNA-fit.}
 local optima that are unlikely correct. Set to 0 to turn this off, to 1 to 
 only apply heuristics that in worst case will decrease accuracy slightly or 
 to 2 to turn on all heuristics.}
+
+\item{BPPARAM}{\code{BiocParallelParam} object. If \code{NULL}, does not
+use parallelization for fitting local optima.}
 
 \item{log.file}{If not \code{NULL}, store verbose output to file.}
 

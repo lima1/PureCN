@@ -26,7 +26,8 @@ test_that("VCF is not necessary to produce output", {
         genome = "hg19",
         args.segmentation = list(target.weight.file = target.weight.file),
         test.purity = seq(0.4, 0.7, by = 0.05), min.ploidy = 1.4, 
-        max.ploidy = 2.4, max.candidate.solutions = 1)
+        max.ploidy = 2.4, max.candidate.solutions = 1, 
+        BPPARAM=BiocParallel::bpparam())
     file.remove(target.weight.file)
 
     tmpFile <- tempfile(fileext = ".rds")

@@ -200,6 +200,8 @@
 #' local optima that are unlikely correct. Set to 0 to turn this off, to 1 to 
 #' only apply heuristics that in worst case will decrease accuracy slightly or 
 #' to 2 to turn on all heuristics. 
+#' @param BPPARAM \code{BiocParallelParam} object. If \code{NULL}, does not
+#' use parallelization for fitting local optima.
 #' @param log.file If not \code{NULL}, store verbose output to file.
 #' @param verbose Verbose output.
 #' @return A list with elements \item{candidates}{Results of the grid search.}
@@ -283,8 +285,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     min.logr.sdev = 0.15, max.logr.sdev = 0.6, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
     cosmic.vcf.file = NULL, DB.info.flag = "DB", model = c("beta", "betabin"),
-    post.optimize = FALSE, speedup.heuristics = 2, log.file = NULL,
-    verbose = TRUE) {
+    post.optimize = FALSE, speedup.heuristics = 2, BPPARAM = NULL,
+    log.file = NULL, verbose = TRUE) {
 
     if (!verbose) flog.threshold("WARN")
     if (!is.null(log.file)) flog.appender(appender.tee(log.file))
@@ -941,8 +943,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             candidate.id = cpi, failed = FALSE)
     }
     
-    results <- lapply(seq_len(nrow(candidate.solutions$candidates)), .optimizeSolution)
-    
+    if (is.null(BPPARAM) || !requireNamespace("BiocParallel", quietly = TRUE)) {
+        results <- lapply(seq_len(nrow(candidate.solutions$candidates)), .optimizeSolution)
+    } else {
+        results <- BiocParallel::bplapply(seq_len(nrow(candidate.solutions$candidates)), 
+                                          .optimizeSolution, BPPARAM = BPPARAM)
+    }    
     results <- .rankResults(results)
     results <- .filterDuplicatedResults(results)
 

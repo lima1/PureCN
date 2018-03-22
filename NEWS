@@ -2,7 +2,8 @@ Changes in version 1.10.0
 -------------------------
 
     o New normal database format
-    o Runtime performance improvements
+    o Runtime performance improvements (skip unlikely local optima, support for
+      BiocParallel in runAbsoluteCN)
     o Support for replication timing scores in coverage normalization
     o More accurate confidence intervals in callMutationBurden
     o More accurate copy numbers for high-level amplifications
@@ -12,6 +13,7 @@ Changes in version 1.10.0
     o Improved support for third-party upstream tools  
     o More checks for wrong or sub-optimal input and providing suggestions for
       fixing those issues
+    o Gibbs sampling of log tumor/normal coverage error rate
     o Code cleanups (switch to testthat, removed several obsolete and minor 
       features)
     
