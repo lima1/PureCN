@@ -708,6 +708,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 # copy number states, excluding normal 2. Then multiplies by 
 # log(number exons)
 .calcComplexityCopyNumber <- function(results) {
+    if (length(results) < 2) return(0)
     cs <- sapply((0:7)[-3], function(i) sapply(results, function(y)
                     sum(y$seg$size[y$seg$C == i])/sum(y$seg$size)))
     complexity <- apply(cs,1, function(z) sum(z>0.001))
@@ -856,8 +857,6 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     }
     segs <- split(seg, seg$ID)
     matchedSeg <- match(make.names(sampleid), make.names(names(segs)))
-
-
 
     if (length(segs)==1) {
         if (!is.null(sampleid) && is.na(matchedSeg)) {

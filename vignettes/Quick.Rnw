@@ -473,6 +473,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --maxnonclonal     & max.non.clonal & \Rfunction{runAbsoluteCN} \\ 
 --outvcf           & return.vcf & \Rfunction{predictSomatic} \\
 --out -o           & &                            \\
+--parallel         & BPPARAM & \Rfunction{runAbsoluteCN} \\
 --seed             & & \\
 --version -v       & & \\
 --force -f         & & \\
