@@ -322,6 +322,12 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         # try to add an DB field based on rownames
         vcf <- .addDbField(vcf, DB.info.flag)
     }
+    # check for NAs in DB
+    idxDBNA <- is.na(info(vcf)[[DB.info.flag]])
+    if (sum(idxDBNA)) {
+        flog.warn("DB INFO flag contains NAs")
+        info(vcf)[[DB.info.flag]][idxDBNA] <- FALSE
+    }
     cntLikelyGL <- sum(info(vcf)[[DB.info.flag]], na.rm = TRUE)
     flog.info("%i (%.1f%%) variants annotated as likely germline (%s INFO flag).",
         cntLikelyGL, cntLikelyGL/length(vcf)*100, DB.info.flag)
@@ -341,6 +347,13 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     if (!.checkVcfFieldAvailable(vcf, "DP")) {
         # try to add an DP geno field if missing
         vcf <- .addDpField(vcf)
+    }
+    # check for NAs in DP
+    idxDPNA <- is.na(rowSums(geno(vcf)$DP))
+    if (sum(idxDPNA)) {
+        n <- length(vcf)
+        vcf <- vcf[!idxDPNA] 
+        flog.warn("DP GENO field contains NAs. Removing %i variants.", n-length(vcf))
     }
     vcf     
 }    

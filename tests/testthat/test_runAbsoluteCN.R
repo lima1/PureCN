@@ -131,6 +131,9 @@ test_that("Example data with VCF produces expected output", {
 
 test_that("Mapping bias function works", {
     vcf <- readVcf(vcf.file, "hg19", param = ScanVcfParam(samples = "LIB-02240e4"))
+    # make sure that NA's in DB are replaced with FALSE
+    info(vcf)$DB[1:5] <- NA
+    geno(vcf)$DP[6:8,1] <- NA
     myMappingBiasTestFun <- function(vcf, ...) {
         tmp <- rep(1, nrow(vcf))
         tmp2 <- rep(0, nrow(vcf))
