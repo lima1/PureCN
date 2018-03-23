@@ -323,10 +323,10 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         vcf <- .addDbField(vcf, DB.info.flag)
     }
     # check for NAs in DB
-    idxDBNA <- is.na(info(vcf)[[DB.info.flag]])
-    if (sum(idxDBNA)) {
+    idx <- is.na(info(vcf)[[DB.info.flag]])
+    if (sum(idx)) {
         flog.warn("DB INFO flag contains NAs")
-        info(vcf)[[DB.info.flag]][idxDBNA] <- FALSE
+        info(vcf)[[DB.info.flag]][idx] <- FALSE
     }
     cntLikelyGL <- sum(info(vcf)[[DB.info.flag]], na.rm = TRUE)
     flog.info("%i (%.1f%%) variants annotated as likely germline (%s INFO flag).",
@@ -349,14 +349,14 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         vcf <- .addDpField(vcf)
     }
     # check for NAs in DP
-    idxDPNA <- is.na(rowSums(geno(vcf)$DP))
-    if (sum(idxDPNA)) {
+    idx <- is.na(rowSums(geno(vcf)$DP)) 
+    if (sum(idx)) {
         n <- length(vcf)
-        vcf <- vcf[!idxDPNA] 
-        flog.warn("DP GENO field contains NAs. Removing %i variants.", n-length(vcf))
+        vcf <- vcf[!idx] 
+        flog.warn("DP FORMAT field contains NAs. Removing %i variants.", n-length(vcf))
     }
     vcf     
-}    
+}
 .addDbField <- function(vcf, DB.info.flag = "DB") {
     if (!is.null(info(vcf)$POP_AF)) {
         db <- info(vcf)$POP_AF > 0.001

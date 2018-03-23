@@ -71,7 +71,7 @@ $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \
 Internally, this script uses \Biocpkg{rtracklayer} to parse the
 \Rcode{infile}. Make sure that the file format matches the file extension. 
 See the \Biocpkg{rtracklayer} documentation for problems loading the file.
-Make sure that the genome version of the baits file matches the reference. 
+Check that the genome version of the baits file matches the reference. 
 Do not include chrM baits in case the capture kit includes some.
 
 The \Rcode{--offtarget} flag will include off-target reads. Including them is
@@ -109,12 +109,14 @@ Important recommendations:
 \begin{itemize}
     \item Use \software{MuTect} 1.1.7 if possible
     \item Support for \software{MuTect 2} and \software{FreeBayes} is available
-    for tumor-only VCFs, but currently poorly tested and only very limited
-    artifact filtering will be performed for these callers. 
+        for tumor-only VCFs, but currently poorly tested and only very limited
+        artifact filtering will be performed for these callers. 
     \item Since germline SNPs are needed to infer allele-specific copy numbers,
-    the provided VCF needs to contain both somatic and germline variants.
-    \item Run the variant caller with a 50-75 base pair interval
-    padding to increase the number of heterozygous SNPs
+        the provided VCF needs to contain both somatic and germline variants.
+        Make sure that upstream filtering does not remove high quality SNPs, in
+        particular due to presence in germline databases.
+    \item Run the variant caller with a 50-75 base pair interval padding to
+        increase the number of heterozygous SNPs
 \end{itemize}
 
 
@@ -273,6 +275,10 @@ Important recommendations:
     \item If \Rcode{--out} is a directory, it will use the sample id as file
         prefix for all output files. Otherwise \Biocpkg{PureCN} will use
         \Rcode{--out} as prefix.   
+    
+    \item The \Rcode{--parallel} flag will enable the parallel fitting of local
+        optima. See \Biocpkg{BiocParallel} for details. This script will
+        use the default backend.
 \end{itemize}
 
 \subsection*{Run PureCN with third-party segmentation}
