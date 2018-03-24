@@ -40,11 +40,15 @@ test_that("M2 VCF with POP_AF flag is annotated with DB flag", {
     expect_equal(c(TRUE, rep(FALSE, 10)), info(vcf.m2)$DB)
     expect_equal(unlist(info(vcf.m2)$POP_AF>0.001), info(vcf.m2)$DB)
 
+    expect_output(filterVcfMuTect(vcf.m2, use.somatic.status=FALSE), 
+        "Less than half of variants in dbSNP")
+
     # testing dbSNP annotation only (rs* variant ids)
     # first create new VCF without the DB and POP_AF fields
     info(vcf.m2)$POP_AF <- NULL
     info(vcf.m2)$DB <- NULL
-    info(header(vcf.m2)) <-  info(header(vcf.m2))[-match(c("DB", "POP_AF"), rownames(info(header(vcf.m2)))),]
+    info(header(vcf.m2)) <-  info(header(vcf.m2))[-match(c("DB", "POP_AF"), 
+        rownames(info(header(vcf.m2)))),]
     output.file <- tempfile(fileext = ".vcf")
     writeVcf(vcf.m2, file = output.file)
     # now parse

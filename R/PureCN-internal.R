@@ -617,13 +617,14 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 }
     
 .optimizeGrid <- function(test.purity, min.ploidy, max.ploidy, test.num.copy = 0:7, 
-    exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal) {
+    exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal, BPPARAM) {
     ploidy.grid <- seq(min.ploidy, max.ploidy, by = 0.2)
     if (min.ploidy < 1.8 && max.ploidy > 2.2) {
         ploidy.grid <- c(seq(min.ploidy, 1.8, by = 0.2), 1.9, 2, 2.1, seq(2.2, max.ploidy, 
             by = 0.2))
     }
-    mm <- lapply(test.purity, function(p) {
+
+    .optimizeGridPurity <- function(p) {
         b <- 2 * (1 - p)
         log.ratio.offset <- 0
         lapply(ploidy.grid, function(D) {
@@ -635,7 +636,12 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
             if (subclonal.f > max.non.clonal) return(-Inf)
             sum(vapply(llik.all, max, double(1)))
         })
-    })
+    }
+    if (is.null(BPPARAM)) {
+        mm <- lapply(test.purity, .optimizeGridPurity)
+    } else {
+        mm <- BiocParallel::bplapply(test.purity, .optimizeGridPurity, BPPARAM = BPPARAM)
+    }
     mm <- sapply(mm, function(x) unlist(x))
     colnames(mm) <- test.purity
     rownames(mm) <- ploidy.grid

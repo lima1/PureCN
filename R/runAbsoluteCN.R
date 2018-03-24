@@ -313,6 +313,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         test.num.copy)
     
     test.num.copy <- sort(test.num.copy)
+
+    if (!is.null(BPPARAM) && !requireNamespace("BiocParallel", quietly = TRUE)) {
+        flog.warn("Install BiocParallel for parallel optimization.")
+        BPPARAM <- NULL
+    }
     
     flog.info("Loading coverage files...")
     
@@ -636,7 +641,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     } else {
         candidate.solutions <- .optimizeGrid(.get2DPurityGrid(test.purity),
             min.ploidy, max.ploidy, test.num.copy = test.num.copy, 
-            exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal)
+            exon.lrs, seg, sd.seg, li, max.exon.ratio, max.non.clonal, BPPARAM)
         
         # if we have > 20 somatic mutations, we can try estimating purity based on
         # allelic fractions and assuming diploid genomes.
@@ -943,7 +948,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             candidate.id = cpi, failed = FALSE)
     }
     
-    if (is.null(BPPARAM) || !requireNamespace("BiocParallel", quietly = TRUE)) {
+    if (is.null(BPPARAM)) {
         results <- lapply(seq_len(nrow(candidate.solutions$candidates)), .optimizeSolution)
     } else {
         results <- BiocParallel::bplapply(seq_len(nrow(candidate.solutions$candidates)), 

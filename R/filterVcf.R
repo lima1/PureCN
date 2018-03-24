@@ -131,8 +131,13 @@ interval.padding = 50, DB.info.flag = "DB") {
     idx <- info(vcf)[[DB.info.flag]] & idxNotHomozygous &
         (unlist(geno(vcf)$FA[,tumor.id.in.vcf]) < contamination.range[2] |
         unlist(geno(vcf)$FA[,tumor.id.in.vcf]) > (1 - contamination.range[2]))
-
-    fractionContaminated <- sum(idx)/sum(info(vcf)[[DB.info.flag]] & idxNotHomozygous)
+    
+    if (!sum(idx)) {
+        # this usually only happens with wrong input where all germline SNPs are removed
+        fractionContaminated <- 0
+    } else {
+        fractionContaminated <- sum(idx)/sum(info(vcf)[[DB.info.flag]] & idxNotHomozygous)
+    }
     minFractionContaminated <- 0.02
 
     if (fractionContaminated > 0) {
