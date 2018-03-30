@@ -323,6 +323,11 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         vcf <- vcf[which(!triAllelic)]
         flog.info("Removing %i triallelic sites.",n-length(vcf))
     }    
+    if (is.null(info(vcf)$SOMATIC)) {
+        # try to add a SOMATIC flag for callers that do not
+        # provide one (matched tumor/normal cases only)
+        vcf <- .addSomaticField(vcf)
+    }
     if (is.null(info(vcf)[[DB.info.flag]])) {
         # try to add an DB field based on rownames
         vcf <- .addDbField(vcf, DB.info.flag)
@@ -336,11 +341,8 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     cntLikelyGL <- sum(info(vcf)[[DB.info.flag]], na.rm = TRUE)
     flog.info("%i (%.1f%%) variants annotated as likely germline (%s INFO flag).",
         cntLikelyGL, cntLikelyGL/length(vcf)*100, DB.info.flag)
-
-    if (is.null(info(vcf)$SOMATIC)) {
-        # try to add a SOMATIC flag for callers that do not
-        # provide one (matched tumor/normal cases only)
-        vcf <- .addSomaticField(vcf)
+    if (!cntLikelyGL) {
+        .stopUserError("VCF either contains no germline variants or variants are not properly annotated.")
     }
     if (is.null(geno(vcf)$AD)) {
         vcf <- .addADField(vcf)
@@ -363,7 +365,11 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     vcf     
 }
 .addDbField <- function(vcf, DB.info.flag = "DB") {
-    if (!is.null(info(vcf)$POP_AF)) {
+    if (!is.null(info(vcf)$SOMATIC)) {
+        db <- !info(vcf)$SOMATIC
+        flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
+           " Found and used somatic status instead.")
+    } else if (!is.null(info(vcf)$POP_AF)) {
         db <- info(vcf)$POP_AF > 0.001
         db <- sapply(db, function(x) x[[1]])
         flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
@@ -400,6 +406,8 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         row.names="SOMATIC")
     info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
     info(vcf)$SOMATIC <- unlist(info(vcf)$P_GERMLINE < log10(0.5))
+    info(vcf)$SOMATIC[is.infinite(info(vcf)$SOMATIC) | 
+        is.na(info(vcf)$SOMATIC) ] <- FALSE
     vcf
 }
 

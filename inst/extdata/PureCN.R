@@ -209,9 +209,10 @@ if (file.exists(file.rds) && !opt$force) {
         mutect.ignore <- mutect.ignore[-match("fstar_tumor_lod", mutect.ignore)]
     }    
     BPPARAM <- NULL
-    if (!is.null(opt$parallel)) {
+    if (opt$parallel) {
         suppressPackageStartupMessages(library(BiocParallel))
         BPPARAM <- bpparam()
+        flog.info("Using default BiocParallel backend. You can change the default in your ~/.Rprofile file.") 
     }
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
             tumor.coverage.file = tumor.coverage.file, vcf.file = opt$vcf,

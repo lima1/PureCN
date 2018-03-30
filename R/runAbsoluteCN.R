@@ -317,6 +317,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!is.null(BPPARAM) && !requireNamespace("BiocParallel", quietly = TRUE)) {
         flog.warn("Install BiocParallel for parallel optimization.")
         BPPARAM <- NULL
+    } else if (!is.null(BPPARAM)) {
+        flog.info("Using BiocParallel for parallel optimization.")
     }
     
     flog.info("Loading coverage files...")
