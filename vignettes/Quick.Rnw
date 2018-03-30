@@ -109,8 +109,10 @@ Important recommendations:
 \begin{itemize}
     \item Use \software{MuTect} 1.1.7 if possible
     \item Support for \software{MuTect 2} and \software{FreeBayes} is available
-        for tumor-only VCFs, but currently poorly tested and only very limited
-        artifact filtering will be performed for these callers. 
+    for tumor-only VCFs, but currently poorly tested and only very limited
+        artifact filtering will be performed for these callers. See the FAQ
+        section in the main vignette for common problems and questions related
+        to input data.
     \item Since germline SNPs are needed to infer allele-specific copy numbers,
         the provided VCF needs to contain both somatic and germline variants.
         Make sure that upstream filtering does not remove high quality SNPs, in
