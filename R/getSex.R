@@ -137,12 +137,13 @@ getSexFromVcf <- function(vcf, tumor.id.in.vcf=NULL, min.or = 4,
     vcf <- vcf[!chrY]
 
     if (!is.null(info(vcf)$SOMATIC) && use.somatic.status) {
-        vcf <- vcf[!info(vcf)$SOMATIC]
+        af <- geno(vcf)$DP[,tumor.id.in.vcf] >= min.coverage & 
+              !info(vcf)$SOMATIC
     } else {
         af <- geno(vcf)$FA[,tumor.id.in.vcf] > af.cutoff & 
-              geno(vcf)$DP[,tumor.id.in.vcf] > min.coverage  
-        vcf <- vcf[which(af)]
+              geno(vcf)$DP[,tumor.id.in.vcf] >= min.coverage  
     }
+    vcf <- vcf[which(af)]
 
     if (!nrow(vcf)) {
         flog.info("No germline variants in VCF.")
