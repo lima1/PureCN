@@ -208,7 +208,7 @@ ss) {
 }
 
 .calcIdealPeaks <- function(seg, purity, ploidy) {
-    seg.split <- split(seg, seg$C)
+    seg.split <- split(seg, round(seg$C,digits = 1))
     idx <- sapply(seg.split, nrow) > 2 | 
         ( sapply(seg.split, function(x) x$C[1]) <= 7 &  
           sapply(seg.split, function(x) x$C[1]) %in% 0:7 )

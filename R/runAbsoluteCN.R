@@ -1029,7 +1029,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             log.ratio.sdev = sd.seg, vcf = vcf, sampleid = sampleid, 
             test.num.copy = test.num.copy,
             sex = sex, sex.vcf = sex.vcf, chr.hash = chr.hash, centromeres = centromeres,
-            args=list(filterVcf = args.filterVcf, filterTargets = args.filterTargets)
+            args=list(
+                filterVcf = args.filterVcf[sapply(args.filterVcf, object.size) < 1000],
+                filterTargets = args.filterTargets[sapply(args.filterTargets, object.size) < 1000])
         )
     )
 }
