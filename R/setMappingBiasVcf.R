@@ -80,23 +80,33 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         }
         mappingBias <- .calculateMappingBias(nvcf, min.normals)
     }
-    ov <- findOverlaps(vcf, mappingBias, select = "first")
-
-    ponCnt <- integer(length(tmp))
-
-    tmp[!is.na(ov)] <- mappingBias$bias[ov][!is.na(ov)]
-    tmp[tmp > max.bias] <- max.bias
-
-    ponCnt[!is.na(ov)] <- mappingBias$pon.count[ov][!is.na(ov)]
-    if (smooth) {
-        tmpSmoothed <- .smoothVectorByChromosome(tmp,
-            as.character(seqnames(vcf)), smooth.n)
-        # only smooth variants not found in database
-        tmp[is.na(ov)] <- tmpSmoothed[is.na(ov)]
-    }
-    return(list(bias = tmp, pon.count = ponCnt))
+    .annotateMappingBias(tmp, vcf, mappingBias, max.bias, smooth, smooth.n)
 }
 
+.annotateMappingBias <- function(tmp, vcf, mappingBias, max.bias, smooth, smooth.n) {
+    .extractBias <- function(i) {
+        start <- max(1, i-smooth.n)
+        end <- min(length(mappingBias), (i+smooth.n))
+        bias <- mappingBias[seq(start,end)]
+        #make sure
+        bias <- bias[seqnames(bias)==seqnames(bias)[smooth.n+1]]
+        weighted.mean(bias$bias, weight=bias$pon.count)
+    }    
+    ponCnt <- integer(length(tmp))
+    ov <- findOverlaps(vcf, mappingBias, select = "first")
+    idx <- !is.na(ov)
+    tmp[idx] <- mappingBias$bias[ov][idx]
+    ponCnt[idx] <- mappingBias$pon.count[ov][idx]
+    if (smooth) {
+        flog.info("Imputing mapping bias for %i variants...", 
+            sum(!idx, na.rm = TRUE))
+        near <- nearest(vcf[!idx], mappingBias, ignore.strand=TRUE)
+        tmp[!idx] <- sapply(near, .extractBias)
+    }
+    tmp[tmp > max.bias] <- max.bias
+    return(list(bias = tmp, pon.count = ponCnt))
+}
+    
 .calculateMappingBias <- function(nvcf, min.normals) {
     if (ncol(nvcf) < 2) {
         .stopUserError("The normal.panel.vcf.file contains only a single sample.")
