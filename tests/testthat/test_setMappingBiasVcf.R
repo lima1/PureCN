@@ -46,6 +46,8 @@ test_that("Precomputed mapping bias matches", {
     expect_equal(head(mb$pon.count[idx], 3), c(15, 5, 27))
     expect_equal(head(mb$bias[idx], 3), c(0.3362525, 1.0002354, 
         1.0119481), tolerance = 0.001)
+    expect_equal( weighted.mean(c(1.00023541351692, 1.01194812157128, 0.915037402634247), c(5,27,12)),
+        mb$bias[230], tolerance = 0.001)
     file.remove(normal_panel_precomp)
 
     vcf.single.file <- system.file("extdata", "example_single.vcf.gz", package = "PureCN")

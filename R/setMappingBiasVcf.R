@@ -89,8 +89,8 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         end <- min(length(mappingBias), (i+smooth.n))
         bias <- mappingBias[seq(start,end)]
         #make sure
-        bias <- bias[seqnames(bias)==seqnames(bias)[smooth.n+1]]
-        weighted.mean(bias$bias, weight=bias$pon.count)
+        bias <- bias[seqnames(bias)==seqnames(mappingBias)[i]]
+        weighted.mean(bias$bias, w = bias$pon.count)
     }    
     ponCnt <- integer(length(tmp))
     ov <- findOverlaps(vcf, mappingBias, select = "first")
@@ -101,7 +101,7 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         flog.info("Imputing mapping bias for %i variants...", 
             sum(!idx, na.rm = TRUE))
         near <- nearest(vcf[!idx], mappingBias, ignore.strand=TRUE)
-        tmp[!idx] <- sapply(near, .extractBias)
+        tmp[!idx][!is.na(near)] <- sapply(near[!is.na(near)], .extractBias)
     }
     tmp[tmp > max.bias] <- max.bias
     return(list(bias = tmp, pon.count = ponCnt))
