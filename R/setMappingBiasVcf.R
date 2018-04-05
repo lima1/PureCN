@@ -133,20 +133,6 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     tmp
 }
     
-.smoothVectorByChromosome <- function(x, chr, smooth.n) {
-    .filter <- function(x, ...) {
-        if (length(x) < smooth.n * 5) return(x)
-        stats::filter(x, ...)
-    }
-    fN <- rep(1 / smooth.n, smooth.n)
-    y <- do.call(c, lapply(
-            split(x, factor(as.character(chr), levels = unique(chr))),
-            .filter, fN, sides = 2))
-
-    y[is.na(y)] <- x[is.na(y)]
-    as.numeric(y)
-}
-
 .readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file,
     max.file.size=1, geno="AD", expand=FALSE) {
     genome <- genome(vcf)[1]

@@ -101,7 +101,7 @@ filterTargets <- function(normal, tumor, log.ratio, seg.file,
         .stopUserError("normalDB appears to be empty.")
     }    
     tmp <- readCoverageFile(normalDB$normal.coverage.files[1])
-    return(identical(tmp$Target, tumor$Target))
+    return(identical(as.character(tmp), as.character(tumor)))
 }
 
 .filterTargetsNotNA <- function(log.ratio) {

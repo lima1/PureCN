@@ -259,9 +259,8 @@ calculateTangentNormal <- function(tumor.coverage.file, normalDB,
     } else {
         tumor <- tumor.coverage.file
     }
-
-    normal <- readCoverageFile(normalDB$normal.coverage.files[1])
-    if (!identical(as.character(normal) , as.character(tumor))) {
+    
+    if (!.checkNormalDB(tumor, normalDB)) {
         .stopUserError("tumor.coverage.file and normalDB do not align.")
     }
 

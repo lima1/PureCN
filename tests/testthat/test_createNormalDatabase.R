@@ -59,5 +59,6 @@ test_that("Exceptions happen with outdated databases", {
     normalDB2$version <- NULL
     expect_error(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, normalDB = normalDB2),
                  "incompatible")
+    expect_error( calculateTangentNormal(tumor.coverage.file, normalDB2), "incompatible")
 })
 
