@@ -17,7 +17,8 @@ Changes in version 1.10.0
     o Better imputation of mapping bias (instead of smoothing
       over neighboring variants in the sample, smooth over neighboring SNPs
       in the pool of normals - only available when pre-calculated)
-    o Better support for GATK4 (still experimental)
+    o Better support for GATK4 (experimental)
+    o Experimental support for indels
     o Code cleanups (switch to testthat, removed several obsolete and minor 
       features)
     

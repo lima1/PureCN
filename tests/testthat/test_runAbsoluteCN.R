@@ -25,7 +25,7 @@ test_that("VCF is not necessary to produce output", {
         candidates = purecn.example.output$candidates,
         genome = "hg19",
         args.segmentation = list(target.weight.file = target.weight.file),
-        test.purity = seq(0.4, 0.7, by = 0.05), min.ploidy = 1.4, 
+        test.purity = seq(0.4, 0.7, by = 0.05), min.ploidy = 1.5, 
         max.ploidy = 2.4, max.candidate.solutions = 1, 
         BPPARAM=BiocParallel::bpparam())
     file.remove(target.weight.file)
@@ -116,9 +116,9 @@ test_that("Exceptions happen with incorrect input data", {
 
 test_that("Example data with VCF produces expected output", {
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
-        tumor.coverage.file = tumor.coverage.file, vcf.file = vcf.file, 
-        genome = "hg19", test.purity = seq(0.3, 0.7, by = 0.05), 
-        max.candidate.solutions = 1)
+        tumor.coverage.file = tumor.coverage.file, vcf.file = vcf.file,
+        genome = "hg19", test.purity = seq(0.3, 0.7, by = 0.05), plot.cnv = FALSE,
+        max.candidate.solutions = 1, min.ploidy = 1.5, max.ploidy = 2.1)
     expect_equal(ret$results[[1]]$fraction.balanced, 0.21, tolerance = 0.01)
     s <- predictSomatic(ret)
     expect_equal(s$AR/s$MAPPING.BIAS, s$AR.ADJUSTED)
@@ -146,7 +146,7 @@ test_that("Mapping bias function works", {
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
         tumor.coverage.file = tumor.coverage.file, args.filterVcf = list(remove.off.target.snvs = FALSE), 
         vcf.file = vcf, genome = "hg19", test.purity = seq(0.3, 
-            0.7, by = 0.05), min.ploidy = 1.4, max.ploidy = 2.4, 
+            0.7, by = 0.05), min.ploidy = 1.5, max.ploidy = 2.1, 
         max.candidate.solutions = 1, fun.setMappingBiasVcf = myMappingBiasTestFun)
     expect_equal(0.65, ret$results[[1]]$purity)
     expect_equal(as.numeric(colnames(ret$candidates$all)), c(seq(0.3, 
@@ -212,13 +212,13 @@ test_that("Different chromosome naming styles throw exceptions", {
         quote = FALSE)
     set.seed(123)
     ret <- runAbsoluteCN(normal.coverage.file = normCov, tumor.coverage.file = tumorCov, 
-        interval.file = output.file1, plot.cnv = FALSE, min.ploidy = 1.4, 
-        max.ploidy = 2.4, vcf.file = vcf, genome = "hg19", test.purity = seq(0.4, 
+        interval.file = output.file1, plot.cnv = FALSE, min.ploidy = 1.5, 
+        max.ploidy = 2.1, vcf.file = vcf, genome = "hg19", test.purity = seq(0.4, 
             0.7, by = 0.05), max.candidate.solutions = 1)
     set.seed(123)
     ret2 <- runAbsoluteCN(normal.coverage.file = normCov, tumor.coverage.file = tumorCov, 
-        interval.file = output.file2, plot.cnv = FALSE, min.ploidy = 1.4, 
-        max.ploidy = 2.4, vcf.file = vcf, genome = "hg19", test.purity = seq(0.4, 
+        interval.file = output.file2, plot.cnv = FALSE, min.ploidy = 1.5, 
+        max.ploidy = 2.1, vcf.file = vcf, genome = "hg19", test.purity = seq(0.4, 
             0.7, by = 0.05), max.candidate.solutions = 1)
     gpnmb <- callAlterations(ret)["GPNMB", ]
     expect_equal(as.character(gpnmb$chr), "7")
@@ -246,7 +246,7 @@ test_that("Different chromosome naming styles throw exceptions", {
 test_that("Run with example seg.file works", { 
     ret <- runAbsoluteCN(tumor.coverage.file = tumor.coverage.file, 
         seg.file = seg.file, vcf.file = vcf.file, max.candidate.solutions = 1, 
-        genome = "hg19", min.ploidy = 1.4, max.ploidy = 2.4, 
+        genome = "hg19", min.ploidy = 1.5, max.ploidy = 2.1, 
         test.purity = seq(0.4, 0.7, by = 0.05), sampleid = "Sample2")
     expect_equal(0.65, ret$results[[1]]$purity)
 
@@ -257,7 +257,8 @@ test_that("Run with example seg.file works", {
 
     ret <- runAbsoluteCN(seg.file = seg.file, interval.file = interval.file, 
         vcf.file = vcf, max.candidate.solutions = 1, genome = "hg19", 
-        test.purity = seq(0.4, 0.7, by = 0.05), verbose = FALSE)
+        test.purity = seq(0.4, 0.7, by = 0.05), min.ploidy = 1.5, 
+        max.ploidy = 2.1, verbose = FALSE)
     expect_equal(0.65, ret$results[[1]]$purity)
     tmp <- predictSomatic(ret)[ret$results[[1]]$SNV.posterior$vcf.ids==vcf.id,]
     expect_equal(2, nrow(tmp))
@@ -292,15 +293,15 @@ test_that("Run with example seg.file works", {
         "contains multiple samples and sampleid does not match")
     ret <- runAbsoluteCN(seg.file = output.file, interval.file = interval.file, 
         sampleid = "Sample1", vcf.file = vcf.file, max.candidate.solutions = 1, 
-        genome = "hg19", test.purity = seq(0.3, 0.7, by = 0.05), 
-        verbose = FALSE, max.ploidy = 2.5)
+        genome = "hg19", test.purity = seq(0.4, 0.7, by = 0.05), 
+        verbose = FALSE, min.ploidy = 1.5, max.ploidy = 2.1)
     file.remove(output.file)
 
     testSeg <- function(seg, ...) return(seg)
     res <- runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
-        seg.file = seg.file, fun.segmentation = testSeg, min.ploidy = 1.4, 
-        max.ploidy = 2.4, test.purity = seq(0.4, 0.7, by = 0.05), 
-        max.candidate.solutions = 1, genome = "hg19")
+        seg.file = seg.file, fun.segmentation = testSeg, min.ploidy = 1.5, 
+        max.ploidy = 2.1, test.purity = seq(0.4, 0.7, by = 0.05), 
+        max.candidate.solutions = 1, genome = "hg19", plot.cnv = FALSE)
     seg <- read.delim(seg.file)
     expect_equal(nrow(res$results[[1]]$seg), nrow(seg))
     expect_equal(res$results[[1]]$seg$seg.mean, seg$seg.mean, tol=0.005)
@@ -317,7 +318,7 @@ test_that("Run with provided log-ratios works", {
     ret <- runAbsoluteCN(log.ratio = log.ratio, seg.file = seg.file, 
         interval.file = interval.file, vcf.file = vcf.file, max.candidate.solutions = 1, 
         min.ploidy = 1.5, max.ploidy = 2.1,
-        genome = "hg19", test.purity = seq(0.3, 0.7, by = 0.05))
+        genome = "hg19", test.purity = seq(0.5, 0.7, by = 0.05))
     expect_equal(0.65, ret$results[[1]]$purity)
 })
 
@@ -336,13 +337,13 @@ test_that("Betabin model runs with example data", {
         vcf.file = vcf, max.candidate.solutions = 1, genome = "hg19", 
         min.ploidy = 1.5, max.ploidy = 2.1, plot.cnv = FALSE, 
         cosmic.vcf.file = cosmic.vcf.file, model = "betabin", 
-        test.purity = seq(0.3, 0.7, by = 0.01))
+        test.purity = seq(0.4, 0.7, by = 0.05))
     expect_equal(0.65, ret$results[[1]]$purity, tol=0.1)
 })
 
 test_that("max.ploidy works", {
     ret <- runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
-        min.ploidy = 2.2, max.ploidy = 4, genome = "hg19", test.purity = seq(0.3, 
+        min.ploidy = 2.2, max.ploidy = 4, genome = "hg19", test.purity = seq(0.4, 
             0.7, by = 0.05), plot.cnv = FALSE, max.candidate.solutions = 1)
     expect_true(ret$results[[1]]$ploidy <= 4)
     expect_true(ret$results[[1]]$ploidy >= 2)
@@ -350,7 +351,7 @@ test_that("max.ploidy works", {
 
 test_that("normalDB objects are used correctly", {
     expect_error(runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
-        tumor.coverage.file = tumor.coverage.file, genome = "hg19", 
+        tumor.coverage.file = tumor.coverage.file, genome = "hg19",
         normalDB = vcf.file),
         "normalDB not a valid normalDB object")
 
@@ -361,15 +362,17 @@ test_that("normalDB objects are used correctly", {
         tumor.coverage.file = tumor.coverage.file, genome = "hg19", 
         normalDB = tmp), "normalDB appears to be empty")
 
+    tumor <- readCoverageFile(tumor.coverage.file)
+    tumor[1]$on.target <- FALSE
+
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
-        tumor.coverage.file = tumor.coverage.file, genome = "hg19", 
+        tumor.coverage.file = tumor, genome = "hg19", 
         vcf.file = vcf.file, sampleid = "Sample1", interval.file = interval.file, 
         normalDB = normalDB, args.filterTargets = list(filter.lowhigh.gc = 0), 
-        plot.cnv = FALSE, max.ploidy = 3, test.purity = seq(0.4, 
+        plot.cnv = FALSE, min.ploidy = 1.5, max.ploidy = 2.1, test.purity = seq(0.4, 
             0.7, by = 0.05), max.candidate.solutions = 1)
-    tumor <- readCoverageFile(tumor.coverage.file)
-    normal <- readCoverageFile(normal.coverage.file)
-    idx <- overlapsAny(tumor, ret$input$log.ratio)
+ #   normal <- readCoverageFile(normal.coverage.file)
+ #   idx <- overlapsAny(tumor, ret$input$log.ratio)
  # TODO: recalc when defaults are final
  #   cutoff <- median(normalDB$exon.median.coverage) * 0.3
  #   expect_equal(sum(!(normalDB$exon.median.coverage[!idx] < 
@@ -381,13 +384,3 @@ test_that("normalDB objects are used correctly", {
  #       15 | normal$average.coverage[idx] < 15 | normalDB$fraction.missing[idx] > 
  #       0.05)) > 9000)
 })
-
-test_that("Missing on.target column in coverage data is handled gracefully", {
-    tumor <- readCoverageFile(tumor.coverage.file)
-    tumor[1]$on.target <- FALSE
-    x <- runAbsoluteCN(normal.coverage.file, tumor, genome = "hg19", 
-        min.ploidy = 1.4, max.ploidy = 2.4, test.purity = seq(0.4, 
-            0.7, by = 0.05), plot.cnv = FALSE,
-        max.candidate.solutions = 1, interval.file = interval.file)
-})
-
