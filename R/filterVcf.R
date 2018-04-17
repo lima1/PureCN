@@ -369,11 +369,12 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         db <- !info(vcf)$SOMATIC
         flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
            " Found and used somatic status instead.")
-    } else if (!is.null(info(vcf)$POP_AF)) {
+    } else if (!is.null(info(vcf)$POP_AF) && 
+        max(unlist(info(x)$POP_AF), na.rm = TRUE) > 0.1 ) {
         db <- info(vcf)$POP_AF > 0.001
         db <- sapply(db, function(x) x[[1]])
         flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
-           " Found and used population allele frequency > 0.001 instead.")
+           " Found and used valid population allele frequency > 0.001 instead.")
     } else {
         db <- grepl("^rs",rownames(vcf))
         

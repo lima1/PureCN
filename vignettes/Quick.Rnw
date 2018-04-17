@@ -148,7 +148,7 @@ coverage file names (one per line). The file extension must be .list:
 
 \begin{verbatim}
 # Calculate and GC-normalize coverage from a list of BAM files 
-$ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
+$ Rscript $PURECN/Coverage.R --outdir $OUT \ 
     --bam normals.list \
     --intervals $OUT_REF/baits_hg19_intervals.txt \
     --cpu 4
