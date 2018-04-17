@@ -32,6 +32,9 @@ test_that("Example data matches after normalization", {
 
 test_that("Exceptions happen with wrong input", {
     expect_error(correctCoverageBias(normal.coverage.file, interval.file))
+    coverage <- readCoverageFile(normal.coverage.file)
+    coverage$average.coverage <- 0
+    expect_error(correctCoverageBias(coverage, interval.file), "zero")
 })
 
 test_that("Example data qc matches", {

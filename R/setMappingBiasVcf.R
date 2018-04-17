@@ -84,14 +84,15 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
 }
 
 .annotateMappingBias <- function(tmp, vcf, mappingBias, max.bias, smooth, smooth.n) {
-    .extractBias <- function(i) {
+    .extractBias <- function(i, start.var) {
         start <- max(1, i-smooth.n)
         end <- min(length(mappingBias), (i+smooth.n))
         bias <- mappingBias[seq(start,end)]
         #make sure
         bias <- bias[seqnames(bias)==seqnames(mappingBias)[i]]
+        #weighted.mean(bias$bias, w = sqrt(bias$pon.count)/sqrt(abs(start(bias) - start.var)+1))
         weighted.mean(bias$bias, w = bias$pon.count)
-    }    
+    }
     ponCnt <- integer(length(tmp))
     ov <- findOverlaps(vcf, mappingBias, select = "first")
     idx <- !is.na(ov)
@@ -101,7 +102,8 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         flog.info("Imputing mapping bias for %i variants...", 
             sum(!idx, na.rm = TRUE))
         near <- nearest(vcf[!idx], mappingBias, ignore.strand=TRUE)
-        tmp[!idx][!is.na(near)] <- sapply(near[!is.na(near)], .extractBias)
+        start.var <- start(vcf)[!idx]
+        tmp[!idx][!is.na(near)] <- sapply(which(!is.na(near)), function(i) .extractBias(near[i], start.var[i]))
     }
     tmp[tmp > max.bias] <- max.bias
     return(list(bias = tmp, pon.count = ponCnt))

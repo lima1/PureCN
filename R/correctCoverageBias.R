@@ -59,6 +59,10 @@ output.qc.file = NULL, gc.gene.file = NULL) {
         flog.warn("gc.gene.file was renamed to interval.file.")
         if (is.null(interval.file)) interval.file <-gc.gene.file
     }
+
+    if (max(raw$average.coverage[raw$on.target], na.rm = TRUE) <= 0) {
+        .stopUserError("Provided coverage is zero, most likely due to a corrupt BAM file.")
+    }
     
     raw <- .addGCData(raw, interval.file, verbose=FALSE)
     ret <- .correctCoverageBiasLoess(raw)
