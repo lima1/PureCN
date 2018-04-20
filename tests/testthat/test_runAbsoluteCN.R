@@ -173,6 +173,11 @@ test_that("Missing Gene column in interval.file is handled correctly", {
         max.candidate.solutions = 1)
     expect_true(is.na(ret$results[[1]]$gene.calls))
     expect_error(callAlterations(ret), "requires gene-level calls")
+    rvcf <- predictSomatic(ret, return.vcf=TRUE)
+    expect_equal(length(ret$input$vcf), 
+                 length(rvcf))
+     expect_equal(".", info(rvcf)$GS[1])
+
     tumor <- readCoverageFile(tumor.coverage.file)
     normal <- readCoverageFile(normal.coverage.file)
     tumor$gc_bias <- gc_data$gc_bias

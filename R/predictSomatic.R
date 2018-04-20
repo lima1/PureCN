@@ -60,6 +60,8 @@ predictSomatic <- function(res, id = 1, return.vcf = FALSE,
     if (nrow(pp) != nrow(vcf)) {
          .stopRuntimeError("Posteriors and filtered VCF do not align.")
     }
+    if (is.null(pp$gene.symbol)) pp$gene.symbol <- "."
+
     idxColsPp <- grep("^SOMATIC|^GERMLINE", colnames(pp))
     colnames(pp)[idxColsPp] <- gsub("OMATIC\\.|ERMLINE\\.", "",
         colnames(pp)[idxColsPp])
