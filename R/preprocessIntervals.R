@@ -228,6 +228,12 @@ calculateGCContentByInterval <- function(...) {
         colScore <- if (is.null(y$score)) 1 else "score"
         mappScore <- aggregate(mcols(y)[subjectHits(ov),colScore], by=list(queryHits(ov)), mean)
         mcols(interval.gr)[[label]][mappScore[,1]] <- mappScore[,2]
+        idxNA <- is.na(mcols(interval.gr)[[label]])
+
+        if (sum(idxNA)) {
+            flog.warn("%i intervals without mapping score.", sum(idxNA))
+            mcols(interval.gr)[[label]][idxNA] <- 0
+        }    
     } else {
         flog.warn("No %s scores provided.", label)
     }    

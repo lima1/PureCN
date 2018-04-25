@@ -387,11 +387,8 @@ variants, while removing potential artifacts.  Without the stats file,
 \Rfunction{filterVcfBasic}.  Both functions are automatically called by
 \Biocpkg{PureCN}, but can be easily modified and replaced if necessary.
 
-Instead of using a pool of normals to find SNPs with extremely biased allelic
-fractions, we can also use a BED file to blacklist regions of low mappability.
-For example the simple repeats track from the UCSC.  This is recommended when
-neither matching normals nor a large pool of normal VCF
-(Section~\ref{artifactfiltering}) is available. 
+We can also use a BED file to blacklist regions expected to be problematic, for
+example the simple repeats track from the UCSC:
 
 <<ucsc_segmental>>=
 # Instead of using a pool of normals to find low quality regions,
@@ -407,20 +404,6 @@ if (downloadFromUCSC) {
     simpleRepeats <- track( ucscTableQuery(mySession, 
         track="Simple Repeats", table="simpleRepeat"))
     export(simpleRepeats, "hg19_simpleRepeats.bed")
-    
-    # use only variants in unique regions. this will probably remove 
-    # hotspot or other likely functional somatic mutations.
-    # mappability <- import("wgEncodeCrgMapabilityAlign100mer.bigWig")
-    # idx <- mappability$score < 1
-    # export(mappability[idx], "hg19_wgEncodeCrgMapabilityAlign100mer.bed")
-
-    
-    # when off-target reads are used, we can provide one of the 
-    # whole-genome blacklists tracks
-    # hg19_DukeBlacklist <- track( ucscTableQuery(mySession,  
-    #     track="Mappability", 
-    #     table="wgEncodeDukeMapabilityRegionsExcludable"))
-    # export(hg19_DukeBlacklist, "hg19_DukeBlacklist.bed")
 }
 
 snp.blacklist <- "hg19_simpleRepeats.bed"
