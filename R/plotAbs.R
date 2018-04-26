@@ -508,12 +508,14 @@ ss) {
             xlim=mylogratio.xlim
             )
     } 
-    text(
-        x=peak.ideal.means[
-            as.character(r$ML.C[!r$ML.SOMATIC])][idx.labels], 
-        y=r$ML.AR[!r$ML.SOMATIC][idx.labels], 
-        labels=scatter.labels[idx.labels]
-    )
+    if (sum(idx.labels, na.rm = TRUE)) {
+        text(
+            x=peak.ideal.means[
+                as.character(r$ML.C[!r$ML.SOMATIC])][idx.labels], 
+            y=r$ML.AR[!r$ML.SOMATIC][idx.labels], 
+            labels=scatter.labels[idx.labels]
+        )
+    }
     plot(r$AR, log2(r$depth),col=adjustcolor(mycol, alpha.f=myalpha),
         pch=mypch, cex=mycex,
         xlab="Allelic fraction", ylab="Coverage (log2)")
@@ -545,10 +547,12 @@ ss) {
             text(x=mylogratio.xlim[1], y=estimatedContRate+0.02, 
                 labels="Contamination", col="red", pos=4)
         }
-        text(x=peak.ideal.means[
-            as.character(r$ML.C[r$ML.SOMATIC])][idx.labels], 
-            y=r$ML.AR[r$ML.SOMATIC][idx.labels], 
-            labels=scatter.labels[idx.labels])
+        if (sum(idx.labels, na.rm = TRUE)) {
+            text(x=peak.ideal.means[
+                as.character(r$ML.C[r$ML.SOMATIC])][idx.labels], 
+                y=r$ML.AR[r$ML.SOMATIC][idx.labels], 
+                labels=scatter.labels[idx.labels])
+        }
         idxSomatic <- !grepl("germline|dbSNP|contamination", as.character(r$group))
         if (sum(idxSomatic)) {
             colSomatic <- mycol.palette$color[match(names(sort(table(r$group[idxSomatic]), 
