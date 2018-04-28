@@ -400,7 +400,7 @@ Rscript $PureCN/FilterCallableLoci.R --genome hg19 \
  
 Rscript $PureCN/Dx.R --out $OUT/$SAMPLEID/${SAMPLEID}_cds \
     --rds $OUT/SAMPLEID/${SAMPLEID}.rds \
-    --callable ${SAMPLEID}_callable_status_filtered.bed \
+    --callable ${SAMPLEID}_callable_status_filtered_cds.bed \
     --exclude hg19_simpleRepeats.bed
 \end{verbatim}
 
