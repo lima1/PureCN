@@ -357,7 +357,7 @@ Rscript $PureCN/Dx.R --out . --rds ${SAMPLEID}.rds \
     --exclude hg19_simpleRepeats.bed
 
 # Restrict mutation burden calculation to coding sequences
-Rscript $PureCN/FilterCallableLoci --genome hg19 \
+Rscript $PureCN/FilterCallableLoci.R --genome hg19 \
     --infile ${SAMPLEID}_callable_status_filtered.bed \
     --outfile ${SAMPLEID}_callable_status_filtered_cds.bed 
 

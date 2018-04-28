@@ -104,7 +104,7 @@ mb <- callMutationBurden(res, callable=callable, exclude=exclude,
 
 write.csv(cbind(Sampleid=sampleid, mb), file=outfileMb, row.names=FALSE, quote=FALSE)
 
-if (require(deconstructSigs) && opt$signatures) {
+if (opt$signatures && require(deconstructSigs)) {
     x <- predictSomatic(res)
     x$Sampleid <- res$input$sampleid
 
