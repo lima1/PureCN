@@ -154,6 +154,14 @@ $ Rscript $PURECN/Coverage.R --outdir $OUT \
     --cpu 4
 \end{verbatim}
 
+Important recommendations:
+
+\begin{itemize}
+    \item Only provide \Rcode{--keepduplicates} or \Rcode{--removemapq0}
+        if you know what you are doing and always use the same command line
+        arguments for tumor and the normals
+\end{itemize}
+
 \subsubsection*{NormalDB}
 
 To build a normal database for coverage normalization, copy the paths to all
@@ -214,10 +222,11 @@ Now that the assay-specific files are created and all coverages calculated, we
 run PureCN.R to normalize, segment and determine purity and ploidy:
 
 \begin{verbatim}
-cd $OUT/$SAMPLEID
+mkdir $OUT/$SAMPLEID
 
 # Without a matched normal (minimal test run)
-$ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \ 
+$ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
+    --tumor $OUT/$SAMPLEID/${SAMPLEID}_coverage_loess.txt \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
     --normaldb $OUT_REF/normalDB_hg19.rds \
@@ -225,7 +234,8 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
     --genome hg19 
 
 # Production pipeline run
-$ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \ 
+$ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
+    --tumor $OUT/$SAMPLEID/${SAMPLEID}_coverage_loess.txt \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
     --statsfile ${SAMPLEID}_mutect_stats.txt \
@@ -239,8 +249,9 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
 
 # With a matched normal (test run; for production pipelines we recommend the
 # unmatched workflow described above)
-$ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \ 
-    --normal ${SAMPLEID_NORMAL}_coverage_loess.txt \ 
+$ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
+    --tumor $OUT/$SAMPLEID/${SAMPLEID}_coverage_loess.txt \
+    --normal $OUT/$SAMPLEID/${SAMPLEID_NORMAL}_coverage_loess.txt \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
     --normaldb $OUT_REF/normalDB_hg19.rds \
@@ -248,13 +259,13 @@ $ Rscript $PURECN/PureCN.R --out . --tumor ${SAMPLEID}_coverage_loess.txt \
     --genome hg19
 
 # Recreate output after manual curation of ${SAMPLEID}.csv
-$ Rscript $PURECN/PureCN.R --rds ${SAMPLEID}.rds
+$ Rscript $PURECN/PureCN.R --rds $OUT/$SAMPLEID/${SAMPLEID}.rds
 \end{verbatim}
 
 Important recommendations:
 
 \begin{itemize}
-    \item Even if matched normals are available, it is often safer to use the
+    \item Even if matched normals are available, it is often better to use the
         normal database for coverage normalization
 
     \item Providing the normal database in addition to a matched normal is
@@ -281,6 +292,28 @@ Important recommendations:
     \item The \Rcode{--parallel} flag will enable the parallel fitting of local
         optima. See \Biocpkg{BiocParallel} for details. This script will
         use the default backend.
+
+    \item Defaults are well calibrated and should produce close to ideal results
+        for most samples. A few common cases where changing defaults makes sense:
+        \begin{description}
+            \item[High purity and high quality:] For cancer types with a high
+                expected purity, such as Ovarian cancer, AND when quality is
+                expected to be very good (high coverage, young samples),
+                \Rcode{--maxcopynumber 8}
+            \item[Small panels with high coverage:] \Rcode{--padding 100} (or
+                higher), requires running the variant caller with this padding
+                or without interval file. Use the same settings for the panel of
+                normals VCF so that SNPs in the flanking regions have reliable
+                mapping bias estimates.
+            \item[Cell lines:] Safely skip the search for low purity
+                solutions in cell lines: \Rcode{--maxcopynumber 8},
+                \Rcode{--minpurity 0.9}, \Rcode{--maxpurity 0.99}
+            \item[cfDNA:] \Rcode{--minpurity 0.1}, \Rcode{--minaf 0.01} (or
+                lower) and \Rcode{--error 0.0005} (or lower, when there is
+                UMI-based error correction)
+            \item[Amplicon data:] \Rcode{--model betabin} (Amplicon data is not
+                officially supported)
+        \end{description}
 \end{itemize}
 
 \subsection*{Run PureCN with third-party segmentation}
@@ -352,24 +385,36 @@ grep CALLABLE ${SAMPLEID}_callable_status.bed > \
 # Only count mutations in callable regions, also subtract what was ignored
 # in PureCN.R via --snpblacklist, like simple repeats, from the mutation per 
 # megabase calculation
-Rscript $PureCN/Dx.R --out . --rds ${SAMPLEID}.rds \
+# Also search for the COSMIC mutation signatures
+# (http://cancer.sanger.ac.uk/cosmic/signatures)
+Rscript $PureCN/Dx.R --out $OUT/$SAMPLEID/$SAMPLEID \
+    --rds $OUT/SAMPLEID/${SAMPLEID}.rds \
     --callable ${SAMPLEID}_callable_status_filtered.bed \
-    --exclude hg19_simpleRepeats.bed
+    --exclude hg19_simpleRepeats.bed \
+    --signatures
 
 # Restrict mutation burden calculation to coding sequences
 Rscript $PureCN/FilterCallableLoci.R --genome hg19 \
     --infile ${SAMPLEID}_callable_status_filtered.bed \
     --outfile ${SAMPLEID}_callable_status_filtered_cds.bed 
-
-# Also search for the COSMIC mutation signatures 
-# (http://cancer.sanger.ac.uk/cosmic/signatures) 
-Rscript $PureCN/Dx.R --out . --rds ${SAMPLEID}.rds \
-    --callable ${SAMPLEID}_callable_status_filtered_cds.bed \
-    --exclude hg19_simpleRepeats.bed \
-    --signatures
+ 
+Rscript $PureCN/Dx.R --out $OUT/$SAMPLEID/${SAMPLEID}_cds \
+    --rds $OUT/SAMPLEID/${SAMPLEID}.rds \
+    --callable ${SAMPLEID}_callable_status_filtered.bed \
+    --exclude hg19_simpleRepeats.bed
 \end{verbatim}
-\clearpage
 
+Important recommendations:
+
+\begin{itemize}
+    \item The \Rcode{--signatures} argument does not work well with small
+        numbers of somatic mutations; thus do not use it on CDS filtered 
+        data.  
+    \item Run GATK CallableLoci with \Rcode{--minDepth N} where N is roughly 
+        20\% of the mean target coverage of all samples.
+\end{itemize}
+
+\clearpage
 \section*{Reference}
 
 \begin{table*}
