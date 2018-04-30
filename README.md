@@ -27,11 +27,10 @@ For outdated R/Bioconductor versions, you can try backporting the latest stable
 version (this should work fine for Bioconductor 3.3 and later):
 
 ```
-biocLite("lima1/PureCN", ref="RELEASE_3_6")
+biocLite("lima1/PureCN", ref="RELEASE_3_7")
 ```
 
-If you want the latest and greatest from the developer branch (currently
-recommended for new users):
+If you want the latest and greatest from the developer branch:
 
 ```
 biocLite("lima1/PureCN")
