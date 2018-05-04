@@ -184,7 +184,9 @@ interval.padding = 50, DB.info.flag = "DB") {
         }    
     }
     
-    vcf <- .filterVcfByBQ(vcf, tumor.id.in.vcf, min.base.quality)
+    if (!is.null(min.base.quality) && min.base.quality > 0) {
+        vcf <- .filterVcfByBQ(vcf, tumor.id.in.vcf, min.base.quality)
+    }
 
     if (!is.null(target.granges)) {
         vcf <- .annotateVcfTarget(vcf, target.granges, interval.padding)
