@@ -4,10 +4,7 @@
 \alias{calculateGCContentByInterval}
 \title{Calculates GC content by interval}
 \usage{
-calculateGCContentByInterval(...)
-}
-\arguments{
-\item{...}{Arguments passed to \code{\link{preprocessIntervals}}.}
+calculateGCContentByInterval()
 }
 \description{
 This function was renamed to \code{\link{preprocessIntervals}}.

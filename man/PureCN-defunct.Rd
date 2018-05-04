@@ -11,8 +11,10 @@
   the replacement indicated below:
   \itemize{
     \item{autoCurateResults: no replacement}
+    \item{calculateGCContentByInterval: \code{\link{preprocessIntervals}}}
     \item{createExonWeightFile: \code{\link{createTargetWeights}}}
     \item{createSNPBlacklist: \code{\link{setMappingBiasVcf}}}
+    \item{findBestNormal: \code{\link{calculateTangentNormal}}}
     \item{getDiploid: no replacement}
     \item{plotBestNormal: no replacement}
     \item{readCoverageGatk: \code{\link{readCoverageFile}}}

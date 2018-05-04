@@ -68,7 +68,7 @@
 #'     fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))
 #' 
 #' @export segmentationCBS
-#' @importFrom stats t.test hclust cutree
+#' @importFrom stats t.test hclust cutree dist
 segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
     sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD =
         NULL, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,

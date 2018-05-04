@@ -124,12 +124,8 @@ preprocessIntervals <- function(interval.file, reference.file,
 #'
 #' This function was renamed to \code{\link{preprocessIntervals}}.
 #'
-#' @param ... Arguments passed to \code{\link{preprocessIntervals}}.
-#' 
-#' @export calculateGCContentByInterval
-calculateGCContentByInterval <- function(...) {
-    .Deprecated("preprocessIntervals")
-    preprocessIntervals(...)
+calculateGCContentByInterval <- function() {
+    .Defunct("preprocessIntervals")
 }    
 
 # this function removes short chromosomes that have no probes (mainly a

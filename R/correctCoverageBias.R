@@ -42,7 +42,7 @@ globalVariables(names=c("..level.."))
 #'             scale_alpha_continuous scale_y_sqrt geom_abline
 #'             coord_trans
 #' @importFrom gridExtra grid.arrange
-#' @importFrom stats loess lm
+#' @importFrom stats loess lm predict
 #' @importFrom utils write.table
 correctCoverageBias <- function(coverage.file, interval.file,
 output.file = NULL, plot.bias = FALSE, plot.max.density = 50000, 

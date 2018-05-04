@@ -11,7 +11,6 @@
   The following functions are deprecated and will be made defunct; use
   the replacement indicated below:
   \itemize{
-    \item{calculateGCContentByInterval: \code{\link{preprocessIntervals}}}
-    \item{findBestNormal: \code{\link{calculateTangentNormal}}}
+    \item{none}
   }
 }

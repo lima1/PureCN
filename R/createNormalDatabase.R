@@ -111,12 +111,13 @@ min.coverage = 0.25, max.missing = 0.03, low.coverage = 15, ...) {
     }
         
     list(
-        normal.coverage.files = normal.coverage.files, 
+        normal.coverage.files = normal.coverage.files,
+        intervals = as.character(normals[[1]]),
         groups = groups,
         intervals.used = intervals.used,
         sex = sex,
         low.coverage.targets = low.coverage.targets,
-        version = 5
+        version = 6
     )
 }
 

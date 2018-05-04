@@ -15,6 +15,7 @@ test_that("NormalDB of example data matches expectated values", {
 
     n <- lapply(normal.coverage.files, readCoverageFile)
     expect_equal(length(pool), length(n[[1]]))
+    expect_equal(as.character(n[[1]]), normalDB$intervals)
  })
 
 test_that("Provided sex is handled correctly", {

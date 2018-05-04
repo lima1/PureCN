@@ -37,7 +37,7 @@ test_that("skipping base quality works", {
     f1 <- filterVcfBasic(vcf, min.base.quality=NULL)
     f2 <- filterVcfBasic(vcf, min.base.quality=0)
     expect_equal(length(f1$vcf), length(f2$vcf))
-}
+})
 
 test_that("M2 VCF with POP_AF flag is annotated with DB flag", {
     # first check that the POP_AF field is parsed

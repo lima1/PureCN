@@ -4,53 +4,10 @@
 \alias{findBestNormal}
 \title{Find best normal sample in database}
 \usage{
-findBestNormal(tumor.coverage.file, normalDB, pcs = 1:3, num.normals = 1,
-  ignore.sex = FALSE, sex = NULL, normal.coverage.files = NULL,
-  pool = FALSE, pool.weights = c("voom", "equal"), plot.pool = FALSE, ...)
-}
-\arguments{
-\item{tumor.coverage.file}{Coverage file or data of a tumor sample.}
-
-\item{normalDB}{Database of normal samples, created with
-\code{\link{createNormalDatabase}}.}
-
-\item{pcs}{Principal components to use for distance calculation.}
-
-\item{num.normals}{Return the \code{num.normals} best normals.}
-
-\item{ignore.sex}{If \code{FALSE}, detects sex of sample and returns best
-normals with matching sex.}
-
-\item{sex}{Sex of sample. If \code{NULL}, determine with
-\code{\link{getSexFromCoverage}} and default parameters. Valid values are
-\code{F} for female, \code{M} for male. If all chromosomes are diploid,
-specify \code{diploid}.}
-
-\item{normal.coverage.files}{Only consider these normal samples. If
-\code{NULL}, use all in the database. Must match
-\code{normalDB$normal.coverage.files}.}
-
-\item{pool}{If \code{TRUE}, use \code{\link{poolCoverage}} to pool best
-normals.}
-
-\item{pool.weights}{Either find good pooling weights by optimization or
-weight all best normals equally.}
-
-\item{plot.pool}{Allows the pooling function to create plots.}
-
-\item{\dots}{Additional arguments passed to \code{\link{poolCoverage}}.}
-}
-\value{
-Filename of the best matching normal.
+findBestNormal()
 }
 \description{
 Function to find the best matching normal for a provided tumor sample.
-This function is deprecated and most features are not relevant with
-the replacement function \code{\link{calculateTangentNormal}}.
-}
-\seealso{
-\code{\link{createNormalDatabase} \link{getSexFromCoverage}}
-}
-\author{
-Markus Riester
+This function is defunct and replaced by
+\code{\link{calculateTangentNormal}}.
 }
