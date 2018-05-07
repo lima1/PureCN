@@ -4,6 +4,7 @@
 #' This function is defunct and replaced by
 #' \code{\link{calculateTangentNormal}}.
 #' 
+#' @export findBestNormal
 findBestNormal <- function() {
     .Defunct("calculateTangentNormal")
 }

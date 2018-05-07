@@ -76,6 +76,8 @@ preprocessIntervals <- function(interval.file, reference.file,
         interval.gr <- readCoverageFile(interval.file)
     }
     if (is.null(interval.gr$on.target)) interval.gr$on.target <- TRUE    
+
+    interval.gr <- unstrand(interval.gr)
     
     # make sure the chromsome naming style is the same in all provided files
     # be nice and fix it if necessary
@@ -124,6 +126,7 @@ preprocessIntervals <- function(interval.file, reference.file,
 #'
 #' This function was renamed to \code{\link{preprocessIntervals}}.
 #'
+#' @export calculateGCContentByInterval
 calculateGCContentByInterval <- function() {
     .Defunct("preprocessIntervals")
 }    
