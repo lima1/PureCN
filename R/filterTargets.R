@@ -100,7 +100,7 @@ filterTargets <- function(normal, tumor, log.ratio, seg.file,
         !length(normalDB$normal.coverage.files)) {
         .stopUserError("normalDB appears to be empty.")
     }    
-    intervals <- normalDB$intervals
+    intervals <- normalDB[["intervals"]]
     # TODO remove in PureCN 1.14 
     if (is.null(intervals)) {
         intervals <- as.character(readCoverageFile(normalDB$normal.coverage.files[1]))
