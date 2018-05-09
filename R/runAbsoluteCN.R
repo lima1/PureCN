@@ -566,7 +566,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         snv.lr <- seg$seg.mean[ov]
         ov.vcfexon <- findOverlaps(vcf, tumor)
         snv.lr[queryHits(ov.vcfexon)] <- log.ratio[subjectHits(ov.vcfexon)]
-        if (sum(is.na(snv.lr)) > 0) {
+        if (anyNA(snv.lr)) {
             n.vcf.before.filter <- nrow(vcf)
             vcf <- vcf[!is.na(snv.lr)]
             mapping.bias$bias <- mapping.bias$bias[!is.na(snv.lr)]

@@ -105,6 +105,10 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         start.var <- start(vcf)[!idx]
         tmp[!idx][!is.na(near)] <- sapply(which(!is.na(near)), function(i) .extractBias(near[i], start.var[i]))
     }
+    if (anyNA(tmp)) {
+        flog.warn("Could not impute mapping bias for all variants. Did you use calculateMappingBiasVcf?")
+        tmp[is.na(tmp)] <- 1
+    }
     tmp[tmp > max.bias] <- max.bias
     return(list(bias = tmp, pon.count = ponCnt))
 }
