@@ -434,7 +434,7 @@ Argument name   & Corresponding PureCN argument & PureCN function \\
 --mappability   & mappability   & \Rfunction{preprocessIntervals} \\
 --minmappability & min.mappability   & \Rfunction{preprocessIntervals} \\
 --reptiming     & reptiming   & \Rfunction{preprocessIntervals} \\
---reptimingbinsize &    &  \\
+--reptimingwidth & average.reptiming.width & \Rfunction{preprocessIntervals}  \\
 --genome        & txdb, org & \Rfunction{annotateTargets} \\
 --outfile       & & \\
 --export        & & \Rfunction{rtracklayer::export}  \\

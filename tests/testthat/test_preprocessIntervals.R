@@ -69,8 +69,11 @@ test_that("reptiming annotated correctly", {
     reptiming <- import(reptiming.file)
     intervals <- import(bed.file)
     gr <- preprocessIntervals(intervals, reference.file, 
-        reptiming = reptiming)
+        reptiming = reptiming, average.reptiming.width = NULL)
     expect_equal(c(17.5, 11.0, 50, 10.0, 10.0), gr$reptiming)
+    gr <- preprocessIntervals(intervals, reference.file, 
+        reptiming = reptiming, average.reptiming.width = 200)
+    expect_equal(c((12.5+15)/2, (15+12+0)/3, 65, 10.0, 10.0), gr$reptiming)
 })
 
 test_that("long targets are split correctly", {

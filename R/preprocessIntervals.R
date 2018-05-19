@@ -29,6 +29,8 @@
 #' treated differently. Requires \code{mappability}.
 #' @param reptiming Annotate intervals with replication timing score. Expected as 
 #' \code{GRanges} object with first meta column being the score. 
+#' @param average.reptiming.width Tile \code{reptiming} into bins of specified
+#' width. 
 #' @param exclude Any target that overlaps with this \code{GRanges} object
 #' will be excluded. 
 #' @param off.target.seqlevels Controls how to deal with chromosomes/contigs
@@ -54,12 +56,13 @@
 #'     output.file="gc_file.txt")
 #' 
 #' @export preprocessIntervals
-#' @importFrom rtracklayer import
-#' @importFrom Biostrings letterFrequency
 #' @importFrom BiocGenerics unstrand
-#' @importFrom stats aggregate
+#' @importFrom Biostrings letterFrequency
+#' @importFrom GenomeInfoDb seqlengths seqlevelsInUse seqlevels<-
+#' @importFrom GenomicRanges tileGenome
 #' @importFrom S4Vectors mcols
-#' @importFrom GenomeInfoDb seqlevelsInUse seqlengths seqlevels<-
+#' @importFrom rtracklayer import
+#' @importFrom stats aggregate
 preprocessIntervals <- function(interval.file, reference.file,
                                 output.file = NULL, off.target = FALSE,
                                 average.target.width = 400,
@@ -67,7 +70,9 @@ preprocessIntervals <- function(interval.file, reference.file,
                                 average.off.target.width = 200000,
                                 off.target.padding = -500, mappability = NULL,
                                 min.mappability = c(0.5, 0.1, 0.7), 
-                                reptiming = NULL, exclude = NULL,
+                                reptiming = NULL,
+                                average.reptiming.width = 100000,
+                                exclude = NULL,
                                 off.target.seqlevels=c("targeted", "all")) {
 
     if (class(interval.file)=="GRanges") {
@@ -87,7 +92,10 @@ preprocessIntervals <- function(interval.file, reference.file,
         mappability <- .remove0MappabilityRegions(mappability)
     }
     if (!is.null(reptiming)) {
-        reptiming <- .checkSeqlevelStyle(scanFaIndex(reference.file), reptiming, "reptiming")
+        reptiming <- .checkSeqlevelStyle(scanFaIndex(reference.file), reptiming, 
+                                         "reptiming")
+        reptiming <- .tileReptiming(seqinfo(scanFaIndex(reference.file)), 
+                                    reptiming, average.reptiming.width)
     }
      
     containsOfftarget <- sum(interval.gr$on.target)!=length(interval.gr)
@@ -304,3 +312,14 @@ calculateGCContentByInterval <- function() {
     }        
     x
 }       
+.tileReptiming <- function(seqinfo.ref, reptiming, average.reptiming.width) {
+    if (is.null(average.reptiming.width) || average.reptiming.width <= 1) {
+        return(reptiming)
+    }
+    flog.info("Averaging reptiming into bins of size %i...", average.reptiming.width)
+    bins <- tileGenome(seqinfo.ref, tilewidth = average.reptiming.width, 
+        cut.last.tile.in.chrom = TRUE)
+    reptiming <- .addScoreToGr(bins, reptiming, "score")
+    reptiming <- reptiming[!is.na(score(reptiming))]
+}
+

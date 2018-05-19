@@ -28,7 +28,7 @@ option_list <- list(
         help = "Minimum mappability for on-target, off-target and chrY regions [default %default]"),
     make_option(c("--reptiming"), action = "store", type = "character", default = NULL,
         help = "File parsable by rtracklayer specifying replication timing scores of genomic regions."),
-    make_option(c("--reptimingbinsize"), action = "store", type = "integer", default = 100000,
+    make_option(c("--reptimingwidth"), action = "store", type = "integer", default = 100000,
         help = "Average the replication timing data into bins of the specified size [default %default]"),
     make_option(c("--genome"), action = "store", type = "character", 
         default = NULL,
@@ -115,13 +115,6 @@ if (!is.null(reptiming)) {
     reptiming <- normalizePath(reptiming, mustWork = TRUE)
     flog.info("Loading %s...", reptiming)
     reptiming <- import(reptiming)
-    if (opt$reptimingbinsize > 0) {
-        flog.info("Averaging reptiming into bins of size %i...", opt$reptimingbinsize)
-        bins <- tileGenome(seqinfoRef, tilewidth = opt$reptimingbinsize, 
-            cut.last.tile.in.chrom=TRUE)
-        reptiming <- PureCN:::.addScoreToGr(bins, reptiming, "score")
-        reptiming <- reptiming[!is.na(score(reptiming))]
-    }
 }
 
 if (!opt$offtarget) {
@@ -135,7 +128,8 @@ outGC <- preprocessIntervals(intervals, reference.file,
     output.file = outfile, off.target = opt$offtarget,
     mappability = mappability, min.mappability = min.mappability,
     average.off.target.width = opt$offtargetwidth,
-    reptiming = reptiming, off.target.seqlevels = opt$offtargetseqlevels,
+    reptiming = reptiming, average.reptiming.width = opt$reptimingwidth,
+    off.target.seqlevels = opt$offtargetseqlevels,
     exclude = exclude, average.target.width = opt$targetwidth)
 
 knownGenome <- list(

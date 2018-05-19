@@ -1,3 +1,12 @@
+Changes in version 1.12.0
+-------------------------
+
+    
+API CHANGES
+
+    o renamed reptimingbinsize to reptimingwidth in IntervalFile.R, added
+      this feature to preprocessIntervals.
+
 Changes in version 1.10.0
 -------------------------
 
