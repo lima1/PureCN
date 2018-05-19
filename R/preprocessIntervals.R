@@ -228,17 +228,30 @@ calculateGCContentByInterval <- function() {
     .addScoreToGr(interval.gr, reptiming, "reptiming")
 }
 
+.checkColScore <- function(y, label) {
+    colScore <- if (is.null(y$score)) 1 else "score"
+    if (class(mcols(y)[, colScore]) != "numeric") {
+        flog.warn("Score column in %s file is not numeric.", label)
+        class(mcols(y)[, colScore]) <- "numeric"
+    }
+    y
+}
+.getColScore <- function(y) {
+    colScore <- if (is.null(y$score)) 1 else "score"
+}
 .addScoreToGr <- function(interval.gr, y, label) {
     mcols(interval.gr)[[label]] <- NA
     if (!is.null(y)) {
+        y <- .checkColScore(y, label)
         ov <- findOverlaps(interval.gr, y)
-        colScore <- if (is.null(y$score)) 1 else "score"
+        colScore <- .getColScore(y)
+
         mappScore <- aggregate(mcols(y)[subjectHits(ov),colScore], by=list(queryHits(ov)), mean)
         mcols(interval.gr)[[label]][mappScore[,1]] <- mappScore[,2]
         idxNA <- is.na(mcols(interval.gr)[[label]])
 
         if (sum(idxNA)) {
-            flog.warn("%i intervals without mapping score.", sum(idxNA))
+            flog.warn("%i intervals without score.", sum(idxNA))
             mcols(interval.gr)[[label]][idxNA] <- 0
         }    
     } else {
@@ -278,7 +291,8 @@ calculateGCContentByInterval <- function() {
 }
 
 .remove0MappabilityRegions <- function(mappability) {
-    colScore <- if (is.null(mappability$score)) 1 else "score"
+    mappability <- .checkColScore(mappability, "mappability")
+    colScore <- .getColScore(mappability)
     mappability[which(mcols(mappability)[, colScore]>0),]
 }
         

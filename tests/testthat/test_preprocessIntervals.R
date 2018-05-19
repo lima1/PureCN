@@ -110,6 +110,14 @@ test_that("Offtarget settings work as expected", {
         mappability = mappability)
     expect_equal(gcMap$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
 
+    mappability4 <- mappability
+    mappability4$name <- as.character(mappability$score)
+    mappability4$score <- NULL
+    expect_output( gcMap <- preprocessIntervals(intervals, reference.file, 
+                                            mappability = mappability4), 
+                  "not numeric")
+    expect_equal(gcMap$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
+
     expect_output(gcMap <- preprocessIntervals(intervals, reference.file,
         mappability = mappability, min.mappability=c(1,1,1)),
         "Removing 1 targets with low mappability score")
@@ -157,7 +165,6 @@ test_that("Offtarget settings work as expected", {
     expect_equal(x$gc_bias, c(0.4533333, 0.5057143, 0.5733333, 
         0.48, 0.36), tolerance = 0.001)
     expect_equal(x$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
-
 })
 
 file.remove(output.file)
