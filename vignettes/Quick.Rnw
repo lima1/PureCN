@@ -266,10 +266,13 @@ Important recommendations:
 
 \begin{itemize}
     \item Even if matched normals are available, it is often better to use the
-        normal database for coverage normalization
+        normal database for coverage normalization. \textbf{When a matched 
+        normal coverage is provided with} \Rcode{--normal} \textbf{then the
+        pool of normal coverage normalization and denoising steps are skipped!}
 
-    \item Providing the normal database in addition to a matched normal is
-        optional, but helps ignoring low quality regions in the segmentation
+    \item Always provide the normal coverage database to ignore low quality
+        regions in the segmentation and to increase the sensitivity for homozygous
+        deletions in high purity samples.
 
     \item The normal panel VCF file is useful for mapping bias correction and
         especially recommended without matched normals. See the FAQ of the main

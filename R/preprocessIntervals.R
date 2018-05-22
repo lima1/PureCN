@@ -246,12 +246,17 @@ calculateGCContentByInterval <- function() {
         ov <- findOverlaps(interval.gr, y)
         colScore <- .getColScore(y)
 
-        mappScore <- aggregate(mcols(y)[subjectHits(ov),colScore], by=list(queryHits(ov)), mean)
+        mappScore <- aggregate(mcols(y)[subjectHits(ov),colScore], 
+            by=list(queryHits(ov)), mean)
         mcols(interval.gr)[[label]][mappScore[,1]] <- mappScore[,2]
         idxNA <- is.na(mcols(interval.gr)[[label]])
 
         if (sum(idxNA)) {
-            flog.warn("%i intervals without score.", sum(idxNA))
+            if (!is.null(interval.gr$on.target)) {
+                sumOntarget <- sum(idxNA & interval.gr$on.target, na.rm = TRUE)
+                flog.warn("%i intervals without %s score (%i on-target).", 
+                    sum(idxNA), label, sumOntarget)
+            }
             mcols(interval.gr)[[label]][idxNA] <- 0
         }    
     } else {

@@ -1018,7 +1018,8 @@ Column name & Description \\
 VCF and \Rfunction{runAbsoluteCN} arguments, this might include calls in 
 flanking regions and off-targets reads.  \\
 \Rcode{private.germline.ontarget} & Number of private germline SNPs in 
-targets \\
+targets. For matched tumor/normal samples, this is the number of variants
+annotated as somatic, but classified as germline.  \\
 \Rcode{private.germline.all} & Total number of private germline SNPs \\
 \Rcode{callable.bases.ontarget} & Number of callable on-target bases \\
 \Rcode{callable.bases.flanking} & Number of callable on-target and 
