@@ -425,10 +425,17 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     log.ratio <- log.ratio[targetsUsed]
     flog.info("Using %i intervals (%i on-target, %i off-target).", length(tumor), 
         sum(tumor$on.target, na.rm=TRUE), sum(!tumor$on.target, na.rm=TRUE))
-
+    
     if (!sum(!tumor$on.target, na.rm=TRUE)) {
         flog.info("No off-target intervals. If this is hybrid-capture data,%s",
             " consider adding them.")
+    } else {
+         flog.info("Ratio of mean on-target vs. off-target reads: %.2f",  
+            mean(tumor$counts[tumor$on.target], na.rm = TRUE) /
+            mean(tumor$counts[!tumor$on.target], na.rm = TRUE)) 
+         
+         flog.info("Median off-target bin size: %i",
+            median(width(tumor[!tumor$on.target])))
     }
     if (smooth.log.ratio) {
         CNA.obj <- smooth.CNA(
