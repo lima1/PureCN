@@ -184,10 +184,6 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
 Important recommendations:
 
 \begin{itemize}
-    \item The resulting \Rcode{normalDB\_hg19.rds} file contains absolute paths
-    to the coverage files. It is thus necessary to re-run this command when the
-    coverage files are moved.
-
     \item Consider generating different databases when differences are
     significant, e.g. for samples with different read lengths or insert size
     distributions

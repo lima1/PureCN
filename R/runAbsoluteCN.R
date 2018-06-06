@@ -434,8 +434,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             mean(tumor$counts[tumor$on.target], na.rm = TRUE) /
             mean(tumor$counts[!tumor$on.target], na.rm = TRUE)) 
          
-         flog.info("Median off-target bin size: %i",
-            median(width(tumor[!tumor$on.target])))
+         flog.info("Mean off-target bin size: %.0f",
+            mean(width(tumor[!tumor$on.target]), na.rm = TRUE))
     }
     if (smooth.log.ratio) {
         CNA.obj <- smooth.CNA(

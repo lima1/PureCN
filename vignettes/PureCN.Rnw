@@ -1439,7 +1439,11 @@ for artifact filtering. A few recommendations:
         the default in the \Rcode{model} argument of \Rfunction{runAbsoluteCN}.
         This will incorporate uncertainty of observed variant allelic fractions
         in the variant fitting step.
-
+    
+    \item \textit{Do I really need a pool of normals? I only have tumor samples.}
+        Unfortunately, yes. If you used a commercial capture kit, you might be
+        able to obtain control samples from the vendor or the public domain.
+        This is not optimal, but usually better than nothing. 
 \end{itemize}
 
 \paragraph{Questions related to manual curation.}
