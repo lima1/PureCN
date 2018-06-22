@@ -25,7 +25,6 @@ globalVariables(names=c("..level.."))
 #' estimation is applied. If the \code{plot.bias} parameter is set as
 #' \code{FALSE}, this will be ignored.
 #' @param output.qc.file Write miscellaneous coverage QC metrics to file.
-#' @param gc.gene.file Deprecated and renamed to \code{interval.file}.
 #' @author Angad Singh, Markus Riester
 #' @seealso \code{\link{preprocessIntervals}}
 #' @examples
@@ -46,7 +45,7 @@ globalVariables(names=c("..level.."))
 #' @importFrom utils write.table
 correctCoverageBias <- function(coverage.file, interval.file,
 output.file = NULL, plot.bias = FALSE, plot.max.density = 50000, 
-output.qc.file = NULL, gc.gene.file = NULL) {
+output.qc.file = NULL) {
 
     if (is.character(coverage.file)) {
         raw  <- readCoverageFile(coverage.file)
@@ -54,12 +53,6 @@ output.qc.file = NULL, gc.gene.file = NULL) {
         raw <- coverage.file
     }    
     
-    # TODO Remove in 1.12
-    if (!is.null(gc.gene.file)) {
-        flog.warn("gc.gene.file was renamed to interval.file.")
-        if (is.null(interval.file)) interval.file <-gc.gene.file
-    }
-
     if (max(raw$average.coverage[raw$on.target], na.rm = TRUE) <= 0) {
         .stopUserError("Provided coverage is zero, most likely due to a corrupt BAM file.")
     }

@@ -394,7 +394,7 @@ min.coverage, max.missing) {
     nAfter <- sum(intervals.used)
 
     if (nAfter < nBefore) {
-        flog.info("Removing %i targets with low coverage in normalDB.", 
+        flog.info("Removing %i intervals with low coverage in normalDB.", 
             nBefore-nAfter)
     }
 
@@ -404,7 +404,7 @@ min.coverage, max.missing) {
     nAfter <- sum(intervals.used)
 
     if (nAfter < nBefore) {
-        flog.info("Removing %i targets with zero coverage in more than %.0f%% of normalDB.", 
+        flog.info("Removing %i intervals with zero coverage in more than %.0f%% of normalDB.", 
             nBefore-nAfter, max.missing*100)
     }
 

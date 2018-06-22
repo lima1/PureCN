@@ -105,6 +105,8 @@ test_that("Exceptions happen with incorrect input data", {
     expect_error(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
         genome = "hg19", iterations = 3000),
         "Iterations not in the expected range from")
+    expect_error(runAbsoluteCN(normal.coverage.file=normal.coverage.file), 
+        "Missing tumor")
     expect_error(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
         genome = "hg19", model.homozygous = NULL), "model.homozygous")
     normalCov <- readCoverageFile(normal.coverage.file)
@@ -168,9 +170,11 @@ test_that("Missing Gene column in interval.file is handled correctly", {
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
         interval.file = output.file, model.homozygous = TRUE, tumor.coverage.file = tumor.coverage.file, 
         candidates = purecn.example.output$candidates, 
-        min.ploidy = 1.4, max.ploidy = 2.4, vcf.file = vcf.file, 
+        min.ploidy = 2.2, max.ploidy = 4, vcf.file = vcf.file, 
         genome = "hg19", test.purity = seq(0.4, 0.7, by = 0.05), 
         max.candidate.solutions = 1)
+    expect_true(ret$results[[1]]$ploidy <= 4)
+    expect_true(ret$results[[1]]$ploidy >= 2)
     expect_true(is.na(ret$results[[1]]$gene.calls))
     expect_error(callAlterations(ret), "requires gene-level calls")
     rvcf <- predictSomatic(ret, return.vcf=TRUE)
@@ -344,14 +348,6 @@ test_that("Betabin model runs with example data", {
         cosmic.vcf.file = cosmic.vcf.file, model = "betabin", 
         test.purity = seq(0.4, 0.7, by = 0.05))
     expect_equal(0.65, ret$results[[1]]$purity, tol=0.1)
-})
-
-test_that("max.ploidy works", {
-    ret <- runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
-        min.ploidy = 2.2, max.ploidy = 4, genome = "hg19", test.purity = seq(0.4, 
-            0.7, by = 0.05), plot.cnv = FALSE, max.candidate.solutions = 1)
-    expect_true(ret$results[[1]]$ploidy <= 4)
-    expect_true(ret$results[[1]]$ploidy >= 2)
 })
 
 test_that("normalDB objects are used correctly", {

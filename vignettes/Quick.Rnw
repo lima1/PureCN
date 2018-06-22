@@ -88,8 +88,17 @@ The \Rcode{--mappability} argument should provide a \Biocpkg{rtracklayer}
 parsable file with a mappability score in the first meta data column. If
 provided, off-target regions will be restricted to regions specified in this
 file.  On-target regions with low mappability will be excluded. For hg19,
-download the file from the UCSC website. See the FAQ section of the main
-vignette for instruction how to generate such a file for other references.
+download the file from the UCSC website. Choose the kmer size that best fits
+your average mapped read length. For hg38, download recommended 76-kmer or
+100-kmer mappability files through the courtesy of the Waldron lab from: 
+
+\begin{itemize}
+\item \url{https://s3.amazonaws.com/purecn/GCA\_000001405.15\_GRCh38\_no\_alt\_analysis\_set\_76.bw}
+\item \url{https://s3.amazonaws.com/purecn/GCA\_000001405.15\_GRCh38\_no\_alt\_analysis\_set\_100.bw}
+\end{itemize}
+
+See the FAQ section of the main vignette for instruction how to generate such a
+file for other references.
 
 Similarly, the \Rcode{--reptiming} argument takes a replication timing score in
 the same format.  If provided, GC-normalized and log-transformed coverage is

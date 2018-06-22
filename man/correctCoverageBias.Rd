@@ -5,8 +5,7 @@
 \title{Correct for library-specific coverage biases}
 \usage{
 correctCoverageBias(coverage.file, interval.file, output.file = NULL,
-  plot.bias = FALSE, plot.max.density = 50000, output.qc.file = NULL,
-  gc.gene.file = NULL)
+  plot.bias = FALSE, plot.max.density = 50000, output.qc.file = NULL)
 }
 \arguments{
 \item{coverage.file}{Coverage file or coverage data parsed with the
@@ -31,8 +30,6 @@ estimation is applied. If the \code{plot.bias} parameter is set as
 \code{FALSE}, this will be ignored.}
 
 \item{output.qc.file}{Write miscellaneous coverage QC metrics to file.}
-
-\item{gc.gene.file}{Deprecated and renamed to \code{interval.file}.}
 }
 \description{
 Takes as input coverage data and a mapping file for GC content and 

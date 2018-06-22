@@ -160,7 +160,6 @@
 #' First column in format CHR:START-END. Second column GC content (0 to 1).
 #' Third column gene symbol. This file is generated with the
 #' \code{\link{preprocessIntervals}} function.
-#' @param gc.gene.file Deprecated and renamed to \code{interval.file}.
 #' @param max.dropout Measures GC bias as ratio of coverage in AT-rich (GC <
 #' 0.5) versus GC-rich on-target regions (GC >= 0.5). High drop-out might 
 #' indicate that  data was not GC-normalized or that the sample quality might 
@@ -281,7 +280,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     non.clonal.M = 1/3, max.mapping.bias = 0.8, max.pon = 3, iterations = 30, 
     min.variants.segment = 5, log.ratio.calibration = 0.1, smooth.log.ratio = TRUE, 
     model.homozygous = FALSE, error = 0.001,
-    interval.file = NULL, gc.gene.file = NULL, max.dropout = c(0.95, 1.1), 
+    interval.file = NULL, max.dropout = c(0.95, 1.1), 
     min.logr.sdev = 0.15, max.logr.sdev = 0.6, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
     cosmic.vcf.file = NULL, DB.info.flag = "DB", model = c("beta", "betabin"),
@@ -290,12 +289,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
 
     if (!verbose) flog.threshold("WARN")
     if (!is.null(log.file)) flog.appender(appender.tee(log.file))
-
-    # TODO Remove in 1.12
-    if (!is.null(gc.gene.file)) {
-        flog.warn("gc.gene.file was renamed to interval.file.")
-        if (is.null(interval.file)) interval.file <-gc.gene.file
-    }
 
      # log function arguments     
     try(.logHeader(as.list(match.call())[-1]), silent=TRUE)

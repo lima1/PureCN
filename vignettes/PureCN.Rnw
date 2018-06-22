@@ -1039,7 +1039,7 @@ default parameters includes off-target regions that were ignored by
 \end{table*}
 
 \subsection{Detect cross-sample contamination}
-
+\label{seccontamination}
 It is important to correctly handle heterozygous common SNPs that do not have an
 expected allelic fraction of 0.5 in normal samples. These can be SNPs in poor
 quality regions (as already described, see
@@ -1157,9 +1157,11 @@ please post them at
 \end{itemize}
 
 If \Biocpkg{PureCN} throws user errors, then there is likely a problem with the
-input files.  If the error message is not self-explanatory, feel free to
-seek help at the support site. In your report, please add the outputs of the
-\Rfunction{runAbsoluteCN} call (with \Rcode{verbose=TRUE}) and
+input files.  If the error message is not self-explanatory, feel free to seek
+help at the support site. 
+
+In your report, please add the outputs of the \Rfunction{runAbsoluteCN} call
+(with \Rcode{verbose=TRUE}, or the \Rcode{*.log} file in PureCN.R) and
 \Rfunction{sessionInfo()}. Please also check that your problem is not already
 covered in the following sections.
 
@@ -1496,6 +1498,10 @@ approach:
     be issues with either the target intervals or the provided GC content.
     Please double check that all files are correct and that all the coverage
     files are GC-normalized (Section~\ref{secgcbias}).
+    \item[Sex mismatch of coverage and VCF:] If the panel contains baits for
+    chromosome Y, then the interval file was probably generated without 
+    mappability file (Section~\ref{sectargetinfo}). Cross-sample contamination
+    (Section~\ref{seccontamination}) can also cause sex mismatches.
 \end{description}
 
 \appendix

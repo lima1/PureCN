@@ -165,9 +165,16 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
 .adjustEmpBayes <- function(x) {
     # get all SNPs without dramatic bias
     xg <- x[, x[4, ] > 0.4]
-    # calculate the average number of ref and alt reads per sample
-    shape1 <- sum(xg[1, ]) / sum(xg[3, ])
-    shape2 <- sum(xg[2, ]) / sum(xg[3, ])
+    if (ncol(xg) < 2) {
+        flog.warn("All SNPs in the database have significant mapping bias!%s",
+            " Check your database.")
+        shape1 <- 0
+        shape2 <- 0
+    } else {   
+        # calculate the average number of ref and alt reads per sample
+        shape1 <- sum(xg[1, ]) / sum(xg[3, ])
+        shape2 <- sum(xg[2, ]) / sum(xg[3, ])
+    }
     # add those as empirical bayes estimate to all SNPs
     x[1, ] <- x[1, ] + shape1
     x[2, ] <- x[2, ] + shape2

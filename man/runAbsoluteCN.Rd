@@ -22,12 +22,12 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   max.mapping.bias = 0.8, max.pon = 3, iterations = 30,
   min.variants.segment = 5, log.ratio.calibration = 0.1,
   smooth.log.ratio = TRUE, model.homozygous = FALSE, error = 0.001,
-  interval.file = NULL, gc.gene.file = NULL, max.dropout = c(0.95, 1.1),
-  min.logr.sdev = 0.15, max.logr.sdev = 0.6, max.segments = 300,
-  min.gof = 0.8, plot.cnv = TRUE, cosmic.vcf.file = NULL,
-  DB.info.flag = "DB", model = c("beta", "betabin"),
-  post.optimize = FALSE, speedup.heuristics = 2, BPPARAM = NULL,
-  log.file = NULL, verbose = TRUE)
+  interval.file = NULL, max.dropout = c(0.95, 1.1), min.logr.sdev = 0.15,
+  max.logr.sdev = 0.6, max.segments = 300, min.gof = 0.8,
+  plot.cnv = TRUE, cosmic.vcf.file = NULL, DB.info.flag = "DB",
+  model = c("beta", "betabin"), post.optimize = FALSE,
+  speedup.heuristics = 2, BPPARAM = NULL, log.file = NULL,
+  verbose = TRUE)
 }
 \arguments{
 \item{normal.coverage.file}{Coverage file of normal control (optional
@@ -226,8 +226,6 @@ to each exon in the coverage files. Used for generating gene-level calls.
 First column in format CHR:START-END. Second column GC content (0 to 1).
 Third column gene symbol. This file is generated with the
 \code{\link{preprocessIntervals}} function.}
-
-\item{gc.gene.file}{Deprecated and renamed to \code{interval.file}.}
 
 \item{max.dropout}{Measures GC bias as ratio of coverage in AT-rich (GC <
 0.5) versus GC-rich on-target regions (GC >= 0.5). High drop-out might 
