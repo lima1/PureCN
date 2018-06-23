@@ -66,13 +66,15 @@
 #' @param fun.setMappingBiasVcf Function to set mapping bias for each variant
 #' in the VCF. Defaults to \code{\link{setMappingBiasVcf}}.
 #' @param args.setMappingBiasVcf Arguments for mapping bias function.
-#' @param fun.filterTargets Function for filtering low-quality targets in the
+#' @param fun.filterIntervals Function for filtering low-quality intervals in the
 #' coverage files. Needs to return a \code{logical} vector whether an interval
-#' should be used for segmentation. Defaults to \code{\link{filterTargets}}.
-#' @param args.filterTargets Arguments for target filtering function. Arguments
+#' should be used for segmentation. Defaults to \code{\link{filterIntervals}}.
+#' @param fun.filterTargets Deprecated.
+#' @param args.filterIntervals Arguments for target filtering function. Arguments
 #' \code{normal}, \code{tumor}, \code{log.ratio},  
 #' \code{min.coverage}\code{seg.file} and \code{normalDB} are required and 
 #' automatically set. 
+#' @param args.filterTargets Deprecated.
 #' @param fun.segmentation Function for segmenting the copy number log-ratios.
 #' Expected return value is a \code{data.frame} representation of the
 #' segmentation. Defaults to \code{\link{segmentationCBS}}.
@@ -269,7 +271,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     fun.filterVcf = filterVcfMuTect, args.filterVcf = list(), 
     fun.setPriorVcf = setPriorVcf, args.setPriorVcf = list(), 
     fun.setMappingBiasVcf = setMappingBiasVcf, args.setMappingBiasVcf = list(), 
-    fun.filterTargets = filterTargets, args.filterTargets = list(), 
+    fun.filterIntervals = filterIntervals, args.filterIntervals = list(),
+    fun.filterTargets = NULL, args.filterTargets = NULL,
     fun.segmentation = segmentationCBS, args.segmentation = list(), 
     fun.focal = findFocal, args.focal = list(), 
     sampleid = NULL, min.ploidy = 1, max.ploidy = 6, test.num.copy = 0:7, 
@@ -289,7 +292,14 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
 
     if (!verbose) flog.threshold("WARN")
     if (!is.null(log.file)) flog.appender(appender.tee(log.file))
-
+    
+    # TODO Remove in 1.14.0
+    if (!is.null(fun.filterTargets)) {
+        flog.warn("fun.filterTargets was renamed to fun.filterIntervals.")
+    }    
+    if (!is.null(args.filterTargets)) {
+        flog.warn("args.filterTargets was renamed to args.filterIntervals.")
+    }
      # log function arguments     
     try(.logHeader(as.list(match.call())[-1]), silent=TRUE)
 
@@ -394,28 +404,28 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         tumor <- .addGCData(tumor, interval.file)
     }
     
-    args.filterTargets <- c(list(normal=normal, tumor = tumor, 
+    args.filterIntervals <- c(list(normal=normal, tumor = tumor, 
         log.ratio = log.ratio, seg.file = seg.file, 
-        normalDB = normalDB), args.filterTargets)
+        normalDB = normalDB), args.filterIntervals)
     # make it possible to provide different coverages for the different
     # filters 
-    if (is.null(args.filterTargets$min.coverage)) {
-        args.filterTargets$min.coverage <- min.coverage
+    if (is.null(args.filterIntervals$min.coverage)) {
+        args.filterIntervals$min.coverage <- min.coverage
     }
     
-    targetsUsed <- do.call(fun.filterTargets, 
-        .checkArgs(args.filterTargets, "filterTargets"))
+    intervalsUsed <- do.call(fun.filterIntervals, 
+        .checkArgs(args.filterIntervals, "filterIntervals"))
     
     # chr.hash is an internal data structure, so we need to do this separately.
-    targetsUsed <- .filterTargetsChrHash(targetsUsed, tumor, chr.hash)
-    targetsUsed <- which(targetsUsed)
+    intervalsUsed <- .filterIntervalsChrHash(intervalsUsed, tumor, chr.hash)
+    intervalsUsed <- which(intervalsUsed)
     if (length(tumor) != length(normal) || 
         length(tumor) != length(log.ratio)) {
         .stopRuntimeError("Mis-aligned coverage data.")
     }
-    tumor <- tumor[targetsUsed, ]
-    normal <- normal[targetsUsed, ]
-    log.ratio <- log.ratio[targetsUsed]
+    tumor <- tumor[intervalsUsed, ]
+    normal <- normal[intervalsUsed, ]
+    log.ratio <- log.ratio[intervalsUsed]
     flog.info("Using %i intervals (%i on-target, %i off-target).", length(tumor), 
         sum(tumor$on.target, na.rm=TRUE), sum(!tumor$on.target, na.rm=TRUE))
     
@@ -423,9 +433,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         flog.info("No off-target intervals. If this is hybrid-capture data,%s",
             " consider adding them.")
     } else {
-         flog.info("Ratio of mean on-target vs. off-target reads: %.2f",  
+         flog.info("Ratio of mean on-target vs. off-target read counts: %.2f",  
             mean(tumor$counts[tumor$on.target], na.rm = TRUE) /
-            mean(tumor$counts[!tumor$on.target], na.rm = TRUE)) 
+            mean(tumor$counts[!tumor$on.target], na.rm = TRUE))
          
          flog.info("Mean off-target bin size: %.0f",
             mean(width(tumor[!tumor$on.target]), na.rm = TRUE))
@@ -1031,7 +1041,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             sex = sex, sex.vcf = sex.vcf, chr.hash = chr.hash, centromeres = centromeres,
             args=list(
                 filterVcf = args.filterVcf[sapply(args.filterVcf, object.size) < 1000],
-                filterTargets = args.filterTargets[sapply(args.filterTargets, object.size) < 1000])
+                filterIntervals = args.filterIntervals[sapply(args.filterIntervals, object.size) < 1000])
         )
     )
 }

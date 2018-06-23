@@ -17,9 +17,9 @@
 #' @param coverage.outliers Exclude samples with coverages below or above
 #' the specified cutoffs (fractions of the normal sample coverages median).
 #' Only for databases with more than 5 samples.
-#' @param min.coverage Exclude targets with coverage lower than 
+#' @param min.coverage Exclude intervals with coverage lower than 
 #' the specified fraction of the chromosome median in the pool of normals.
-#' @param max.missing Exclude targets with zero coverage in the
+#' @param max.missing Exclude intervals with zero coverage in the
 #' specified fraction of normal samples.
 #' @param low.coverage Specifies the maximum number of total reads 
 #' (NOT average coverage) to call a target low coverage.
@@ -143,7 +143,7 @@ min.coverage = 0.25, max.missing = 0.03, low.coverage = 15, ...) {
     fraction.missing <- apply(counts, 1, function(x)
                     sum(is.na(x)|x<=0))/ncol(counts)
 
-    intervals.used <- .filterTargetsCreateNormalDB(intervals, 
+    intervals.used <- .filterIntervalsCreateNormalDB(intervals, 
         fcnts_interval_medians, fraction.missing, min.coverage, max.missing) 
 
     fcnts <- apply(counts[intervals.used,], 2, function(x) x/sum(x))
@@ -293,77 +293,6 @@ calculateTangentNormal <- function(tumor.coverage.file, normalDB,
     fakeNormal
 }
     
-#' Calculate target weights
-#' 
-#' Creates a target weight file useful for segmentation. Requires a set of 
-#' coverage files from normal samples. Target weights will be
-#' set proportional to the inverse of coverage standard deviation across all
-#' normals. Targets with high variance in coverage in the pool of normals are
-#' thus down-weighted.
-#' 
-#' 
-#' @param normal.coverage.files A set of normal coverage samples
-#' to estimate target log-ratio standard deviations. 
-#' @param target.weight.file Output filename.
-#' @param plot Diagnostics plot, useful to tune parameters.
-#' @return A \code{data.frame} with target weights.
-#' @author Markus Riester
-#' @examples
-#' 
-#' target.weight.file <- "target_weights.txt"
-#' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-#'     package="PureCN")
-#' normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-#'     package="PureCN")
-#' normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
-#' 
-#' createTargetWeights(normal.coverage.files, target.weight.file)
-#' 
-#' @export createTargetWeights
-createTargetWeights <- function(normal.coverage.files,
-target.weight.file, plot = FALSE) {
-    flog.info("Loading coverage data...")
-    normal.coverage <- lapply(normal.coverage.files,  readCoverageFile)
-    
-    tumor.coverage <- list(poolCoverage(normal.coverage, w=rep(1, length(normal.coverage))/length(normal.coverage)))
-
-    lrs <- lapply(tumor.coverage, function(tc) sapply(normal.coverage, 
-            function(nc) calculateLogRatio(nc, tc)))
-
-    lrs <- do.call(cbind, lrs)
-
-    lrs[is.infinite(lrs)] <- NA
-
-    lrs.sd <- apply(lrs, 1, sd, na.rm=TRUE)
-    lrs.cnt.na <- apply(lrs,1, function(x) sum(is.na(x)))
-    # get the 70% of sd by chromosome and use this to normalize weight=1
-    chrom <-  as.character(seqnames(tumor.coverage[[1]]))
-    sdCutoffByChr <- sapply(split(lrs.sd, chrom), quantile, probs = 0.7, 
-        names = FALSE, na.rm = TRUE)[chrom]
-
-    zz <- sdCutoffByChr/lrs.sd
-    zz[zz > 1] <- 1
-    idx <- is.na(zz) | lrs.cnt.na > ncol(lrs)/3
-    zz[idx] <- min(zz, na.rm=TRUE)
-    ret <- data.frame(Target = as.character(tumor.coverage[[1]]), Weights = zz)
-    
-    write.table(ret, file=target.weight.file,row.names=FALSE, quote=FALSE, 
-        sep="\t")
-    if (plot) .plotTargetWeights(lrs.sd, width(tumor.coverage[[1]]), 
-        tumor.coverage[[1]]$on.target)
-    invisible(ret)
-}
-
-.plotTargetWeights <- function(lrs.sd, width, on.target) {
-    par(mfrow=c(1,2))
-    plot(width[on.target], lrs.sd[on.target], ylim=c(0,2),
-        xlab="Target Width", ylab="log2 ratio sd.", main="On-Target")
-    if (sum(!on.target)) {
-        plot(width[!on.target], lrs.sd[!on.target], col="red", ylim=c(0,2),
-            xlab="Target Width", ylab="log2 ratio sd.", main="Off-Target")
-    }
-}
-    
 .readNormals <- function(normal.coverage.files) {
     normals <- lapply(normal.coverage.files, readCoverageFile)
 
@@ -377,7 +306,7 @@ target.weight.file, plot = FALSE) {
     normals
 }
 
-.filterTargetsCreateNormalDB <- function(intervals, 
+.filterIntervalsCreateNormalDB <- function(intervals, 
 interval.median.coverage, fraction.missing,
 min.coverage, max.missing) {
     
@@ -386,7 +315,7 @@ min.coverage, max.missing) {
 
     key <- paste(as.character(seqnames(intervals)), intervals$on.target)
     min.coverage <- (sapply(split(interval.median.coverage, 
-            key), median, na.rm=TRUE)*min.coverage)[key]
+            key), median, na.rm=TRUE) * min.coverage)[key]
 
     intervals.used <- intervals.used & !is.na(interval.median.coverage) & 
         interval.median.coverage >= min.coverage

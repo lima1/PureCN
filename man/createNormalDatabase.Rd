@@ -26,10 +26,10 @@ If \code{NA}, does not use a maximum value.}
 the specified cutoffs (fractions of the normal sample coverages median).
 Only for databases with more than 5 samples.}
 
-\item{min.coverage}{Exclude targets with coverage lower than 
+\item{min.coverage}{Exclude intervals with coverage lower than 
 the specified fraction of the chromosome median in the pool of normals.}
 
-\item{max.missing}{Exclude targets with zero coverage in the
+\item{max.missing}{Exclude intervals with zero coverage in the
 specified fraction of normal samples.}
 
 \item{low.coverage}{Specifies the maximum number of total reads 

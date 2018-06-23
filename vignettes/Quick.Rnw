@@ -205,7 +205,7 @@ Important recommendations:
     containing the number of reference and alt reads for all samples. See the
     example file \Rcode{\$PURECN/normalpanel.vcf.gz}.
 
-    \item For ideal results, examine the target\_weights.png file to find good 
+    \item For ideal results, examine the interval\_weights.png file to find good 
     off-target bin widths. You will need to re-run IntervalFile.R with the
     \Rcode{--offtargetwidth} parameter and re-calculate the coverages.
 
@@ -247,7 +247,7 @@ $ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
     --normaldb $OUT_REF/normalDB_hg19.rds \
     --normal_panel $OUT_REF/mapping_bias_hg19.rds \
     --intervals $OUT_REF/baits_hg19_intervals.txt \
-    --targetweightfile $OUT_REF/target_weights_hg19.txt \
+    --intervalweightfile $OUT_REF/interval_weights_hg19.txt \
     --snpblacklist hg19_simpleRepeats.bed \
     --genome hg19 \
     --force --postoptimize --seed 123
@@ -522,7 +522,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --alpha            & alpha & \Rfunction{segmentationCBS} \\
 --undosd           & undo.SD & \Rfunction{segmentationCBS} \\
 --maxsegments      & max.segments & \Rfunction{runAbsoluteCN} \\
---targetweightfile & target.weight.file & \Rfunction{segmentationCBS} \\
+--intervalweightfile & interval.weight.file & \Rfunction{segmentationCBS} \\
 --minpurity        & test.purity & \Rfunction{runAbsoluteCN} \\
 --maxpurity        & test.purity & \Rfunction{runAbsoluteCN} \\
 --minploidy        & min.ploidy & \Rfunction{runAbsoluteCN} \\

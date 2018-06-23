@@ -1,11 +1,15 @@
 Changes in version 1.12.0
 -------------------------
 
-    
-API CHANGES
+    o Code cleanup (try to avoid confusion around "targets", "intervals", 
+      "baits")
 
+API CHANGES
     o renamed reptimingbinsize to reptimingwidth in IntervalFile.R, added
       this feature to preprocessIntervals.
+    o clarified "targets" vs. "intervals"; whenever something affects both
+      on-target and off-target, it is now called "intervals". When only targets,
+      e.g. in annotateTargets, "targets" was kept.
 
 Changes in version 1.10.0
 -------------------------

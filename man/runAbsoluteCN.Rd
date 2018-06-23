@@ -10,8 +10,9 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   sex = c("?", "F", "M", "diploid"), fun.filterVcf = filterVcfMuTect,
   args.filterVcf = list(), fun.setPriorVcf = setPriorVcf,
   args.setPriorVcf = list(), fun.setMappingBiasVcf = setMappingBiasVcf,
-  args.setMappingBiasVcf = list(), fun.filterTargets = filterTargets,
-  args.filterTargets = list(), fun.segmentation = segmentationCBS,
+  args.setMappingBiasVcf = list(), fun.filterIntervals = filterIntervals,
+  args.filterIntervals = list(), fun.filterTargets = NULL,
+  args.filterTargets = NULL, fun.segmentation = segmentationCBS,
   args.segmentation = list(), fun.focal = findFocal, args.focal = list(),
   sampleid = NULL, min.ploidy = 1, max.ploidy = 6, test.num.copy = 0:7,
   test.purity = seq(0.15, 0.95, by = 0.01), prior.purity = NULL,
@@ -103,14 +104,18 @@ in the VCF. Defaults to \code{\link{setMappingBiasVcf}}.}
 
 \item{args.setMappingBiasVcf}{Arguments for mapping bias function.}
 
-\item{fun.filterTargets}{Function for filtering low-quality targets in the
+\item{fun.filterIntervals}{Function for filtering low-quality intervals in the
 coverage files. Needs to return a \code{logical} vector whether an interval
-should be used for segmentation. Defaults to \code{\link{filterTargets}}.}
+should be used for segmentation. Defaults to \code{\link{filterIntervals}}.}
 
-\item{args.filterTargets}{Arguments for target filtering function. Arguments
+\item{args.filterIntervals}{Arguments for target filtering function. Arguments
 \code{normal}, \code{tumor}, \code{log.ratio},  
 \code{min.coverage}\code{seg.file} and \code{normalDB} are required and 
 automatically set.}
+
+\item{fun.filterTargets}{Deprecated.}
+
+\item{args.filterTargets}{Deprecated.}
 
 \item{fun.segmentation}{Function for segmenting the copy number log-ratios.
 Expected return value is a \code{data.frame} representation of the

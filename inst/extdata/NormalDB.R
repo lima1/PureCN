@@ -94,21 +94,21 @@ if (length(coverageFiles)) {
 }
 
 if (length(coverageFiles) > 3) {
-    target.weight.file <- .getFileName(outdir,"target_weights",".txt", assay, 
+    interval.weight.file <- .getFileName(outdir,"interval_weights",".txt", assay, 
         genome)
-    if (file.exists(target.weight.file) && !opt$force) {
+    if (file.exists(interval.weight.file) && !opt$force) {
         flog.info("%s already exists. Skipping... (--force will overwrite)",
-            target.weight.file)
+            interval.weight.file)
     } else {
         suppressPackageStartupMessages(library(PureCN))
-        outpng.file <- sub("txt$","png", target.weight.file)
+        outpng.file <- sub("txt$", "png", interval.weight.file)
         flog.info("Creating target weights.")
-        png(outpng.file, width=800, height=400)
-        createTargetWeights(normalDB$normal.coverage.files, 
-            target.weight.file, plot=TRUE)
+        png(outpng.file, width = 800, height = 400)
+        calculateIntervalWeights(normalDB$normal.coverage.files, 
+            interval.weight.file, plot = TRUE)
         dev.off()
    }     
 } else {
-    flog.warn("Not enough coverage files for creating target_weights.txt")
+    flog.warn("Not enough coverage files for creating interval_weights.txt")
 }
 

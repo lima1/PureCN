@@ -15,8 +15,9 @@
 #' ignores this user provided segmentation.
 #' @param plot.cnv Segmentation plots.
 #' @param sampleid Sample id, used in output files.
-#' @param target.weight.file Can be used to assign weights to targets. NOT
+#' @param interval.weight.file Can be used to assign weights to targets. NOT
 #' SUPPORTED YET in segmentation. Will remove targets with weight below 1/3.
+#' @param target.weight.file Deprecated.
 #' @param alpha Alpha value for CBS, see documentation for the \code{segment}
 #' function.
 #' @param undo.SD \code{undo.SD} for CBS, see documentation of the
@@ -77,8 +78,8 @@
 #' 
 #' @export segmentationPSCBS
 segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
-    sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD =
-    NULL, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
+    sampleid, interval.weight.file = NULL, target.weight.file = NULL, alpha = 0.005, 
+    undo.SD = NULL, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
     tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
     prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
     centromeres = NULL, ...) {
@@ -87,18 +88,24 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         .stopUserError("segmentationPSCBS requires the PSCBS package.")
     }
 
+    # TODO remove in 1.14.0
+    if (is.null(interval.weight.file) && !is.null(target.weight.file)) {
+        interval.weight.file <- target.weight.file
+        flog.warn("target.weight.file was renamed to interval.weight.file.")
+    }
+
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
 
-    target.weights <- NULL
+    interval.weights <- NULL
     well.covered.exon.idx <- rep(TRUE, length(tumor))
-    if (!is.null(target.weight.file)) {
-        target.weights <- read.delim(target.weight.file, as.is=TRUE)
-        target.weights <- target.weights[match(as.character(tumor), 
-            target.weights[,1]),2]
+    if (!is.null(interval.weight.file)) {
+        interval.weights <- read.delim(interval.weight.file, as.is=TRUE)
+        interval.weights <- interval.weights[match(as.character(tumor), 
+            interval.weights[,1]),2]
          flog.info("Target weights found, but currently not supported by PSCBS. %s",
             "Will simply exclude targets with low weight.")
-        lowWeightTargets <- target.weights < 1/3
-        well.covered.exon.idx[which(lowWeightTargets)] <- FALSE
+        lowWeightIntervals <- interval.weights < 1/3
+        well.covered.exon.idx[which(lowWeightIntervals)] <- FALSE
     }
 
     #MR: fix for missing chrX/Y 

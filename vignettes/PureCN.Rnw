@@ -125,13 +125,17 @@ regions (targets). These are provided by the manufacturer of your capture
 kit\footnote{While \Biocpkg{PureCN} can use a pool of normal samples to learn
 which intervals are reliable and which not, it is highly recommended to provide
 the correct intervals. Garbage in, garbage out.}.  Please double check that the
-genome version of the interval file matches the reference.
+genome version of the target file matches the reference. Usually the
+manufacturer provides two files: the baits file containing the coordinates of
+the actual capture baits, and the target file containing the coordinates of the
+actual regions we want to capture. We recommend to use the baits file (and
+recognize the confusing nomenclature that we follow due to convention in
+established tools).
 
-Default parameters assume that these intervals do NOT include a
-"padding" to include flanking regions of targets.  \Biocpkg{PureCN} will
-automatically include variants in the 50bp flanking regions if the variant
-caller was either run without interval file or with interval padding (See
-section~\ref{faqinput}). 
+Default parameters assume that these targets do NOT include a "padding" to
+include flanking regions.  \Biocpkg{PureCN} will automatically include variants
+in the 50bp flanking regions if the variant caller was either run without
+interval file or with interval padding (See section~\ref{faqinput}). 
 
 \Biocpkg{PureCN} will attempt to optimize the targets for copy number calling
 (similar to \cite{Talevich2016}):
@@ -139,12 +143,15 @@ section~\ref{faqinput}).
 \begin{itemize} 
 \item Large targets are split to obtain a higher resolution
 \item Targets in regions of low mappability are dropped
-\item Optionally, accessible regions inbetween the target (off-target) regions
-are included so that available coverage information in on- and off-target
-reads can be used by the segmentation function.
+\item Optionally, accessible regions in-between the target (off-target) regions
+    are included so that available coverage information in on- and off-target
+    reads can be used by the segmentation function. In the following, we
+    will use \textit{intervals} when something applies to both on-target and
+    off-target regions and \textit{targets} when it only applies to
+    on-target.
 \end{itemize}
 
-It further annotates targets by GC-content (how coverage is normalized is
+It further annotates intervals by GC-content (how coverage is normalized is
 described later in Section~\ref{secgcbias}). 
 
 \Biocpkg{PureCN} provides the \Rfunction{preprocessIntervals} 
@@ -235,8 +242,8 @@ In coverage normalization, we distinguish between assay- and library-specific
 biases.  Assay-specific biases, for example due to probe density, probe capture
 efficiency and read mappability, are best removed with a pool of normal samples
 (Section~\ref{bestnormal}, \cite{Talevich2016}). In other words, by examining
-the coverage of particular exons in a pool of normals, we can estimate how well
-this assay captures these exons and will then adjust the tumor coverage
+the coverage of particular intervals in a pool of normals, we can estimate how well
+this assay captures these intervals and will then adjust the tumor coverage
 accordingly.
 
 Other biases are library-specific, meaning a patient sample captured in
@@ -266,10 +273,10 @@ correctCoverageBias(normal.coverage.file, interval.file,
 @
 \incfig{figure/figuregccorrect-1}{0.95\textwidth}{Coverage before and after
 normalization for GC-content and replication timing.} 
-{This plot shows coverage as a function of target GC-content and replication
-timing before and after normalization. Each dot is a target interval. The
-example files are already GC-normalized; real data will show more dramatic
-differences.}
+{This plot shows coverage as a function of on- and off-target GC-content and
+replication timing before and after normalization. Each dot is an
+interval. The example files are already GC-normalized; real data will show more
+dramatic differences.}
 
 \textbf{All the following steps in this vignette assume that the coverage data
 are normalized.} The example coverage files are already GC-normalized.  We
@@ -353,21 +360,21 @@ normal.panel.vcf.file <- "mapping_bias.rds"
 
 \subsubsection{Coverage data}
 We next use coverage data of normal samples to estimate the expected variance
-in coverage per target:
+in coverage per interval:
 
 <<targetweightfile1, message=FALSE>>=
-target.weight.file <- "target_weights.txt"
-createTargetWeights(normalDB$normal.coverage.files, target.weight.file)
+interval.weight.file <- "interval_weights.txt"
+calculateIntervalWeights(normalDB$normal.coverage.files, interval.weight.file)
 @
 
-This function calculates target-level copy number log-ratios using all normal
+This function calculates copy number log-ratios using all normal
 samples provided in the \Rcode{normal.coverage.files} argument.  Assuming that
 all normal samples are in general diploid, a high variance in log-ratio
-is indicative of an target with either common germline alterations or frequent
-artifacts; high or low copy number log-ratios in these targets are unlikely
+is indicative of an interval with either common germline alterations or frequent
+artifacts; high or low copy number log-ratios in these intervals are unlikely
 measuring somatic copy number events.  
 
-This \Rcode{target.weight.file} is automatically generated by the NormalDB.R
+This \Rcode{interval.weight.file} is automatically generated by the NormalDB.R
 script described in the Quick vignette. 
 
 \subsection{Artifact filtering without a pool of normals}
@@ -422,7 +429,7 @@ ret <-runAbsoluteCN(normal.coverage.file=pool,
 # args.setMappingBiasVcf=list(normal.panel.vcf.file=normal.panel.vcf.file),
 # args.filterVcf=list(snp.blacklist=snp.blacklist, 
 # stats.file=mutect.stats.file), 
-    args.segmentation=list(target.weight.file=target.weight.file), 
+    args.segmentation=list(interval.weight.file=interval.weight.file), 
     post.optimize=FALSE, plot.cnv=FALSE, verbose=FALSE)
 @
 
@@ -1432,8 +1439,8 @@ for artifact filtering. A few recommendations:
 
     \item For position-specific mapping bias correction, the more normals are
         available, the more rare SNPs will have reliable mapping bias estimates.
-        This requires at least about 25 normals to be useful, 100 or more are
-        ideal. 
+        This requires again at least about 10 normals to be useful, 100 or more
+        are ideal.
 
     \item With smaller pool of normals, we additionally recommend filtering SNPs
         from low quality regions (Section~\ref{artifactfiltering2}).

@@ -15,7 +15,8 @@
 #' ignores this user provided segmentation.
 #' @param plot.cnv Segmentation plots.
 #' @param sampleid Sample id, used in output files.
-#' @param target.weight.file Can be used to assign weights to targets.
+#' @param interval.weight.file Can be used to assign weights to targets.
+#' @param target.weight.file Deprecated.
 #' @param alpha Alpha value for CBS, see documentation for the \code{segment}
 #' function.
 #' @param undo.SD \code{undo.SD} for CBS, see documentation of the
@@ -70,57 +71,63 @@
 #' @export segmentationCBS
 #' @importFrom stats t.test hclust cutree dist
 segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
-    sampleid, target.weight.file = NULL, alpha = 0.005, undo.SD =
-        NULL, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
+    sampleid, interval.weight.file = NULL, target.weight.file = NULL, alpha = 0.005, 
+    undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
     max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
     chr.hash = NULL, centromeres = NULL) {
+    
+    # TODO remove in 1.14.0
+    if (is.null(interval.weight.file) && !is.null(target.weight.file)) {
+        interval.weight.file <- target.weight.file
+        flog.warn("target.weight.file was renamed to interval.weight.file.")
+    }
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
     
-    target.weights <- NULL
-    if (!is.null(target.weight.file)) {
-        target.weights <- read.delim(target.weight.file, as.is=TRUE)
-        target.weights <- target.weights[match(as.character(tumor), 
-            target.weights[,1]),2]
+    interval.weights <- NULL
+    if (!is.null(interval.weight.file)) {
+        interval.weights <- read.delim(interval.weight.file, as.is=TRUE)
+        interval.weights <- interval.weights[match(as.character(tumor), 
+            interval.weights[,1]),2]
         flog.info("Target weights found, will use weighted CBS.")
         #if (!is.null(normal$se)) {
         #    flog.info("Log-ratio standard errors found, will use them in weights.")
-        #    target.weights <- (target.weights + (1 / normal$se^2))/2
+        #    interval.weights <- (interval.weights + (1 / normal$se^2))/2
         #}     
     }
-    x <- .CNV.analyze2(normal, tumor, log.ratio=log.ratio, plot.cnv=plot.cnv, 
-        sampleid=sampleid, alpha=alpha, 
-        weights=target.weights, sdundo=undo.SD, max.segments=max.segments,
-        chr.hash=chr.hash) 
+    x <- .CNV.analyze2(normal, tumor, log.ratio = log.ratio,
+        plot.cnv = plot.cnv, sampleid=sampleid, alpha=alpha, 
+        weights=interval.weights, sdundo=undo.SD, max.segments=max.segments,
+        chr.hash=chr.hash)
     if (!is.null(vcf)) {
-        x <- .pruneByVCF(x, vcf, tumor.id.in.vcf, chr.hash=chr.hash)
-        x <- .findCNNLOH(x, vcf, tumor.id.in.vcf, alpha=alpha, 
+        x <- .pruneByVCF(x, vcf, tumor.id.in.vcf, chr.hash = chr.hash)
+        x <- .findCNNLOH(x, vcf, tumor.id.in.vcf, alpha = alpha, 
             chr.hash=chr.hash)
-        x <- .pruneByHclust(x, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
-            method=prune.hclust.method, chr.hash=chr.hash)
+        x <- .pruneByHclust(x, vcf, tumor.id.in.vcf, h = prune.hclust.h, 
+            method=prune.hclust.method, chr.hash = chr.hash)
     }
     idx.enough.markers <- x$cna$output$num.mark > 1
     rownames(x$cna$output) <- NULL
     x$cna$output[idx.enough.markers,]
 }
 
-.findCNNLOH <- function(x, vcf, tumor.id.in.vcf, alpha=0.005, min.variants=7, 
-iterations=2, chr.hash) {
+.findCNNLOH <- function(x, vcf, tumor.id.in.vcf, alpha = 0.005, 
+                        min.variants = 7, iterations = 2, chr.hash) {
     for (iter in seq_len(iterations)) {
         seg <- x$cna$output
         seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
             IRanges(start=seg$loc.start, end=seg$loc.end))
         ov <- findOverlaps(seg.gr, vcf)
         ar <- sapply(geno(vcf)$FA[,tumor.id.in.vcf], function(x) x[1])
-        ar.r <- ifelse(ar>0.5, 1-ar, ar)
+        ar.r <- ifelse(ar > 0.5, 1 - ar, ar)
 
         segs <- split(seg, seq_len(nrow(seg)))
         foundCNNLOH <- FALSE
         for (i in seq_len(nrow(seg))) {
             sar <- ar.r[subjectHits(ov)][queryHits(ov)==i]
             if (length(sar) < 2 * min.variants) next
-            min.variants.x <- max(min.variants, length(sar)*0.05)    
-            bp <- which.min(sapply(seq(min.variants.x, length(sar)-min.variants.x, by=1), 
+            min.variants.x <- max(min.variants, length(sar) * 0.05)    
+            bp <- which.min(sapply(seq(min.variants.x, length(sar) - min.variants.x, by = 1), 
                 function(i) sum(c(sd(sar[seq_len(i)]),
                     sd(sar[seq(i+1,length(sar))])))
             ))
@@ -161,7 +168,7 @@ iterations=2, chr.hash) {
         na.rm=TRUE))
     seg
 }
-        
+
 .pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=NULL, method="ward.D", 
     min.variants=5, chr.hash, iterations=2) {
     for (iter in seq_len(iterations)) {

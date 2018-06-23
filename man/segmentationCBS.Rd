@@ -5,10 +5,10 @@
 \title{CBS segmentation}
 \usage{
 segmentationCBS(normal, tumor, log.ratio, seg, plot.cnv, sampleid,
-  target.weight.file = NULL, alpha = 0.005, undo.SD = NULL, vcf = NULL,
-  tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
-  prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
-  centromeres = NULL)
+  interval.weight.file = NULL, target.weight.file = NULL, alpha = 0.005,
+  undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1,
+  normal.id.in.vcf = NULL, max.segments = NULL, prune.hclust.h = NULL,
+  prune.hclust.method = "ward.D", chr.hash = NULL, centromeres = NULL)
 }
 \arguments{
 \item{normal}{Coverage data for normal sample.}
@@ -27,7 +27,9 @@ ignores this user provided segmentation.}
 
 \item{sampleid}{Sample id, used in output files.}
 
-\item{target.weight.file}{Can be used to assign weights to targets.}
+\item{interval.weight.file}{Can be used to assign weights to targets.}
+
+\item{target.weight.file}{Deprecated.}
 
 \item{alpha}{Alpha value for CBS, see documentation for the \code{segment}
 function.}

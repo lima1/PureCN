@@ -1,23 +1,23 @@
-#' Remove low quality targets
+#' Remove low quality intervals
 #' 
 #' This function determines which intervals in the coverage files should be
 #' included or excluded in the segmentation. It is called via the
-#' \code{fun.filterTargets} argument of \code{\link{runAbsoluteCN}}. The
-#' arguments are passed via \code{args.filterTargets}.
+#' \code{fun.filterIntervals} argument of \code{\link{runAbsoluteCN}}. The
+#' arguments are passed via \code{args.filterIntervals}.
 #' 
 #' 
 #' @param normal Coverage data for normal sample.
 #' @param tumor Coverage data for tumor sample.
-#' @param log.ratio Copy number log-ratios, one for each target or interval in
+#' @param log.ratio Copy number log-ratios, one for each interval in the
 #' coverage file.
-#' @param seg.file If not \code{NULL}, then do not filter targets, because data
+#' @param seg.file If not \code{NULL}, then do not filter intervals, because data
 #' is already segmented via the provided segmentation file.
 #' @param filter.lowhigh.gc Quantile q (defines lower q and upper 1-q) for
-#' removing targets with outlier GC profile. Assuming that GC correction might
+#' removing intervals with outlier GC profile. Assuming that GC correction might
 #' not have been worked on those. Requires \code{interval.file}.
-#' @param min.coverage Minimum coverage in both normal and tumor. Targets with
+#' @param min.coverage Minimum coverage in both normal and tumor. Intervals with
 #' lower coverage are ignored. If a \code{normalDB} is provided, then this
-#' database already provides information about low quality targets and the
+#' database already provides information about low quality intervals and the
 #' \code{min.coverage} is set to \code{min.coverage/10000}.
 #' @param min.targeted.base Exclude intervals with targeted base (size in bp)
 #' smaller than this cutoff. This is useful when the same interval file was
@@ -25,7 +25,7 @@
 #' likely very different from the true GC content of the probes.
 #' @param normalDB Normal database, created with
 #' \code{\link{createNormalDatabase}}.
-#' @return \code{logical(length(log.ratio))} specifying which targets should be
+#' @return \code{logical(length(log.ratio))} specifying which intervals should be
 #' used in segmentation.
 #' @author Markus Riester
 #' @examples
@@ -50,27 +50,27 @@
 #' ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
 #'     tumor.coverage.file=tumor.coverage.file, genome="hg19", vcf.file=vcf.file,
 #'     sampleid="Sample1", interval.file=interval.file, normalDB=normalDB,
-#'     args.filterTargets=list(min.targeted.base=10), max.ploidy=4, 
+#'     args.filterIntervals=list(min.targeted.base=10), max.ploidy=4, 
 #'     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 #' 
-#' @export filterTargets
-filterTargets <- function(normal, tumor, log.ratio, seg.file, 
+#' @export filterIntervals
+filterIntervals <- function(normal, tumor, log.ratio, seg.file, 
     filter.lowhigh.gc = 0.001, min.coverage = 15, min.targeted.base = 5, 
     normalDB = NULL) {
-    targetsUsed <- .filterTargetsNotNA(log.ratio)
+    intervalsUsed <- .filterIntervalsNotNA(log.ratio)
     # With segmentation file, ignore all filters
-    if (!is.null(seg.file)) return(targetsUsed)
+    if (!is.null(seg.file)) return(intervalsUsed)
 
     if (!is.null(tumor$gc_bias)) {
         .checkFraction(filter.lowhigh.gc, "filter.lowhigh.gc")
-        targetsUsed <- .filterTargetsLowHighGC(targetsUsed, tumor,
+        intervalsUsed <- .filterIntervalsLowHighGC(intervalsUsed, tumor,
             filter.lowhigh.gc)
     }
-    targetsUsed <- .filterTargetsNormalDB(targetsUsed, tumor, normalDB)
+    intervalsUsed <- .filterIntervalsNormalDB(intervalsUsed, tumor, normalDB)
 
-    targetsUsed <- .filterTargetsTargetedBase(targetsUsed, tumor,
+    intervalsUsed <- .filterIntervalsTargetedBase(intervalsUsed, tumor,
         min.targeted.base)
-    targetsUsed <- .filterTargetsTotalNormalCoverage(targetsUsed, normal,
+    intervalsUsed <- .filterIntervalsTotalNormalCoverage(intervalsUsed, normal,
         min.targeted.base, min.coverage)
 
     if (!is.null(normalDB)) {
@@ -80,12 +80,22 @@ filterTargets <- function(normal, tumor, log.ratio, seg.file,
         flog.warn("No normalDB provided. Provide one for better results.")
     }    
         
-    targetsUsed <- .filterTargetsCoverage(targetsUsed, normal, tumor, 
+    intervalsUsed <- .filterIntervalsCoverage(intervalsUsed, normal, tumor, 
         min.coverage)
 
-    return(targetsUsed)
+    return(intervalsUsed)
 }
 
+#' Remove low quality targets
+#' 
+#' This function is deprecated and was renamed to 
+#' \code{\link{filterIntervals}}.
+#' @param ... Arguments passed to \code{\link{filterIntervals}}.
+#' @export filterTargets
+filterTargets <- function(...) {
+    .Deprecated("filterIntervals")
+    filterIntervals(...)
+}  
 
 .checkNormalDB <- function(tumor, normalDB) {
     if (!class(normalDB) == "list") {
@@ -108,82 +118,82 @@ filterTargets <- function(normal, tumor, log.ratio, seg.file,
     return(identical(intervals, as.character(tumor)))
 }
 
-.filterTargetsNotNA <- function(log.ratio) {
+.filterIntervalsNotNA <- function(log.ratio) {
     nBefore <- length(log.ratio) 
     # NA's in log.ratio confuse the CBS function
-    targetsUsed <- !is.na(log.ratio) & !is.infinite(log.ratio) 
-    nAfter <- sum(targetsUsed)
+    intervalsUsed <- !is.na(log.ratio) & !is.infinite(log.ratio) 
+    nAfter <- sum(intervalsUsed)
 
     if (nAfter < nBefore) {
         flog.info("Removing %i intervals with missing log.ratio.", 
             nBefore-nAfter)
     }
 
-    targetsUsed
+    intervalsUsed
 }
         
-.filterTargetsNormalDB <- function(targetsUsed, tumor, normalDB,
+.filterIntervalsNormalDB <- function(intervalsUsed, tumor, normalDB,
 normalDB.min.coverage, normalDB.max.missing) {
-    if (is.null(normalDB)) return(targetsUsed)
+    if (is.null(normalDB)) return(intervalsUsed)
     # make sure that normalDB matches tumor
     if (!.checkNormalDB(tumor, normalDB)) {
         flog.warn("normalDB does not align with coverage. Ignoring normalDB.")
-        return(targetsUsed)
+        return(intervalsUsed)
     }    
 
-    nBefore <- sum(targetsUsed) 
-    targetsUsed <- targetsUsed & normalDB$intervals.used
-    nAfter <- sum(targetsUsed)
+    nBefore <- sum(intervalsUsed) 
+    intervalsUsed <- intervalsUsed & normalDB$intervals.used
+    nAfter <- sum(intervalsUsed)
 
     if (nAfter < nBefore) {
-        flog.info("Removing %i targets excluded in normalDB.", 
+        flog.info("Removing %i intervals excluded in normalDB.", 
             nBefore-nAfter)
     }
-    targetsUsed
+    intervalsUsed
 }
 
-.filterTargetsChrHash <- function(targetsUsed, tumor, chr.hash) {
-    if (is.null(chr.hash)) return(targetsUsed)
-    nBefore <- sum(targetsUsed)
-    targetsUsed <- targetsUsed & seqnames(tumor) %in% chr.hash$chr
-    nAfter <- sum(targetsUsed)
+.filterIntervalsChrHash <- function(intervalsUsed, tumor, chr.hash) {
+    if (is.null(chr.hash)) return(intervalsUsed)
+    nBefore <- sum(intervalsUsed)
+    intervalsUsed <- intervalsUsed & seqnames(tumor) %in% chr.hash$chr
+    nAfter <- sum(intervalsUsed)
 
     if (nAfter < nBefore) {
-        flog.info("Removing %i targets on chromosomes outside chr.hash.", 
+        flog.info("Removing %i intervals on chromosomes outside chr.hash.", 
             nBefore-nAfter)
     }
-    targetsUsed
+    intervalsUsed
 }
 
-.filterTargetsTargetedBase <- function(targetsUsed, tumor, min.targeted.base) {
-    if (is.null(min.targeted.base)) return(targetsUsed)
-    nBefore <- sum(targetsUsed)
-    targetsUsed <- targetsUsed & width(tumor) >= min.targeted.base
-    nAfter <- sum(targetsUsed)
+.filterIntervalsTargetedBase <- function(intervalsUsed, tumor, min.targeted.base) {
+    if (is.null(min.targeted.base)) return(intervalsUsed)
+    nBefore <- sum(intervalsUsed)
+    intervalsUsed <- intervalsUsed & width(tumor) >= min.targeted.base
+    nAfter <- sum(intervalsUsed)
     if (nAfter < nBefore) {
-        flog.info("Removing %i small (< %ibp) targets.", nBefore-nAfter, 
+        flog.info("Removing %i small (< %ibp) intervals.", nBefore-nAfter, 
             min.targeted.base)
     }    
-    targetsUsed
+    intervalsUsed
 }
 
-.filterTargetsTotalNormalCoverage <- function(targetsUsed, normal,
+.filterIntervalsTotalNormalCoverage <- function(intervalsUsed, normal,
     min.targeted.base, min.coverage) {
     if (is.null(min.targeted.base) || is.null(min.coverage)) {
-        return(targetsUsed)
+        return(intervalsUsed)
     }    
-    nBefore <- sum(targetsUsed)
+    nBefore <- sum(intervalsUsed)
     cutoff <- min.targeted.base * min.coverage * 2
-    targetsUsed <- targetsUsed & normal$coverage >= cutoff
-    nAfter <- sum(targetsUsed)
+    intervalsUsed <- intervalsUsed & normal$coverage >= cutoff
+    nAfter <- sum(intervalsUsed)
     if (nAfter < nBefore) {
-        flog.info("Removing %i targets with low total coverage in normal (< %.2f reads).", 
+        flog.info("Removing %i intervals with low total coverage in normal (< %.2f reads).", 
             nBefore-nAfter, cutoff)
     }    
-    targetsUsed
+    intervalsUsed
 }
 
-.filterTargetsCoverage <- function(targetsUsed, normal, tumor, min.coverage) {
+.filterIntervalsCoverage <- function(intervalsUsed, normal, tumor, min.coverage) {
     #MR: we try to not remove homozygous deletions in very pure samples.
     #  to distinguish low quality from low copy number, we keep if normal
     # has good coverage. If normal coverage is very high, we adjust for that.  
@@ -192,34 +202,34 @@ normalDB.min.coverage, normalDB.max.missing) {
 
     f <- max(total.cov.normal / total.cov.tumor, 1)
 
-    well.covered.exon.idx <- (normal$average.coverage >= min.coverage &
+    well.covered.interval.idx <- (normal$average.coverage >= min.coverage &
         tumor$average.coverage >= min.coverage) | 
         (normal$average.coverage >= 1.5 * f * min.coverage &  
         tumor$average.coverage >= 0.5 * min.coverage)
     #MR: fix for missing chrX/Y
-    well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
+    well.covered.interval.idx[is.na(well.covered.interval.idx)] <- FALSE
 
-    nBefore <- sum(targetsUsed)
-    targetsUsed <- targetsUsed & well.covered.exon.idx
-    nAfter <- sum(targetsUsed)
+    nBefore <- sum(intervalsUsed)
+    intervalsUsed <- intervalsUsed & well.covered.interval.idx
+    nAfter <- sum(intervalsUsed)
     if (nAfter < nBefore) {
-        flog.info("Removing %i low coverage (< %.4fX) targets.", nBefore-nAfter, 
+        flog.info("Removing %i low coverage (< %.4fX) intervals.", nBefore-nAfter, 
             min.coverage)
     }    
-    targetsUsed
+    intervalsUsed
 }
 
-.filterTargetsLowHighGC <- function(targetsUsed, tumor, filter.lowhigh.gc) {
+.filterIntervalsLowHighGC <- function(intervalsUsed, tumor, filter.lowhigh.gc) {
     qq <- quantile(tumor$gc_bias, p=c(filter.lowhigh.gc, 
         1-filter.lowhigh.gc), na.rm=TRUE)
 
-    nBefore <- sum(targetsUsed)
-    targetsUsed <- targetsUsed & !is.na(tumor$gc_bias) & 
+    nBefore <- sum(intervalsUsed)
+    intervalsUsed <- intervalsUsed & !is.na(tumor$gc_bias) & 
         !(tumor$gc_bias < qq[1] | tumor$gc_bias > qq[2])
-    nAfter <- sum(targetsUsed)
+    nAfter <- sum(intervalsUsed)
 
     if (nAfter < nBefore) {
         flog.info("Removing %i low/high GC targets.", nBefore-nAfter)
     }
-    targetsUsed
+    intervalsUsed
 }

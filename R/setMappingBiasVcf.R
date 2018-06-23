@@ -164,7 +164,7 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
 
 .adjustEmpBayes <- function(x) {
     # get all SNPs without dramatic bias
-    xg <- x[, x[4, ] > 0.4]
+    xg <- x[, x[4, ] > 0.4, drop = FALSE]
     if (ncol(xg) < 2) {
         flog.warn("All SNPs in the database have significant mapping bias!%s",
             " Check your database.")

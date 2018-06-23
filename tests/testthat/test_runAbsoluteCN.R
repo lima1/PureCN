@@ -17,18 +17,18 @@ data(purecn.example.output)
 
 test_that("VCF is not necessary to produce output", {
     set.seed(123)
-    target.weight.file <- tempfile(fileext = ".txt")
-    createTargetWeights(normal.coverage.files,
-        target.weight.file)
+    interval.weight.file <- tempfile(fileext = ".txt")
+    calculateIntervalWeights(normal.coverage.files,
+        interval.weight.file)
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
         tumor.coverage.file = tumor.coverage.file,
         candidates = purecn.example.output$candidates,
         genome = "hg19",
-        args.segmentation = list(target.weight.file = target.weight.file),
+        args.segmentation = list(interval.weight.file = interval.weight.file),
         test.purity = seq(0.4, 0.7, by = 0.05), min.ploidy = 1.5, 
         max.ploidy = 2.4, max.candidate.solutions = 1, 
         BPPARAM=BiocParallel::bpparam())
-    file.remove(target.weight.file)
+    file.remove(interval.weight.file)
 
     tmpFile <- tempfile(fileext = ".rds")
     saveRDS(ret, tmpFile)
@@ -369,7 +369,7 @@ test_that("normalDB objects are used correctly", {
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
         tumor.coverage.file = tumor, genome = "hg19", 
         vcf.file = vcf.file, sampleid = "Sample1", interval.file = interval.file, 
-        normalDB = normalDB, args.filterTargets = list(filter.lowhigh.gc = 0), 
+        normalDB = normalDB, args.filterIntervals = list(filter.lowhigh.gc = 0), 
         plot.cnv = FALSE, min.ploidy = 1.5, max.ploidy = 2.1, test.purity = seq(0.4, 
             0.7, by = 0.05), max.candidate.solutions = 1)
  #   normal <- readCoverageFile(normal.coverage.file)
