@@ -110,9 +110,9 @@
 #' @param candidates Candidates to optimize from a previous run
 #' (\code{return.object$candidates}).  If \code{NULL}, do 2D grid search and
 #' find local optima.
-#' @param min.coverage Minimum coverage in both normal and tumor. Targets and 
+#' @param min.coverage Minimum coverage in both normal and tumor. Intervals and 
 #' variants with lower coverage are ignored. This value is provided to the 
-#' \code{args.filterTargets} and \code{args.filterVcf} lists, but can be 
+#' \code{args.filterIntervals} and \code{args.filterVcf} lists, but can be 
 #' overwritten in these lists if different cutoffs for the coverage and variant
 #' filters are wanted. To increase the sensitivity of homozygous deletions in 
 #' high purity samples, the coverage cutoff in tumor is automatically lowered by 

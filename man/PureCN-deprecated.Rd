@@ -12,5 +12,6 @@
   the replacement indicated below:
   \itemize{
     \item{createTargetWeights: \code{\link{calculateIntervalWeights}}}
+    \item{filterTargets: \code{\link{filterIntervals}}}
   }
 }

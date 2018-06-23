@@ -15,7 +15,7 @@
 #' ignores this user provided segmentation.
 #' @param plot.cnv Segmentation plots.
 #' @param sampleid Sample id, used in output files.
-#' @param interval.weight.file Can be used to assign weights to targets. NOT
+#' @param interval.weight.file Can be used to assign weights to intervals. NOT
 #' SUPPORTED YET in segmentation. Will remove targets with weight below 1/3.
 #' @param target.weight.file Deprecated.
 #' @param alpha Alpha value for CBS, see documentation for the \code{segment}

@@ -15,7 +15,7 @@
 #' ignores this user provided segmentation.
 #' @param plot.cnv Segmentation plots.
 #' @param sampleid Sample id, used in output files.
-#' @param interval.weight.file Can be used to assign weights to targets.
+#' @param interval.weight.file Can be used to assign weights to intervals.
 #' @param target.weight.file Deprecated.
 #' @param alpha Alpha value for CBS, see documentation for the \code{segment}
 #' function.

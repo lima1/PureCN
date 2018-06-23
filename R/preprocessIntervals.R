@@ -218,7 +218,7 @@ calculateGCContentByInterval <- function() {
         interval.gr$mappability >= min.mappability[3] ]
     nAfter <- sum(interval.gr$on.target)
     if (nBefore > nAfter) {
-        flog.info("Removing %i targets with low mappability score (<%.2f).", 
+        flog.info("Removing %i intervals with low mappability score (<%.2f).", 
             nBefore-nAfter, min.mappability[1])
     }
     interval.gr
