@@ -1,18 +1,38 @@
 Changes in version 1.12.0
 -------------------------
 
-    o Code cleanup (try to avoid confusion around "targets", "intervals", 
-      "baits")
+NEW FEATURES
 
-API CHANGES
+    o normalDB does not need input normal coverage files anymore after creation
+      (so the resulting normalDB.rds file can be moved)
+    o base quality filtering can be turned off by setting min.base.quality to 0
+      or NULL
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Code cleanups (try to avoid confusion around "targets", "intervals", 
+      "baits")
     o renamed reptimingbinsize to reptimingwidth in IntervalFile.R, added
-      this feature to preprocessIntervals.
+      this feature to preprocessIntervals
     o clarified "targets" vs. "intervals"; whenever something affects both
       on-target and off-target, it is now called "intervals". When only targets,
       e.g. in annotateTargets, "targets" was kept.
+    o made gc.gene.file defunct
+
+BUGFIXES
+
+    o catch various input problems and provide better error messages instead
+      of crashing
+    o stranded input BED files do not cause problems anymore
+    o fixed a bug when only a single local optimum was tested (happens only
+      when users copy the examples that restrict the search speach to avoid
+      long runtimes)
+
 
 Changes in version 1.10.0
 -------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
 
     o New normal database format
     o Runtime performance improvements (skip unlikely local optima, support for
