@@ -120,7 +120,7 @@ test_that("Offtarget settings work as expected", {
 
     expect_output(gcMap <- preprocessIntervals(intervals, reference.file,
         mappability = mappability, min.mappability=c(1,1,1)),
-        "Removing 1 targets with low mappability score")
+        "Removing 1 intervals with low mappability score")
     expect_equal(gcMap$mappability, c(1, 1, 1, 1), tolerance = 0.001)
     
     # check for targets that don't overlap with mappability
