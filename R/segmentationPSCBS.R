@@ -102,8 +102,8 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         interval.weights <- read.delim(interval.weight.file, as.is=TRUE)
         interval.weights <- interval.weights[match(as.character(tumor), 
             interval.weights[,1]),2]
-         flog.info("Target weights found, but currently not supported by PSCBS. %s",
-            "Will simply exclude targets with low weight.")
+         flog.info("Interval weights found, but currently not supported by PSCBS. %s",
+            "Will simply exclude intervals with low weight.")
         lowWeightIntervals <- interval.weights < 1/3
         well.covered.exon.idx[which(lowWeightIntervals)] <- FALSE
     }

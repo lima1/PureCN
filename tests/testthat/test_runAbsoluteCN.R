@@ -113,6 +113,12 @@ test_that("Exceptions happen with incorrect input data", {
     expect_error(runAbsoluteCN(normalCov[sample(length(normalCov)), 
         ], tumor.coverage.file, genome = "hg19"),
         "Interval files in normal and tumor different")
+    tumorCov <- readCoverageFile(tumor.coverage.file)
+    tumorCov$average.coverage <- 0
+    tumorCov$coverage <- 0
+    expect_error( runAbsoluteCN(normal.coverage.file=normal.coverage.file,
+          tumor.coverage.file=tumorCov, genome="hg19"), 
+          "No intervals passing filters.")
 })
 
 

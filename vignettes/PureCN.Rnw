@@ -173,7 +173,7 @@ preprocessIntervals(intervals, reference.file,
 @
 
 A command line script described in a separate vignette provides convenient
-access to this function and also attempts to annotate the intervals with gene
+access to this function and also attempts to annotate the targets with gene
 symbols using the \Rfunction{annotateTargets} function.
 
 \subsection{Coverage data}

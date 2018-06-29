@@ -89,11 +89,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         interval.weights <- read.delim(interval.weight.file, as.is=TRUE)
         interval.weights <- interval.weights[match(as.character(tumor), 
             interval.weights[,1]),2]
-        flog.info("Target weights found, will use weighted CBS.")
-        #if (!is.null(normal$se)) {
-        #    flog.info("Log-ratio standard errors found, will use them in weights.")
-        #    interval.weights <- (interval.weights + (1 / normal$se^2))/2
-        #}     
+        flog.info("Interval weights found, will use weighted CBS.")
     }
     x <- .CNV.analyze2(normal, tumor, log.ratio = log.ratio,
         plot.cnv = plot.cnv, sampleid=sampleid, alpha=alpha, 

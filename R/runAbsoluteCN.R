@@ -429,6 +429,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     flog.info("Using %i intervals (%i on-target, %i off-target).", length(tumor), 
         sum(tumor$on.target, na.rm=TRUE), sum(!tumor$on.target, na.rm=TRUE))
     
+    if (!length(tumor)) {
+        .stopUserError("No intervals passing filters.")
+    }
     if (!sum(!tumor$on.target, na.rm=TRUE)) {
         flog.info("No off-target intervals. If this is hybrid-capture data,%s",
             " consider adding them.")
