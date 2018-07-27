@@ -81,9 +81,9 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
 }    
 .readCoverageCnn <- function(file, zero, format="cnn") {
     if (is.null(zero)) zero <- TRUE
-    inputCoverage <- utils::read.table(file, header = TRUE)
+    inputCoverage <- utils::read.table(file, header = TRUE, sep = "\t")
     if (zero) inputCoverage$start <- inputCoverage$start + 1
-    targetCoverage <- GRanges(inputCoverage)    
+    targetCoverage <- GRanges(inputCoverage)
     targetCoverage$coverage <- targetCoverage$depth * width(targetCoverage)
     targetCoverage$average.coverage <- targetCoverage$depth
     targetCoverage$on.target <- TRUE

@@ -60,7 +60,7 @@ if (is.null(knownGenome[[opt$genome]])) {
     flog.warn("Package %s not found.", knownGenome[[opt$genome]])
 } else {
     coding <- cds(get(knownGenome[[opt$genome]]))
-    seqlevelsStyle(coding) <- seqlevelsStyle(intervals)
+    seqlevelsStyle(coding) <- seqlevelsStyle(intervals)[1]
     intervalsCDS <- reduce(intersect(intervals, unstrand(coding)))
     export(intervalsCDS, opt$outfile)
     flog.info("Total size of CDS region: %.2fMb (%.2fMb input).", 
