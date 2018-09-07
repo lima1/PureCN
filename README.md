@@ -16,8 +16,9 @@ from low coverage whole-exome to ultra-deep sequenced plasma gene-panels.
 To install this package, start R and enter:
 
 ```
-source("https://bioconductor.org/biocLite.R")
-biocLite("PureCN")
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("PureCN")
 ```
 
 If your R/Bioconductor version is outdated, this will install an old and
@@ -27,13 +28,13 @@ For outdated R/Bioconductor versions, you can try backporting the latest stable
 version (this should work fine for Bioconductor 3.3 and later):
 
 ```
-biocLite("lima1/PureCN", ref="RELEASE_3_7")
+BiocManager::install("lima1/PureCN", ref="RELEASE_3_7")
 ```
 
 If you want the latest and greatest from the developer branch:
 
 ```
-biocLite("lima1/PureCN")
+BiocManager::install("lima1/PureCN")
 ```
 
 
