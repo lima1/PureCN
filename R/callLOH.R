@@ -90,7 +90,6 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
         start(res$input$vcf),
         as.character(seqnames(res$input$vcf))), function(x)
         c(min(x), max(x)), c(min=double(1), max=double(1)))))
-
     if (!is.null(centromeres)) {
         # split segments by centromere if available
         chromCoords <- chromCoords[as.integer(match(seqnames(centromeres), rownames(chromCoords))),]
@@ -103,12 +102,17 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
             c("seqnames", "min", "start")]
         qArms <- centromeres[centromeres$max > centromeres$end,
             c("seqnames", "end", "max")]
-        
+
         colnames(pArms) <- c("chrom", "start", "end")
         colnames(qArms) <- colnames(pArms)
         pArms$arm <- "p"
-        qArms$arm <- "q"
-        armLocations <- rbind(pArms, qArms)
+        if (nrow(qArms) == 0) {
+          armLocations = pArms
+        } else {
+          qArms$arm <- "q"
+          armLocations <- rbind(pArms, qArms)
+        }
+
     } else {
         armLocations <- data.frame(
                             chrom=rownames(chromCoords),
