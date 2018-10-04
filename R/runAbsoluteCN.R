@@ -605,7 +605,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # for sample error.
     targetsPerSegment <- sapply(exon.lrs, length)
     
-    if (!sum(targetsPerSegment > 100, na.rm = TRUE)) {
+    if (!sum(targetsPerSegment > 50, na.rm = TRUE)) {
         .stopRuntimeError("Only tiny segments.")
     }
     
