@@ -220,13 +220,13 @@
 #' \code{\link{calculatePowerDetectSomatic}}
 #' @examples
 #' 
-#' normal.coverage.file <- system.file('extdata', 'example_normal.txt', 
+#' normal.coverage.file <- system.file('extdata', 'example_normal_tiny.txt', 
 #'     package='PureCN')
-#' tumor.coverage.file <- system.file('extdata', 'example_tumor.txt', 
+#' tumor.coverage.file <- system.file('extdata', 'example_tumor_tiny.txt', 
 #'     package='PureCN')
-#' vcf.file <- system.file('extdata', 'example_vcf.vcf.gz', 
+#' vcf.file <- system.file('extdata', 'example.vcf.gz', 
 #'     package='PureCN')
-#' interval.file <- system.file('extdata', 'example_intervals.txt', 
+#' interval.file <- system.file('extdata', 'example_intervals_tiny.txt', 
 #'     package='PureCN')
 #' 
 #' # The max.candidate.solutions, max.ploidy and test.purity parameters are set to

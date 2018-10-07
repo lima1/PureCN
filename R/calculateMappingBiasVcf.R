@@ -41,5 +41,9 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
         cntVar <- cntVar + yieldSize
         cntStep <- cntStep + 1
     }
-    unlist(ret)
+    bias <- unlist(ret)
+    attr(bias, "normal.panel.vcf.file") <- normal.panel.vcf.file
+    attr(bias, "min.normals") <- min.normals
+    attr(bias, "genome") <- genome
+    bias
 }

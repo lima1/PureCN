@@ -166,9 +166,9 @@ of local optima.}
 (\code{return.object$candidates}).  If \code{NULL}, do 2D grid search and
 find local optima.}
 
-\item{min.coverage}{Minimum coverage in both normal and tumor. Targets and 
+\item{min.coverage}{Minimum coverage in both normal and tumor. Intervals and 
 variants with lower coverage are ignored. This value is provided to the 
-\code{args.filterTargets} and \code{args.filterVcf} lists, but can be 
+\code{args.filterIntervals} and \code{args.filterVcf} lists, but can be 
 overwritten in these lists if different cutoffs for the coverage and variant
 filters are wanted. To increase the sensitivity of homozygous deletions in 
 high purity samples, the coverage cutoff in tumor is automatically lowered by 
@@ -305,13 +305,13 @@ gene and genomic region.
 }
 \examples{
 
-normal.coverage.file <- system.file('extdata', 'example_normal.txt', 
+normal.coverage.file <- system.file('extdata', 'example_normal_tiny.txt', 
     package='PureCN')
-tumor.coverage.file <- system.file('extdata', 'example_tumor.txt', 
+tumor.coverage.file <- system.file('extdata', 'example_tumor_tiny.txt', 
     package='PureCN')
-vcf.file <- system.file('extdata', 'example_vcf.vcf.gz', 
+vcf.file <- system.file('extdata', 'example.vcf.gz', 
     package='PureCN')
-interval.file <- system.file('extdata', 'example_intervals.txt', 
+interval.file <- system.file('extdata', 'example_intervals_tiny.txt', 
     package='PureCN')
 
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to

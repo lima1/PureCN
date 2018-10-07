@@ -7,7 +7,7 @@ normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
     package = "PureCN")
-vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package = "PureCN")
+vcf.file <- system.file("extdata", "example.vcf.gz", package = "PureCN")
 interval.file <- system.file("extdata", "example_intervals.txt", 
     package = "PureCN")
 seg.file <- system.file("extdata", "example_seg.txt", package = "PureCN")

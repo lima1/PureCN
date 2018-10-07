@@ -27,7 +27,7 @@ ignores this user provided segmentation.}
 
 \item{sampleid}{Sample id, used in output files.}
 
-\item{interval.weight.file}{Can be used to assign weights to targets. NOT
+\item{interval.weight.file}{Can be used to assign weights to intervals. NOT
 SUPPORTED YET in segmentation. Will remove targets with weight below 1/3.}
 
 \item{target.weight.file}{Deprecated.}
@@ -81,21 +81,19 @@ function is called via the \code{fun.segmentation} argument of
 }
 \examples{
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal_tiny.txt", 
     package="PureCN")
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor_tiny.txt", 
     package="PureCN")
-vcf.file <- system.file("extdata", "example_vcf.vcf.gz",
-    package="PureCN")
-interval.file <- system.file("extdata", "example_intervals.txt", 
+vcf.file <- system.file("extdata", "example.vcf.gz",
     package="PureCN")
 
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
  ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, genome="hg19",
-     sampleid="Sample1", interval.file=interval.file,
+     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, 
+     sampleid="Sample1",  genome="hg19",
      fun.segmentation=segmentationPSCBS, max.ploidy=4,
      test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 
