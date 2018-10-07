@@ -59,10 +59,22 @@ These tutorials are also available on the Bioconductor project page ([devel](htt
 Riester M, Singh A, Brannon A, Yu K, Campbell C, Chiang D and Morrissey M
 (2016). “PureCN: Copy number calling and SNV classification using targeted
 short read sequencing.” _Source Code for Biology and Medicine_, **11**, pp. 13.
-doi: [10.1186/s13029-016-0060-z](http://doi.org/10.1186/s13029-016-0060-z).
+doi: [10.1186/s13029-016-0060-z](https://doi.org/10.1186/s13029-016-0060-z).
 
----
+## Selected papers using PureCN
 
-[![PureCN_example.png](https://s9.postimg.org/6emxz4f5b/Pure_CN_example.png)](https://postimg.org/image/yer1jeiln/)
+Dagogo-Jack et al. "Tracking the evolution of resistance to ALK tyrosine kinase
+inhibitors through longitudinal analysis of circulating tumor DNA".  JCO
+Precision Oncology. doi:
+[10.1200/PO.17.00160](https://doi.org/10.1200/PO.17.00160)
 
-Copy number profile obtained by a 500-gene panel. 
+Orlando et al. "Genetic mechanisms of target antigen loss in CAR19 therapy of
+acute lymphoblastic leukemia". Nature Medicine.
+doi:[10.1038/s41591-018-0146-z](https://doi.org/10.1038/s41591-018-0146-z)
+
+Pal et al. "Efficacy of BGJ398, a fibroblast growth factor receptor 1-3
+inhibitor, in patients with previously treated advanced urothelial carcinoma
+with FGFR3 alterations". Cancer Discovery. doi:
+[10.1158/2159-8290.CD-18-0229](https://doi.org/10.1158/2159-8290.CD-18-0229)
+
+

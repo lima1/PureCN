@@ -49,6 +49,8 @@ Suggests:
     optparse,
     TxDb.Hsapiens.UCSC.hg19.knownGene,
     org.Hs.eg.db,
+    covr,
+    devtools,
     testthat
 VignetteBuilder: knitr
 License: Artistic-2.0
