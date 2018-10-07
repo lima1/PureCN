@@ -61,7 +61,7 @@ Riester M, Singh A, Brannon A, Yu K, Campbell C, Chiang D and Morrissey M
 short read sequencing.” _Source Code for Biology and Medicine_, **11**, pp. 13.
 doi: [10.1186/s13029-016-0060-z](https://doi.org/10.1186/s13029-016-0060-z).
 
-## Selected papers using PureCN
+## Selected citations
 
 Dagogo-Jack et al. "Tracking the evolution of resistance to ALK tyrosine kinase
 inhibitors through longitudinal analysis of circulating tumor DNA".  JCO
@@ -70,7 +70,7 @@ Precision Oncology. doi:
 
 Orlando et al. "Genetic mechanisms of target antigen loss in CAR19 therapy of
 acute lymphoblastic leukemia". Nature Medicine.
-doi:[10.1038/s41591-018-0146-z](https://doi.org/10.1038/s41591-018-0146-z)
+doi: [10.1038/s41591-018-0146-z](https://doi.org/10.1038/s41591-018-0146-z)
 
 Pal et al. "Efficacy of BGJ398, a fibroblast growth factor receptor 1-3
 inhibitor, in patients with previously treated advanced urothelial carcinoma
