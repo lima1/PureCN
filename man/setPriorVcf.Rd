@@ -44,7 +44,7 @@ provided \code{CollapsedVCF} object.
 
 # This function is typically only called by runAbsoluteCN via the 
 # fun.setPriorVcf and args.setPriorVcf comments.
-vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package="PureCN")
+vcf.file <- system.file("extdata", "example.vcf.gz", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")
 vcf.priorsomatic <- setPriorVcf(vcf)        
 

@@ -21,7 +21,7 @@
 #' ### This function is typically only called by runAbsolute via the 
 #' ### fun.filterVcf and args.filterVcf comments.
 #' library(VariantAnnotation)    
-#' vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package="PureCN")
+#' vcf.file <- system.file("extdata", "example.vcf.gz", package="PureCN")
 #' vcf <- readVcf(vcf.file, "hg19")
 #' vcf.filtered <- filterVcfMuTect(vcf)        
 #' 

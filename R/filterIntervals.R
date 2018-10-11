@@ -39,7 +39,7 @@
 #' 
 #' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
 #'     package="PureCN")
-#' vcf.file <- system.file("extdata", "example_vcf.vcf.gz", 
+#' vcf.file <- system.file("extdata", "example.vcf.gz", 
 #'     package="PureCN")
 #' interval.file <- system.file("extdata", "example_intervals.txt", 
 #'     package="PureCN")
