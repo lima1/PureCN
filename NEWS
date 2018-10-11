@@ -7,11 +7,10 @@ NEW FEATURES
       (so the resulting normalDB.rds file can be moved)
     o base quality filtering can be turned off by setting min.base.quality to 0
       or NULL
+    o possible to change the POP_AF info field name  
 
 SIGNIFICANT USER-VISIBLE CHANGES
 
-    o Code cleanups (try to avoid confusion around "targets", "intervals", 
-      "baits")
     o renamed reptimingbinsize to reptimingwidth in IntervalFile.R, added
       this feature to preprocessIntervals
     o clarified "targets" vs. "intervals"; whenever something affects both

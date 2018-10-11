@@ -185,6 +185,9 @@
 #' @param DB.info.flag Flag in INFO of VCF that marks presence in common
 #' germline databases. Defaults to \code{DB} that may contain somatic variants
 #' if it is from an unfiltered dbSNP VCF.
+#' @param POPAF.info.field As alternative to a flag, use an info field that
+#' contains population allele frequencies. The \code{DB} info flag has priority
+#' over this field when both exist.
 #' @param model Use either a beta or a beta-binomial distribution for fitting
 #' observed to expected allelic fractions of alterations in \code{vcf.file}. 
 #' The latter can be useful to account for significant overdispersion, for example 
@@ -286,7 +289,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     interval.file = NULL, max.dropout = c(0.95, 1.1), 
     min.logr.sdev = 0.15, max.logr.sdev = 0.6, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
-    cosmic.vcf.file = NULL, DB.info.flag = "DB", model = c("beta", "betabin"),
+    cosmic.vcf.file = NULL, DB.info.flag = "DB", 
+    POPAF.info.field = "POP_AF",
+    model = c("beta", "betabin"),
     post.optimize = FALSE, speedup.heuristics = 2, BPPARAM = NULL,
     log.file = NULL, verbose = TRUE) {
 
@@ -471,7 +476,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!is.null(vcf.file)) {
         flog.info("Loading VCF...")
         vcf <- .readAndCheckVcf(vcf.file, genome = genome, 
-            DB.info.flag = DB.info.flag)
+            DB.info.flag = DB.info.flag, POPAF.info.field = POPAF.info.field)
         
         if (length(intersect(seqlevels(tumor), seqlevels(vcf))) < 1) {
             .stopUserError("Different chromosome names in coverage and VCF.")

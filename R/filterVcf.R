@@ -309,7 +309,8 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }    
     return(TRUE)
 }    
-.readAndCheckVcf <- function(vcf.file, genome, DB.info.flag = "DB") {
+.readAndCheckVcf <- function(vcf.file, genome, DB.info.flag = "DB", 
+    POPAF.info.field = "POP_AF") {
     if (class(vcf.file) == "character") {
         vcf <- readVcf(vcf.file, genome)
     } else if (class(vcf.file) != "CollapsedVCF") {
@@ -330,9 +331,23 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         # provide one (matched tumor/normal cases only)
         vcf <- .addSomaticField(vcf)
     }
+    if (!.checkVcfFieldAvailable(vcf, "DP")) {
+        # try to add an DP geno field if missing
+        vcf <- .addDpField(vcf)
+    }
+    # check for NAs in DP
+    idx <- is.na(rowSums(geno(vcf)$DP)) 
+    if (sum(idx)) {
+        n <- length(vcf)
+        vcf <- vcf[!idx] 
+        flog.warn("DP FORMAT field contains NAs. Removing %i variants.", n-length(vcf))
+    }
     if (is.null(info(vcf)[[DB.info.flag]])) {
         # try to add an DB field based on rownames
-        vcf <- .addDbField(vcf, DB.info.flag)
+        vcf <- .addDbField(vcf, DB.info.flag, POPAF.info.field)
+    } else if (!is.null(info(vcf)[[POPAF.info.field]])) {
+        flog.warn("VCF contains both %s and %s INFO fields. Will ignore %s.",
+            DB.info.flag, POPAF.info.field, POPAF.info.field)
     }
     # check for NAs in DB
     idx <- is.na(info(vcf)[[DB.info.flag]])
@@ -353,27 +368,18 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         # try to add an FA geno field if missing
         vcf <- .addFaField(vcf)
     }
-    if (!.checkVcfFieldAvailable(vcf, "DP")) {
-        # try to add an DP geno field if missing
-        vcf <- .addDpField(vcf)
-    }
-    # check for NAs in DP
-    idx <- is.na(rowSums(geno(vcf)$DP)) 
-    if (sum(idx)) {
-        n <- length(vcf)
-        vcf <- vcf[!idx] 
-        flog.warn("DP FORMAT field contains NAs. Removing %i variants.", n-length(vcf))
-    }
     vcf     
 }
-.addDbField <- function(vcf, DB.info.flag = "DB") {
-    if (!is.null(info(vcf)$SOMATIC)) {
+.addDbField <- function(vcf, DB.info.flag = "DB", 
+                        POPAF.info.field = "POP_AF") {
+
+    if (!is.null(info(vcf)$SOMATIC) && sum(colSums(geno(vcf)$DP) > 0) == 2) {
         db <- !info(vcf)$SOMATIC
         flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
            " Found and used somatic status instead.")
-    } else if (!is.null(info(vcf)$POP_AF) && 
-        max(unlist(info(vcf)$POP_AF), na.rm = TRUE) > 0.1 ) {
-        db <- info(vcf)$POP_AF > 0.001
+    } else if (!is.null(info(vcf)[[POPAF.info.field]]) && 
+        max(unlist(info(vcf)[[POPAF.info.field]]), na.rm = TRUE) > 0.1 ) {
+        db <- info(vcf)[[POPAF.info.field]] > 0.001
         db <- sapply(db, function(x) x[[1]])
         flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
            " Found and used valid population allele frequency > 0.001 instead.")
@@ -381,10 +387,11 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         db <- grepl("^rs",rownames(vcf))
         
         if (!sum(db)) {
-           .stopUserError("vcf.file has no DB info field for membership in germline databases.")
+           .stopUserError("vcf.file has no %s or %s info field for membership in germline databases.", 
+            DB.info.flag, POPAF.info.field)
         } else {
-           flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
-               " Guessing it based on available dbSNP ID.")
+           flog.warn("vcf.file has no %s or %s info field for membership in germline databases.%s",
+               DB.info.flag, POPAF.info.field, " Guessing it based on available dbSNP ID.")
         }
     }
     newInfo <- DataFrame(
