@@ -8,6 +8,7 @@ NEW FEATURES
     o base quality filtering can be turned off by setting min.base.quality to 0
       or NULL
     o possible to change the POP_AF info field name  
+    o possible to change min.cosmic.cnt in PureCN.R 
 
 SIGNIFICANT USER-VISIBLE CHANGES
 

@@ -55,7 +55,8 @@ setPriorVcf <- function(vcf, prior.somatic = c(0.5, 0.0005, 0.999, 0.0001,
          prior.somatic <- ifelse(info(vcf)[[DB.info.flag]],
             prior.somatic[2], prior.somatic[1])
          if (!is.null(info(vcf)$Cosmic.CNT)) {
-             flog.info("Found COSMIC annotation in VCF.")
+             flog.info("Found COSMIC annotation in VCF. Requiring %i hits.", 
+                min.cosmic.cnt)
              flog.info("Setting somatic prior probabilities for hits to %f or to %f if in both COSMIC and dbSNP.", 
                 tmp[5], tmp[6])
 

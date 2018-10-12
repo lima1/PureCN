@@ -42,6 +42,9 @@ option_list <- list(
     make_option(c("--popafinfofield"), action = "store", type = "character",
         default = formals(PureCN::runAbsoluteCN)$POPAF.info.field,
         help = "VCF Filter: VCF INFO field providing population allele frequency [default %default]"),
+    make_option(c("--mincosmiccnt"), action = "store", type = "integer",
+        default = formals(PureCN::setPriorVcf)$min.cosmic.cnt,
+        help = "VCF Filter: Min number of COSMIC hits [default %default]"),
     make_option(c("--padding"), action = "store", type = "integer",
         default = formals(PureCN::filterVcfBasic)$interval.padding,
         help = "VCF Filter: Keep variants in the flanking region of specified size [default %default]"),
@@ -236,6 +239,7 @@ if (file.exists(file.rds) && !opt$force) {
                 alpha = opt$alpha, undo.SD = opt$undosd),
             args.setMappingBiasVcf =
                 list(normal.panel.vcf.file = opt$normal_panel),
+            args.setPriorVcf = list(min.cosmic.cnt = opt$mincosmiccnt),
             normalDB = normalDB, model.homozygous = opt$modelhomozygous,
             min.ploidy = opt$minploidy, max.ploidy = opt$maxploidy,
             model = opt[["model"]], log.file = file.log,
