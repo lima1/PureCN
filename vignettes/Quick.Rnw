@@ -517,6 +517,8 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --snpblacklist     & snp.blacklist & \Rfunction{filterVcfBasic}     \\
 --error            & error & \Rfunction{runAbsoluteCN}     \\
 --dbinfoflag       & DB.info.flag & \Rfunction{runAbsoluteCN}     \\
+--popafinfofield   & POPAF.info.field & \Rfunction{runAbsoluteCN}     \\
+--mincosmiccnt     & min.cosmic.cnt & \Rfunction{setPriorVcf}     \\
 --funsegmentation  & fun.segmentation & \Rfunction{runAbsoluteCN} \\ 
 --alpha            & alpha & \Rfunction{segmentationCBS} \\
 --undosd           & undo.SD & \Rfunction{segmentationCBS} \\
