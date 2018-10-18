@@ -311,7 +311,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 }    
 .readAndCheckVcf <- function(vcf.file, genome, DB.info.flag = "DB", 
                              POPAF.info.field = "POP_AF", 
-                             min.pop.af = 0.0005) {
+                             min.pop.af = 0.001) {
     if (class(vcf.file) == "character") {
         vcf <- readVcf(vcf.file, genome)
     } else if (class(vcf.file) != "CollapsedVCF") {
@@ -380,8 +380,8 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
            " Found and used somatic status instead.")
     } else if (!is.null(info(vcf)[[POPAF.info.field]]) && 
-        max(unlist(info(vcf)[[POPAF.info.field]]), na.rm = TRUE) > 0.1 ) {
-        db <- info(vcf)[[POPAF.info.field]] >= min.pop.af
+        max(unlist(info(vcf)[[POPAF.info.field]]), na.rm = TRUE) > 0.05 ) {
+        db <- info(vcf)[[POPAF.info.field]] > min.pop.af
         db <- sapply(db, function(x) x[[1]])
         flog.warn("vcf.file has no DB info field for membership in germline databases. Found and used valid population allele frequency > %f instead.",
                   min.pop.af)

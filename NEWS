@@ -20,7 +20,6 @@ SIGNIFICANT USER-VISIBLE CHANGES
       e.g. in annotateTargets, "targets" was kept.
     o made gc.gene.file defunct
     o new default for min.cosmic.cnt = 6 (instead of 4)
-    o new default for POP_AF cutoff = 0.0005 (instead of 0.001)
 
 BUGFIXES
 

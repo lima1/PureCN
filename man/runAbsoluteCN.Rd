@@ -26,7 +26,7 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   interval.file = NULL, max.dropout = c(0.95, 1.1), min.logr.sdev = 0.15,
   max.logr.sdev = 0.6, max.segments = 300, min.gof = 0.8,
   plot.cnv = TRUE, cosmic.vcf.file = NULL, DB.info.flag = "DB",
-  POPAF.info.field = "POP_AF", min.pop.af = 5e-04, model = c("beta",
+  POPAF.info.field = "POP_AF", min.pop.af = 0.001, model = c("beta",
   "betabin"), post.optimize = FALSE, speedup.heuristics = 2,
   BPPARAM = NULL, log.file = NULL, verbose = TRUE)
 }
