@@ -37,7 +37,7 @@
 #' @export setPriorVcf
 setPriorVcf <- function(vcf, prior.somatic = c(0.5, 0.0005, 0.999, 0.0001,
                                                0.995, 0.5),
-                        tumor.id.in.vcf = NULL, min.cosmic.cnt = 4, 
+                        tumor.id.in.vcf = NULL, min.cosmic.cnt = 6, 
                         DB.info.flag = "DB") {
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)

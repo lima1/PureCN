@@ -8,7 +8,8 @@ NEW FEATURES
     o base quality filtering can be turned off by setting min.base.quality to 0
       or NULL
     o possible to change the POP_AF info field name  
-    o possible to change min.cosmic.cnt in PureCN.R 
+    o possible to change POP_AF cutoff to set a high germline prior 
+    o possible to change min.cosmic.cnt in PureCN.R
 
 SIGNIFICANT USER-VISIBLE CHANGES
 
@@ -18,6 +19,8 @@ SIGNIFICANT USER-VISIBLE CHANGES
       on-target and off-target, it is now called "intervals". When only targets,
       e.g. in annotateTargets, "targets" was kept.
     o made gc.gene.file defunct
+    o new default for min.cosmic.cnt = 6 (instead of 4)
+    o new default for POP_AF cutoff = 0.0005 (instead of 0.001)
 
 BUGFIXES
 

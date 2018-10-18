@@ -188,6 +188,8 @@
 #' @param POPAF.info.field As alternative to a flag, use an info field that
 #' contains population allele frequencies. The \code{DB} info flag has priority
 #' over this field when both exist.
+#' @param min.pop.af Minimum population allele frequency in 
+#' \code{POPAF.info.field} to set a high germline prior probability.
 #' @param model Use either a beta or a beta-binomial distribution for fitting
 #' observed to expected allelic fractions of alterations in \code{vcf.file}. 
 #' The latter can be useful to account for significant overdispersion, for example 
@@ -290,7 +292,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     min.logr.sdev = 0.15, max.logr.sdev = 0.6, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
     cosmic.vcf.file = NULL, DB.info.flag = "DB", 
-    POPAF.info.field = "POP_AF",
+    POPAF.info.field = "POP_AF", min.pop.af = 0.0005,
     model = c("beta", "betabin"),
     post.optimize = FALSE, speedup.heuristics = 2, BPPARAM = NULL,
     log.file = NULL, verbose = TRUE) {
@@ -476,7 +478,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!is.null(vcf.file)) {
         flog.info("Loading VCF...")
         vcf <- .readAndCheckVcf(vcf.file, genome = genome, 
-            DB.info.flag = DB.info.flag, POPAF.info.field = POPAF.info.field)
+            DB.info.flag = DB.info.flag, POPAF.info.field = POPAF.info.field,
+            min.pop.af = min.pop.af)
         
         if (length(intersect(seqlevels(tumor), seqlevels(vcf))) < 1) {
             .stopUserError("Different chromosome names in coverage and VCF.")

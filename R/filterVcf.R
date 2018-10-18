@@ -310,7 +310,8 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     return(TRUE)
 }    
 .readAndCheckVcf <- function(vcf.file, genome, DB.info.flag = "DB", 
-    POPAF.info.field = "POP_AF") {
+                             POPAF.info.field = "POP_AF", 
+                             min.pop.af = 0.0005) {
     if (class(vcf.file) == "character") {
         vcf <- readVcf(vcf.file, genome)
     } else if (class(vcf.file) != "CollapsedVCF") {
@@ -344,7 +345,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }
     if (is.null(info(vcf)[[DB.info.flag]])) {
         # try to add an DB field based on rownames
-        vcf <- .addDbField(vcf, DB.info.flag, POPAF.info.field)
+        vcf <- .addDbField(vcf, DB.info.flag, POPAF.info.field, min.pop.af)
     } else if (!is.null(info(vcf)[[POPAF.info.field]])) {
         flog.warn("VCF contains both %s and %s INFO fields. Will ignore %s.",
             DB.info.flag, POPAF.info.field, POPAF.info.field)
@@ -370,8 +371,9 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }
     vcf     
 }
-.addDbField <- function(vcf, DB.info.flag = "DB", 
-                        POPAF.info.field = "POP_AF") {
+.addDbField <- function(vcf, DB.info.flag, 
+                        POPAF.info.field,
+                        min.pop.af) {
 
     if (!is.null(info(vcf)$SOMATIC) && sum(colSums(geno(vcf)$DP) > 0) == 2) {
         db <- !info(vcf)$SOMATIC
@@ -379,10 +381,10 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
            " Found and used somatic status instead.")
     } else if (!is.null(info(vcf)[[POPAF.info.field]]) && 
         max(unlist(info(vcf)[[POPAF.info.field]]), na.rm = TRUE) > 0.1 ) {
-        db <- info(vcf)[[POPAF.info.field]] > 0.001
+        db <- info(vcf)[[POPAF.info.field]] >= min.pop.af
         db <- sapply(db, function(x) x[[1]])
-        flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
-           " Found and used valid population allele frequency > 0.001 instead.")
+        flog.warn("vcf.file has no DB info field for membership in germline databases. Found and used valid population allele frequency > %f instead.",
+                  min.pop.af)
     } else {
         db <- grepl("^rs",rownames(vcf))
         
