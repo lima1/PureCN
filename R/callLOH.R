@@ -22,7 +22,8 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
         .stopUserError("runAbsoluteCN was run without a VCF file.")
     }
     chr.hash <- res$input$chr.hash
-    armLocations <- .getArmLocations(res)
+    centromeres <- .getCentromeres(res)
+    armLocations <- .getArmLocations(res$input$vcf, chr.hash, centromeres)
     if (!nrow(armLocations)) {
         .stopUserError("Centromere positions not available or matching.")
     }
@@ -82,14 +83,12 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
     GRanges(res$input$centromeres)    
 }
     
-.getArmLocations <- function(res) {
-    chr.hash <- res$input$chr.hash
-    centromeres <- .getCentromeres(res)
+.getArmLocations <- function(x, chr.hash, centromeres) {
 
     chromCoords <- suppressWarnings(t(vapply(split(
-        start(res$input$vcf),
-        as.character(seqnames(res$input$vcf))), function(x)
-        c(min(x), max(x)), c(min=double(1), max=double(1)))))
+        start(x),
+        as.character(seqnames(x))), function(y)
+        c(min(y), max(y)), c(min=double(1), max=double(1)))))
     if (!is.null(centromeres)) {
         # split segments by centromere if available
         chromCoords <- chromCoords[as.integer(match(seqnames(centromeres), rownames(chromCoords))),]
