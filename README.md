@@ -52,7 +52,9 @@ For the R package and more detailed information:
 vignette("PureCN", package="PureCN")
 ```
 
-These tutorials are also available on the Bioconductor project page ([devel](https://bioconductor.org/packages/devel/bioc/html/PureCN.html), [stable](https://doi.org/doi:10.18129/B9.bioc.PureCN)).
+These tutorials are also available on the Bioconductor project page
+([devel](https://bioconductor.org/packages/devel/bioc/html/PureCN.html),
+[stable](https://doi.org/doi:10.18129/B9.bioc.PureCN)).
 
 ## Paper
 
@@ -66,18 +68,18 @@ doi: [10.1186/s13029-016-0060-z](https://doi.org/10.1186/s13029-016-0060-z).
 Dagogo-Jack et al. (2018). "Tracking the evolution of resistance to ALK tyrosine kinase
 inhibitors through longitudinal analysis of circulating tumor DNA". _JCO
 Precision Oncology_. doi:
-[10.1200/PO.17.00160](https://doi.org/10.1200/PO.17.00160)
+[10.1200/PO.17.00160](https://doi.org/10.1200/PO.17.00160).
 
 Orlando et al. (2018). "Genetic mechanisms of target antigen loss in CAR19 therapy of
 acute lymphoblastic leukemia". _Nature Medicine_.
-doi: [10.1038/s41591-018-0146-z](https://doi.org/10.1038/s41591-018-0146-z)
+doi: [10.1038/s41591-018-0146-z](https://doi.org/10.1038/s41591-018-0146-z).
 
 Pal et al. (2018). "Efficacy of BGJ398, a fibroblast growth factor receptor 1-3
 inhibitor, in patients with previously treated advanced urothelial carcinoma
 with FGFR3 alterations". _Cancer Discovery_. doi:
-[10.1158/2159-8290.CD-18-0229](https://doi.org/10.1158/2159-8290.CD-18-0229)
+[10.1158/2159-8290.CD-18-0229](https://doi.org/10.1158/2159-8290.CD-18-0229).
 
 Pitt et al. (2018). "Characterization of Nigerian breast cancer reveals
 prevalent homologous recombination deficiency and aggressive molecular
 features". _Nature Communications_. doi:
-[10.1038/s41467-018-06616-0](https://doi.org/10.1038/s41467-018-06616-0)
+[10.1038/s41467-018-06616-0](https://doi.org/10.1038/s41467-018-06616-0).
