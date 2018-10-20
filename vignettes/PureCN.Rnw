@@ -72,7 +72,7 @@ normal sample.
 \end{enumerate}
 
 In addition, we need to know a little bit more about the assay.  This is the
-annoying step, since here the user needs to provide some information.  Most
+annoying step since here the user needs to provide some information.  Most
 importantly, we need to know the positions of all targets.  Then we need to
 correct for GC-bias, for which we need GC-content for each target.  Optionally,
 if gene-level calls are wanted, we also need for each target a gene symbol. We
@@ -292,11 +292,11 @@ vignette).
 
 For calculating copy number log-ratios of tumor vs. normal, \Biocpkg{PureCN}
 requires coverage from a process-matched normal sample.  Using a normal that
-was sequenced using a similar, but not identical assay, rarely works, since
-differently covered genomic regions result in too many log-ratio outliers. This
-section describes how to identify good process-matched normals in case no
-matched normal is available or in case the matched normal has low or uneven
-coverage. 
+was sequenced using a similar, but not identical assay, rarely works.
+Differently covered genomic regions simply result in too many log-ratio
+outliers. This section describes how to identify good process-matched normals
+in case no matched normal is available or in case the matched normal has low or
+uneven coverage. 
 
 The \Rfunction{createNormalDatabase} function builds a database of coverage
 files (a command line script providing this functionality is described in
@@ -321,7 +321,7 @@ pool <- calculateTangentNormal(tumor.coverage.file, normalDB)
 \subsection{Artifact filtering}
 \label{artifactfiltering}
 
-It is important to remove as many artifacts as possible, since low ploidy
+It is important to remove as many artifacts as possible, because low ploidy
 solutions are typically punished more by artifacts than high ploidy solutions.
 High ploidy solutions are complex and usually find ways of explaining artifacts
 reasonably well. The following steps in this section are optional, but
