@@ -34,6 +34,10 @@ properly ordered.}
 \item{centromeres}{A \code{GRanges} object with centromere positions.}
 
 \item{...}{Arguments passed to the segmentation function.}
+
+\item{w}{Weight of samples. Can be used to downweight poor quality samples.
+If \code{NULL}, sets to inverse of median on-target duplication rate if
+available, otherwise does not do any weighting.}
 }
 \value{
 \code{data.frame} containing the segmentation.

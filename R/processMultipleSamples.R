@@ -12,6 +12,9 @@
 #' @param genome Genome version, for example hg19. See \code{readVcf}.
 #' @param plot.cnv Segmentation plots.
 #' @param interval.weight.file Can be used to assign weights to intervals.
+#' @param w Weight of samples. Can be used to downweight poor quality samples.
+#' If \code{NULL}, sets to inverse of median on-target duplication rate if
+#' available, otherwise does not do any weighting.
 #' @param max.segments If not \code{NULL}, try a higher \code{undo.SD}
 #' parameter if number of segments exceeds the threshold.
 #' @param chr.hash Mapping of non-numerical chromsome names to numerical names
@@ -94,7 +97,18 @@ processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,
     lrs <- lrs[intervalsUsed,]
     arms <- arms[intervalsUsed]
     lrsw <- copynumber::winsorize(lrs, arms = arms)
-    lrsm <- copynumber::multipcf(lrsw, arms = arms, ...)
+    if (is.null(w)) {
+        w <- 1
+        dupr <- sapply(tumors, function(x) median(x[x$on.target]$duplication.rate, na.rm = TRUE))
+        if (!sum(is.na(dupr))) { 
+            w <- (1/dupr)
+            w <- w/max(w)
+
+            flog.info("Setting weights by duplication rate. Lowest weight for %s (%.2f), heighest for %s.",
+                sampleids[which.min(w)], min(w), sampleids[which.max(w)])
+        }
+    }
+    lrsm <- copynumber::multipcf(lrsw, arms = arms, w = w, ...)
     if (plot.cnv) {
         copynumber::plotGenome(lrsw, segments = lrsm, onefile = TRUE)
         copynumber::plotHeatmap(segments = lrsm, upper.lim = 1)
