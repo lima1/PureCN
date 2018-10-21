@@ -55,7 +55,7 @@
 #' 
 #' @export processMultipleSamples
 processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB, 
-    num.eigen = 20, genome, plot.cnv = TRUE,  
+    num.eigen = 20, genome, plot.cnv = TRUE, w = NULL,
     interval.weight.file = NULL, max.segments = NULL, 
     chr.hash = NULL, centromeres = NULL, ...) {
 

@@ -5,8 +5,9 @@
 \title{Multi sample normalization and segmentation}
 \usage{
 processMultipleSamples(tumor.coverage.files, sampleids, normalDB,
-  num.eigen = 20, genome, plot.cnv = TRUE, interval.weight.file = NULL,
-  max.segments = NULL, chr.hash = NULL, centromeres = NULL, ...)
+  num.eigen = 20, genome, plot.cnv = TRUE, w = NULL,
+  interval.weight.file = NULL, max.segments = NULL, chr.hash = NULL,
+  centromeres = NULL, ...)
 }
 \arguments{
 \item{tumor.coverage.files}{Coverage data for tumor samples.}
@@ -22,6 +23,10 @@ processMultipleSamples(tumor.coverage.files, sampleids, normalDB,
 
 \item{plot.cnv}{Segmentation plots.}
 
+\item{w}{Weight of samples. Can be used to downweight poor quality samples.
+If \code{NULL}, sets to inverse of median on-target duplication rate if
+available, otherwise does not do any weighting.}
+
 \item{interval.weight.file}{Can be used to assign weights to intervals.}
 
 \item{max.segments}{If not \code{NULL}, try a higher \code{undo.SD}
@@ -34,10 +39,6 @@ properly ordered.}
 \item{centromeres}{A \code{GRanges} object with centromere positions.}
 
 \item{...}{Arguments passed to the segmentation function.}
-
-\item{w}{Weight of samples. Can be used to downweight poor quality samples.
-If \code{NULL}, sets to inverse of median on-target duplication rate if
-available, otherwise does not do any weighting.}
 }
 \value{
 \code{data.frame} containing the segmentation.
