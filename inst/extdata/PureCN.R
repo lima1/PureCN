@@ -49,7 +49,7 @@ option_list <- list(
         default = formals(PureCN::filterVcfBasic)$interval.padding,
         help = "VCF Filter: Keep variants in the flanking region of specified size [default %default]"),
     make_option(c("--funsegmentation"), action = "store", type = "character", default = "CBS",
-        help = "Segmentation: Algorithm. CBS, PSCBS or none [default %default]"),
+        help = "Segmentation: Algorithm. CBS, PSCBS, Hclust, or none [default %default]"),
     make_option(c("--alpha"), action = "store", type = "double",
         default = formals(PureCN::segmentationCBS)$alpha,
         help = "Segmentation: significance of breakpoints [default %default]"),
@@ -177,7 +177,7 @@ if (file.exists(file.rds) && !opt$force) {
 } else {
     tumor.coverage.file.orig <- tumor.coverage.file
     if (!is.null(normalDB)) {
-        if (!is.null(seg.file)) stop("normalDB and segfile do not work together.")
+        #if (!is.null(seg.file)) stop("normalDB and segfile do not work together.")
         normalDB <- readRDS(normalDB)
     }
 
@@ -203,6 +203,8 @@ if (file.exists(file.rds) && !opt$force) {
     if (opt$funsegmentation != "CBS") {
         if (opt$funsegmentation == "PSCBS") {
             fun.segmentation <- segmentationPSCBS
+        } else if (opt$funsegmentation == "Hclust") {
+            fun.segmentation <- segmentationHclust
         } else if (opt$funsegmentation == "none") {
             fun.segmentation <- function(seg, ...) seg
         } else {

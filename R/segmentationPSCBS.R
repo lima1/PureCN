@@ -140,13 +140,13 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         min.width=3,alphaTCN=alpha, ...)
 
     if (plot.cnv) PSCBS::plotTracks(seg)
-    x <- .PSCBSoutput2DNAcopy(seg, sampleid)
+    seg <- .PSCBSoutput2DNAcopy(seg, sampleid)
 
     if (!is.null(vcf)) {
-        x <- .pruneByHclust(x, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
+        seg <- .pruneByHclust(seg, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
             method=prune.hclust.method, chr.hash=chr.hash)
     }
-    x$cna$output
+    seg
 }
 
 .PSCBSgetKnownSegments <- function(centromeres, chr.hash) {
@@ -166,5 +166,5 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     colnames(sx) <- c("ID", "chrom", "loc.start",  "loc.end", "num.mark", 
         "seg.mean")
     sx$seg.mean <- log2(sx$seg.mean/2)
-    list(cna=list(output=sx))
+    sx
 }

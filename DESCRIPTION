@@ -43,6 +43,7 @@ Imports:
     Matrix
 Suggests:
     PSCBS,
+    copynumber,
     BiocStyle,
     BiocParallel,
     knitr,

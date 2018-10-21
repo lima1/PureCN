@@ -99,7 +99,8 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         x <- .pruneByVCF(x, vcf, tumor.id.in.vcf, chr.hash = chr.hash)
         x <- .findCNNLOH(x, vcf, tumor.id.in.vcf, alpha = alpha, 
             chr.hash=chr.hash)
-        x <- .pruneByHclust(x, vcf, tumor.id.in.vcf, h = prune.hclust.h, 
+        x$cna$output <- .pruneByHclust(x$cna$output, vcf, tumor.id.in.vcf, 
+            h = prune.hclust.h, 
             method=prune.hclust.method, chr.hash = chr.hash)
     }
     idx.enough.markers <- x$cna$output$num.mark > 1
@@ -165,10 +166,9 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     seg
 }
 
-.pruneByHclust <- function(x, vcf, tumor.id.in.vcf, h=NULL, method="ward.D", 
+.pruneByHclust <- function(seg, vcf, tumor.id.in.vcf, h=NULL, method="ward.D", 
     min.variants=5, chr.hash, iterations=2) {
     for (iter in seq_len(iterations)) {
-        seg <- x$cna$output
         seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
             IRanges(start=seg$loc.start, end=seg$loc.end))
         ov <- findOverlaps(seg.gr, vcf)
@@ -202,30 +202,30 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
             seg.hc$id[seg.hc$cluster==i])
         clusters <- clusters[sapply(clusters, length)>1]
         
-        x$cna$output$cluster.id <- NA
+        seg$cluster.id <- NA
         for (i in seq_along(clusters)) {
-            x$cna$output$cluster.id[clusters[[i]]] <- i
-            x$cna$output$seg.mean[clusters[[i]]] <- 
-                weighted.mean(x$cna$output$seg.mean[clusters[[i]]], 
-                x$cna$output$num.mark[clusters[[i]]])
+            seg$cluster.id[clusters[[i]]] <- i
+            seg$seg.mean[clusters[[i]]] <- 
+                weighted.mean(seg$seg.mean[clusters[[i]]], 
+                seg$num.mark[clusters[[i]]])
         }
         # merge consecutive segments with the same cluster id 
-        merged <- rep(FALSE, nrow(x$cna$output))
-        for (i in 2:nrow(x$cna$output)) {
-            if (is.na(x$cna$output$cluster.id[i-1]) || 
-                is.na(x$cna$output$cluster.id[i]) || 
-                x$cna$output$chrom[i-1] != x$cna$output$chrom[i]  ||
+        merged <- rep(FALSE, nrow(seg))
+        for (i in 2:nrow(seg)) {
+            if (is.na(seg$cluster.id[i-1]) || 
+                is.na(seg$cluster.id[i]) || 
+                seg$chrom[i-1] != seg$chrom[i]  ||
                 merged[i-1] ||
-                x$cna$output$cluster.id[i-1] != x$cna$output$cluster.id[i]) next
+                seg$cluster.id[i-1] != seg$cluster.id[i]) next
                 merged[i] <- TRUE
 
-                x$cna$output$num.mark[i-1] <- x$cna$output$num.mark[i]+x$cna$output$num.mark[i-1]
-                x$cna$output$size[i-1] <- x$cna$output$size[i]+x$cna$output$size[i-1]
-                x$cna$output$loc.end[i-1] <- x$cna$output$loc.end[i]
+                seg$num.mark[i-1] <- seg$num.mark[i]+seg$num.mark[i-1]
+                seg$size[i-1] <- seg$size[i]+seg$size[i-1]
+                seg$loc.end[i-1] <- seg$loc.end[i]
         }
-        x$cna$output <- x$cna$output[!merged,]
+        seg <- seg[!merged,]
     }
-    x
+    seg
 }
     
 

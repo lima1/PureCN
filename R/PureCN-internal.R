@@ -827,6 +827,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     verbose=TRUE) {
     if (is.null(seg.file)) return(NULL)
     seg <- read.delim(seg.file)
+    if (verbose) flog.info("Loaded provided segmentation file %s.", 
+        basename(seg.file))
     .checkSeg(seg, sampleid, model.homozygous, verbose)
 }
 .checkSeg <- function(seg, sampleid, model.homozygous, verbose=TRUE) {
