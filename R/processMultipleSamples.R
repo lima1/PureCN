@@ -100,7 +100,7 @@ processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,
     if (is.null(w)) {
         w <- 1
         dupr <- sapply(tumors, function(x) median(x[x$on.target]$duplication.rate, na.rm = TRUE))
-        if (!sum(is.na(dupr))) { 
+        if (!sum(is.na(dupr)) && min(dupr, na.rm = TRUE) > 0) { 
             w <- (1/dupr)
             w <- w/max(w)
 
