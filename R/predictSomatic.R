@@ -106,13 +106,13 @@ ifelse(x=="logical", "Flag", ifelse(x=="integer", "Integer", "Float"))))
         row.names = colnames(pp)[idxCols]
     )
 
-    idxColsMisc <- paste0(prefix, c("CS", "CF", "PS", "LR", "GS"))
+    idxColsMisc <- paste0(prefix, c("CS", "CF", "PS", "LR", "GS", "FLAGGED"))
     newInfoMisc <- DataFrame(
-        Number = c(0, 1, 1, 1, 1),
-        Type = c("Flag", "Float", "Float", "Float", "String"),
+        Number = c(0, 1, 1, 1, 1, 0),
+        Type = c("Flag", "Float", "Float", "Float", "String", "Flag"),
         Description = c("Sub-clonal copy number gain", "Cellular fraction",
             "Posterior probability variant is somatic mutation.",
-            "Copy number log-ratio", "Gene Symbol"),
+            "Copy number log-ratio", "Gene Symbol", "QC Flagged"),
         row.names = idxColsMisc
     )
     info(header(vcf)) <- rbind(info(header(vcf)), newInfoPosterior, newInfoMl,

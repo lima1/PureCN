@@ -1453,6 +1453,14 @@ for artifact filtering. A few recommendations:
         Unfortunately, yes. If you used a commercial capture kit, you might be
         able to obtain control samples from the vendor or the public domain.
         This is not optimal, but usually better than nothing. 
+    
+    \item It is safe to include multiple normals from the same individual.
+        Fewer common germline CNVs in  \Rfunction{calculateIntervalWeights} and
+        fewer SNPs in \Rfunction{calculateMappingBiasVcf} will be detected. But
+        especially when the controls were sequenced in multiple batched, these
+        replicates will still provide useful information for coverage
+        normalization.
+         
 \end{itemize}
 
 \paragraph{Questions related to manual curation.}
