@@ -95,6 +95,8 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         plot.cnv = plot.cnv, sampleid=sampleid, alpha=alpha, 
         weights=interval.weights, sdundo=undo.SD, max.segments=max.segments,
         chr.hash=chr.hash)
+    origSeg <- x$cna$output
+
     if (!is.null(vcf)) {
         x <- .pruneByVCF(x, vcf, tumor.id.in.vcf, chr.hash = chr.hash)
         x <- .findCNNLOH(x, vcf, tumor.id.in.vcf, alpha = alpha, 
@@ -104,9 +106,17 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     }
     idx.enough.markers <- x$cna$output$num.mark > 1
     rownames(x$cna$output) <- NULL
-    x$cna$output[idx.enough.markers,]
+    finalSeg <- x$cna$output[idx.enough.markers,]
+    .debugSegmentation(origSeg, finalSeg)
+    finalSeg
 }
 
+.debugSegmentation <- function(origSeg, finalSeg) {
+    diffSeg <- finalSeg[!as.character(GRanges(finalSeg)) %in%
+                        as.character(GRanges(origSeg)),]
+    flog.debug(apply(diffSeg,1, paste, collapse="\t"))                     
+}
+    
 .findCNNLOH <- function(x, vcf, tumor.id.in.vcf, alpha = 0.005, 
                         min.variants = 7, iterations = 2, chr.hash) {
     for (iter in seq_len(iterations)) {

@@ -96,6 +96,9 @@ option_list <- list(
     make_option(c("--maxnonclonal"), action = "store", type = "double",
         default = formals(PureCN::runAbsoluteCN)$max.non.clonal,
         help = "Maximum genomic fraction assigned to a subclonal copy number state [default %default]"),
+    make_option(c("--maxhomozygousloss"), action = "store", type = "character",
+        default = paste(formals(PureCN::runAbsoluteCN)$max.homozygous.loss[2:3], collapse=","),
+        help = "Maximum genomic fraction assigned to a complete loss and maximum size of a loss in bp [default %default]"),
     make_option(c("--outvcf"), action = "store_true", default = FALSE,
         help = "Output: Annotate input VCF with posterior probabilities. Otherwise only produce CSV file."),
     make_option(c("--out"), action = "store", type = "character", default = NULL,
@@ -248,6 +251,7 @@ if (file.exists(file.rds) && !opt$force) {
             POPAF.info.field = opt$popafinfofield,
             log.ratio.calibration = opt$logratiocalibration,
             max.non.clonal = opt$maxnonclonal,
+            max.homozygous.loss = as.numeric(strsplit(opt$maxhomozygousloss,",")[[1]]),
             post.optimize = opt$postoptimize,
             speedup.heuristics = opt$speedupheuristics,
             BPPARAM = BPPARAM)

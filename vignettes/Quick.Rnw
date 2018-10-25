@@ -314,7 +314,9 @@ Important recommendations:
                 higher), requires running the variant caller with this padding
                 or without interval file. Use the same settings for the panel of
                 normals VCF so that SNPs in the flanking regions have reliable
-                mapping bias estimates.
+                mapping bias estimates. The \Rcode{--maxhomozygousloss}
+                parameter might also need some adjustment for very small panels
+                with large gaps around captured deletions.
             \item[Cell lines:] Safely skip the search for low purity
                 solutions in cell lines: \Rcode{--maxcopynumber 8},
                 \Rcode{--minpurity 0.9}, \Rcode{--maxpurity 0.99}.
@@ -535,6 +537,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --model            & model & \Rfunction{runAbsoluteCN} \\ 
 --logratiocalibration & log.ratio.calibration & \Rfunction{runAbsoluteCN} \\ 
 --maxnonclonal     & max.non.clonal & \Rfunction{runAbsoluteCN} \\ 
+--maxhomozygousloss & max.homozygous.loss & \Rfunction{runAbsoluteCN} \\ 
 --outvcf           & return.vcf & \Rfunction{predictSomatic} \\
 --out -o           & &                            \\
 --parallel         & BPPARAM & \Rfunction{runAbsoluteCN} \\
