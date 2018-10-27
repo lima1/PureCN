@@ -10,6 +10,7 @@ NEW FEATURES
     o possible to change the POP_AF info field name  
     o possible to change POP_AF cutoff to set a high germline prior 
     o possible to change min.cosmic.cnt and max.homozygous.loss in PureCN.R
+    o set number of cores in PureCN.R (thanks Brad)
 
 SIGNIFICANT USER-VISIBLE CHANGES
 
