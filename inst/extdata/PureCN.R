@@ -220,7 +220,7 @@ if (file.exists(file.rds) && !opt$force) {
         mutect.ignore <- mutect.ignore[-match("fstar_tumor_lod", mutect.ignore)]
     }    
     BPPARAM <- NULL
-    if (opt$cores) {
+    if (!is.null(opt$cores) && opt$cores > 1) {
         suppressPackageStartupMessages(library(BiocParallel))
         BPPARAM <- MulticoreParam(workers = opt$cores)
         flog.info("Using BiocParallel MulticoreParam backend with %s cores", opt$cores)

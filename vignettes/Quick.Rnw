@@ -541,6 +541,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --outvcf           & return.vcf & \Rfunction{predictSomatic} \\
 --out -o           & &                            \\
 --parallel         & BPPARAM & \Rfunction{runAbsoluteCN} \\
+--cores            & BPPARAM & \Rfunction{runAbsoluteCN} \\
 --seed             & & \\
 --version -v       & & \\
 --force -f         & & \\
