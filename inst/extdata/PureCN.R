@@ -108,6 +108,8 @@ option_list <- list(
         help = "Seed for random number generator [default %default]"),
     make_option(c("--parallel"), action = "store_true", default = FALSE,
         help = "Use BiocParallel to fit local optima in parallel."),
+    make_option(c("--cores"), action = "store", type = "integer", default = NULL,
+        help = "Use BiocParallel MulticoreParam backend with the specified number of worker cores"),
     make_option(c("-v", "--version"), action = "store_true", default = FALSE,
         help = "Print PureCN version"),
     make_option(c("-f", "--force"), action = "store_true", default = FALSE,
@@ -218,7 +220,11 @@ if (file.exists(file.rds) && !opt$force) {
         mutect.ignore <- mutect.ignore[-match("fstar_tumor_lod", mutect.ignore)]
     }    
     BPPARAM <- NULL
-    if (opt$parallel) {
+    if (opt$cores) {
+        suppressPackageStartupMessages(library(BiocParallel))
+        BPPARAM <- MulticoreParam(workers = opt$cores)
+        flog.info("Using BiocParallel MulticoreParam backend with %s cores", opt$cores)
+    } else if (opt$parallel) {
         suppressPackageStartupMessages(library(BiocParallel))
         BPPARAM <- bpparam()
         flog.info("Using default BiocParallel backend. You can change the default in your ~/.Rprofile file.") 
