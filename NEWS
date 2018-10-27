@@ -9,7 +9,7 @@ NEW FEATURES
       or NULL
     o possible to change the POP_AF info field name  
     o possible to change POP_AF cutoff to set a high germline prior 
-    o possible to change min.cosmic.cnt in PureCN.R
+    o possible to change min.cosmic.cnt and max.homozygous.loss in PureCN.R
 
 SIGNIFICANT USER-VISIBLE CHANGES
 
@@ -29,6 +29,7 @@ BUGFIXES
     o fixed a bug when only a single local optimum was tested (happens only
       when users copy the examples that restrict the search speach to avoid
       long runtimes)
+    o added missing QC flag to predictSomatic VCF annotation
 
 
 Changes in version 1.10.0
