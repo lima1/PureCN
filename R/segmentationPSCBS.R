@@ -94,15 +94,14 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
 
-    interval.weights <- rep(NA, length(tumor))
+    interval.weights <- rep(1, length(tumor))
     well.covered.exon.idx <- rep(TRUE, length(tumor))
 
     if (!is.null(interval.weight.file)) {
         interval.weights <- read.delim(interval.weight.file, as.is=TRUE)
         interval.weights <- interval.weights[match(as.character(tumor), 
             interval.weights[,1]),2]
-         flog.info("Interval weights found, but currently not supported by PSCBS. %s",
-            "Will simply exclude intervals with low weight.")
+        flog.info("Interval weights found, will use weighted PSCBS.")
         lowWeightIntervals <- interval.weights < 1/3
         well.covered.exon.idx[which(lowWeightIntervals)] <- FALSE
     }
@@ -137,7 +136,11 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     if (is.null(undo.SD)) {
         undo.SD <- .getSDundo(log.ratio)
         flog.info("Setting undo.SD parameter to %f.", undo.SD)
-    }   
+    }
+    if (min(interval.weights) == max(interval.weights)) {
+        flog.info("Using unweighted PSCBS.")
+        d.f$w <- NULL
+    }
     knownSegments <- .PSCBSgetKnownSegments(centromeres, chr.hash)
     seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
         flavor=flavor, undoTCN=undo.SD, knownSegments=knownSegments, 
