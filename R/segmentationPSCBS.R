@@ -94,8 +94,9 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
 
-    interval.weights <- NULL
+    interval.weights <- rep(NA, length(tumor))
     well.covered.exon.idx <- rep(TRUE, length(tumor))
+
     if (!is.null(interval.weight.file)) {
         interval.weights <- read.delim(interval.weight.file, as.is=TRUE)
         interval.weights <- interval.weights[match(as.character(tumor), 
@@ -107,15 +108,17 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     }
 
     #MR: fix for missing chrX/Y 
-    well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
-    tumor <- tumor[well.covered.exon.idx]
-    log.ratio <- log.ratio[well.covered.exon.idx]
+    #well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
+    #tumor <- tumor[well.covered.exon.idx]
+    #log.ratio <- log.ratio[well.covered.exon.idx]
+    #interval.weights <- interval.weights[well.covered.exon.idx]
     ov <- findOverlaps(vcf, tumor)
     d.f <- cbind(as.data.frame(tumor[subjectHits(ov)]), 
         CT=2 ^ (log.ratio+1)[subjectHits(ov)], 
         betaT=unlist(geno(vcf[queryHits(ov)])$FA[,tumor.id.in.vcf]), 
         betaN=NA,
-        x=start(vcf[queryHits(ov)]))
+        x=start(vcf[queryHits(ov)]),
+        w=interval.weights[subjectHits(ov)])
     
     if (!is.null(normal.id.in.vcf)) {
         d.f$betaN <- unlist(geno(vcf[queryHits(ov)])$FA[,normal.id.in.vcf])
@@ -123,7 +126,8 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
          
     d.f.2 <- cbind(as.data.frame(tumor[-subjectHits(ov)]), 
         CT=2 ^ (log.ratio+1)[-subjectHits(ov)], betaT=NA, betaN=NA,
-        x=start(tumor[-subjectHits(ov)]))
+        x=start(tumor[-subjectHits(ov)]),
+        w=interval.weights[-subjectHits(ov)])
     
     d.f <- rbind(d.f, d.f.2)
     colnames(d.f)[1] <- "chromosome"
