@@ -311,7 +311,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 }    
 .readAndCheckVcf <- function(vcf.file, genome, DB.info.flag = "DB", 
                              POPAF.info.field = "POP_AF", 
-                             min.pop.af = 0.001) {
+                             min.pop.af = 0.001, check.DB = TRUE) {
     if (class(vcf.file) == "character") {
         vcf <- readVcf(vcf.file, genome)
     } else if (class(vcf.file) != "CollapsedVCF") {
@@ -343,24 +343,26 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         vcf <- vcf[!idx] 
         flog.warn("DP FORMAT field contains NAs. Removing %i variants.", n-length(vcf))
     }
-    if (is.null(info(vcf)[[DB.info.flag]])) {
-        # try to add an DB field based on rownames
-        vcf <- .addDbField(vcf, DB.info.flag, POPAF.info.field, min.pop.af)
-    } else if (!is.null(info(vcf)[[POPAF.info.field]])) {
-        flog.warn("VCF contains both %s and %s INFO fields. Will ignore %s.",
-            DB.info.flag, POPAF.info.field, POPAF.info.field)
-    }
-    # check for NAs in DB
-    idx <- is.na(info(vcf)[[DB.info.flag]])
-    if (sum(idx)) {
-        flog.warn("DB INFO flag contains NAs")
-        info(vcf)[[DB.info.flag]][idx] <- FALSE
-    }
-    cntLikelyGL <- sum(info(vcf)[[DB.info.flag]], na.rm = TRUE)
-    flog.info("%i (%.1f%%) variants annotated as likely germline (%s INFO flag).",
-        cntLikelyGL, cntLikelyGL/length(vcf)*100, DB.info.flag)
-    if (!cntLikelyGL) {
-        .stopUserError("VCF either contains no germline variants or variants are not properly annotated.")
+    if (check.DB) {
+        if (is.null(info(vcf)[[DB.info.flag]])) {
+            # try to add an DB field based on rownames
+            vcf <- .addDbField(vcf, DB.info.flag, POPAF.info.field, min.pop.af)
+        } else if (!is.null(info(vcf)[[POPAF.info.field]])) {
+            flog.warn("VCF contains both %s and %s INFO fields. Will ignore %s.",
+                DB.info.flag, POPAF.info.field, POPAF.info.field)
+        }
+        # check for NAs in DB
+        idx <- is.na(info(vcf)[[DB.info.flag]])
+        if (sum(idx)) {
+            flog.warn("DB INFO flag contains NAs")
+            info(vcf)[[DB.info.flag]][idx] <- FALSE
+        }
+        cntLikelyGL <- sum(info(vcf)[[DB.info.flag]], na.rm = TRUE)
+        flog.info("%i (%.1f%%) variants annotated as likely germline (%s INFO flag).",
+            cntLikelyGL, cntLikelyGL/length(vcf)*100, DB.info.flag)
+        if (!cntLikelyGL) {
+            .stopUserError("VCF either contains no germline variants or variants are not properly annotated.")
+        }
     }
     if (is.null(geno(vcf)$AD)) {
         vcf <- .addADField(vcf)
