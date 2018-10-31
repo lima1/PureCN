@@ -146,6 +146,8 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         flavor=flavor, undoTCN=undo.SD, knownSegments=knownSegments, 
         min.width=3,alphaTCN=alpha, ...)
 
+    try(flog.debug("Kappa: %f", PSCBS::estimateKappa(seg)), silent = TRUE)
+
     if (plot.cnv) PSCBS::plotTracks(seg)
     x <- .PSCBSoutput2DNAcopy(seg, sampleid)
 
