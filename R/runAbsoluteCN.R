@@ -538,6 +538,13 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         mapping.bias <- do.call(fun.setMappingBiasVcf,
             .checkArgs(args.setMappingBiasVcf, "setMappingBiasVcf"))
         idxHqGermline <- prior.somatic < 0.1 & mapping.bias$bias >= max.mapping.bias
+        flog.info("Excluding %i novel or poor quality variants from segmentation.", sum(!idxHqGermline))
+        # for larger pool of normals, require that we have seen the SNP 
+        if (max(mapping.bias$pon.count, na.rm = TRUE)> 10) {
+            idxHqGermline <- idxHqGermline & mapping.bias$pon.count > 0
+            flog.info("Excluding %i variants not in pool of normals from segmentation.",
+                 sum(!mapping.bias$pon.count>0))
+        }
         vcf.germline <- vcf[idxHqGermline]
     }
     

@@ -94,28 +94,30 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
 
-    interval.weights <- NULL
+    interval.weights <- rep(1, length(tumor))
     well.covered.exon.idx <- rep(TRUE, length(tumor))
+
     if (!is.null(interval.weight.file)) {
         interval.weights <- read.delim(interval.weight.file, as.is=TRUE)
         interval.weights <- interval.weights[match(as.character(tumor), 
             interval.weights[,1]),2]
-         flog.info("Interval weights found, but currently not supported by PSCBS. %s",
-            "Will simply exclude intervals with low weight.")
+        flog.info("Interval weights found, will use weighted PSCBS.")
         lowWeightIntervals <- interval.weights < 1/3
         well.covered.exon.idx[which(lowWeightIntervals)] <- FALSE
     }
 
     #MR: fix for missing chrX/Y 
-    well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
-    tumor <- tumor[well.covered.exon.idx]
-    log.ratio <- log.ratio[well.covered.exon.idx]
+    #well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
+    #tumor <- tumor[well.covered.exon.idx]
+    #log.ratio <- log.ratio[well.covered.exon.idx]
+    #interval.weights <- interval.weights[well.covered.exon.idx]
     ov <- findOverlaps(vcf, tumor)
     d.f <- cbind(as.data.frame(tumor[subjectHits(ov)]), 
         CT=2 ^ (log.ratio+1)[subjectHits(ov)], 
         betaT=unlist(geno(vcf[queryHits(ov)])$FA[,tumor.id.in.vcf]), 
         betaN=NA,
-        x=start(vcf[queryHits(ov)]))
+        x=start(vcf[queryHits(ov)]),
+        w=interval.weights[subjectHits(ov)])
     
     if (!is.null(normal.id.in.vcf)) {
         d.f$betaN <- unlist(geno(vcf[queryHits(ov)])$FA[,normal.id.in.vcf])
@@ -123,7 +125,8 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
          
     d.f.2 <- cbind(as.data.frame(tumor[-subjectHits(ov)]), 
         CT=2 ^ (log.ratio+1)[-subjectHits(ov)], betaT=NA, betaN=NA,
-        x=start(tumor[-subjectHits(ov)]))
+        x=start(tumor[-subjectHits(ov)]),
+        w=interval.weights[-subjectHits(ov)])
     
     d.f <- rbind(d.f, d.f.2)
     colnames(d.f)[1] <- "chromosome"
@@ -133,11 +136,17 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     if (is.null(undo.SD)) {
         undo.SD <- .getSDundo(log.ratio)
         flog.info("Setting undo.SD parameter to %f.", undo.SD)
-    }   
+    }
+    if (min(interval.weights) == max(interval.weights)) {
+        flog.info("Using unweighted PSCBS.")
+        d.f$w <- NULL
+    }
     knownSegments <- .PSCBSgetKnownSegments(centromeres, chr.hash)
     seg <- PSCBS::segmentByNonPairedPSCBS(d.f, tauA=tauA, 
         flavor=flavor, undoTCN=undo.SD, knownSegments=knownSegments, 
         min.width=3,alphaTCN=alpha, ...)
+
+    try(flog.debug("Kappa: %f", PSCBS::estimateKappa(seg)), silent = TRUE)
 
     if (plot.cnv) PSCBS::plotTracks(seg)
     x <- .PSCBSoutput2DNAcopy(seg, sampleid)
