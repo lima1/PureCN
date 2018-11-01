@@ -5,6 +5,8 @@ NEW FEATURES
 
     o support for copynumber package and its multisample segmentation
     o beta support for PSCBS weighting
+    o support for gene symbol filtering in FilterCallableLoci.R 
+      (e.g. --exclude "^HLA").
  
 
 Changes in version 1.12.0
