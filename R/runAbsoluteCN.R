@@ -956,7 +956,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     } else {
                         res.snvllik <- c(res.snvllik, lapply(tp[-1], .fitSNVp))
                       px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal = sol$ML.Subclonal[i], 
-                        lr = exon.lrs[[i]] + sol$log.ratio.offset[i], sd.seg = sol$sd.seg, p = px, 
+                        lr = exon.lrs[[i]] + sol$log.ratio.offset[i], sd.seg = sol$log.ratio.sdev, p = px, 
                         Ci = sol$ML.C[i], total.ploidy = px * (sum(sol$seg$size * sol$ML.C))/sum(sol$seg$size) + (1 - 
                           px) * 2, max.exon.ratio = max.exon.ratio), double(1)))
                       
