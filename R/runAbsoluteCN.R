@@ -545,7 +545,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         idxHqGermline <- prior.somatic < 0.1 & mapping.bias$bias >= max.mapping.bias
         flog.info("Excluding %i novel or poor quality variants from segmentation.", sum(!idxHqGermline))
         # for larger pool of normals, require that we have seen the SNP 
-        if (max(mapping.bias$pon.count, na.rm = TRUE)> 10) {
+        if (sum(!is.na(mapping.bias$pon.count)) && 
+            max(mapping.bias$pon.count, na.rm = TRUE)> 10) {
             idxHqGermline <- idxHqGermline & mapping.bias$pon.count > 0
             flog.info("Excluding %i variants not in pool of normals from segmentation.",
                  sum(!mapping.bias$pon.count>0))
@@ -888,22 +889,29 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         seg.adjusted <- seg
         seg.adjusted$C <- C
         seg.adjusted$size <- li
+        list(log.likelihood = llik, purity = p, ploidy = weighted.mean(C, li), 
+             ML.C = C, opt.C = opt.C, ML.Subclonal = subclonal, total.ploidy = total.ploidy,
+             seg = seg.adjusted, C.likelihood = C.likelihood, fraction.subclonal = subclonal.f,
+             fraction.homozygous.loss = sum(li[which(C < 0.01)])/sum(li),
+             log.ratio.offset = log.ratio.offset, 
+             log.ratio.sdev = sd.seg, SA.iterations = iter, candidate.id = cpi)
+    }
+
+    .fitSolution <- function(sol) {
         SNV.posterior <- NULL
+        p <- sol$purity
         
-        if (subclonal.f > max.non.clonal) {
+        if (sol$fraction.subclonal > max.non.clonal) {
             if (!is.null(vcf.file)) {
                 # we skipped the SNV fitting for this rare corner case.
                 SNV.posterior <- list(llik = -Inf)
             }
-            return(list(log.likelihood = llik, purity = p, ploidy = weighted.mean(C, 
-                li), total.ploidy = total.ploidy, seg = seg.adjusted, C.likelihood = data.frame(C.likelihood/rowSums(C.likelihood), 
-                ML.C = C, ML.Subclonal = subclonal), SNV.posterior = SNV.posterior, 
-                fraction.subclonal = subclonal.f, fraction.homozygous.loss = sum(li[which(C < 
-                  0.01)])/sum(li), gene.calls = NA, log.ratio.offset = log.ratio.offset, 
-                  log.ratio.sdev = sd.seg, SA.iterations = iter, candidate.id = cpi))
+            return(c(sol, list(C.posterior = data.frame(sol$C.likelihood/rowSums(sol$C.likelihood)), 
+                SNV.posterior = SNV.posterior, 
+                gene.calls = NA)))
         }
         
-        gene.calls <- .getGeneCalls(seg.adjusted, tumor, log.ratio, fun.focal, 
+        gene.calls <- .getGeneCalls(sol$seg, tumor, log.ratio, fun.focal, 
             args.focal, chr.hash)
 
         if (!is.null(vcf.file)) {
@@ -922,11 +930,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             .fitSNV <- function(tp, pp) {
                 .fitSNVp <- function(px, cont.rate=prior.contamination) {
                     flog.info("Fitting variants for purity %.2f, tumor ploidy %.2f and contamination %.2f.", 
-                        px, weighted.mean(C, li), cont.rate)
+                        px, weighted.mean(sol$ML.C, sol$seg$size), cont.rate)
                   
                   .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, test.num.copy, 
-                    C.likelihood, C, opt.C, median.C = median(rep(C, seg.adjusted$num.mark)), 
-                    snv.model = model, prior.somatic, mapping.bias, 
+                    sol$C.likelihood, sol$ML.C, sol$opt.C, median.C = median(rep(sol$ML.C, sol$seg$num.mark)), 
+                    snv.model = model, prior.somatic, mapping.bias,
                     snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K, 
                     max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M, 
                     model.homozygous = model.homozygous, error = error, 
@@ -935,22 +943,21 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 }
 
                 res.snvllik <- lapply(tp[1], .fitSNVp)
-                
                 if (post.optimize && length(tp)>1) {
                     GoF <- .getGoF(list(SNV.posterior=res.snvllik[[1]]))
                     idx <- 1
                     if (GoF < (min.gof-0.05) && speedup.heuristics > 0) {
                         flog.info("Poor goodness-of-fit (%.3f). Skipping post-optimization.", GoF)
                     } else if (.calcFractionBalanced(res.snvllik[[1]]$posteriors) > 0.8 && 
-                        weighted.mean(C, li) > 2.7 && speedup.heuristics > 0) {
+                        weighted.mean(sol$ML.C, sol$seg$size) > 2.7 && speedup.heuristics > 0) {
                         flog.info("High ploidy solution in highly balanced genome. Skipping post-optimization.")
-                    } else if (.isRareKaryotype(weighted.mean(C, li)) && speedup.heuristics > 0) {
+                    } else if (.isRareKaryotype(weighted.mean(sol$ML.C, sol$seg$size)) && speedup.heuristics > 0) {
                         flog.info("Rare karyotype solution. Skipping post-optimization.")
                     } else {
                         res.snvllik <- c(res.snvllik, lapply(tp[-1], .fitSNVp))
-                      px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal = subclonal[i], 
-                        lr = exon.lrs[[i]] + log.ratio.offset[i], sd.seg = sd.seg, p = px, 
-                        Ci = C[i], total.ploidy = px * (sum(li * (C)))/sum(li) + (1 - 
+                      px.rij <- lapply(tp, function(px) vapply(which(!is.na(C)), function(i) .calcLlikSegment(subclonal = sol$ML.Subclonal[i], 
+                        lr = exon.lrs[[i]] + sol$log.ratio.offset[i], sd.seg = sol$sd.seg, p = px, 
+                        Ci = sol$ML.C[i], total.ploidy = px * (sum(sol$seg$size * sol$ML.C))/sum(sol$seg$size) + (1 - 
                           px) * 2, max.exon.ratio = max.exon.ratio), double(1)))
                       
                       px.rij.s <- sapply(px.rij, sum, na.rm = TRUE) + log(pp) + vapply(res.snvllik, 
@@ -963,31 +970,33 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 p <- tp[idx]
                 flog.info("Optimized purity: %.2f", p)
                 SNV.posterior <- res.snvllik[[idx]]
-                list(p = p, SNV.posterior = SNV.posterior, llik = px.rij.s[idx])
+                list(p = p, SNV.posterior = SNV.posterior)
             }
             fitRes <- .fitSNV(tp, pp)
-            p <- fitRes$p
+            sol$purity <- fitRes$p
             SNV.posterior <- fitRes$SNV.posterior
         }
          
-        list(log.likelihood = llik, purity = p, ploidy = weighted.mean(C, li),
-            total.ploidy = total.ploidy, seg = seg.adjusted, 
-            C.posterior = data.frame(C.likelihood/rowSums(C.likelihood), ML.C =
-            C, Opt.C = opt.C, ML.Subclonal = subclonal),
-            C.likelihood=C.likelihood, SNV.posterior = SNV.posterior,
-            fraction.subclonal = subclonal.f, fraction.homozygous.loss =
-            sum(li[which(C < 0.01)])/sum(li), fraction.balanced = 
+        c(sol, list(
+            C.posterior = data.frame(sol$C.likelihood/rowSums(sol$C.likelihood), ML.C =
+            sol$ML.C, Opt.C = sol$opt.C, ML.Subclonal = sol$ML.Subclonal),
+            SNV.posterior = SNV.posterior,
+             fraction.balanced = 
             .calcFractionBalanced(SNV.posterior$posteriors),
             gene.calls = gene.calls,
-            log.ratio.offset = log.ratio.offset, log.ratio.sdev = sd.seg, SA.iterations = iter, 
-            candidate.id = cpi, failed = FALSE)
+            failed = FALSE))
     }
     
     if (is.null(BPPARAM)) {
         results <- lapply(seq_len(nrow(candidate.solutions$candidates)), .optimizeSolution)
+        results <- .filterDuplicatedResults(results)
+        results <- lapply(results, .fitSolution)
     } else {
         results <- BiocParallel::bplapply(seq_len(nrow(candidate.solutions$candidates)), 
                                           .optimizeSolution, BPPARAM = BPPARAM)
+        results <- .filterDuplicatedResults(results)
+        results <- BiocParallel::bplapply(results, 
+                                          .fitSolution, BPPARAM = BPPARAM)
     }    
     results <- .rankResults(results)
     results <- .filterDuplicatedResults(results)
