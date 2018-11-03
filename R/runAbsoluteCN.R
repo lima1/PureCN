@@ -987,17 +987,27 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             failed = FALSE))
     }
     
+    # assign integer copy numbers to segments using SA 
     if (is.null(BPPARAM)) {
         results <- lapply(seq_len(nrow(candidate.solutions$candidates)), .optimizeSolution)
-        results <- .filterDuplicatedResults(results)
-        results <- lapply(results, .fitSolution)
     } else {
         results <- BiocParallel::bplapply(seq_len(nrow(candidate.solutions$candidates)), 
                                           .optimizeSolution, BPPARAM = BPPARAM)
-        results <- .filterDuplicatedResults(results)
+    }    
+    nBefore <- length(results)
+    results <- .filterDuplicatedResults(results)
+    if (length(results) < nBefore) { 
+        flog.info("Skipping %i solutions that converged to the same optima.",
+                  nBefore - length(results))
+    }
+    # fit SNVs
+    if (is.null(BPPARAM)) {
+        results <- lapply(results, .fitSolution)
+    } else {
         results <- BiocParallel::bplapply(results, 
                                           .fitSolution, BPPARAM = BPPARAM)
-    }    
+    }
+
     results <- .rankResults(results)
     results <- .filterDuplicatedResults(results)
 
