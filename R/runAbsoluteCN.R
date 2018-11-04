@@ -900,9 +900,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     .fitSolution <- function(sol) {
         SNV.posterior <- NULL
         p <- sol$purity
-        flog.info("Fitting variants for local optimum %i/%i...", 
-            sol$candidate.id, nrow(candidate.solutions$candidates), p)
-        
+        if (!is.null(vcf.file)) {
+            flog.info("Fitting variants for local optimum %i/%i...", 
+                sol$candidate.id, nrow(candidate.solutions$candidates), p)
+        }
         if (sol$fraction.subclonal > max.non.clonal) {
             if (!is.null(vcf.file)) {
                 # we skipped the SNV fitting for this rare corner case.
@@ -996,6 +997,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         results <- BiocParallel::bplapply(seq_len(nrow(candidate.solutions$candidates)), 
                                           .optimizeSolution, BPPARAM = BPPARAM)
     }    
+    results <- .rankResults(results)
     nBefore <- length(results)
     results <- .filterDuplicatedResults(results)
     if (length(results) < nBefore) { 
@@ -1003,7 +1005,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                   nBefore - length(results))
     }
     # fit SNVs
-    if (is.null(BPPARAM)) {
+    if (is.null(BPPARAM) || is.null(vcf.file)) {
         results <- lapply(results, .fitSolution)
     } else {
         results <- BiocParallel::bplapply(results, 
