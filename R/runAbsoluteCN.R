@@ -905,13 +905,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 sol$candidate.id, nrow(candidate.solutions$candidates), p)
         }
         if (sol$fraction.subclonal > max.non.clonal) {
-            if (!is.null(vcf.file)) {
-                # we skipped the SNV fitting for this rare corner case.
-                SNV.posterior <- list(llik = -Inf)
-            }
-            return(c(sol, list(C.posterior = data.frame(sol$C.likelihood/rowSums(sol$C.likelihood)), 
-                SNV.posterior = SNV.posterior, 
-                gene.calls = NA)))
+            .stopRuntimeError(".fitSolution received high subclonal solution.")
         }
         
         gene.calls <- .getGeneCalls(sol$seg, tumor, log.ratio, fun.focal, 
@@ -1004,6 +998,15 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         flog.info("Skipping %i solutions that converged to the same optima.",
                   nBefore - length(results))
     }
+    idxFailed <- sapply(results, function(sol) 
+                        sol$fraction.subclonal > max.non.clonal)
+    if (sum(is.na(idxFailed))) .stopRuntimeError("NAs in fraction.subclonal.")
+    if (sum(idxFailed)) {
+        flog.info("Skipping %i solutions exceeding max.non.clonal (%.2f).",
+                  sum(idxFailed), max.non.clonal)
+    }
+    results <- results[which(!idxFailed)]
+
     # fit SNVs
     if (is.null(BPPARAM) || is.null(vcf.file)) {
         results <- lapply(results, .fitSolution)
