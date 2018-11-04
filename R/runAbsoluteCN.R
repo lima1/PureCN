@@ -900,6 +900,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     .fitSolution <- function(sol) {
         SNV.posterior <- NULL
         p <- sol$purity
+        flog.info("Fitting variants for local optimum %i/%i...", 
+            sol$candidate.id, nrow(candidate.solutions$candidates), p)
         
         if (sol$fraction.subclonal > max.non.clonal) {
             if (!is.null(vcf.file)) {
