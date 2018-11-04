@@ -102,32 +102,30 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         interval.weights <- interval.weights[match(as.character(tumor), 
             interval.weights[,1]),2]
         flog.info("Interval weights found, will use weighted PSCBS.")
-        lowWeightIntervals <- interval.weights < 1/3
-        well.covered.exon.idx[which(lowWeightIntervals)] <- FALSE
     }
 
-    #MR: fix for missing chrX/Y 
-    #well.covered.exon.idx[is.na(well.covered.exon.idx)] <- FALSE
-    #tumor <- tumor[well.covered.exon.idx]
-    #log.ratio <- log.ratio[well.covered.exon.idx]
-    #interval.weights <- interval.weights[well.covered.exon.idx]
-
-    if (is.null(undo.SD)) {
-        undo.SD <- .getSDundo(log.ratio)
-        flog.info("Setting undo.SD parameter to %f.", undo.SD)
-    }
     input <- .PSCBSinput(tumor, log.ratio, vcf, tumor.id.in.vcf, 
                          normal.id.in.vcf, interval.weights, chr.hash)
 
     knownSegments <- .PSCBSgetKnownSegments(centromeres, chr.hash)
-    seg <- PSCBS::segmentByNonPairedPSCBS(input, tauA=tauA, 
-        flavor=flavor, undoTCN=undo.SD, knownSegments=knownSegments, 
-        min.width=3,alphaTCN=alpha, ...)
 
-    try(flog.debug("Kappa: %f", PSCBS::estimateKappa(seg)), silent = TRUE)
+    if (is.null(undo.SD)) undo.SD <- .getSDundo(log.ratio)
 
-    if (plot.cnv) PSCBS::plotTracks(seg)
-    seg <- .PSCBSoutput2DNAcopy(seg, sampleid)
+    try.again <- 0
+    while (try.again < 2) {
+        flog.info("Setting undo.SD parameter to %f.", undo.SD)
+        segPSCBS <- PSCBS::segmentByNonPairedPSCBS(input, tauA=tauA, 
+            flavor=flavor, undoTCN=undo.SD, knownSegments=knownSegments, 
+            min.width=3,alphaTCN=alpha, ...)
+        try(flog.debug("Kappa: %f", PSCBS::estimateKappa(segPSCBS)), silent = TRUE)
+        seg <- .PSCBSoutput2DNAcopy(segPSCBS, sampleid)
+        if (undo.SD <= 0 || is.null(max.segments) || nrow(seg) < max.segments) break
+        undo.SD <- undo.SD * 1.5
+        try.again <- try.again + 1
+    }
+
+    if (plot.cnv) PSCBS::plotTracks(segPSCBS)
+    segPSCBS <- NULL
 
     if (!is.null(vcf)) {
         seg <- .pruneByHclust(seg, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
