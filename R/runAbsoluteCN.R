@@ -991,9 +991,13 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         results <- BiocParallel::bplapply(seq_len(nrow(candidate.solutions$candidates)), 
                                           .optimizeSolution, BPPARAM = BPPARAM)
     }    
+    # rank and then delete lower ranked similar solution
     results <- .rankResults(results)
     nBefore <- length(results)
     results <- .filterDuplicatedResults(results)
+    # bring back in original order for progress output
+    results <- results[order(sapply(results, function(sol) sol$candidate.id))]
+
     if (length(results) < nBefore) { 
         flog.info("Skipping %i solutions that converged to the same optima.",
                   nBefore - length(results))
