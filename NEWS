@@ -8,6 +8,9 @@ NEW FEATURES
     o support for gene symbol filtering in FilterCallableLoci.R 
       (e.g. --exclude "^HLA").
  
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o significant runtime improvements 
 
 Changes in version 1.12.0
 -------------------------
