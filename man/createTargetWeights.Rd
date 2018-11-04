@@ -4,7 +4,8 @@
 \alias{createTargetWeights}
 \title{Calculate target weights}
 \usage{
-createTargetWeights(normal.coverage.files, target.weight.file, plot = FALSE)
+createTargetWeights(normal.coverage.files, target.weight.file,
+  plot = FALSE)
 }
 \arguments{
 \item{normal.coverage.files}{A set of normal coverage samples

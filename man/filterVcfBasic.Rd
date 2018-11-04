@@ -9,7 +9,8 @@ filterVcfBasic(vcf, tumor.id.in.vcf = NULL, use.somatic.status = TRUE,
   contamination.range = c(0.01, 0.075), min.coverage = 15,
   min.base.quality = 25, min.supporting.reads = NULL, error = 0.001,
   target.granges = NULL, remove.off.target.snvs = TRUE,
-  model.homozygous = FALSE, interval.padding = 50, DB.info.flag = "DB")
+  model.homozygous = FALSE, interval.padding = 50,
+  DB.info.flag = "DB")
 }
 \arguments{
 \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf}

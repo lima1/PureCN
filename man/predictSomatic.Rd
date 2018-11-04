@@ -4,7 +4,8 @@
 \alias{predictSomatic}
 \title{Predict germline vs. somatic status}
 \usage{
-predictSomatic(res, id = 1, return.vcf = FALSE, vcf.field.prefix = "")
+predictSomatic(res, id = 1, return.vcf = FALSE,
+  vcf.field.prefix = "")
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}

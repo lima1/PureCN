@@ -5,8 +5,8 @@
 \title{Calling of amplifications and deletions from segmentations}
 \usage{
 callAlterationsFromSegmentation(sampleid, chr, start, end, num.mark = NA,
-  seg.mean, C, interval.file, fun.focal = findFocal, args.focal = list(),
-  ...)
+  seg.mean, C, interval.file, fun.focal = findFocal,
+  args.focal = list(), ...)
 }
 \arguments{
 \item{sampleid}{The sampleid column in the segmentation file.}

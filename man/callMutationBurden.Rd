@@ -5,9 +5,9 @@
 \title{Call mutation burden}
 \usage{
 callMutationBurden(res, id = 1, remove.flagged = TRUE,
-  min.prior.somatic = 0.1, max.prior.somatic = 1, min.cellfraction = 0,
-  fun.countMutation = function(vcf) width(vcf) == 1, callable = NULL,
-  exclude = NULL)
+  min.prior.somatic = 0.1, max.prior.somatic = 1,
+  min.cellfraction = 0, fun.countMutation = function(vcf) width(vcf) ==
+  1, callable = NULL, exclude = NULL)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}

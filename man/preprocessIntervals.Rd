@@ -7,9 +7,10 @@
 preprocessIntervals(interval.file, reference.file, output.file = NULL,
   off.target = FALSE, average.target.width = 400,
   min.off.target.width = 20000, average.off.target.width = 2e+05,
-  off.target.padding = -500, mappability = NULL, min.mappability = c(0.5,
-  0.1, 0.7), reptiming = NULL, average.reptiming.width = 1e+05,
-  exclude = NULL, off.target.seqlevels = c("targeted", "all"))
+  off.target.padding = -500, mappability = NULL,
+  min.mappability = c(0.5, 0.1, 0.7), reptiming = NULL,
+  average.reptiming.width = 1e+05, exclude = NULL,
+  off.target.seqlevels = c("targeted", "all"))
 }
 \arguments{
 \item{interval.file}{File specifying the intervals. Interval is expected in

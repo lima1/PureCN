@@ -4,8 +4,9 @@
 \alias{filterIntervals}
 \title{Remove low quality intervals}
 \usage{
-filterIntervals(normal, tumor, log.ratio, seg.file, filter.lowhigh.gc = 0.001,
-  min.coverage = 15, min.targeted.base = 5, normalDB = NULL)
+filterIntervals(normal, tumor, log.ratio, seg.file,
+  filter.lowhigh.gc = 0.001, min.coverage = 15,
+  min.targeted.base = 5, normalDB = NULL)
 }
 \arguments{
 \item{normal}{Coverage data for normal sample.}

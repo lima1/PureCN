@@ -308,7 +308,8 @@ test_that("Run with example seg.file works", {
         verbose = FALSE),
         "contains multiple samples and sampleid does not match")
     ret <- runAbsoluteCN(seg.file = output.file, interval.file = interval.file, 
-        sampleid = "Sample1", vcf.file = vcf.file, max.candidate.solutions = 1, 
+        sampleid = "Sample1", vcf.file = vcf.file, max.candidate.solutions = 1,
+        fun.segmentation = segmentationHclust,
         genome = "hg19", test.purity = seq(0.4, 0.7, by = 0.05), 
         verbose = FALSE, min.ploidy = 1.5, max.ploidy = 2.1)
     file.remove(output.file)

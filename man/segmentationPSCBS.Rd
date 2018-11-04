@@ -5,10 +5,11 @@
 \title{PSCBS segmentation}
 \usage{
 segmentationPSCBS(normal, tumor, log.ratio, seg, plot.cnv, sampleid,
-  interval.weight.file = NULL, target.weight.file = NULL, alpha = 0.005,
-  undo.SD = NULL, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
-  tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
-  prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
+  interval.weight.file = NULL, target.weight.file = NULL,
+  alpha = 0.005, undo.SD = NULL, flavor = "tcn&dh", tauA = 0.03,
+  vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
+  max.segments = NULL, prune.hclust.h = NULL,
+  prune.hclust.method = "ward.D", chr.hash = NULL,
   centromeres = NULL, ...)
 }
 \arguments{

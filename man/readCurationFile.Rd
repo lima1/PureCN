@@ -4,9 +4,9 @@
 \alias{readCurationFile}
 \title{Read curation file}
 \usage{
-readCurationFile(file.rds, file.curation = gsub(".rds$", ".csv", file.rds),
-  remove.failed = FALSE, report.best.only = FALSE, min.ploidy = NULL,
-  max.ploidy = NULL)
+readCurationFile(file.rds, file.curation = gsub(".rds$", ".csv",
+  file.rds), remove.failed = FALSE, report.best.only = FALSE,
+  min.ploidy = NULL, max.ploidy = NULL)
 }
 \arguments{
 \item{file.rds}{Output of the \code{\link{runAbsoluteCN}} function,

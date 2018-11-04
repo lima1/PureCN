@@ -5,9 +5,10 @@
 \title{Plots for analyzing PureCN solutions}
 \usage{
 plotAbs(res, id = 1, type = c("hist", "overview", "BAF", "AF", "all"),
-  chr = NULL, germline.only = TRUE, show.contour = FALSE, purity = NULL,
-  ploidy = NULL, alpha = TRUE, show.segment.means = c("SNV", "segments",
-  "both"), max.mapping.bias = 0.8, palette.name = "Paired",
+  chr = NULL, germline.only = TRUE, show.contour = FALSE,
+  purity = NULL, ploidy = NULL, alpha = TRUE,
+  show.segment.means = c("SNV", "segments", "both"),
+  max.mapping.bias = 0.8, palette.name = "Paired",
   col.snps = "#2b6391", col.chr.shading = "#f0f0f0", ...)
 }
 \arguments{
