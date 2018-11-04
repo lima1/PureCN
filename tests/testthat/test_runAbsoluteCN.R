@@ -174,6 +174,7 @@ test_that("Missing Gene column in interval.file is handled correctly", {
     write.table(gc_data, file = output.file, row.names = FALSE, sep = "\t", 
         quote = FALSE)
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
+                         fun.segmentation = segmentationPSCBS,
         interval.file = output.file, model.homozygous = TRUE, tumor.coverage.file = tumor.coverage.file, 
         candidates = purecn.example.output$candidates, 
         min.ploidy = 2.2, max.ploidy = 4, vcf.file = vcf.file, 
