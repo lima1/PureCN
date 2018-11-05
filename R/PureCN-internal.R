@@ -367,15 +367,15 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         return(TRUE)
     FALSE
 }
-.filterDuplicatedResults <- function(results) {
+.filterDuplicatedResults <- function(results, purity.cutoff = 0.1) {
     if (length(results) < 2) 
         return(results)
     idx.duplicated <- rep(FALSE, length(results))
 
     for (i in seq_len(length(results)-1)) {
         for (j in seq(i+1,length(results))) {
-            if (abs(results[[i]]$purity - results[[j]]$purity) < 0.1 &&
-                abs(results[[i]]$ploidy - results[[j]]$ploidy) / 
+            if (abs(results[[i]]$purity - results[[j]]$purity) < purity.cutoff &&
+                abs(results[[i]]$ploidy - results[[j]]$ploidy) /
                 results[[i]]$ploidy < 0.1) {
                 idx.duplicated[j] <- TRUE
             } 

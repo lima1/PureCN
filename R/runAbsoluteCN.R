@@ -994,7 +994,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # rank and then delete lower ranked similar solution
     results <- .rankResults(results)
     nBefore <- length(results)
-    results <- .filterDuplicatedResults(results)
+    results <- .filterDuplicatedResults(results, purity.cutoff = 0.05)
     # bring back in original order for progress output
     results <- results[order(sapply(results, function(sol) sol$candidate.id))]
 
