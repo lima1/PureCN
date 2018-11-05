@@ -419,6 +419,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     args.filterIntervals <- c(list(normal=normal, tumor = tumor, 
         log.ratio = log.ratio, seg.file = seg.file, 
         normalDB = normalDB), args.filterIntervals)
+    # not needed anymore
+    normalDB <- NULL
     # make it possible to provide different coverages for the different
     # filters 
     if (is.null(args.filterIntervals$min.coverage)) {
