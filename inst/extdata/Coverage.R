@@ -26,6 +26,10 @@ option_list <- list(
         default = NULL,
         help = "Output directory to which results should be written"),
     make_option(c("--cpu"), action = "store", type = "integer", default = 1,
+        help = "Deprecated, use --cores instead"),
+    make_option(c("--parallel"), action = "store_true", default = FALSE,
+        help = "Use BiocParallel to calculate coverage in parallel whem --bam is a list of BAM files."),
+    make_option(c("--cores"), action = "store", type = "integer", default = 1,
         help = "Number of CPUs to use when --bam is a list of BAM files [default %default]"),
     make_option(c("--seed"), action = "store", type = "integer", 
         default = NULL,
@@ -75,7 +79,7 @@ interval.file <- normalizePath(interval.file, mustWork = TRUE)
 }
 
 getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file, 
-    force = FALSE, cpu = 1, keep.duplicates = FALSE, removemapq0 = FALSE) {
+    force = FALSE, keep.duplicates = FALSE, removemapq0 = FALSE) {
 
     bamFiles <- bamFiles
     indexFiles <- indexFiles
@@ -83,9 +87,6 @@ getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file,
     interval.file <- interval.file
     force <- force
 
-    if (cpu > 1) { 
-        flog.info("Using %i CPUs with %s.", cpu, class(bpparam())[1])
-    }
     .getCoverageBam <- function(bam.file, index.file = NULL, outdir,
         interval.file, force) {
         output.file <- file.path(outdir,  gsub(".bam$", "_coverage.txt", 
@@ -109,14 +110,32 @@ getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file,
         }
         output.file
     }
-    
-    param <- new(class(bpparam()), workers=cpu)
-    #param <- bpparam()
-    coverageFiles <- unlist(
-        bplapply(seq_along(bamFiles), 
-            function(i) .getCoverageBam(bamFiles[i], indexFiles[i], outdir, interval.file, force), 
-            BPPARAM=param)
-    )
+    BPPARAM <- NULL
+    if (opt$cpu > 1) { 
+        flog.warn("--cpu is deprecated, use --cores instead.")
+        opt$cores <- opt$cpu
+    }
+    if (!is.null(opt$cores) && opt$cores > 1) {
+        suppressPackageStartupMessages(library(BiocParallel))
+        BPPARAM <- MulticoreParam(workers = opt$cores)
+        flog.info("Using BiocParallel MulticoreParam backend with %s cores.", opt$cores)
+    } else if (opt$parallel) {
+        suppressPackageStartupMessages(library(BiocParallel))
+        BPPARAM <- bpparam()
+        flog.info("Using default BiocParallel backend. You can change the default in your ~/.Rprofile file.") 
+    }
+   
+    if (!is.null(BPPARAM)) {
+        coverageFiles <- unlist(
+            bplapply(seq_along(bamFiles), 
+                function(i) .getCoverageBam(bamFiles[i], indexFiles[i], outdir, interval.file, force), 
+                BPPARAM=BPPARAM)
+        )
+    } else {
+        coverageFiles <- 
+            sapply(seq_along(bamFiles), 
+                function(i) .getCoverageBam(bamFiles[i], indexFiles[i], outdir, interval.file, force))
+    }
 
     coverageFiles
 }
@@ -146,7 +165,7 @@ if (!is.null(bam.file)) {
     }    
 
     coverageFiles <- getCoverageBams(bamFiles, indexFiles, outdir, 
-        interval.file, force, opt$cpu, opt$keepduplicates, opt$removemapq0) 
+        interval.file, force, opt$keepduplicates, opt$removemapq0) 
 }
 
 ### GC-normalize coverage -----------------------------------------------------

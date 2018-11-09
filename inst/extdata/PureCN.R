@@ -109,7 +109,7 @@ option_list <- list(
     make_option(c("--parallel"), action = "store_true", default = FALSE,
         help = "Use BiocParallel to fit local optima in parallel."),
     make_option(c("--cores"), action = "store", type = "integer", default = NULL,
-        help = "Use BiocParallel MulticoreParam backend with the specified number of worker cores"),
+        help = "Use BiocParallel MulticoreParam backend with the specified number of worker cores (--parallel uses the default BiocParallel backend instead)."),
     make_option(c("-v", "--version"), action = "store_true", default = FALSE,
         help = "Print PureCN version"),
     make_option(c("-f", "--force"), action = "store_true", default = FALSE,
@@ -225,7 +225,7 @@ if (file.exists(file.rds) && !opt$force) {
     if (!is.null(opt$cores) && opt$cores > 1) {
         suppressPackageStartupMessages(library(BiocParallel))
         BPPARAM <- MulticoreParam(workers = opt$cores)
-        flog.info("Using BiocParallel MulticoreParam backend with %s cores", opt$cores)
+        flog.info("Using BiocParallel MulticoreParam backend with %s cores.", opt$cores)
     } else if (opt$parallel) {
         suppressPackageStartupMessages(library(BiocParallel))
         BPPARAM <- bpparam()
