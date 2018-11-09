@@ -125,7 +125,7 @@ getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file,
         flog.info("Using default BiocParallel backend. You can change the default in your ~/.Rprofile file.") 
     }
    
-    if (!is.null(BPPARAM)) {
+    if (!is.null(BPPARAM) && length(bamFiles) > 1) {
         coverageFiles <- unlist(
             bplapply(seq_along(bamFiles), 
                 function(i) .getCoverageBam(bamFiles[i], indexFiles[i], outdir, interval.file, force), 
