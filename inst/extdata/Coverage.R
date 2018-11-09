@@ -110,7 +110,7 @@ getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file,
         output.file
     }
     
-    param <- new(class(bpparam()), workers=cpu)
+    param <- MulticoreParam(workers = cpu)
     #param <- bpparam()
     coverageFiles <- unlist(
         bplapply(seq_along(bamFiles), 
