@@ -6,8 +6,8 @@
 \usage{
 processMultipleSamples(tumor.coverage.files, sampleids, normalDB,
   num.eigen = 20, genome, plot.cnv = TRUE, w = NULL,
-  interval.weight.file = NULL, max.segments = NULL, chr.hash = NULL,
-  centromeres = NULL, ...)
+  interval.weight.file = NULL, min.interval.weight = 1/3,
+  max.segments = NULL, chr.hash = NULL, centromeres = NULL, ...)
 }
 \arguments{
 \item{tumor.coverage.files}{Coverage data for tumor samples.}
@@ -19,7 +19,8 @@ processMultipleSamples(tumor.coverage.files, sampleids, normalDB,
 
 \item{num.eigen}{Number of eigen vectors used.}
 
-\item{genome}{Genome version, for example hg19. See \code{readVcf}.}
+\item{genome}{Genome version, for example hg19. Needed to get centromere
+positions.}
 
 \item{plot.cnv}{Segmentation plots.}
 
@@ -28,6 +29,8 @@ If \code{NULL}, sets to inverse of median on-target duplication rate if
 available, otherwise does not do any weighting.}
 
 \item{interval.weight.file}{Can be used to assign weights to intervals.}
+
+\item{min.interval.weight}{Can be used to ignore intervals with low weights.}
 
 \item{max.segments}{If not \code{NULL}, try a higher \code{undo.SD}
 parameter if number of segments exceeds the threshold.}
@@ -49,33 +52,34 @@ for the same patient are available.
 }
 \examples{
 
-normal.coverage.file <- system.file("extdata", "example_normal_tiny.txt", 
+normal1.coverage.file <- system.file("extdata", "example_normal.txt", 
     package="PureCN")
-tumor.coverage.file <- system.file("extdata", "example_tumor_tiny.txt", 
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
     package="PureCN")
-vcf.file <- system.file("extdata", "example.vcf.gz", 
+tumor1.coverage.file <- system.file("extdata", "example_tumor.txt",
     package="PureCN")
-interval.file <- system.file("extdata", "example_intervals_tiny.txt", 
+tumor2.coverage.file <- system.file("extdata", "example_tumor2.txt",
     package="PureCN")
 
-# The max.candidate.solutions, max.ploidy and test.purity parameters are set to
-# non-default values to speed-up this example.  This is not a good idea for real
-# samples.
-ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-    tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, genome="hg19", 
-    sampleid="Sample1", interval.file=interval.file, 
-    max.candidate.solutions=1, max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), 
-    fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))
+interval.weight.file <- "interval_weights.txt"
+normal.coverage.files <- c(normal1.coverage.file, normal2.coverage.file)
+tumor.coverage.files <- c(tumor1.coverage.file, tumor2.coverage.file)
+
+calculateIntervalWeights(normal.coverage.files, interval.weight.file)
+normalDB <- createNormalDatabase(normal.coverage.files)
+
+seg <- processMultipleSamples(tumor.coverage.files, 
+         sampleids = c("Sample1", "Sample2"),
+         normalDB = normalDB,
+         interval.weight.file = interval.weight.file,
+         genome = "hg19")
 
 }
 \references{
-Olshen, A. B., Venkatraman, E. S., Lucito, R., Wigler, M. 
-(2004). Circular binary segmentation for the analysis of array-based DNA 
-copy number data. Biostatistics 5: 557-572.
-
-Venkatraman, E. S., Olshen, A. B. (2007). A faster circular binary 
-segmentation algorithm for the analysis of array CGH data. Bioinformatics 
-23: 657-63.
+Nilsen G., Liestol K., Van Loo P., Vollan H., Eide M., Rueda O.,
+Chin S., Russell R., Baumbusch L., Caldas C., Borresen-Dale A., 
+Lingjaerde O. (2012). "Copynumber: Efficient algorithms for single- and
+multi-track copy number segmentation." BMC Genomics, 13(1), 591.
 }
 \seealso{
 \code{\link{runAbsoluteCN}}
