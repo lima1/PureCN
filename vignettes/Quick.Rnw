@@ -469,7 +469,9 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 --keepduplicates  & keep.duplicates  & \Rfunction{calculateBamCoverageByInterval} \\
 --removemapq0  & mapqFilter  & \Rfunction{ScanBamParam} \\
 --outdir      & & \\
---cpu         & & Number of CPUs to use\\
+--cpu         & & Number of CPUs to use when multiple BAMs are provided (deprecated) \\
+--cores       & & Number of CPUs to use when multiple BAMs are provided \\
+--parallel    & & Use default BiocParallel backend when multiple BAMs are provided \\
 --seed        & & \\
 --version -v  & & \\
 --force -f    & & \\
