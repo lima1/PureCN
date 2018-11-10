@@ -15,6 +15,7 @@ test_that("example output correct", {
 	normalDB <- createNormalDatabase(normal.coverage.files)
     interval.weight.file <- tempfile(fileext = ".txt")
 	calculateIntervalWeights(normal.coverage.files, interval.weight.file)
+    pool <- calculateTangentNormal(tumor1.coverage.file, normalDB)                                                                  
 
 	seg <- processMultipleSamples(tumor.coverage.files,
 			 sampleids = c("Sample1", "Sample2"),
@@ -26,8 +27,9 @@ test_that("example output correct", {
     write.table(seg, seg.file, row.names = FALSE, sep = "\t")
     vcf.file <- system.file("extdata", "example.vcf.gz", package = "PureCN")
     ret <- runAbsoluteCN(tumor.coverage.file = tumor1.coverage.file, 
+        normal.coverage.file = pool, 
         seg.file = seg.file, vcf.file = vcf.file, max.candidate.solutions = 1, 
-        fun.segmentation = segmentationHclust,
+        fun.segmentation = segmentationHclust, post.optimize = TRUE,
         genome = "hg19", min.ploidy = 1.5, max.ploidy = 2.1, 
         test.purity = seq(0.4, 0.7, by = 0.05), sampleid = "Sample1")
     expect_equal(0.65, ret$results[[1]]$purity)

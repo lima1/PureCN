@@ -992,18 +992,23 @@ seg <- processMultipleSamples(tumor.coverage.files,
 seg.file <- tempfile(fileext = ".seg")
 write.table(seg, seg.file, row.names = FALSE, sep = "\t")
 retMulti <- runAbsoluteCN(tumor.coverage.file = tumor.coverage.file, 
+    normal.coverage.file = pool, 
     seg.file = seg.file, vcf.file = vcf.file, max.candidate.solutions = 1, 
     fun.segmentation = segmentationHclust, plot.cnv = FALSE,
     genome = "hg19", min.ploidy = 1.5, max.ploidy = 2.1, 
-    test.purity = seq(0.4, 0.7, by = 0.05), sampleid = "Sample1")
+    test.purity = seq(0.4, 0.7, by = 0.05), sampleid = "Sample1",
+    post.optimize = TRUE)
 @
 \incfig{figure/figuremultiplesamples-1}{0.75\textwidth}{\Biocpkg{copynumber} output
 via \Rfunction{processMultipleSamples}.}
-Again, the \Rcode{min.ploidy}, \Rcode{max.ploidy} and \Rcode{test.purity} 
-arguments are set to reduce the runtime of this toy example and should not
-be used for real data. The \Rfunction{segmentationHclust} function clusters
-segments using B-allele frequencies and joins adjacent segments when they
-are in the same cluster.
+Again, the \Rcode{min.ploidy}, \Rcode{max.ploidy} and \Rcode{test.purity}
+arguments are set to reduce the runtime of this toy example and should not be
+used for real data. The \Rfunction{segmentationHclust} function clusters
+segments using B-allele frequencies and joins adjacent segments when they are in
+the same cluster. Providing the \Rfunction{calculateTangentNormal} output
+\Rcode{pool} via \Rcode{normal.coverage.file} gives \Rfunction{runAbsoluteCN}
+access to the copy number ratios of all intervals, not only the segment-level
+ones.
 
 \subsection{COSMIC annotation}
 \label{seccosmic}
