@@ -6,7 +6,9 @@ NEW FEATURES
     o support for copynumber package and its multisample segmentation
     o beta support for PSCBS weighting
     o support for gene symbol filtering in FilterCallableLoci.R 
-      (e.g. --exclude "^HLA").
+      (e.g. --exclude "^HLA")
+    o added segmentationHclust function that clusters clusters
+      provided segmentation using log2-ratio and B-allele frequencies
  
 SIGNIFICANT USER-VISIBLE CHANGES
 
