@@ -27,7 +27,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
                                     yieldSize = 5000, genome) {
     tab <- TabixFile(normal.panel.vcf.file, yieldSize = yieldSize)
     open(tab)
-    param <- ScanVcfParam(geno = c("AD"), fixed = NA, info = NA)
+    param <- ScanVcfParam(geno = c("AD"), fixed = "ALT", info = NA)
     cntVar <- 0
     cntStep <- 1
     ret <- GRangesList()

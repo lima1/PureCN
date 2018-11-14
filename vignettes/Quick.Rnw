@@ -77,8 +77,10 @@ Do not include chrM baits in case the capture kit includes some.
 The \Rcode{--offtarget} flag will include off-target reads. Including them is
 recommended except for Amplicon data. 
 
-The \Rcode{--genome} version is needed to annotate exons with gene symbols. 
-Use hg19/hg38 for human genomes, not b37/b38.
+The \Rcode{--genome} version is needed to annotate exons with gene symbols.
+Use hg19/hg38 for human genomes, not b37/b38. You might get a warning that an
+annotation package is missing.  For hg19, install
+\Biocpkg{TxDb.Hsapiens.UCSC.hg19.knownGene} in R.
 
 The \Rcode{--export} argument is optional. If provided, this script will store
 the modified intervals as BED file for example (again every

@@ -1008,7 +1008,10 @@ segments using B-allele frequencies and joins adjacent segments when they are in
 the same cluster. Providing the \Rfunction{calculateTangentNormal} output
 \Rcode{pool} via \Rcode{normal.coverage.file} gives \Rfunction{runAbsoluteCN}
 access to the copy number ratios of all intervals, not only the segment-level
-ones.
+ones. This function also supports weighting samples. By default, when coverages
+were calculated using \Biocpkg{PureCN}, samples are weighted by the inverse of
+the read duplication rates. This usually dramatically reduces the number of
+spurious segments.
 
 \subsection{COSMIC annotation}
 \label{seccosmic}
