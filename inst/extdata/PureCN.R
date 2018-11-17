@@ -184,6 +184,9 @@ if (file.exists(file.rds) && !opt$force) {
     if (!is.null(normalDB)) {
         #if (!is.null(seg.file)) stop("normalDB and segfile do not work together.")
         normalDB <- readRDS(normalDB)
+        if (!is.null(normal.coverage.file)) {
+            flog.warn("Both --normal and --normalDB provided. normalDB will NOT be used for coverage denoising. You probably do not want this.")
+        }    
     }
 
     .getNormalCoverage <- function(normal.coverage.file) {

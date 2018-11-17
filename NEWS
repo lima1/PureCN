@@ -7,8 +7,8 @@ NEW FEATURES
     o beta support for PSCBS weighting
     o support for gene symbol filtering in FilterCallableLoci.R 
       (e.g. --exclude "^HLA")
-    o added segmentationHclust function that clusters clusters
-      provided segmentation using log2-ratio and B-allele frequencies
+    o added segmentationHclust function that clusters provided segmentation
+      using log2-ratio and B-allele frequencies
  
 SIGNIFICANT USER-VISIBLE CHANGES
 
