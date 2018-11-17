@@ -118,6 +118,7 @@ x <- data.frame(
     Purity = res$results[[1]]$purity,
     Ploidy = res$results[[1]]$ploidy,
     Num.Variants = length(p),
+    Median.Coverage = median(p[idxCalled]$depth, na.rm=TRUE),
     AUC.AR = auc(p$SOMATIC, p$AR),
     AUC.POSTERIOR.SOMATIC = auc(p$SOMATIC, p$POSTERIOR.SOMATIC),
     Callrate = callRate,
