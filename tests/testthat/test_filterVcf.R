@@ -71,3 +71,10 @@ test_that("M2 VCF with POP_AF flag is annotated with DB flag", {
     expect_equal(c(TRUE, rep(FALSE, 10)), info(vcf.m2)$DB)
     expect_equal(grepl("rs", names(vcf.m2)), info(vcf.m2)$DB)
 })
+
+
+test_that("issue 62 is fixed", {
+    vcf.file <- system.file("extdata", "issue62.vcf.gz", package = "PureCN")
+    x <- PureCN:::.readAndCheckVcf(vcf.file)
+    expect_equivalent(c(901,53), as.vector(table(info(x)$SOMATIC)))
+})              

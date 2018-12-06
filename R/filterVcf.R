@@ -298,6 +298,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         if (sampleid %in% samples(header(vcf)) && 
             sampleid != tumor.id.in.vcf) {
             flog.warn("Sampleid looks like a normal in VCF, not like a tumor.")
+            tumor.id.in.vcf <- sampleid
         }    
     }    
     tumor.id.in.vcf
@@ -410,18 +411,22 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 
 .addSomaticField <- function(vcf) {
     # add SOMATIC flag only for GATK4 MuTect2 output
-    if (is.null(info(vcf)$P_GERMLINE) || ncol(vcf) < 2) {
+    if (ncol(vcf) < 2) {
         return(vcf)
-    }
-                
-    newInfo <- DataFrame(
-        Number=0, Type="Flag",
-        Description="Somatic event",
-        row.names="SOMATIC")
-    info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
-    info(vcf)$SOMATIC <- unlist(info(vcf)$P_GERMLINE < log10(0.5))
-    info(vcf)$SOMATIC[is.infinite(info(vcf)$SOMATIC) | 
-        is.na(info(vcf)$SOMATIC) ] <- FALSE
+    } else {
+        newInfo <- DataFrame(
+            Number=0, Type="Flag",
+            Description="Somatic event",
+            row.names="SOMATIC")
+        info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
+        if (!is.null(info(vcf)$P_GERMLINE)) {
+            info(vcf)$SOMATIC <- unlist(info(vcf)$P_GERMLINE < log10(0.5))
+            info(vcf)$SOMATIC[is.infinite(info(vcf)$SOMATIC) | 
+                is.na(info(vcf)$SOMATIC) ] <- FALSE
+        } else {
+            info(vcf)$SOMATIC <- apply(geno(vcf)$GT,1,function(x) x[1]!=x[2])
+        }    
+    }    
     vcf
 }
 
