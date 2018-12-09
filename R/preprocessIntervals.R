@@ -15,6 +15,8 @@
 #' @param output.file Optionally, write GC content file.
 #' @param off.target Include off-target regions.
 #' @param average.target.width Split large targets to approximately this size.
+#' @param min.target.width Make sure that target regions are of at least
+#' this specified width. See \code{small.targets}.
 #' @param min.off.target.width Only include off-target regions of that
 #' size
 #' @param average.off.target.width Split off-target regions to that
@@ -35,6 +37,8 @@
 #' will be excluded. 
 #' @param off.target.seqlevels Controls how to deal with chromosomes/contigs
 #' found in the \code{reference.file} but not in the \code{interval.file}.
+#' @param small.targets Strategy to deal with targets smaller than
+#' \code{min.target.width}.
 #' @return Returns GC content by interval as \code{GRanges} object.
 #' @author Markus Riester
 #' @references Talevich et al. (2016). CNVkit: Genome-Wide Copy Number 
@@ -58,7 +62,7 @@
 #' @export preprocessIntervals
 #' @importFrom BiocGenerics unstrand
 #' @importFrom Biostrings letterFrequency
-#' @importFrom GenomeInfoDb seqlengths seqlevelsInUse seqlevels<-
+#' @importFrom GenomeInfoDb seqlengths seqlevelsInUse seqlevels<- seqlengths<-
 #' @importFrom GenomicRanges tileGenome
 #' @importFrom S4Vectors mcols
 #' @importFrom rtracklayer import
@@ -66,6 +70,7 @@
 preprocessIntervals <- function(interval.file, reference.file,
                                 output.file = NULL, off.target = FALSE,
                                 average.target.width = 400,
+                                min.target.width = 10,
                                 min.off.target.width = 20000,
                                 average.off.target.width = 200000,
                                 off.target.padding = -500, mappability = NULL,
@@ -73,7 +78,8 @@ preprocessIntervals <- function(interval.file, reference.file,
                                 reptiming = NULL,
                                 average.reptiming.width = 100000,
                                 exclude = NULL,
-                                off.target.seqlevels=c("targeted", "all")) {
+                                off.target.seqlevels=c("targeted", "all"),
+                                small.targets=c("resize", "drop")) {
 
     if (class(interval.file)=="GRanges") {
         interval.gr <- .checkIntervals(interval.file)
@@ -87,6 +93,9 @@ preprocessIntervals <- function(interval.file, reference.file,
     # make sure the chromsome naming style is the same in all provided files
     # be nice and fix it if necessary
     interval.gr <- .checkSeqlevelStyle(scanFaIndex(reference.file), interval.gr, "interval")
+    interval.gr <- .checkSeqlengths(scanFaIndex(reference.file), interval.gr)
+    interval.gr <- .checkTargetWidth(interval.gr, min.target.width,
+        match.arg(small.targets))
     if (!is.null(mappability)) {
         mappability <- .checkSeqlevelStyle(scanFaIndex(reference.file), mappability, "mappability")
         mappability <- .remove0MappabilityRegions(mappability)
@@ -313,6 +322,13 @@ calculateGCContentByInterval <- function() {
     write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE, sep="\t")
 }
 
+.checkSeqlengths <- function(ref, x) {
+    isc <- intersect(names(seqlengths(x)), names(seqlengths(ref)))
+    if (length(isc)) {
+        seqlengths(x)[isc] <- seqlengths(ref)[isc]
+    }
+    x
+}    
 .checkSeqlevelStyle <- function(ref, x, name1, name2="reference") {
     refSeqlevelStyle <- try(seqlevelsStyle(ref), silent=TRUE)
     # if unknown, we cannot check and correct
@@ -328,7 +344,7 @@ calculateGCContentByInterval <- function() {
         flog.warn("Chromosome naming style of %s file (%s) was different from %s (%s).", 
             name1, xSeqlevelStyle, name2, refSeqlevelStyle)
         seqlevelsStyle(x) <- refSeqlevelStyle[1]
-    }        
+    }
     x
 }       
 .tileReptiming <- function(seqinfo.ref, reptiming, average.reptiming.width) {
@@ -342,3 +358,20 @@ calculateGCContentByInterval <- function() {
     reptiming <- reptiming[!is.na(score(reptiming))]
 }
 
+.checkTargetWidth <- function(interval.gr, min.target.width, small.targets) {
+    idx <- width(interval.gr) < min.target.width
+    if (any(idx)) {
+        flog.warn("Found small target regions (< %ibp). Will %s them.",
+            min.target.width, small.targets)
+        if (small.targets == "drop") {
+            interval.gr <- interval.gr[!idx,]
+        } else {
+            off <- floor((width(interval.gr[idx]) - min.target.width) / 2)
+            start(interval.gr[idx]) <- pmax(start(interval.gr[idx]) + off, 1)
+            end(interval.gr[idx]) <- pmin(start(interval.gr[idx]) + min.target.width - 1,
+                seqlengths(interval.gr)[as.character(seqnames(interval.gr[idx]))], 
+                na.rm = TRUE)
+        }
+    }
+    interval.gr
+}    

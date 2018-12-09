@@ -6,11 +6,12 @@
 \usage{
 preprocessIntervals(interval.file, reference.file, output.file = NULL,
   off.target = FALSE, average.target.width = 400,
-  min.off.target.width = 20000, average.off.target.width = 2e+05,
-  off.target.padding = -500, mappability = NULL,
-  min.mappability = c(0.5, 0.1, 0.7), reptiming = NULL,
-  average.reptiming.width = 1e+05, exclude = NULL,
-  off.target.seqlevels = c("targeted", "all"))
+  min.target.width = 10, min.off.target.width = 20000,
+  average.off.target.width = 2e+05, off.target.padding = -500,
+  mappability = NULL, min.mappability = c(0.5, 0.1, 0.7),
+  reptiming = NULL, average.reptiming.width = 1e+05, exclude = NULL,
+  off.target.seqlevels = c("targeted", "all"),
+  small.targets = c("resize", "drop"))
 }
 \arguments{
 \item{interval.file}{File specifying the intervals. Interval is expected in
@@ -27,6 +28,9 @@ will automatically convert to 1-based \code{GRanges}.}
 \item{off.target}{Include off-target regions.}
 
 \item{average.target.width}{Split large targets to approximately this size.}
+
+\item{min.target.width}{Make sure that target regions are of at least
+this specified width. See \code{small.targets}.}
 
 \item{min.off.target.width}{Only include off-target regions of that
 size}
@@ -56,6 +60,9 @@ will be excluded.}
 
 \item{off.target.seqlevels}{Controls how to deal with chromosomes/contigs
 found in the \code{reference.file} but not in the \code{interval.file}.}
+
+\item{small.targets}{Strategy to deal with targets smaller than
+\code{min.target.width}.}
 }
 \value{
 Returns GC content by interval as \code{GRanges} object.

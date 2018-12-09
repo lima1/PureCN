@@ -445,6 +445,8 @@ Argument name   & Corresponding PureCN argument & PureCN function \\
 --infile        & interval.file & \Rfunction{preprocessIntervals} \\
 --offtarget     & off.target    & \Rfunction{preprocessIntervals} \\
 --targetwidth   & average.target.width & \Rfunction{preprocessIntervals} \\
+--mintargetwidth & min.target.width & \Rfunction{preprocessIntervals} \\
+--smalltargets   & small.targets & \Rfunction{preprocessIntervals} \\
 --offtargetwidth & average.off.target.width & \Rfunction{preprocessIntervals} \\
 --offtargetseqlevels & off.target.seqlevels & \Rfunction{preprocessIntervals} \\
 --mappability   & mappability   & \Rfunction{preprocessIntervals} \\

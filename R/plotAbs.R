@@ -154,7 +154,7 @@ ss) {
     }
     axis(side=4, at=c(ylim[1], (ylim[2]+ylim[1])/2, ylim[2]), tick=FALSE, 
     labels=round(c(min(lev), median(lev), max(lev))))
-    mtext("Copy number Log-Likelihood",side=4,line=2)
+    mtext("Copy number log-likelihood",side=4,line=2)
     par(xpd = pxpd)
 }
 
@@ -403,7 +403,7 @@ ss) {
         abline(h = 0.5, lty = 3, col = "grey")
         #abline(v=tmp[,2], lty=3, col="grey")
         abline(v = cids, lty = 3, col = "grey")
-        main <- paste("SCNA-fit Log-Likelihood:", 
+        main <- paste("SCNA-fit log-likelihood:", 
             round(res$results[[id]]$log.likelihood, digits = 2))
 
         myylim <- quantile(subset(r$log.ratio,
@@ -517,7 +517,7 @@ ss) {
         )
     }
     plot(r$AR, log2(r$depth),col=adjustcolor(mycol, alpha.f=myalpha),
-        pch=mypch, cex=mycex,
+        pch=mypch, #cex=mycex,
         xlab="Allelic fraction", ylab="Coverage (log2)")
 
     if (sum(r$ML.SOMATIC)>0) {
@@ -530,7 +530,7 @@ ss) {
 
         plot(r$log.ratio[r$ML.SOMATIC], r$AR[r$ML.SOMATIC], 
             col=mycol[r$ML.SOMATIC], pch=mypch[r$ML.SOMATIC], 
-            cex=mycex[r$ML.SOMATIC],
+            #cex=mycex[r$ML.SOMATIC],
             xlab="Copy Number log-ratio", 
             ylab="Allelic fraction (somatic)",
             xlim=mylogratio.xlim

@@ -9,6 +9,8 @@ NEW FEATURES
       (e.g. --exclude "^HLA")
     o added segmentationHclust function that clusters provided segmentation
       using log2-ratio and B-allele frequencies
+    o min.target.width and small.targets in preprocessIntervals to 
+      automatically deal with too small targets  
  
 SIGNIFICANT USER-VISIBLE CHANGES
 

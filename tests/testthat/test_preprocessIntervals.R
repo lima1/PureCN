@@ -167,4 +167,15 @@ test_that("Offtarget settings work as expected", {
     expect_equal(x$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
 })
 
+test_that("Small targets are dealt with properly", {
+    gc <- preprocessIntervals(interval.file, reference.file, 
+        min.target.width = 60)
+    gc <- preprocessIntervals(interval.file, reference.file, 
+        min.target.width = 60, small.targets = "drop")
+    expect_equal(c(101, 301,   1, 401), start(gc))
+    gc <- preprocessIntervals(interval.file, reference.file, 
+        min.target.width = 200)
+    expect_false(any(start(gc)) < 1)
+})
+
 file.remove(output.file)
