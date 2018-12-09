@@ -32,11 +32,13 @@ annotateTargets <- function(x, txdb, org) {
     txdb <- .checkSeqlevelStyle(x, txdb, "txdb", "interval file")
     id <- transcriptsByOverlaps(txdb, ranges = x[idx], columns = "GENEID")
     id$SYMBOL <- suppressWarnings(
-        select(org, sapply(id$GENEID, function(x)x[1]), "SYMBOL")[, 2])
+        select(org, vapply(id$GENEID, function(x) x[1], character(1)), 
+               "SYMBOL")[, 2])
 
     idExons <- exonsByOverlaps(txdb, ranges = x[idx], columns = "GENEID")
     idExons$SYMBOL <- suppressWarnings(
-        select(org, sapply(idExons$GENEID, function(x)x[1]), "SYMBOL")[, 2])
+        select(org, vapply(idExons$GENEID, function(x) x[1], character(1)),
+               "SYMBOL")[, 2])
 
     ov <- findOverlaps(x[idx], id)
     ovExons <- findOverlaps(x[idx], idExons)

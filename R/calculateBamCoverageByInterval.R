@@ -58,16 +58,16 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
     x <- xDupFiltered
     if (keep.duplicates) x <- xAll
 
-    intervalGr$coverage <- sapply(seq_along(x), function(i)
+    intervalGr$coverage <- vapply(seq_along(x), function(i)
         sum(coverage(IRanges(x[[i]][["pos"]], width = x[[i]][["qwidth"]]),
-            shift = -start(intervalGr)[i], width = width(intervalGr)[i])))
+            shift = -start(intervalGr)[i], width = width(intervalGr)[i])), integer(1))
 
     intervalGr$average.coverage <- intervalGr$coverage / width(intervalGr)
 
-    intervalGr$counts <- as.numeric(sapply(x, function(y) length(y$pos)))
+    intervalGr$counts <- as.numeric(vapply(x, function(y) length(y$pos), integer(1)))
     intervalGr$duplication.rate <- 1 -
-        sapply(xDupFiltered, function(y) length(y$pos)) /
-        sapply(xAll, function(y) length(y$pos))
+        vapply(xDupFiltered, function(y) length(y$pos), integer(1)) /
+        vapply(xAll, function(y) length(y$pos), integer(1))
 
     if (!is.null(output.file)) {
         .writeCoverage(intervalGr, output.file)

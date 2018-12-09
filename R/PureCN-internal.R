@@ -329,7 +329,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 
     tmp <- sapply(prior.purity, .checkFraction, "prior.purity")
 
-    if (!is.null(sampleid) && (class(sampleid) != "character" ||
+    if (!is.null(sampleid) && (!is(sampleid, "character") ||
         length(sampleid) != 1)) {
         .stopUserError("sampleid not a character string.")
     }
@@ -838,7 +838,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     required.colnames2 <- c("ID", "chromosome", "start", "end", "num_probes", 
         "mean")
     if (ncol(seg) > length(required.colnames)) {
-        seg <- seg[,1:length(required.colnames)]
+        seg <- seg[,seq_along(required.colnames)]
     }    
     if (identical(colnames(seg), required.colnames2)) {
         colnames(seg) <- required.colnames
@@ -899,7 +899,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
             flog.info("Provided log2-ratio looks too noisy, using segmentation only.")
         }
     }
-    if (class(seg.file)=="character") {
+    if (is(seg.file, "character")) {
         seg <- .loadSegFile(seg.file, sampleid, model.homozygous, verbose=FALSE)    
     } else {
         seg <-.checkSeg(seg.file, sampleid, model.homozygous, verbose=FALSE)

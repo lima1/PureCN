@@ -39,6 +39,7 @@ Imports:
     futile.logger,
     VGAM,
     tools,
+    methods,
     rhdf5,
     Matrix
 Suggests:

@@ -105,10 +105,12 @@ processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,
     lrsw <- copynumber::winsorize(lrs, arms = arms, verbose = FALSE)
     if (is.null(w)) {
         w <- 1
-        dupr <- sapply(tumors, function(x) median(x[x$on.target]$duplication.rate, na.rm = TRUE))
+        dupr <- vapply(tumors, function(x) 
+                       median(x[x$on.target]$duplication.rate, na.rm = TRUE),
+                       double(1))
         if (!sum(is.na(dupr)) && min(dupr, na.rm = TRUE) > 0) { 
-            w <- (1/dupr)
-            w <- w/max(w)
+            w <- (1 / dupr)
+            w <- w / max(w)
 
             flog.info("Setting weights by duplication rate. Lowest weight for %s (%.2f), heighest for %s.",
                 sampleids[which.min(w)], min(w), sampleids[which.max(w)])

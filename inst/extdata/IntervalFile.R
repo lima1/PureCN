@@ -89,7 +89,7 @@ reference.file <- normalizePath(opt$fasta, mustWork = TRUE)
 suppressPackageStartupMessages(library(rtracklayer))
 
 intervals <- try(import(in.file), silent = TRUE)
-if (class(intervals) == "try-error") { 
+if (is(intervals, "try-error")) { 
     intervals <- in.file
 } else {
     if (sum(c("MT", "chrM", "chMT") %in% seqlevels(intervals))) {

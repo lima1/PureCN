@@ -313,9 +313,9 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 .readAndCheckVcf <- function(vcf.file, genome, DB.info.flag = "DB", 
                              POPAF.info.field = "POP_AF", 
                              min.pop.af = 0.001, check.DB = TRUE) {
-    if (class(vcf.file) == "character") {
+    if (is(vcf.file, "character")) {
         vcf <- readVcf(vcf.file, genome)
-    } else if (class(vcf.file) != "CollapsedVCF") {
+    } else if (!is(vcf.file, "CollapsedVCF")) {
         .stopUserError("vcf.file neither a filename nor a CollapsedVCF ", 
             "object.") 
     } else {

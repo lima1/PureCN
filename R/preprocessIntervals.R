@@ -66,6 +66,7 @@
 #' @importFrom GenomicRanges tileGenome
 #' @importFrom S4Vectors mcols
 #' @importFrom rtracklayer import
+#' @importFrom methods is
 #' @importFrom stats aggregate
 preprocessIntervals <- function(interval.file, reference.file,
                                 output.file = NULL, off.target = FALSE,
@@ -81,7 +82,7 @@ preprocessIntervals <- function(interval.file, reference.file,
                                 off.target.seqlevels=c("targeted", "all"),
                                 small.targets=c("resize", "drop")) {
 
-    if (class(interval.file)=="GRanges") {
+    if (is(interval.file, "GRanges")) {
         interval.gr <- .checkIntervals(interval.file)
     } else {
         interval.gr <- readCoverageFile(interval.file)
@@ -239,7 +240,7 @@ calculateGCContentByInterval <- function() {
 
 .checkColScore <- function(y, label) {
     colScore <- if (is.null(y$score)) 1 else "score"
-    if (class(mcols(y)[, colScore]) != "numeric") {
+    if (!is(mcols(y)[, colScore], "numeric")) {
         flog.warn("Score column in %s file is not numeric.", label)
         class(mcols(y)[, colScore]) <- "numeric"
     }
@@ -332,10 +333,10 @@ calculateGCContentByInterval <- function() {
 .checkSeqlevelStyle <- function(ref, x, name1, name2="reference") {
     refSeqlevelStyle <- try(seqlevelsStyle(ref), silent=TRUE)
     # if unknown, we cannot check and correct
-    if (class(refSeqlevelStyle) == "try-error") return(x)
+    if (is(refSeqlevelStyle, "try-error")) return(x)
     xSeqlevelStyle <- try(seqlevelsStyle(x), silent=TRUE)
 
-    if (class(xSeqlevelStyle) == "try-error") {
+    if (is(xSeqlevelStyle, "try-error")) {
         .stopUserError("Chromosome naming style of ", name1, 
             " file unknown, should be ", refSeqlevelStyle, ".") 
     }    

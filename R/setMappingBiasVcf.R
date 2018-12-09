@@ -179,5 +179,5 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     x[1, ] <- x[1, ] + shape1
     x[2, ] <- x[2, ] + shape2
     # get the alt allelic fraction for all SNPs
-    apply(x, 2, function(y) y[2] / sum(y[1:2]))
+    apply(x, 2, function(y) y[2] / sum(head(y,2)))
 }

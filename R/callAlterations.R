@@ -29,7 +29,7 @@
 callAlterations <- function(res, id = 1, cutoffs = c(0.5, 6, 7),
 log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, all.genes = FALSE) {
 
-    if (class(res$results[[id]]$gene.calls) != "data.frame") {
+    if (!is(res$results[[id]]$gene.calls, "data.frame")) {
         .stopUserError("This function requires gene-level calls.\n",
             "Please add a column 'Gene' containing gene symbols to the ",
             "interval.file.")

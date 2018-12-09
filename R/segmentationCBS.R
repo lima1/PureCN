@@ -203,7 +203,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
             sum(queryHits(ov) == i))
         dx <- cbind(seg$seg.mean,xx)
         hc <- hclust(dist(dx), method=method)
-        seg.hc <- data.frame(id=1:nrow(dx), dx, num=numVariants, 
+        seg.hc <- data.frame(id=seq(nrow(dx)), dx, num=numVariants, 
             cluster=cutree(hc,h=h))[hc$order,]
 
         # cluster only segments with at least n variants    
@@ -244,7 +244,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 .pruneByVCF <- function(x, vcf, tumor.id.in.vcf, min.size=5, max.pval=0.00001,
     iterations=3, chr.hash, debug=FALSE) {
     seg <- try(segments.p(x$cna), silent=TRUE)
-    if (class(seg) == "try-error") return(x)
+    if (is(seg, "try-error")) return(x)
     for (iter in seq_len(iterations)) {
         seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
             IRanges(start=seg$loc.start, end=seg$loc.end))

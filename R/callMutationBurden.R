@@ -72,11 +72,11 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
     
     # calculate the callable genomic region for # mutations/MB calculation
     if (!is.null(callable)) {
-        if (class(callable) != "GRanges") {
+        if (!is(callable, "GRanges")) {
             .stopUserError("callable not a GRanges object.")
         } 
         if (!is.null(exclude)) {
-            if (class(exclude) != "GRanges") {
+            if (!is(exclude, "GRanges")) {
                 .stopUserError("exclude not a GRanges object.")
             } 
             callable <- setdiff(callable, exclude)
@@ -102,7 +102,7 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
     # filter mutations, for example if the user wants to 
     # calculate missense burden
     if (!is.null(fun.countMutation)) {
-        if (class(fun.countMutation) != "function") {
+        if (!is(fun.countMutation, "function")) {
             .stopUserError("fun.countMutation not a function.")        
         }
         vcf <-  res$input$vcf

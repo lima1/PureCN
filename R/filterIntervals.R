@@ -98,7 +98,7 @@ filterTargets <- function(...) {
 }  
 
 .checkNormalDB <- function(tumor, normalDB) {
-    if (!class(normalDB) == "list") {
+    if (!is(normalDB, "list")) {
         .stopUserError("normalDB not a valid normalDB object. ",
             "Use createNormalDatabase to create one.")
     }    

@@ -67,7 +67,7 @@ verbose=TRUE) {
         if (m == 0) return(1)
         dbinom(m, size=coverage, prob=error/3)    
      }
-     k <- min(which(sapply(0:coverage,.pk) < fpr)) - 1
+     k <- min(which(vapply(seq(0, coverage),.pk, double(1)) < fpr)) - 1
      if (verbose) message("Minimum ", k, " supporting reads.")
 
      # find allelic fraction to test

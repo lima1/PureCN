@@ -42,7 +42,7 @@ in.file <- normalizePath(opt$infile, mustWork=TRUE)
 suppressPackageStartupMessages(library(rtracklayer))
 
 intervals <- try(import(in.file), silent=TRUE)
-if (class(intervals) == "try-error") intervals <- in.file
+if (is(intervals, "try-error")) intervals <- in.file
 
 knownGenome <- list(
     hg18="TxDb.Hsapiens.UCSC.hg18.knownGene",

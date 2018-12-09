@@ -626,13 +626,14 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     # estimate stand. dev. for target logR within targets. this will be used as proxy
     # for sample error.
-    targetsPerSegment <- sapply(exon.lrs, length)
+    targetsPerSegment <- vapply(exon.lrs, length, double(1))
     
     if (!sum(targetsPerSegment > 50, na.rm = TRUE)) {
         .stopRuntimeError("Only tiny segments.")
     }
     
-    sd.seg <- max(median(sapply(exon.lrs, sd), na.rm = TRUE), min.logr.sdev)
+    sd.seg <- max(median(vapply(exon.lrs, sd, double(1)), na.rm = TRUE),
+                  min.logr.sdev)
    
     # if user provided seg file, then we do not have access to the log-ratios and
     # need to use the user provided noise estimate also, don't do outlier smoothing
@@ -760,7 +761,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                     function(i) .calcLlikSegment(subclonal = subclonal[i], lr = exon.lrs[[i]] + 
                       log.ratio.offset[i], sd.seg = sd.seg, p = px, Ci = C[i], total.ploidy = total.ploidy, 
                       max.exon.ratio = max.exon.ratio), double(1)))
-                  px.rij.s <- sapply(px.rij, sum, na.rm = TRUE) + log(prior.purity.local)
+                  px.rij.s <- vapply(px.rij, sum, na.rm = TRUE, double(1)) + 
+                      log(prior.purity.local)
                   
                   if (simulated.annealing) 
                     px.rij.s <- px.rij.s * exp(iter/4)
@@ -959,7 +961,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                         Ci = sol$ML.C[i], total.ploidy = px * (sum(sol$seg$size * sol$ML.C))/sum(sol$seg$size) + (1 - 
                           px) * 2, max.exon.ratio = max.exon.ratio), double(1)))
                       
-                      px.rij.s <- sapply(px.rij, sum, na.rm = TRUE) + log(pp) + vapply(res.snvllik, 
+                      px.rij.s <- vapply(px.rij, sum, na.rm = TRUE, double(1)) + 
+                          log(pp) + vapply(res.snvllik, 
                         function(x) x$llik, double(1))
                       idx <- which.max(px.rij.s)
                   }
@@ -998,14 +1001,14 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     nBefore <- length(results)
     results <- .filterDuplicatedResults(results, purity.cutoff = 0.05)
     # bring back in original order for progress output
-    results <- results[order(sapply(results, function(sol) sol$candidate.id))]
+    results <- results[order(vapply(results, function(sol) sol$candidate.id, integer(1)))]
 
     if (length(results) < nBefore) { 
         flog.info("Skipping %i solutions that converged to the same optima.",
                   nBefore - length(results))
     }
-    idxFailed <- sapply(results, function(sol) 
-                        sol$fraction.subclonal > max.non.clonal)
+    idxFailed <- vapply(results, function(sol) 
+                        sol$fraction.subclonal > max.non.clonal, logical(1))
     if (sum(is.na(idxFailed))) .stopRuntimeError("NAs in fraction.subclonal.")
     if (sum(idxFailed)) {
         flog.info("Skipping %i solutions exceeding max.non.clonal (%.2f).",
@@ -1095,8 +1098,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             test.num.copy = test.num.copy,
             sex = sex, sex.vcf = sex.vcf, chr.hash = chr.hash, centromeres = centromeres,
             args=list(
-                filterVcf = args.filterVcf[sapply(args.filterVcf, object.size) < 1000],
-                filterIntervals = args.filterIntervals[sapply(args.filterIntervals, object.size) < 1000])
+                filterVcf = args.filterVcf[vapply(args.filterVcf, object.size, double(1)) < 1000],
+                filterIntervals = args.filterIntervals[vapply(args.filterIntervals, object.size, double(1)) < 1000])
         )
     )
 }

@@ -44,7 +44,7 @@ predictSomatic <- function(res, id = 1, return.vcf = FALSE,
 }
 
 .addSymbols <- function(result) {
-    if (class(result$gene.calls) == "data.frame") {
+    if (is(result$gene.calls, "data.frame")) {
         g.gr <- GRanges(result$gene.calls)
         p.gr <- GRanges(result$SNV.posterior$posteriors)
         ov <- findOverlaps(p.gr, g.gr)
