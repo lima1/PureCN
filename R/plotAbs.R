@@ -371,7 +371,7 @@ ss) {
         plot(xLogRatio, logRatio$log.ratio, ylab = "Copy Number log-ratio",
             xlab = "Pos (kbp)",
             col = adjustcolor("grey", alpha.f = ifelse(myalpha<1, 0.75, 1)), 
-            ylim = range(segment.log.ratio*1.1),
+            pch = 20, ylim = range(segment.log.ratio*1.1),
             ...)
         points(x, r$log.ratio[idx], col=col.snps, pch=mypch)
         segment.log.ratio.lines[,1] <- x[segment.log.ratio.lines[,1]]
