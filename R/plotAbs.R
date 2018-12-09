@@ -302,7 +302,7 @@ ss) {
         return(invisible())
     }
     mypch <- ifelse(r$GERMLINE.CONTHIGH > 0.5, 2, 
-        ifelse(r$GERMLINE.CONTLOW>0.5, 3, 1))[idx]
+        ifelse(r$GERMLINE.CONTLOW>0.5, 3, 20))[idx]
     myalpha <- ifelse(alpha && nrow(r) > 2000, 2000/nrow(r), 1)
 
     tmp <- data.frame(
@@ -496,7 +496,7 @@ ss) {
         plot(r$log.ratio[!r$ML.SOMATIC], r$AR[!r$ML.SOMATIC], 
             col=adjustcolor(mycol[!r$ML.SOMATIC], alpha.f=myalpha), pch=mypch[!r$ML.SOMATIC], 
             xlab="Copy Number log-ratio", ylab="Allelic fraction (germline)",
-            cex=mycex[!r$ML.SOMATIC],
+            #cex=mycex[!r$ML.SOMATIC],
             xlim=mylogratio.xlim
             )
         if (show.segment.means == "both") points(x,y,

@@ -117,7 +117,7 @@ min.coverage = 0.25, max.missing = 0.03, low.coverage = 15, ...) {
         intervals.used = intervals.used,
         sex = sex,
         low.coverage.targets = low.coverage.targets,
-        version = 6
+        version = 7
     )
 }
 
@@ -181,9 +181,11 @@ min.coverage = 0.25, max.missing = 0.03, low.coverage = 15, ...) {
     fcnts_std_trunc[fcnts_std_imp>li[2]] <- li[2]
     fcnts_std_final <- apply(fcnts_std_trunc, 2, function(x) log2(x/median(x)))
     fcnts_std_final - median(apply(fcnts_std_final,2,median))
+    s <- svd(fcnts_std_final)
 
     list(
-        projection = svd(fcnts_std_final)[[2]],
+        projection = s$u,
+        projection.v = s$v,
         intervals.used = intervals.used,
         interval.median.coverage = list(all = fcnts_interval_medians,
                                         F = fcnts_interval_medians_F,        

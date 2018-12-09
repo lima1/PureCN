@@ -22,6 +22,7 @@
 #' 
 #' @importFrom tools file_ext
 #' @importFrom rhdf5 H5Fopen
+#' @importFrom data.table fread
 #' @export readCoverageFile
 readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     if (missing(format)) format <- .getFormat(file)
@@ -45,7 +46,7 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
 
 .readCoverageGatk3 <- function(file, zero, read.length) {
     if (!is.null(zero)) flog.warn("zero ignored for GATK coverage files.")
-    inputCoverage <- utils::read.table(file, header = TRUE)
+    inputCoverage <- fread(file)
     if (is.null(inputCoverage$total_coverage)) inputCoverage$total_coverage <- NA
     if (is.null(inputCoverage$counts)) inputCoverage$counts <- inputCoverage$total_coverage / read.length
     if (is.null(inputCoverage$on_target)) inputCoverage$on_target <- TRUE
@@ -81,7 +82,7 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
 }    
 .readCoverageCnn <- function(file, zero, format="cnn") {
     if (is.null(zero)) zero <- TRUE
-    inputCoverage <- utils::read.table(file, header = TRUE, sep = "\t")
+    inputCoverage <- fread(file, sep = "\t")
     if (zero) inputCoverage$start <- inputCoverage$start + 1
     targetCoverage <- GRanges(inputCoverage)
     targetCoverage$coverage <- targetCoverage$depth * width(targetCoverage)
