@@ -25,6 +25,10 @@ test_that("NCBI-style chromosome names work", {
             0.7, by = 0.05), max.candidate.solutions = 1, plot = FALSE)
     loh <- callLOH(ret)
     expect_equal(unique(loh$chr), as.character(1:22))
+    loh2 <- callLOH(ret, keep.no.snp.segments = FALSE)
+    expect_true(nrow(loh) > nrow(loh2))
+    idx <- !is.na(loh$M)
+    expect_equal(loh$C[idx], loh2$C)
 })
 
 test_that("No crash without centromeres", {

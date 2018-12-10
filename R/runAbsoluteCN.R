@@ -626,7 +626,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     # estimate stand. dev. for target logR within targets. this will be used as proxy
     # for sample error.
-    targetsPerSegment <- vapply(exon.lrs, length, double(1))
+    targetsPerSegment <- vapply(exon.lrs, length, integer(1))
     
     if (!sum(targetsPerSegment > 50, na.rm = TRUE)) {
         .stopRuntimeError("Only tiny segments.")

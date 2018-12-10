@@ -8,6 +8,9 @@
 #' maximum likelihood solution.
 #' @param arm.cutoff Min fraction LOH on a chromosome arm to call whole arm
 #' events.
+#' @param keep.no.snp.segments Segments without heterozygous SNPs
+#' have no LOH information. This defines whether these segments should
+#' be reported anyways.
 #' @return Returns \code{data.frame} with LOH regions.
 #' @author Markus Riester
 #' @seealso \code{\link{runAbsoluteCN}}
@@ -17,7 +20,8 @@
 #' head(callLOH(purecn.example.output))
 #' 
 #' @export callLOH
-callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
+callLOH <- function(res, id = 1, arm.cutoff = 0.9,
+                    keep.no.snp.segments = TRUE) {
     if (is.null(res$input$vcf)) {
         .stopUserError("runAbsoluteCN was run without a VCF file.")
     }
@@ -35,7 +39,9 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
     minorChrNumber <- minorChrNumber[!duplicated(minorChrNumber[,1]),]
     seg$M <- NA
     seg$M[minorChrNumber[,1]] <- minorChrNumber[,2]
-    seg <- seg[!is.na(seg$M),]
+    if (!keep.no.snp.segments) {
+        seg <- seg[!is.na(seg$M),]
+    }
     seg$chrom <- .add.chr.name(seg$chrom, chr.hash)
     
     # merge consecutive segments if they have same genotype
@@ -62,8 +68,8 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9) {
         match(paste(segLOH$chrom, segLOH$arm),
         paste(armLocations$chrom, armLocations$arm))], digits=2)
     segLOH$type <- ""
-    segLOH$type[segLOH$C == 2 & segLOH$M == 0] <- "COPY-NEUTRAL LOH"
-    segLOH$type[segLOH$type=="" & segLOH$M == 0] <- "LOH"
+    segLOH$type[which(segLOH$C == 2 & segLOH$M == 0)] <- "COPY-NEUTRAL LOH"
+    segLOH$type[which(segLOH$type== "" & segLOH$M == 0)] <- "LOH"
     idx <- segLOH$fraction.arm > arm.cutoff & segLOH$type != ""
     segLOH$type[idx] <- paste("WHOLE ARM",
         segLOH$type)[idx]
