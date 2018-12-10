@@ -29,6 +29,7 @@ test_that("NCBI-style chromosome names work", {
     expect_true(nrow(loh) > nrow(loh2))
     idx <- !is.na(loh$M)
     expect_equal(loh$C[idx], loh2$C)
+    expect_equal(is.na(loh$M), is.na(loh$type))
 })
 
 test_that("No crash without centromeres", {

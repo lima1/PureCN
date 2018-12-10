@@ -73,6 +73,8 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9,
     idx <- segLOH$fraction.arm > arm.cutoff & segLOH$type != ""
     segLOH$type[idx] <- paste("WHOLE ARM",
         segLOH$type)[idx]
+    segLOH$type[is.na(segLOH$M)] <- NA
+
     rownames(segLOH) <- NULL
     segLOH <- segLOH[, c("chrom", "loc.start", "loc.end", "arm", "C", "M", "type")]
     # standardize colnames
