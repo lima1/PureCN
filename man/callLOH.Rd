@@ -4,7 +4,7 @@
 \alias{callLOH}
 \title{Get regions of LOH}
 \usage{
-callLOH(res, id = 1, arm.cutoff = 0.9)
+callLOH(res, id = 1, arm.cutoff = 0.9, keep.no.snp.segments = TRUE)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
@@ -14,6 +14,10 @@ maximum likelihood solution.}
 
 \item{arm.cutoff}{Min fraction LOH on a chromosome arm to call whole arm
 events.}
+
+\item{keep.no.snp.segments}{Segments without heterozygous SNPs
+have no LOH information. This defines whether these segments should
+be reported anyways.}
 }
 \value{
 Returns \code{data.frame} with LOH regions.
