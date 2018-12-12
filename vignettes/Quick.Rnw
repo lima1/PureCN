@@ -36,6 +36,27 @@ re-run the NormalDB.R script described below when upgrading from version 1.8.
 For upgrades from version 1.6, we highly recommend starting from scratch
 following this tutorial.
 
+\subsection*{Installation}
+
+For the command line scripts described in this tutorial, we will need to 
+install PureCN with suggested dependencies:
+
+\begin{verbatim}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("PureCN", dependencies = TRUE)
+\end{verbatim}
+
+Alternatively, manually install the packages required by the command line
+scripts:
+
+\begin{verbatim}
+BiocManager::install(c("PureCN", "optparse", 
+    "TxDb.Hsapiens.UCSC.hg19.knownGene", "org.Hs.eg.db"))
+\end{verbatim}
+
+(Replace \Rcode{hg19} with your genome version).
+
 \subsection*{Prepare environment and files}
 
 \begin{itemize}
