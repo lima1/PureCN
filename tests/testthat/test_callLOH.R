@@ -3,8 +3,8 @@ context("callLOH")
 test_that("Example is called correctly", {
     data(purecn.example.output)
     ret <- callLOH(purecn.example.output)
-    expect_equal(class(ret), "data.frame")
-    expect_equal(ncol(ret), 7)
+    expect_true(is(ret, "data.frame"))
+    expect_equal(13, ncol(ret))
 })
 
 test_that("NCBI-style chromosome names work", {
@@ -36,5 +36,5 @@ test_that("No crash without centromeres", {
     x <- purecn.example.output
     x$input$centromeres <- NULL
     loh <- callLOH(x)
-    expect_equal(7, ncol(loh))
+    expect_equal(13, ncol(loh))
 })

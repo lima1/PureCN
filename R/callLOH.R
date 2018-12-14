@@ -34,11 +34,33 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9,
     armLocationsGR <- GRanges(armLocations)
     seg <- res$results[[id]]$seg
 
-    minorChrNumber <- res$results[[id]]$SNV.posterior$posteriors[, 
-        c("seg.id", "ML.M.SEGMENT")]
-    minorChrNumber <- minorChrNumber[!duplicated(minorChrNumber[,1]),]
-    seg$M <- NA
-    seg$M[minorChrNumber[,1]] <- minorChrNumber[,2]
+    bm <- res$results[[id]]$SNV.posterior$posteriors
+    bm <- bm[which(!bm$ML.SOMATIC & 
+                    bm$GERMLINE.CONTLOW < 0.5 & 
+                    bm$GERMLINE.CONTHIGH < 0.5),]
+
+    if (is.null(bm)) {
+        .stopRuntimeError("SNV.posterior NULL in callLOH.")
+    }    
+    segids <- bm$seg.id
+    seg$seg.id <- seq(nrow(seg))
+    seg$num.snps.segment <- sapply(seg$seg.id, function(i) 
+            sum(segids==i,na.rm=TRUE))
+    seg$M <- bm$ML.M.SEGMENT[match(seg$seg.id, segids)] 
+    seg$M.flagged <- bm$M.SEGMENT.FLAGGED[match(seg$seg.id, segids)] 
+    seg$maf.expected <- sapply(seg$seg.id, function(i) {
+            x <- bm$ML.AR[which(bm$seg.id == i)]
+            if (!length(x)) return(NA)
+            # they should all be the same, but make it more robust to artifacts
+            # so use median
+            median(sapply(x, function(y) ifelse(y>0.5, 1-y, y)))
+            })
+    seg$maf.seg <- sapply(seg$seg.id, function(i) {
+            x <- bm$AR.ADJUSTED[which(bm$seg.id == i)]
+            if (!length(x)) return(NA)
+            median(sapply(x, function(y) ifelse(y>0.5, 1-y, y)))
+            })
+
     if (!keep.no.snp.segments) {
         seg <- seg[!is.na(seg$M),]
     }
@@ -76,7 +98,9 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9,
     segLOH$type[is.na(segLOH$M)] <- NA
 
     rownames(segLOH) <- NULL
-    segLOH <- segLOH[, c("chrom", "loc.start", "loc.end", "arm", "C", "M", "type")]
+    segLOH <- segLOH[, c("chrom", "loc.start", "loc.end", "arm", "C", "M",
+        "type", "seg.mean", "num.mark", "num.snps.segment", "M.flagged", 
+        "maf.expected", "maf.seg")]
     # standardize colnames
     colnames(segLOH)[1:3] <- c("chr", "start", "end")
     segLOH

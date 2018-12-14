@@ -18,6 +18,7 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o callLOH now reports all segments, even if there are no informative
       SNPs since some users were not aware that segments are missing from
       this output. Use keep.no.snp.segments = FALSE to restore old behaviour.
+    o more detailed output of callLOH  
 
 
 Changes in version 1.12.0
