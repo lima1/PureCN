@@ -44,7 +44,7 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9,
     }    
     seg$seg.id <- seq(nrow(seg))
     seg$num.snps <- sapply(seg$seg.id, function(i) 
-            sum(bm.seg.id == i,na.rm=TRUE))
+            sum(bm$seg.id == i,na.rm=TRUE))
     seg$M <- bm$ML.M.SEGMENT[match(seg$seg.id, bm$seg.id)] 
     seg$M.flagged <- bm$M.SEGMENT.FLAGGED[match(seg$seg.id, bm$seg.id)] 
     seg$maf.expected <- sapply(seg$seg.id, function(i) {
