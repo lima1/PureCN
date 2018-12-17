@@ -728,7 +728,7 @@ Column name       & Description \\
 \Rcode{breakpoints} & Number of breakpoints between \Rcode{start} and 
 \Rcode{end} \\
 \Rcode{type}        & Amplification or deletion \\
-\Rcode{num.snps.segment} & Number of SNPs in this segment informative for 
+\Rcode{num.snps} & Number of SNPs in this segment informative for 
     LOH detection (requires VCF)\\
 \Rcode{M} & minor copy number of segment (requires VCF) \\
 \Rcode{M.flagged} & flag indicating that \Rcode{M} is unreliable (requires VCF) \\
@@ -768,12 +768,14 @@ Column name & Description \\
 (not adjusted for purity/ploidy)  \\
 \Rcode{num.mark} & Number of intervals in this segment (following DNAcopy
     naming convention) \\
-\Rcode{num.snps.segment} & Number of SNPs in this segment informative for 
+\Rcode{num.snps} & Number of SNPs in this segment informative for 
     LOH detection \\
-\Rcode{M.flagged} & flag indicating that \Rcode{M} is unreliable \\
+\Rcode{M.flagged} & flag indicating that \Rcode{M} is unreliable (due to small
+    number of variants defined by \Rcode{min.variants.segment} or because 
+    of ambiguous \Rcode{M} call) \\
 \Rcode{maf.expected} & Expected minor allele frequency of heterozygous SNPs
     in this segment \\
-\Rcode{maf.seg} & Median of observed minor allele frequency of heterozygous
+\Rcode{maf.observed} & Median of observed minor allele frequency of heterozygous
     SNPs in this segment \\
 \bottomrule
 \end{tabular}
