@@ -300,12 +300,16 @@ seg <- seg[, c(1:6, match("C", colnames(seg)))]
 write.table(seg, file = file.seg, sep = "\t", quote = FALSE,
     row.names = FALSE)
 
-file.genes <- paste0(out, "_genes.csv")
-allAlterations <- callAlterations(ret, all.genes = TRUE)
+if (is(ret$results[[1]]$gene.calls, "data.frame")) {
+    file.genes <- paste0(out, "_genes.csv")
+    allAlterations <- callAlterations(ret, all.genes = TRUE)
 
-write.csv(cbind(Sampleid = sampleid, gene.symbol = rownames(allAlterations),
-    allAlterations), row.names = FALSE, file = file.genes, quote = FALSE)
-
+    write.csv(cbind(Sampleid = sampleid, gene.symbol = rownames(allAlterations),
+        allAlterations), row.names = FALSE, file = file.genes, quote = FALSE)
+} else {
+    flog.warn("--intervals does not contain gene symbols. Not generating gene-level calls.")
+}
+    
 if (!is.null(ret$input$vcf)) {
     if (opt$outvcf) {
         file.vcf <- paste0(out, ".vcf")

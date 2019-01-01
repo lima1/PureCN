@@ -127,3 +127,25 @@ x <- data.frame(
 )
 
 write.csv(x, file = outfile, row.names = FALSE, quote = FALSE)
+
+
+x <- p[idxCalled & p$SOMATIC != p$ML.SOMATIC]
+loh <- GRanges(callLOH(res))
+mcols(x) <- cbind(mcols(x), mcols(loh[findOverlaps(x, loh, select="first")]))
+x$C <- NULL
+x$M <- NULL
+x$M.flagged <- NULL
+
+outfile2 <- paste0(outPrefix, "_tumor_only_benchmark_wrong_calls.csv")
+write.csv(as.data.frame(x), file = outfile2, row.names = FALSE, quote = FALSE)
+
+x <- p[idxCalled & p$SOMATIC == p$ML.SOMATIC]
+loh <- GRanges(callLOH(res))
+mcols(x) <- cbind(mcols(x), mcols(loh[findOverlaps(x, loh, select="first")]))
+x$C <- NULL
+x$M <- NULL
+x$M.flagged <- NULL
+
+outfile2 <- paste0(outPrefix, "_tumor_only_benchmark_correct_calls.csv")
+write.csv(as.data.frame(x), file = outfile2, row.names = FALSE, quote = FALSE)
+

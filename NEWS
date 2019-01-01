@@ -21,6 +21,11 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o more detailed output of callLOH  
     o renamed num.snps.segment to num.snps in callAlterations output
 
+BUGFIXES
+
+    o fixed crash in PureCN.R when gene symbols are missing from
+      interval file
+
 
 Changes in version 1.12.0
 -------------------------
