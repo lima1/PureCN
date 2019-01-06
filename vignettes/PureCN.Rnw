@@ -1558,21 +1558,24 @@ approach:
 
 \begin{description}
     \item[Noisy segmentation:] The default of 300 for \Rcode{max.segments} is
-    calibrated for high quality and high coverage whole-exome data. For
-    whole-genome data or lower coverage data, this value needs to be
-    re-calibrated.  In case the copy number data looks indeed noisy, please see
-    the first FAQ. Please be aware that \Biocpkg{PureCN} will apply more
-    aggressive segmentation parameters when the number of segments exceeds this
-    cutoff. If the high segment count is real, this might confound downstream
-    analyses.
-    \item[High AT/GC dropout:] If the data is GC-normalized, then there might
-    be issues with either the target intervals or the provided GC content.
-    Please double check that all files are correct and that all the coverage
-    files are GC-normalized (Section~\ref{secgcbias}).
+        calibrated for high quality and high coverage whole-exome data. For
+        whole-genome data or lower coverage data, this value needs to be
+        re-calibrated.  In case the copy number data looks indeed noisy, please
+        see the first FAQ. Please be aware that \Biocpkg{PureCN} will apply more
+        aggressive segmentation parameters when the number of segments exceeds
+        this cutoff. If the high segment count is real, this might confound
+        downstream analyses.
+    \item[High AT/GC dropout:] If the data is GC-normalized, then there might be
+        issues with either the target intervals or the provided GC content.
+        Please double check that all files are correct and that all the coverage
+        files are GC-normalized (Section~\ref{secgcbias}).
     \item[Sex mismatch of coverage and VCF:] If the panel contains baits for
-    chromosome Y, then the interval file was probably generated without 
-    mappability file (Section~\ref{sectargetinfo}). Cross-sample contamination
-    (Section~\ref{seccontamination}) can also cause sex mismatches.
+        chromosome Y, then the interval file was probably generated without
+        mappability file (Section~\ref{sectargetinfo}). Cross-sample
+        contamination (Section~\ref{seccontamination}) can also cause sex
+        mismatches.  When third-party tools were used for coverage normalization
+        and segmentation, this usually means probes on chromosome Y were not
+        filtered for mappability. 
 \end{description}
 
 \appendix

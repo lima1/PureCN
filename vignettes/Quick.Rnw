@@ -127,6 +127,9 @@ file for other references.
 Similarly, the \Rcode{--reptiming} argument takes a replication timing score in
 the same format.  If provided, GC-normalized and log-transformed coverage is
 tested for a linear relationship with this score and normalized accordingly.
+This is optional and provides only a minor benefit for coverage normalization,
+but can identify samples with high proliferation. Requires \Rcode{--offtarget}
+to be useful. 
 
 Generation of this interval file is not needed when CNVkit is used to generate
 coverage data (covered at the end of this tutorial). 
@@ -346,7 +349,9 @@ Important recommendations:
                 without normal contamination.
             \item[cfDNA:] \Rcode{--minpurity 0.1}, \Rcode{--minaf 0.01} (or
                 lower) and \Rcode{--error 0.0005} (or lower, when there is
-                UMI-based error correction)
+                UMI-based error correction). Note that the estimated purity can
+                be very wrong when the true purity is below 5-7\%; these samples
+                are usually flagged as non-aberrant.
             \item[Amplicon data:] \Rcode{--model betabin} (Amplicon data is not
                 officially supported)
             \item[All assays:] \Rcode{--maxsegments} should set to a value so 
