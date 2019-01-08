@@ -339,5 +339,9 @@ min.coverage, max.missing) {
             nBefore-nAfter, max.missing*100)
     }
 
+    if (nAfter < 2) {
+        .stopUserError("No intervals left after coverage checks.")
+    }
+
     intervals.used
 }
