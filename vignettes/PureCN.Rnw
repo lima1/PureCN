@@ -588,11 +588,8 @@ by already providing somatic status.
 
 The \Rfunction{predictSomatic} function provides access to these probabilities.
 For predicted somatic mutations, this function also provides cellular fraction
-estimates, i.e. the fraction of tumor cells with mutation. Fractions
-significantly below 1 indicate sub-clonality\footnote{This number can be above 1
-when the observed allelic fraction is higher than expected for a clonal
-mutation. This may be due to random sampling, wrong copy number, sub-clonal copy
-number events, or wrong purity/ploidy estimates.}:
+estimates \cite{McGranahan}, i.e. the fraction of tumor cells with mutation.
+Fractions significantly below 1 indicate sub-clonality:
 
 <<output3>>=
 head(predictSomatic(ret), 3)
@@ -667,7 +664,9 @@ unreliable, either due to low posterior probability (< 0.5) or few variants (<
 \Rcode{AR.ADJUSTED} & Observed allelic fraction adjusted for mapping bias\\
 \Rcode{ML.LOH} & \Rcode{TRUE} if variant is most likely in LOH \\
 \Rcode{CN.SUBCLONAL} & \Rcode{TRUE} if copy number segment is sub-clonal \\
-\Rcode{CELLFRACTION} & Fraction of tumor cells harboring the somatic mutation\\
+\Rcode{CELLFRACTION} & Fraction of tumor cells harboring the somatic mutation \cite{McGranahan} \\
+\Rcode{CELLFRACTION.95.LOWER} & Lower 95\% of confidence interval \\
+\Rcode{CELLFRACTION.95.UPPER} & Upper 95\% of confidence interval \\
 \Rcode{FLAGGED} & Flag indicating that call is unreliable 
     (currently only due to high mapping bias and high pool of normal counts)\\
 \Rcode{log.ratio} & The copy number log2-ratio (tumor vs. normal) for this 

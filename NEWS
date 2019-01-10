@@ -11,6 +11,7 @@ NEW FEATURES
       using log2-ratio and B-allele frequencies
     o min.target.width and small.targets in preprocessIntervals to 
       automatically deal with too small targets  
+    o calculate confidence intervals for cellular fractions  
  
 SIGNIFICANT USER-VISIBLE CHANGES
 
