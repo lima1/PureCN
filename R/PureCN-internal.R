@@ -253,9 +253,9 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     m <-  t(apply(cbind(ar, depth,  posteriors$ML.C), 1, function(x) 
         .calculate_ccf(vaf = x[1], depth = x[2], purity = p, C = x[3])))
 
-    posteriors$CELLFRACTION <- m[,1]
-    posteriors$CELLFRACTION.95.LOWER <- m[,2]
-    posteriors$CELLFRACTION.95.UPPER <- m[,3]
+    posteriors$CELLFRACTION <- as.numeric(m[,1])
+    posteriors$CELLFRACTION.95.LOWER <- as.numeric(m[,2])
+    posteriors$CELLFRACTION.95.UPPER <- as.numeric(m[,3])
 
     rm.snv.posteriors <- apply(likelihoods, 1, max)
     idx.ignore <- rm.snv.posteriors == 0 |
@@ -1076,16 +1076,16 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 
 .calculate_ccf <- function(vaf, depth, purity, C){
     # see DOI: 10.1126/scitranslmed.aaa1408
-    if (is.na(vaf)) return(c(NA,NA,NA))
+    if (is.na(vaf)) return(c(NA, NA, NA))
     possible_ccfs <- seq(0.01, 1, 0.01)
     possible_vafs <- (purity * possible_ccfs)/
         ((2 * (1 - purity)) + (purity * C)) #Expected VAF for each CCF
     possible_vafs <- pmax(pmin(possible_vafs, 1), 0)    
     probs <- dbinom(x=round(vaf*depth), size = depth, prob = possible_vafs) #Prob of observed VAF
     names(probs) <- possible_ccfs
-    if (!sum(probs)) return(c(NA,NA,NA))
+    if (!sum(probs)) return(c(NA, NA, NA))
     probs_norm <- probs / sum(probs) #Normalise to get posterior distribution
-    probs_sort <- sort(probs_norm, decreasing=T)
+    probs_sort <- sort(probs_norm, decreasing = TRUE)
     probs_cum <- cumsum(probs_sort)
     n <- sum(probs_cum < 0.95) + 1 #Get 95% confidence interval (95% of probability)
     threshold <- probs_sort[n]
