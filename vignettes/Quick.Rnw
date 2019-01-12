@@ -491,7 +491,7 @@ Argument name   & Corresponding PureCN argument & PureCN function \\
 
 \begin{table*}
 \caption{Coverage}
-\begin{tabular}{llp{5cm}}
+\begin{tabular}{llp{5.5cm}}
 \toprule
 Argument name       & Corresponding PureCN argument & PureCN function \\
 \midrule
@@ -535,7 +535,7 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 
 \begin{table*}
 \caption{PureCN}
-\begin{tabular}{lll}
+\begin{tabular}{llp{5.5cm}}
 \toprule
 Argument name      & Corresponding PureCN argument & PureCN function \\
 \midrule
