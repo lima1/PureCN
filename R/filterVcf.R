@@ -333,6 +333,15 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         # provide one (matched tumor/normal cases only)
         vcf <- .addSomaticField(vcf)
     }
+    
+     # attempt to find GATK4 name for POP_AF field
+     # if POP_AF does not exist
+    if (!POPAF.info.field %in% names(info(vcf)) &&
+        "POPAF" %in% names(info(vcf))) {
+        # try to add an DP geno field if missing
+        POPAF.info.field <- "POPAF"
+    }
+    
     if (!.checkVcfFieldAvailable(vcf, "DP")) {
         # try to add an DP geno field if missing
         vcf <- .addDpField(vcf)
