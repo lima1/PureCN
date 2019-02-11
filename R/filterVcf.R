@@ -378,7 +378,9 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
                         POPAF.info.field,
                         min.pop.af) {
 
-    if (!is.null(info(vcf)$SOMATIC) && sum(colSums(geno(vcf)$DP) > 0) == 2) {
+    if (!is.null(info(vcf)$SOMATIC) &&
+        sum(colSums(geno(vcf)$DP) > 0) == 2 &&
+        any(info(vcf)$SOMATIC))) {
         db <- !info(vcf)$SOMATIC
         flog.warn("vcf.file has no DB info field for membership in germline databases.%s",
            " Found and used somatic status instead.")
