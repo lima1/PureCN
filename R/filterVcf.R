@@ -277,7 +277,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
             if (max(cs) > 0) return(which.min(cs))
         }
         if (!is.null(geno(vcf)$FA)) {
-            cs <- apply(geno(vcf)$FA,2,function(x) sum(as.numeric(x)==0))
+            cs <- apply(geno(vcf)$FA,2,function(x) length(which(as.numeric(x)==0)))
             if (max(cs) > 0) return(which.min(cs))
         }    
         if (sampleid %in% samples(header(vcf))) {
