@@ -56,12 +56,21 @@ These tutorials are also available on the Bioconductor project page
 ([devel](https://bioconductor.org/packages/devel/bioc/html/PureCN.html),
 [stable](https://doi.org/doi:10.18129/B9.bioc.PureCN)).
 
-## Paper
+## Papers
 
-Riester M, Singh A, Brannon A, Yu K, Campbell C, Chiang D and Morrissey M
-(2016). “PureCN: Copy number calling and SNV classification using targeted
-short read sequencing.” _Source Code for Biology and Medicine_, **11**, pp. 13.
-doi: [10.1186/s13029-016-0060-z](https://doi.org/10.1186/s13029-016-0060-z).
+* Main paper describing the likelihood model:
+
+    Riester M, Singh A, Brannon A, Yu K, Campbell C, Chiang D and Morrissey M
+    (2016). “PureCN: Copy number calling and SNV classification using targeted
+    short read sequencing.” _Source Code for Biology and Medicine_, **11**, pp. 13.
+    doi: [10.1186/s13029-016-0060-z](https://doi.org/10.1186/s13029-016-0060-z).
+
+* Validation paper, including description of novel additions, such as off-target
+  support, tangent normalization and tweaks to the likelihood model:
+
+    Oh S, Geistlinger L, Ramos M, Morgan M,  Waldron L, Riester M (2019).
+    Reliable analysis of clinical tumor-only whole exome sequencing data.
+    _bioRxiv_. doi: [10.1101/552711](https://doi.org/10.1101/552711)
 
 ## Selected citations
 
