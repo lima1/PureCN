@@ -685,8 +685,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         # if we have > 20 somatic mutations, we can try estimating purity based on
         # allelic fractions and assuming diploid genomes.
         if (!is.null(vcf.file) && sum(prior.somatic > 0.5, na.rm = TRUE) > 20) {
-            somatic.purity <- min(max(test.purity), .calcPuritySomaticVariants(vcf, 
-                prior.somatic, tumor.id.in.vcf))
+            somatic.purity <- .calcPuritySomaticVariants(vcf, 
+                prior.somatic, tumor.id.in.vcf)
+            somatic.purity <- min(max(test.purity), somatic.purity)
+            somatic.purity <- max(min(test.purity), somatic.purity)
             
             candidate.solutions$candidates <- .filterDuplicatedCandidates(
                 rbind(candidate.solutions$candidates, 
