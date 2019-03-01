@@ -26,6 +26,8 @@ BUGFIXES
 
     o fixed crash in PureCN.R when gene symbols are missing from
       interval file
+    o fixed crash in runAbsoluteCN with matched normals and high test.purity 
+      minimum (#74)  
 
 
 Changes in version 1.12.0
