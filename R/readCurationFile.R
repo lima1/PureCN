@@ -68,15 +68,9 @@ max.ploidy = NULL) {
         curation$Purity < 0 || curation$Purity > 1 ||
         curation$Ploidy < 0 || curation$Ploidy > 8) {
         .stopUserError("Purity or Ploidy not numeric or in expected range.")
-    }    
-    # Find purity/ploidy solution most similar to curation
-    diffCurated <- vapply(res$results, function(x) {
-        abs(x$purity-curation$Purity) + (abs(x$ploidy-curation$Ploidy)/6)
-    }, double(1))
-    idxCurated <- which.min(diffCurated)
-    if (idxCurated != 1) {
-        res$results[c(1,idxCurated)] <-  res$results[c(idxCurated, 1)]
     }
+    res$results <- .findClosestSolution(res$results, curation$Purity,
+        curation$Ploidy)
     
     ## Filter by ploidy if necessary
     ploidy <- sapply(res$results, function(x) x$ploidy)
@@ -89,4 +83,16 @@ max.ploidy = NULL) {
         res$results <- res$results[1]
     }
     res
+}    
+
+.findClosestSolution <- function(results, purity, ploidy, ploidy.div = 6) {
+    # Find purity/ploidy solution most similar to curation
+    diffCurated <- vapply(results, function(x) {
+        abs(x$purity - purity) + (abs(x$ploidy - ploidy) / ploidy.div)
+    }, double(1))
+    idxCurated <- which.min(diffCurated)
+    if (idxCurated != 1) {
+        results[c(1, idxCurated)] <-  results[c(idxCurated, 1)]
+    }
+    results
 }    

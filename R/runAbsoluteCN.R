@@ -1090,6 +1090,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (length(results) < 1) {
         flog.warn("Could not find valid purity and ploidy solution.")
     }
+
+    if (grepl("NON-ABERRANT", results[[1]]$flag_comment)) {
+        flog.warn("No copy number alterations found, purity estimate unreliable.")
+        results <- .findClosestSolution(results, 
+            purity = min(test.purity), ploidy = 2, ploidy.div = 1)
+    }    
     .logFooter()
     list(
         candidates = candidate.solutions, 
