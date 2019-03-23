@@ -310,7 +310,8 @@ saveRDS(normalDB, file="normalDB.rds")
 Again, please make sure that all coverage files were GC-normalized prior to
 building the database (Section~\ref{secgcbias}).  Internally,
 \Rfunction{createNormalDatabase} determines the sex of the samples and trains a
-PCA that is later used for denoising tumor coverage:
+PCA that is later used for denoising tumor coverage using Tangent normalization
+\cite{Tabak566505}:
 
 <<normaldbpca>>=
 normalDB <- readRDS("normalDB.rds")
@@ -1554,6 +1555,18 @@ approach:
 
 \end{itemize}
 
+\paragraph{Questions related to matched normals.}
+\begin{description}
+    \item[Coverage normalization:] Even when matched normals are available, we
+        recommend building a normal database for coverage normalization. This
+        usually produces cleaner coverage profiles than the matched normal
+        (\cite{Tabak566505}).
+    \item[VCFs: ] When matched normals are available, simply provide this
+        information to the variant caller and make sure that germline SNPs are
+        not filtered out. \Biocpkg{PureCN} should automatically find the matched
+        information.
+\end{description}
+
 \paragraph{If all or most of the samples are flagged as:}
 
 \begin{description}
@@ -1571,11 +1584,11 @@ approach:
         files are GC-normalized (Section~\ref{secgcbias}).
     \item[Sex mismatch of coverage and VCF:] If the panel contains baits for
         chromosome Y, then the interval file was probably generated without
-        mappability file (Section~\ref{sectargetinfo}). Cross-sample
-        contamination (Section~\ref{seccontamination}) can also cause sex
-        mismatches.  When third-party tools were used for coverage normalization
-        and segmentation, this usually means probes on chromosome Y were not
-        filtered for mappability. 
+        mappability file (Section~\ref{sectargetinfo}). Similarly when
+        third-party tools were used for coverage normalization and segmentation,
+        this usually means probes on chromosome Y were not filtered for
+        mappability. Cross-sample contamination (Section~\ref{seccontamination})
+        can also cause sex mismatches.  
 \end{description}
 
 \appendix

@@ -346,7 +346,8 @@ Important recommendations:
                 solutions in cell lines: \Rcode{--maxcopynumber 8},
                 \Rcode{--minpurity 0.9}, \Rcode{--maxpurity 0.99}.
                 Add \Rcode{--modelhomozygous} to find regions of LOH in samples
-                without normal contamination.
+                without normal contamination (do not provide this flag when
+                matched normal data are available in the VCF).
             \item[cfDNA:] \Rcode{--minpurity 0.1}, \Rcode{--minaf 0.01} (or
                 lower) and \Rcode{--error 0.0005} (or lower, when there is
                 UMI-based error correction). Note that the estimated purity can
