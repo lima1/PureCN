@@ -1290,10 +1290,14 @@ segmentation parameters, such as \Rcode{prune.hclust.h=0.2} or higher.
     \item Were the normal samples run with the same assay and pipeline? 
     \item Did you provide \Rfunction{runAbsoluteCN} all the recommended files
     as described in Section~\ref{secrecommended}?  
-    \item For whole-genome data, you will get better results using a
-    specialized third-party segmentation method as described in
-    section~\ref{customseg}, since our default is optimized for targeted
-    sequencing.
+    \item For whole-genome data, you will get better results using a specialized
+        third-party segmentation method as described in section~\ref{customseg},
+        since our default is optimized for targeted sequencing. In general,
+        you should probably start with tools optimized for WGS data,
+        such as Battenberg \cite{NikZainal2012}, ABSOLUTE \cite{Carter2012},
+        ACEseq \cite{Kleinheinz210807}, or TitanCNA \cite{Ha2014}. We are
+        planning to incorporate proper support for WGS once high coverage
+        diagnostic WGS becomes more common.
     \end{itemize}
     \item Otherwise, if log2-ratio peaks are clean as in 
 Figure~\ref{figure/figureexample2-1}:
