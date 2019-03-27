@@ -87,8 +87,6 @@ sampleid <- res$input$sampleid
 outPrefix <- .getOutPrefix(opt, infileRds, sampleid)
      
 outfileMb <- paste0(outPrefix, "_mutation_burden.csv")
-
-
 if (!opt$force && file.exists(outfileMb)) {
     stop(outfileMb, " exists. Use --force to overwrite.")
 }    
@@ -98,11 +96,28 @@ flog.info("Calling mutation burden...")
 fun.countMutation <- eval(formals(callMutationBurden)$fun.countMutation)
 if (opt$keepindels) fun.countMutation <- function(vcf) width(vcf) >= 1
     
-mb <- callMutationBurden(res, callable=callable, exclude=exclude,
+mb <- callMutationBurden(res, callable = callable, exclude = exclude,
         max.prior.somatic = opt$maxpriorsomatic,
         fun.countMutation = fun.countMutation)
 
-write.csv(cbind(Sampleid=sampleid, mb), file=outfileMb, row.names=FALSE, quote=FALSE)
+write.csv(cbind(Sampleid=sampleid, mb), file = outfileMb, row.names = FALSE,
+          quote = FALSE)
+
+flog.info("Calling chromosomal instability...")
+
+cin <- data.frame(
+    cin = callCIN(res, allele.specific = FALSE, reference.state = "normal"),
+    cin.allele.specific = callCIN(res, reference.state = "normal"),
+    cin.ploidy.robust = callCIN(res, allele.specific = FALSE),
+    cin.allele.specific.ploidy.robust = callCIN(res)
+)
+outfileCin <- paste0(outPrefix, "_cin.csv")
+if (!opt$force && file.exists(outfileCin)) {
+    flog.warn("%s exists. Use --force to overwrite.", outfileCin)
+} else {
+    write.csv(cbind(Sampleid=sampleid, round(cin, digits = 4)), 
+              file = outfileCin, row.names = FALSE, quote = FALSE)
+}
 
 if (opt$signatures && require(deconstructSigs)) {
     x <- predictSomatic(res)
