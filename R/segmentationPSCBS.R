@@ -131,6 +131,7 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         seg <- .pruneByHclust(seg, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
             method=prune.hclust.method, chr.hash=chr.hash)
     }
+    seg <- .addAverageWeights(seg, interval.weights, tumor, chr.hash)
     seg
 }
 
