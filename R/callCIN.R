@@ -39,5 +39,5 @@ callCIN <- function(res, id = 1, allele.specific = TRUE, reference.state =
         reference.state.cn <- if (allele.specific) "2/1" else "2"
     }
     loh$is.reference <- loh$state == reference.state.cn
-    sum(loh$size[loh$is.reference]) / sum(loh$size)
+    sum(loh$size[!loh$is.reference]) / sum(loh$size)
 }
