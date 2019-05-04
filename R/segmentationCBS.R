@@ -108,6 +108,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     idx.enough.markers <- x$cna$output$num.mark > 1
     rownames(x$cna$output) <- NULL
     finalSeg <- x$cna$output[idx.enough.markers,]
+    finalSeg <- .addAverageWeights(finalSeg, interval.weights, tumor, chr.hash)
     .debugSegmentation(origSeg, finalSeg)
     finalSeg
 }
@@ -407,3 +408,20 @@ plot.cnv=TRUE, max.segments=NULL, chr.hash=chr.hash) {
         
     list(fraction.genome = fraction.genome, seg.mean = seg.mean)
 }
+
+.addAverageWeights <- function(seg, weights, tumor, chr.hash) {
+    if (is.null(weights)) {
+         seg$seg.weight <- 1
+        return(seg)
+    }
+    seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
+        IRanges(start=seg$loc.start, end=seg$loc.end))
+    ov <- findOverlaps(seg.gr, tumor)
+    avgWeights <- sapply(split(subjectHits(ov), queryHits(ov)), 
+                         function(i) mean(weights[i], na.rm = TRUE))
+    if (length(avgWeights) != nrow(seg)) {
+        .stopRuntimeError("Could not find weights for all segments.")
+    }    
+    seg$seg.weight <- avgWeights
+    seg
+}    

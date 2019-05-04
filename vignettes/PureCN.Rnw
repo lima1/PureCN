@@ -1102,6 +1102,36 @@ default parameters includes off-target regions that were ignored by
 \label{tbl:callMutationBurden}
 \end{table*}
 
+\subsection{Chromosomal Instability}
+
+Chromosomal Instability (CIN) is usually defined as the fraction of the genome
+that is altered. The \Rfunction{callCIN} function can be used to estimate this
+fraction. 
+
+Parameters define regions that are altered. First, \Rcode{allele.specific}
+defines whether only total vs. both minor and major copy number define a state.
+Copy number neutral LOH would count as altered only when this parameter is set
+to \Rcode{TRUE}. Second, \Rcode{reference.state} defines the unaltered copy
+number state. This can be either \Rcode{normal} for \Rcode{2/1}, or
+\Rcode{dominant} for the most common state. While technically potentially wrong,
+the latter is robust to errors in ploidy and is thus recommended without careful
+manual curation. Similarly, setting \Rcode{allele.specific} to \Rcode{FALSE}
+makes this metric more robust to purity and ploidy errors, but usually to a much
+lesser extend.
+
+It is recommended to test for a relationship of tumor purity and CIN and
+if necessary exclude low purity samples with uncertain CIN.
+
+<<callcin>>=
+# All 4 possible ways to calculate fraction of genome altered
+cin <- data.frame(
+    cin = callCIN(ret, allele.specific = FALSE, reference.state = "normal"),
+    cin.allele.specific = callCIN(ret, reference.state = "normal"),
+    cin.ploidy.robust = callCIN(ret, allele.specific = FALSE),
+    cin.allele.specific.ploidy.robust = callCIN(ret)
+)
+@
+
 \subsection{Detect cross-sample contamination}
 \label{seccontamination}
 It is important to correctly handle heterozygous common SNPs that do not have an
