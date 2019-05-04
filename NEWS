@@ -4,6 +4,7 @@ Changes in version 1.16.0
 NEW FEATURES
 
     o flag segments in poor quality regions
+    o Dx.R now reports chromosomal instability scores
 
 
 Changes in version 1.14.0
