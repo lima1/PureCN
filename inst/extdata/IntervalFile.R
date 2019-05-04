@@ -38,7 +38,7 @@ option_list <- list(
         help = "Average the replication timing data into bins of the specified size [default %default]"),
     make_option(c("--genome"), action = "store", type = "character", 
         default = NULL,
-        help = "Genome version. If one of hg18, hg19, hg38, mm9, mm10, rn4, rn5, rn6 will annotate intervals with gene symbols"),
+        help = "Genome version. If one of hg18, hg19, hg38, mm9, mm10, rn4, rn5, rn6, canFam3 will annotate intervals with gene symbols"),
     make_option(c("--outfile"), action = "store", type = "character", 
         default = NULL,
         help = "Outfile of annotated targets optimized for copy number calling."),
