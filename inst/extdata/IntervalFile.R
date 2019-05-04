@@ -148,8 +148,10 @@ knownGenome <- list(
     mm10 = "TxDb.Mmusculus.UCSC.mm10.knownGene",
     rn4 = "TxDb.Rnorvegicus.UCSC.rn4.ensGene",
     rn5 = "TxDb.Rnorvegicus.UCSC.rn5.ensGene",
-    rn6 = "TxDb.Rnorvegicus.UCSC.rn6.ensGene"
+    rn6 = "TxDb.Rnorvegicus.UCSC.rn6.ensGene",
+    canFam3 = "TxDb.Cfamiliaris.UCSC.canFam3.refGene"
 )
+
 knownOrg <- list(
     hg18 = "org.Hs.eg.db",
     hg19 = "org.Hs.eg.db",
@@ -158,7 +160,8 @@ knownOrg <- list(
     mm10 = "org.Mm.eg.db",
     rn4 = "org.Rn.eg.db",
     rn5 = "org.Rn.eg.db",
-    rn6 = "org.Rn.eg.db"
+    rn6 = "org.Rn.eg.db",
+    canFam3 = "org.Cf.eg.db"
 )
 
 .writeGc <- function(interval.gr, output.file) {
