@@ -9,7 +9,7 @@ option_list <- list(
     make_option(c("--infile"), action="store", type="character", default=NULL,
         help="Infile specifying callable intervals. Needs to be parsable by rtracklayer."),
     make_option(c("--genome"), action="store", type="character", default=NULL,
-        help="Genome version to filter non-CDS region. One of hg18, hg19, hg38, mm9, mm10, rn4, rn5, rn6."),
+        help="Genome version to filter non-CDS region. One of hg18, hg19, hg38, mm9, mm10, rn4, rn5, rn6, canFam3."),
     make_option(c("--exclude"), action="store", type="character", default=NULL,
         help="Regular expression matching gene symbols to ignore, e.g. '^HLA'. Can also be a file parsable by rtracklayer."),
     make_option(c("--outfile"), action="store", type="character", default=NULL,
@@ -52,7 +52,7 @@ knownGenome <- list(
     mm10 = "TxDb.Mmusculus.UCSC.mm10.knownGene",
     rn4 = "TxDb.Rnorvegicus.UCSC.rn4.ensGene",
     rn5 = "TxDb.Rnorvegicus.UCSC.rn5.ensGene",
-    rn6 = "TxDb.Rnorvegicus.UCSC.rn6.ensGene"
+    rn6 = "TxDb.Rnorvegicus.UCSC.rn6.ensGene",
     canFam3 = "TxDb.Cfamiliaris.UCSC.canFam3.refGene"
 )
 
