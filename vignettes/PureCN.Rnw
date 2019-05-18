@@ -1501,6 +1501,18 @@ Figure~\ref{figure/figureexample2-1}:
     \end{itemize}
 \end{itemize}
 
+\paragraph{Questions related to the output.}
+
+\begin{itemize}
+    \item \textit{Where is the major and minor segment copy number?} The minor
+        copy number is \Rcode{ML.M.SEGMENT} in \Rfunction{predictSomatic}
+        (Table~\ref{tbl:predictSomatic}) and \Rcode{M} in
+        \Rfunction{callAlterations} (Table~\ref{tbl:callAlterations}) and
+        \Rfunction{callLOH} (Table~\ref{tbl:callLOH}).  The major copy number is
+        simply the total copy number (column \Rcode{C} or \Rcode{ML.C} in
+        \Rfunction{predictSomatic}) minus the minor copy number.
+\end{itemize}
+
 \paragraph{Questions related to pool of normals.}
 
 As described in detail in Sections~\ref{bestnormal} and

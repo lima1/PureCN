@@ -56,6 +56,16 @@ These tutorials are also available on the Bioconductor project page
 ([devel](https://bioconductor.org/packages/devel/bioc/html/PureCN.html),
 [stable](https://doi.org/doi:10.18129/B9.bioc.PureCN)).
 
+## Bugs
+
+Before [posting](https://github.com/lima1/PureCN/issues) a bug report:
+
+* update to the latest version 
+* confirm with sessionInfo() that the latest version is used
+* if this is a first PureCN attempt, closely follow the Quick vignette
+* make sure that the issue is not covered in the Support section of the main
+  vignette
+
 ## Papers
 
 * Main paper describing the likelihood model:
