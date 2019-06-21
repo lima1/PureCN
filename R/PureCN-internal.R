@@ -1083,7 +1083,10 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     possible_vafs <- pmax(pmin(possible_vafs, 1), 0)    
     probs <- dbinom(x=round(vaf*depth), size = depth, prob = possible_vafs) #Prob of observed VAF
     names(probs) <- possible_ccfs
-    if (!sum(probs)) return(c(NA, NA, NA))
+    if (!sum(probs)) {
+        if (vaf > max(possible_vafs)) return(c(1, 1, 1))
+        return(c(NA, NA, NA))
+    }
     probs_norm <- probs / sum(probs) #Normalise to get posterior distribution
     probs_sort <- sort(probs_norm, decreasing = TRUE)
     probs_cum <- cumsum(probs_sort)

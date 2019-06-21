@@ -6,7 +6,12 @@ NEW FEATURES
     o flag segments in poor quality regions
     o Dx.R now reports chromosomal instability scores
 
+BUGFIXES
 
+    o Fix for bug in CCF calculation resulting in NAs (happens in high
+          coverage samples, early mutations with > 1 allele copy number)
+
+    
 Changes in version 1.14.0
 -------------------------
 
