@@ -87,7 +87,6 @@ preprocessIntervals <- function(interval.file, reference.file,
     } else {
         interval.gr <- readCoverageFile(interval.file)
     }
-    if (is.null(interval.gr$on.target)) interval.gr$on.target <- TRUE    
 
     interval.gr <- unstrand(interval.gr)
     
@@ -97,6 +96,7 @@ preprocessIntervals <- function(interval.file, reference.file,
     interval.gr <- .checkSeqlengths(scanFaIndex(reference.file), interval.gr)
     interval.gr <- .checkTargetWidth(interval.gr, min.target.width,
         match.arg(small.targets))
+    if (is.null(interval.gr$on.target)) interval.gr$on.target <- TRUE    
     if (!is.null(mappability)) {
         mappability <- .checkSeqlevelStyle(scanFaIndex(reference.file), mappability, "mappability")
         mappability <- .remove0MappabilityRegions(mappability)
@@ -372,6 +372,7 @@ calculateGCContentByInterval <- function() {
             end(interval.gr[idx]) <- pmin(start(interval.gr[idx]) + min.target.width - 1,
                 seqlengths(interval.gr)[as.character(seqnames(interval.gr[idx]))], 
                 na.rm = TRUE)
+            interval.gr <- reduce(interval.gr)
         }
     }
     interval.gr
