@@ -1099,3 +1099,20 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     return(c(ccf_point, ccf_lower, ccf_upper))
 }
 
+.getExonLrs <- function(seg.gr, tumor, log.ratio, idx = NULL) {
+    if (!is.null(idx)) {
+        tumor <- tumor[idx]
+        log.ratio <- log.ratio[idx]
+    }    
+    ov.se <- findOverlaps(seg.gr, tumor)
+    exon.lrs <- lapply(seq_len(length(seg.gr)), function(i) log.ratio[subjectHits(ov.se)[queryHits(ov.se) == 
+        i]])
+    exon.lrs <- lapply(exon.lrs, function(x) subset(x, !is.na(x) & !is.infinite(x)))
+    # estimate stand. dev. for target logR within targets. this will be used as proxy
+    # for sample error.
+    targetsPerSegment <- vapply(exon.lrs, length, integer(1))
+    if (!sum(targetsPerSegment > 50, na.rm = TRUE) && !is.null(idx)) {
+        .stopRuntimeError("Only tiny segments.")
+    }
+    exon.lrs
+}

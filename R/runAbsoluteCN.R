@@ -619,22 +619,20 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     }
     
     # get target log-ratios for all segments
-    ov.se <- findOverlaps(seg.gr, tumor)
-    exon.lrs <- lapply(seq_len(nrow(seg)), function(i) log.ratio[subjectHits(ov.se)[queryHits(ov.se) == 
-        i]])
-    exon.lrs <- lapply(exon.lrs, function(x) subset(x, !is.na(x) & !is.infinite(x)))
-    
-    # estimate stand. dev. for target logR within targets. this will be used as proxy
-    # for sample error.
-    targetsPerSegment <- vapply(exon.lrs, length, integer(1))
-    
-    if (!sum(targetsPerSegment > 50, na.rm = TRUE)) {
-        .stopRuntimeError("Only tiny segments.")
-    }
+    exon.lrs <- .getExonLrs(seg.gr, tumor, log.ratio)
     
     sd.seg <- max(median(vapply(exon.lrs, sd, double(1)), na.rm = TRUE),
                   min.logr.sdev)
-   
+
+    if (sum(!tumor$on.target, na.rm = TRUE)) {
+        sd.seg.ontarget <- median(vapply(
+            .getExonLrs(seg.gr, tumor, log.ratio, idx = tumor$on.target), 
+            sd, double(1)), na.rm = TRUE)
+
+        sd.seg.offtarget <- median(vapply(
+            .getExonLrs(seg.gr, tumor, log.ratio, idx = !tumor$on.target), 
+            sd, double(1)), na.rm = TRUE)
+    } 
     # if user provided seg file, then we do not have access to the log-ratios and
     # need to use the user provided noise estimate also, don't do outlier smoothing
     # when we use already segmented data
@@ -669,6 +667,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (sum(li < 0) > 0) 
         .stopRuntimeError("Some segments have negative size.")
     flog.info("Mean standard deviation of log-ratios: %.2f", sd.seg)
+    if (sum(!tumor$on.target, na.rm = TRUE)) {
+        flog.info("Mean standard deviation of on-target log-ratios only: %.2f",
+            sd.seg.ontarget)
+        flog.info("Mean standard deviation of off-target log-ratios only: %.2f",
+            sd.seg.offtarget)
+    }    
     log.ratio.offset <- rep(0, nrow(seg))
     
     flog.info("2D-grid search of purity and ploidy...")
