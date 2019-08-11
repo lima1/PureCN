@@ -64,7 +64,7 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
 
 .readCoverageGatk4 <- function(file, zero, format, read.length) {
     if (!is.null(zero)) flog.warn("zero ignored for GATK coverage files.")
-    x <- H5Fopen(file)
+    x <- H5Fopen(file, flags = "H5F_ACC_RDONLY")
     intervals <- data.frame(x$intervals$transposed_index_start_end)
     intervals[, 1] <- x$intervals$indexed_contig_names[intervals[, 1] + 1]
     targetCoverage <- GRanges(intervals[, 1], IRanges(intervals[, 2], intervals[, 3]))

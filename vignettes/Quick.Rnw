@@ -552,6 +552,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --normaldb         & normalDB (serialized with \Rfunction{saveRDS}) & 
     \Rfunction{calculateTangentNormal}, \Rfunction{filterTargets} \\
 --segfile          & seg.file           & \Rfunction{runAbsoluteCN}  \\
+--logratiofile     & log.ratio          & \Rfunction{runAbsoluteCN}  \\
 --sex              & sex                & \Rfunction{runAbsoluteCN}  \\
 --genome           & genome             & \Rfunction{runAbsoluteCN}  \\
 --intervals        & interval.file      & \Rfunction{runAbsoluteCN}   \\
