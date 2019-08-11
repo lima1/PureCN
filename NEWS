@@ -1,3 +1,12 @@
+Changes in version 1.14.2
+-------------------------
+
+BUGFIXES
+
+    o Fix for a bug in preprocessIntervals when small targets 
+      (< min.target.width) were present
+
+
 Changes in version 1.14.1
 -------------------------
 
