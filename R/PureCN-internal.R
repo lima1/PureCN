@@ -830,66 +830,6 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 .calcPuritySomaticVariants <- function(vcf, prior.somatic, tumor.id.in.vcf) {
     median(unlist(geno(vcf[prior.somatic > 0.5])$FA[, tumor.id.in.vcf]), na.rm = TRUE)/0.48
 }
-.loadSegFile <- function(seg.file, sampleid, model.homozygous=FALSE, 
-    verbose=TRUE) {
-    if (is.null(seg.file)) return(NULL)
-    seg <- read.delim(seg.file)
-    if (verbose) flog.info("Loaded provided segmentation file %s.", 
-        basename(seg.file))
-    .checkSeg(seg, sampleid, model.homozygous, verbose)
-}
-.checkSeg <- function(seg, sampleid, model.homozygous, verbose=TRUE) {
-    
-    required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
-        "seg.mean")
-    required.colnames2 <- c("ID", "chromosome", "start", "end", "num_probes", 
-        "mean")
-    if (ncol(seg) > length(required.colnames)) {
-        seg <- seg[,seq_along(required.colnames)]
-    }    
-    if (identical(colnames(seg), required.colnames2)) {
-        colnames(seg) <- required.colnames
-    }    
-
-    if (!identical(as.character(as.numeric(seg$chrom)), as.character(seg$chrom))) {
-        flog.warn("Expecting numeric chromosome names in seg.file, assuming file is properly sorted.")
-        seg$chrom <- .strip.chr.name(seg$chrom, .getChrHash(seg$chrom))
-    }    
-    
-    # The smallest possible log-ratio is about 8
-    # for 0.99 purity and high ploidy.
-    # remove artifacts with lower log-ratio
-    if (!model.homozygous && min(seg$seg.mean, na.rm=TRUE) < -8) {
-        nBefore <- nrow(seg)
-        seg <- seg[which(seg$seg.mean >= -8 | seg$num.mark >= 4),]
-        if (verbose) flog.warn("Removing %i short segments with log-ratio < -8.", 
-            nBefore-nrow(seg))
-    }    
-
-    if (!identical(colnames(seg), required.colnames)) {
-        .stopUserError(paste("Segmentation file expected with colnames", 
-                paste(required.colnames, collapse = ", ")))
-    }
-    segs <- split(seg, seg$ID)
-    matchedSeg <- match(make.names(sampleid), make.names(names(segs)))
-
-    if (length(segs)==1) {
-        if (!is.null(sampleid) && is.na(matchedSeg)) {
-            flog.warn("Provided sampleid (%s) does not match %s found in %s",
-                      sampleid, names(segs)[1], "segmentation.")
-        }   
-        matchedSeg <- 1 
-    } else if (is.null(sampleid)) {
-        .stopUserError("seg.file contains multiple samples and sampleid missing.")
-    } else if (is.na(matchedSeg)) {
-        .stopUserError("seg.file contains multiple samples and sampleid does not match any.")
-    } else {
-        seg <- segs[[matchedSeg]]
-    }
-    seg$seg.mean <- seg$seg.mean - weighted.mean(seg$seg.mean, seg$num.mark, na.rm = TRUE)
-    seg
-}
-       
 .createFakeLogRatios <- function(tumor, seg.file, sampleid, chr.hash, 
     model.homozygous=FALSE, max.logr.sdev) {
     if (!is.null(tumor$log.ratio)) {
@@ -907,7 +847,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         }
     }
     if (is(seg.file, "character")) {
-        seg <- .loadSegFile(seg.file, sampleid, model.homozygous, verbose=FALSE)    
+        seg <- readSegmentationFile(seg.file, sampleid, model.homozygous = model.homozygous, verbose=FALSE)    
     } else {
         seg <-.checkSeg(seg.file, sampleid, model.homozygous, verbose=FALSE)
     }    

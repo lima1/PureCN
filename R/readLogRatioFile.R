@@ -12,9 +12,9 @@
 #' @author Markus Riester
 #' @examples
 #' 
-#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-#'     package="PureCN")
-#' coverage <- readCoverageFile(tumor.coverage.file)
+#' logratio.file <- system.file("extdata", "example_gatk4_denoised_cr.tsv.gz",
+#'     package = "PureCN")
+#' logratio <- readLogRatioFile(logratio.file)
 #' 
 #' @export readLogRatioFile
 readLogRatioFile <- function(file, format, zero=NULL) {

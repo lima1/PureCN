@@ -558,7 +558,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     flog.info("Sample sex: %s", sex)
     flog.info("Segmenting data...")
-    segProvided <- .loadSegFile(seg.file, sampleid, model.homozygous)
+    segProvided <- readSegmentationFile(seg.file, sampleid, model.homozygous = model.homozygous)
 
     centromeres <- .getCentromerePositions(centromeres, genome, 
         if (is.null(vcf)) NULL else seqlevelsStyle(vcf))
