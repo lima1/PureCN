@@ -1,6 +1,6 @@
 # Make CMD check happy
 globalVariables(names=c("Gene", "LR", "chrom", "seg.id", "seg.length",
-"seg.mean"))
+"seg.mean", "C.flagged"))
 
 # calculates the log-likelihood of a segment, given log-ratios, the
 # log ratio standard deviation, purity, copy number and ploidy.
@@ -555,6 +555,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     log.ratio <- log.ratio[idx]
     
     ov <- findOverlaps(tumor, abs.gc)
+    if (is.null(seg.adjusted$weight.flagged)) seg.adjusted$weight.flagged <- NA
     # use funky data.table to calculate means etc. in two lines of code.
     dt <- data.table(as.data.frame(tumor[queryHits(ov)]), C = seg.adjusted[subjectHits(ov), "C"], 
         C.flagged = seg.adjusted$weight.flagged[subjectHits(ov)],

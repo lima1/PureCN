@@ -240,9 +240,13 @@ if (file.exists(file.rds) && !opt$force) {
     if (!is.null(log.ratio)) {
         flog.info("Reading %s...", log.ratio)
         log.ratio <- readLogRatioFile(log.ratio)
-        flog.info("Reading %s...", tumor.coverage.file)
-        tumor.coverage.file <- readCoverageFile(tumor.coverage.file)
-        tumor.coverage.file <- subsetByOverlaps(tumor.coverage.file, log.ratio)
+        if (!is.null(tumor.coverage.file)) {
+            flog.info("Reading %s...", tumor.coverage.file)
+            tumor.coverage.file <- readCoverageFile(tumor.coverage.file)
+            # GATK4 log-ratio files are filtered for quality, so make sure that
+            # coverage files align
+            tumor.coverage.file <- subsetByOverlaps(tumor.coverage.file, log.ratio)
+        }
         log.ratio <- log.ratio$log.ratio
     }    
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
