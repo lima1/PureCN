@@ -124,7 +124,10 @@ callAlterationsFromSegmentation <- function(sampleid, chr, start, end,
         num.mark=num.mark,
         seg.mean=seg.mean
     )    
-    seg.adjusted <- data.frame(seg, C=C, size=seg$loc.end-seg$loc.start+1)
+    seg.adjusted <- data.frame(seg, 
+                               C = C,
+                               weight.flagged = NA,
+                               size = seg$loc.end - seg$loc.start + 1)
 
     tumor <- .addGCData(.gcGeneToCoverage(interval.file, 16), interval.file)
     chr.hash <- .getChrHash(seqlevels(tumor))

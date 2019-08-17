@@ -5,7 +5,7 @@
 \title{PSCBS segmentation}
 \usage{
 segmentationPSCBS(normal, tumor, log.ratio, seg, plot.cnv, sampleid,
-  interval.weight.file = NULL, target.weight.file = NULL,
+  interval.weight.file = NULL, weight.flag.pvalue = 0.01,
   alpha = 0.005, undo.SD = NULL, flavor = "tcn&dh", tauA = 0.03,
   vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
   max.segments = NULL, prune.hclust.h = NULL,
@@ -28,10 +28,11 @@ ignores this user provided segmentation.}
 
 \item{sampleid}{Sample id, used in output files.}
 
-\item{interval.weight.file}{Can be used to assign weights to intervals. NOT
-SUPPORTED YET in segmentation. Will remove targets with weight below 1/3.}
+\item{interval.weight.file}{Can be used to assign weights to intervals. 
+Currently requires patched version of PSCBS.}
 
-\item{target.weight.file}{Deprecated.}
+\item{weight.flag.pvalue}{Flag values with one-sided p-value smaller than
+this cutoff.}
 
 \item{alpha}{Alpha value for CBS, see documentation for the \code{segment}
 function.}

@@ -385,7 +385,7 @@ and genome. Here an CNVkit example (CNVkit runs without normal reference
 samples are not recommended):
 
 \begin{verbatim}
-# Recommended Provide a normal panel VCF to remove mapping biases, pre-compute
+# Recommended: Provide a normal panel VCF to remove mapping biases, pre-compute
 # position-specific bias for much faster runtimes with large panels
 # This needs to be done only once for each assay
 Rscript $PURECN/NormalDB.R --outdir $OUT_REF --normal_panel $NORMAL_PANEL \

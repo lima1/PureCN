@@ -718,6 +718,8 @@ Column name       & Description \\
 \midrule
 \Rcode{chr, start, end} & Gene coordinates \\
 \Rcode{C}            & Segment integer copy number \\
+\Rcode{C.flagged}    & Flagged when interval weights are low. 
+Requires \Rcode{interval.weight.file}. \\
 \Rcode{seg.mean}     & Segment mean of copy number log2-ratios 
 (not adjusted for purity/ploidy)  \\
 \Rcode{seg.id}       & Segment id  \\

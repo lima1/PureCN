@@ -334,7 +334,7 @@ if (!is.null(ret$input$vcf)) {
         row.names = FALSE, quote = FALSE)
 
     file.loh <- paste0(out, "_loh.csv")
-    write.csv(cbind(Sampleid = sampleid, callLOH(ret)), file = file.loh,
+    write.csv(cbind(Sampleid = sampleid, PureCN::callLOH(ret)), file = file.loh,
         row.names = FALSE, quote = FALSE)
 
     file.pdf <- paste0(out, "_chromosomes.pdf")
