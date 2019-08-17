@@ -257,8 +257,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     posteriors$CELLFRACTION.95.LOWER <- as.numeric(m[,2])
     posteriors$CELLFRACTION.95.UPPER <- as.numeric(m[,3])
     ar <- posteriors$AR.ADJUSTED
-    posteriors$ALLELIC.IMBALANCE <- .calculate_allelic_imbalance(ar, depth, 
-        posteriors$MAPPING.BIAS)
+    posteriors$ALLELIC.IMBALANCE <- .calculate_allelic_imbalance(ar, 
+        pmin(depth, max.coverage.vcf), posteriors$MAPPING.BIAS)
 
     rm.snv.posteriors <- apply(likelihoods, 1, max)
     idx.ignore <- rm.snv.posteriors == 0 |

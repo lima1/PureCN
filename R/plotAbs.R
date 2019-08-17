@@ -621,6 +621,7 @@ ss) {
 
 .add_allelic_imbalance <- function(r, idx) {
     rr <- r[idx & !r$FLAGGED & r$pon.count > 0 & !is.na(r$ML.M),]
+    if (!nrow(rr)) return()
     zz <- sapply(split(rr$ALLELIC.IMBALANCE, rr$seg.id), sum)
     zz[zz > 0] <- 0
     zz[zz < -100] <- -100
