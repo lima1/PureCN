@@ -5,7 +5,7 @@
 \title{CBS segmentation}
 \usage{
 segmentationCBS(normal, tumor, log.ratio, seg, plot.cnv, sampleid,
-  interval.weight.file = NULL, target.weight.file = NULL,
+  interval.weight.file = NULL, weight.flag.pvalue = 0.01,
   alpha = 0.005, undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1,
   normal.id.in.vcf = NULL, max.segments = NULL,
   prune.hclust.h = NULL, prune.hclust.method = "ward.D",
@@ -30,7 +30,8 @@ ignores this user provided segmentation.}
 
 \item{interval.weight.file}{Can be used to assign weights to intervals.}
 
-\item{target.weight.file}{Deprecated.}
+\item{weight.flag.pvalue}{Flag values with one-sided p-value smaller than
+this cutoff.}
 
 \item{alpha}{Alpha value for CBS, see documentation for the \code{segment}
 function.}

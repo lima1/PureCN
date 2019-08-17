@@ -16,7 +16,8 @@
 #' @param plot.cnv Segmentation plots.
 #' @param sampleid Sample id, used in output files.
 #' @param interval.weight.file Can be used to assign weights to intervals.
-#' @param target.weight.file Deprecated.
+#' @param weight.flag.pvalue Flag values with one-sided p-value smaller than
+#' this cutoff.
 #' @param alpha Alpha value for CBS, see documentation for the \code{segment}
 #' function.
 #' @param undo.SD \code{undo.SD} for CBS, see documentation of the
@@ -71,17 +72,11 @@
 #' @export segmentationCBS
 #' @importFrom stats t.test hclust cutree dist
 segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
-    sampleid, interval.weight.file = NULL, target.weight.file = NULL, alpha = 0.005, 
+    sampleid, interval.weight.file = NULL, weight.flag.pvalue = 0.01, alpha = 0.005, 
     undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
     max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
     chr.hash = NULL, centromeres = NULL) {
     
-    # TODO remove in 1.14.0
-    if (is.null(interval.weight.file) && !is.null(target.weight.file)) {
-        interval.weight.file <- target.weight.file
-        flog.warn("target.weight.file was renamed to interval.weight.file.")
-    }
-
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
     
     interval.weights <- NULL
@@ -108,7 +103,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     idx.enough.markers <- x$cna$output$num.mark > 1
     rownames(x$cna$output) <- NULL
     finalSeg <- x$cna$output[idx.enough.markers,]
-    finalSeg <- .addAverageWeights(finalSeg, interval.weights, tumor, chr.hash)
+    finalSeg <- .addAverageWeights(finalSeg, interval.weights, weight.flag.pvalue, tumor, chr.hash)
     .debugSegmentation(origSeg, finalSeg)
     finalSeg
 }
@@ -409,13 +404,14 @@ plot.cnv=TRUE, max.segments=NULL, chr.hash=chr.hash) {
     list(fraction.genome = fraction.genome, seg.mean = seg.mean)
 }
 
-.addAverageWeights <- function(seg, weights, tumor, chr.hash) {
-    if (is.null(weights)) {
-         seg$seg.weight <- 1
+.addAverageWeights <- function(seg, weights, weight.flag.pvalue, tumor, chr.hash) {
+    if (is.null(weights) || length(unique(weights)) < 2) {
+        seg$seg.weight <- 1
+        seg$weight.flagged <- NA
         return(seg)
     }
-    seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
-        IRanges(start=seg$loc.start, end=seg$loc.end))
+    seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash), 
+        IRanges(start = seg$loc.start, end = seg$loc.end))
     ov <- findOverlaps(seg.gr, tumor)
     avgWeights <- sapply(split(subjectHits(ov), queryHits(ov)), 
                          function(i) mean(weights[i], na.rm = TRUE))
@@ -423,5 +419,21 @@ plot.cnv=TRUE, max.segments=NULL, chr.hash=chr.hash) {
         .stopRuntimeError("Could not find weights for all segments.")
     }    
     seg$seg.weight <- avgWeights
+    seg$weight.flagged <- .getAverageWeightPV(seg, weights) < weight.flag.pvalue
     seg
 }    
+
+.getAverageWeightPV <- function(seg, weights, perm = 1000) {
+    num_marks <- sort(unique(seg$num.mark))
+    .do_permutation <- function(i, l) {
+        if (length(weights) < i + l - 1) i <- length(weights) - l + 1
+        mean(weights[seq(i, min(length(weights), i+l-1))], na.rm = TRUE)
+    }
+
+    permutations <- lapply(num_marks, function(l) 
+        sapply(sample(length(weights), perm), .do_permutation, l))
+    names(permutations) <- num_marks
+    sapply(seq(nrow(seg)), function(i) 
+        sum(seg$seg.weight[i] > permutations[[as.character(seg$num.mark[i])]]) / perm)
+}
+    

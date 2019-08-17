@@ -132,8 +132,8 @@ This is optional and provides only a minor benefit for coverage normalization,
 but can identify samples with high proliferation. Requires \Rcode{--offtarget}
 to be useful. 
 
-Generation of this interval file is not needed when CNVkit is used to generate
-coverage data (covered at the end of this tutorial). 
+Generation of this interval file is not needed when CNVkit or GATK4 is used to
+generate coverage data (covered at the end of this tutorial). 
 \end{itemize}
 
 \subsection*{Create VCF files}
@@ -385,7 +385,7 @@ and genome. Here an CNVkit example (CNVkit runs without normal reference
 samples are not recommended):
 
 \begin{verbatim}
-# Provide a normal panel VCF to remove mapping biases, pre-compute 
+# Recommended: Provide a normal panel VCF to remove mapping biases, pre-compute
 # position-specific bias for much faster runtimes with large panels
 # This needs to be done only once for each assay
 Rscript $PURECN/NormalDB.R --outdir $OUT_REF --normal_panel $NORMAL_PANEL \
@@ -405,7 +405,29 @@ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --statsfile ${SAMPLEID}_mutect_stats.txt \
     --snpblacklist hg19_simpleRepeats.bed \
     --genome hg19 \
-    --funsegmentation none \
+    --funsegmentation Hclust \
+    --force --postoptimize --seed 123
+\end{verbatim}
+
+Recommended GATK4 example:
+\begin{verbatim}
+# Recommended: Provide a normal panel VCF to remove mapping biases, pre-compute 
+# position-specific bias for much faster runtimes with large panels
+# This needs to be done only once for each assay
+Rscript $PURECN/NormalDB.R --outdir $OUT_REF --normal_panel $NORMAL_PANEL \
+    --assay agilent_v6 --genome hg19 --force
+
+Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
+    --sampleid $SAMPLEID \
+    --tumor $OUT/$SAMPLEID/${SAMPLEID}.hdf5 \
+    --logratiofile $OUT/$SAMPLEID/${SAMPLEID}.denoisedCR.tsv \
+    --segfile $OUT/$SAMPLEID/${SAMPLEID}.modelFinal.seg \
+    --normal_panel $OUT_REF/mapping_bias_agilent_v6_hg19.rds \
+    --vcf ${SAMPLEID}_mutect.vcf \
+    --statsfile ${SAMPLEID}_mutect_stats.txt \
+    --snpblacklist hg19_simpleRepeats.bed \
+    --genome hg19 \
+    --funsegmentation Hclust \
     --force --postoptimize --seed 123
 \end{verbatim}
 
@@ -415,6 +437,7 @@ Important recommendations:
     \item The \Rcode{--funsegmentation} argument controls if the data should to
         be re-segmented using germline BAFs (default). Set this value to
         \Rcode{none} if the provided segmentation should be used as is. 
+        The recommended \Rcode{Hclust} will only cluster provided segments.
     \item Since CNVkit provides all necessary information in the *.cnr output
         files, the \Rcode{--intervals} argument is not required.
     \item In test runs, especially when the input VCF contains matched normal
@@ -552,6 +575,7 @@ Argument name      & Corresponding PureCN argument & PureCN function \\
 --normaldb         & normalDB (serialized with \Rfunction{saveRDS}) & 
     \Rfunction{calculateTangentNormal}, \Rfunction{filterTargets} \\
 --segfile          & seg.file           & \Rfunction{runAbsoluteCN}  \\
+--logratiofile     & log.ratio          & \Rfunction{runAbsoluteCN}  \\
 --sex              & sex                & \Rfunction{runAbsoluteCN}  \\
 --genome           & genome             & \Rfunction{runAbsoluteCN}  \\
 --intervals        & interval.file      & \Rfunction{runAbsoluteCN}   \\

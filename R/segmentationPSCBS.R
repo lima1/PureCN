@@ -15,9 +15,10 @@
 #' ignores this user provided segmentation.
 #' @param plot.cnv Segmentation plots.
 #' @param sampleid Sample id, used in output files.
-#' @param interval.weight.file Can be used to assign weights to intervals. NOT
-#' SUPPORTED YET in segmentation. Will remove targets with weight below 1/3.
-#' @param target.weight.file Deprecated.
+#' @param interval.weight.file Can be used to assign weights to intervals. 
+#' Currently requires patched version of PSCBS.
+#' @param weight.flag.pvalue Flag values with one-sided p-value smaller than
+#' this cutoff.
 #' @param alpha Alpha value for CBS, see documentation for the \code{segment}
 #' function.
 #' @param undo.SD \code{undo.SD} for CBS, see documentation of the
@@ -76,7 +77,7 @@
 #' 
 #' @export segmentationPSCBS
 segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
-    sampleid, interval.weight.file = NULL, target.weight.file = NULL, alpha = 0.005, 
+    sampleid, interval.weight.file = NULL, weight.flag.pvalue = 0.01, alpha = 0.005, 
     undo.SD = NULL, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
     tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
     prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
@@ -84,12 +85,6 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 
     if (!requireNamespace("PSCBS", quietly = TRUE)) {
         .stopUserError("segmentationPSCBS requires the PSCBS package.")
-    }
-
-    # TODO remove in 1.14.0
-    if (is.null(interval.weight.file) && !is.null(target.weight.file)) {
-        interval.weight.file <- target.weight.file
-        flog.warn("target.weight.file was renamed to interval.weight.file.")
     }
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
@@ -131,7 +126,7 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         seg <- .pruneByHclust(seg, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
             method=prune.hclust.method, chr.hash=chr.hash)
     }
-    seg <- .addAverageWeights(seg, interval.weights, tumor, chr.hash)
+    seg <- .addAverageWeights(seg, interval.weights, weight.flag.pvalue, tumor, chr.hash)
     seg
 }
 

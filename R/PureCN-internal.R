@@ -1,6 +1,6 @@
 # Make CMD check happy
 globalVariables(names=c("Gene", "LR", "chrom", "seg.id", "seg.length",
-"seg.mean"))
+"seg.mean", "C.flagged"))
 
 # calculates the log-likelihood of a segment, given log-ratios, the
 # log ratio standard deviation, purity, copy number and ploidy.
@@ -558,8 +558,10 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     log.ratio <- log.ratio[idx]
     
     ov <- findOverlaps(tumor, abs.gc)
+    if (is.null(seg.adjusted$weight.flagged)) seg.adjusted$weight.flagged <- NA
     # use funky data.table to calculate means etc. in two lines of code.
     dt <- data.table(as.data.frame(tumor[queryHits(ov)]), C = seg.adjusted[subjectHits(ov), "C"], 
+        C.flagged = seg.adjusted$weight.flagged[subjectHits(ov)],
         seg.mean = seg.adjusted[subjectHits(ov), "seg.mean"], LR = log.ratio[queryHits(ov)], 
         seg.id = subjectHits(ov), seg.length = seg.adjusted$size[subjectHits(ov)], 
         focal = focal[subjectHits(ov)]
@@ -567,11 +569,13 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     # some targets have multipe genes assigned?
     if (sum(grepl(",", dt$Gene))) {
         dt <- dt[, list(Gene = unlist(strsplit(as.character(Gene), ",", fixed=TRUE))), 
-            by = list(seqnames, start, end, C, seg.mean, seg.id, seg.length, LR, focal)]
+            by = list(seqnames, start, end, C, C.flagged, seg.mean, seg.id,
+                      seg.length, LR, focal)]
     }
 
     gene.calls <- data.frame(dt[, list(chr = seqnames[1], start = min(start), 
-        end = max(end), C = as.double(median(C)), seg.mean = median(seg.mean),
+        end = max(end), C = as.double(median(C)), C.flagged = any(C.flagged), 
+        seg.mean = median(seg.mean),
         seg.id = seg.id[which.min(seg.length)], 
         .min.segid=min(seg.id), .max.segid=max(seg.id),
         number.targets = length(start), gene.mean = mean(LR, na.rm = TRUE), 
@@ -833,66 +837,6 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 .calcPuritySomaticVariants <- function(vcf, prior.somatic, tumor.id.in.vcf) {
     median(unlist(geno(vcf[prior.somatic > 0.5])$FA[, tumor.id.in.vcf]), na.rm = TRUE)/0.48
 }
-.loadSegFile <- function(seg.file, sampleid, model.homozygous=FALSE, 
-    verbose=TRUE) {
-    if (is.null(seg.file)) return(NULL)
-    seg <- read.delim(seg.file)
-    if (verbose) flog.info("Loaded provided segmentation file %s.", 
-        basename(seg.file))
-    .checkSeg(seg, sampleid, model.homozygous, verbose)
-}
-.checkSeg <- function(seg, sampleid, model.homozygous, verbose=TRUE) {
-    
-    required.colnames <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", 
-        "seg.mean")
-    required.colnames2 <- c("ID", "chromosome", "start", "end", "num_probes", 
-        "mean")
-    if (ncol(seg) > length(required.colnames)) {
-        seg <- seg[,seq_along(required.colnames)]
-    }    
-    if (identical(colnames(seg), required.colnames2)) {
-        colnames(seg) <- required.colnames
-    }    
-
-    if (!identical(as.character(as.numeric(seg$chrom)), as.character(seg$chrom))) {
-        flog.warn("Expecting numeric chromosome names in seg.file, assuming file is properly sorted.")
-        seg$chrom <- .strip.chr.name(seg$chrom, .getChrHash(seg$chrom))
-    }    
-    
-    # The smallest possible log-ratio is about 8
-    # for 0.99 purity and high ploidy.
-    # remove artifacts with lower log-ratio
-    if (!model.homozygous && min(seg$seg.mean, na.rm=TRUE) < -8) {
-        nBefore <- nrow(seg)
-        seg <- seg[which(seg$seg.mean >= -8 | seg$num.mark >= 4),]
-        if (verbose) flog.warn("Removing %i short segments with log-ratio < -8.", 
-            nBefore-nrow(seg))
-    }    
-
-    if (!identical(colnames(seg), required.colnames)) {
-        .stopUserError(paste("Segmentation file expected with colnames", 
-                paste(required.colnames, collapse = ", ")))
-    }
-    segs <- split(seg, seg$ID)
-    matchedSeg <- match(make.names(sampleid), make.names(names(segs)))
-
-    if (length(segs)==1) {
-        if (!is.null(sampleid) && is.na(matchedSeg)) {
-            flog.warn("Provided sampleid (%s) does not match %s found in %s",
-                      sampleid, names(segs)[1], "segmentation.")
-        }   
-        matchedSeg <- 1 
-    } else if (is.null(sampleid)) {
-        .stopUserError("seg.file contains multiple samples and sampleid missing.")
-    } else if (is.na(matchedSeg)) {
-        .stopUserError("seg.file contains multiple samples and sampleid does not match any.")
-    } else {
-        seg <- segs[[matchedSeg]]
-    }
-    seg$seg.mean <- seg$seg.mean - weighted.mean(seg$seg.mean, seg$num.mark, na.rm = TRUE)
-    seg
-}
-       
 .createFakeLogRatios <- function(tumor, seg.file, sampleid, chr.hash, 
     model.homozygous=FALSE, max.logr.sdev) {
     if (!is.null(tumor$log.ratio)) {
@@ -910,7 +854,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         }
     }
     if (is(seg.file, "character")) {
-        seg <- .loadSegFile(seg.file, sampleid, model.homozygous, verbose=FALSE)    
+        seg <- readSegmentationFile(seg.file, sampleid, model.homozygous = model.homozygous, verbose=FALSE)    
     } else {
         seg <-.checkSeg(seg.file, sampleid, model.homozygous, verbose=FALSE)
     }    
@@ -1087,9 +1031,9 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     probs <- dbinom(x=round(vaf*depth), size = depth, prob = possible_vafs) #Prob of observed VAF
     names(probs) <- possible_ccfs
     if (!sum(probs)) {
-        if (vaf > max(possible_vafs)) return(c(1,1,1))
+        if (vaf > max(possible_vafs)) return(c(1, 1, 1))
         return(c(NA, NA, NA))
-    }    
+    }
     probs_norm <- probs / sum(probs) #Normalise to get posterior distribution
     probs_sort <- sort(probs_norm, decreasing = TRUE)
     probs_cum <- cumsum(probs_sort)
@@ -1107,3 +1051,21 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     dbeta(x = vaf, shape1 = depth * bias / 2, 
                    shape2 = depth*  (1-bias/2), log = TRUE)
 }    
+
+.getExonLrs <- function(seg.gr, tumor, log.ratio, idx = NULL) {
+    if (!is.null(idx)) {
+        tumor <- tumor[idx]
+        log.ratio <- log.ratio[idx]
+    }    
+    ov.se <- findOverlaps(seg.gr, tumor)
+    exon.lrs <- lapply(seq_len(length(seg.gr)), function(i) log.ratio[subjectHits(ov.se)[queryHits(ov.se) == 
+        i]])
+    exon.lrs <- lapply(exon.lrs, function(x) subset(x, !is.na(x) & !is.infinite(x)))
+    # estimate stand. dev. for target logR within targets. this will be used as proxy
+    # for sample error.
+    targetsPerSegment <- vapply(exon.lrs, length, integer(1))
+    if (!sum(targetsPerSegment > 50, na.rm = TRUE) && !is.null(idx)) {
+        .stopRuntimeError("Only tiny segments.")
+    }
+    exon.lrs
+}
