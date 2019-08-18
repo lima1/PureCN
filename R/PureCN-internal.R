@@ -256,6 +256,9 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     posteriors$CELLFRACTION <- as.numeric(m[,1])
     posteriors$CELLFRACTION.95.LOWER <- as.numeric(m[,2])
     posteriors$CELLFRACTION.95.UPPER <- as.numeric(m[,3])
+    ar <- posteriors$AR.ADJUSTED
+    posteriors$ALLELIC.IMBALANCE <- .calculate_allelic_imbalance(ar, 
+        pmin(depth, max.coverage.vcf), posteriors$MAPPING.BIAS)
 
     rm.snv.posteriors <- apply(likelihoods, 1, max)
     idx.ignore <- rm.snv.posteriors == 0 |
@@ -1024,7 +1027,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     possible_ccfs <- seq(0.01, 1, 0.01)
     possible_vafs <- (purity * possible_ccfs)/
         ((2 * (1 - purity)) + (purity * C)) #Expected VAF for each CCF
-    possible_vafs <- pmax(pmin(possible_vafs, 1), 0)    
+    possible_vafs <- pmax(pmin(possible_vafs, 1), 0)  
     probs <- dbinom(x=round(vaf*depth), size = depth, prob = possible_vafs) #Prob of observed VAF
     names(probs) <- possible_ccfs
     if (!sum(probs)) {
@@ -1042,6 +1045,12 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     ccf_upper <- as.numeric(names(cint)[length(cint)])
     return(c(ccf_point, ccf_lower, ccf_upper))
 }
+
+.calculate_allelic_imbalance <- function(vaf, depth, bias) {
+    if (is.na(vaf)) return(NA)
+    dbeta(x = vaf, shape1 = depth * bias / 2, 
+                   shape2 = depth*  (1-bias/2), log = TRUE)
+}    
 
 .getExonLrs <- function(seg.gr, tumor, log.ratio, idx = NULL) {
     if (!is.null(idx)) {

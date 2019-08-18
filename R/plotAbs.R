@@ -393,6 +393,7 @@ ss) {
             main=main, type="n", ...)
         rect(tmp$start, par("usr")[3], tmp$end+1, par("usr")[4], 
              col = ifelse(seq(nrow(tmp))%%2, col.chr.shading, "white"), border = NA)
+        .add_allelic_imbalance(r, idx)
         rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4])
         points(r$AR[idx], col=adjustcolor(col.snps, alpha.f=myalpha), pch=mypch)
         lines(segment.b1.lines, col = "black", lwd = 3)
@@ -617,3 +618,31 @@ ss) {
         seq_along(res$results), col = mycol, cex = 1.2, font = myfont)
     par(mar=parm)
 }
+
+.add_allelic_imbalance <- function(r, idx) {
+    rr <- r[idx & !r$FLAGGED & r$pon.count > 0 & !is.na(r$ML.M),]
+    if (!nrow(rr)) return()
+    zz <- sapply(split(rr$ALLELIC.IMBALANCE, rr$seg.id), sum)
+    zz[zz > 0] <- 0
+    zz[zz < -100] <- -100
+    cols <- .brewer_continuous(-1*c(0,-100,zz))[-(1:2)]
+    bx <- par("usr")
+    points(seq(sum(idx)), y=rep(par("usr")[3], sum(idx)), 
+        col=cols[as.character(r$seg.id)][idx], pch="|")
+}    
+.brewer_continuous <- function (x.val, pal = "Greys",
+    max.x.val = max(x.val, na.rm = TRUE), 
+    min.x.val = min(x.val, na.rm = TRUE)) 
+{
+    n <- min(length(levels(as.factor(x.val))), 9)
+    x.val <- x.val - min.x.val + 0.1
+    if (!is.factor(x.val)) 
+        x.val <- as.factor(ceiling(x.val/max.x.val * n))
+    cols <- colorRampPalette(brewer.pal(9, pal))(n + 1)
+    col.vec <- rep("", length(x.val))
+    for (i in 1:length(levels(x.val))) col.vec[x.val == levels(x.val)[i]] = cols[i]
+    col.vec[col.vec == ""] <- NA
+    names(col.vec) <- names(x.val)
+    col.vec
+}
+

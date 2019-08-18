@@ -669,6 +669,8 @@ unreliable, either due to low posterior probability (< 0.5) or few variants (<
     \cite{McGranahan2015} \\
 \Rcode{CELLFRACTION.95.LOWER} & Lower 95\% of confidence interval \\
 \Rcode{CELLFRACTION.95.UPPER} & Upper 95\% of confidence interval \\
+\Rcode{ALLELIC.IMBALANCE} & Log-likelihood that variant is in allelic balance.
+Requires position-specific mapping bias information to be reliable. \\
 \Rcode{FLAGGED} & Flag indicating that call is unreliable 
     (currently only due to high mapping bias and high pool of normal counts)\\
 \Rcode{log.ratio} & The copy number log2-ratio (tumor vs. normal) for this 
