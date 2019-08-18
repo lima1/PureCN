@@ -88,13 +88,11 @@ filterIntervals <- function(normal, tumor, log.ratio, seg.file,
 
 #' Remove low quality targets
 #' 
-#' This function is deprecated and was renamed to 
+#' This function is defunct and was renamed to 
 #' \code{\link{filterIntervals}}.
-#' @param ... Arguments passed to \code{\link{filterIntervals}}.
 #' @export filterTargets
-filterTargets <- function(...) {
-    .Deprecated("filterIntervals")
-    filterIntervals(...)
+filterTargets <- function() {
+    .Defunct("filterIntervals")
 }  
 
 .checkNormalDB <- function(tumor, normalDB) {

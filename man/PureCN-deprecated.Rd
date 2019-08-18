@@ -11,7 +11,6 @@
   The following functions are deprecated and will be made defunct; use
   the replacement indicated below:
   \itemize{
-    \item{createTargetWeights: \code{\link{calculateIntervalWeights}}}
-    \item{filterTargets: \code{\link{filterIntervals}}}
+    \item{none}
   }
 }

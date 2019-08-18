@@ -4,22 +4,10 @@
 \alias{createTargetWeights}
 \title{Calculate target weights}
 \usage{
-createTargetWeights(normal.coverage.files, target.weight.file,
-  plot = FALSE)
-}
-\arguments{
-\item{normal.coverage.files}{A set of normal coverage samples
-to estimate target log-ratio standard deviations.}
-
-\item{target.weight.file}{Output filename.}
-
-\item{plot}{Diagnostics plot, useful to tune parameters.}
-}
-\value{
-A \code{data.frame} with target weights.
+createTargetWeights()
 }
 \description{
-This function is deprecated, use \code{\link{calculateIntervalWeights}}
+This function is defunct, use \code{\link{calculateIntervalWeights}}
 instead.
 }
 \author{

@@ -14,6 +14,8 @@
     \item{calculateGCContentByInterval: \code{\link{preprocessIntervals}}}
     \item{createExonWeightFile: \code{\link{calculateIntervalWeights}}}
     \item{createSNPBlacklist: \code{\link{setMappingBiasVcf}}}
+    \item{createTargetWeights: \code{\link{calculateIntervalWeights}}}
+    \item{filterTargets: \code{\link{filterIntervals}}}
     \item{findBestNormal: \code{\link{calculateTangentNormal}}}
     \item{getDiploid: no replacement}
     \item{plotBestNormal: no replacement}

@@ -69,12 +69,10 @@
 #' @param fun.filterIntervals Function for filtering low-quality intervals in the
 #' coverage files. Needs to return a \code{logical} vector whether an interval
 #' should be used for segmentation. Defaults to \code{\link{filterIntervals}}.
-#' @param fun.filterTargets Deprecated.
 #' @param args.filterIntervals Arguments for target filtering function. Arguments
 #' \code{normal}, \code{tumor}, \code{log.ratio},  
 #' \code{min.coverage}\code{seg.file} and \code{normalDB} are required and 
 #' automatically set. 
-#' @param args.filterTargets Deprecated.
 #' @param fun.segmentation Function for segmenting the copy number log-ratios.
 #' Expected return value is a \code{data.frame} representation of the
 #' segmentation. Defaults to \code{\link{segmentationCBS}}.
@@ -277,7 +275,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     fun.setPriorVcf = setPriorVcf, args.setPriorVcf = list(), 
     fun.setMappingBiasVcf = setMappingBiasVcf, args.setMappingBiasVcf = list(), 
     fun.filterIntervals = filterIntervals, args.filterIntervals = list(),
-    fun.filterTargets = NULL, args.filterTargets = NULL,
     fun.segmentation = segmentationCBS, args.segmentation = list(), 
     fun.focal = findFocal, args.focal = list(), 
     sampleid = NULL, min.ploidy = 1, max.ploidy = 6, test.num.copy = 0:7, 
@@ -300,13 +297,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!verbose) flog.threshold("WARN")
     if (!is.null(log.file)) flog.appender(appender.tee(log.file))
     
-    # TODO Remove in 1.14.0
-    if (!is.null(fun.filterTargets)) {
-        flog.warn("fun.filterTargets was renamed to fun.filterIntervals.")
-    }    
-    if (!is.null(args.filterTargets)) {
-        flog.warn("args.filterTargets was renamed to args.filterIntervals.")
-    }
      # log function arguments     
     try(.logHeader(as.list(match.call())[-1]), silent=TRUE)
 

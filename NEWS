@@ -13,6 +13,10 @@ NEW FEATURES
     o Added readSegmentationFile function to read GATK4 ModelSegment
       output files containing segmented log2 tumor/normal ratios
 
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Made filterTargets and createTargetWeights defunct
+
 BUGFIXES
 
     o Fix for bug in CCF calculation resulting in NAs (happens in high

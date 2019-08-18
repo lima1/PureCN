@@ -62,21 +62,14 @@ interval.weight.file, plot = FALSE) {
 
 #' Calculate target weights
 #' 
-#' This function is deprecated, use \code{\link{calculateIntervalWeights}}
+#' This function is defunct, use \code{\link{calculateIntervalWeights}}
 #' instead.
 #'
-#' @param normal.coverage.files A set of normal coverage samples
-#' to estimate target log-ratio standard deviations. 
-#' @param target.weight.file Output filename.
-#' @param plot Diagnostics plot, useful to tune parameters.
-#' @return A \code{data.frame} with target weights.
 #' @author Markus Riester
 #'
 #' @export createTargetWeights
-createTargetWeights <- function(normal.coverage.files,
-target.weight.file, plot = FALSE) {
-    .Deprecated("calculateIntervalWeights")
-    calculateIntervalWeights(normal.coverage.files, target.weight.file, plot)
+createTargetWeights <- function() {
+    .Defunct("calculateIntervalWeights")
 }
 
 .plotIntervalWeights <- function(lrs.sd, width, on.target) {

@@ -12,7 +12,6 @@ runAbsoluteCN(normal.coverage.file = NULL, tumor.coverage.file = NULL,
   args.setPriorVcf = list(), fun.setMappingBiasVcf = setMappingBiasVcf,
   args.setMappingBiasVcf = list(),
   fun.filterIntervals = filterIntervals, args.filterIntervals = list(),
-  fun.filterTargets = NULL, args.filterTargets = NULL,
   fun.segmentation = segmentationCBS, args.segmentation = list(),
   fun.focal = findFocal, args.focal = list(), sampleid = NULL,
   min.ploidy = 1, max.ploidy = 6, test.num.copy = 0:7,
@@ -114,10 +113,6 @@ should be used for segmentation. Defaults to \code{\link{filterIntervals}}.}
 \code{normal}, \code{tumor}, \code{log.ratio},  
 \code{min.coverage}\code{seg.file} and \code{normalDB} are required and 
 automatically set.}
-
-\item{fun.filterTargets}{Deprecated.}
-
-\item{args.filterTargets}{Deprecated.}
 
 \item{fun.segmentation}{Function for segmenting the copy number log-ratios.
 Expected return value is a \code{data.frame} representation of the

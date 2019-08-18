@@ -4,12 +4,9 @@
 \alias{filterTargets}
 \title{Remove low quality targets}
 \usage{
-filterTargets(...)
-}
-\arguments{
-\item{...}{Arguments passed to \code{\link{filterIntervals}}.}
+filterTargets()
 }
 \description{
-This function is deprecated and was renamed to 
+This function is defunct and was renamed to 
 \code{\link{filterIntervals}}.
 }
