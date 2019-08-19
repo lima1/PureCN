@@ -12,7 +12,7 @@
 #' @param min.normals.betafit Minimum number of normals with heterozygous SNP
 #' fitting a beta distribution
 #' @param min.median.coverage.betafit Minimum median coverage of normals with
-#' heterozygous for fitting a beta distribution
+#' heterozygous SNP for fitting a beta distribution
 #' @param betafit.coverage.outliers Exclude samples with coverages below or above
 #' the specified cutoffs (fractions of coverages median).
 #' @param yieldSize See \code{TabixFile}

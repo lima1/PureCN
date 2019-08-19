@@ -20,7 +20,7 @@ calculating position-specific mapping bias.}
 fitting a beta distribution}
 
 \item{min.median.coverage.betafit}{Minimum median coverage of normals with
-heterozygous for fitting a beta distribution}
+heterozygous SNP for fitting a beta distribution}
 
 \item{betafit.coverage.outliers}{Exclude samples with coverages below or above
 the specified cutoffs (fractions of coverages median).}
