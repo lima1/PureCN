@@ -16,6 +16,7 @@ NEW FEATURES
 SIGNIFICANT USER-VISIBLE CHANGES
 
     o Made filterTargets and createTargetWeights defunct
+    o setMappingBiasVcf now returns a data.frame
 
 BUGFIXES
 

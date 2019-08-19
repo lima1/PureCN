@@ -549,7 +549,6 @@ Argument name       & Corresponding PureCN argument & PureCN function \\
 \midrule
 --coveragefiles    & normal.coverage.files & \Rfunction{createNormalDatabase} \\
 --normal\_panel    & normal.panel.vcf.file & \Rfunction{calculateMappingBiasVcf} \\
---maxmeancoverage  & max.mean.coverage & \Rfunction{createNormalDatabase} \\ 
 --assay -a          & Optional assay name & Used in output file names. \\
 --genome -g        & Optional genome version & Used in output file names. \\
 --outdir -o         & & \\

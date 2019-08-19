@@ -21,13 +21,14 @@
 #' @param smooth Impute mapping bias of variants not found in the panel by
 #' smoothing of neighboring SNPs. Requires \code{normal.panel.vcf.file}.
 #' @param smooth.n Number of neighboring variants used for smoothing.
-#' @return A list with elements \item{bias}{A \code{numeric(nrow(vcf))} 
+#' @return A \code{data.frame} with elements \item{bias}{A \code{numeric(nrow(vcf))} 
 #' vector with the mapping bias of for each
 #' variant in the \code{CollapsedVCF}. Mapping bias is expected as scaling
 #' factor. Adjusted allelic fraction is (observed allelic fraction)/(mapping
 #' bias). Maximum scaling factor is 1 and means no bias.}
 #' \item{pon.count}{A \code{numeric(nrow(vcf))} vector with the number
 #' of hits in the \code{normal.panel.vcf.file}.}
+#' \item{shape1, shape2}{Fit of a beta distribution.}
 #' @author Markus Riester
 #' @examples
 #' 
@@ -67,7 +68,7 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     max.bias <- 1.2
     tmp[tmp > max.bias] <- max.bias
     if (is.null(normal.panel.vcf.file)) {
-        return(list(bias = tmp))
+        return(data.frame(bias = tmp, shape1 = NA, shape2 = NA))
     }
 
     if (file_ext(normal.panel.vcf.file) == "rds") {
@@ -76,9 +77,9 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         nvcf <- .readNormalPanelVcfLarge(vcf, normal.panel.vcf.file)
         if (nrow(nvcf) < 1) {
             flog.warn("setMappingBiasVcf: no hits in %s.", normal.panel.vcf.file)
-            return(list(bias = tmp))
+            return(data.frame(bias = tmp, shape1 = NA, shape2 = NA))
         }
-        mappingBias <- .calculateMappingBias(nvcf, min.normals)
+        mappingBias <- .findMaxBetaShape(.calculateMappingBias(nvcf, min.normals))
     }
     .annotateMappingBias(tmp, vcf, mappingBias, max.bias, smooth, smooth.n)
 }
@@ -94,10 +95,16 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         weighted.mean(bias$bias, w = bias$pon.count)
     }
     ponCnt <- integer(length(tmp))
+    shape1 <- rep(NA, length(tmp))
+    shape2 <- rep(NA, length(tmp))
     ov <- findOverlaps(vcf, mappingBias, select = "first")
     idx <- !is.na(ov)
     tmp[idx] <- mappingBias$bias[ov][idx]
     ponCnt[idx] <- mappingBias$pon.count[ov][idx]
+    if (!is.null(mappingBias$shape1)) {
+        shape1[idx] <- mappingBias$shape1[ov][idx]
+        shape2[idx] <- mappingBias$shape2[ov][idx]
+    }
     if (smooth) {
         flog.info("Imputing mapping bias for %i variants...", 
             sum(!idx, na.rm = TRUE))
@@ -110,10 +117,12 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         tmp[is.na(tmp)] <- 1
     }
     tmp[tmp > max.bias] <- max.bias
-    return(list(bias = tmp, pon.count = ponCnt))
+    return(data.frame(bias = tmp, pon.count = ponCnt,
+                shape1 = shape1, shape2 = shape2))
 }
     
-.calculateMappingBias <- function(nvcf, min.normals) {
+.calculateMappingBias <- function(nvcf, min.normals, min.normals.betafit = 7,
+                                  betafit.coverage.outliers = c(0.25, 4)) {
     if (ncol(nvcf) < 2) {
         .stopUserError("The normal.panel.vcf.file contains only a single sample.")
     }
@@ -121,14 +130,30 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     alt <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][2])
     ref <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][1])
     fa  <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][2]/sum(x[[1]]))
-    psMappingBias <- sapply(seq_len(nrow(nvcf)), function(i) {
+    x <- sapply(seq_len(nrow(nvcf)), function(i) {
         idx <- !is.na(fa[i,]) & fa[i,] > 0.05 & fa[i,] < 0.9
-        if (!sum(idx) >= min.normals) return(c(0, 0, 0, 0))
-        c(sum(ref[i,idx]), sum(alt[i,idx]), sum(idx), mean(fa[i, idx]))
+        shapes <- c(NA, NA)
+        if (!sum(idx) >= min.normals) return(c(0, 0, 0, 0, shapes))
+        dp <- alt[i,] + ref[i,] 
+           
+        idx2 <- idx & dp >= median(dp, na.rm = TRUE) * betafit.coverage.outliers[1] &
+                      dp <= median(dp, na.rm = TRUE) * betafit.coverage.outliers[2]
+
+        if (sum(idx2) >= min.normals.betafit) {
+            fit <- try(fitdist(fa[i, idx2], "beta"), silent = TRUE)
+            if (class(fit) == "try-error") {
+                flog.warn("Could not fit beta dist for %s (%s).",
+                    as.character(rowRanges(nvcf[i])),
+                    paste0(round(fa[i, idx2], digits = 3), collapse=","))
+            } else {    
+                shapes <- fit$estimate
+            }
+        }
+        c(sum(ref[i,idx]), sum(alt[i,idx]), sum(idx), mean(fa[i, idx]), shapes)
     })
     # Add an average "normal" SNP (average coverage and allelic fraction > 0.4)
     # as empirical prior
-    psMappingBias <- .adjustEmpBayes(psMappingBias) * 2
+    psMappingBias <- .adjustEmpBayes(x[1:4,]) * 2
     ponCntHits <- apply(geno(nvcf)$AD, 1, function(x)
         sum(!is.na(unlist(x))) / 2)
 
@@ -136,7 +161,24 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     mcols(tmp) <- NULL
     tmp$bias <- psMappingBias
     tmp$pon.count <- ponCntHits
+    tmp$shape1 <- x[5,]
+    tmp$shape2 <- x[6,]
     tmp
+}
+ 
+.findMaxBetaShape <- function(x) {
+    idx <- !is.na(x$shape1) & x$bias > 0.8
+    xx <- x[idx]
+    max_shape <- pmax(xx$shape1, xx$shape2)
+    # reshape outliers with very high shape parameters
+    cutoff <- mean(sapply(split(max_shape, xx$pon.count), quantile, p = 0.95))
+    flog.info("Setting max shape parameter to %.2f.", cutoff)
+    max_shape <- pmax(x$shape1, x$shape2)
+    scale <- cutoff / max_shape
+    scale[which(scale > 1)] <- 1
+    x$shape1 <- x$shape1 * scale
+    x$shape2 <- x$shape2 * scale
+    x
 }
     
 .readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file,

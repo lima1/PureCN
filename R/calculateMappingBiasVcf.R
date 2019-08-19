@@ -8,8 +8,11 @@
 #' reference and alt counts as AD genotype field. Should be compressed and
 #' indexed with bgzip and tabix, respectively.
 #' @param min.normals Minimum number of normals with heterozygous SNP for
-#' calculating position-specific mapping bias. Requires
-#' \code{normal.panel.vcf.file}.
+#' calculating position-specific mapping bias. 
+#' @param min.normals.betafit Minimum number of normals with heterozygous SNP
+#' fitting a beta distribution
+#' @param betafit.coverage.outliers Exclude samples with coverages below or above
+#' the specified cutoffs (fractions of coverages median).
 #' @param yieldSize See \code{TabixFile}
 #' @param genome See \code{readVcf}
 #' @return A \code{GRanges} object with mapping bias and number of normal
@@ -22,8 +25,11 @@
 #' saveRDS(bias, "mapping_bias.rds")
 #'
 #' @importFrom GenomicRanges GRangesList
+#' @importFrom fitdistrplus fitdist
 #' @export calculateMappingBiasVcf
 calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
+                                    min.normals.betafit = 7, 
+                                    betafit.coverage.outliers = c(0.25, 4),
                                     yieldSize = 5000, genome) {
     tab <- TabixFile(normal.panel.vcf.file, yieldSize = yieldSize)
     open(tab)
@@ -36,14 +42,16 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
         if (!(cntStep %% 10)) {
             flog.info("Position %s:%i", as.character(seqnames(vcf_yield)[1]), start(vcf_yield)[1])
         }
-        mappingBias <- .calculateMappingBias(vcf_yield, min.normals)
+        mappingBias <- .calculateMappingBias(vcf_yield, min.normals, 
+            min.normals.betafit, betafit.coverage.outliers)
         ret <- append(ret, GRangesList(mappingBias))
         cntVar <- cntVar + yieldSize
         cntStep <- cntStep + 1
     }
-    bias <- unlist(ret)
+    bias <- .findMaxBetaShape(unlist(ret))
     attr(bias, "normal.panel.vcf.file") <- normal.panel.vcf.file
     attr(bias, "min.normals") <- min.normals
+    attr(bias, "min.normals.betafit") <- min.normals.betafit
     attr(bias, "genome") <- genome
     bias
 }

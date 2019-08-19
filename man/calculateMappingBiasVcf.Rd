@@ -5,6 +5,7 @@
 \title{Calculate Mapping Bias}
 \usage{
 calculateMappingBiasVcf(normal.panel.vcf.file, min.normals = 2,
+  min.normals.betafit = 7, betafit.coverage.outliers = c(0.25, 4),
   yieldSize = 5000, genome)
 }
 \arguments{
@@ -13,8 +14,13 @@ reference and alt counts as AD genotype field. Should be compressed and
 indexed with bgzip and tabix, respectively.}
 
 \item{min.normals}{Minimum number of normals with heterozygous SNP for
-calculating position-specific mapping bias. Requires
-\code{normal.panel.vcf.file}.}
+calculating position-specific mapping bias.}
+
+\item{min.normals.betafit}{Minimum number of normals with heterozygous SNP
+fitting a beta distribution}
+
+\item{betafit.coverage.outliers}{Exclude samples with coverages below or above
+the specified cutoffs (fractions of coverages median).}
 
 \item{yieldSize}{See \code{TabixFile}}
 

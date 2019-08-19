@@ -595,10 +595,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         if (anyNA(snv.lr)) {
             n.vcf.before.filter <- nrow(vcf)
             vcf <- vcf[!is.na(snv.lr)]
-            mapping.bias$bias <- mapping.bias$bias[!is.na(snv.lr)]
-            if (!is.null(mapping.bias$pon.count)) {
-                mapping.bias$pon.count <- mapping.bias$pon.count[!is.na(snv.lr)]
-            }  
+            mapping.bias <- mapping.bias[!is.na(snv.lr),]
             prior.somatic <- prior.somatic[!is.na(snv.lr)]
             
             # make sure all variants are in covered segments

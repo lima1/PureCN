@@ -258,7 +258,10 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     posteriors$CELLFRACTION.95.UPPER <- as.numeric(m[,3])
     ar <- posteriors$AR.ADJUSTED
     posteriors$ALLELIC.IMBALANCE <- .calculate_allelic_imbalance(ar, 
-        pmin(depth, max.coverage.vcf), posteriors$MAPPING.BIAS)
+        depth = pmin(depth, max.coverage.vcf), 
+        bias = posteriors$MAPPING.BIAS,
+        shape1 = mapping.bias$shape1[vcf.ids],
+        shape2 = mapping.bias$shape2[vcf.ids])
 
     rm.snv.posteriors <- apply(likelihoods, 1, max)
     idx.ignore <- rm.snv.posteriors == 0 |
@@ -1046,10 +1049,13 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     return(c(ccf_point, ccf_lower, ccf_upper))
 }
 
-.calculate_allelic_imbalance <- function(vaf, depth, bias) {
-    if (is.na(vaf)) return(NA)
-    dbeta(x = vaf, shape1 = depth * bias / 2, 
-                   shape2 = depth*  (1-bias/2), log = TRUE)
+.calculate_allelic_imbalance <- function(vaf, depth, bias, shape1, shape2) {
+    idx <- is.na(shape1)
+    shape1[idx] <- depth[idx] * bias[idx] / 2 + 1
+    idx <- is.na(shape2)
+    shape2[idx] <- depth[idx] * (1 - bias[idx] / 2) + 1    
+    dbeta(x = vaf, shape1 = shape1, 
+                   shape2 = shape2, log = TRUE)
 }    
 
 .getExonLrs <- function(seg.gr, tumor, log.ratio, idx = NULL) {

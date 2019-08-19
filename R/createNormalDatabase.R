@@ -9,11 +9,6 @@
 #' @param sex \code{character(length(normal.coverage.files))} with sex for all
 #' files.  \code{F} for female, \code{M} for male. If all chromosomes are
 #' diploid, specify \code{diploid}. If \code{NULL}, determine from coverage.
-#' @param max.mean.coverage Assume that coverages above this value do not
-#' necessarily improve copy number normalization. Internally, samples with
-#' coverage higher than this value will be normalized to have mean coverage
-#' equal to this value. If \code{NULL}, use the 80 percentile as cutoff.
-#' If \code{NA}, does not use a maximum value.
 #' @param coverage.outliers Exclude samples with coverages below or above
 #' the specified cutoffs (fractions of the normal sample coverages median).
 #' Only for databases with more than 5 samples.
@@ -41,7 +36,7 @@
 #' @export createNormalDatabase
 #' @importFrom Matrix tcrossprod
 createNormalDatabase <- function(normal.coverage.files, sex = NULL,
-max.mean.coverage = NULL, coverage.outliers = c(0.25, 4), 
+coverage.outliers = c(0.25, 4), 
 min.coverage = 0.25, max.missing = 0.03, low.coverage = 15, ...) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
     normals <- .readNormals(normal.coverage.files)
