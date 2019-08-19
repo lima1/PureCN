@@ -122,6 +122,7 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
 }
     
 .calculateMappingBias <- function(nvcf, min.normals, min.normals.betafit = 7,
+                                  min.median.coverage.betafit = 5,
                                   betafit.coverage.outliers = c(0.25, 4)) {
     if (ncol(nvcf) < 2) {
         .stopUserError("The normal.panel.vcf.file contains only a single sample.")
@@ -135,11 +136,11 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         shapes <- c(NA, NA)
         if (!sum(idx) >= min.normals) return(c(0, 0, 0, 0, shapes))
         dp <- alt[i,] + ref[i,] 
-           
-        idx2 <- idx & dp >= median(dp, na.rm = TRUE) * betafit.coverage.outliers[1] &
-                      dp <= median(dp, na.rm = TRUE) * betafit.coverage.outliers[2]
+        mdp <- median(dp, na.rm = TRUE)   
+        idx2 <- idx & dp >= mdp * betafit.coverage.outliers[1] &
+                      dp <= mdp * betafit.coverage.outliers[2] 
 
-        if (sum(idx2) >= min.normals.betafit) {
+        if (sum(idx2) >= min.normals.betafit && mdp >= min.median.coverage.betafit) {
             fit <- try(fitdist(fa[i, idx2], "beta"), silent = TRUE)
             if (class(fit) == "try-error") {
                 flog.warn("Could not fit beta dist for %s (%s).",

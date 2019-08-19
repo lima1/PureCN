@@ -11,6 +11,8 @@
 #' calculating position-specific mapping bias. 
 #' @param min.normals.betafit Minimum number of normals with heterozygous SNP
 #' fitting a beta distribution
+#' @param min.median.coverage.betafit Minimum median coverage of normals with
+#' heterozygous for fitting a beta distribution
 #' @param betafit.coverage.outliers Exclude samples with coverages below or above
 #' the specified cutoffs (fractions of coverages median).
 #' @param yieldSize See \code{TabixFile}
@@ -28,7 +30,8 @@
 #' @importFrom fitdistrplus fitdist
 #' @export calculateMappingBiasVcf
 calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
-                                    min.normals.betafit = 7, 
+                                    min.normals.betafit = 7,
+                                    min.median.coverage.betafit = 5,
                                     betafit.coverage.outliers = c(0.25, 4),
                                     yieldSize = 5000, genome) {
     tab <- TabixFile(normal.panel.vcf.file, yieldSize = yieldSize)
@@ -43,7 +46,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
             flog.info("Position %s:%i", as.character(seqnames(vcf_yield)[1]), start(vcf_yield)[1])
         }
         mappingBias <- .calculateMappingBias(vcf_yield, min.normals, 
-            min.normals.betafit, betafit.coverage.outliers)
+            min.normals.betafit, min.median.coverage.betafit, betafit.coverage.outliers)
         ret <- append(ret, GRangesList(mappingBias))
         cntVar <- cntVar + yieldSize
         cntStep <- cntStep + 1
@@ -52,6 +55,8 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
     attr(bias, "normal.panel.vcf.file") <- normal.panel.vcf.file
     attr(bias, "min.normals") <- min.normals
     attr(bias, "min.normals.betafit") <- min.normals.betafit
+    attr(bias, "min.median.coverage.betafit") <- min.median.coverage.betafit
+    attr(bias, "betafit.coverage.outliers") <- betafit.coverage.outliers
     attr(bias, "genome") <- genome
     bias
 }

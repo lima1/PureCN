@@ -5,8 +5,8 @@
 \title{Calculate Mapping Bias}
 \usage{
 calculateMappingBiasVcf(normal.panel.vcf.file, min.normals = 2,
-  min.normals.betafit = 7, betafit.coverage.outliers = c(0.25, 4),
-  yieldSize = 5000, genome)
+  min.normals.betafit = 7, min.median.coverage.betafit = 5,
+  betafit.coverage.outliers = c(0.25, 4), yieldSize = 5000, genome)
 }
 \arguments{
 \item{normal.panel.vcf.file}{Combined VCF file of a panel of normals,
@@ -18,6 +18,9 @@ calculating position-specific mapping bias.}
 
 \item{min.normals.betafit}{Minimum number of normals with heterozygous SNP
 fitting a beta distribution}
+
+\item{min.median.coverage.betafit}{Minimum median coverage of normals with
+heterozygous for fitting a beta distribution}
 
 \item{betafit.coverage.outliers}{Exclude samples with coverages below or above
 the specified cutoffs (fractions of coverages median).}
