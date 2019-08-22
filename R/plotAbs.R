@@ -393,7 +393,7 @@ ss) {
             main=main, type="n", ...)
         rect(tmp$start, par("usr")[3], tmp$end+1, par("usr")[4], 
              col = ifelse(seq(nrow(tmp))%%2, col.chr.shading, "white"), border = NA)
-        .add_allelic_imbalance(r, idx)
+        .add_allelic_imbalance(r, idx, rho = res$input$mapping.bias.rho)
         rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4])
         points(r$AR[idx], col=adjustcolor(col.snps, alpha.f=myalpha), pch=mypch)
         lines(segment.b1.lines, col = "black", lwd = 3)
@@ -619,13 +619,19 @@ ss) {
     par(mar=parm)
 }
 
-.add_allelic_imbalance <- function(r, idx) {
+.add_allelic_imbalance <- function(r, idx, rho) {
     rr <- r[idx & !r$FLAGGED & r$pon.count > 0 & !is.na(r$ML.M),]
     if (!nrow(rr)) return()
-    zz <- sapply(split(rr$ALLELIC.IMBALANCE, rr$seg.id), sum)
+    size <- round(mean(rr$depth))
+    if (is.null(rho)) rho <- 1 / (1 + size)
+    max_value <- dbetabinom(round(size * 0.5), size = size, prob = 0.5, 
+        rho = rho, log = TRUE)
+    min_value <- ( dbetabinom(round(size * 0.8), size = size, prob = 0.5, 
+        rho = rho, log = TRUE) - min(max_value, 0)) * 20
+    zz <- sapply(split(rr$ALLELIC.IMBALANCE, rr$seg.id), function(x) sum(x - min(max_value, 0)))
     zz[zz > 0] <- 0
-    zz[zz < -100] <- -100
-    cols <- .brewer_continuous(-1*c(0,-100,zz))[-(1:2)]
+    zz[zz < min_value] <- min_value
+    cols <- .brewer_continuous(-1*c(0,min_value,zz))[-(1:2)]
     bx <- par("usr")
     points(seq(sum(idx)), y=rep(par("usr")[3], sum(idx)), 
         col=cols[as.character(r$seg.id)][idx], pch="|")

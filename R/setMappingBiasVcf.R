@@ -77,9 +77,9 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         nvcf <- .readNormalPanelVcfLarge(vcf, normal.panel.vcf.file)
         if (nrow(nvcf) < 1) {
             flog.warn("setMappingBiasVcf: no hits in %s.", normal.panel.vcf.file)
-            return(data.frame(bias = tmp, shape1 = NA, shape2 = NA))
+            return(data.frame(bias = tmp, mu = NA, rho = NA))
         }
-        mappingBias <- .findMaxBetaShape(.calculateMappingBias(nvcf, min.normals))
+        mappingBias <- .calculateMappingBias(nvcf, min.normals)
     }
     .annotateMappingBias(tmp, vcf, mappingBias, max.bias, smooth, smooth.n)
 }
@@ -95,15 +95,15 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         weighted.mean(bias$bias, w = bias$pon.count)
     }
     ponCnt <- integer(length(tmp))
-    shape1 <- rep(NA, length(tmp))
-    shape2 <- rep(NA, length(tmp))
+    mu <- rep(NA, length(tmp))
+    rho <- rep(NA, length(tmp))
     ov <- findOverlaps(vcf, mappingBias, select = "first")
     idx <- !is.na(ov)
     tmp[idx] <- mappingBias$bias[ov][idx]
     ponCnt[idx] <- mappingBias$pon.count[ov][idx]
-    if (!is.null(mappingBias$shape1)) {
-        shape1[idx] <- mappingBias$shape1[ov][idx]
-        shape2[idx] <- mappingBias$shape2[ov][idx]
+    if (!is.null(mappingBias$mu)) {
+        mu[idx] <- mappingBias$mu[ov][idx]
+        rho[idx] <- mappingBias$rho[ov][idx]
     }
     if (smooth) {
         flog.info("Imputing mapping bias for %i variants...", 
@@ -118,12 +118,11 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     }
     tmp[tmp > max.bias] <- max.bias
     return(data.frame(bias = tmp, pon.count = ponCnt,
-                shape1 = shape1, shape2 = shape2))
+                mu = mu, rho = rho))
 }
     
 .calculateMappingBias <- function(nvcf, min.normals, min.normals.betafit = 7,
-                                  min.median.coverage.betafit = 5,
-                                  betafit.coverage.outliers = c(0.25, 4)) {
+                                  min.median.coverage.betafit = 5) {
     if (ncol(nvcf) < 2) {
         .stopUserError("The normal.panel.vcf.file contains only a single sample.")
     }
@@ -137,17 +136,15 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         if (!sum(idx) >= min.normals) return(c(0, 0, 0, 0, shapes))
         dp <- alt[i,] + ref[i,] 
         mdp <- median(dp, na.rm = TRUE)   
-        idx2 <- idx & dp >= mdp * betafit.coverage.outliers[1] &
-                      dp <= mdp * betafit.coverage.outliers[2] 
 
-        if (sum(idx2) >= min.normals.betafit && mdp >= min.median.coverage.betafit) {
-            fit <- try(fitdist(fa[i, idx2], "beta"), silent = TRUE)
+        if (sum(idx) >= min.normals.betafit && mdp >= min.median.coverage.betafit) {
+            fit <- try(vglm(cbind(alt[i,idx], ref[i,idx]) ~ 1, betabinomial, trace = FALSE))
             if (class(fit) == "try-error") {
-                flog.warn("Could not fit beta dist for %s (%s).",
+                flog.warn("Could not fit beta binomial dist for %s (%s).",
                     as.character(rowRanges(nvcf[i])),
-                    paste0(round(fa[i, idx2], digits = 3), collapse=","))
+                    paste0(round(fa[i, idx], digits = 3), collapse=","))
             } else {    
-                shapes <- fit$estimate
+                shapes <- Coef(fit)
             }
         }
         c(sum(ref[i,idx]), sum(alt[i,idx]), sum(idx), mean(fa[i, idx]), shapes)
@@ -162,26 +159,11 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
     mcols(tmp) <- NULL
     tmp$bias <- psMappingBias
     tmp$pon.count <- ponCntHits
-    tmp$shape1 <- x[5,]
-    tmp$shape2 <- x[6,]
+    tmp$mu <- x[5,]
+    tmp$rho <- x[6,]
     tmp
 }
  
-.findMaxBetaShape <- function(x) {
-    idx <- !is.na(x$shape1) & x$bias > 0.8
-    xx <- x[idx]
-    max_shape <- pmax(xx$shape1, xx$shape2)
-    # reshape outliers with very high shape parameters
-    cutoff <- mean(sapply(split(max_shape, xx$pon.count), quantile, p = 0.95))
-    flog.info("Setting max shape parameter to %.2f.", cutoff)
-    max_shape <- pmax(x$shape1, x$shape2)
-    scale <- cutoff / max_shape
-    scale[which(scale > 1)] <- 1
-    x$shape1 <- x$shape1 * scale
-    x$shape2 <- x$shape2 * scale
-    x
-}
-    
 .readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file,
     max.file.size=1, geno="AD", expand=FALSE) {
     genome <- genome(vcf)[1]
