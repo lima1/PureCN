@@ -23,8 +23,6 @@ option_list <- list(
     make_option(c("--outdir"), action = "store", type = "character", 
         default = NULL,
         help = "Output directory to which results should be written"),
-    make_option(c("--cpu"), action = "store", type = "integer", default = 1,
-        help = "Deprecated, use --cores instead"),
     make_option(c("--parallel"), action = "store_true", default = FALSE,
         help = "Use BiocParallel to calculate coverage in parallel whem --bam is a list of BAM files."),
     make_option(c("--cores"), action = "store", type = "integer", default = 1,
@@ -107,10 +105,6 @@ getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file,
         output.file
     }
     BPPARAM <- NULL
-    if (opt$cpu > 1) { 
-        flog.warn("--cpu is deprecated, use --cores instead.")
-        opt$cores <- opt$cpu
-    }
     if (!is.null(opt$cores) && opt$cores > 1) {
         suppressPackageStartupMessages(library(BiocParallel))
         BPPARAM <- MulticoreParam(workers = opt$cores)

@@ -448,9 +448,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             mean(width(tumor[!tumor$on.target]), na.rm = TRUE))
     }
     if (smooth.log.ratio) {
-        CNA.obj <- smooth.CNA(
-            .getCNAobject(log.ratio, normal, chr.hash, "sample"))
-        log.ratio <- CNA.obj$sample
+        log.ratio <- smooth.CNA(
+            .getCNAobject(log.ratio, normal, chr.hash, "sample"))$sample
     }     
     
     dropoutWarning <- FALSE
