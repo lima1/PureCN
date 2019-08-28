@@ -33,6 +33,7 @@ Simply re-create this RDS file to take advantage of the new features:
 
 \begin{verbatim}
 Rscript $PURECN/NormalDB.R --outdir $OUT_REF --normal_panel $NORMAL_PANEL \
+    --genome hg19 --assay agilent_v6
 \end{verbatim} 
 
 \Biocpkg{PureCN} 1.10 introduced a completely new normal database format with
