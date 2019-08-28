@@ -106,8 +106,8 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
             .stopUserError("fun.countMutation not a function.")        
         }
         vcf <-  res$input$vcf
-        vcf <- vcf[overlapsAny(vcf, p)]
-        p <- p[which(fun.countMutation(vcf))]
+        vcf <- vcf[which(fun.countMutation(vcf))]
+        p <- p[overlapsAny(p, vcf, type = "equal")]
     } 
         
     p <- p[p$prior.somatic >= min.prior.somatic & 
