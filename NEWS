@@ -24,6 +24,8 @@ BUGFIXES
       coverage samples, early mutations with > 1 allele copy number)
     o Fix for a bug in preprocessIntervals when small targets 
       (< min.target.width) were present
+    o Fix for a bug in callMutationBurden when VCF contained indels
+      (#82)
 
     
 Changes in version 1.14.0
