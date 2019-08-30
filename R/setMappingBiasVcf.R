@@ -138,7 +138,8 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         mdp <- median(dp, na.rm = TRUE)   
 
         if (sum(idx) >= min.normals.betafit && mdp >= min.median.coverage.betafit) {
-            fit <- try(vglm(cbind(alt[i,idx], ref[i,idx]) ~ 1, betabinomial, trace = FALSE))
+            fit <- suppressWarnings(try(vglm(cbind(alt[i,idx], 
+                ref[i,idx]) ~ 1, betabinomial, trace = FALSE)))
             if (class(fit) == "try-error") {
                 flog.warn("Could not fit beta binomial dist for %s (%s).",
                     as.character(rowRanges(nvcf[i])),

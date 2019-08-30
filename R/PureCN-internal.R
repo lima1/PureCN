@@ -1058,7 +1058,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         idx <- is.na(mu)
         mu[idx] <- (bias/2)[idx]
     }
-    if (is.null(rho)) { 
+    if (is.null(rho) || all(is.na(rho))) { 
         rho <- 1 / (1 + depth)
     } else {    
         idx <- is.na(rho)

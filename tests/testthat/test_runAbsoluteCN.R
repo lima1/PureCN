@@ -119,6 +119,9 @@ test_that("Exceptions happen with incorrect input data", {
     expect_error( runAbsoluteCN(normal.coverage.file=normal.coverage.file,
           tumor.coverage.file=tumorCov, genome="hg19"), 
           "No intervals passing filters.")
+    expect_error(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
+        genome = "hg19", vcf.file=vcf.file, args.filterVcf=list(snp.blacklist=normal.coverage.file)),
+        "Could not import snp.blacklist")
 })
 
 

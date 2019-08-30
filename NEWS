@@ -3,7 +3,7 @@ Changes in version 1.16.0
 
 NEW FEATURES
 
-    o flag segments in poor quality regions
+    o Flag segments in poor quality regions
     o Dx.R now reports chromosomal instability scores
       (available also via callCIN function)
     o predictSomatic now provides log-likelihood of allelic balance
@@ -26,6 +26,7 @@ BUGFIXES
       (< min.target.width) were present
     o Fix for a bug in callMutationBurden when VCF contained indels
       (#82)
+    o Die with helpful error message when snp.blacklist import failed  
 
     
 Changes in version 1.14.0

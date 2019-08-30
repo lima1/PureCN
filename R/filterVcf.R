@@ -177,7 +177,11 @@ interval.padding = 50, DB.info.flag = "DB") {
 
     if (!is.null(snp.blacklist)) {
         for (i in seq_along(snp.blacklist)) {
-            blackBed <- import(snp.blacklist[i])
+            blackBed <- try(import(snp.blacklist[i]))
+            if (class(blackBed) == "try-error") {
+                .stopUserError("Could not import snp.blacklist ", snp.blacklist[[i]],
+                    ":", blackBed)
+            }    
             ov <- suppressWarnings(overlapsAny(vcf, blackBed))
             vcf <- vcf[!ov]
             flog.info("Removing %i blacklisted variants.", n-nrow(vcf))

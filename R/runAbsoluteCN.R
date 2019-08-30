@@ -1095,7 +1095,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             log.ratio.sdev = sd.seg, vcf = vcf, sampleid = sampleid, 
             test.num.copy = test.num.copy,
             sex = sex, sex.vcf = sex.vcf, chr.hash = chr.hash, centromeres = centromeres,
-            mapping.bias.rho = if (is.null(mapping.bias)) NULL else mean(mapping.bias$rho, na.rm = TRUE),
+            mapping.bias.rho = if (is.null(mapping.bias) || all(is.na(mapping.bias$rho))) NULL else mean(mapping.bias$rho, na.rm = TRUE),
             args=list(
                 filterVcf = args.filterVcf[vapply(args.filterVcf, object.size, double(1)) < 1000],
                 filterIntervals = args.filterIntervals[vapply(args.filterIntervals, object.size, double(1)) < 1000])
