@@ -148,7 +148,6 @@ if (opt$signatures && require(deconstructSigs)) {
             q(status = 0)
         }
         bsg <- get(bsgPkg)
-        flog.info("Non-hg19 currently requires the GitHub version of deconstructSigs.")
     }
     if (nrow(s) >= 10) {
         databases <- strsplit(opt$signature_databases, ":")[[1]]
