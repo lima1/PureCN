@@ -4,14 +4,18 @@ Changes in version 1.16.0
 NEW FEATURES
 
     o Flag segments in poor quality regions
-    o Dx.R now reports chromosomal instability scores
-      (available also via callCIN function)
     o predictSomatic now provides log-likelihood of allelic balance
       (ALLELIC.IMBALANCE column) for each variant  
     o Added readLogRatioFile function to read GATK4 DenoiseReadCounts
       output files containing log2 tumor/normal ratios
     o Added readSegmentationFile function to read GATK4 ModelSegment
       output files containing segmented log2 tumor/normal ratios
+    o Dx.R now reports chromosomal instability scores
+      (available also via callCIN function)
+    o Dx.R supports deconstructSigs 1.9.0 and COSMIC signatures v3.
+      To run both v2 and v3, simply add --signature_databases 
+      signatures.exome.cosmic.v3.may2019:signatures.cosmic to Dx.R
+
 
 SIGNIFICANT USER-VISIBLE CHANGES
 

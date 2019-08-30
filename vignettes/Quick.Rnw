@@ -75,6 +75,14 @@ BiocManager::install("PSCBS")
 BiocManager::install("lima1/PSCBS", ref="add_dnacopy_weighting")
 \end{verbatim}
 
+To call mutational signatures, install the GitHub version of the
+deconstructSigs package:
+
+\begin{verbatim}
+BiocManager::install("raerose01/deconstructSigs")
+\end{verbatim}
+
+
 \subsection*{Prepare environment and files}
 
 \begin{itemize}
