@@ -465,9 +465,10 @@ Important recommendations:
 - In test runs, especially when the input VCF contains matched normal
   information, `--normal_panel` can be skipped
 
-## Dx
+# Biomarkers
 
-`Dx.R` extracts copy number and mutation metrics from `PureCN.R` output. 
+`Dx.R` extracts copy number and mutation metrics commonly used as biomarkers
+from `PureCN.R` output. 
 
 ```
 # Provide a BED file with callable regions, for examples obtained by
