@@ -21,6 +21,8 @@ SIGNIFICANT USER-VISIBLE CHANGES
 
     o Made filterTargets and createTargetWeights defunct
     o setMappingBiasVcf now returns a data.frame
+    o Best practices vignette now HTML-based.
+
 
 BUGFIXES
 

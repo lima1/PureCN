@@ -2,8 +2,8 @@ Package: PureCN
 Type: Package
 Title: Copy number calling and SNV classification using
     targeted short read sequencing
-Version: 1.15.12
-Date: 2019-08-30
+Version: 1.15.13
+Date: 2019-08-31
 Authors@R: c(person("Markus", "Riester", role=c("aut", "cre"),
         email="markus.riester@novartis.com"),
     person("Angad P.", "Singh", role="aut"))
@@ -43,15 +43,16 @@ Imports:
     rhdf5,
     Matrix
 Suggests:
-    PSCBS,
-    copynumber,
-    BiocStyle,
     BiocParallel,
+    BiocStyle,
+    PSCBS,
+    TxDb.Hsapiens.UCSC.hg19.knownGene,
+    copynumber,
+    covr,
     knitr,
     optparse,
-    TxDb.Hsapiens.UCSC.hg19.knownGene,
     org.Hs.eg.db,
-    covr,
+    rmarkdown,
     testthat
 VignetteBuilder: knitr
 License: Artistic-2.0
