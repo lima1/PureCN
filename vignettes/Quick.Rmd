@@ -350,7 +350,7 @@ Important recommendations:
 
     - High purity and high quality: For cancer types with a high expected
       purity, such as Ovarian cancer, AND when quality is expected to be very
-      good (high coverage, young samples), `--maxcopynumber 8
+      good (high coverage, young samples), `--maxcopynumber 8`
 
     - Small panels with high coverage: `--padding 100` (or higher), requires
       running the variant caller with this padding or without interval file. Use
@@ -429,6 +429,20 @@ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --force --postoptimize --seed 123
 ```
 
+Important recommendations:
+
+- The `--funsegmentation` argument controls if the data should to be
+  re-segmented using germline BAFs (default). Set this value to `none` if the
+  provided segmentation should be used as is.  The recommended `Hclust` will
+  only cluster provided segments.
+
+- Since _CNVkit_ provides all necessary information in the `*.cnr` output files,
+  the `--intervals` argument is not required.
+
+- In test runs, especially when the input VCF contains matched normal
+  information, `--normal_panel` can be skipped
+
+
 ## Recommended _GATK4_ usage
 
 ```
@@ -452,23 +466,11 @@ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --force --postoptimize --seed 123
 ```
 
-Important recommendations:
-
-- The `--funsegmentation` argument controls if the data should to be
-  re-segmented using germline BAFs (default). Set this value to `none` if the
-  provided segmentation should be used as is.  The recommended `Hclust` will
-  only cluster provided segments.
-
-- Since _CNVkit_ provides all necessary information in the `*.cnr` output files,
-  the `--intervals` argument is not required.
-
-- In test runs, especially when the input VCF contains matched normal
-  information, `--normal_panel` can be skipped
-
 # Biomarkers
 
-`Dx.R` extracts copy number and mutation metrics commonly used as biomarkers
-from `PureCN.R` output. 
+`Dx.R` provides copy number and mutation metrics commonly used as biomarkers,
+most importantly tumor mutational burden (TMB), chromosomal instability (CIN)
+and mutational signatures.
 
 ```
 # Provide a BED file with callable regions, for examples obtained by
