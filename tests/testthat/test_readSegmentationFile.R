@@ -19,3 +19,11 @@ test_that("Example GATK4 data matches", {
     expect_equal(-0.004295 - offset, seg$seg.mean[1], tolerance = .0001)
     expect_equal(0.002534 - offset, seg$seg.mean[23], tolerance = .0001)
 })
+
+test_that("Missing values raise warning", {
+    seg.file <- system.file("extdata", "buggy_cnvkit.seg.gz", 
+        package = "PureCN")
+    expect_output(readSegmentationFile(seg.file, "SC_9030.tumour.recalibrated"),
+                   "Coordinates in seg.file contain missing values")
+})
+

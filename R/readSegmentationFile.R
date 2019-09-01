@@ -62,6 +62,9 @@ readSegmentationFile <- function(seg.file, sampleid, model.homozygous = FALSE,
         seg$chrom <- .strip.chr.name(seg$chrom, .getChrHash(seg$chrom))
     }    
     
+    if (any(is.na(seg$chrom) | is.na(seg$loc.start) | is.na(seg$loc.end))) {
+        flog.warn("Coordinates in seg.file contain missing values.")
+    }
     # The smallest possible log-ratio is about 8
     # for 0.99 purity and high ploidy.
     # remove artifacts with lower log-ratio

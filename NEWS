@@ -33,6 +33,7 @@ BUGFIXES
     o Fix for a bug in callMutationBurden when VCF contained indels
       (#82)
     o Die with helpful error message when snp.blacklist import failed  
+    o Check input segmentation files for missing values resulting in crash
 
     
 Changes in version 1.14.0
