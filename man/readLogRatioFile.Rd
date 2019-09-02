@@ -10,7 +10,10 @@ readLogRatioFile(file, format, zero = NULL)
 \item{file}{Log2 coverage file.}
 
 \item{format}{File format. If missing, derived from the file 
-extension. Currently GATK4 DenoiseReadCounts format supported.}
+extension. Currently GATK4 DenoiseReadCounts format supported.
+A simple GATK3-style format, two columns with coordinates
+as string in format chr:start-stop in first and log2-ratio
+in second is also supported.}
 
 \item{zero}{Start position is 0-based. Default is \code{FALSE}
 for GATK, \code{TRUE} for BED file based intervals.}

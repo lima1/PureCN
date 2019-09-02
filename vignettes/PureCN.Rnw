@@ -169,7 +169,7 @@ intervals <- import(bed.file)
 mappability <- import(mappability.file)
 
 preprocessIntervals(intervals, reference.file, 
-    mappability=mappability, output.file = "ex2_gc_file.txt")
+    mappability = mappability, output.file = "ex2_gc_file.txt")
 @
 
 A command line script described in a separate vignette provides convenient
@@ -222,17 +222,17 @@ We now load a few example files that we will use throughout this tutorial:
 library(PureCN)
 
 normal.coverage.file <- system.file("extdata", "example_normal.txt",
-    package="PureCN") 
+    package = "PureCN") 
 normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-    package="PureCN") 
+    package = "PureCN") 
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file) 
 tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN") 
+    package = "PureCN") 
 seg.file <- system.file("extdata", "example_seg.txt",
     package = "PureCN")
-vcf.file <- system.file("extdata", "example.vcf.gz", package="PureCN")
+vcf.file <- system.file("extdata", "example.vcf.gz", package = "PureCN")
 interval.file <- system.file("extdata", "example_intervals.txt", 
-    package="PureCN")
+    package = "PureCN")
 @
 
 \section{Library-specific coverage bias}
@@ -269,7 +269,7 @@ used.
 
 <<figuregccorrect, fig.show='hide', fig.width=7, fig.height=7, warning=FALSE>>=
 correctCoverageBias(normal.coverage.file, interval.file, 
-    output.file="example_normal_loess.txt", plot.bias=TRUE)
+    output.file = "example_normal_loess.txt", plot.bias = TRUE)
 @
 \incfig{figure/figuregccorrect-1}{0.95\textwidth}{Coverage before and after
 normalization for GC-content and replication timing.} 
@@ -304,7 +304,7 @@ a separate vignette):
 <<normaldb>>=
 normalDB <- createNormalDatabase(normal.coverage.files)
 # serialize, so that we need to do this only once for each assay
-saveRDS(normalDB, file="normalDB.rds")
+saveRDS(normalDB, file = "normalDB.rds")
 @
 
 Again, please make sure that all coverage files were GC-normalized prior to
@@ -421,16 +421,15 @@ snp.blacklist <- "hg19_simpleRepeats.bed"
 Finally, we can run \Biocpkg{PureCN} with all that information:
 
 <<runpurecn>>=
-ret <-runAbsoluteCN(normal.coverage.file=pool,
-# normal.coverage.file=normal.coverage.file, 
-    tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, 
-    genome="hg19", sampleid="Sample1", 
+ret <-runAbsoluteCN(normal.coverage.file = pool,
+    tumor.coverage.file = tumor.coverage.file, vcf.file = vcf.file, 
+    genome = "hg19", sampleid = "Sample1", 
     interval.file=interval.file, normalDB=normalDB,
 # args.setMappingBiasVcf=list(normal.panel.vcf.file=normal.panel.vcf.file),
 # args.filterVcf=list(snp.blacklist=snp.blacklist, 
 # stats.file=mutect.stats.file), 
-    args.segmentation=list(interval.weight.file=interval.weight.file), 
-    post.optimize=FALSE, plot.cnv=FALSE, verbose=FALSE)
+    args.segmentation = list(interval.weight.file = interval.weight.file), 
+    post.optimize = FALSE, plot.cnv = FALSE, verbose = FALSE)
 @
 
 The \Rcode{normal.coverage.file} argument points to a coverage file obtained from
@@ -467,9 +466,9 @@ We now create a few output files:
 
 <<createoutput>>=
 file.rds <- "Sample1_PureCN.rds"
-saveRDS(ret, file=file.rds)
-pdf("Sample1_PureCN.pdf", width=10, height=11)
-plotAbs(ret, type="all")
+saveRDS(ret, file = file.rds)
+pdf("Sample1_PureCN.pdf", width = 10, height = 11)
+plotAbs(ret, type = "all")
 dev.off()
 @
 
@@ -481,7 +480,7 @@ optima, sorted by final likelihood score after fitting both copy number and
 allelic fractions.
 
 <<figureexample1, fig.show='hide', fig.width=6, fig.height=6>>=
-plotAbs(ret, type="overview")
+plotAbs(ret, type = "overview")
 @
 \incfig{figure/figureexample1-1}{0.75\textwidth}{Overview.}
 {The colors visualize the copy number fitting score from low (blue) to high
@@ -493,7 +492,7 @@ this toy example was flagged due to large amount of LOH.}
 We now look at the main plots of the maximum likelihood solution in more detail.
 
 <<figureexample2, fig.show='hide', fig.width=6, fig.height=6>>=
-plotAbs(ret, 1, type="hist")
+plotAbs(ret, 1, type = "hist")
 @
 \incfig{figure/figureexample2-1}{0.75\textwidth}{Log-ratio histogram.}
 
@@ -508,7 +507,7 @@ the maximum likelihood solution align well to expected values for copy numbers
 of 0, 1, 2 and 4. 
 
 <<figureexample3, fig.show='hide', fig.width=8, fig.height=8>>=
-plotAbs(ret, 1, type="BAF")
+plotAbs(ret, 1, type = "BAF")
 @
 \incfig{figure/figureexample3-1}{0.95\textwidth}{B-allele frequency plot.}{Each
 dot is a (predicted) germline SNP. The first panel shows the allelic fractions
@@ -535,7 +534,7 @@ ploidy. We can zoom into particular chromosomes
 (Figure~\ref{figure/figureexample3b-1}).
 
 <<figureexample3b, fig.show='hide', fig.width=9, fig.height=8>>=
-plotAbs(ret, 1, type="BAF", chr="chr19")
+plotAbs(ret, 1, type = "BAF", chr = "chr19")
 @
 \incfig{figure/figureexample3b-1}{0.95\textwidth}{Chromosome plot.}{Similar
     to Figure~\ref{figure/figureexample3-1}, but zoomed into a particular 
@@ -545,7 +544,7 @@ plotAbs(ret, 1, type="BAF", chr="chr19")
     kbps.}
 
 <<figureexample4, fig.show='hide', fig.width=8, fig.height=8>>=
-plotAbs(ret, 1, type="AF")
+plotAbs(ret, 1, type = "AF")
 @
 \incfig{figure/figureexample4-1}{0.95\textwidth}{Allele fraction plots.}{Each
 dot is again a (predicted) germline SNP. The shapes visualize the different SNV
@@ -600,8 +599,8 @@ The output columns are explained in Table~\ref{tbl:predictSomatic}.
 
 To annotate the input VCF file with these values:
 <<output4>>=
-vcf <- predictSomatic(ret, return.vcf=TRUE)
-writeVcf(vcf, file="Sample1_PureCN.vcf") 
+vcf <- predictSomatic(ret, return.vcf = TRUE)
+writeVcf(vcf, file = "Sample1_PureCN.vcf") 
 @
 
 For optimal classification results:
@@ -910,9 +909,9 @@ access to the raw log2-ratio distribution\footnote{If the third-party tool
 provides target-level log2-ratios, then these can be provided via the
 \Rcode{log.ratio} argument in addition to \Rcode{seg.file} though. See also
 Section~\ref{customnorm}.}. The expected file format for already segmented copy
-number data is\footnote{This segmentation file can contain multiple samples, in
-which case the provided \Rcode{sampleid} must match a sample in the column
-\Rcode{ID}}:
+number data parsed by \Rfunction{readSegmentationFile} is\footnote{This
+segmentation file can contain multiple samples, in which case the provided
+\Rcode{sampleid} must match a sample in the column \Rcode{ID}}:
 
 \begin{verbatim}
     ID  chrom   loc.start   loc.end num.mark    seg.mean
@@ -936,18 +935,18 @@ check that the log2-ratios are similar to the ones obtained by the default
 \Biocpkg{PureCN} segmentation and normalization.
 
 <<customseg>>=
-retSegmented <- runAbsoluteCN(seg.file=seg.file, 
-    interval.file=interval.file, vcf.file=vcf.file, 
-    max.candidate.solutions=1, genome="hg19",
-    test.purity=seq(0.3,0.7,by=0.05), verbose=FALSE, 
-    plot.cnv=FALSE)
+retSegmented <- runAbsoluteCN(seg.file = seg.file, 
+    interval.file = interval.file, vcf.file = vcf.file, 
+    max.candidate.solutions = 1, genome = "hg19",
+    test.purity = seq(0.3,0.7,by = 0.05), verbose = FALSE, 
+    plot.cnv = FALSE)
 @
 
 The \Rcode{max.candidate.solutions} and \Rcode{test.purity} arguments are set
 to non-default values to reduce the runtime of this vignette. 
 
 <<figurecustombaf, fig.show='hide', fig.width=8, fig.height=8>>=
-plotAbs(retSegmented, 1, type="BAF")
+plotAbs(retSegmented, 1, type = "BAF")
 @
 \incfig{figure/figurecustombaf-1}{0.95\textwidth}{B-allele frequency plot for
 segmented data.}{This plot shows the maximum likelihood solution for an example
@@ -960,7 +959,7 @@ available.}
 If third-party tools such as \software{GATK4} are used to calculate
 target-level copy number log2-ratios, and \Biocpkg{PureCN} should be used for
 segmentation and purity/ploidy inference only, it is possible to provide these
-log2-ratios:
+log2-ratios: 
 
 <<customlogratio, message=FALSE>>=
 # We still use the log2-ratio exactly as normalized by PureCN for this
@@ -968,21 +967,41 @@ log2-ratios:
 log.ratio <- calculateLogRatio(readCoverageFile(normal.coverage.file),
     readCoverageFile(tumor.coverage.file))
 
-retLogRatio <- runAbsoluteCN(log.ratio=log.ratio,
-    interval.file=interval.file, vcf.file=vcf.file, 
-    max.candidate.solutions=1, genome="hg19",
-    test.purity=seq(0.3,0.7,by=0.05), verbose=FALSE, 
-    normalDB=normalDB, plot.cnv=FALSE)
+retLogRatio <- runAbsoluteCN(log.ratio = log.ratio,
+    interval.file = interval.file, vcf.file = vcf.file, 
+    max.candidate.solutions = 1, genome = "hg19",
+    test.purity = seq(0.3, 0.7, by = 0.05), verbose = FALSE, 
+    normalDB = normalDB, plot.cnv = FALSE)
 @
 
 Again, the \Rcode{max.candidate.solutions} and \Rcode{test.purity} arguments
-are set to non-default values to reduce the runtime of this vignette. It is
-highly recommended to compare the log2-ratios obtained by \Biocpkg{PureCN} and
-the third-party tool, since some pipelines automatically adjust log2-ratios for
-a default purity value. Note that this example uses a pool of normals to filter
+are set to non-default values to reduce the runtime of this vignette. 
+Note that this example uses a pool of normals to filter
 low quality targets. Interval coordinates are again expected in either a
-\Rcode{interval.file} or a \Rcode{tumor.coverage.file}. If a tumor coverage file is
-provided, then all targets below the coverage minimum are further excluded.
+\Rcode{interval.file} or a \Rcode{tumor.coverage.file}.
+
+The \Rfunction{readLogRatioFile} function provides support for parsing
+\software{GATK3}-style and \software{GATK4 DenoiseReadCounts} formats:
+
+\begin{verbatim}
+# GATK3-style
+Target log_ratio
+1:3682750-3683489 0.109473
+1:3690585-3691264 0.126205
+
+#GATK4
+@HD	VN:1.6
+@SQ	SN:1	LN:248956422
+@SQ	SN:2	LN:242193529
+...
+CONTIG	START	END	LOG2_COPY_RATIO
+1	3682750	3683489	0.109473
+1	3690585	3691264	0.126205
+\end{verbatim}
+
+It is highly recommended to compare the log2-ratios obtained by \Biocpkg{PureCN}
+and the third-party tool, since some pipelines automatically adjust log2-ratios
+for a default purity value. 
 
 \subsubsection{Multi-sample segmentation}
 \label{multisampleseg}
@@ -1062,7 +1081,7 @@ tumor samples. A wrapper function for this specific task is included as
 callableBed <- import(system.file("extdata", "example_callable.bed.gz", 
     package = "PureCN"))
 
-callMutationBurden(ret, callable=callableBed)
+callMutationBurden(ret, callable = callableBed)
 @
 
 The \Rcode{callableBed} file should be a file parsable by
@@ -1182,17 +1201,17 @@ somatic mutations as a function of tumor purity and sequencing coverage
 purity <- c(0.1,0.15,0.2,0.25,0.4,0.6,1)
 coverage <- seq(5,35,1)
 power <- lapply(purity, function(p) sapply(coverage, function(cv) 
-    calculatePowerDetectSomatic(coverage=cv, purity=p, ploidy=2, 
-    verbose=FALSE)$power))
+    calculatePowerDetectSomatic(coverage = cv, purity = p, ploidy = 2, 
+    verbose = FALSE)$power))
 
 # Figure S7b in Carter et al.
-plot(coverage, power[[1]], col=1, xlab="Sequence coverage", 
-    ylab="Detection power", ylim=c(0,1), type="l")
+plot(coverage, power[[1]], col = 1, xlab = "Sequence coverage", 
+    ylab = "Detection power", ylim = c(0, 1), type = "l")
 
-for (i in 2:length(power)) lines(coverage, power[[i]], col=i)
-abline(h=0.8, lty=2, col="grey")     
-legend("bottomright", legend=paste("Purity", purity),
-    fill=seq_along(purity))
+for (i in 2:length(power)) lines(coverage, power[[i]], col = i)
+abline(h = 0.8, lty = 2, col = "grey")
+legend("bottomright", legend = paste("Purity", purity),
+    fill = seq_along(purity))
 @
 \incfig{figure/power1-1}{0.95\textwidth}{Power to detect mono-clonal somatic
 mutations.}{Reproduced from \cite{Carter2012}.}
@@ -1203,15 +1222,15 @@ present in 20\% of all tumor cells:
 <<power2, fig.show='hide', fig.width=6, fig.height=6>>=
 coverage <- seq(5,350,1)
 power <- lapply(purity, function(p) sapply(coverage, function(cv) 
-    calculatePowerDetectSomatic(coverage=cv, purity=p, ploidy=2, 
-    cell.fraction=0.2, verbose=FALSE)$power))
-plot(coverage, power[[1]], col=1, xlab="Sequence coverage", 
-    ylab="Detection power", ylim=c(0,1), type="l")
+    calculatePowerDetectSomatic(coverage = cv, purity = p, ploidy = 2,
+    cell.fraction = 0.2, verbose = FALSE)$power))
+plot(coverage, power[[1]], col = 1, xlab = "Sequence coverage", 
+    ylab="Detection power", ylim = c(0, 1), type = "l")
 
-for (i in 2:length(power)) lines(coverage, power[[i]], col=i)
-abline(h=0.8, lty=2, col="grey")     
-legend("bottomright", legend=paste("Purity", purity),
-    fill=seq_along(purity))
+for (i in 2:length(power)) lines(coverage, power[[i]], col = i)
+abline(h = 0.8, lty = 2, col = "grey")
+legend("bottomright", legend = paste("Purity", purity),
+    fill = seq_along(purity))
 @
 \incfig{figure/power2-1}{0.95\textwidth}{Power to detect sub-clonal somatic
 mutations present in 20\% of all tumor cells.}{Reproduced from \cite{Carter2012}.}
@@ -1292,11 +1311,12 @@ complaints, etc. please do not hesitate to send us an email.
     \item If a pool of normal samples is available, followed the steps in
     Section~\ref{artifactfiltering}.
     \item Read the output of \Rfunction{runAbsoluteCN} with
-        \Rcode{verbose=TRUE}, fixed all warnings.
+        \Rcode{verbose = TRUE}, fixed all warnings.
     \item If third-party segmentation tools are used, checked that normalized
     log2-ratios are not biased, i.e. very similar compared to \Biocpkg{PureCN}
     log2-ratios (some pipelines already adjust for a default normal 
     contamination).
+    \item Followed the best practices described in the Quick vignette
 \end{itemize}
 
 \subsection{FAQ}
