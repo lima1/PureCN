@@ -424,7 +424,7 @@ Finally, we can run \Biocpkg{PureCN} with all that information:
 ret <-runAbsoluteCN(normal.coverage.file = pool,
     tumor.coverage.file = tumor.coverage.file, vcf.file = vcf.file, 
     genome = "hg19", sampleid = "Sample1", 
-    interval.file=interval.file, normalDB=normalDB,
+    interval.file = interval.file, normalDB = normalDB,
 # args.setMappingBiasVcf=list(normal.panel.vcf.file=normal.panel.vcf.file),
 # args.filterVcf=list(snp.blacklist=snp.blacklist, 
 # stats.file=mutect.stats.file), 
@@ -605,7 +605,7 @@ writeVcf(vcf, file = "Sample1_PureCN.vcf")
 
 For optimal classification results:
 \begin{itemize}
-    \item Set \Rcode{post.optimize=TRUE} since small inaccuracies in purity can
+    \item Set \Rcode{post.optimize = TRUE} since small inaccuracies in purity can
 decrease the classification performance significantly
     \item Provide \Rcode{args.setMappingBias} a pool of normal VCF to
         obtain position-specific mapping bias information
