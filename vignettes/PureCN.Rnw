@@ -1637,6 +1637,29 @@ approach:
         information.
 \end{description}
 
+\paragraph{Questions related to off-target reads.}
+Hybrid capture assays usually provide a significant amount of reads mapping
+outside the captured regions. This means these assays provide shallow whole
+genome sequencing data for free. \Biocpkg{PureCN} makes it straightforward
+to use that information, but it might not always make sense to do so:
+\begin{itemize}
+    \item Does the assay contain a fairly large number of big gaps (>1Mb)
+        between neighboring baits? For whole exome data or targeted panels with
+        copy number tiling probes the answer can be no.
+    \item Off-target reads are usually less affected by library-specific biases
+        (Section~\ref{secgcbias}) than on-target reads. In noisy data,
+        off-target reads can thus provide relatively clean additional
+        information.
+    \item Very efficient assays with low off-target mapping might not provide a
+        large number of reads in useful window sizes (usually below 0.2Kb),
+        especially when total sequencing coverages are rather low.
+    \item It is recommended to check the \Rfunction{runAbsoluteCN} output for
+        the standard deviations of log2 copy number ratios for both on- and
+        off-target reads. If the off-target noise is consistently larger than
+        the on-target noise, you can try increasing the off-target bin width -
+        and vice versa make it smaller when the on-target noise is larger.
+\end{itemize}
+
 \paragraph{If all or most of the samples are flagged as:}
 
 \begin{description}
