@@ -16,13 +16,14 @@ NEW FEATURES
       To run both v2 and v3, simply add --signature_databases 
       signatures.exome.cosmic.v3.may2019:signatures.cosmic to Dx.R
 
-
 SIGNIFICANT USER-VISIBLE CHANGES
 
     o Made filterTargets and createTargetWeights defunct
     o setMappingBiasVcf now returns a data.frame
     o Best practices vignette now HTML-based.
-
+    o Renamed normal.panel.vcf.file in setMappingBiasVcf to mapping.bias.file;
+      in 1.18, setMappingBiasVcf will not accept a VCF anymore but requires
+      a precomputed mapping bias RDS file.  
 
 BUGFIXES
 

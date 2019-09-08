@@ -16,7 +16,8 @@ test_that("Mapping bias without normal panel matches", {
 test_that("Mapping bias with normal panel matches", {
     normal_panel <- system.file("extdata", "normalpanel.vcf.gz", 
         package = "PureCN")
-    mb <- setMappingBiasVcf(vcf, normal.panel.vcf.file = normal_panel)
+    expect_output(mb <- setMappingBiasVcf(vcf, mapping.bias.file = normal_panel),
+                  "Providing a VCF file")
     idx <- mb$pon.count > 0
     expect_equal(head(mb$pon.count[idx], 3), c(15, 5, 27))
     expect_equal(head(mb$bias[idx], 3), c(0.3362525, 1.0002354, 
@@ -25,8 +26,6 @@ test_that("Mapping bias with normal panel matches", {
     idx <- overlapsAny(vcf, nvcf)
     expect_equal(sum(!mb$pon.count[idx] > 0), 0)
     expect_equal(sum(mb$pon.count[!idx] > 0), 0)
-    expect_error(setMappingBiasVcf(vcf, normal.panel.vcf.file = normal_panel, 
-        min.normals = 1))
 })
 
 test_that("Precomputed mapping bias matches", {

@@ -192,7 +192,7 @@ likelihood score calculation. Note that bias is reported on an inverse
 scale; a variant with mapping bias of 1 has no bias.}
 
 \item{max.pon}{Exclude variants found more than \code{max.pon} times in 
-pool of normals and not in dbSNP. Requires \code{normal.panel.vcf.file} in
+pool of normals and not in dbSNP. Requires \code{mapping.bias.file} in
 \code{\link{setMappingBiasVcf}}. Should be set to a value high enough 
 to be much more likely an artifact and not a true germline variant not
 present in dbSNP.}

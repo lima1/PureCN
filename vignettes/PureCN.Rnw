@@ -2,7 +2,7 @@
 %\VignetteEngine{knitr::knitr}
 %\VignetteDepends{PureCN}
 %\VignettePackage{PureCN}
-%\VignetteIndexEntry{PureCN overview}
+%\VignetteIndexEntry{Reference manual}
 
 \documentclass{article}
 
@@ -355,7 +355,7 @@ normal.panel.vcf.file <- system.file("extdata", "normalpanel.vcf.gz",
 
 bias <- calculateMappingBiasVcf(normal.panel.vcf.file, genome = "h19")
 saveRDS(bias, "mapping_bias.rds")
-normal.panel.vcf.file <- "mapping_bias.rds"
+mapping.bias.file <- "mapping_bias.rds"
 @
 
 \subsubsection{Coverage data}
@@ -425,9 +425,9 @@ ret <-runAbsoluteCN(normal.coverage.file = pool,
     tumor.coverage.file = tumor.coverage.file, vcf.file = vcf.file, 
     genome = "hg19", sampleid = "Sample1", 
     interval.file = interval.file, normalDB = normalDB,
-# args.setMappingBiasVcf=list(normal.panel.vcf.file=normal.panel.vcf.file),
-# args.filterVcf=list(snp.blacklist=snp.blacklist, 
-# stats.file=mutect.stats.file), 
+# args.setMappingBiasVcf=list(mapping.bias.file = mapping.bias.file),
+# args.filterVcf=list(snp.blacklist = snp.blacklist, 
+# stats.file = mutect.stats.file), 
     args.segmentation = list(interval.weight.file = interval.weight.file), 
     post.optimize = FALSE, plot.cnv = FALSE, verbose = FALSE)
 @
@@ -681,7 +681,7 @@ Requires position-specific mapping bias information to be reliable. \\
 \Rcode{on.target} & 1 for variants within intervals, 2 for variants in flanking
  regions, 0 for off-target variants \\
 \Rcode{seg.id}       & Segment id  \\
-\Rcode{pon.count}  & Number of hits in the \Rcode{normal.panel.vcf.file} \\
+\Rcode{pon.count}  & Number of hits in the \Rcode{mapping.bias.file} \\
 \Rcode{gene.symbol} & Gene symbol if available \\ 
 \bottomrule
 \end{tabular}
@@ -1548,7 +1548,7 @@ for artifact filtering. A few recommendations:
     \item Matched normals are obviously perfect for identifying most alignment
         artifacts and mapping biases. While not critical, we still recommend
         generating a \Rcode{normal.panel.vcf.file} for \software{MuTect} and
-        \Rfunction{setMappingBiasVcf} using the available normals.
+        \Rfunction{calculateMappingBiasVcf} using the available normals.
 
     \item Without matched normals, we need process-matched normals for coverage
         normalization. We recommend more than 5 from 2-3 different library

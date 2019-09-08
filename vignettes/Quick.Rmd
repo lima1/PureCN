@@ -13,7 +13,7 @@ abstract: |
     with _PureCN_. These tools implement highly recommended best practices. For
     the R package and more detailed information, see the main vignette. 
 vignette: |
-  %\VignetteIndexEntry{Quick start and command line usage}
+  %\VignetteIndexEntry{Best practices, quick start and command line usage}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -289,7 +289,7 @@ $ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
     --statsfile ${SAMPLEID}_mutect_stats.txt \
     --normaldb $OUT_REF/normalDB_hg19.rds \
-    --normal_panel $OUT_REF/mapping_bias_hg19.rds \
+    --mappingbiasfile $OUT_REF/mapping_bias_hg19.rds \
     --intervals $OUT_REF/baits_hg19_intervals.txt \
     --intervalweightfile $OUT_REF/interval_weights_hg19.txt \
     --snpblacklist hg19_simpleRepeats.bed \
@@ -420,7 +420,7 @@ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
     --tumor $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.cnr \
     --segfile $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.seg \
-    --normal_panel $OUT_REF/mapping_bias_agilent_v6_hg19.rds \
+    --mappingbiasfile $OUT_REF/mapping_bias_agilent_v6_hg19.rds \
     --vcf ${SAMPLEID}_mutect.vcf \
     --statsfile ${SAMPLEID}_mutect_stats.txt \
     --snpblacklist hg19_simpleRepeats.bed \
@@ -440,7 +440,7 @@ Important recommendations:
   the `--intervals` argument is not required.
 
 - In test runs, especially when the input VCF contains matched normal
-  information, `--normal_panel` can be skipped
+  information, `--mappingbiasfile` can be skipped
 
 
 ## Recommended _GATK4_ usage
@@ -457,7 +457,7 @@ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --tumor $OUT/$SAMPLEID/${SAMPLEID}.hdf5 \
     --logratiofile $OUT/$SAMPLEID/${SAMPLEID}.denoisedCR.tsv \
     --segfile $OUT/$SAMPLEID/${SAMPLEID}.modelFinal.seg \
-    --normal_panel $OUT_REF/mapping_bias_agilent_v6_hg19.rds \
+    --mappingbiasfile $OUT_REF/mapping_bias_agilent_v6_hg19.rds \
     --vcf ${SAMPLEID}_mutect.vcf \
     --statsfile ${SAMPLEID}_mutect_stats.txt \
     --snpblacklist hg19_simpleRepeats.bed \
@@ -574,7 +574,7 @@ Argument name          | Corresponding PureCN argument | PureCN function
 `--tumor`            | `tumor.coverage.file`     | `runAbsoluteCN` 
 `--vcf`              | `vcf.file`          | `runAbsoluteCN`   
 `--rds`              | `file.rds`          | `readCurationFile`   
-`--normal_panel`    | `normal.panel.vcf.file` | `setMappingBiasVcf` 
+`--mappingbiasfile`  | `mapping.bias.file` | `setMappingBiasVcf` 
 `--normaldb`         | `normalDB` (serialized with `saveRDS`) | `calculateTangentNormal`, `filterTargets` 
 `--segfile`          | `seg.file`           | `runAbsoluteCN`  
 `--logratiofile`     | `log.ratio`          | `runAbsoluteCN`  
