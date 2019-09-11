@@ -2,7 +2,7 @@
 %\VignetteEngine{knitr::knitr}
 %\VignetteDepends{PureCN}
 %\VignettePackage{PureCN}
-%\VignetteIndexEntry{Reference manual}
+%\VignetteIndexEntry{Overview of the PureCN R package}
 
 \documentclass{article}
 
@@ -1645,14 +1645,16 @@ to use that information, but it might not always make sense to do so:
 \begin{itemize}
     \item Does the assay contain a fairly large number of big gaps (>1Mb)
         between neighboring baits? For whole exome data or targeted panels with
-        copy number tiling probes the answer can be no.
+        copy number tiling probes, the answer can be no.
     \item Off-target reads are usually less affected by library-specific biases
         (Section~\ref{secgcbias}) than on-target reads. In noisy data,
         off-target reads can thus provide relatively clean additional
         information.
     \item Very efficient assays with low off-target mapping might not provide a
         large number of reads in useful window sizes (usually below 0.2Kb),
-        especially when total sequencing coverages are rather low.
+        especially when total sequencing coverages are rather low. This can
+        result in off-target data that are significantly noisier than
+        on-target data.
     \item It is recommended to check the \Rfunction{runAbsoluteCN} output for
         the standard deviations of log2 copy number ratios for both on- and
         off-target reads. If the off-target noise is consistently larger than
@@ -1671,7 +1673,7 @@ to use that information, but it might not always make sense to do so:
         aggressive segmentation parameters when the number of segments exceeds
         this cutoff. If the high segment count is real, this might confound
         downstream analyses.
-    \item[High AT/GC dropout:] If the data is GC-normalized, then there might be
+    \item[High AT/GC dropout:] If the data are GC-normalized, then there might be
         issues with either the target intervals or the provided GC content.
         Please double check that all files are correct and that all the coverage
         files are GC-normalized (Section~\ref{secgcbias}).
