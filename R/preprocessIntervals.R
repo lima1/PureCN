@@ -60,7 +60,7 @@
 #'     output.file="gc_file.txt")
 #' 
 #' @export preprocessIntervals
-#' @importFrom BiocGenerics unstrand
+#' @importFrom BiocGenerics unstrand score
 #' @importFrom Biostrings letterFrequency
 #' @importFrom GenomeInfoDb seqlengths seqlevelsInUse seqlevels<- seqlengths<-
 #' @importFrom GenomicRanges tileGenome

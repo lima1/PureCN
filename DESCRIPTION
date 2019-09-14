@@ -3,7 +3,7 @@ Type: Package
 Title: Copy number calling and SNV classification using
     targeted short read sequencing
 Version: 1.15.17
-Date: 2019-09-10
+Date: 2019-09-14
 Authors@R: c(person("Markus", "Riester", role=c("aut", "cre"),
         email="markus.riester@novartis.com"),
     person("Angad P.", "Singh", role="aut"))
