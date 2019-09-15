@@ -4,9 +4,11 @@ Title: Copy number calling and SNV classification using
     targeted short read sequencing
 Version: 1.15.17
 Date: 2019-09-14
-Authors@R: c(person("Markus", "Riester", role=c("aut", "cre"),
-        email="markus.riester@novartis.com"),
-    person("Angad P.", "Singh", role="aut"))
+Authors@R: c(person("Markus", "Riester",
+                    role=c("aut", "cre"),
+                    email="markus.riester@novartis.com",
+                    comment = c(ORCID = "0000-0002-4759-8332")),
+             person("Angad P.", "Singh", role="aut"))
 Description: This package estimates tumor purity, copy number, and loss of
     heterozygosity (LOH), and classifies single nucleotide variants (SNVs) by
     somatic status and clonality. PureCN is designed for targeted short read
