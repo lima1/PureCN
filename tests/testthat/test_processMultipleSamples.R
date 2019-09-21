@@ -14,8 +14,8 @@ test_that("example output correct", {
 	tumor.coverage.files <- c(tumor1.coverage.file, tumor2.coverage.file)
 	normalDB <- createNormalDatabase(normal.coverage.files)
     interval.weight.file <- tempfile(fileext = ".txt")
-	calculateIntervalWeights(normal.coverage.files, interval.weight.file)
-    pool <- calculateTangentNormal(tumor1.coverage.file, normalDB)                                                                  
+	calculateIntervalWeights(normalDB, interval.weight.file)
+    pool <- calculateTangentNormal(tumor1.coverage.file, normalDB)
 
 	seg <- processMultipleSamples(tumor.coverage.files,
 			 sampleids = c("Sample1", "Sample2"),

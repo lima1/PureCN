@@ -65,8 +65,8 @@ interval.weight.file <- "interval_weights.txt"
 normal.coverage.files <- c(normal1.coverage.file, normal2.coverage.file)
 tumor.coverage.files <- c(tumor1.coverage.file, tumor2.coverage.file)
 
-calculateIntervalWeights(normal.coverage.files, interval.weight.file)
 normalDB <- createNormalDatabase(normal.coverage.files)
+calculateIntervalWeights(normalDB, interval.weight.file)
 
 seg <- processMultipleSamples(tumor.coverage.files, 
          sampleids = c("Sample1", "Sample2"),

@@ -102,7 +102,7 @@ if (length(coverageFiles) > 3) {
         outpng.file <- sub("txt$", "png", interval.weight.file)
         flog.info("Creating target weights.")
         png(outpng.file, width = 800, height = 400)
-        calculateIntervalWeights(normalDB$normal.coverage.files, 
+        calculateIntervalWeights(normalDB, 
             interval.weight.file, plot = TRUE)
         dev.off()
    }     

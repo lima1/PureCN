@@ -7,10 +7,14 @@
 #' thus down-weighted.
 #' 
 #' 
-#' @param normal.coverage.files A set of normal coverage samples
-#' to estimate target log-ratio standard deviations. 
+#' @param normalDB Database of normal samples, created with
+#' \code{\link{createNormalDatabase}}.
 #' @param interval.weight.file Output filename.
+#' @param top.quantile Cap weight at the specified quantile. Intervals
+#' with standard deviation smaller than this value won't have a higher weight
+#' than intervals at this quantile.
 #' @param plot Diagnostics plot, useful to tune parameters.
+#' @param normal.coverage.files Deprecated.
 #' @return A \code{data.frame} with interval weights.
 #' @author Markus Riester
 #' @examples
@@ -21,20 +25,38 @@
 #' normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
 #'     package="PureCN")
 #' normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+#' normalDB <- createNormalDatabase(normal.coverage.files)
 #' 
-#' calculateIntervalWeights(normal.coverage.files, interval.weight.file)
+#' calculateIntervalWeights(normalDB, interval.weight.file)
 #' 
 #' @export calculateIntervalWeights
-calculateIntervalWeights <- function(normal.coverage.files,
-interval.weight.file, plot = FALSE) {
+calculateIntervalWeights <- function(normalDB,
+interval.weight.file, top.quantile = 0.8, plot = FALSE, 
+normal.coverage.files = NULL) {
+    # TODO, defunct in 1.18
+    old_method <- FALSE
+    if (!is.null(normal.coverage.files) && missing(normalDB)) {
+        flog.warn("normal.coverage.files is deprecated, provide normalDB instead.")
+        old_method = TRUE
+    } else if (class(normalDB) == "character" && all(sapply(normalDB, file.exists)))  {
+        flog.warn("Providing normal coverage files is deprecated. Provide a normalDB instead.")
+        normal.coverage.files <- normalDB
+        old_method = TRUE
+    } else {
+        normal.coverage.files <- normalDB[["normal.coverage.files"]]
+    }    
     flog.info("Loading coverage data...")
     normal.coverage <- lapply(normal.coverage.files,  readCoverageFile)
     
     tumor.coverage <- list(poolCoverage(normal.coverage, 
         w = rep(1, length(normal.coverage)) / length(normal.coverage)))
 
-    lrs <- lapply(tumor.coverage, function(tc) sapply(normal.coverage, 
-            function(nc) calculateLogRatio(nc, tc)))
+    if (old_method) {
+        lrs <- lapply(tumor.coverage, function(tc) sapply(normal.coverage, 
+                function(nc) calculateLogRatio(nc, tc)))
+    } else {
+        lrs <- lapply(normal.coverage, function(x) calculateTangentNormal(x, normalDB)$log.ratio)
+    }
 
     lrs <- do.call(cbind, lrs)
 
@@ -42,9 +64,9 @@ interval.weight.file, plot = FALSE) {
 
     lrs.sd <- apply(lrs, 1, sd, na.rm = TRUE)
     lrs.cnt.na <- apply(lrs, 1, function(x) sum(is.na(x)))
-    # get the 70% of sd by chromosome and use this to normalize weight=1
+    # get the 80% of sd by chromosome and use this to normalize weight=1
     chrom <-  as.character(seqnames(tumor.coverage[[1]]))
-    sdCutoffByChr <- sapply(split(lrs.sd, chrom), quantile, probs = 0.7, 
+    sdCutoffByChr <- sapply(split(lrs.sd, chrom), quantile, probs = top.quantile, 
         names = FALSE, na.rm = TRUE)[chrom]
 
     zz <- sdCutoffByChr / lrs.sd

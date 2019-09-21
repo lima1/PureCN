@@ -17,9 +17,9 @@ data(purecn.example.output)
 
 test_that("VCF is not necessary to produce output", {
     set.seed(123)
+    normalDB <- createNormalDatabase(normal.coverage.files)
     interval.weight.file <- tempfile(fileext = ".txt")
-    calculateIntervalWeights(normal.coverage.files,
-        interval.weight.file)
+    calculateIntervalWeights(normalDB, interval.weight.file)
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
         tumor.coverage.file = tumor.coverage.file,
         candidates = purecn.example.output$candidates,

@@ -24,6 +24,8 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Renamed normal.panel.vcf.file in setMappingBiasVcf to mapping.bias.file;
       in 1.18, setMappingBiasVcf will not accept a VCF anymore but requires
       a precomputed mapping bias RDS file.  
+    o calculateIntervalWeights now takes the normalDB RDS file instead
+      of a vector of normal coverage files  
 
 BUGFIXES
 

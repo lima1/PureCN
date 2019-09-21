@@ -4,16 +4,22 @@
 \alias{calculateIntervalWeights}
 \title{Calculate interval weights}
 \usage{
-calculateIntervalWeights(normal.coverage.files, interval.weight.file,
-  plot = FALSE)
+calculateIntervalWeights(normalDB, interval.weight.file,
+  top.quantile = 0.8, plot = FALSE, normal.coverage.files = NULL)
 }
 \arguments{
-\item{normal.coverage.files}{A set of normal coverage samples
-to estimate target log-ratio standard deviations.}
+\item{normalDB}{Database of normal samples, created with
+\code{\link{createNormalDatabase}}.}
 
 \item{interval.weight.file}{Output filename.}
 
+\item{top.quantile}{Cap weight at the specified quantile. Intervals
+with standard deviation smaller than this value won't have a higher weight
+than intervals at this quantile.}
+
 \item{plot}{Diagnostics plot, useful to tune parameters.}
+
+\item{normal.coverage.files}{Deprecated.}
 }
 \value{
 A \code{data.frame} with interval weights.
@@ -33,8 +39,9 @@ normal.coverage.file <- system.file("extdata", "example_normal.txt",
 normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
     package="PureCN")
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+normalDB <- createNormalDatabase(normal.coverage.files)
 
-calculateIntervalWeights(normal.coverage.files, interval.weight.file)
+calculateIntervalWeights(normalDB, interval.weight.file)
 
 }
 \author{
