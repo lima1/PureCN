@@ -31,7 +31,7 @@
 #' 
 #' @export calculateIntervalWeights
 calculateIntervalWeights <- function(normalDB,
-interval.weight.file, top.quantile = 0.8, plot = FALSE, 
+interval.weight.file, top.quantile = 0.7, plot = FALSE, 
 normal.coverage.files = NULL) {
     # TODO, defunct in 1.18
     old_method <- FALSE

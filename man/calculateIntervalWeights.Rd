@@ -5,7 +5,7 @@
 \title{Calculate interval weights}
 \usage{
 calculateIntervalWeights(normalDB, interval.weight.file,
-  top.quantile = 0.8, plot = FALSE, normal.coverage.files = NULL)
+  top.quantile = 0.7, plot = FALSE, normal.coverage.files = NULL)
 }
 \arguments{
 \item{normalDB}{Database of normal samples, created with
