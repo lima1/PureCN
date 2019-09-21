@@ -349,7 +349,7 @@ Important recommendations:
   most samples. A few common cases where changing defaults makes sense:
 
     - High purity and high quality: For cancer types with a high expected
-      purity, such as Ovarian cancer, AND when quality is expected to be very
+      purity, such as ovarian cancer, AND when quality is expected to be very
       good (high coverage, young samples), `--maxcopynumber 8`
 
     - Small panels with high coverage: `--padding 100` (or higher), requires
@@ -401,8 +401,7 @@ See the main vignette for more details and file formats.
 ## Recommended _CNVkit_ usage
 
 For a production pipeline run we provide again more information about the assay
-and genome. Here an _CNVkit_ example (_CNVkit_ runs without normal reference
-samples are not recommended):
+and genome. Here an _CNVkit_ example: 
 
 ```
 # Recommended: Provide a normal panel VCF to remove mapping biases, pre-compute
@@ -442,6 +441,7 @@ Important recommendations:
 - In test runs, especially when the input VCF contains matched normal
   information, `--mappingbiasfile` can be skipped
 
+- _CNVkit_ runs without normal reference samples are not recommended
 
 ## Recommended _GATK4_ usage
 
@@ -488,7 +488,8 @@ Rscript $PureCN/Dx.R --out $OUT/$SAMPLEID/$SAMPLEID \
     --rds $OUT/SAMPLEID/${SAMPLEID}.rds \
     --callable ${SAMPLEID}_callable_status_filtered.bed \
     --exclude hg19_simpleRepeats.bed \
-    --signatures
+    --signatures \
+    --signature_databases signatures.exome.cosmic.v3.may2019
 
 # Restrict mutation burden calculation to coding sequences
 Rscript $PureCN/FilterCallableLoci.R --genome hg19 \
