@@ -6,7 +6,7 @@
 \usage{
 createNormalDatabase(normal.coverage.files, sex = NULL,
   coverage.outliers = c(0.25, 4), min.coverage = 0.25,
-  max.missing = 0.03, low.coverage = 15, ...)
+  max.missing = 0.03, low.coverage = 15, plot = FALSE, ...)
 }
 \arguments{
 \item{normal.coverage.files}{Vector with file names pointing to 
@@ -28,6 +28,8 @@ specified fraction of normal samples.}
 
 \item{low.coverage}{Specifies the maximum number of total reads 
 (NOT average coverage) to call a target low coverage.}
+
+\item{plot}{Diagnostics plot, useful to tune parameters.}
 
 \item{\dots}{Arguments passed to the \code{prcomp} function.}
 }

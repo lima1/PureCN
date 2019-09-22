@@ -18,17 +18,14 @@ data(purecn.example.output)
 test_that("VCF is not necessary to produce output", {
     set.seed(123)
     normalDB <- createNormalDatabase(normal.coverage.files)
-    interval.weight.file <- tempfile(fileext = ".txt")
-    calculateIntervalWeights(normalDB, interval.weight.file)
+    expect_true(!is.null(normalDB$sd))    
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
         tumor.coverage.file = tumor.coverage.file,
         candidates = purecn.example.output$candidates,
         genome = "hg19",
-        args.segmentation = list(interval.weight.file = interval.weight.file),
         test.purity = seq(0.4, 0.7, by = 0.05), min.ploidy = 1.5, 
         max.ploidy = 2.4, max.candidate.solutions = 1, 
         BPPARAM=BiocParallel::bpparam())
-    file.remove(interval.weight.file)
 
     tmpFile <- tempfile(fileext = ".rds")
     saveRDS(ret, tmpFile)

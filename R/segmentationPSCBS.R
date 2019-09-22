@@ -13,10 +13,12 @@
 #' will contain this segmentation. Useful for minimal segmentation functions.
 #' Otherwise PureCN will re-segment the data. This segmentation function
 #' ignores this user provided segmentation.
+#' @param normalDB Normal database, created with
+#' \code{\link{createNormalDatabase}}. 
 #' @param plot.cnv Segmentation plots.
 #' @param sampleid Sample id, used in output files.
 #' @param interval.weight.file Can be used to assign weights to intervals. 
-#' Currently requires patched version of PSCBS.
+#' Currently requires patched version of PSCBS. Deprecated.
 #' @param weight.flag.pvalue Flag values with one-sided p-value smaller than
 #' this cutoff.
 #' @param alpha Alpha value for CBS, see documentation for the \code{segment}
@@ -76,7 +78,7 @@
 #'      test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 #' 
 #' @export segmentationPSCBS
-segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
+segmentationPSCBS <- function(normal, tumor, log.ratio, seg, normalDB = NULL, plot.cnv, 
     sampleid, interval.weight.file = NULL, weight.flag.pvalue = 0.01, alpha = 0.005, 
     undo.SD = NULL, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
     tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
@@ -90,12 +92,12 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
 
     interval.weights <- rep(1, length(tumor))
-    well.covered.exon.idx <- rep(TRUE, length(tumor))
-
+    # TODO defunct in 1.18
     if (!is.null(interval.weight.file)) {
-        interval.weights <- read.delim(interval.weight.file, as.is=TRUE)
-        interval.weights <- interval.weights[match(as.character(tumor), 
-            interval.weights[,1]),2]
+        normalDB <- .add_weights_to_normaldb(interval.weight.file, normalDB)
+    }
+    if (!is.null(normalDB$sd$weights)) {
+        interval.weights <- subsetByOverlaps(normalDB$sd$weights, tumor)$weights
         flog.info("Interval weights found, will use weighted PSCBS.")
     }
 

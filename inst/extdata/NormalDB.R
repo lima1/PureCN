@@ -81,7 +81,11 @@ if (length(coverageFiles)) {
     } else {
         suppressPackageStartupMessages(library(PureCN))
         flog.info("Creating normalDB. Assuming coverage files are GC-normalized.")
-        normalDB <- createNormalDatabase(coverageFiles)
+        interval.weight.png <- .getFileName(outdir,"interval_weights",".png", assay, 
+            genome)
+        png(interval.weight.png, width = 800, height = 400)
+        normalDB <- createNormalDatabase(coverageFiles, plot = TRUE)
+        dev.off()
         saveRDS(normalDB, file = output.file)
         if (length(normalDB$low.coverage.targets) > 0) {
             output.low.coverage.file <- .getFileName(outdir,"low_coverage_targets",".bed", assay, genome)
@@ -90,23 +94,3 @@ if (length(coverageFiles)) {
         }
     }
 }
-
-if (length(coverageFiles) > 3) {
-    interval.weight.file <- .getFileName(outdir,"interval_weights",".txt", assay, 
-        genome)
-    if (file.exists(interval.weight.file) && !opt$force) {
-        flog.info("%s already exists. Skipping... (--force will overwrite)",
-            interval.weight.file)
-    } else {
-        suppressPackageStartupMessages(library(PureCN))
-        outpng.file <- sub("txt$", "png", interval.weight.file)
-        flog.info("Creating target weights.")
-        png(outpng.file, width = 800, height = 400)
-        calculateIntervalWeights(normalDB, 
-            interval.weight.file, plot = TRUE)
-        dev.off()
-   }     
-} else {
-    flog.warn("Not enough coverage files for creating interval_weights.txt")
-}
-

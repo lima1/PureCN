@@ -13,9 +13,11 @@
 #' will contain this segmentation. Useful for minimal segmentation functions.
 #' Otherwise PureCN will re-segment the data. This segmentation function
 #' ignores this user provided segmentation.
+#' @param normalDB Normal database, created with
+#' \code{\link{createNormalDatabase}}. 
 #' @param plot.cnv Segmentation plots.
 #' @param sampleid Sample id, used in output files.
-#' @param interval.weight.file Can be used to assign weights to intervals.
+#' @param interval.weight.file Deprecated.
 #' @param weight.flag.pvalue Flag values with one-sided p-value smaller than
 #' this cutoff.
 #' @param alpha Alpha value for CBS, see documentation for the \code{segment}
@@ -71,7 +73,7 @@
 #' 
 #' @export segmentationCBS
 #' @importFrom stats t.test hclust cutree dist
-segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
+segmentationCBS <- function(normal, tumor, log.ratio, seg, normalDB = NULL, plot.cnv, 
     sampleid, interval.weight.file = NULL, weight.flag.pvalue = 0.01, alpha = 0.005, 
     undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
     max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
@@ -80,10 +82,12 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
     
     interval.weights <- NULL
+    # TODO defunct in 1.18
     if (!is.null(interval.weight.file)) {
-        interval.weights <- read.delim(interval.weight.file, as.is=TRUE)
-        interval.weights <- interval.weights[match(as.character(tumor), 
-            interval.weights[,1]),2]
+        normalDB <- .add_weights_to_normaldb(interval.weight.file, normalDB)
+    }
+    if (!is.null(normalDB$sd$weights)) {
+        interval.weights <- subsetByOverlaps(normalDB$sd$weights, tumor)$weights
         flog.info("Interval weights found, will use weighted CBS.")
     }
     x <- .CNV.analyze2(normal, tumor, log.ratio = log.ratio,
@@ -423,11 +427,12 @@ plot.cnv=TRUE, max.segments=NULL, chr.hash=chr.hash) {
     seg
 }    
 
-.getAverageWeightPV <- function(seg, weights, perm = 1000) {
+.getAverageWeightPV <- function(seg, weights, perm = 2000) {
     num_marks <- sort(unique(seg$num.mark))
     .do_permutation <- function(i, l) {
-        if (length(weights) < i + l - 1) i <- length(weights) - l + 1
-        mean(weights[seq(i, min(length(weights), i+l-1))], na.rm = TRUE)
+        if (l > 25) return(0)
+        i <- if (length(weights) < i + l - 1) length(weights) - l + 1 else i
+        mean(weights[seq(i,i+l-1)], na.rm = TRUE)
     }
 
     permutations <- lapply(num_marks, function(l) 
@@ -436,4 +441,3 @@ plot.cnv=TRUE, max.segments=NULL, chr.hash=chr.hash) {
     sapply(seq(nrow(seg)), function(i) 
         sum(seg$seg.weight[i] > permutations[[as.character(seg$num.mark[i])]]) / perm)
 }
-    

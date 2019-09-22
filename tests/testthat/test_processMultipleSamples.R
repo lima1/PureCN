@@ -13,14 +13,11 @@ test_that("example output correct", {
 	normal.coverage.files <- c(normal1.coverage.file, normal2.coverage.file)
 	tumor.coverage.files <- c(tumor1.coverage.file, tumor2.coverage.file)
 	normalDB <- createNormalDatabase(normal.coverage.files)
-    interval.weight.file <- tempfile(fileext = ".txt")
-	calculateIntervalWeights(normalDB, interval.weight.file)
     pool <- calculateTangentNormal(tumor1.coverage.file, normalDB)
 
 	seg <- processMultipleSamples(tumor.coverage.files,
 			 sampleids = c("Sample1", "Sample2"),
 			 normalDB = normalDB,
-			 interval.weight.file = interval.weight.file,
 			 genome = "hg19")
     expect_equal(c("Sample1", "Sample2"), levels(seg[,1]))
     seg.file <- tempfile(fileext = ".seg")
@@ -33,6 +30,4 @@ test_that("example output correct", {
         genome = "hg19", min.ploidy = 1.5, max.ploidy = 2.1, 
         test.purity = seq(0.4, 0.7, by = 0.05), sampleid = "Sample1")
     expect_equal(0.65, ret$results[[1]]$purity)
-
-    file.remove(interval.weight.file)
 })

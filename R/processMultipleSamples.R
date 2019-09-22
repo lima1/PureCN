@@ -12,7 +12,8 @@
 #' @param genome Genome version, for example hg19. Needed to get centromere
 #' positions.
 #' @param plot.cnv Segmentation plots.
-#' @param interval.weight.file Can be used to assign weights to intervals.
+#' @param interval.weight.file Deprecated. For \code{normalDB} objects generated
+#' with PureCN versions older than 1.16, re-run \code{\link{createNormalDatabase}}.
 #' @param min.interval.weight Can be used to ignore intervals with low weights.
 #' @param w Weight of samples. Can be used to downweight poor quality samples.
 #' If \code{NULL}, sets to inverse of median on-target duplication rate if
@@ -43,17 +44,14 @@
 #' tumor2.coverage.file <- system.file("extdata", "example_tumor2.txt",
 #'     package="PureCN")
 #'
-#' interval.weight.file <- "interval_weights.txt"
 #' normal.coverage.files <- c(normal1.coverage.file, normal2.coverage.file)
 #' tumor.coverage.files <- c(tumor1.coverage.file, tumor2.coverage.file)
 #'
 #' normalDB <- createNormalDatabase(normal.coverage.files)
-#' calculateIntervalWeights(normalDB, interval.weight.file)
 #'
 #' seg <- processMultipleSamples(tumor.coverage.files, 
 #'          sampleids = c("Sample1", "Sample2"),
 #'          normalDB = normalDB,
-#'          interval.weight.file = interval.weight.file,
 #'          genome = "hg19")
 #'
 #' @export processMultipleSamples
@@ -71,16 +69,22 @@ processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,
 
     interval.weights <- NULL
     intervalsUsed <- rep(TRUE, length(tumors[[1]]))
-    if (!is.null(interval.weight.file) && !is.null(min.interval.weight)) {
-        interval.weights <- read.delim(interval.weight.file, as.is=TRUE)
-        interval.weights <- interval.weights[match(as.character(tumors[[1]]), 
-            interval.weights[,1]),2]
-         flog.info("Interval weights found, but currently not supported by copynumber. %s",
+    # TODO defunct in 1.18
+    if (!is.null(interval.weight.file) && 
+        !is.null(min.interval.weight)) {
+        normalDB <- .add_weights_to_normaldb(interval.weight.file, normalDB)
+    }    
+    if (!is.null(normalDB$sd$weights) && !is.null(min.interval.weight)) {
+       interval.weights <- normalDB$sd$weights$weights
+       if (length(interval.weights) != length(tumors[[1]])) {
+            # should not happen because it is checked upstream
+            .stopRuntimeError("interval.weights and tumors does not align.")
+       }    
+       flog.info("Interval weights found, but currently not supported by copynumber. %s",
             "Will simply exclude intervals with low weight.")
-        lowWeightIntervals <- interval.weights < min.interval.weight
-        intervalsUsed[which(lowWeightIntervals)] <- FALSE
+       lowWeightIntervals <- interval.weights < min.interval.weight
+       intervalsUsed[which(lowWeightIntervals)] <- FALSE
     }
-
     #MR: fix for missing chrX/Y 
     intervalsUsed[is.na(intervalsUsed)] <- FALSE
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumors[[1]]))
@@ -131,3 +135,17 @@ processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,
     m
 }
 
+.add_weights_to_normaldb <- function(interval.weight.file, normalDB = NULL) {
+    flog.warn("interval.weight.file is deprecated.")
+    if (!is.null(normalDB$sd$weights)) return(normalDB)
+        
+    interval.weights <- read.delim(interval.weight.file, as.is = TRUE)
+    if (!is.null(normalDB)) {
+        interval.weights <- interval.weights[match(normalDB$intervals, 
+            interval.weights[,1]),]
+    }    
+    weights <- GRanges(interval.weights[,1],,, DataFrame(weights = interval.weights[,2]))
+    if (is.null(normalDB)) normalDB <- list()
+    normalDB$sd$weights <- weights
+    normalDB
+}            

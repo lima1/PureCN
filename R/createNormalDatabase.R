@@ -18,6 +18,7 @@
 #' specified fraction of normal samples.
 #' @param low.coverage Specifies the maximum number of total reads 
 #' (NOT average coverage) to call a target low coverage.
+#' @param plot Diagnostics plot, useful to tune parameters.
 #' @param \dots Arguments passed to the \code{prcomp} function.
 #' @return A normal database that can be used in the
 #' \code{\link{calculateTangentNormal}} function to retrieve a coverage
@@ -36,8 +37,8 @@
 #' @export createNormalDatabase
 #' @importFrom Matrix tcrossprod
 createNormalDatabase <- function(normal.coverage.files, sex = NULL,
-coverage.outliers = c(0.25, 4), 
-min.coverage = 0.25, max.missing = 0.03, low.coverage = 15, ...) {
+coverage.outliers = c(0.25, 4), min.coverage = 0.25,
+max.missing = 0.03, low.coverage = 15, plot = FALSE, ...) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
     normals <- .readNormals(normal.coverage.files)
 
@@ -105,7 +106,7 @@ min.coverage = 0.25, max.missing = 0.03, low.coverage = 15, ...) {
         fraction.missing[!normals[[1]]$on.target] <- groups[[2]]$fraction.missing
     }
         
-    list(
+    normalDB <- list(
         normal.coverage.files = normal.coverage.files,
         intervals = as.character(normals[[1]]),
         groups = groups,
@@ -114,6 +115,8 @@ min.coverage = 0.25, max.missing = 0.03, low.coverage = 15, ...) {
         low.coverage.targets = low.coverage.targets,
         version = 7
     )
+    normalDB <- .calculateIntervalWeights(normalDB, plot = plot)
+    normalDB
 }
 
 .warnLowCoverageTargets <- function(counts, intervals, low.coverage) {

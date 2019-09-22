@@ -4,8 +4,8 @@
 \alias{segmentationCBS}
 \title{CBS segmentation}
 \usage{
-segmentationCBS(normal, tumor, log.ratio, seg, plot.cnv, sampleid,
-  interval.weight.file = NULL, weight.flag.pvalue = 0.01,
+segmentationCBS(normal, tumor, log.ratio, seg, normalDB = NULL, plot.cnv,
+  sampleid, interval.weight.file = NULL, weight.flag.pvalue = 0.01,
   alpha = 0.005, undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1,
   normal.id.in.vcf = NULL, max.segments = NULL,
   prune.hclust.h = NULL, prune.hclust.method = "ward.D",
@@ -24,11 +24,14 @@ will contain this segmentation. Useful for minimal segmentation functions.
 Otherwise PureCN will re-segment the data. This segmentation function
 ignores this user provided segmentation.}
 
+\item{normalDB}{Normal database, created with
+\code{\link{createNormalDatabase}}.}
+
 \item{plot.cnv}{Segmentation plots.}
 
 \item{sampleid}{Sample id, used in output files.}
 
-\item{interval.weight.file}{Can be used to assign weights to intervals.}
+\item{interval.weight.file}{Deprecated.}
 
 \item{weight.flag.pvalue}{Flag values with one-sided p-value smaller than
 this cutoff.}

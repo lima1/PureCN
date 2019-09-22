@@ -409,8 +409,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     args.filterIntervals <- c(list(normal=normal, tumor = tumor, 
         log.ratio = log.ratio, seg.file = seg.file, 
         normalDB = normalDB), args.filterIntervals)
-    # not needed anymore
-    normalDB <- NULL
     # make it possible to provide different coverages for the different
     # filters 
     if (is.null(args.filterIntervals$min.coverage)) {
@@ -553,10 +551,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         if (is.null(vcf)) NULL else seqlevelsStyle(vcf))
     
     args.segmentation <- c(list(normal = normal, tumor = tumor, log.ratio = log.ratio, 
-        seg = segProvided, plot.cnv = plot.cnv,  
+        seg = segProvided, normalDB = normalDB, plot.cnv = plot.cnv,  
         sampleid = sampleid, vcf = vcf.germline, tumor.id.in.vcf = tumor.id.in.vcf, 
         normal.id.in.vcf = normal.id.in.vcf, max.segments = max.segments, chr.hash = chr.hash, 
         centromeres = centromeres), args.segmentation)
+    # not needed anymore
+    normalDB <- NULL
     
     vcf.germline <- NULL
     seg <- do.call(fun.segmentation,

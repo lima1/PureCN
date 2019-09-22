@@ -4,7 +4,7 @@
 \alias{calculateIntervalWeights}
 \title{Calculate interval weights}
 \usage{
-calculateIntervalWeights(normalDB, interval.weight.file,
+calculateIntervalWeights(normalDB, interval.weight.file = NULL,
   top.quantile = 0.7, plot = FALSE, normal.coverage.files = NULL)
 }
 \arguments{
@@ -22,7 +22,9 @@ than intervals at this quantile.}
 \item{normal.coverage.files}{Deprecated.}
 }
 \value{
-A \code{data.frame} with interval weights.
+A normalDB object with following slots added
+\item{sd$log.ratios}{\code{GRanges} with all log.ratios.}
+\item{sd$weights}{\code{GRanges} with interval weights.}
 }
 \description{
 Creates an interval weight file useful for segmentation. Requires a set of 
@@ -31,18 +33,9 @@ set proportional to the inverse of coverage standard deviation across all
 normals. Intervals with high variance in coverage in the pool of normals are
 thus down-weighted.
 }
-\examples{
-
-interval.weight.file <- "interval_weights.txt"
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-    package="PureCN")
-normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
-normalDB <- createNormalDatabase(normal.coverage.files)
-
-calculateIntervalWeights(normalDB, interval.weight.file)
-
+\details{
+This function is now automatically called by \code{\link{createNormalDatabase}}
+and is thus deprecated.
 }
 \author{
 Markus Riester

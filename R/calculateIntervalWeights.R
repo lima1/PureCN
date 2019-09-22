@@ -6,6 +6,8 @@
 #' normals. Intervals with high variance in coverage in the pool of normals are
 #' thus down-weighted.
 #' 
+#' This function is now automatically called by \code{\link{createNormalDatabase}}
+#' and is thus deprecated.
 #' 
 #' @param normalDB Database of normal samples, created with
 #' \code{\link{createNormalDatabase}}.
@@ -15,23 +17,22 @@
 #' than intervals at this quantile.
 #' @param plot Diagnostics plot, useful to tune parameters.
 #' @param normal.coverage.files Deprecated.
-#' @return A \code{data.frame} with interval weights.
+#' @return A normalDB object with following slots added
+#' \item{sd$log.ratios}{\code{GRanges} with all log.ratios.}
+#' \item{sd$weights}{\code{GRanges} with interval weights.}
 #' @author Markus Riester
-#' @examples
-#' 
-#' interval.weight.file <- "interval_weights.txt"
-#' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-#'     package="PureCN")
-#' normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-#'     package="PureCN")
-#' normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
-#' normalDB <- createNormalDatabase(normal.coverage.files)
-#' 
-#' calculateIntervalWeights(normalDB, interval.weight.file)
 #' 
 #' @export calculateIntervalWeights
 calculateIntervalWeights <- function(normalDB,
-interval.weight.file, top.quantile = 0.7, plot = FALSE, 
+interval.weight.file = NULL, top.quantile = 0.7, plot = FALSE, 
+normal.coverage.files = NULL) {
+    .Deprecated("createNormalDatabase")
+    .calculateIntervalWeights(normalDB, interval.weight.file, top.quantile,
+        plot, normal.coverage.files) 
+}    
+
+.calculateIntervalWeights <- function(normalDB,
+interval.weight.file = NULL, top.quantile = 0.7, plot = FALSE, 
 normal.coverage.files = NULL) {
     # TODO, defunct in 1.18
     old_method <- FALSE
@@ -62,10 +63,13 @@ normal.coverage.files = NULL) {
 
     lrs[is.infinite(lrs)] <- NA
 
+    intervals <- normal.coverage[[1]]
+    mcols(intervals) <- NULL
+
     lrs.sd <- apply(lrs, 1, sd, na.rm = TRUE)
     lrs.cnt.na <- apply(lrs, 1, function(x) sum(is.na(x)))
     # get the 80% of sd by chromosome and use this to normalize weight=1
-    chrom <-  as.character(seqnames(tumor.coverage[[1]]))
+    chrom <-  as.character(seqnames(intervals))
     sdCutoffByChr <- sapply(split(lrs.sd, chrom), quantile, probs = top.quantile, 
         names = FALSE, na.rm = TRUE)[chrom]
 
@@ -73,13 +77,24 @@ normal.coverage.files = NULL) {
     zz[zz > 1] <- 1
     idx <- is.na(zz) | lrs.cnt.na > ncol(lrs) / 3
     zz[idx] <- min(zz, na.rm = TRUE)
-    ret <- data.frame(Target = as.character(tumor.coverage[[1]]), Weights = zz)
+
+    ret <- list(
+                log.ratios = GRanges(intervals,,, DataFrame(lrs)),
+                weights = GRanges(intervals,,, DataFrame(weights = zz)))
     
-    write.table(ret, file = interval.weight.file, row.names = FALSE, 
-                quote = FALSE, sep = "\t")
+    if (!is.null(interval.weight.file)) {
+        ret_output <- data.frame(
+            Target = as.character(ret$weights), 
+            weights = ret$weights$weights)
+
+        write.table(ret_output, file = interval.weight.file, row.names = FALSE, 
+                    quote = FALSE, sep = "\t")
+    }
     if (plot) .plotIntervalWeights(lrs.sd, width(tumor.coverage[[1]]), 
         tumor.coverage[[1]]$on.target)
-    invisible(ret)
+    if (old_method) return(NULL)    
+    normalDB$sd <- ret
+    normalDB
 }
 
 #' Calculate target weights

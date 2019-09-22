@@ -28,7 +28,8 @@ positions.}
 If \code{NULL}, sets to inverse of median on-target duplication rate if
 available, otherwise does not do any weighting.}
 
-\item{interval.weight.file}{Can be used to assign weights to intervals.}
+\item{interval.weight.file}{Deprecated. For \code{normalDB} objects generated
+with PureCN versions older than 1.16, re-run \code{\link{createNormalDatabase}}.}
 
 \item{min.interval.weight}{Can be used to ignore intervals with low weights.}
 
@@ -61,17 +62,14 @@ tumor1.coverage.file <- system.file("extdata", "example_tumor.txt",
 tumor2.coverage.file <- system.file("extdata", "example_tumor2.txt",
     package="PureCN")
 
-interval.weight.file <- "interval_weights.txt"
 normal.coverage.files <- c(normal1.coverage.file, normal2.coverage.file)
 tumor.coverage.files <- c(tumor1.coverage.file, tumor2.coverage.file)
 
 normalDB <- createNormalDatabase(normal.coverage.files)
-calculateIntervalWeights(normalDB, interval.weight.file)
 
 seg <- processMultipleSamples(tumor.coverage.files, 
          sampleids = c("Sample1", "Sample2"),
          normalDB = normalDB,
-         interval.weight.file = interval.weight.file,
          genome = "hg19")
 
 }
