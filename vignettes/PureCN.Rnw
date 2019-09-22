@@ -715,7 +715,8 @@ Requires \Rcode{normalDB}. \\
 \Rcode{seg.id}       & Segment id  \\
 \Rcode{number.targets} & Number of targets annotated with this symbol \\
 \Rcode{gene.*}       & Gene copy number log2-ratios  
-(not adjusted for purity/ploidy)  \\
+(not adjusted for purity/ploidy). \Rcode{gene.mean} is weighted
+by interval weights when these are available.  \\
 \Rcode{focal}       & \Rcode{TRUE} for focal amplification, as defined by the 
 \Rfunction{fun.focal} argument in \Rfunction{runAbsoluteCN} \\
 \Rcode{breakpoints} & Number of breakpoints between \Rcode{start} and 

@@ -13,8 +13,6 @@
 #' will contain this segmentation. Useful for minimal segmentation functions.
 #' Otherwise PureCN will re-segment the data. This segmentation function
 #' ignores this user provided segmentation.
-#' @param normalDB Normal database, created with
-#' \code{\link{createNormalDatabase}}. 
 #' @param plot.cnv Segmentation plots.
 #' @param sampleid Sample id, used in output files.
 #' @param interval.weight.file Can be used to assign weights to intervals. 
@@ -78,7 +76,7 @@
 #'      test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 #' 
 #' @export segmentationPSCBS
-segmentationPSCBS <- function(normal, tumor, log.ratio, seg, normalDB = NULL, plot.cnv, 
+segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
     sampleid, interval.weight.file = NULL, weight.flag.pvalue = 0.01, alpha = 0.005, 
     undo.SD = NULL, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
     tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
@@ -91,18 +89,16 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, normalDB = NULL, pl
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
 
-    interval.weights <- rep(1, length(tumor))
     # TODO defunct in 1.18
     if (!is.null(interval.weight.file)) {
-        normalDB <- .add_weights_to_normaldb(interval.weight.file, normalDB)
+        normalDB <- .add_weights_to_normaldb(interval.weight.file)
+        tumor$weights <- subsetByOverlaps(normalDB$sd$weights, tumor)$weights
     }
-    if (!is.null(normalDB$sd$weights)) {
-        interval.weights <- subsetByOverlaps(normalDB$sd$weights, tumor)$weights
+    if (!is.null(tumor$weights) && length(unique(tumor$weights)) > 1 ) {
         flog.info("Interval weights found, will use weighted PSCBS.")
     }
-
     input <- .PSCBSinput(tumor, log.ratio, vcf, tumor.id.in.vcf, 
-                         normal.id.in.vcf, interval.weights, chr.hash)
+                         normal.id.in.vcf, chr.hash)
 
     knownSegments <- .PSCBSgetKnownSegments(centromeres, chr.hash)
 
@@ -128,35 +124,36 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, normalDB = NULL, pl
         seg <- .pruneByHclust(seg, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
             method=prune.hclust.method, chr.hash=chr.hash)
     }
-    seg <- .addAverageWeights(seg, interval.weights, weight.flag.pvalue, tumor, chr.hash)
+    seg <- .addAverageWeights(seg, weight.flag.pvalue, tumor, chr.hash)
     seg
 }
 
 .PSCBSinput <- function(tumor, log.ratio, vcf, tumor.id.in.vcf, 
-                        normal.id.in.vcf, interval.weights, chr.hash) {
+                        normal.id.in.vcf, chr.hash) {
+    if (is.null(tumor$weights)) tumor$weights <- 1
     ov <- findOverlaps(vcf, tumor)
     d.f <- cbind(as.data.frame(tumor[subjectHits(ov)]), 
-        CT=2 ^ (log.ratio+1)[subjectHits(ov)], 
-        betaT=unlist(geno(vcf[queryHits(ov)])$FA[,tumor.id.in.vcf]), 
-        betaN=NA,
-        x=start(vcf[queryHits(ov)]),
-        w=interval.weights[subjectHits(ov)])
+        CT = 2 ^ (log.ratio+1)[subjectHits(ov)], 
+        betaT = unlist(geno(vcf[queryHits(ov)])$FA[,tumor.id.in.vcf]), 
+        betaN = NA,
+        x = start(vcf[queryHits(ov)]),
+        w = tumor$weights[subjectHits(ov)])
     
     if (!is.null(normal.id.in.vcf)) {
         d.f$betaN <- unlist(geno(vcf[queryHits(ov)])$FA[,normal.id.in.vcf])
     }
 
     d.f.2 <- cbind(as.data.frame(tumor[-subjectHits(ov)]), 
-        CT=2 ^ (log.ratio+1)[-subjectHits(ov)], betaT=NA, betaN=NA,
-        x=start(tumor[-subjectHits(ov)]),
-        w=interval.weights[-subjectHits(ov)])
+        CT = 2 ^ (log.ratio+1)[-subjectHits(ov)], betaT=NA, betaN=NA,
+        x = start(tumor[-subjectHits(ov)]),
+        w = tumor$weights[-subjectHits(ov)])
     
     d.f <- rbind(d.f, d.f.2)
     colnames(d.f)[1] <- "chromosome"
     d.f <- d.f[order(.strip.chr.name(d.f[,1], chr.hash), d.f$x),]
     d.f$chromosome <- .strip.chr.name(d.f$chromosome, chr.hash)
 
-    if (min(interval.weights) == max(interval.weights)) {
+    if (min(tumor$weights) == max(tumor$weights)) {
         flog.info("Using unweighted PSCBS.")
         d.f$w <- NULL
     }

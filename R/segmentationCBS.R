@@ -13,8 +13,6 @@
 #' will contain this segmentation. Useful for minimal segmentation functions.
 #' Otherwise PureCN will re-segment the data. This segmentation function
 #' ignores this user provided segmentation.
-#' @param normalDB Normal database, created with
-#' \code{\link{createNormalDatabase}}. 
 #' @param plot.cnv Segmentation plots.
 #' @param sampleid Sample id, used in output files.
 #' @param interval.weight.file Deprecated.
@@ -73,7 +71,7 @@
 #' 
 #' @export segmentationCBS
 #' @importFrom stats t.test hclust cutree dist
-segmentationCBS <- function(normal, tumor, log.ratio, seg, normalDB = NULL, plot.cnv, 
+segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
     sampleid, interval.weight.file = NULL, weight.flag.pvalue = 0.01, alpha = 0.005, 
     undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
     max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
@@ -81,18 +79,17 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, normalDB = NULL, plot
     
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
     
-    interval.weights <- NULL
     # TODO defunct in 1.18
     if (!is.null(interval.weight.file)) {
-        normalDB <- .add_weights_to_normaldb(interval.weight.file, normalDB)
+        normalDB <- .add_weights_to_normaldb(interval.weight.file)
+        tumor$weights <- subsetByOverlaps(normalDB$sd$weights, tumor)$weights
     }
-    if (!is.null(normalDB$sd$weights)) {
-        interval.weights <- subsetByOverlaps(normalDB$sd$weights, tumor)$weights
+    if (!is.null(tumor$weights) && length(unique(tumor$weights)) > 1 ) {
         flog.info("Interval weights found, will use weighted CBS.")
     }
     x <- .CNV.analyze2(normal, tumor, log.ratio = log.ratio,
-        plot.cnv = plot.cnv, sampleid=sampleid, alpha=alpha, 
-        weights=interval.weights, sdundo=undo.SD, max.segments=max.segments,
+        plot.cnv = plot.cnv, sampleid = sampleid, alpha = alpha, 
+        weights = tumor$weights, sdundo = undo.SD, max.segments = max.segments,
         chr.hash=chr.hash)
     origSeg <- x$cna$output
 
@@ -107,7 +104,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, normalDB = NULL, plot
     idx.enough.markers <- x$cna$output$num.mark > 1
     rownames(x$cna$output) <- NULL
     finalSeg <- x$cna$output[idx.enough.markers,]
-    finalSeg <- .addAverageWeights(finalSeg, interval.weights, weight.flag.pvalue, tumor, chr.hash)
+    finalSeg <- .addAverageWeights(finalSeg, weight.flag.pvalue, tumor, chr.hash)
     .debugSegmentation(origSeg, finalSeg)
     finalSeg
 }
@@ -408,8 +405,8 @@ plot.cnv=TRUE, max.segments=NULL, chr.hash=chr.hash) {
     list(fraction.genome = fraction.genome, seg.mean = seg.mean)
 }
 
-.addAverageWeights <- function(seg, weights, weight.flag.pvalue, tumor, chr.hash) {
-    if (is.null(weights) || length(unique(weights)) < 2) {
+.addAverageWeights <- function(seg, weight.flag.pvalue, tumor, chr.hash) {
+    if (is.null(tumor$weights) || length(unique(tumor$weights)) < 2) {
         seg$seg.weight <- 1
         seg$weight.flagged <- NA
         return(seg)
@@ -418,12 +415,12 @@ plot.cnv=TRUE, max.segments=NULL, chr.hash=chr.hash) {
         IRanges(start = seg$loc.start, end = seg$loc.end))
     ov <- findOverlaps(seg.gr, tumor)
     avgWeights <- sapply(split(subjectHits(ov), queryHits(ov)), 
-                         function(i) mean(weights[i], na.rm = TRUE))
+                         function(i) mean(tumor$weights[i], na.rm = TRUE))
     if (length(avgWeights) != nrow(seg)) {
         .stopRuntimeError("Could not find weights for all segments.")
     }    
     seg$seg.weight <- avgWeights
-    seg$weight.flagged <- .getAverageWeightPV(seg, weights) < weight.flag.pvalue
+    seg$weight.flagged <- .getAverageWeightPV(seg, tumor$weights) < weight.flag.pvalue
     seg
 }    
 

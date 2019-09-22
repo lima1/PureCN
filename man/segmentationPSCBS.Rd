@@ -4,13 +4,13 @@
 \alias{segmentationPSCBS}
 \title{PSCBS segmentation}
 \usage{
-segmentationPSCBS(normal, tumor, log.ratio, seg, normalDB = NULL,
-  plot.cnv, sampleid, interval.weight.file = NULL,
-  weight.flag.pvalue = 0.01, alpha = 0.005, undo.SD = NULL,
-  flavor = "tcn&dh", tauA = 0.03, vcf = NULL, tumor.id.in.vcf = 1,
-  normal.id.in.vcf = NULL, max.segments = NULL,
-  prune.hclust.h = NULL, prune.hclust.method = "ward.D",
-  chr.hash = NULL, centromeres = NULL, ...)
+segmentationPSCBS(normal, tumor, log.ratio, seg, plot.cnv, sampleid,
+  interval.weight.file = NULL, weight.flag.pvalue = 0.01,
+  alpha = 0.005, undo.SD = NULL, flavor = "tcn&dh", tauA = 0.03,
+  vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
+  max.segments = NULL, prune.hclust.h = NULL,
+  prune.hclust.method = "ward.D", chr.hash = NULL,
+  centromeres = NULL, ...)
 }
 \arguments{
 \item{normal}{Coverage data for normal sample.}
@@ -23,9 +23,6 @@ segmentationPSCBS(normal, tumor, log.ratio, seg, normalDB = NULL,
 will contain this segmentation. Useful for minimal segmentation functions.
 Otherwise PureCN will re-segment the data. This segmentation function
 ignores this user provided segmentation.}
-
-\item{normalDB}{Normal database, created with
-\code{\link{createNormalDatabase}}.}
 
 \item{plot.cnv}{Segmentation plots.}
 

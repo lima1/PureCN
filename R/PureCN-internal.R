@@ -1,6 +1,6 @@
 # Make CMD check happy
 globalVariables(names=c("Gene", "LR", "chrom", "seg.id", "seg.length",
-"seg.mean", "C.flagged"))
+"seg.mean", "C.flagged", "weights"))
 
 # calculates the log-likelihood of a segment, given log-ratios, the
 # log ratio standard deviation, purity, copy number and ploidy.
@@ -561,6 +561,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     if (!length(idx)) return(NA)
     tumor <- tumor[idx]
     log.ratio <- log.ratio[idx]
+    if (is.null(tumor$weights)) tumor$weights <- 1
     
     ov <- findOverlaps(tumor, abs.gc)
     if (is.null(seg.adjusted$weight.flagged)) seg.adjusted$weight.flagged <- NA
@@ -575,7 +576,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     if (sum(grepl(",", dt$Gene))) {
         dt <- dt[, list(Gene = unlist(strsplit(as.character(Gene), ",", fixed=TRUE))), 
             by = list(seqnames, start, end, C, C.flagged, seg.mean, seg.id,
-                      seg.length, LR, focal)]
+                      seg.length, LR, focal, weights)]
     }
 
     gene.calls <- data.frame(dt[, list(chr = seqnames[1], start = min(start), 
@@ -583,7 +584,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         seg.mean = median(seg.mean),
         seg.id = seg.id[which.min(seg.length)], 
         .min.segid=min(seg.id), .max.segid=max(seg.id),
-        number.targets = length(start), gene.mean = mean(LR, na.rm = TRUE), 
+        number.targets = length(start), 
+        gene.mean = weighted.mean(LR, weights, na.rm = TRUE), 
         gene.min = min(LR, na.rm = TRUE), gene.max = max(LR, na.rm = TRUE), 
         focal = focal[which.min(seg.length)]), by = Gene], row.names = 1)
     breakpoints <- gene.calls$.max.segid - gene.calls$.min.segid
