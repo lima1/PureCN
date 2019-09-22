@@ -27,13 +27,7 @@ calculateIntervalWeights <- function(normalDB,
 interval.weight.file = NULL, top.quantile = 0.7, plot = FALSE, 
 normal.coverage.files = NULL) {
     .Deprecated("createNormalDatabase")
-    .calculateIntervalWeights(normalDB, interval.weight.file, top.quantile,
-        plot, normal.coverage.files) 
-}    
 
-.calculateIntervalWeights <- function(normalDB,
-interval.weight.file = NULL, top.quantile = 0.7, plot = FALSE, 
-normal.coverage.files = NULL) {
     # TODO, defunct in 1.18
     old_method <- FALSE
     if (!is.null(normal.coverage.files) && missing(normalDB)) {
@@ -48,6 +42,13 @@ normal.coverage.files = NULL) {
     }    
     flog.info("Loading coverage data...")
     normal.coverage <- lapply(normal.coverage.files,  readCoverageFile)
+    .calculateIntervalWeights(normalDB, normal.coverage, interval.weight.file, top.quantile,
+        plot, old_method) 
+}    
+
+.calculateIntervalWeights <- function(normalDB, normal.coverage, 
+interval.weight.file = NULL, top.quantile = 0.7, plot = FALSE, 
+old_method = FALSE) {
     
     tumor.coverage <- list(poolCoverage(normal.coverage, 
         w = rep(1, length(normal.coverage)) / length(normal.coverage)))
@@ -68,7 +69,7 @@ normal.coverage.files = NULL) {
 
     lrs.sd <- apply(lrs, 1, sd, na.rm = TRUE)
     lrs.cnt.na <- apply(lrs, 1, function(x) sum(is.na(x)))
-    # get the 80% of sd by chromosome and use this to normalize weight=1
+    # get the top.quantile % of sd by chromosome and use this to normalize weight=1
     chrom <-  as.character(seqnames(intervals))
     sdCutoffByChr <- sapply(split(lrs.sd, chrom), quantile, probs = top.quantile, 
         names = FALSE, na.rm = TRUE)[chrom]

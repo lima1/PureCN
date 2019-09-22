@@ -113,9 +113,9 @@ max.missing = 0.03, low.coverage = 15, plot = FALSE, ...) {
         intervals.used = intervals.used,
         sex = sex,
         low.coverage.targets = low.coverage.targets,
-        version = 7
+        version = 8
     )
-    normalDB <- .calculateIntervalWeights(normalDB, plot = plot)
+    normalDB <- .calculateIntervalWeights(normalDB, normals, plot = plot)
     normalDB
 }
 
