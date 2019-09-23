@@ -27,8 +27,7 @@
 #'     package="PureCN")
 #' normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 #' normalDB <- createNormalDatabase(normal.coverage.files)
-#' callAmplificationsInLowPurity(purecn.example.output, normalDB, 
-#'    all.genes = TRUE)["ESR2", ]
+#' callAmplificationsInLowPurity(purecn.example.output, normalDB)["EIF2A", ]
 #' 
 #' @importFrom stats ecdf pnorm
 #' @export callAmplificationsInLowPurity
@@ -61,8 +60,11 @@ pvalue.cutoff = 0.001, percentile.cutoff = 90, all.genes = FALSE) {
             lower.tail = FALSE)
     }
 
-    calls$p.value <- sapply(rownames(calls), .get_gene_pv)
     calls$percentile <- ecdf(calls$gene.mean)(calls$gene.mean) * 100
+    if (!all.genes) {
+        calls <- calls[calls$percentile >= percentile.cutoff, ]
+    }    
+    calls$p.value <- sapply(rownames(calls), .get_gene_pv)
     calls$type <- NA
     amp.ids <- calls$p.value <= pvalue.cutoff & calls$percentile >= percentile.cutoff
     calls$type[amp.ids] <- "AMPLIFICATION"
