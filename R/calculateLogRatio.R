@@ -50,12 +50,24 @@ calculateLogRatio <- function(normal, tumor) {
 
         log.ratio <- log2(tumor[idx]$average.coverage/normal[idx]$average.coverage) + 
                      log2(total.cov.normal/total.cov.tumor)
-        idxFinite <- is.finite(log.ratio)
-        mean.log.ratio <- weighted.mean(log.ratio[idxFinite], 
-            width(tumor[idx])[idxFinite])
-        # calibrate
-        log.ratio <- log.ratio - mean.log.ratio
-        tumor[idx]$log.ratio <- log.ratio
+        tumor[idx]$log.ratio <- .calibrate_log_ratio(log.ratio, tumor[idx])
     }
     tumor$log.ratio
 }
+
+.calibrate_log_ratio <- function(log.ratio, granges) {
+    idxFinite <- is.finite(log.ratio)
+    mean.log.ratio <- weighted.mean(log.ratio[idxFinite], 
+        width(granges)[idxFinite])
+# calibrate
+    return(log.ratio - mean.log.ratio)
+}
+
+.calibrate_log_ratio_on_off <- function(log.ratio, granges) {
+    for (on.target in c(FALSE, TRUE)) {
+        idx <- granges$on.target==on.target
+        if (!sum(idx)) next
+        log.ratio[idx] <- .calibrate_log_ratio(log.ratio[idx], granges[idx])
+    }
+    log.ratio
+}    
