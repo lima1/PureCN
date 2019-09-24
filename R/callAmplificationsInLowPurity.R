@@ -15,6 +15,9 @@
 #' exceeding this sample-wise cutoff.
 #' @param all.genes If \code{FALSE}, then only return amplifications
 #' passing the thresholds. 
+#' @param purity If not \code{NULL}, then scale log2-ratios to the
+#' corresponding integer copy number. Useful when accurate ctDNA
+#' fractions (between 4-10 percent) are available.
 #' @return A \code{data.frame} with gene-level amplification calls.
 #' @author Markus Riester
 #' @seealso \code{\link{runAbsoluteCN}} \code{\link{callAlterations}}
@@ -32,11 +35,14 @@
 #' @importFrom stats ecdf pnorm
 #' @export callAmplificationsInLowPurity
 callAmplificationsInLowPurity <- function(res, normalDB,
-pvalue.cutoff = 0.001, percentile.cutoff = 90, all.genes = FALSE) {
+pvalue.cutoff = 0.001, percentile.cutoff = 90, all.genes = FALSE, 
+purity = NULL) {
 
     if (percentile.cutoff < 0 || percentile.cutoff > 100) {
         .stopUserError("percentile.cutoff not in expected range (0 to 100).")
     }    
+    .checkFraction(pvalue.cutoff, "pvalue.cutoff")
+    if (!is.null(purity)) .checkFraction(purity, "purity")
     if (!is(res$results[[1]]$gene.calls, "data.frame")) {
         .stopUserError("This function requires gene-level calls.\n",
             "Please add a column 'Gene' containing gene symbols to the ",
@@ -76,7 +82,9 @@ pvalue.cutoff = 0.001, percentile.cutoff = 90, all.genes = FALSE) {
     calls$seg.id <- NULL
     # support scaling of C in the future
     calls$C <- NA
-       
+    if (!is.null(purity)) {
+        calls$C <- (2^calls$gene.mean * 2) / purity -  ((2 * (1 - purity)) / purity) 
+    }   
     if (!all.genes) {
         return(calls[!is.na(calls$type),])
     }

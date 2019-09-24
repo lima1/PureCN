@@ -5,15 +5,30 @@ normal.coverage.file <- system.file("extdata", "example_normal.txt",
 normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
     package = "PureCN")
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
+normalDB <- createNormalDatabase(normal.coverage.files)
+data(purecn.example.output)
 
 test_that("Example is called correctly", {
-    data(purecn.example.output)
-    normalDB <- createNormalDatabase(normal.coverage.files)
     m <- callAmplificationsInLowPurity(purecn.example.output,
-       normalDB, all.genes = TRUE)
+       normalDB, all.genes = TRUE, purity = 0.65)
 
     esr2 <- m["ESR2", ]
     expect_equal(as.character(esr2$chr), "chr14")
     expect_true(esr2$start > 64694600)
     expect_true(esr2$end < 64761128)
+    expect_true(esr2$C < 3 && esr2$C >= 2)
+})
+test_that("Exceptions happen with incorrect input data", {
+    expect_error(callAmplificationsInLowPurity(purecn.example.output, 
+        normalDB, pvalue.cutoff = 1.2), "pvalue.cutoff")
+    expect_error(callAmplificationsInLowPurity(purecn.example.output, 
+        normalDB, pvalue.cutoff = -1.2), "pvalue.cutoff")
+    expect_error(callAmplificationsInLowPurity(purecn.example.output, 
+        normalDB, percentile.cutoff = 120), "percentile.cutoff")
+    expect_error(callAmplificationsInLowPurity(purecn.example.output, 
+        normalDB, percentile.cutoff = -120), "percentile.cutoff")
+    expect_error(callAmplificationsInLowPurity(purecn.example.output, 
+        normalDB, purity = -120), "purity")
+    expect_error(callAmplificationsInLowPurity(purecn.example.output, 
+        normalDB, purity = 80), "purity")
 })

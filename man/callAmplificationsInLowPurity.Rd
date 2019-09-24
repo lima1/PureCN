@@ -5,7 +5,7 @@
 \title{Calling of amplifications in low purity samples}
 \usage{
 callAmplificationsInLowPurity(res, normalDB, pvalue.cutoff = 0.001,
-  percentile.cutoff = 90, all.genes = FALSE)
+  percentile.cutoff = 90, all.genes = FALSE, purity = NULL)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
@@ -22,6 +22,10 @@ exceeding this sample-wise cutoff.}
 
 \item{all.genes}{If \code{FALSE}, then only return amplifications
 passing the thresholds.}
+
+\item{purity}{If not \code{NULL}, then scale log2-ratios to the
+corresponding integer copy number. Useful when accurate ctDNA
+fractions (between 4-10 percent) are available.}
 }
 \value{
 A \code{data.frame} with gene-level amplification calls.
@@ -40,8 +44,7 @@ normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
     package="PureCN")
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 normalDB <- createNormalDatabase(normal.coverage.files)
-callAmplificationsInLowPurity(purecn.example.output, normalDB, 
-   all.genes = TRUE)["ESR2", ]
+callAmplificationsInLowPurity(purecn.example.output, normalDB)["EIF2A", ]
 
 }
 \seealso{
