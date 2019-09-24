@@ -329,11 +329,13 @@ if (is(ret$results[[1]]$gene.calls, "data.frame")) {
         allAlterations), row.names = FALSE, file = file.genes, quote = FALSE)
     if (!is.null(opt$normaldb)) {
         if (is.null(normalDB)) normalDB <- readRDS(opt$normaldb)
-        file.amps <- paste0(out, "_amplifications_pon.csv")
-        allAmplifications <- callAmplificationsInLowPurity(ret, normalDB, all.genes = TRUE)
+        if (normalDB$version >= 8) {
+            file.amps <- paste0(out, "_amplification_pvalues.csv")
+            allAmplifications <- callAmplificationsInLowPurity(ret, normalDB, all.genes = TRUE)
 
-        write.csv(cbind(Sampleid = sampleid, gene.symbol = rownames(allAmplifications),
-            allAmplifications), row.names = FALSE, file = file.amps, quote = FALSE)
+            write.csv(cbind(Sampleid = sampleid, gene.symbol = rownames(allAmplifications),
+                allAmplifications), row.names = FALSE, file = file.amps, quote = FALSE)
+        }
     }    
 } else {
     flog.warn("--intervals does not contain gene symbols. Not generating gene-level calls.")

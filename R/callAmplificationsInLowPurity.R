@@ -51,7 +51,7 @@ pvalue.cutoff = 0.001, percentile.cutoff = 90, all.genes = FALSE) {
     calls <- res$results[[1]]$gene.calls
     .get_gene_pv <- function(g) {
         # speed-up
-        if (calls[g,]$gene.mean < 0) return(1) 
+        if (calls[g,]$gene.mean < 0) return(0.5) 
         g_gr <- GRanges(calls[g,])
         pon_lrs <- mcols(subsetByOverlaps(lrs_gr, g_gr))
         pon_w <- subsetByOverlaps(normalDB$sd$weights, g_gr)$weights

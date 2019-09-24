@@ -733,6 +733,38 @@ by interval weights when these are available.  \\
 \label{tbl:callAlterations}
 \end{table*}
 
+\subsubsection{Amplifications in low purity samples}
+
+The default \Rfunction{callAlterations} is not suited for samples of very low
+purity below 10\% such as frequently observed in cfDNA samples. To call high
+level amplifications in samples between 4 to 10\%, we recommend a simple
+z-score approach implemented in \Rfunction{callAmplificationsInLowPurity}. This
+will calculate gene-level log2 copy number ratio standard deviations in all
+normal samples that are then used to obtain gene-level cutoffs for
+amplifications in tumor samples. The output of this function is nearly
+identical to \Rfunction{callAlterations} with additional columns explained in
+Table~\ref{tbl:callamplificationsinlowpurity}.
+
+<<calling2>>=
+gene.calls.zscore <- callAmplificationsInLowPurity(ret, normalDB)
+head(gene.calls.zscore)
+@
+
+\begin{table*}
+\caption{\Rfunction{callAmplificationsInLowPurity} output columns not already
+explained in Table~\ref{tbl:callAlterations}.}
+\begin{tabular}{lp{9.5cm}}
+\toprule
+Column name        & Description \\
+\midrule
+\Rcode{pvalue}     & P-value of observing such a gene-level log2-ratio 
+in normal samples \\
+\Rcode{percentile} & Percentile of gene-level log2-ratio in the tumor sample.
+Useful for distinguishing focal amplificatios from broad gains. \\
+\bottomrule
+\end{tabular}
+\label{tbl:callamplificationsinlowpurity}
+\end{table*}
 
 \subsubsection{Find genomic regions in LOH}
 
