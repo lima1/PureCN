@@ -745,7 +745,7 @@ amplifications in tumor samples. The output of this function is nearly
 identical to \Rfunction{callAlterations} with additional columns explained in
 Table~\ref{tbl:callamplificationsinlowpurity}.
 
-<<calling2>>=
+<<calling3>>=
 gene.calls.zscore <- callAmplificationsInLowPurity(ret, normalDB)
 head(gene.calls.zscore)
 @
@@ -760,7 +760,7 @@ Column name        & Description \\
 \Rcode{pvalue}     & P-value of observing such a gene-level log2-ratio 
 in normal samples \\
 \Rcode{percentile} & Percentile of gene-level log2-ratio in the tumor sample.
-Useful for distinguishing focal amplificatios from broad gains. \\
+Useful for distinguishing focal amplifications from broad gains. \\
 \bottomrule
 \end{tabular}
 \label{tbl:callamplificationsinlowpurity}
@@ -1011,7 +1011,7 @@ Target log_ratio
 1:3682750-3683489 0.109473
 1:3690585-3691264 0.126205
 
-#GATK4
+# GATK4
 @HD	VN:1.6
 @SQ	SN:1	LN:248956422
 @SQ	SN:2	LN:242193529
