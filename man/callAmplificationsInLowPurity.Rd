@@ -5,7 +5,8 @@
 \title{Calling of amplifications in low purity samples}
 \usage{
 callAmplificationsInLowPurity(res, normalDB, pvalue.cutoff = 0.001,
-  percentile.cutoff = 90, all.genes = FALSE, purity = NULL)
+  percentile.cutoff = 90, min.width = 3, all.genes = FALSE,
+  purity = NULL)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
@@ -19,6 +20,8 @@ amplifications as calculating using the log-ratios observed in
 
 \item{percentile.cutoff}{Only report genes with log2-ratio mean
 exceeding this sample-wise cutoff.}
+
+\item{min.width}{Minimum number of targets}
 
 \item{all.genes}{If \code{FALSE}, then only return amplifications
 passing the thresholds.}

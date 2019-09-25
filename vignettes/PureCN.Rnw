@@ -759,8 +759,10 @@ Column name        & Description \\
 \midrule
 \Rcode{pvalue}     & P-value of observing such a gene-level log2-ratio 
 in normal samples \\
-\Rcode{percentile} & Percentile of gene-level log2-ratio in the tumor sample.
+\Rcode{percentile.genome} & Percentile of gene-level log2-ratio in the tumor sample.
 Useful for distinguishing focal amplifications from broad gains. \\
+\Rcode{percentile.chromosome} & Same as \Rcode{percentile.genome}, but for the
+chromosome \\
 \bottomrule
 \end{tabular}
 \label{tbl:callamplificationsinlowpurity}
