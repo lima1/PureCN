@@ -57,6 +57,15 @@ min.width = 3, all.genes = FALSE, purity = NULL) {
     mcols(pon_lrs_gr) <- apply(mcols(pon_lrs_gr), 2, .calibrate_log_ratio, normalDB$sd$log.ratios)
     pon_lrs_gr <- subsetByOverlaps(pon_lrs_gr, res$input$log.ratio)
     pon_w_gr <- subsetByOverlaps(normalDB$sd$weights, res$input$log.ratio)
+    tumor_normal_noise_ratio <- .calculate_tumor_normal_noise_ratio(res$input$log.ratio, pon_lrs_gr)
+
+    flog.info("Tumor/normal noise ratio: %.3f", tumor_normal_noise_ratio)
+    if (tumor_normal_noise_ratio > 5) {
+        flog.warn("Extensive noise in tumor compared to normals.")
+        tumor_normal_noise_ratio <- 5
+    }    
+    tumor_normal_noise_ratio <- max(1, tumor_normal_noise_ratio)
+        
     calls <- res$results[[1]]$gene.calls
     calls$p.value <- NA
     calls$percentile.genome <- ecdf(calls$gene.mean)(calls$gene.mean) * 100
@@ -81,7 +90,7 @@ min.width = 3, all.genes = FALSE, purity = NULL) {
         
         list(gene.mean = tumor_gene,
              p.value = pnorm(g_gr$gene.mean, mean = mean(pon_gene_lrs), 
-                sd = sd(pon_gene_lrs), lower.tail = FALSE),
+                sd = sd(pon_gene_lrs) * tumor_normal_noise_ratio, lower.tail = FALSE),
              pon.sd = sd(pon_gene_lrs))
     }
 
@@ -116,3 +125,11 @@ min.width = 3, all.genes = FALSE, purity = NULL) {
     }
     calls
 }
+
+.calculate_tumor_normal_noise_ratio <- function(tumor, normals) {
+    tumor <- tumor[tumor$on.target]
+    normals <- subsetByOverlaps(normals, tumor)
+
+    sd(diff(tumor$log.ratio)) / 
+        mean(apply(mcols(normals), 2, function(x) sd(diff(na.omit(x)))))
+}        
