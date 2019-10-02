@@ -10,6 +10,8 @@ NEW FEATURES
       output files containing log2 tumor/normal ratios
     o Added readSegmentationFile function to read GATK4 ModelSegment
       output files containing segmented log2 tumor/normal ratios
+    o Added callAmplificationsInLowPurity to call gene-level
+      amplifications in samples < 10% purity
     o Dx.R now reports chromosomal instability scores
       (available also via callCIN function)
     o Dx.R supports deconstructSigs 1.9.0 and COSMIC signatures v3.
