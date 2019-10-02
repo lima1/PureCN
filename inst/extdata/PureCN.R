@@ -145,10 +145,10 @@ if (!is.null(snp.blacklist)) {
 
 seg.file <- opt$segfile
 log.ratio <- opt$logratiofile
-normalDB <- opt$normaldb
 sampleid <- opt$sampleid
 out <- opt[["out"]]
 file.rds <- opt$rds
+normalDB <- NULL
 
 .getFilePrefix <- function(out, sampleid) {
     isDir <- file.info(out)$isdir
@@ -189,9 +189,9 @@ if (file.exists(file.rds) && !opt$force) {
     ret <- readCurationFile(file.rds)
     if (is.null(sampleid)) sampleid <- ret$input$sampleid
 } else {
-    if (!is.null(normalDB)) {
+    if (!is.null(opt$normaldb)) {
         #if (!is.null(seg.file)) stop("normalDB and segfile do not work together.")
-        normalDB <- readRDS(normalDB)
+        normalDB <- readRDS(opt$normaldb)
         if (!is.null(normal.coverage.file)) {
             flog.warn("Both --normal and --normalDB provided. normalDB will NOT be used for coverage denoising. You probably do not want this.")
         }    
@@ -327,6 +327,16 @@ if (is(ret$results[[1]]$gene.calls, "data.frame")) {
 
     write.csv(cbind(Sampleid = sampleid, gene.symbol = rownames(allAlterations),
         allAlterations), row.names = FALSE, file = file.genes, quote = FALSE)
+    if (!is.null(opt$normaldb)) {
+        if (is.null(normalDB)) normalDB <- readRDS(opt$normaldb)
+        if (normalDB$version >= 8) {
+            file.amps <- paste0(out, "_amplification_pvalues.csv")
+            allAmplifications <- callAmplificationsInLowPurity(ret, normalDB, all.genes = TRUE)
+
+            write.csv(cbind(Sampleid = sampleid, gene.symbol = rownames(allAmplifications),
+                allAmplifications), row.names = FALSE, file = file.amps, quote = FALSE)
+        }
+    }    
 } else {
     flog.warn("--intervals does not contain gene symbols. Not generating gene-level calls.")
 }
