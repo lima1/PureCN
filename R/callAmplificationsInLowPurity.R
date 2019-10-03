@@ -33,7 +33,7 @@
 #' normalDB <- createNormalDatabase(normal.coverage.files)
 #' callAmplificationsInLowPurity(purecn.example.output, normalDB)["EIF2A", ]
 #' 
-#' @importFrom stats ecdf pnorm
+#' @importFrom stats ecdf pnorm na.omit
 #' @export callAmplificationsInLowPurity
 callAmplificationsInLowPurity <- function(res, normalDB,
 pvalue.cutoff = 0.001, percentile.cutoff = 90,
