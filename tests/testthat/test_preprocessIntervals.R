@@ -11,7 +11,7 @@ output.file <- tempfile(fileext = ".txt")
 
 test_that("GC-bias of example reference and intervals (GATK format) matches", {
     gc <- preprocessIntervals(interval.file, reference.file, 
-        output.file = output.file)
+        output.file = output.file, min.target.width = 10)
     x <- read.delim(output.file, as.is = TRUE)
     expect_equal(x$gc_bias, c(0.4533333, 0.5057143, 0.5733333, 
         0.48, 0.36), tolerance = 0.001)
@@ -24,7 +24,7 @@ test_that("GC-bias of example reference and intervals (BED format) matches", {
     intervals <- import(bed.file)
     output.file2 <- tempfile(fileext = ".txt")
     y <- preprocessIntervals(intervals, reference.file, 
-        output.file = output.file2)
+        output.file = output.file2, min.target.width = 10)
     expect_equal(y$gc_bias, x$gc_bias)
     expect_equal(as.character(y), x$Target)
     y <- read.delim(output.file2)
@@ -36,7 +36,7 @@ test_that("exclude option works", {
     x <- read.delim(output.file, as.is = TRUE)
     intervals <- import(bed.file)
     y <- preprocessIntervals(intervals, reference.file,
-        exclude=intervals[2])
+        exclude=intervals[2], min.target.width = 10)
     expect_equal(y$gc_bias, x$gc_bias[-2])
     expect_equal(as.character(y), x$Target[-2])
     expect_equal(y$gc_bias, x$gc_bias[-2])
@@ -85,11 +85,11 @@ test_that("long targets are split correctly", {
 })
     
 test_that("Offtarget settings work as expected", {
-    gc <- preprocessIntervals(interval.file, reference.file, 
+    gc <- preprocessIntervals(interval.file, reference.file, min.target.width = 10,
         off.target = TRUE, min.off.target.width = 2, off.target.padding = -2)
     expect_equal(length(gc), 11)
     intervals <- import(bed.file)
-    gc2 <- preprocessIntervals(gc, reference.file)
+    gc2 <- preprocessIntervals(gc, reference.file, min.target.width = 10)
     expect_equal(start(gc2), start(gc))
     expect_equal(end(gc2), end(gc))
     expect_equal(gc2$mappability, gc$mappability)
@@ -99,7 +99,7 @@ test_that("Offtarget settings work as expected", {
             package = "PureCN", mustWork = TRUE)
         mappability <- import(mappability.file)
         gcMap <- preprocessIntervals(intervals, reference.file, 
-            mappability = mappability)
+            mappability = mappability, min.target.width = 10)
         expect_equal(gcMap$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
     }
 
@@ -109,6 +109,7 @@ test_that("Offtarget settings work as expected", {
     gcMap <- preprocessIntervals(intervals, reference.file, 
         mappability = mappability)
     expect_equal(gcMap$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
+    expect_equal(100, min(width(gcMap)), tolerance = 0.001)
 
     mappability4 <- mappability
     mappability4$name <- as.character(mappability$score)
@@ -147,11 +148,11 @@ test_that("Offtarget settings work as expected", {
     bed.file3 <- system.file("extdata", "ex3_intervals.bed", 
         package = "PureCN", mustWork = TRUE)
     intervals3 <- import(bed.file3)
-    x <- preprocessIntervals(intervals3, reference.file)
+    x <- preprocessIntervals(intervals3, reference.file, min.target.width = 10)
     expect_equal(x$gc_bias, c(0.4533333, 0.5057143, 0.5733333,
         0.48, 0.36), tolerance = 0.001)
     seqlevelsStyle(intervals3) <- "NCBI"
-    x <- preprocessIntervals(intervals3, reference.file)
+    x <- preprocessIntervals(intervals3, reference.file, min.target.width = 10)
     expect_equal(x$gc_bias, c(0.4533333, 0.5057143, 0.5733333, 
         0.48, 0.36), tolerance = 0.001)
     expect_error(preprocessIntervals(intervals, reference.file),
@@ -161,7 +162,7 @@ test_that("Offtarget settings work as expected", {
     mappability3 <- import(mappability.file3)
     seqlevelsStyle(mappability3) <- "NCBI"
     x <- preprocessIntervals(intervals3, reference.file, 
-        mappability = mappability3)
+        mappability = mappability3, min.target.width = 10)
     expect_equal(x$gc_bias, c(0.4533333, 0.5057143, 0.5733333, 
         0.48, 0.36), tolerance = 0.001)
     expect_equal(x$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
