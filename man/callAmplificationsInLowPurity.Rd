@@ -36,7 +36,7 @@ A \code{data.frame} with gene-level amplification calls.
 \description{
 Function to extract amplification from a
 \code{\link{runAbsoluteCN}} return object in samples of too low purity
-for the standard \code{link{callAlterations}}.
+for the standard \code{\link{callAlterations}}.
 }
 \examples{
 
