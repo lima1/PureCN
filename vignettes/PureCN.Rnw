@@ -748,7 +748,16 @@ Table~\ref{tbl:callamplificationsinlowpurity}.
 <<calling3>>=
 gene.calls.zscore <- callAmplificationsInLowPurity(ret, normalDB)
 head(gene.calls.zscore)
+# filter to known amplifications 
+known.calls.zscore <- gene.calls.zscore[ gene.calls.zscore$gene.symbol %in% 
+c("AR", "BRAF", "CCND1", "CCNE1", "CDK4", "CDK6", "EGFR", "ERBB2", "FGFR1", 
+"FGFR2", "KIT", "KRAS", "MCL1", "MDM2", "MDM4", "MET", "MYC", "PDGFRA", 
+"PIK3CA", "RAF1"),]
 @
+
+Since this algorithm is intended to rescue known high-level amplifications in
+very low tumor purities, we recommend using a liberal p-value cutoff, but
+restricting the search to a limited set of genes.
 
 \begin{table*}
 \caption{\Rfunction{callAmplificationsInLowPurity} output columns not already

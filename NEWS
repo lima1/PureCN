@@ -29,8 +29,10 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o calculateIntervalWeights now directly called by createNormalDatabase and
       information included in the normalDB RDS object. This function is thus 
       deprecated.
-    o column gene.mean in callAlterations output now weighted by interval
+    o Column gene.mean in callAlterations output now weighted by interval
       weights when available  
+    o Changed default of min.target.width in preprocessIntervals from 10 to 100
+      (#73)  
 
 BUGFIXES
 

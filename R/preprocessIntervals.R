@@ -71,7 +71,7 @@
 preprocessIntervals <- function(interval.file, reference.file,
                                 output.file = NULL, off.target = FALSE,
                                 average.target.width = 400,
-                                min.target.width = 10,
+                                min.target.width = 100,
                                 min.off.target.width = 20000,
                                 average.off.target.width = 200000,
                                 off.target.padding = -500, mappability = NULL,
