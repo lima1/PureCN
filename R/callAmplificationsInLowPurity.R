@@ -2,7 +2,7 @@
 #' 
 #' Function to extract amplification from a
 #' \code{\link{runAbsoluteCN}} return object in samples of too low purity
-#' for the standard \code{link{callAlterations}}.
+#' for the standard \code{\link{callAlterations}}.
 #' 
 #' 
 #' @param res Return object of the \code{\link{runAbsoluteCN}} function.
