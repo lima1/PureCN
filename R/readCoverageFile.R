@@ -51,6 +51,7 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     if (is.null(inputCoverage$counts)) inputCoverage$counts <- inputCoverage$total_coverage / read.length
     if (is.null(inputCoverage$on_target)) inputCoverage$on_target <- TRUE
     if (is.null(inputCoverage$duplication_rate)) inputCoverage$duplication_rate <- NA
+    inputCoverage$on_target <- as.logical(inputCoverage$on_target)
 
     targetCoverage <- GRanges(inputCoverage$Target, 
         coverage=inputCoverage$total_coverage, 
