@@ -227,7 +227,7 @@ To build a normal database for coverage normalization, copy the paths to all
 GC-normalized normal coverage files in a single text file, line-by-line:
 
 ```
-ls -a normal*loess.txt | cat > example_normal.list
+ls -a normal*loess.txt.gz | cat > example_normal.list
 
 # From already GC-normalized files
 $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
@@ -277,7 +277,7 @@ mkdir $OUT/$SAMPLEID
 
 # Without a matched normal (minimal test run)
 $ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
-    --tumor $OUT/$SAMPLEID/${SAMPLEID}_coverage_loess.txt \
+    --tumor $OUT/$SAMPLEID/${SAMPLEID}_coverage_loess.txt.gz \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
     --normaldb $OUT_REF/normalDB_hg19.rds \
@@ -286,7 +286,7 @@ $ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
 
 # Production pipeline run
 $ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
-    --tumor $OUT/$SAMPLEID/${SAMPLEID}_coverage_loess.txt \
+    --tumor $OUT/$SAMPLEID/${SAMPLEID}_coverage_loess.txt.gz \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
     --statsfile ${SAMPLEID}_mutect_stats.txt \
@@ -300,8 +300,8 @@ $ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
 # With a matched normal (test run; for production pipelines we recommend the
 # unmatched workflow described above)
 $ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
-    --tumor $OUT/$SAMPLEID/${SAMPLEID}_coverage_loess.txt \
-    --normal $OUT/$SAMPLEID/${SAMPLEID_NORMAL}_coverage_loess.txt \
+    --tumor $OUT/$SAMPLEID/${SAMPLEID}_coverage_loess.txt.gz \
+    --normal $OUT/$SAMPLEID/${SAMPLEID_NORMAL}_coverage_loess.txt.gz \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
     --normaldb $OUT_REF/normalDB_hg19.rds \

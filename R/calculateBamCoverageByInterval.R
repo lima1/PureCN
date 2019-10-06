@@ -83,7 +83,7 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
         on_target = intervalGr$on.target,
         duplication_rate = intervalGr$duplication.rate
     )
-    write.table(tmp, file = output.file, row.names = FALSE, quote = FALSE)
+    fwrite(tmp, file = output.file, row.names = FALSE, quote = FALSE)
 }
 
 .filterDuplicates <- function(x) {

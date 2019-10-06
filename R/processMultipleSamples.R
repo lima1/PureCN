@@ -129,10 +129,10 @@ processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,
     rownames(lrsm) <- NULL
     lrsm[idx.enough.markers,]
     #transform to DNAcopy format
-    m <- data.table::melt(lrsm, id.vars=1:5)
+    m <- data.table::melt(data.table(lrsm), id.vars=1:5)
     m <- m[, c(6,1,3,4,5,7)]
     colnames(m) <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", "seg.mean")
-    m
+    data.frame(m)
 }
 
 .add_weights_to_normaldb <- function(interval.weight.file, normalDB = NULL) {

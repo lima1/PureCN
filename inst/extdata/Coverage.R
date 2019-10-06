@@ -72,6 +72,14 @@ interval.file <- normalizePath(interval.file, mustWork = TRUE)
     files
 }
 
+checkDataTableVersion <- function() {
+    if (compareVersion(package.version("data.table"), "1.12.4") < 0) {
+        flog.fatal("data.table package is outdated. >= 1.12.4 required")
+        q(status = 0)
+    }
+    return(TRUE)
+}        
+
 getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file, 
     force = FALSE, keep.duplicates = FALSE, removemapq0 = FALSE) {
 
@@ -83,7 +91,8 @@ getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file,
 
     .getCoverageBam <- function(bam.file, index.file = NULL, outdir,
         interval.file, force) {
-        output.file <- file.path(outdir,  gsub(".bam$", "_coverage.txt", 
+        checkDataTableVersion()
+        output.file <- file.path(outdir,  gsub(".bam$", "_coverage.txt.gz", 
             basename(bam.file)))
         futile.logger::flog.info("Processing %s...", output.file)
         if (!is.null(index.file)) {
@@ -160,10 +169,11 @@ if (!is.null(bam.file)) {
 
 ### GC-normalize coverage -----------------------------------------------------
 .gcNormalize <- function(gatk.coverage, interval.file, outdir, force) {
-    output.file <- file.path(outdir,  gsub(".txt$|_interval_summary",
-        "_loess.txt", basename(gatk.coverage)))
-    outpng.file <- sub("txt$", "png", output.file)
-    output.qc.file <- sub(".txt$", "_qc.txt", output.file)
+    checkDataTableVersion()
+    output.file <- file.path(outdir,  gsub(".txt$|.txt.gz$|_interval_summary",
+        "_loess.txt.gz", basename(gatk.coverage)))
+    outpng.file <- sub("txt.gz$", "png", output.file)
+    output.qc.file <- sub(".txt.gz$", "_qc.txt", output.file)
 
     if (file.exists(output.file) && !force) {
         flog.info("%s exists. Skipping... (--force will overwrite)", output.file)

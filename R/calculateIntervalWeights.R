@@ -88,7 +88,7 @@ old_method = FALSE) {
             Target = as.character(ret$weights), 
             weights = ret$weights$weights)
 
-        write.table(ret_output, file = interval.weight.file, row.names = FALSE, 
+        fwrite(ret_output, file = interval.weight.file, row.names = FALSE, 
                     quote = FALSE, sep = "\t")
     }
     if (plot) .plotIntervalWeights(lrs.sd, width(tumor.coverage[[1]]), 

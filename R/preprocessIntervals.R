@@ -320,7 +320,7 @@ calculateGCContentByInterval <- function() {
         Gene=interval.gr$Gene,
         on_target=interval.gr$on.target
     )    
-    write.table(tmp, file=output.file, row.names=FALSE, quote=FALSE, sep="\t")
+    fwrite(tmp, file = output.file, row.names = FALSE, quote = FALSE, sep = "\t")
 }
 
 .checkSeqlengths <- function(ref, x) {

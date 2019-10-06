@@ -42,7 +42,7 @@ globalVariables(names=c("..level.."))
 #'             coord_trans
 #' @importFrom gridExtra grid.arrange
 #' @importFrom stats loess lm predict
-#' @importFrom utils write.table
+#' @importFrom data.table fwrite
 correctCoverageBias <- function(coverage.file, interval.file,
 output.file = NULL, plot.bias = FALSE, plot.max.density = 50000, 
 output.qc.file = NULL) {
@@ -105,7 +105,8 @@ output.qc.file = NULL) {
     colnames(qc)[5:10] <- paste0("mom.", c("raw", "raw", "post.gc", "post.gc", 
                              "post.reptiming", "post.reptiming"),
                              ".", rep(c("ontarget", "offtarget"),3))
-    write.table(qc, file = output.qc.file, row.names = FALSE, quote = FALSE)
+    fwrite(qc, file = output.qc.file, row.names = FALSE, quote = FALSE,
+        sep = " ")
 }
     
 .createCoverageGgplot <- function(raw, normalized, plot.max.density, x, log = FALSE) {
