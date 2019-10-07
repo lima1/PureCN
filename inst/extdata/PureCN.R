@@ -347,6 +347,8 @@ if (!is.null(ret$input$vcf)) {
         vcfanno <- predictSomatic(ret, return.vcf = TRUE,
             vcf.field.prefix = "PureCN.")
         writeVcf(vcfanno, file = file.vcf)
+        bgzip(file.vcf, paste0(file.vcf, ".gz"), overwrite = TRUE)
+        indexTabix(paste0(file.vcf, ".gz"), format = "vcf")
     }
     file.csv <- paste0(out, "_variants.csv")
     write.csv(cbind(Sampleid = sampleid, predictSomatic(ret)), file = file.csv,

@@ -35,8 +35,9 @@ SIGNIFICANT USER-VISIBLE CHANGES
       (#73)  
     o replaced write.table with data.table::fwrite to automatically support
       producing gzipped output (requires data.table 1.12.4, #106)
-    o Coverage.R now gzips BAM file coverage (requires data.table 1.12.4, #106),
-    o Ouput coverage files now code FALSE as 0 and TRUE as 1
+    o Coverage.R now gzips BAM file coverage (requires data.table 1.12.4, #106)
+    o Output coverage files now code FALSE as 0 and TRUE as 1
+    o PureCN.R now bgzips and tabix indexes VCFs when --vcf is provided
 
 BUGFIXES
 
