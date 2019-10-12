@@ -129,7 +129,13 @@ min.width = 3, all.genes = FALSE, purity = NULL) {
 .calculate_tumor_normal_noise_ratio <- function(tumor, normals) {
     tumor <- tumor[tumor$on.target]
     normals <- subsetByOverlaps(normals, tumor)
-
-    sd(diff(tumor$log.ratio)) / 
-        mean(apply(mcols(normals), 2, function(x) sd(diff(na.omit(x)))))
-}        
+    noise_tumor <- sd(diff(na.omit(tumor$log.ratio)))
+    noise_normals <- apply(mcols(normals), 2, function(x) sd(diff(na.omit(x))))
+    flog.debug("Noise tumor: %f; Noise normals: %s",
+               noise_tumor, paste(noise_normals, collapse = ","))
+    ratio <- noise_tumor / mean(noise_normals)    
+    if (is.infinite(ratio)) {
+        .stopRuntimeError("Tumor/normal noise infinite.")
+    }
+    return(ratio)
+}

@@ -57,9 +57,14 @@ calculateLogRatio <- function(normal, tumor) {
 
 .calibrate_log_ratio <- function(log.ratio, granges) {
     idxFinite <- is.finite(log.ratio)
+    if (!sum(idxFinite)) {
+        .stopRuntimeError("No finite log-ratios.")
+    }
     mean.log.ratio <- weighted.mean(log.ratio[idxFinite], 
         width(granges)[idxFinite])
 # calibrate
+    flog.debug("Calibrating %i log-ratios by %f.",
+               sum(idxFinite), mean.log.ratio)
     return(log.ratio - mean.log.ratio)
 }
 
