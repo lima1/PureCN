@@ -170,7 +170,7 @@ if (opt$signatures && require(deconstructSigs)) {
             pdf(outfile)
             plotSignatures(sigs, sig.type = sig.type)
             makePie(sigs)
-            dev.off()
+            invisible(dev.off())
             outfile <- paste0(outPrefix, database_name, "_signatures.csv")
             write.csv(sigs$weights, file = outfile)
         }

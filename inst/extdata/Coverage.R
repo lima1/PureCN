@@ -182,7 +182,7 @@ if (!is.null(bam.file)) {
         correctCoverageBias(gatk.coverage, interval.file,
             output.file = output.file, output.qc.file = output.qc.file, 
                 plot.bias = TRUE)
-        dev.off()
+        invisible(dev.off())
    }
 }
 

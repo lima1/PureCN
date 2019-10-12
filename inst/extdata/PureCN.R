@@ -287,7 +287,7 @@ if (file.exists(file.rds) && !opt$force) {
             post.optimize = opt$postoptimize,
             speedup.heuristics = opt$speedupheuristics,
             BPPARAM = BPPARAM)
-    dev.off()
+    invisible(dev.off())
     if (opt$bootstrapn > 0) {
         ret <- bootstrapResults(ret, n = opt$bootstrapn) 
     }
@@ -305,15 +305,16 @@ if (debug) {
         row.names = FALSE)
 }
 
+flog.info("Generating output files...")
 file.pdf <- paste0(out, ".pdf")
 pdf(file.pdf, width = 10, height = 11)
 plotAbs(ret, type = "all")
-dev.off()
+invisible(dev.off())
 
 file.pdf <- paste0(out, "_local_optima.pdf")
 pdf(file.pdf, width = 5, height = 5)
 plotAbs(ret, 1, type = "overview")
-dev.off()
+invisible(dev.off())
 
 file.seg <- paste0(out, "_dnacopy.seg")
 seg <- ret$results[[1]]$seg
@@ -366,5 +367,5 @@ if (!is.null(ret$input$vcf)) {
     for (chrom in chromosomes) {
         plotAbs(ret, 1, type = "BAF", chr = chrom)
     }
-    dev.off()
+    invisible(dev.off())
 }

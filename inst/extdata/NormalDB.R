@@ -85,7 +85,7 @@ if (length(coverageFiles)) {
             genome)
         png(interval.weight.png, width = 800, height = 400)
         normalDB <- createNormalDatabase(coverageFiles, plot = TRUE)
-        dev.off()
+        invisible(dev.off())
         saveRDS(normalDB, file = output.file)
         if (length(normalDB$low.coverage.targets) > 0) {
             output.low.coverage.file <- .getFileName(outdir,"low_coverage_targets",".bed", assay, genome)
