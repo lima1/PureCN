@@ -51,6 +51,9 @@ test_that("Exceptions happen with wrong input", {
         package = "PureCN")
     expect_error(calculateTangentNormal(normal3.coverage.file, normalDB),
        "not align")
+    expect_error(createNormalDatabase(normal.coverage.file), "At least 2")
+    expect_output(createNormalDatabase( c(normal.coverage.file, normal.coverage.file, 
+                                          normal2.coverage.file)), "duplicated")
     file.remove(output.file)
 })
 

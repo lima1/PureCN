@@ -40,6 +40,15 @@ createNormalDatabase <- function(normal.coverage.files, sex = NULL,
 coverage.outliers = c(0.25, 4), min.coverage = 0.25,
 max.missing = 0.03, low.coverage = 15, plot = FALSE, ...) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
+
+    if (any(duplicated(normal.coverage.files))) {
+        flog.warn("Some normal.coverage.files duplicated.")
+        normal.coverage.files <- unique(normal.coverage.files)
+    }
+    if (length(normal.coverage.files) < 2) {
+        .stopUserError("At least 2 normal.coverage.files required.")
+    }
+
     normals <- .readNormals(normal.coverage.files)
 
     normals.m <- do.call(cbind, 
