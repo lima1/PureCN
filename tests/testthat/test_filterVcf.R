@@ -78,3 +78,11 @@ test_that("issue 62 is fixed", {
     x <- PureCN:::.readAndCheckVcf(vcf.file)
     expect_equivalent(c(901,53), as.vector(table(info(x)$SOMATIC)))
 })              
+
+test_that("issue 109 is fixed", {
+    vcf.file <- system.file("extdata", "issue109.vcf.gz", package = "PureCN")
+    expect_output(x <- PureCN:::.readAndCheckVcf(vcf.file), "AD field misses ref counts")
+    expect_equivalent(c(272, 2), geno(x)$AD[[1,1]])
+    expect_equivalent(274, geno(x)$DP[1,1])
+    expect_equivalent(2/274, geno(x)$FA[[1,1]])
+})

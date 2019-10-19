@@ -766,7 +766,7 @@ explained in Table~\ref{tbl:callAlterations}.}
 \toprule
 Column name        & Description \\
 \midrule
-\Rcode{pvalue}     & P-value of observing such a gene-level log2-ratio 
+\Rcode{p.value}     & P-value of observing such a gene-level log2-ratio 
 in normal samples \\
 \Rcode{percentile.genome} & Percentile of gene-level log2-ratio in the tumor sample.
 Useful for distinguishing focal amplifications from broad gains. \\

@@ -380,13 +380,34 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }
     if (is.null(geno(vcf)$AD)) {
         vcf <- .addADField(vcf)
-    }
+    } else {
+        vcf <- .checkADField(vcf)
+    }    
     if (!.checkVcfFieldAvailable(vcf, "FA")) {
         # try to add an FA geno field if missing
         vcf <- .addFaField(vcf)
     }
     vcf     
 }
+
+.checkADField <- function(vcf) {
+    refs <- apply(geno(vcf)$AD, 2, function(x) sapply(x, function(y) y[2]))
+    if (any(!complete.cases(refs))) {
+        flog.warn("AD field misses ref counts.")
+        matrixAD <- do.call(cbind, lapply(samples(header(vcf)), function(j) {
+            dp <- unlist(geno(vcf)$DP[,j])
+            alt <- sapply(geno(vcf)$AD[,j], function(x) x[1])
+            ref <- dp - alt
+            AD <- lapply(seq_along(dp), function(i) as.integer(c(ref[i], alt[i])))
+            names(AD) <- names(dp)
+            AD
+        })) 
+        colnames(matrixAD) <- samples(header(vcf))   
+        geno(vcf)$AD <- matrixAD
+    }
+    vcf
+}
+    
 .addDbField <- function(vcf, DB.info.flag, 
                         POPAF.info.field,
                         min.pop.af) {
@@ -444,6 +465,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }    
     vcf
 }
+
 
 .addADField <- function(vcf, field="AD") {
     # FreeBayes
