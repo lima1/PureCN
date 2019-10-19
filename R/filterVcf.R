@@ -392,7 +392,8 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 
 .checkADField <- function(vcf) {
     refs <- apply(geno(vcf)$AD, 2, function(x) sapply(x, function(y) y[2]))
-    if (any(!complete.cases(refs))) {
+    if (!any(complete.cases(refs))) {
+        # VarScan2 does only provide alt in AD
         flog.warn("AD field misses ref counts.")
         matrixAD <- do.call(cbind, lapply(samples(header(vcf)), function(j) {
             dp <- unlist(geno(vcf)$DP[,j])
