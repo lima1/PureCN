@@ -49,6 +49,8 @@ BUGFIXES
       (#82)
     o Die with helpful error message when snp.blacklist import failed  
     o Check input segmentation files for missing values resulting in crash
+    o Fixed a crash in Varscan2 produced VCFs when ALT field missed ref counts
+      (#109)
 
     
 Changes in version 1.14.0
