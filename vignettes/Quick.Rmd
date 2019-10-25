@@ -169,10 +169,11 @@ Important recommendations:
 
 - Use _MuTect 1.1.7_ if possible
 
-- VCFs from most tumor-only callers such as _MuTect 2_ and _FreeBayes_ are
-  supported, but only very limited artifact filtering will be performed for
-  these callers.  Make sure to provide filtered VCF. See the FAQ section in the
-  main vignette for common problems and questions related to input data.
+- VCFs from most other tumor-only callers such as _MuTect 2_, _VarScan2_ and
+  _FreeBayes_ are supported, but only very limited artifact filtering will be
+  performed for these callers.  Make sure to provide filtered VCFs. See the FAQ
+  section in the main vignette for common problems and questions related to
+  input data.
 
 - Since germline SNPs are needed to infer allele-specific copy numbers, the
   provided VCF needs to contain both somatic and germline variants.  Make sure
