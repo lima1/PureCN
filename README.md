@@ -16,7 +16,7 @@ from low coverage whole-exome to ultra-deep sequenced plasma gene-panels.
 To install this package, start R and enter:
 
 ```
-if (!requireNamespace("BiocManager", quietly=TRUE))
+if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install("PureCN")
 ```
@@ -28,7 +28,7 @@ For outdated R/Bioconductor versions, you can try backporting the latest stable
 version (this should work fine for Bioconductor 3.3 and later):
 
 ```
-BiocManager::install("lima1/PureCN", ref="RELEASE_3_9")
+BiocManager::install("lima1/PureCN", ref = "RELEASE_3_10")
 ```
 
 If you want the latest and greatest from the developer branch:
@@ -43,13 +43,13 @@ BiocManager::install("lima1/PureCN")
 To get started:
 
 ```
-vignette("Quick", package="PureCN")
+vignette("Quick", package = "PureCN")
 ```
 
 For the R package and more detailed information:
 
 ```
-vignette("PureCN", package="PureCN")
+vignette("PureCN", package = "PureCN")
 ```
 
 These tutorials are also available on the Bioconductor project page
@@ -62,7 +62,9 @@ Before [posting](https://github.com/lima1/PureCN/issues) a bug report:
 
 * update to the latest version 
 * confirm with sessionInfo() that the latest version is used
-* if this is a first PureCN attempt, closely follow the Quick vignette
+* if this is a first PureCN attempt, closely follow the Quick vignette 
+([devel](https://bioconductor.org/packages/devel/bioc/vignettes/PureCN/inst/doc/Quick.html),
+[stable](https://bioconductor.org/packages/release/bioc/vignettes/PureCN/inst/doc/Quick.html))
 * make sure that the issue is not covered in the Support section of the main
   vignette
 
