@@ -3,11 +3,16 @@ Changes in version 1.18.0
 
 SIGNIFICANT USER-VISIBLE CHANGES
 
-    o callAlterations: columns C and seg.mean now provide the values
-      of the segment listed in seg.id. This changes the behaviour in
-      cases where the gene contains breakpoints and thus multiple
-      segments overlap (#112)
+    o callAlterations: columns C and seg.mean now provide the values of the
+      segment listed in seg.id. This changes the behaviour in cases where the
+      gene contains breakpoints and thus multiple segments overlap (#112)
 
+BUGFIXES
+
+    o Fix for bug that can result in crash when candidates were provided in
+      runAbsoluteCN and test.purity, max.ploidy and/or min.ploidy were set to 
+      non-default values
+      
 
 Changes in version 1.16.0
 -------------------------

@@ -694,8 +694,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     
     if (nrow(candidate.solutions$candidates) > max.candidate.solutions) {
         # test the best solutions and everything close to diploid
-        idx.keep <- unique(c(seq_len(max.candidate.solutions), which((candidate.solutions$candidates$tumor.ploidy > 
-            1.5 & candidate.solutions$candidates$tumor.ploidy < 2.6))))
+        idx.keep <- unique(c(seq_len(max.candidate.solutions), which(
+            candidate.solutions$candidates$tumor.ploidy >= max(1.5, min.ploidy) & 
+            candidate.solutions$candidates$tumor.ploidy <= min(max.ploidy, 2.6) &
+            candidate.solutions$candidates$purity >= min(test.purity) &
+            candidate.solutions$candidates$purity <= max(test.purity)
+            )))
         candidate.solutions$candidates <- candidate.solutions$candidates[idx.keep, 
             ]
     }

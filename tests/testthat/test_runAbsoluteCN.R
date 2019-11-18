@@ -179,7 +179,7 @@ test_that("Missing Gene column in interval.file is handled correctly", {
         interval.file = output.file, model.homozygous = TRUE, tumor.coverage.file = tumor.coverage.file, 
         candidates = purecn.example.output$candidates, 
         min.ploidy = 2.2, max.ploidy = 4, vcf.file = vcf.file, 
-        genome = "hg19", test.purity = seq(0.4, 0.7, by = 0.05), 
+        genome = "hg19", test.purity = seq(0.3, 0.7, by = 0.05), 
         max.candidate.solutions = 1)
     expect_true(ret$results[[1]]$ploidy <= 4)
     expect_true(ret$results[[1]]$ploidy >= 2)
