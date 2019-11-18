@@ -257,6 +257,12 @@ test_that("Different chromosome naming styles throw exceptions", {
     plotAbs(ret, 1, type = "all")
     expect_error(plotAbs(ret, 1, type = "BAF", chr = "chr1"))
     plotAbs(ret, 1, type = "BAF", chr = "1")
+    x <- ret$results[[1]]$gene.calls
+    seg <- ret$results[[1]]$seg
+    expect_equal(x$breakpoints == 0, x$.min.segid == x$.max.segid)
+    expect_equal(seg$seg.mean[x$seg.id], x$seg.mean)
+    expect_equal(seg$C[x$seg.id], x$C)
+
     file.remove(c(output.file1, output.file2))
 })
 

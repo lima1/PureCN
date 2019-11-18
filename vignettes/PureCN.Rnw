@@ -707,12 +707,15 @@ Table~\ref{tbl:callAlterations}.
 Column name       & Description \\
 \midrule
 \Rcode{chr, start, end} & Gene coordinates \\
-\Rcode{C}            & Segment integer copy number \\
-\Rcode{C.flagged}    & Flagged when interval weights are low. 
-Requires \Rcode{normalDB}. \\
+\Rcode{C}            & Segment integer copy number. See also \Rcode{seg.id}. \\
+\Rcode{C.flagged}    & Flagged when segment interval weights are low.  Requires
+\Rcode{normalDB}. In case multiple segments overlap, \Rcode{C.flagged} will be
+\Rcode{TRUE} when any segment is flagged. \\
 \Rcode{seg.mean}     & Segment mean of copy number log2-ratios 
-(not adjusted for purity/ploidy)  \\
-\Rcode{seg.id}       & Segment id  \\
+(not adjusted for purity/ploidy). See also \Rcode{seg.id}.  \\
+\Rcode{seg.id}       & Segment id. In case multiple segments overlap,
+\Rcode{seg.id} will point to the smallest overlapping segment and the column
+\Rcode{breakpoints} will be non-zero.  \\
 \Rcode{number.targets} & Number of targets annotated with this symbol \\
 \Rcode{gene.*}       & Gene copy number log2-ratios  
 (not adjusted for purity/ploidy). \Rcode{gene.mean} is weighted

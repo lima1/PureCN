@@ -580,8 +580,10 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     }
 
     gene.calls <- data.frame(dt[, list(chr = seqnames[1], start = min(start), 
-        end = max(end), C = as.double(median(C)), C.flagged = any(C.flagged), 
-        seg.mean = median(seg.mean),
+        end = max(end), 
+        C = as.double(C[which.min(seg.length)]), 
+        C.flagged = any(C.flagged),
+        seg.mean = seg.mean[which.min(seg.length)],
         seg.id = seg.id[which.min(seg.length)], 
         .min.segid=min(seg.id), .max.segid=max(seg.id),
         number.targets = length(start), 
