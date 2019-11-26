@@ -24,8 +24,9 @@ BiocManager::install("PureCN")
 If your R/Bioconductor version is outdated, this will install an old and
 unsupported version.
 
-For outdated R/Bioconductor versions, you can try backporting the latest stable
-version (this should work fine for Bioconductor 3.3 and later):
+For [outdated](https://bioconductor.org/about/release-announcements/)
+R/Bioconductor versions, you can try backporting the latest stable version (this
+should work fine for Bioconductor 3.3 and later):
 
 ```
 BiocManager::install("lima1/PureCN", ref = "RELEASE_3_10")
