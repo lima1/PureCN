@@ -83,8 +83,7 @@ Before [posting](https://github.com/lima1/PureCN/issues) a bug report:
 
     Oh S, Geistlinger L, Ramos M, Morgan M,  Waldron L, Riester M (2020).
     Reliable analysis of clinical tumor-only whole exome sequencing data.
-    _JCO Clinical Cancer Informatics_. 
-    doi: 10.1200/CCI.19.00130(https://doi.org/10.1200/CCI.19.00130);  
+    _JCO Clinical Cancer Informatics_. doi: [10.1200/CCI.19.00130](https://doi.org/10.1200/CCI.19.00130);  
     _bioRxiv_. doi: [10.1101/552711](https://doi.org/10.1101/552711)
 
 ## Selected citations
