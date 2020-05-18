@@ -1,3 +1,14 @@
+Changes in version 1.19.1
+-------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o We now check if POP_AF or POPAF is -log10 scaled as new Mutect2 versions
+      do. 
+    o Added support for GERMQ info field containing Phred-scaled germline
+      probabilities.      
+
+
 Changes in version 1.18.0
 -------------------------
 

@@ -421,7 +421,12 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
            " Found and used somatic status instead.")
     } else if (!is.null(info(vcf)[[POPAF.info.field]]) && 
         max(unlist(info(vcf)[[POPAF.info.field]]), na.rm = TRUE) > 0.05 ) {
-        db <- info(vcf)[[POPAF.info.field]] > min.pop.af
+        if (max(unlist(info(vcf)[[POPAF.info.field]]), na.rm = TRUE) > 1.1) {
+            flog.info("Maximum of POPAP INFO is > 1, assuming -log10 scaled values") 
+            db <- info(vcf)[[POPAF.info.field]] < -log10(min.pop.af)
+        } else {    
+            db <- info(vcf)[[POPAF.info.field]] > min.pop.af
+        }
         db <- sapply(db, function(x) x[[1]])
         flog.warn("vcf.file has no DB info field for membership in germline databases. Found and used valid population allele frequency > %f instead.",
                   min.pop.af)
@@ -460,7 +465,13 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
             info(vcf)$SOMATIC <- unlist(info(vcf)$P_GERMLINE < log10(0.5))
             info(vcf)$SOMATIC[is.infinite(info(vcf)$SOMATIC) | 
                 is.na(info(vcf)$SOMATIC) ] <- FALSE
+        } else if (!is.null(info(vcf)$GERMQ)) {
+            flog.warn("Found GERMQ info field with Phred scaled germline probabilities.")
+            info(vcf)$SOMATIC <- unlist(info(vcf)$GERMQ > -10* log10(0.5))
+            info(vcf)$SOMATIC[is.infinite(info(vcf)$SOMATIC) | 
+                is.na(info(vcf)$SOMATIC) ] <- FALSE
         } else {
+            flog.warn("Having trouble guessing SOMATIC status...")
             info(vcf)$SOMATIC <- apply(geno(vcf)$GT,1,function(x) x[1]!=x[2])
         }    
     }    
