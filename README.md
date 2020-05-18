@@ -24,11 +24,12 @@ BiocManager::install("PureCN")
 If your R/Bioconductor version is outdated, this will install an old and
 unsupported version.
 
-For outdated R/Bioconductor versions, you can try backporting the latest stable
-version (this should work fine for Bioconductor 3.3 and later):
+For [outdated](https://bioconductor.org/about/release-announcements/)
+R/Bioconductor versions, you can try backporting the latest stable version (this
+should work fine for Bioconductor 3.3 and later):
 
 ```
-BiocManager::install("lima1/PureCN", ref = "RELEASE_3_10")
+BiocManager::install("lima1/PureCN", ref = "RELEASE_3_11")
 ```
 
 If you want the latest and greatest from the developer branch:
@@ -80,11 +81,15 @@ Before [posting](https://github.com/lima1/PureCN/issues) a bug report:
 * Validation paper, including description of novel additions, such as off-target
   support, tangent normalization and tweaks to the likelihood model:
 
-    Oh S, Geistlinger L, Ramos M, Morgan M,  Waldron L, Riester M (2019).
+    Oh S, Geistlinger L, Ramos M, Morgan M,  Waldron L, Riester M (2020).
     Reliable analysis of clinical tumor-only whole exome sequencing data.
+    _JCO Clinical Cancer Informatics_. doi: [10.1200/CCI.19.00130](https://doi.org/10.1200/CCI.19.00130);  
     _bioRxiv_. doi: [10.1101/552711](https://doi.org/10.1101/552711)
 
 ## Selected citations
+
+Bertucci et al. (2019). "Genomic characterization of metastatic breast cancers".
+_Nature_. doi: [10.1038/s41586-019-1056-z](https://doi.org/10.1038/s41586-019-1056-z).
 
 Dagogo-Jack et al. (2018). "Tracking the evolution of resistance to ALK tyrosine kinase
 inhibitors through longitudinal analysis of circulating tumor DNA". _JCO
