@@ -6,7 +6,10 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o We now check if POP_AF or POPAF is -log10 scaled as new Mutect2 versions
       do. 
     o Added support for GERMQ info field containing Phred-scaled germline
-      probabilities.      
+      probabilities.
+    o Detect Mutect2 VCF more reliably
+    o Updated Mutect2 failure flags: "strand_bias", "slippage", "weak_evidence",
+        "orientation", "haplotype"
 
 
 Changes in version 1.18.0

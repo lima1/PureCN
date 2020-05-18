@@ -28,8 +28,9 @@
 #' @export filterVcfMuTect2
 filterVcfMuTect2 <- function(vcf, tumor.id.in.vcf = NULL,
 ignore=c("clustered_events", "t_lod", "str_contraction", 
-"read_position", "fragment_length", "multiallelic", "clipping",
-"strand_artifact"),
+"read_position", "position", "fragment_length", "multiallelic", "clipping",
+"strand_artifact", "strand_bias", "slippage", "weak_evidence",
+"orientation", "haplotype"),
 ...){
     if (is.null(fixed(vcf)$FILTER)) return(
         filterVcfBasic(vcf, tumor.id.in.vcf, ...))
