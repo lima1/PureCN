@@ -4,9 +4,16 @@
 \alias{segmentationHclust}
 \title{Minimal segmentation function}
 \usage{
-segmentationHclust(seg, vcf = NULL, tumor.id.in.vcf = 1,
-  normal.id.in.vcf = NULL, prune.hclust.h = NULL,
-  prune.hclust.method = "ward.D", chr.hash = NULL, ...)
+segmentationHclust(
+  seg,
+  vcf = NULL,
+  tumor.id.in.vcf = 1,
+  normal.id.in.vcf = NULL,
+  prune.hclust.h = NULL,
+  prune.hclust.method = "ward.D",
+  chr.hash = NULL,
+  ...
+)
 }
 \arguments{
 \item{seg}{If segmentation was provided by the user, this data structure

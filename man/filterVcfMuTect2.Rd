@@ -4,10 +4,14 @@
 \alias{filterVcfMuTect2}
 \title{Filter VCF MuTect2}
 \usage{
-filterVcfMuTect2(vcf, tumor.id.in.vcf = NULL,
-  ignore = c("clustered_events", "t_lod", "str_contraction",
-  "read_position", "fragment_length", "multiallelic", "clipping",
-  "strand_artifact"), ...)
+filterVcfMuTect2(
+  vcf,
+  tumor.id.in.vcf = NULL,
+  ignore = c("clustered_events", "t_lod", "str_contraction", "read_position",
+    "position", "fragment_length", "multiallelic", "clipping", "strand_artifact",
+    "strand_bias", "slippage", "weak_evidence", "orientation", "haplotype"),
+  ...
+)
 }
 \arguments{
 \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf}

@@ -4,9 +4,14 @@
 \alias{calculateMappingBiasVcf}
 \title{Calculate Mapping Bias}
 \usage{
-calculateMappingBiasVcf(normal.panel.vcf.file, min.normals = 2,
-  min.normals.betafit = 7, min.median.coverage.betafit = 5,
-  yieldSize = 5000, genome)
+calculateMappingBiasVcf(
+  normal.panel.vcf.file,
+  min.normals = 2,
+  min.normals.betafit = 7,
+  min.median.coverage.betafit = 5,
+  yieldSize = 5000,
+  genome
+)
 }
 \arguments{
 \item{normal.panel.vcf.file}{Combined VCF file of a panel of normals,

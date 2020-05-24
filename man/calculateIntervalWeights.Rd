@@ -4,8 +4,13 @@
 \alias{calculateIntervalWeights}
 \title{Calculate interval weights}
 \usage{
-calculateIntervalWeights(normalDB, interval.weight.file = NULL,
-  top.quantile = 0.7, plot = FALSE, normal.coverage.files = NULL)
+calculateIntervalWeights(
+  normalDB,
+  interval.weight.file = NULL,
+  top.quantile = 0.7,
+  plot = FALSE,
+  normal.coverage.files = NULL
+)
 }
 \arguments{
 \item{normalDB}{Database of normal samples, created with

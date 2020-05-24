@@ -4,9 +4,16 @@
 \alias{calculatePowerDetectSomatic}
 \title{Power calculation for detecting somatic mutations}
 \usage{
-calculatePowerDetectSomatic(coverage, f = NULL, purity = NULL,
-  ploidy = NULL, cell.fraction = 1, error = 0.001, fpr = 5e-07,
-  verbose = TRUE)
+calculatePowerDetectSomatic(
+  coverage,
+  f = NULL,
+  purity = NULL,
+  ploidy = NULL,
+  cell.fraction = 1,
+  error = 0.001,
+  fpr = 5e-07,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{coverage}{Mean sequencing coverage.}

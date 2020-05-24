@@ -4,9 +4,16 @@
 \alias{createNormalDatabase}
 \title{Create database of normal samples}
 \usage{
-createNormalDatabase(normal.coverage.files, sex = NULL,
-  coverage.outliers = c(0.25, 4), min.coverage = 0.25,
-  max.missing = 0.03, low.coverage = 15, plot = FALSE, ...)
+createNormalDatabase(
+  normal.coverage.files,
+  sex = NULL,
+  coverage.outliers = c(0.25, 4),
+  min.coverage = 0.25,
+  max.missing = 0.03,
+  low.coverage = 15,
+  plot = FALSE,
+  ...
+)
 }
 \arguments{
 \item{normal.coverage.files}{Vector with file names pointing to 

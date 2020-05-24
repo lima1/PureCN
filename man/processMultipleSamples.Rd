@@ -4,10 +4,21 @@
 \alias{processMultipleSamples}
 \title{Multi sample normalization and segmentation}
 \usage{
-processMultipleSamples(tumor.coverage.files, sampleids, normalDB,
-  num.eigen = 20, genome, plot.cnv = TRUE, w = NULL,
-  interval.weight.file = NULL, min.interval.weight = 1/3,
-  max.segments = NULL, chr.hash = NULL, centromeres = NULL, ...)
+processMultipleSamples(
+  tumor.coverage.files,
+  sampleids,
+  normalDB,
+  num.eigen = 20,
+  genome,
+  plot.cnv = TRUE,
+  w = NULL,
+  interval.weight.file = NULL,
+  min.interval.weight = 1/3,
+  max.segments = NULL,
+  chr.hash = NULL,
+  centromeres = NULL,
+  ...
+)
 }
 \arguments{
 \item{tumor.coverage.files}{Coverage data for tumor samples.}

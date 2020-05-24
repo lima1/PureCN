@@ -4,8 +4,13 @@
 \alias{setPriorVcf}
 \title{Set Somatic Prior VCF}
 \usage{
-setPriorVcf(vcf, prior.somatic = c(0.5, 5e-04, 0.999, 1e-04, 0.995, 0.5),
-  tumor.id.in.vcf = NULL, min.cosmic.cnt = 6, DB.info.flag = "DB")
+setPriorVcf(
+  vcf,
+  prior.somatic = c(0.5, 5e-04, 0.999, 1e-04, 0.995, 0.5),
+  tumor.id.in.vcf = NULL,
+  min.cosmic.cnt = 6,
+  DB.info.flag = "DB"
+)
 }
 \arguments{
 \item{vcf}{\code{CollapsedVCF} object, read in with the \code{readVcf}

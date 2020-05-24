@@ -4,8 +4,12 @@
 \alias{getSexFromCoverage}
 \title{Get sample sex from coverage}
 \usage{
-getSexFromCoverage(coverage.file, min.ratio = 25, min.ratio.na = 20,
-  remove.outliers = TRUE)
+getSexFromCoverage(
+  coverage.file,
+  min.ratio = 25,
+  min.ratio.na = 20,
+  remove.outliers = TRUE
+)
 }
 \arguments{
 \item{coverage.file}{Coverage file or data read with

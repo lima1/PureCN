@@ -4,9 +4,15 @@
 \alias{callAmplificationsInLowPurity}
 \title{Calling of amplifications in low purity samples}
 \usage{
-callAmplificationsInLowPurity(res, normalDB, pvalue.cutoff = 0.001,
-  percentile.cutoff = 90, min.width = 3, all.genes = FALSE,
-  purity = NULL)
+callAmplificationsInLowPurity(
+  res,
+  normalDB,
+  pvalue.cutoff = 0.001,
+  percentile.cutoff = 90,
+  min.width = 3,
+  all.genes = FALSE,
+  purity = NULL
+)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}

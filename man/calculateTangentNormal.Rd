@@ -4,8 +4,13 @@
 \alias{calculateTangentNormal}
 \title{Calculate tangent normal}
 \usage{
-calculateTangentNormal(tumor.coverage.file, normalDB, num.eigen = 20,
-  ignore.sex = FALSE, sex = NULL)
+calculateTangentNormal(
+  tumor.coverage.file,
+  normalDB,
+  num.eigen = 20,
+  ignore.sex = FALSE,
+  sex = NULL
+)
 }
 \arguments{
 \item{tumor.coverage.file}{Coverage file or data  of a tumor sample.}
