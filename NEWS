@@ -1,4 +1,4 @@
-Changes in version 1.19.1
+Changes in version 1.20.0
 -------------------------
 
 SIGNIFICANT USER-VISIBLE CHANGES
@@ -10,6 +10,11 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Detect Mutect2 VCF more reliably
     o Updated Mutect2 failure flags: "strand_bias", "slippage", "weak_evidence",
         "orientation", "haplotype"
+
+BUGFIXES
+
+    o Fix for crash with CNVkit input when log-ratio contained highly negative
+      outliers
 
 
 Changes in version 1.18.0
