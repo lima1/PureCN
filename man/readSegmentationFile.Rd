@@ -4,8 +4,14 @@
 \alias{readSegmentationFile}
 \title{Read file containing segmentations}
 \usage{
-readSegmentationFile(seg.file, sampleid, model.homozygous = FALSE,
-  format, zero = FALSE, verbose = TRUE)
+readSegmentationFile(
+  seg.file,
+  sampleid,
+  model.homozygous = FALSE,
+  format,
+  zero = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{seg.file}{File with segmentation}

@@ -4,8 +4,12 @@
 \alias{callCIN}
 \title{Call Chromosomal Instability}
 \usage{
-callCIN(res, id = 1, allele.specific = TRUE,
-  reference.state = c("dominant", "normal"))
+callCIN(
+  res,
+  id = 1,
+  allele.specific = TRUE,
+  reference.state = c("dominant", "normal")
+)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}

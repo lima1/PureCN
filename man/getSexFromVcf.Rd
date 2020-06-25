@@ -4,9 +4,17 @@
 \alias{getSexFromVcf}
 \title{Get sample sex from a VCF file}
 \usage{
-getSexFromVcf(vcf, tumor.id.in.vcf = NULL, min.or = 4,
-  min.or.na = 2.5, max.pv = 0.001, homozygous.cutoff = 0.95,
-  af.cutoff = 0.2, min.coverage = 15, use.somatic.status = TRUE)
+getSexFromVcf(
+  vcf,
+  tumor.id.in.vcf = NULL,
+  min.or = 4,
+  min.or.na = 2.5,
+  max.pv = 0.001,
+  homozygous.cutoff = 0.95,
+  af.cutoff = 0.2,
+  min.coverage = 15,
+  use.somatic.status = TRUE
+)
 }
 \arguments{
 \item{vcf}{CollapsedVCF object, read in with the \code{readVcf} function

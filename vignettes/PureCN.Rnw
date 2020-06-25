@@ -1452,7 +1452,14 @@ Figure~\ref{figure/figureexample2-1}:
         \Rcode{model} argument of \Rfunction{runAbsoluteCN} to \Rcode{betabin}
         is recommended. Specialized segmentation tools might be again better
         than our default.
-
+    
+	\item This tool was originally designed for single sample pipelines. It
+becomes more common to have multiple biopsies per patient and sharing
+information across biopsies might be beneficial. While there is basic
+functionality for multi-sample segmentation (see \ref{multisampleseg}), we
+currently have no plans to support multiple biopsies in the likelihood model
+directly. Other tools worth checking out are lumosVar 2.0 \cite{Halperin2019}
+and SuperFreq \cite{Flensburg2020}.
 \end{itemize}
 
 \paragraph{If you have trouble generating input data PureCN accepts, please check:}

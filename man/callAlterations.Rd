@@ -4,8 +4,14 @@
 \alias{callAlterations}
 \title{Calling of amplifications and deletions}
 \usage{
-callAlterations(res, id = 1, cutoffs = c(0.5, 6, 7),
-  log.ratio.cutoffs = c(-0.9, 0.9), failed = NULL, all.genes = FALSE)
+callAlterations(
+  res,
+  id = 1,
+  cutoffs = c(0.5, 6, 7),
+  log.ratio.cutoffs = c(-0.9, 0.9),
+  failed = NULL,
+  all.genes = FALSE
+)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}

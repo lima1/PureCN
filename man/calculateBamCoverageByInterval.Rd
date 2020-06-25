@@ -4,9 +4,14 @@
 \alias{calculateBamCoverageByInterval}
 \title{Function to calculate coverage from BAM file}
 \usage{
-calculateBamCoverageByInterval(bam.file, interval.file,
-  output.file = NULL, index.file = bam.file, keep.duplicates = FALSE,
-  ...)
+calculateBamCoverageByInterval(
+  bam.file,
+  interval.file,
+  output.file = NULL,
+  index.file = bam.file,
+  keep.duplicates = FALSE,
+  ...
+)
 }
 \arguments{
 \item{bam.file}{Filename of a BAM file.}

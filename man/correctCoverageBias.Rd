@@ -4,8 +4,14 @@
 \alias{correctCoverageBias}
 \title{Correct for library-specific coverage biases}
 \usage{
-correctCoverageBias(coverage.file, interval.file, output.file = NULL,
-  plot.bias = FALSE, plot.max.density = 50000, output.qc.file = NULL)
+correctCoverageBias(
+  coverage.file,
+  interval.file,
+  output.file = NULL,
+  plot.bias = FALSE,
+  plot.max.density = 50000,
+  output.qc.file = NULL
+)
 }
 \arguments{
 \item{coverage.file}{Coverage file or coverage data parsed with the

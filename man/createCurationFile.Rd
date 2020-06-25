@@ -4,8 +4,11 @@
 \alias{createCurationFile}
 \title{Create file to curate PureCN results}
 \usage{
-createCurationFile(file.rds, overwrite.uncurated = TRUE,
-  overwrite.curated = FALSE)
+createCurationFile(
+  file.rds,
+  overwrite.uncurated = TRUE,
+  overwrite.curated = FALSE
+)
 }
 \arguments{
 \item{file.rds}{Output of the \code{\link{runAbsoluteCN}} function,

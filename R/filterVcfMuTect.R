@@ -87,7 +87,9 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
     
 .detectCaller <- function(vcf) {
     gatkVersion <- meta(header(vcf))[["GATKCommandLine"]]$Version[1]
-    gatkVersion <- gsub("\\\"", "", gatkVersion)
-    if (!is.null(gatkVersion) && grepl("^4", gatkVersion)) return("MuTect2/GATK4")
+    if (!is.null(gatkVersion)) {
+        gatkVersion <- gsub("\\\"", "", gatkVersion)
+        if (grepl("^4", gatkVersion)) return("MuTect2/GATK4")
+    }    
     return("")
 }    
