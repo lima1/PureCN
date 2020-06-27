@@ -16,7 +16,7 @@ Description: This package estimates tumor purity, copy number, and loss of
     and copy number pipelines, and has support for tumor samples without
     matching normal samples.
 Depends:
-    R (>= 3.3),
+    R (>= 3.5.0),
     DNAcopy,
     VariantAnnotation (>= 1.14.1)
 Imports:
