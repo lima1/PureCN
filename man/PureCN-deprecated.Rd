@@ -10,7 +10,7 @@
 \details{
   The following functions are deprecated and will be made defunct; use
   the replacement indicated below:
-  \itemize{
-    \item{calculateIntervalWeights: \code{\link{createNormalDatabase}}}
-  }
+%  \itemize{
+%
+%  }
 }

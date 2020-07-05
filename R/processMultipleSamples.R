@@ -12,8 +12,6 @@
 #' @param genome Genome version, for example hg19. Needed to get centromere
 #' positions.
 #' @param plot.cnv Segmentation plots.
-#' @param interval.weight.file Deprecated. For \code{normalDB} objects generated
-#' with PureCN versions older than 1.16, re-run \code{\link{createNormalDatabase}}.
 #' @param min.interval.weight Can be used to ignore intervals with low weights.
 #' @param w Weight of samples. Can be used to downweight poor quality samples.
 #' If \code{NULL}, sets to inverse of median on-target duplication rate if
@@ -57,7 +55,7 @@
 #' @export processMultipleSamples
 processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB, 
     num.eigen = 20, genome, plot.cnv = TRUE, w = NULL,
-    interval.weight.file = NULL, min.interval.weight = 1/3,
+    min.interval.weight = 1/3,
     max.segments = NULL, chr.hash = NULL, centromeres = NULL, ...) {
 
     if (!requireNamespace("copynumber", quietly = TRUE)) {
@@ -69,11 +67,6 @@ processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,
 
     interval.weights <- NULL
     intervalsUsed <- rep(TRUE, length(tumors[[1]]))
-    # TODO defunct in 1.18
-    if (!is.null(interval.weight.file) && 
-        !is.null(min.interval.weight)) {
-        normalDB <- .add_weights_to_normaldb(interval.weight.file, normalDB)
-    }    
     if (!is.null(normalDB$sd$weights) && !is.null(min.interval.weight)) {
        interval.weights <- normalDB$sd$weights$weights
        if (length(interval.weights) != length(tumors[[1]])) {
@@ -134,18 +127,3 @@ processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,
     colnames(m) <- c("ID", "chrom", "loc.start", "loc.end", "num.mark", "seg.mean")
     data.frame(m)
 }
-
-.add_weights_to_normaldb <- function(interval.weight.file, normalDB = NULL) {
-    flog.warn("interval.weight.file is deprecated.")
-    if (!is.null(normalDB$sd$weights)) return(normalDB)
-        
-    interval.weights <- read.delim(interval.weight.file, as.is = TRUE)
-    if (!is.null(normalDB)) {
-        interval.weights <- interval.weights[match(normalDB$intervals, 
-            interval.weights[,1]),]
-    }    
-    weights <- GRanges(interval.weights[,1],,, DataFrame(weights = interval.weights[,2]))
-    if (is.null(normalDB)) normalDB <- list()
-    normalDB$sd$weights <- weights
-    normalDB
-}            

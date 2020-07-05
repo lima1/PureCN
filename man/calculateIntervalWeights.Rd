@@ -4,43 +4,11 @@
 \alias{calculateIntervalWeights}
 \title{Calculate interval weights}
 \usage{
-calculateIntervalWeights(
-  normalDB,
-  interval.weight.file = NULL,
-  top.quantile = 0.7,
-  plot = FALSE,
-  normal.coverage.files = NULL
-)
-}
-\arguments{
-\item{normalDB}{Database of normal samples, created with
-\code{\link{createNormalDatabase}}.}
-
-\item{interval.weight.file}{Output filename.}
-
-\item{top.quantile}{Cap weight at the specified quantile. Intervals
-with standard deviation smaller than this value won't have a higher weight
-than intervals at this quantile.}
-
-\item{plot}{Diagnostics plot, useful to tune parameters.}
-
-\item{normal.coverage.files}{Deprecated.}
-}
-\value{
-A normalDB object with following slots added
-\item{sd$log.ratios}{\code{GRanges} with all log.ratios.}
-\item{sd$weights}{\code{GRanges} with interval weights.}
+calculateIntervalWeights()
 }
 \description{
-Creates an interval weight file useful for segmentation. Requires a set of 
-coverage files from normal samples. Interval weights will be
-set proportional to the inverse of coverage standard deviation across all
-normals. Intervals with high variance in coverage in the pool of normals are
-thus down-weighted.
-}
-\details{
 This function is now automatically called by \code{\link{createNormalDatabase}}
-and is thus deprecated.
+and is thus defunct.
 }
 \author{
 Markus Riester

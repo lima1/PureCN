@@ -12,6 +12,7 @@
   \itemize{
     \item{autoCurateResults: no replacement}
     \item{calculateGCContentByInterval: \code{\link{preprocessIntervals}}}
+    \item{calculateIntervalWeights: \code{\link{createNormalDatabase}}}
     \item{createExonWeightFile: \code{\link{createNormalDatabase}}}
     \item{createSNPBlacklist: \code{\link{setMappingBiasVcf}}}
     \item{createTargetWeights: \code{\link{createNormalDatabase}}}

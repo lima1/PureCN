@@ -140,15 +140,6 @@ preprocessIntervals <- function(interval.file, reference.file,
     invisible(interval.gr)
 }
 
-#' Calculates GC content by interval
-#'
-#' This function was renamed to \code{\link{preprocessIntervals}}.
-#'
-#' @export calculateGCContentByInterval
-calculateGCContentByInterval <- function() {
-    .Defunct("preprocessIntervals")
-}    
-
 # this function removes short chromosomes that have no probes (mainly a
 # general way to remove chrM)
 .dropShortUntargetedSeqLevels <- function(offRegions, interval.gr, minSize) {

@@ -12,7 +12,6 @@ processMultipleSamples(
   genome,
   plot.cnv = TRUE,
   w = NULL,
-  interval.weight.file = NULL,
   min.interval.weight = 1/3,
   max.segments = NULL,
   chr.hash = NULL,
@@ -38,9 +37,6 @@ positions.}
 \item{w}{Weight of samples. Can be used to downweight poor quality samples.
 If \code{NULL}, sets to inverse of median on-target duplication rate if
 available, otherwise does not do any weighting.}
-
-\item{interval.weight.file}{Deprecated. For \code{normalDB} objects generated
-with PureCN versions older than 1.16, re-run \code{\link{createNormalDatabase}}.}
 
 \item{min.interval.weight}{Can be used to ignore intervals with low weights.}
 

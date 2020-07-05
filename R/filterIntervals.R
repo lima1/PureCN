@@ -86,15 +86,6 @@ filterIntervals <- function(normal, tumor, log.ratio, seg.file,
     return(intervalsUsed)
 }
 
-#' Remove low quality targets
-#' 
-#' This function is defunct and was renamed to 
-#' \code{\link{filterIntervals}}.
-#' @export filterTargets
-filterTargets <- function() {
-    .Defunct("filterIntervals")
-}  
-
 .checkNormalDB <- function(tumor, normalDB) {
     if (!is(normalDB, "list")) {
         .stopUserError("normalDB not a valid normalDB object. ",

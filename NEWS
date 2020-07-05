@@ -5,7 +5,6 @@ NEW FEATURES
 
     o Support for GATK4 GenomicsDB import for mapping bias calculation
     
-
 SIGNIFICANT USER-VISIBLE CHANGES
 
     o We now check if POP_AF or POPAF is -log10 scaled as new Mutect2 versions
@@ -16,6 +15,9 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Updated Mutect2 failure flags: "strand_bias", "slippage", "weak_evidence",
         "orientation", "haplotype"
     o Removed defunct normal.panel.vcf.file from setMappingBiasVcf
+    o Removed defunct interval.weight.file from segmentationPSCBS,
+      segmentationCBS and processMultipleSamples
+    o Made calculateIntervalWeights defunct
 
 BUGFIXES
 

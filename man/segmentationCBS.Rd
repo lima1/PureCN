@@ -11,7 +11,6 @@ segmentationCBS(
   seg,
   plot.cnv,
   sampleid,
-  interval.weight.file = NULL,
   weight.flag.pvalue = 0.01,
   alpha = 0.005,
   undo.SD = NULL,
@@ -41,8 +40,6 @@ ignores this user provided segmentation.}
 \item{plot.cnv}{Segmentation plots.}
 
 \item{sampleid}{Sample id, used in output files.}
-
-\item{interval.weight.file}{Deprecated.}
 
 \item{weight.flag.pvalue}{Flag values with one-sided p-value smaller than
 this cutoff.}

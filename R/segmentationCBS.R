@@ -15,7 +15,6 @@
 #' ignores this user provided segmentation.
 #' @param plot.cnv Segmentation plots.
 #' @param sampleid Sample id, used in output files.
-#' @param interval.weight.file Deprecated.
 #' @param weight.flag.pvalue Flag values with one-sided p-value smaller than
 #' this cutoff.
 #' @param alpha Alpha value for CBS, see documentation for the \code{segment}
@@ -72,18 +71,13 @@
 #' @export segmentationCBS
 #' @importFrom stats t.test hclust cutree dist
 segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv, 
-    sampleid, interval.weight.file = NULL, weight.flag.pvalue = 0.01, alpha = 0.005, 
+    sampleid, weight.flag.pvalue = 0.01, alpha = 0.005, 
     undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
     max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
     chr.hash = NULL, centromeres = NULL) {
     
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
     
-    # TODO defunct in 1.18
-    if (!is.null(interval.weight.file)) {
-        normalDB <- .add_weights_to_normaldb(interval.weight.file)
-        tumor$weights <- subsetByOverlaps(normalDB$sd$weights, tumor)$weights
-    }
     if (!is.null(tumor$weights) && length(unique(tumor$weights)) > 1 ) {
         flog.info("Interval weights found, will use weighted CBS.")
     }
