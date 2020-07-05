@@ -8,8 +8,6 @@ setMappingBiasVcf(
   vcf,
   tumor.id.in.vcf = NULL,
   mapping.bias.file = NULL,
-  normal.panel.vcf.file = NULL,
-  min.normals = 2,
   smooth = TRUE,
   smooth.n = 5
 )
@@ -22,15 +20,9 @@ function from the VariantAnnotation package.}
 VCF.}
 
 \item{mapping.bias.file}{A precomputed mapping bias database 
-obtained by \code{\link{calculateMappingBiasVcf}}.}
-
-\item{normal.panel.vcf.file}{Deprecated, use \code{mapping.bias.file}
+obtained by \code{\link{calculateMappingBiasVcf}}.
 instead.
 reference and alt counts as AD genotype field. Should be compressed and}
-
-\item{min.normals}{Deprecated. Minimum number of normals with heterozygous SNP for
-calculating position-specific mapping bias. Requires
-\code{normal.panel.vcf.file}.}
 
 \item{smooth}{Impute mapping bias of variants not found in the panel by
 smoothing of neighboring SNPs. Requires \code{mapping.bias.file}.}

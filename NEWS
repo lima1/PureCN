@@ -15,6 +15,7 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Detect Mutect2 VCF more reliably
     o Updated Mutect2 failure flags: "strand_bias", "slippage", "weak_evidence",
         "orientation", "haplotype"
+    o Removed defunct normal.panel.vcf.file from setMappingBiasVcf
 
 BUGFIXES
 

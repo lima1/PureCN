@@ -12,12 +12,8 @@
 #' VCF.
 #' @param mapping.bias.file A precomputed mapping bias database 
 #' obtained by \code{\link{calculateMappingBiasVcf}}.
-#' @param normal.panel.vcf.file Deprecated, use \code{mapping.bias.file}
 #' instead.
 #' reference and alt counts as AD genotype field. Should be compressed and
-#' @param min.normals Deprecated. Minimum number of normals with heterozygous SNP for
-#' calculating position-specific mapping bias. Requires
-#' \code{normal.panel.vcf.file}.
 #' @param smooth Impute mapping bias of variants not found in the panel by
 #' smoothing of neighboring SNPs. Requires \code{mapping.bias.file}.
 #' @param smooth.n Number of neighboring variants used for smoothing.
@@ -40,13 +36,7 @@
 #' 
 #' @export setMappingBiasVcf
 setMappingBiasVcf <- function(vcf, tumor.id.in.vcf = NULL, mapping.bias.file = NULL,
-normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
-    # TODO: remove in 1.20, defunct in 1.18    
-    if (!is.null(normal.panel.vcf.file) && is.null(mapping.bias.file)) {
-        flog.warn("normal.panel.vcf.file is deprecated, use mapping.bias.file instead.")
-        mapping.bias.file <- normal.panel.vcf.file
-        if (min.normals < 2) .stopUserError("min.normals must be >=2.")
-    }    
+smooth = TRUE, smooth.n = 5) {
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
     }
@@ -75,17 +65,10 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
         return(data.frame(bias = tmp, shape1 = NA, shape2 = NA))
     }
 
-    if (file_ext(mapping.bias.file) == "rds") {
+    if (tolower(file_ext(mapping.bias.file)) == "rds") {
         mappingBias <- readRDS(mapping.bias.file)
     } else {
-        flog.warn("Providing a VCF file via mapping.bias.file is deprecated. Pre-compute mapping bias.")
-        nvcf <- .readNormalPanelVcfLarge(vcf, mapping.bias.file)
-        if (nrow(nvcf) < 1) {
-            flog.warn("setMappingBiasVcf: no hits in %s.", mapping.bias.file)
-            return(data.frame(bias = tmp, mu = NA, rho = NA))
-        }
-        mappingBias <- .calculateMappingBias(nvcf = nvcf,
-            min.normals = min.normals)
+        .stopUserError("mapping.bias.file must be a file with *.rds suffix.")
     }
     .annotateMappingBias(tmp, vcf, mappingBias, max.bias, smooth, smooth.n)
 }

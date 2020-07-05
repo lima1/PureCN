@@ -36,9 +36,16 @@ panel of normals GenomicsDB.
 }
 \examples{
 
-normal.panel.vcf <- system.file("extdata", "normalpanel.vcf.gz", package="PureCN")
-bias <- calculateMappingBiasVcf(normal.panel.vcf, genome = "h19")
+\dontrun{ 
+resources_file <- system.file("extdata", "gatk4_pon_db.tgz", 
+    package = "PureCN")
+tmp_dir <- tempdir()
+untar(resources_file, exdir = tmp_dir)
+workspace <- file.path(tmp_dir, "gatk4_pon_db")
+bias <- calculateMappingBiasGatk4(workspace, "hg19")
 saveRDS(bias, "mapping_bias.rds")
+unlink(tmp_dir, recursive=TRUE)
+}
 
 }
 \author{

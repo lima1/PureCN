@@ -13,21 +13,6 @@ test_that("Mapping bias without normal panel matches", {
     expect_equal(vcf.bias, expected)
 })
 
-test_that("Mapping bias with normal panel matches", {
-    normal_panel <- system.file("extdata", "normalpanel.vcf.gz", 
-        package = "PureCN")
-    expect_output(mb <- setMappingBiasVcf(vcf, mapping.bias.file = normal_panel),
-                  "Providing a VCF file")
-    idx <- mb$pon.count > 0
-    expect_equal(head(mb$pon.count[idx], 3), c(15, 5, 27))
-    expect_equal(head(mb$bias[idx], 3), c(0.3362525, 1.0002354, 
-        1.0119481), tolerance = 0.001)
-    nvcf <- readVcf(normal_panel, genome = "hg19")
-    idx <- overlapsAny(vcf, nvcf)
-    expect_equal(sum(!mb$pon.count[idx] > 0), 0)
-    expect_equal(sum(mb$pon.count[!idx] > 0), 0)
-})
-
 test_that("Precomputed mapping bias matches", {
     normal_panel <- system.file("extdata", "normalpanel.vcf.gz", 
         package = "PureCN")
@@ -40,7 +25,7 @@ test_that("Precomputed mapping bias matches", {
 
     normal_panel_precomp <- tempfile(fileext = ".rds")
     saveRDS(mb, file = normal_panel_precomp)
-    mb <- setMappingBiasVcf(vcf, normal.panel.vcf.file = normal_panel_precomp)
+    mb <- setMappingBiasVcf(vcf, mapping.bias.file = normal_panel_precomp)
     idx <- mb$pon.count > 0
     expect_equal(head(mb$pon.count[idx], 3), c(15, 5, 27))
     expect_equal(head(mb$bias[idx], 3), c(0.3362525, 1.0002354, 
@@ -51,6 +36,7 @@ test_that("Precomputed mapping bias matches", {
 
     vcf.single.file <- system.file("extdata", "example_single.vcf.gz", package = "PureCN")
     expect_error(calculateMappingBiasVcf(vcf.single.file), "only a single sample")
+    expect_error(setMappingBiasVcf(vcf, mapping.bias.file = normal_panel), "rds suffix")
 })
 
 test_that("GenomicsDB import works", {

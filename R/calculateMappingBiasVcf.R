@@ -79,9 +79,16 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
 #' @author Markus Riester
 #' @examples
 #'
-#' normal.panel.vcf <- system.file("extdata", "normalpanel.vcf.gz", package="PureCN")
-#' bias <- calculateMappingBiasVcf(normal.panel.vcf, genome = "h19")
+#' \dontrun{ 
+#' resources_file <- system.file("extdata", "gatk4_pon_db.tgz", 
+#'     package = "PureCN")
+#' tmp_dir <- tempdir()
+#' untar(resources_file, exdir = tmp_dir)
+#' workspace <- file.path(tmp_dir, "gatk4_pon_db")
+#' bias <- calculateMappingBiasGatk4(workspace, "hg19")
 #' saveRDS(bias, "mapping_bias.rds")
+#' unlink(tmp_dir, recursive=TRUE)
+#' }
 #'
 #' @export calculateMappingBiasGatk4
 #' @importFrom data.table dcast
@@ -115,7 +122,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     contigs <- jvidmap$contigs[match(contigs, sapply(jvidmap$contigs, function(x) x$name))]
     idx <- order(rankSeqlevels(sapply(contigs, function(x) x$name)))
 
-    bias <- lapply(idx, function(i) {
+    parsed_ad_list <- lapply(idx, function(i) {
         c_offset <- as.numeric(contigs[[i]]$tiledb_column_offset)
         c_length <- as.numeric(contigs[[i]]$length)
 
@@ -127,18 +134,18 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
             row_ranges = list(range(sapply(jcallset$callsets,
                 function(x) x$row_idx)))))
 
-        parsed_ad <- .parseADGenomicsDb(query)
-        .calculateMappingBias(nvcf = NULL, 
-            alt = parsed_ad$alt, 
-            ref = parsed_ad$ref,
-            gr = parsed_ad$gr,
-            min.normals = min.normals,
-            min.normals.betafit = min.normals.betafit,
-            min.median.coverage.betafit = min.median.coverage.betafit
-        )
+        .parseADGenomicsDb(query)
     })
+    flog.info("Fitting beta-binomial distributions. Might take a while...") 
+    bias <- .calculateMappingBias(nvcf = NULL, 
+        alt = do.call(rbind, lapply(parsed_ad_list, function(x) x$alt)), 
+        ref = do.call(rbind, lapply(parsed_ad_list, function(x) x$ref)), 
+        gr = unlist(GRangesList(lapply(parsed_ad_list, function(x) x$gr))),
+        min.normals = min.normals,
+        min.normals.betafit = min.normals.betafit,
+        min.median.coverage.betafit = min.median.coverage.betafit
+    )
     genomicsdb::disconnect(db)
-    bias <- unlist(GRangesList(bias))
     attr(bias, "workspace") <- workspace
     attr(bias, "min.normals") <- min.normals
     attr(bias, "min.normals.betafit") <- min.normals.betafit
