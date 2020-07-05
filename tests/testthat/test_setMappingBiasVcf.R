@@ -52,3 +52,16 @@ test_that("Precomputed mapping bias matches", {
     vcf.single.file <- system.file("extdata", "example_single.vcf.gz", package = "PureCN")
     expect_error(calculateMappingBiasVcf(vcf.single.file), "only a single sample")
 })
+
+test_that("GenomicsDB import works", {
+    skip_if_not(requireNamespace("genomicsdb"), "genomicsdb required")
+    skip_if_not(requireNamespace("jsonlite"), "jsonlite required")
+    resources_file <- system.file("extdata", "gatk4_pon_db.tgz", 
+        package = "PureCN")
+    tmp_dir <- tempdir()
+    untar(resources_file, exdir = tmp_dir)
+    workspace <- file.path(tmp_dir, "gatk4_pon_db")
+    bias <- calculateMappingBiasGatk4(workspace, "hg19")
+    expect_equal(2101, length(bias))
+    unlink(tmp_dir, recursive=TRUE)
+})

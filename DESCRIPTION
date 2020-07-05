@@ -2,8 +2,8 @@ Package: PureCN
 Type: Package
 Title: Copy number calling and SNV classification using
     targeted short read sequencing
-Version: 1.19.3
-Date: 2020-06-24
+Version: 1.19.4
+Date: 2020-07-04
 Authors@R: c(person("Markus", "Riester",
                     role = c("aut", "cre"),
                     email = "markus.riester@novartis.com",
@@ -54,8 +54,11 @@ Suggests:
     knitr,
     optparse,
     org.Hs.eg.db,
+    jsonlite,
     rmarkdown,
     testthat
+Enhances:
+    genomicsdb    
 VignetteBuilder: knitr
 License: Artistic-2.0
 URL: https://github.com/lima1/PureCN

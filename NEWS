@@ -1,6 +1,11 @@
 Changes in version 1.20.0
 -------------------------
 
+NEW FEATURES
+
+    o Support for GATK4 GenomicsDB import for mapping bias calculation
+    
+
 SIGNIFICANT USER-VISIBLE CHANGES
 
     o We now check if POP_AF or POPAF is -log10 scaled as new Mutect2 versions

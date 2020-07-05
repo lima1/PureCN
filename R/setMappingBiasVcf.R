@@ -84,7 +84,8 @@ normal.panel.vcf.file = NULL, min.normals = 2, smooth = TRUE, smooth.n = 5) {
             flog.warn("setMappingBiasVcf: no hits in %s.", mapping.bias.file)
             return(data.frame(bias = tmp, mu = NA, rho = NA))
         }
-        mappingBias <- .calculateMappingBias(nvcf, min.normals)
+        mappingBias <- .calculateMappingBias(nvcf = nvcf,
+            min.normals = min.normals)
     }
     .annotateMappingBias(tmp, vcf, mappingBias, max.bias, smooth, smooth.n)
 }

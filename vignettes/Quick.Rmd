@@ -449,10 +449,12 @@ Important recommendations:
 ## Recommended _GATK4_ usage
 
 ```
-# Recommended: Provide a normal panel VCF to remove mapping biases, pre-compute 
+# Recommended: Provide a normal panel GenomicsDB to remove mapping biases, pre-compute 
 # position-specific bias for much faster runtimes with large panels
 # This needs to be done only once for each assay
-Rscript $PURECN/NormalDB.R --outdir $OUT_REF --normal_panel $NORMAL_PANEL \
+# Requires the genomicsdb R package
+Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
+    --normal_panel $GENOMICSDB-WORKSPACE-PATH/pon_db \
     --assay agilent_v6 --genome hg19 --force
 
 Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \

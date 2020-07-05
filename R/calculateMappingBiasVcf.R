@@ -27,7 +27,8 @@
 #' @importFrom GenomicRanges GRangesList
 #' @importFrom VGAM vglm Coef betabinomial dbetabinom
 #' @export calculateMappingBiasVcf
-calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
+calculateMappingBiasVcf <- function(normal.panel.vcf.file,
+                                    min.normals = 2,
                                     min.normals.betafit = 7,
                                     min.median.coverage.betafit = 5,
                                     yieldSize = 5000, genome) {
@@ -42,8 +43,10 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
         if (!(cntStep %% 10)) {
             flog.info("Position %s:%i", as.character(seqnames(vcf_yield)[1]), start(vcf_yield)[1])
         }
-        mappingBias <- .calculateMappingBias(vcf_yield, min.normals, 
-            min.normals.betafit, min.median.coverage.betafit)
+        mappingBias <- .calculateMappingBias(nvcf = vcf_yield,
+            min.normals = min.normals, 
+            min.normals.betafit = min.normals.betafit,
+            min.median.coverage.betafit = min.median.coverage.betafit)
         ret <- append(ret, GRangesList(mappingBias))
         cntVar <- cntVar + yieldSize
         cntStep <- cntStep + 1
@@ -57,16 +60,131 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
     bias
 }
 
-.calculateMappingBias <- function(nvcf, min.normals, min.normals.betafit = 7,
-                                  min.median.coverage.betafit = 5) {
-    if (ncol(nvcf) < 2) {
-        .stopUserError("The normal.panel.vcf.file contains only a single sample.")
+#' Calculate Mapping Bias from GATK4 GenomicsDB
+#'
+#' Function calculate mapping bias for each variant in the provided
+#' panel of normals GenomicsDB.
+#'
+#'
+#' @param workspace Path to the GenomicsDB created by \code{GenomicsDBImport}
+#' @param reference.genome Reference FASTA file.
+#' @param min.normals Minimum number of normals with heterozygous SNP for
+#' calculating position-specific mapping bias. 
+#' @param min.normals.betafit Minimum number of normals with heterozygous SNP
+#' fitting a beta distribution
+#' @param min.median.coverage.betafit Minimum median coverage of normals with
+#' heterozygous SNP for fitting a beta distribution
+#' @return A \code{GRanges} object with mapping bias and number of normal
+#' samples with this variant.
+#' @author Markus Riester
+#' @examples
+#'
+#' normal.panel.vcf <- system.file("extdata", "normalpanel.vcf.gz", package="PureCN")
+#' bias <- calculateMappingBiasVcf(normal.panel.vcf, genome = "h19")
+#' saveRDS(bias, "mapping_bias.rds")
+#'
+#' @export calculateMappingBiasGatk4
+#' @importFrom data.table dcast
+#' @importFrom GenomeInfoDb rankSeqlevels
+calculateMappingBiasGatk4 <- function(workspace, reference.genome,
+                                    min.normals = 2,
+                                    min.normals.betafit = 7,
+                                    min.median.coverage.betafit = 5) {
+
+    if (!requireNamespace("genomicsdb", quietly = TRUE) || 
+        !requireNamespace("jsonlite", quietly = TRUE)
+        ) {
+        .stopUserError("Install the genomicsdb and jsonlite R packages for GenomicsDB import.")
     }
-    # TODO: deal with tri-allelic sites
-    alt <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][2])
-    ref <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][1])
-    fa  <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][2]/sum(x[[1]]))
-    x <- sapply(seq_len(nrow(nvcf)), function(i) {
+    workspace <- normalizePath(workspace, mustWork = TRUE)
+
+    db <- genomicsdb::connect(workspace = workspace,
+        vid_mapping_file = file.path(workspace, "vidmap.json"),
+        callset_mapping_file=file.path(workspace, "callset.json"),
+        reference_genome = reference.genome,
+        c("DP", "AD", "AF"))
+
+    jcallset <- jsonlite::read_json(file.path(workspace, "callset.json"))
+    jvidmap <- jsonlite::read_json(file.path(workspace, "vidmap.json"))
+    
+    # get all available arrays
+    arrays <- sapply(dir(workspace, full.names=TRUE), file.path, "genomicsdb_meta_dir")
+    arrays <- basename(names(arrays)[which(file.exists(arrays))])
+    # get offsets and lengths
+    contigs <- sapply(arrays, function(ary) strsplit(ary, "\\$")[[1]][1])
+    contigs <- jvidmap$contigs[match(contigs, sapply(jvidmap$contigs, function(x) x$name))]
+    idx <- order(rankSeqlevels(sapply(contigs, function(x) x$name)))
+
+    bias <- lapply(idx, function(i) {
+        c_offset <- as.numeric(contigs[[i]]$tiledb_column_offset)
+        c_length <- as.numeric(contigs[[i]]$length)
+
+        flog.info("Processing %s (offset %.0f, length %.0f)...",
+            arrays[i], c_offset, c_length)
+        query <- data.table(genomicsdb::query_variant_calls(db, 
+            array = arrays[i], 
+            column_ranges = list(c(c_offset, c_offset + c_length)),
+            row_ranges = list(range(sapply(jcallset$callsets,
+                function(x) x$row_idx)))))
+
+        parsed_ad <- .parseADGenomicsDb(query)
+        .calculateMappingBias(nvcf = NULL, 
+            alt = parsed_ad$alt, 
+            ref = parsed_ad$ref,
+            gr = parsed_ad$gr,
+            min.normals = min.normals,
+            min.normals.betafit = min.normals.betafit,
+            min.median.coverage.betafit = min.median.coverage.betafit
+        )
+    })
+    genomicsdb::disconnect(db)
+    bias <- unlist(GRangesList(bias))
+    attr(bias, "workspace") <- workspace
+    attr(bias, "min.normals") <- min.normals
+    attr(bias, "min.normals.betafit") <- min.normals.betafit
+    attr(bias, "min.median.coverage.betafit") <- min.median.coverage.betafit
+    return(bias)
+}
+
+.parseADGenomicsDb <- function(query) {
+    ref <-  dcast(query, CHROM+POS+END+REF+ALT~SAMPLE, value.var = "AD")
+    af <-  dcast(query, CHROM+POS+END+REF+ALT~SAMPLE, value.var = "AF")
+    gr <- GRanges(seqnames = ref$CHROM, IRanges(start = ref$POS, end = ref$END))
+    genomic_change <- paste0(as.character(gr), "_", ref$REF, ">", ref$ALT)
+    ref <- as.matrix(ref[,-(1:5)])
+    af <- as.matrix(af[,-(1:5)])
+    alt <- round(ref/(1-af)-ref)
+    rownames(ref) <- genomic_change
+    rownames(af) <- genomic_change
+    rownames(alt) <- genomic_change
+    list(ref = ref, alt = alt, gr = gr)
+}
+    
+.calculateMappingBias <- function(nvcf, alt = NULL, ref = NULL, gr = NULL, 
+                                  min.normals, min.normals.betafit = 7,
+                                  min.median.coverage.betafit = 5) {
+    if (!is.null(nvcf)) {
+        if (ncol(nvcf) < 2) {
+            .stopUserError("The normal.panel.vcf.file contains only a single sample.")
+        }
+        # TODO: deal with tri-allelic sites
+        alt <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][2])
+        ref <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][1])
+        fa  <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][2]/sum(x[[1]]))
+        rownames(alt) <-  as.character(rowRanges(nvcf))
+        gr <- rowRanges(nvcf)
+    } else {
+        if (is.null(alt) || is.null(ref) || is.null(gr) || ncol(ref) != ncol(alt)) {
+            .stopRuntimeError("Either nvcf or valid alt and ref required.")
+        }
+        if (ncol(alt) < 2) {
+            .stopUserError("The normal.panel.vcf.file contains only a single sample.")
+        }
+        fa <- alt / (ref + alt)
+    }
+    ponCntHits <- apply(alt,1,function(x) sum(!is.na(x)))
+            
+    x <- sapply(seq_len(nrow(fa)), function(i) {
         idx <- !is.na(fa[i,]) & fa[i,] > 0.05 & fa[i,] < 0.9
         shapes <- c(NA, NA)
         if (!sum(idx) >= min.normals) return(c(0, 0, 0, 0, shapes))
@@ -78,7 +196,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
                 ref[i,idx]) ~ 1, betabinomial, trace = FALSE)))
             if (class(fit) == "try-error") {
                 flog.warn("Could not fit beta binomial dist for %s (%s).",
-                    as.character(rowRanges(nvcf[i])),
+                    rownames(alt)[i],
                     paste0(round(fa[i, idx], digits = 3), collapse=","))
             } else {    
                 shapes <- Coef(fit)
@@ -89,16 +207,13 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file, min.normals = 2,
     # Add an average "normal" SNP (average coverage and allelic fraction > 0.4)
     # as empirical prior
     psMappingBias <- .adjustEmpBayes(x[1:4,]) * 2
-    ponCntHits <- apply(geno(nvcf)$AD, 1, function(x)
-        sum(!is.na(unlist(x))) / 2)
 
-    tmp <- rowRanges(nvcf)
-    mcols(tmp) <- NULL
-    tmp$bias <- psMappingBias
-    tmp$pon.count <- ponCntHits
-    tmp$mu <- x[5,]
-    tmp$rho <- x[6,]
-    tmp
+    mcols(gr) <- NULL
+    gr$bias <- psMappingBias
+    gr$pon.count <- ponCntHits
+    gr$mu <- x[5,]
+    gr$rho <- x[6,]
+    gr
 }
  
 .readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file,
