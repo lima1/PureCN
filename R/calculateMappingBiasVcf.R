@@ -121,6 +121,9 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     contigs <- sapply(arrays, function(ary) strsplit(ary, "\\$")[[1]][1])
     contigs <- jvidmap$contigs[match(contigs, sapply(jvidmap$contigs, function(x) x$name))]
     idx <- order(rankSeqlevels(sapply(contigs, function(x) x$name)))
+    row_ranges <- list(range(sapply(jcallset$callsets, function(x) x$row_idx)))
+    flog.info("Found %i contigs and %i columns.",
+        length(contigs), row_ranges[[1]][2] - row_ranges[[1]][1] + 1)
 
     parsed_ad_list <- lapply(idx, function(i) {
         c_offset <- as.numeric(contigs[[i]]$tiledb_column_offset)
@@ -131,21 +134,26 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         query <- data.table(genomicsdb::query_variant_calls(db, 
             array = arrays[i], 
             column_ranges = list(c(c_offset, c_offset + c_length)),
-            row_ranges = list(range(sapply(jcallset$callsets,
-                function(x) x$row_idx)))))
-
+            row_ranges = row_ranges
+        ))
         .parseADGenomicsDb(query)
     })
-    flog.info("Fitting beta-binomial distributions. Might take a while...") 
-    bias <- .calculateMappingBias(nvcf = NULL, 
-        alt = do.call(rbind, lapply(parsed_ad_list, function(x) x$alt)), 
-        ref = do.call(rbind, lapply(parsed_ad_list, function(x) x$ref)), 
-        gr = unlist(GRangesList(lapply(parsed_ad_list, function(x) x$gr))),
+    genomicsdb::disconnect(db)
+    flog.info("Collecting variant information...")
+    # concat with minimal memory overhead
+    m_alt <- do.call(rbind, lapply(parsed_ad_list, function(x) x$alt))
+    for (i in seq_along(parsed_ad_list)) parsed_ad_list[[i]]$alt <- NULL
+    m_ref <- do.call(rbind, lapply(parsed_ad_list, function(x) x$ref))
+    for (i in seq_along(parsed_ad_list)) parsed_ad_list[[i]]$ref <- NULL
+    gr <- unlist(GRangesList(lapply(parsed_ad_list, function(x) x$gr)))
+    parsed_ad_list <- NULL
+    bias <- .calculateMappingBias(nvcf = NULL,
+        alt = m_alt, ref = m_ref, gr = gr,
         min.normals = min.normals,
         min.normals.betafit = min.normals.betafit,
-        min.median.coverage.betafit = min.median.coverage.betafit
+        min.median.coverage.betafit = min.median.coverage.betafit,
+        verbose = TRUE
     )
-    genomicsdb::disconnect(db)
     attr(bias, "workspace") <- workspace
     attr(bias, "min.normals") <- min.normals
     attr(bias, "min.normals.betafit") <- min.normals.betafit
@@ -169,7 +177,8 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     
 .calculateMappingBias <- function(nvcf, alt = NULL, ref = NULL, gr = NULL, 
                                   min.normals, min.normals.betafit = 7,
-                                  min.median.coverage.betafit = 5) {
+                                  min.median.coverage.betafit = 5,
+                                  verbose = FALSE) {
     if (!is.null(nvcf)) {
         if (ncol(nvcf) < 2) {
             .stopUserError("The normal.panel.vcf.file contains only a single sample.")
@@ -190,8 +199,13 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         fa <- alt / (ref + alt)
     }
     ponCntHits <- apply(alt,1,function(x) sum(!is.na(x)))
-            
+    if (verbose) {
+        flog.info("Fitting beta-binomial distributions. Might take a while...") 
+    }        
     x <- sapply(seq_len(nrow(fa)), function(i) {
+        if (verbose && !(i %% 50000)) {
+            flog.info("Position %s (variant %.0f/%.0f)", rownames(alt)[i], i, nrow(alt))
+        }
         idx <- !is.na(fa[i,]) & fa[i,] > 0.05 & fa[i,] < 0.9
         shapes <- c(NA, NA)
         if (!sum(idx) >= min.normals) return(c(0, 0, 0, 0, shapes))
