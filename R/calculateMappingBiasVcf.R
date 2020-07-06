@@ -164,7 +164,8 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
 .parseADGenomicsDb <- function(query) {
     ref <-  dcast(query, CHROM+POS+END+REF+ALT~SAMPLE, value.var = "AD")
     af <-  dcast(query, CHROM+POS+END+REF+ALT~SAMPLE, value.var = "AF")
-    gr <- GRanges(seqnames = ref$CHROM, IRanges(start = ref$POS, end = ref$END))
+    gr <- GRanges(seqnames = ref$CHROM, IRanges(start = ref$POS, end = ref$END),
+        strand = NULL, DataFrame(REF = ref$REF, ALT = ref$ALT))
     genomic_change <- paste0(as.character(gr), "_", ref$REF, ">", ref$ALT)
     ref <- as.matrix(ref[,-(1:5)])
     af <- as.matrix(af[,-(1:5)])
@@ -227,14 +228,16 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     })
     # Add an average "normal" SNP (average coverage and allelic fraction > 0.4)
     # as empirical prior
-    psMappingBias <- .adjustEmpBayes(x[1:4,]) * 2
-
-    mcols(gr) <- NULL
-    gr$bias <- psMappingBias
+    gr$bias <- .adjustEmpBayes(x[1:4,]) * 2
     gr$pon.count <- ponCntHits
     gr$mu <- x[5,]
     gr$rho <- x[6,]
-    gr
+    gr <- gr[order(gr$pon.count, decreasing = TRUE)]
+    gr <- sort(gr)
+    gr$triallelic <- FALSE
+    gr$triallelic[duplicated(gr, fromLast = FALSE) | 
+                  duplicated(gr, fromLast = TRUE) ] <- TRUE
+    gr              
 }
  
 .readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file,
