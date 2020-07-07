@@ -21,8 +21,8 @@
 #' \code{\link{readCoverageFile}} function.
 #' @param log.ratio Copy number log-ratios for all exons in the coverage files.
 #' If \code{NULL}, calculated based on coverage files.
-#' @param seg.file Segmented data. Optional, to support matched SNP6 data or
-#' third-pary segmentation tools.  If \code{NULL}, use coverage files or 
+#' @param seg.file Segmented data. Optional, to support third-pary
+#' segmentation tools.  If \code{NULL}, use coverage files or 
 #' \code{log.ratio} to segment the data.
 #' @param seg.file.sdev If \code{seg.file} provided, the log-ratio standard
 #' deviation, used to model likelihood of sub-clonal copy number events.

@@ -87,6 +87,10 @@ To call mutational signatures, install the GitHub version of the
 BiocManager::install("raerose01/deconstructSigs")
 ```
 
+For the experimental support of importing variant calls from 
+GATK4 GenomicsDB, follow the installations instructions from
+[GenomicsDB-R](https://github.com/nalinigans/GenomicsDB-R).
+
 
 # Prepare environment and assay-specific reference files
 
@@ -239,7 +243,15 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
 # When normal panel VCF is available (highly recommended for unmatched samples)
 $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
     --coveragefiles example_normal.list \
-    --genome hg19 --normal_panel $NORMAL_PANEL --assay agilent_v6
+    --genome hg19 --normal_panel $NORMAL_PANEL \
+    --assay agilent_v6
+
+# For a Mutect2/GATK4 normal panel GenomicsDB (experimental)
+$ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
+    --coveragefiles example_normal.list \
+    --genome hg19 $GENOMICSDB-WORKSPACE-PATH/pon_db \
+    --assay agilent_v6
+
 ```
 
 Important recommendations:
@@ -449,10 +461,9 @@ Important recommendations:
 ## Recommended _GATK4_ usage
 
 ```
-# Recommended: Provide a normal panel GenomicsDB to remove mapping biases, pre-compute 
-# position-specific bias for much faster runtimes with large panels
-# This needs to be done only once for each assay
-# Requires the genomicsdb R package
+# Recommended: Provide a normal panel GenomicsDB to remove mapping biases,
+# pre-compute position-specific bias for much faster runtimes with large panels
+# This needs to be done only once for each assay. 
 Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
     --normal_panel $GENOMICSDB-WORKSPACE-PATH/pon_db \
     --assay agilent_v6 --genome hg19 --force

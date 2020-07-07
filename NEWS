@@ -18,6 +18,8 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Removed defunct interval.weight.file from segmentationPSCBS,
       segmentationCBS and processMultipleSamples
     o Made calculateIntervalWeights defunct
+    o Changed default of min.normals in calculateMappingBiasVcf/Gatk4 to 1
+      from 2
 
 BUGFIXES
 

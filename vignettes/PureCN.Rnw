@@ -938,16 +938,16 @@ third-party tools, see Section~\ref{customnorm}.
 
 \subsubsection{Custom segmentation}
 It is possible to provide already segmented data, which is especially
-recommended when matched SNP6 data are available or when third-party
-segmentation tools are not written in R. Otherwise it is usually however better
-to customize the default segmentation function, since the algorithm then has
-access to the raw log2-ratio distribution\footnote{If the third-party tool
-provides target-level log2-ratios, then these can be provided via the
-\Rcode{log.ratio} argument in addition to \Rcode{seg.file} though. See also
-Section~\ref{customnorm}.}. The expected file format for already segmented copy
-number data parsed by \Rfunction{readSegmentationFile} is\footnote{This
-segmentation file can contain multiple samples, in which case the provided
-\Rcode{sampleid} must match a sample in the column \Rcode{ID}}:
+recommended when third-party segmentation tools are not written in R. Otherwise
+it is usually however better to customize the default segmentation function,
+since the algorithm then has access to the raw log2-ratio
+distribution\footnote{If the third-party tool provides target-level
+log2-ratios, then these can be provided via the \Rcode{log.ratio} argument in
+addition to \Rcode{seg.file} though. See also Section~\ref{customnorm}.}. The
+expected file format for already segmented copy number data parsed by
+\Rfunction{readSegmentationFile} is\footnote{This segmentation file can contain
+multiple samples, in which case the provided \Rcode{sampleid} must match a
+sample in the column \Rcode{ID}}:
 
 \begin{verbatim}
     ID  chrom   loc.start   loc.end num.mark    seg.mean

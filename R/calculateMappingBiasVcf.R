@@ -28,7 +28,7 @@
 #' @importFrom VGAM vglm Coef betabinomial dbetabinom
 #' @export calculateMappingBiasVcf
 calculateMappingBiasVcf <- function(normal.panel.vcf.file,
-                                    min.normals = 2,
+                                    min.normals = 1,
                                     min.normals.betafit = 7,
                                     min.median.coverage.betafit = 5,
                                     yieldSize = 5000, genome) {
@@ -94,7 +94,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
 #' @importFrom data.table dcast
 #' @importFrom GenomeInfoDb rankSeqlevels
 calculateMappingBiasGatk4 <- function(workspace, reference.genome,
-                                    min.normals = 2,
+                                    min.normals = 1,
                                     min.normals.betafit = 7,
                                     min.median.coverage.betafit = 5) {
 

@@ -85,8 +85,8 @@ Needs to be either a file name or data read with the
 \item{log.ratio}{Copy number log-ratios for all exons in the coverage files.
 If \code{NULL}, calculated based on coverage files.}
 
-\item{seg.file}{Segmented data. Optional, to support matched SNP6 data or
-third-pary segmentation tools.  If \code{NULL}, use coverage files or 
+\item{seg.file}{Segmented data. Optional, to support third-pary
+segmentation tools.  If \code{NULL}, use coverage files or 
 \code{log.ratio} to segment the data.}
 
 \item{seg.file.sdev}{If \code{seg.file} provided, the log-ratio standard

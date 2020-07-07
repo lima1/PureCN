@@ -7,7 +7,7 @@
 calculateMappingBiasGatk4(
   workspace,
   reference.genome,
-  min.normals = 2,
+  min.normals = 1,
   min.normals.betafit = 7,
   min.median.coverage.betafit = 5
 )

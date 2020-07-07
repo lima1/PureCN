@@ -6,7 +6,7 @@
 \usage{
 calculateMappingBiasVcf(
   normal.panel.vcf.file,
-  min.normals = 2,
+  min.normals = 1,
   min.normals.betafit = 7,
   min.median.coverage.betafit = 5,
   yieldSize = 5000,
