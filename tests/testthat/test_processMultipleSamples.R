@@ -20,6 +20,12 @@ test_that("example output correct", {
 			 normalDB = normalDB,
 			 genome = "hg19")
     expect_equal(c("Sample1", "Sample2"), levels(seg[,1]))
+	seg2 <- processMultipleSamples(
+             list(tumor.coverage.files[1],readCoverageFile(tumor.coverage.files[2])),
+			 sampleids = c("Sample1", "Sample2"),
+			 normalDB = normalDB,
+			 genome = "hg38", plot.cnv = FALSE)
+    expect_equal(c("Sample1", "Sample2"), levels(seg2[,1]))
     seg.file <- tempfile(fileext = ".seg")
     write.table(seg, seg.file, row.names = FALSE, sep = "\t")
     vcf.file <- system.file("extdata", "example.vcf.gz", package = "PureCN")
@@ -30,4 +36,8 @@ test_that("example output correct", {
         genome = "hg19", min.ploidy = 1.5, max.ploidy = 2.1, 
         test.purity = seq(0.4, 0.7, by = 0.05), sampleid = "Sample1")
     expect_equal(0.65, ret$results[[1]]$purity)
+	expect_error(processMultipleSamples(tumor.coverage.files,
+			 sampleids = c("Sample1", "Sample2"),
+			 normalDB = normalDB,
+			 genome = "hg20"), "centromere")
 })

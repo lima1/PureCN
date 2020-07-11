@@ -61,7 +61,6 @@ processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,
     if (!requireNamespace("copynumber", quietly = TRUE)) {
         .stopUserError("processMultipleSamples requires the copynumber package.")
     }
-    tumor.coverage.files <- normalizePath(tumor.coverage.files)
     tumors <- lapply(.readNormals(tumor.coverage.files), 
         calculateTangentNormal, normalDB, num.eigen = num.eigen)
 
@@ -84,7 +83,10 @@ processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,
     intervalsUsed <- .filterIntervalsChrHash(intervalsUsed, tumors[[1]], chr.hash)
     centromeres <- .getCentromerePositions(centromeres, genome, 
             if (is.null(tumors[[1]])) NULL else seqlevelsStyle(tumors[[1]]))
-
+    if (is.null(centromeres)) {
+        .stopUserError("Cannot find centromeres for ", genome,
+            ". Provide them manually or select a supported genome.")
+    }    
     armLocations <- .getArmLocations(tumors[[1]], chr.hash, centromeres)
     armLocationsGr <- GRanges(armLocations)
     arms <- armLocationsGr$arm[findOverlaps(tumors[[1]], armLocationsGr, select="first")]

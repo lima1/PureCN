@@ -4,6 +4,8 @@ Changes in version 1.20.0
 NEW FEATURES
 
     o Support for GATK4 GenomicsDB import for mapping bias calculation
+    o Added --additionaltumors to PureCN.R to provide coverage files
+      from additional biopsies from the same patient when available
     
 SIGNIFICANT USER-VISIBLE CHANGES
 
@@ -20,6 +22,9 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Made calculateIntervalWeights defunct
     o Changed default of min.normals in calculateMappingBiasVcf/Gatk4 to 1
       from 2
+    o Changed default of --signature_databases to 
+      "signatures.exome.cosmic.v3.may2019" (v3 instead of v2)
+    o Now warn if recommended  -funsegmentation is not used  
 
 BUGFIXES
 

@@ -24,6 +24,8 @@ option_list <- list(
                 default = NULL, help = "Input: Segmentation file"),
     make_option(c("--logratiofile"), action = "store", type = "character",
                 default = NULL, help = "Input: Log2 copy number ratio file"),
+    make_option(c("--additionaltumors"), action = "store", type = "character",
+                default = NULL, help = "Input: tumor coverages from additional biopsies from the SAME patient, GC-normalized"),
     make_option(c("--sex"), action = "store", type = "character",
         default = formals(PureCN::runAbsoluteCN)$sex[[2]],
         help = "Input: Sex of sample. ? (detect), diplod (non-diploid chromosomes removed), F or M [default %default]"),
@@ -181,6 +183,16 @@ if (Sys.getenv("PURECN_DEBUG") != "") {
     debug <- TRUE
 }
 
+.checkFileList <- function(file) {
+    files <- read.delim(file, as.is = TRUE, header = FALSE)[,1]
+    numExists <- sum(file.exists(files), na.rm = TRUE)
+    if (numExists < length(files)) { 
+        stop("File not exists in file ", file)
+    }
+    files
+}
+
+
 ### Run PureCN ----------------------------------------------------------------
 
 if (file.exists(file.rds) && !opt$force) {
@@ -190,7 +202,6 @@ if (file.exists(file.rds) && !opt$force) {
     if (is.null(sampleid)) sampleid <- ret$input$sampleid
 } else {
     if (!is.null(opt$normaldb)) {
-        #if (!is.null(seg.file)) stop("normalDB and segfile do not work together.")
         normalDB <- readRDS(opt$normaldb)
         if (!is.null(normal.coverage.file)) {
             flog.warn("Both --normal and --normalDB provided. normalDB will NOT be used for coverage denoising. You probably do not want this.")
@@ -213,21 +224,46 @@ if (file.exists(file.rds) && !opt$force) {
     file.log <- paste0(out, ".log")
 
     pdf(paste0(out, "_segmentation.pdf"), width = 10, height = 11)
+    if (!is.null(opt$additionaltumors)) {
+        if (!is.null(seg.file)) {
+            stop("--additionaltumors overwrites --segfile")
+        }
+        seg.file <- paste0(out, "_multisample.seg")
+        if (grepl(".list$", opt$additionaltumors)) {
+            additional.tumors <- .checkFileList(opt$additionaltumors)
+        } else {
+            additional.tumors <- opt$additionaltumors 
+        }
+        multi.seg <- processMultipleSamples(
+            c(list(tumor.coverage.file), as.list(additional.tumors)),
+            sampleids = c(sampleid, paste(sampleid,
+                seq_along(additional.tumors) + 1, sep = "_")),
+            normalDB = normalDB, genome = opt$genome, verbose = debug)
+        write.table(multi.seg, seg.file, row.names = FALSE, sep = "\t")
+    }    
     af.range <- c(opt$minaf, 1 - opt$minaf)
     test.purity <- seq(opt$minpurity, opt$maxpurity, by = 0.01)
 
+    uses.recommended.fun <- FALSE
+    recommended.fun <- if (is.null(seg.file)) "PSCBS" else "Hclust"
     fun.segmentation <- segmentationCBS
     if (opt$funsegmentation != "CBS") {
         if (opt$funsegmentation == "PSCBS") {
             fun.segmentation <- segmentationPSCBS
+            if (is.null(seg.file)) uses.recommended.fun <- TRUE
         } else if (opt$funsegmentation == "Hclust") {
             fun.segmentation <- segmentationHclust
+            if (!is.null(seg.file)) uses.recommended.fun <- TRUE
         } else if (opt$funsegmentation == "none") {
             fun.segmentation <- function(seg, ...) seg
         } else {
             stop("Unknown segmentation function")
         }
     }
+    if (!uses.recommended.fun) {
+        flog.warn("Recommended to provide --funsegmentation %s.", recommended.fun)
+    }
+
     mutect.ignore <- eval(formals(PureCN::filterVcfMuTect)$ignore)
     if (opt$error < formals(PureCN::runAbsoluteCN)$error && !is.null(opt$statsfile)) {
         flog.info("Low specified error, will keep fstar_tumor_lod flagged variants")
@@ -255,6 +291,7 @@ if (file.exists(file.rds) && !opt$force) {
         }
         log.ratio <- log.ratio$log.ratio
     }    
+    
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
             tumor.coverage.file = tumor.coverage.file, vcf.file = opt$vcf,
             sampleid = sampleid, plot.cnv = TRUE,

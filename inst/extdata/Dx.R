@@ -21,7 +21,7 @@ option_list <- list(
     make_option(c("--signatures"), action = "store_true", default = FALSE, 
         help="Attempt the deconstruction of COSMIC signatures (requires deconstructSigs package)"),
     make_option(c("--signature_databases"), action = "store", type = "character", 
-        default = "signatures.cosmic", 
+        default = "signatures.exome.cosmic.v3.may2019", 
         help = "Use the specified signature databases provided by deconstrucSigs. To test multiple databases, provide them : separated [%default]."),
     make_option(c("--out"), action = "store", type = "character",
         default = NULL,

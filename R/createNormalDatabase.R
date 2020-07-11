@@ -303,7 +303,12 @@ calculateTangentNormal <- function(tumor.coverage.file, normalDB,
 }
     
 .readNormals <- function(normal.coverage.files) {
-    normals <- lapply(normal.coverage.files, readCoverageFile)
+    normals <- lapply(normal.coverage.files, function(x) {
+        if (is(x, "character")) {
+            return(readCoverageFile(normalizePath(x)))
+        }
+        return(x)
+    })
 
     # check that all files used the same interval file.
     for (i in seq_along(normals)) {
