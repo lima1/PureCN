@@ -38,6 +38,12 @@ If you want the latest and greatest from the developer branch:
 BiocManager::install("lima1/PureCN")
 ```
 
+To get the lastest stable version from Conda:
+
+```
+conda install -c bioconda bioconductor-purecn=1.18.0
+```
+
 
 ## Tutorials
 
