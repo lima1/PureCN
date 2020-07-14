@@ -151,6 +151,7 @@ sampleid <- opt$sampleid
 out <- opt[["out"]]
 file.rds <- opt$rds
 normalDB <- NULL
+BPPARAM <- NULL
 
 .getFilePrefix <- function(out, sampleid) {
     isDir <- file.info(out)$isdir
@@ -269,7 +270,6 @@ if (file.exists(file.rds) && !opt$force) {
         flog.info("Low specified error, will keep fstar_tumor_lod flagged variants")
         mutect.ignore <- mutect.ignore[-match("fstar_tumor_lod", mutect.ignore)]
     }    
-    BPPARAM <- NULL
     if (!is.null(opt$cores) && opt$cores > 1) {
         suppressPackageStartupMessages(library(BiocParallel))
         BPPARAM <- MulticoreParam(workers = opt$cores)
@@ -369,7 +369,8 @@ if (is(ret$results[[1]]$gene.calls, "data.frame")) {
         if (is.null(normalDB)) normalDB <- readRDS(opt$normaldb)
         if (normalDB$version >= 8) {
             file.amps <- paste0(out, "_amplification_pvalues.csv")
-            allAmplifications <- callAmplificationsInLowPurity(ret, normalDB, all.genes = TRUE)
+            allAmplifications <- callAmplificationsInLowPurity(ret, normalDB,
+                all.genes = TRUE, BPPARAM = BPPARAM)
 
             write.csv(cbind(Sampleid = sampleid, gene.symbol = rownames(allAmplifications),
                 allAmplifications), row.names = FALSE, file = file.amps, quote = FALSE)

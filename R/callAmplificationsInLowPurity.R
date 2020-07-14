@@ -19,6 +19,8 @@
 #' @param purity If not \code{NULL}, then scale log2-ratios to the
 #' corresponding integer copy number. Useful when accurate ctDNA
 #' fractions (between 4-10 percent) are available.
+#' @param BPPARAM \code{BiocParallelParam} object. If \code{NULL}, does not
+#' use parallelization for fitting local optima.
 #' @return A \code{data.frame} with gene-level amplification calls.
 #' @author Markus Riester
 #' @seealso \code{\link{runAbsoluteCN}} \code{\link{callAlterations}}
@@ -37,7 +39,7 @@
 #' @export callAmplificationsInLowPurity
 callAmplificationsInLowPurity <- function(res, normalDB,
 pvalue.cutoff = 0.001, percentile.cutoff = 90,
-min.width = 3, all.genes = FALSE, purity = NULL) {
+min.width = 3, all.genes = FALSE, purity = NULL, BPPARAM = NULL) {
 
     if (percentile.cutoff < 0 || percentile.cutoff > 100) {
         .stopUserError("percentile.cutoff not in expected range (0 to 100).")
@@ -93,8 +95,19 @@ min.width = 3, all.genes = FALSE, purity = NULL) {
                 sd = sd(pon_gene_lrs) * tumor_normal_noise_ratio, lower.tail = FALSE),
              pon.sd = sd(pon_gene_lrs))
     }
+    if (!is.null(BPPARAM) && !requireNamespace("BiocParallel", quietly = TRUE)) {
+        flog.warn("Install BiocParallel for parallel optimization.")
+        BPPARAM <- NULL
+    } else if (!is.null(BPPARAM)) {
+        flog.info("Using BiocParallel for parallel optimization.")
+    }
 
-    gene_level_summary <- lapply(rownames(calls), .get_gene_pv)
+    if (is.null(BPPARAM)) {
+        gene_level_summary <- lapply(rownames(calls), .get_gene_pv)
+    } else {
+        gene_level_summary <- BiocParallel::bplapply(rownames(calls),
+                                          .get_gene_pv, BPPARAM = BPPARAM)
+    }    
 
     calls$p.value <- sapply(gene_level_summary, function(x) x$p.value)
     # sanity check that there is no difference in tumor and pon gene.mean

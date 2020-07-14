@@ -66,6 +66,8 @@ smooth = TRUE, smooth.n = 5) {
     }
 
     if (tolower(file_ext(mapping.bias.file)) == "rds") {
+        flog.info("Loading mapping bias file %s...",
+            basename(mapping.bias.file))
         mappingBias <- readRDS(mapping.bias.file)
     } else {
         .stopUserError("mapping.bias.file must be a file with *.rds suffix.")
@@ -73,7 +75,19 @@ smooth = TRUE, smooth.n = 5) {
     .annotateMappingBias(tmp, vcf, mappingBias, max.bias, smooth, smooth.n)
 }
 
+
+
 .annotateMappingBias <- function(tmp, vcf, mappingBias, max.bias, smooth, smooth.n) {
+    mappingBias <- .checkSeqlevelStyle(vcf, mappingBias, "mapping.bias.file", "vcf")
+    .compareGenomes <- function(x, y) {
+        gx <- genome(x)
+        gy <- genome(y)
+        isc <- intersect(names(gx), names(gy))
+        identical(gx[isc], gy[isc])
+     }       
+    if (!.compareGenomes(vcf, mappingBias)) {
+        genome(mappingBias) <- genome(vcf)
+    }
     .extractBias <- function(i, start.var) {
         start <- max(1, i-smooth.n)
         end <- min(length(mappingBias), (i+smooth.n))
@@ -86,6 +100,7 @@ smooth = TRUE, smooth.n = 5) {
     ponCnt <- integer(length(tmp))
     mu <- rep(NA, length(tmp))
     rho <- rep(NA, length(tmp))
+    if (genome(vcf)[1] != genome(mappingBias)[1])
     ov <- findOverlaps(vcf, mappingBias, select = "first")
     idx <- !is.na(ov)
     tmp[idx] <- mappingBias$bias[ov][idx]

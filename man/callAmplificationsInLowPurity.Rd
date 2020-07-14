@@ -11,7 +11,8 @@ callAmplificationsInLowPurity(
   percentile.cutoff = 90,
   min.width = 3,
   all.genes = FALSE,
-  purity = NULL
+  purity = NULL,
+  BPPARAM = NULL
 )
 }
 \arguments{
@@ -35,6 +36,9 @@ passing the thresholds.}
 \item{purity}{If not \code{NULL}, then scale log2-ratios to the
 corresponding integer copy number. Useful when accurate ctDNA
 fractions (between 4-10 percent) are available.}
+
+\item{BPPARAM}{\code{BiocParallelParam} object. If \code{NULL}, does not
+use parallelization for fitting local optima.}
 }
 \value{
 A \code{data.frame} with gene-level amplification calls.

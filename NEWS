@@ -25,6 +25,7 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Changed default of --signature_databases to 
       "signatures.exome.cosmic.v3.may2019" (v3 instead of v2)
     o Now warn if recommended  -funsegmentation is not used  
+    o Added parallel option for callAmplificationsInLowPurity
 
 BUGFIXES
 
