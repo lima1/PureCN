@@ -101,7 +101,6 @@ smooth = TRUE, smooth.n = 5) {
     ponCnt <- integer(length(tmp))
     mu <- rep(NA, length(tmp))
     rho <- rep(NA, length(tmp))
-    if (genome(vcf)[1] != genome(mappingBias)[1])
     ov <- findOverlaps(vcf, mappingBias, select = "first")
     idx <- !is.na(ov)
     tmp[idx] <- mappingBias$bias[ov][idx]
