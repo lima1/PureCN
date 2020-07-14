@@ -307,7 +307,6 @@ if (file.exists(file.rds) && !opt$force) {
                 interval.padding = opt$padding),
             fun.segmentation = fun.segmentation,
             args.segmentation = list(
-                interval.weight.file = opt$intervalweightfile,
                 alpha = opt$alpha, undo.SD = opt$undosd),
             args.setMappingBiasVcf =
                 list(mapping.bias.file = opt$mappingbiasfile),
