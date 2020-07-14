@@ -35,6 +35,7 @@
 #' vcf.bias <- setMappingBiasVcf(vcf)        
 #' 
 #' @export setMappingBiasVcf
+#' @importFrom GenomeInfoDb genome<-
 setMappingBiasVcf <- function(vcf, tumor.id.in.vcf = NULL, mapping.bias.file = NULL,
 smooth = TRUE, smooth.n = 5) {
     if (is.null(tumor.id.in.vcf)) {
