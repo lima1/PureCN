@@ -31,6 +31,8 @@ BUGFIXES
 
     o Fix for crash with CNVkit input when log-ratio contained highly negative
       outliers
+    o Fixed a bug in preprocessIntervals/IntervalFile.R when input contained
+      overlapping and stranded intervals  
 
 
 Changes in version 1.18.0

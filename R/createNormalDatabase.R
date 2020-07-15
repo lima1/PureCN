@@ -359,19 +359,12 @@ min.coverage, max.missing) {
 }
 
 .calculateIntervalWeights <- function(normalDB, normal.coverage, 
-interval.weight.file = NULL, top.quantile = 0.7, plot = FALSE, 
-old_method = FALSE) {
+    top.quantile = 0.7, plot = FALSE) {
     
     tumor.coverage <- list(poolCoverage(normal.coverage, 
         w = rep(1, length(normal.coverage)) / length(normal.coverage)))
 
-    if (old_method) {
-        lrs <- lapply(tumor.coverage, function(tc) sapply(normal.coverage, 
-                function(nc) calculateLogRatio(nc, tc)))
-    } else {
-        lrs <- lapply(normal.coverage, function(x) calculateTangentNormal(x, normalDB)$log.ratio)
-    }
-
+    lrs <- lapply(normal.coverage, function(x) calculateTangentNormal(x, normalDB)$log.ratio)
     lrs <- do.call(cbind, lrs)
 
     lrs[is.infinite(lrs)] <- NA
@@ -395,17 +388,8 @@ old_method = FALSE) {
                 log.ratios = GRanges(intervals,,, DataFrame(lrs)),
                 weights = GRanges(intervals,,, DataFrame(weights = zz)))
     
-    if (!is.null(interval.weight.file)) {
-        ret_output <- data.frame(
-            Target = as.character(ret$weights), 
-            weights = ret$weights$weights)
-
-        fwrite(ret_output, file = interval.weight.file, row.names = FALSE, 
-                    quote = FALSE, sep = "\t")
-    }
     if (plot) .plotIntervalWeights(lrs.sd, width(tumor.coverage[[1]]), 
         tumor.coverage[[1]]$on.target)
-    if (old_method) return(NULL)    
     normalDB$sd <- ret
     normalDB
 }

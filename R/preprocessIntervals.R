@@ -83,13 +83,11 @@ preprocessIntervals <- function(interval.file, reference.file,
                                 small.targets=c("resize", "drop")) {
 
     if (is(interval.file, "GRanges")) {
-        interval.gr <- .checkIntervals(interval.file)
+        interval.gr <- .checkIntervals(unstrand(interval.file))
     } else {
         interval.gr <- readCoverageFile(interval.file)
     }
 
-    interval.gr <- unstrand(interval.gr)
-    
     # make sure the chromsome naming style is the same in all provided files
     # be nice and fix it if necessary
     interval.gr <- .checkSeqlevelStyle(scanFaIndex(reference.file), interval.gr, "interval")
