@@ -234,7 +234,7 @@ output.qc.file = NULL) {
 
         tumor$valid[tumor$average.coverage <= 0 | tumor$gc_bias < 0] <- FALSE
 
-        if (!sum(tumor$valid)) next
+        if (!any(tumor$valid)) next
         tumor$ideal <- TRUE
         routlier <- 0.01
         range <- quantile(tumor$average.coverage[tumor$valid], prob = 
@@ -242,13 +242,15 @@ output.qc.file = NULL) {
         doutlier <- 0.001
         domain <- quantile(tumor$gc_bias[tumor$valid], prob = c(doutlier, 1 - doutlier), 
             na.rm = TRUE)
-        
+
         tumor$ideal[!tumor$valid | 
             ( tumor$mappability < 1 & on.target ) |
             tumor$average.coverage <= range[1] |
             tumor$average.coverage > range[2] | 
             tumor$gc_bias < domain[1] | 
             tumor$gc_bias > domain[2]] <- FALSE
+
+        if (!any(tumor$ideal)) next
         
         if (!on.target) {    
             widthR <- quantile(width(tumor[tumor$ideal]), prob=0.1)
