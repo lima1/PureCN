@@ -69,7 +69,7 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
     callableBases <- NA
     callableBasesOntarget <- NA
     callableBasesFlanking <- NA
-    
+    if (is.null(callable)) callable <- .estimateCallableRegions(res)
     # calculate the callable genomic region for # mutations/MB calculation
     if (!is.null(callable)) {
         if (!is(callable, "GRanges")) {
@@ -155,3 +155,12 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
     end(target.granges.padding) <- end(target.granges.padding)+interval.padding
     return(target.granges.padding)
 }
+
+.estimateCallableRegions <- function(rds) {
+    callable <- NULL
+    flog.info("Estimating callable regions.")
+    if (is(rds$input$log.ratio, "GRanges")) {
+        callable <- reduce(rds$input$log.ratio[rds$input$log.ratio$on.target])
+    }    
+    return(callable)
+}    

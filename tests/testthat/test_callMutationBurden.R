@@ -6,7 +6,8 @@ callableBed <- import(system.file("extdata", "example_callable.bed.gz",
 
 test_that("Example is called correctly", {
     calls <- callMutationBurden(purecn.example.output)
-    expect_true(is.na(calls$callable.bases.ontarget))
+    expect_false(is.na(calls$callable.bases.ontarget))
+    expect_true(calls$callable.bases.ontarget > 0)
     exclude <- GRanges(seqnames = "chr1", IRanges(start = 1, 
         end = max(end(callableBed))))
     myVcfFilter <- function(vcf) seqnames(vcf) != "chr2"

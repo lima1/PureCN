@@ -26,6 +26,8 @@ SIGNIFICANT USER-VISIBLE CHANGES
       "signatures.exome.cosmic.v3.may2019" (v3 instead of v2)
     o Now warn if recommended  -funsegmentation is not used  
     o Added parallel option for callAmplificationsInLowPurity
+    o callMutationBurden now uses all non-filtered targets as callable region
+      when callable is not provided
 
 BUGFIXES
 
