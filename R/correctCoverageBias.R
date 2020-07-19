@@ -249,6 +249,8 @@ output.qc.file = NULL) {
             tumor$average.coverage > range[2] | 
             tumor$gc_bias < domain[1] | 
             tumor$gc_bias > domain[2]] <- FALSE
+
+        if (!any(tumor$ideal)) next
         
         if (!on.target) {    
             widthR <- quantile(width(tumor[tumor$ideal]), prob=0.1)

@@ -857,6 +857,11 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 
         if (.robustSd(tumor$log.ratio) < max.logr.sdev) {
             flog.info("Found log2-ratio in tumor coverage data.")
+            idx <- tumor$log.ratio < -8
+            if (any(idx)) {
+                flog.warn("log2-ratio contains outliers < -8, ignoring them...")
+                tumor$log.ratio[idx] <- NA
+            }
             return(tumor$log.ratio)
         } else {
             flog.info("Provided log2-ratio looks too noisy, using segmentation only.")

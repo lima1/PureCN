@@ -1,3 +1,16 @@
+Changes in version 1.18.1
+-------------------------
+
+BUGFIXES
+
+    o Fix for crash with CNVkit input when log-ratio contained highly negative
+      outliers
+    o Fixed a bug in preprocessIntervals/IntervalFile.R when input contained
+      overlapping and stranded intervals  
+    o Fix for crash when GC-correction is attempted on empty coverage (for
+      example off-target region with off-target reads)  
+
+
 Changes in version 1.18.0
 -------------------------
 

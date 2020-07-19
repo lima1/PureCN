@@ -506,7 +506,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }
     flog.info("Reading COSMIC VCF...")
     # look-up the variants in COSMIC
-    cosmic.vcf <- readVcf(cosmic.vcf.file, genome=genome(vcf)[1],  
+    cosmic.vcf <- readVcf(cosmic.vcf.file, genome=genome(vcfRenamedSL)[1],  
         ScanVcfParam(which = rowRanges(vcfRenamedSL),
             info="CNT",
             fixed="ALT",

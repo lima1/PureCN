@@ -83,7 +83,7 @@ preprocessIntervals <- function(interval.file, reference.file,
                                 small.targets=c("resize", "drop")) {
 
     if (is(interval.file, "GRanges")) {
-        interval.gr <- .checkIntervals(interval.file)
+        interval.gr <- .checkIntervals(unstrand(interval.file))
     } else {
         interval.gr <- readCoverageFile(interval.file)
     }
