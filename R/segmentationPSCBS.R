@@ -30,6 +30,10 @@
 #' use unpaired PSCBS.
 #' @param max.segments If not \code{NULL}, try a higher \code{undo.SD} 
 #' parameter if number of segments exceeds the threshold.
+#' @param boost.on.target.max.size When off-target regions are noisy
+#' compared to on-target, try to find small segments of specified
+#' maximum size that might be missed to due the increased noise.
+#' Set to 0 to turn boosting off.
 #' @param prune.hclust.h Height in the \code{hclust} pruning step. Increasing
 #' this value will merge segments more aggressively. If \code{NULL}, try to 
 #' find a sensible default.
@@ -78,6 +82,7 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     sampleid, weight.flag.pvalue = 0.01, alpha = 0.005, 
     undo.SD = NULL, flavor = "tcn&dh", tauA = 0.03, vcf = NULL,
     tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
+    boost.on.target.max.size = 30,
     prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
     centromeres = NULL, ...) {
 
@@ -104,6 +109,7 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         flog.info("Setting undo.SD parameter to %f.", undo.SD)
         knownSegments <- knownSegmentsCentromeres
         if (any(!input$on.target) &&
+            boost.on.target.max.size > 0 &&
             .robustSd(input$CT[input$on.target]) * 1.5 < 
             .robustSd(input$CT[!input$on.target])) {
             flog.info("On-target much cleaner than off-target, finding on-target breakpoints first...")
@@ -119,7 +125,8 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
                 segot <- .pruneByHclust(segot, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
                     method=prune.hclust.method, chr.hash=chr.hash)
             }
-            segot <- segot[segot$num.mark > 3 & segot$num.mark < 14, 2:4]
+            segot <- segot[segot$num.mark > 3 & 
+                           segot$num.mark <= boost.on.target.max.size, 2:4]
             colnames(segot) <- colnames(knownSegments)[1:3]
             knownSegments <- .PSCBSgetKnownSegments(centromeres, chr.hash, segot)
         }    

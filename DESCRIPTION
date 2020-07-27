@@ -66,4 +66,4 @@ biocViews: CopyNumberVariation, Software, Sequencing,
     VariantAnnotation, VariantDetection, Coverage, ImmunoOncology
 NeedsCompilation: no
 ByteCompile: yes
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

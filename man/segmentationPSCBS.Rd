@@ -20,6 +20,7 @@ segmentationPSCBS(
   tumor.id.in.vcf = 1,
   normal.id.in.vcf = NULL,
   max.segments = NULL,
+  boost.on.target.max.size = 30,
   prune.hclust.h = NULL,
   prune.hclust.method = "ward.D",
   chr.hash = NULL,
@@ -66,6 +67,11 @@ use unpaired PSCBS.}
 
 \item{max.segments}{If not \code{NULL}, try a higher \code{undo.SD} 
 parameter if number of segments exceeds the threshold.}
+
+\item{boost.on.target.max.size}{When off-target regions are noisy
+compared to on-target, try to find small segments of specified
+maximum size that might be missed to due the increased noise.
+Set to 0 to turn boosting off.}
 
 \item{prune.hclust.h}{Height in the \code{hclust} pruning step. Increasing
 this value will merge segments more aggressively. If \code{NULL}, try to 
