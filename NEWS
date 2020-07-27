@@ -6,6 +6,9 @@ NEW FEATURES
     o Support for GATK4 GenomicsDB import for mapping bias calculation
     o Added --additionaltumors to PureCN.R to provide coverage files
       from additional biopsies from the same patient when available
+    o PSCBS segmentation now identifies on-target breakpoints first when
+      off-target is noisy, thus boosting sensitivity in on-target regions
+    
     
 SIGNIFICANT USER-VISIBLE CHANGES
 
@@ -28,6 +31,9 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Added parallel option for callAmplificationsInLowPurity
     o callMutationBurden now uses all non-filtered targets as callable region
       when callable is not provided
+    o plotAbs in chromosome mode now displays wider range of log2 ratios
+      (makes it possible to examine outliers)
+        
 
 BUGFIXES
 

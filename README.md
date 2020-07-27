@@ -21,12 +21,11 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
 BiocManager::install("PureCN")
 ```
 
-If your R/Bioconductor version is outdated, this will install an old and
-unsupported version.
+If your R/Bioconductor version is [outdated](https://bioconductor.org/about/release-announcements/),
+this will install an old and unsupported version.
 
-For [outdated](https://bioconductor.org/about/release-announcements/)
-R/Bioconductor versions, you can try backporting the latest stable version (this
-should work fine for Bioconductor 3.3 and later):
+For outdated R/Bioconductor versions, you can try backporting the latest stable
+version (this should work fine for Bioconductor 3.3 and later):
 
 ```
 BiocManager::install("lima1/PureCN", ref = "RELEASE_3_11")
@@ -38,7 +37,7 @@ If you want the latest and greatest from the developer branch:
 BiocManager::install("lima1/PureCN")
 ```
 
-To get the lastest stable version from Conda:
+To get the lastest stable version from [Conda](https://anaconda.org/bioconda/bioconductor-purecn):
 
 ```
 conda install -c bioconda bioconductor-purecn=1.18.0

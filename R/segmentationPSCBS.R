@@ -86,20 +86,43 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     }
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
-
+    
+    use.weights <- FALSE
     if (!is.null(tumor$weights) && length(unique(tumor$weights)) > 1 ) {
         flog.info("Interval weights found, will use weighted PSCBS.")
+        use.weights <- TRUE
     }
     input <- .PSCBSinput(tumor, log.ratio, vcf, tumor.id.in.vcf, 
                          normal.id.in.vcf, chr.hash)
 
-    knownSegments <- .PSCBSgetKnownSegments(centromeres, chr.hash)
+    knownSegmentsCentromeres <- .PSCBSgetKnownSegments(centromeres, chr.hash)
 
     if (is.null(undo.SD)) undo.SD <- .getSDundo(log.ratio)
 
     try.again <- 0
     while (try.again < 2) {
         flog.info("Setting undo.SD parameter to %f.", undo.SD)
+        knownSegments <- knownSegmentsCentromeres
+        if (any(!input$on.target) &&
+            .robustSd(input$CT[input$on.target]) * 1.5 < 
+            .robustSd(input$CT[!input$on.target])) {
+            flog.info("On-target much cleaner than off-target, finding on-target breakpoints first...")
+            idxot <- input$on.target
+            if (use.weights) {
+                idxot <- input$on.target & input$weights >= median(input$weights, na.rm = TRUE)
+            }    
+            segPSCBSot <- PSCBS::segmentByNonPairedPSCBS(input[idxot,], tauA=tauA, 
+                flavor=flavor, undoTCN=undo.SD, knownSegments=knownSegments, 
+                min.width=3,alphaTCN=alpha/2, ...)
+            segot <- .PSCBSoutput2DNAcopy(segPSCBSot, sampleid)
+            if (!is.null(vcf)) {
+                segot <- .pruneByHclust(segot, vcf, tumor.id.in.vcf, h=prune.hclust.h, 
+                    method=prune.hclust.method, chr.hash=chr.hash)
+            }
+            segot <- segot[segot$num.mark > 3 & segot$num.mark < 14, 2:4]
+            colnames(segot) <- colnames(knownSegments)[1:3]
+            knownSegments <- .PSCBSgetKnownSegments(centromeres, chr.hash, segot)
+        }    
         segPSCBS <- PSCBS::segmentByNonPairedPSCBS(input, tauA=tauA, 
             flavor=flavor, undoTCN=undo.SD, knownSegments=knownSegments, 
             min.width=3,alphaTCN=alpha, ...)
@@ -153,13 +176,16 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     d.f
 }
 
-.PSCBSgetKnownSegments <- function(centromeres, chr.hash) {
+.PSCBSgetKnownSegments <- function(centromeres, chr.hash, breakpoints = NULL) {
     if (is.null(centromeres)) return(NULL)
     knownSegments <- data.frame(centromeres)
     colnames(knownSegments)[1] <- "chromosome"
     knownSegments$length <- knownSegments$end-knownSegments$start+1
     knownSegments$chromosome <- .strip.chr.name(knownSegments$chromosome,
         chr.hash)
+    if (!is.null(breakpoints)) {
+        knownSegments <- rbind(knownSegments[, 1:3], breakpoints)
+    }    
     PSCBS::gapsToSegments(knownSegments)
 }
 
