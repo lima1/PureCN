@@ -86,3 +86,10 @@ test_that("issue 109 is fixed", {
     expect_equivalent(274, geno(x)$DP[1,1])
     expect_equivalent(2/274, geno(x)$FA[[1,1]])
 })
+
+test_that("Missing FA does not cause crash", {
+     tmp <- geno(vcf)$FA[2,1][[1]] 
+     geno(vcf)$FA[2,1][[1]] <- NA
+     expect_output(PureCN:::.readAndCheckVcf(vcf, "hg19"), rownames(vcf)[2])
+     geno(vcf)$FA[2,1][[1]] <- tmp
+})    

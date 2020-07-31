@@ -387,6 +387,11 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         # try to add an FA geno field if missing
         vcf <- .addFaField(vcf)
     }
+    idx <- !apply(geno(vcf)$FA, 1, complete.cases)
+    if (any(idx)) {
+        flog.warn("Found %i variants with missing allelic fraction starting with %s. Removing them.",
+            sum(idx), rownames(vcf)[idx][1])
+    }
     vcf     
 }
 

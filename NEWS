@@ -43,6 +43,7 @@ BUGFIXES
       overlapping and stranded intervals  
     o Fix for crash when GC-correction is attempted on empty coverage (for example
       off-target region with off-target reads)  
+    o Fix for crash when VCF FA field contained missing values
 
 
 Changes in version 1.18.0
