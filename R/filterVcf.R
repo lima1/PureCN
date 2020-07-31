@@ -391,6 +391,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     if (any(idx)) {
         flog.warn("Found %i variants with missing allelic fraction starting with %s. Removing them.",
             sum(idx), rownames(vcf)[idx][1])
+        vcf <- vcf[!idx]
     }
     vcf     
 }
