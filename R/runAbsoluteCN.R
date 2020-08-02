@@ -174,6 +174,8 @@
 #' Assay specific and needs to be calibrated.
 #' @param min.gof Flag purity/ploidy solutions with poor fit.
 #' @param plot.cnv Generate segmentation plots.
+#' @param vcf.field.prefix Prefix all newly created VCF field names with
+#' this string.
 #' @param cosmic.vcf.file Add a \code{Cosmic.CNT} info field to the provided
 #' \code{vcf.file} using a VCF file containing the COSMIC database. The default
 #' \code{fun.setPriorVcf} function will give variants found in the COSMIC database
@@ -288,6 +290,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     interval.file = NULL, max.dropout = c(0.95, 1.1), 
     min.logr.sdev = 0.15, max.logr.sdev = 0.6, 
     max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
+    vcf.field.prefix = "",
     cosmic.vcf.file = NULL, DB.info.flag = "DB", 
     POPAF.info.field = "POP_AF", min.pop.af = 0.001,
     model = c("beta", "betabin"),
@@ -480,7 +483,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         flog.info("Loading VCF...")
         vcf <- .readAndCheckVcf(vcf.file, genome = genome, 
             DB.info.flag = DB.info.flag, POPAF.info.field = POPAF.info.field,
-            min.pop.af = min.pop.af)
+            min.pop.af = min.pop.af, vcf.field.prefix = vcf.field.prefix)
         
         if (length(intersect(seqlevels(tumor), seqlevels(vcf))) < 1) {
             .stopUserError("Different chromosome names in coverage and VCF.")
@@ -597,16 +600,16 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         ov.vcfexon <- findOverlaps(vcf, tumor)
         snv.lr[queryHits(ov.vcfexon)] <- log.ratio[subjectHits(ov.vcfexon)]
         if (anyNA(snv.lr)) {
-            n.vcf.before.filter <- nrow(vcf)
-            vcf <- vcf[!is.na(snv.lr)]
+            n.vcf.before.filter <- .countVariants(vcf)
+            vcf <- .removeVariants(vcf, is.na(snv.lr), "segmentation")
             mapping.bias <- mapping.bias[!is.na(snv.lr),]
             prior.somatic <- prior.somatic[!is.na(snv.lr)]
             
             # make sure all variants are in covered segments
-            flog.info("Removing %i variants outside segments.", n.vcf.before.filter - nrow(vcf))
+            flog.info("Removing %i variants outside segments.", n.vcf.before.filter - .countVariants(vcf))
         }
         ov <- findOverlaps(seg.gr, vcf)
-        flog.info("Using %i variants.", nrow(vcf))
+        flog.info("Using %i variants.", .countVariants(vcf))
     }
     
     # get target log-ratios for all segments
@@ -1105,6 +1108,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             test.num.copy = test.num.copy,
             sex = sex, sex.vcf = sex.vcf, chr.hash = chr.hash, centromeres = centromeres,
             mapping.bias.rho = if (is.null(mapping.bias) || all(is.na(mapping.bias$rho))) NULL else mean(mapping.bias$rho, na.rm = TRUE),
+            vcf.field.prefix = vcf.field.prefix,
             args=list(
                 filterVcf = args.filterVcf[vapply(args.filterVcf, object.size, double(1)) < 1000],
                 filterIntervals = args.filterIntervals[vapply(args.filterIntervals, object.size, double(1)) < 1000])

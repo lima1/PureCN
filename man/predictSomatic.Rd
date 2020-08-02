@@ -4,7 +4,7 @@
 \alias{predictSomatic}
 \title{Predict germline vs. somatic status}
 \usage{
-predictSomatic(res, id = 1, return.vcf = FALSE, vcf.field.prefix = "")
+predictSomatic(res, id = 1, return.vcf = FALSE)
 }
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
@@ -16,8 +16,6 @@ maximum likelihood solution.}
 this VCF will only contain variants not filtered out by the \code{filterVcf}
 functions. Variants outside segments or intervals might be included or not
 depending on \code{\link{runAbsoluteCN}} arguments.}
-
-\item{vcf.field.prefix}{Prefix all VCF info field names with this string.}
 }
 \value{
 A \code{data.frame} or \code{CollapsedVCF} with SNV state posterior
@@ -40,7 +38,7 @@ purecnSnvs <- GRanges(predictSomatic(purecn.example.output))
 
 # write a VCF file
 purecnVcf <- predictSomatic(purecn.example.output, return.vcf=TRUE)
-writeVcf(purecnVcf, file="Sample1_PureCN.vcf")
+writeVcf(purecnVcf, file = "Sample1_PureCN.vcf")
 
 }
 \seealso{

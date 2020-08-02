@@ -95,7 +95,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
                 size=size, log=TRUE)
          }
     }
-
+    prefix <- .getPureCNPrefixVcf(vcf)
     prior.cont <- ifelse(prior.somatic < 0.1, cont.rate, 0)
     prior.somatic <- prior.somatic - (prior.cont*prior.somatic)
     priorHom <- if (model.homozygous) -log(3) else log(0)
@@ -276,7 +276,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     posteriors$depth <- depth
     posteriors$prior.somatic <- prior.somatic[vcf.ids]
     posteriors$prior.contamination <- prior.cont[vcf.ids]
-    posteriors$on.target <- info(vcf[vcf.ids])$OnTarget
+    posteriors$on.target <- info(vcf[vcf.ids])[[paste0(prefix, "OnTarget")]]
     posteriors$seg.id <- queryHits(ov)
 
     if (!is.null(mapping.bias$pon.count)) {

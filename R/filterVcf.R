@@ -206,7 +206,8 @@ interval.padding = 50, DB.info.flag = "DB") {
         if (remove.off.target.snvs) {
             n.vcf.before.filter <- .countVariants(vcf)
             # make sure all SNVs are in covered exons
-            vcf <- .removeVariants(vcf, info(vcf)$OnTarget <= 0, "intervals") 
+            key <- paste0(.getPureCNPrefixVcf(vcf), "OnTarget")
+            vcf <- .removeVariants(vcf, info(vcf)[[key]] <= 0, "intervals") 
             flog.info("Removing %i variants outside intervals.", 
                 n.vcf.before.filter - .countVariants(vcf))
         }
@@ -276,7 +277,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 .addFilterFlag <- function(vcf) {
     newFilter <- DataFrame(
         Description = "Ignored by PureCN",
-        row.names = "PureCN_ignore")
+        row.names = "purecn_ignore")
     fixed(header(vcf))$FILTER <- rbind(fixed(header(vcf))$FILTER, newFilter)
     vcf
 }  
@@ -332,7 +333,8 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 }    
 .readAndCheckVcf <- function(vcf.file, genome, DB.info.flag = "DB", 
                              POPAF.info.field = "POP_AF", 
-                             min.pop.af = 0.001, check.DB = TRUE) {
+                             min.pop.af = 0.001, check.DB = TRUE,
+                             vcf.field.prefix = NULL) {
     if (is(vcf.file, "character")) {
         vcf <- readVcf(vcf.file, genome)
     } else if (!is(vcf.file, "CollapsedVCF")) {
@@ -411,9 +413,17 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
             sum(idx), rownames(vcf)[idx][1])
         vcf <- .removeVariants(vcf, idx, "NA FA")
     }
+    meta(header(vcf))$purecnprefix <- DataFrame(
+        Value = vcf.field.prefix,
+        row.names = "purecnprefix"
+    )
     vcf
 }
-
+.getPureCNPrefixVcf <- function(vcf) {
+    prefix <- meta(header(vcf))$purecnprefix[[1]]
+    prefix <- if (is.null(prefix)) "" else prefix
+    return(prefix)
+}
 .checkADField <- function(vcf) {
     refs <- apply(geno(vcf)$AD, 2, function(x) sapply(x, function(y) y[2]))
     if (!any(complete.cases(refs))) {
@@ -575,6 +585,16 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     tmp <- reduce(granges)
     sum(width(tmp))/(1000^2)
 }
+.annotateVcfPrior <- function(vcf) {
+    key <- paste0(.getPureCNPrefixVcf(vcf), "PR")
+    newInfo <- DataFrame(
+        Number = 1, Type = "Float",
+        Description = "Prior probability somatic",
+        row.names = key)
+    
+    info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
+    info(vcf)[[key]] <- 0
+}
 
 .annotateVcfTarget <- function(vcf, target.granges, interval.padding) {
     target.granges.padding <- .padGranges(target.granges, interval.padding)
@@ -586,16 +606,17 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 
     idxTarget <- overlapsAny(vcf, target.granges)
     idxPadding <- overlapsAny(vcf, target.granges.padding)
-   
+    prefix <- .getPureCNPrefixVcf(vcf) 
+    key <- paste0(prefix, "OnTarget")
     newInfo <- DataFrame(
-        Number=1, Type="Integer",
-        Description="1: On-target; 2: Flanking region; 0: Off-target.",
-        row.names="OnTarget")
+        Number = 1, Type = "Integer",
+        Description = "1: On-target; 2: Flanking region; 0: Off-target.",
+        row.names = key)
     
     info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
-    info(vcf)$OnTarget <- 0
-    info(vcf)$OnTarget[idxPadding] <- 2
-    info(vcf)$OnTarget[idxTarget] <- 1
+    info(vcf)[[key]] <- 0
+    info(vcf)[[key]][idxPadding] <- 2
+    info(vcf)[[key]][idxTarget] <- 1
     
     # report stats in log file
     targetsWithSNVs <- overlapsAny(target.granges.padding, vcf)
@@ -631,6 +652,9 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 
 # in future this will use the FILTER flag to remove variants
 .removeVariants <- function(vcf, idx, label, na.rm = TRUE) {
+    if (is(idx, "integer")) {
+        idx <- seq(length(vcf)) %in% idx
+    }    
     if (any(is.na(idx))) {
         flog.warn("Variant ids contain NAs at filter step %s.", label)
         idx[is.na(idx)] <- na.rm

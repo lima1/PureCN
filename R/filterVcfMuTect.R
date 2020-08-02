@@ -63,11 +63,12 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
      
     if (!identical(queryHits(ov),subjectHits(ov)) || 
             nrow(vcf) != nrow(stats)) {
-        n <- nrow(vcf)
+        n <- .countVariants(vcf)
         stats <- stats[subjectHits(ov),]
-        vcf <- vcf[queryHits(ov)]
+        vcf <- .removeVariants(vcf, !seq(length(vcf)) %in% queryHits(ov), 
+                               "MuTect align")
         flog.warn("MuTect stats file and VCF file do not align perfectly. Will remove %i unmatched variants.",
-            n-nrow(vcf))
+            n-.countVariants(vcf))
     }    
     if (is.null(stats$failure_reasons)) {
         flog.warn("MuTect stats file lacks failure_reasons column.%s",
@@ -75,13 +76,13 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
         return(filterVcfBasic(vcf, tumor.id.in.vcf, ...))
     }
 
-    n <- nrow(vcf)
+    n <- .countVariants(vcf)
 
     ids <- sort(unique(unlist(sapply(ignore, grep, stats$failure_reasons))))
-    if (length(ids)) vcf <- vcf[-ids]
+    vcf <- .removeVariants(vcf, ids, "MuTect")
 
     flog.info("Removing %i MuTect calls due to blacklisted failure reasons.", 
-        n-nrow(vcf))
+        n-.countVariants(vcf))
     filterVcfBasic(vcf, tumor.id.in.vcf, ...)
 }
     

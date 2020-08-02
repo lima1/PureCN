@@ -57,6 +57,7 @@ runAbsoluteCN(
   max.segments = 300,
   min.gof = 0.8,
   plot.cnv = TRUE,
+  vcf.field.prefix = "",
   cosmic.vcf.file = NULL,
   DB.info.flag = "DB",
   POPAF.info.field = "POP_AF",
@@ -286,6 +287,9 @@ Assay specific and needs to be calibrated.}
 \item{min.gof}{Flag purity/ploidy solutions with poor fit.}
 
 \item{plot.cnv}{Generate segmentation plots.}
+
+\item{vcf.field.prefix}{Prefix all newly created VCF field names with
+this string.}
 
 \item{cosmic.vcf.file}{Add a \code{Cosmic.CNT} info field to the provided
 \code{vcf.file} using a VCF file containing the COSMIC database. The default
