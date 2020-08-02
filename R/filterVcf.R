@@ -74,10 +74,10 @@ interval.padding = 50, DB.info.flag = "DB") {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
     }
     if (use.somatic.status) {
-        n <- nrow(vcf)
+        n <- .countVariants(vcf)
         vcf <- .testGermline(vcf, tumor.id.in.vcf)
         flog.info("Removing %i non heterozygous (in matched normal) germline SNPs.", 
-            n-nrow(vcf))
+            n - .countVariants(vcf))
     } else {
         info(vcf)$SOMATIC <- NULL
     }    
@@ -100,8 +100,7 @@ interval.padding = 50, DB.info.flag = "DB") {
         depths <- 0
         cutoffs <- min.supporting.reads
     }
-    n <- nrow(vcf)
-    .checkVcfNotEmpty(vcf)
+    n <- .countVariants(vcf)
         
     .sufficientReads <- function(vcf, ref, depths, cutoffs) {
         idx <- rep(TRUE, nrow(vcf))
@@ -120,8 +119,7 @@ interval.padding = 50, DB.info.flag = "DB") {
         idx
     }    
     idxNotAlt <- .sufficientReads(vcf,ref=FALSE, depths, cutoffs)
-    vcf <- vcf[idxNotAlt]
-    .checkVcfNotEmpty(vcf)
+    vcf <- .removeVariants(vcf, !idxNotAlt, "sufficient reads")
     idxNotHomozygous <- .sufficientReads(vcf,ref=TRUE, depths, cutoffs)
     if (!sum(idxNotHomozygous)) .stopUserError("None of the heterozygous variants in provided VCF passed filtering.")
     #--------------------------------------------------------------------------
@@ -164,16 +162,26 @@ interval.padding = 50, DB.info.flag = "DB") {
         af.range[2] <- 1
         if (model.homozygous) af.range[2] <- Inf
     } else {
-        vcf <- vcf[idxNotHomozygous]
+        vcf <- .removeVariants(vcf, !idxNotHomozygous, "homozygous")
     }
 
-    vcf <- vcf[unlist(geno(vcf)$DP[,tumor.id.in.vcf]) >= min.coverage]
-    vcf <- vcf[unlist(geno(vcf)$FA[,tumor.id.in.vcf]) >= af.range[1]]
+    vcf <- .removeVariants(vcf, 
+        unlist(geno(vcf)$DP[,tumor.id.in.vcf]) < min.coverage,
+        "min.coverage")
+
+    vcf <- .removeVariants(vcf, 
+        unlist(geno(vcf)$FA[,tumor.id.in.vcf]) < af.range[1],
+        "af.range")
+
     # remove homozygous germline
-    vcf <- vcf[!info(vcf)[[DB.info.flag]] | geno(vcf)$FA[,tumor.id.in.vcf] < af.range[2]]
+    vcf <- .removeVariants(vcf, 
+        info(vcf)[[DB.info.flag]] &
+        geno(vcf)$FA[,tumor.id.in.vcf] >= af.range[2],
+        "homozygous af.range")
+
     flog.info("Removing %i variants with AF < %.3f or AF >= %.3f or less than %i supporting reads or depth < %i.", 
-        n-nrow(vcf), af.range[1], af.range[2], cutoffs[1], min.coverage)
-    n <- nrow(vcf)
+        n-.countVariants(vcf), af.range[1], af.range[2], cutoffs[1], min.coverage)
+    n <- .countVariants(vcf)
 
     if (!is.null(snp.blacklist)) {
         for (i in seq_along(snp.blacklist)) {
@@ -183,8 +191,9 @@ interval.padding = 50, DB.info.flag = "DB") {
                     ":", blackBed)
             }    
             ov <- suppressWarnings(overlapsAny(vcf, blackBed))
-            vcf <- vcf[!ov]
-            flog.info("Removing %i blacklisted variants.", n-nrow(vcf))
+            vcf <- .removeVariants(vcf, ov, "blacklist")
+            flog.info("Removing %i blacklisted variants.", 
+                      n-.countVariants(vcf))
         }    
     }
     
@@ -195,12 +204,12 @@ interval.padding = 50, DB.info.flag = "DB") {
     if (!is.null(target.granges)) {
         vcf <- .annotateVcfTarget(vcf, target.granges, interval.padding)
         if (remove.off.target.snvs) {
-            n.vcf.before.filter <- nrow(vcf)
+            n.vcf.before.filter <- .countVariants(vcf)
             # make sure all SNVs are in covered exons
-            vcf <- vcf[info(vcf)$OnTarget>0]
+            vcf <- .removeVariants(vcf, info(vcf)$OnTarget <= 0, "intervals") 
             flog.info("Removing %i variants outside intervals.", 
-                n.vcf.before.filter - nrow(vcf))
-        }        
+                n.vcf.before.filter - .countVariants(vcf))
+        }
     }
     if (!is.null(info(vcf)[[DB.info.flag]]) && sum(info(vcf)[[DB.info.flag]]) < nrow(vcf)/2) {
         flog.warn("Less than half of variants in dbSNP. Make sure that VCF %s", 
@@ -234,7 +243,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     idx <- info(vcf)$SOMATIC | (pBeta > 0.025 & pBeta < 1-0.025) | 
            (arAll > 0.5-allowed & arAll < 0.5+allowed) 
     idx <- idx & dpAll > 5       
-    vcf[idx]
+    .removeVariants(vcf, !idx, "matched germline")
 }
 # calculate allelic fraction from read depths
 .addFaField <- function(vcf, field="FA") {
@@ -264,6 +273,13 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     geno(vcf)[[field]] <- matrixDP
     vcf
 }
+.addFilterFlag <- function(vcf) {
+    newFilter <- DataFrame(
+        Description = "Ignored by PureCN",
+        row.names = "PureCN_ignore")
+    fixed(header(vcf))$FILTER <- rbind(fixed(header(vcf))$FILTER, newFilter)
+    vcf
+}  
 .getNormalIdInVcf <- function(vcf, tumor.id.in.vcf) {
     samples(header(vcf))[-match(tumor.id.in.vcf, samples(header(vcf)))] 
 }    
@@ -324,14 +340,16 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
             "object.") 
     } else {
         vcf <- vcf.file
-    } 
+    }
+    # add PureCN ignore flag
+    vcf <- .addFilterFlag(vcf) 
     flog.info("Found %i variants in VCF file.", length(vcf))
     triAllelic <- elementNROWS(alt(vcf))>1
     if (sum(triAllelic)) {
-        n <- nrow(vcf)
-        vcf <- vcf[which(!triAllelic)]
+        n <- .countVariants(vcf)
+        vcf <- .removeVariants(vcf, triAllelic, "triallelic")
         flog.info("Removing %i triallelic sites.",n-length(vcf))
-    }    
+    } 
     if (is.null(info(vcf)$SOMATIC)) {
         # try to add a SOMATIC flag for callers that do not
         # provide one (matched tumor/normal cases only)
@@ -352,9 +370,9 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }
     # check for NAs in DP
     idx <- is.na(rowSums(geno(vcf)$DP)) 
-    if (sum(idx)) {
-        n <- length(vcf)
-        vcf <- vcf[!idx] 
+    if (any(idx)) {
+        n <- .countVariants(vcf)
+        vcf <- .removeVariants(vcf, idx, "NA DP")
         flog.warn("DP FORMAT field contains NAs. Removing %i variants.", n-length(vcf))
     }
     if (check.DB) {
@@ -391,9 +409,9 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     if (any(idx)) {
         flog.warn("Found %i variants with missing allelic fraction starting with %s. Removing them.",
             sum(idx), rownames(vcf)[idx][1])
-        vcf <- vcf[!idx]
+        vcf <- .removeVariants(vcf, idx, "NA FA")
     }
-    vcf     
+    vcf
 }
 
 .checkADField <- function(vcf) {
@@ -589,24 +607,44 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 }
 
 .filterVcfByBQ <- function(vcf, tumor.id.in.vcf, min.base.quality) {
-    n.vcf.before.filter <- nrow(vcf)
+    n.vcf.before.filter <- .countVariants(vcf)
     idx <- NULL
     if (!is.null(geno(vcf)$BQ)) {
         # Mutect 1
-        idx <- which(as.numeric(geno(vcf)$BQ[,tumor.id.in.vcf])>=min.base.quality)
+        idx <- as.numeric(geno(vcf)$BQ[,tumor.id.in.vcf]) < min.base.quality
     } else if (!is.null(geno(vcf)$MBQ)) {
         # Mutect 2
-        idx <- which(as.numeric(geno(vcf)$MBQ[,tumor.id.in.vcf])>=min.base.quality)
+        idx <- as.numeric(geno(vcf)$MBQ[,tumor.id.in.vcf]) < min.base.quality
     } else if (!is.null(rowRanges(vcf)$QUAL)) {
         # Freebayes
-        idx <- which(as.numeric(rowRanges(vcf)$QUAL)>=min.base.quality)
+        idx <- as.numeric(rowRanges(vcf)$QUAL) < min.base.quality
     }
-    if (length(idx)) vcf <- vcf[idx]
+    vcf <- .removeVariants(vcf, idx, "BQ", na.rm = FALSE)
     flog.info("Removing %i low quality variants with BQ < %i.", 
-        n.vcf.before.filter - nrow(vcf), min.base.quality) 
+        n.vcf.before.filter - .countVariants(vcf), min.base.quality) 
     vcf
 }         
 
 .checkVcfNotEmpty <- function(vcf) {
-    if (!nrow(vcf)) .stopUserError("None of the variants in provided VCF passed filtering.")
+    if (!.countVariants(vcf)) .stopUserError("None of the variants in provided VCF passed filtering.")
 }
+
+# in future this will use the FILTER flag to remove variants
+.removeVariants <- function(vcf, idx, label, na.rm = TRUE) {
+    if (any(is.na(idx))) {
+        flog.warn("Variant ids contain NAs at filter step %s.", label)
+        idx[is.na(idx)] <- na.rm
+    }
+    # TODO: once used flags, make sure this includes already filtered variants
+    if (all(idx)) {
+        .stopUserError("No variants passed filter ", label, ".")
+    }    
+    vcf[!idx]
+}
+# in future this will use the FILTER flag to count
+.countVariants <- function(vcf) {
+    if (!is(vcf, "VCF")) {
+        .stopRuntimeError("Not a VCF object in .countVariants.")
+    }    
+    nrow(vcf)
+}    

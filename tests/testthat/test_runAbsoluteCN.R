@@ -356,6 +356,7 @@ test_that("Betabin model runs with example data", {
     geno(vcf)$AD[, 1] <- ad1
     geno(vcf)$FA <- NULL
     geno(vcf)$DP <- NULL
+    geno(vcf)$BQ[,2] <- geno(vcf)$BQ[,1]
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
         tumor.coverage.file = tumor.coverage.file, sampleid = "LIB-02252e4", 
         vcf.file = vcf, max.candidate.solutions = 1, genome = "hg19", 
