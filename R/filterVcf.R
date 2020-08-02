@@ -585,17 +585,6 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     tmp <- reduce(granges)
     sum(width(tmp))/(1000^2)
 }
-.annotateVcfPrior <- function(vcf) {
-    key <- paste0(.getPureCNPrefixVcf(vcf), "PR")
-    newInfo <- DataFrame(
-        Number = 1, Type = "Float",
-        Description = "Prior probability somatic",
-        row.names = key)
-    
-    info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
-    info(vcf)[[key]] <- 0
-}
-
 .annotateVcfTarget <- function(vcf, target.granges, interval.padding) {
     target.granges.padding <- .padGranges(target.granges, interval.padding)
 

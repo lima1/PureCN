@@ -38,8 +38,9 @@ germline databases. Defaults to \code{DB} that may contain somatic variants
 if it is from an unfiltered dbSNP VCF.}
 }
 \value{
-A \code{numeric(nrow(vcf))} vector with the prior probability of
-somatic status for each variant in the \code{CollapsedVCF}.
+The \code{vcf} with \code{numeric(nrow(vcf))} vector with the
+prior probability of somatic status for each variant in the 
+\code{CollapsedVCF} added to the \code{INFO} field \code{PR}.
 }
 \description{
 Function to set prior for somatic mutation status for each variant in the
@@ -51,7 +52,7 @@ provided \code{CollapsedVCF} object.
 # fun.setPriorVcf and args.setPriorVcf comments.
 vcf.file <- system.file("extdata", "example.vcf.gz", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")
-vcf.priorsomatic <- setPriorVcf(vcf)        
+vcf <- setPriorVcf(vcf)        
 
 }
 \author{

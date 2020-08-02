@@ -474,7 +474,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     vcf.germline <- NULL
     tumor.id.in.vcf <- NULL
     normal.id.in.vcf <- NULL
-    prior.somatic <- NULL
     mapping.bias <- NULL
     vcf.filtering <- list(flag = FALSE, flag_comment = "")
     sex.vcf <- NULL
@@ -533,7 +532,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         
         args.setPriorVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf, 
             DB.info.flag = DB.info.flag), args.setPriorVcf)
-        prior.somatic <- do.call(fun.setPriorVcf, 
+        vcf <- do.call(fun.setPriorVcf, 
             .checkArgs(args.setPriorVcf, "setPriorVcf"))
         
         # get mapping bias
@@ -541,7 +540,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         args.setMappingBiasVcf$tumor.id.in.vcf <- tumor.id.in.vcf
         mapping.bias <- do.call(fun.setMappingBiasVcf,
             .checkArgs(args.setMappingBiasVcf, "setMappingBiasVcf"))
-        idxHqGermline <- prior.somatic < 0.1 & mapping.bias$bias >= max.mapping.bias
+        idxHqGermline <- info(vcf)[[paste0(vcf.field.prefix, "PR")]] < 0.1 &
+            mapping.bias$bias >= max.mapping.bias
         flog.info("Excluding %i novel or poor quality variants from segmentation.", sum(!idxHqGermline))
         # for larger pool of normals, require that we have seen the SNP 
         if (sum(!is.na(mapping.bias$pon.count)) && 
@@ -603,7 +603,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             n.vcf.before.filter <- .countVariants(vcf)
             vcf <- .removeVariants(vcf, is.na(snv.lr), "segmentation")
             mapping.bias <- mapping.bias[!is.na(snv.lr),]
-            prior.somatic <- prior.somatic[!is.na(snv.lr)]
             
             # make sure all variants are in covered segments
             flog.info("Removing %i variants outside segments.", n.vcf.before.filter - .countVariants(vcf))
@@ -682,9 +681,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         
         # if we have > 20 somatic mutations, we can try estimating purity based on
         # allelic fractions and assuming diploid genomes.
-        if (!is.null(vcf.file) && sum(prior.somatic > 0.5, na.rm = TRUE) > 20) {
-            somatic.purity <- .calcPuritySomaticVariants(vcf, 
-                prior.somatic, tumor.id.in.vcf)
+        if (!is.null(vcf.file) && 
+            sum(info(vcf)[[paste0(vcf.field.prefix, "PR")]] > 0.5,
+                na.rm = TRUE) > 20) {
+            somatic.purity <- .calcPuritySomaticVariants(vcf, tumor.id.in.vcf)
             somatic.purity <- min(max(test.purity), somatic.purity)
             somatic.purity <- max(min(test.purity), somatic.purity)
             
@@ -939,7 +939,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                   
                   .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, test.num.copy, 
                     sol$C.likelihood, sol$ML.C, sol$opt.C, median.C = median(rep(sol$ML.C, sol$seg$num.mark)), 
-                    snv.model = model, prior.somatic, mapping.bias,
+                    snv.model = model, mapping.bias,
                     snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K, 
                     max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M, 
                     model.homozygous = model.homozygous, error = error, 
@@ -1056,7 +1056,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                           results[[i]]$C.posterior$ML.C,
                           results[[i]]$C.posterior$Opt.C,
                           median.C = median(rep(results[[i]]$seg$C, results[[i]]$seg$num.mark)),
-                          snv.model = model, prior.somatic, mapping.bias,
+                          snv.model = model, mapping.bias,
                           snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K,
                           max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M,
                           model.homozygous = model.homozygous, error = error,

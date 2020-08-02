@@ -81,7 +81,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 }    
 
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
-    C.likelihood, C, opt.C, median.C, snv.model, prior.somatic, mapping.bias, snv.lr, 
+    C.likelihood, C, opt.C, median.C, snv.model, mapping.bias, snv.lr, 
     sampleid = NULL, cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M,
     model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8, max.pon,
     min.variants.segment) {
@@ -96,13 +96,11 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
          }
     }
     prefix <- .getPureCNPrefixVcf(vcf)
+    prior.somatic <- info(vcf)[[paste0(prefix, "PR")]]
     prior.cont <- ifelse(prior.somatic < 0.1, cont.rate, 0)
     prior.somatic <- prior.somatic - (prior.cont*prior.somatic)
     priorHom <- if (model.homozygous) -log(3) else log(0)
 
-    if (length(prior.somatic) != nrow(vcf)) {
-        .stopRuntimeError("prior.somatic and VCF do not align.")
-    }
     if (length(mapping.bias$bias) != nrow(vcf)) {
         .stopRuntimeError("mapping.bias and VCF do not align.")
     }
@@ -843,8 +841,9 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     idx <- x <= (qnt[1] - H) | x >= (qnt[2] + H)
     x[!idx]
 }    
-.calcPuritySomaticVariants <- function(vcf, prior.somatic, tumor.id.in.vcf) {
-    median(unlist(geno(vcf[prior.somatic > 0.5])$FA[, tumor.id.in.vcf]), na.rm = TRUE)/0.48
+.calcPuritySomaticVariants <- function(vcf, tumor.id.in.vcf) {
+    idx <- info(vcf)[[paste0(.getPureCNPrefixVcf(vcf), "PR")]] > 0.5
+    median(unlist(geno(vcf[idx])$FA[, tumor.id.in.vcf]), na.rm = TRUE)/0.48
 }
 .robustSd <- function(d, size = 25) median(
 sapply(split(d, ceiling(seq_along(d) / size)), sd, na.rm = TRUE), 
