@@ -153,7 +153,8 @@ test_that("Mapping bias function works", {
             35811642)
         tmp[idx] <- 0.9
         tmp2[idx] <- 2
-        data.frame(bias = tmp, pon.count = tmp2, shape1 = NA, shape2 = NA)
+        return(PureCN:::.annotateMappingBiasVcf(vcf, 
+                    data.frame(bias = tmp, pon.count = tmp2, mu = NA, rho = NA)))
     }
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
         tumor.coverage.file = tumor.coverage.file, args.filterVcf = list(remove.off.target.snvs = FALSE), 

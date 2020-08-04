@@ -4,11 +4,11 @@ vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package = "PureCN")
 vcf <- readVcf(vcf.file, "hg19")
 
 test_that("Mapping bias without normal panel matches", {
-    vcf.bias <- round(setMappingBiasVcf(vcf)$bias, digits = 3)
+    vcf.bias <- round(info(setMappingBiasVcf(vcf))$MBB, digits = 3)
     expected <- rep(0.977, 2331)
     expect_equal(vcf.bias, expected)
     vcf <- readVcf(vcf.file, "hg19", param = ScanVcfParam(samples = "LIB-02240e4"))
-    vcf.bias <- round(setMappingBiasVcf(vcf)$bias, digits = 3)
+    vcf.bias <- round(info(setMappingBiasVcf(vcf))$MBB, digits = 3)
     expected <- rep(1, 2331)
     expect_equal(vcf.bias, expected)
 })
@@ -26,12 +26,12 @@ test_that("Precomputed mapping bias matches", {
     normal_panel_precomp <- tempfile(fileext = ".rds")
     saveRDS(mb, file = normal_panel_precomp)
     mb <- setMappingBiasVcf(vcf, mapping.bias.file = normal_panel_precomp)
-    idx <- mb$pon.count > 0
-    expect_equal(head(mb$pon.count[idx], 3), c(15, 5, 27))
-    expect_equal(head(mb$bias[idx], 3), c(0.3362525, 1.0002354, 
+    idx <- info(mb)$MBPON > 0
+    expect_equal(head(info(mb)$MBPON[idx], 3), c(15, 5, 27))
+    expect_equal(head(info(mb)$MBB[idx], 3), c(0.3362525, 1.0002354, 
         1.0119481), tolerance = 0.001)
     expect_equal( weighted.mean(c(1.00023541351692, 1.01194812157128, 0.915037402634247), c(5,27,12)),
-        mb$bias[230], tolerance = 0.001)
+        info(mb)$MBB[230], tolerance = 0.001)
     file.remove(normal_panel_precomp)
 
     vcf.single.file <- system.file("extdata", "example_single.vcf.gz", package = "PureCN")

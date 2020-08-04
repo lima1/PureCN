@@ -474,7 +474,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     vcf.germline <- NULL
     tumor.id.in.vcf <- NULL
     normal.id.in.vcf <- NULL
-    mapping.bias <- NULL
     vcf.filtering <- list(flag = FALSE, flag_comment = "")
     sex.vcf <- NULL
     
@@ -538,17 +537,18 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         # get mapping bias
         args.setMappingBiasVcf$vcf <- vcf
         args.setMappingBiasVcf$tumor.id.in.vcf <- tumor.id.in.vcf
-        mapping.bias <- do.call(fun.setMappingBiasVcf,
+        vcf <- do.call(fun.setMappingBiasVcf,
             .checkArgs(args.setMappingBiasVcf, "setMappingBiasVcf"))
         idxHqGermline <- info(vcf)[[paste0(vcf.field.prefix, "PR")]] < 0.1 &
-            mapping.bias$bias >= max.mapping.bias
+            info(vcf)[[paste0(vcf.field.prefix, "MBB")]] >= max.mapping.bias
         flog.info("Excluding %i novel or poor quality variants from segmentation.", sum(!idxHqGermline))
         # for larger pool of normals, require that we have seen the SNP 
-        if (sum(!is.na(mapping.bias$pon.count)) && 
-            max(mapping.bias$pon.count, na.rm = TRUE)> 10) {
-            idxHqGermline <- idxHqGermline & mapping.bias$pon.count > 0
+        pon.count <- info(vcf)[[paste0(vcf.field.prefix, "MBPON")]]
+        if (any(!is.na(pon.count)) && 
+            max(pon.count, na.rm = TRUE) > 10) {
+            idxHqGermline <- idxHqGermline & pon.count > 0
             flog.info("Excluding %i variants not in pool of normals from segmentation.",
-                 sum(!mapping.bias$pon.count>0))
+                 sum(!pon.count>0))
         }
         vcf.germline <- vcf[idxHqGermline]
     }
@@ -602,8 +602,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         if (anyNA(snv.lr)) {
             n.vcf.before.filter <- .countVariants(vcf)
             vcf <- .removeVariants(vcf, is.na(snv.lr), "segmentation")
-            mapping.bias <- mapping.bias[!is.na(snv.lr),]
-            
             # make sure all variants are in covered segments
             flog.info("Removing %i variants outside segments.", n.vcf.before.filter - .countVariants(vcf))
         }
@@ -939,7 +937,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                   
                   .calcSNVLLik(vcf, tumor.id.in.vcf, ov, px, test.num.copy, 
                     sol$C.likelihood, sol$ML.C, sol$opt.C, median.C = median(rep(sol$ML.C, sol$seg$num.mark)), 
-                    snv.model = model, mapping.bias,
+                    snv.model = model, 
                     snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K, 
                     max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M, 
                     model.homozygous = model.homozygous, error = error, 
@@ -1056,7 +1054,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                           results[[i]]$C.posterior$ML.C,
                           results[[i]]$C.posterior$Opt.C,
                           median.C = median(rep(results[[i]]$seg$C, results[[i]]$seg$num.mark)),
-                          snv.model = model, mapping.bias,
+                          snv.model = model, 
                           snv.lr, sampleid, cont.rate = cont.rate, prior.K = prior.K,
                           max.coverage.vcf = max.coverage.vcf, non.clonal.M = non.clonal.M,
                           model.homozygous = model.homozygous, error = error,
@@ -1099,6 +1097,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             purity = min(test.purity), ploidy = 2, ploidy.div = 1)
     }    
     .logFooter()
+    rho <- if (is.null(vcf)) NULL else info(vcf)[[paste0(vcf.field.prefix, "MBRHO")]]
     list(
         candidates = candidate.solutions, 
         results = results, 
@@ -1107,7 +1106,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             log.ratio.sdev = sd.seg, vcf = vcf, sampleid = sampleid, 
             test.num.copy = test.num.copy,
             sex = sex, sex.vcf = sex.vcf, chr.hash = chr.hash, centromeres = centromeres,
-            mapping.bias.rho = if (is.null(mapping.bias) || all(is.na(mapping.bias$rho))) NULL else mean(mapping.bias$rho, na.rm = TRUE),
+            mapping.bias.rho = if (is.null(rho) || all(is.na(rho))) NULL else mean(rho, na.rm = TRUE),
             vcf.field.prefix = vcf.field.prefix,
             args=list(
                 filterVcf = args.filterVcf[vapply(args.filterVcf, object.size, double(1)) < 1000],

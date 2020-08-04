@@ -81,7 +81,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 }    
 
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
-    C.likelihood, C, opt.C, median.C, snv.model, mapping.bias, snv.lr, 
+    C.likelihood, C, opt.C, median.C, snv.model, snv.lr, 
     sampleid = NULL, cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M,
     model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8, max.pon,
     min.variants.segment) {
@@ -101,10 +101,6 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     prior.somatic <- prior.somatic - (prior.cont*prior.somatic)
     priorHom <- if (model.homozygous) -log(3) else log(0)
 
-    if (length(mapping.bias$bias) != nrow(vcf)) {
-        .stopRuntimeError("mapping.bias and VCF do not align.")
-    }
-    
     haploid.penalty <- 0
     
     if (median.C < 1.1) {
@@ -116,7 +112,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     seg.idx <- which(seq_len(nrow(C.likelihood)) %in% queryHits(ov))
 
     ar_all <- unlist(geno(vcf)$FA[, tumor.id.in.vcf])
-    ar_all <- ar_all/mapping.bias$bias
+    ar_all <- ar_all / info(vcf)[[paste0(prefix, "MBB")]]
     ar_all[ar_all > 1] <- 1
     
     dp_all <- unlist(geno(vcf)$DP[, tumor.id.in.vcf])
@@ -180,7 +176,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     
     tmp <- lapply(seq_along(xx),function(i) .calcMsSegment(xx[[i]]$likelihoods, 
                test.num.copy, opt.C[seg.idx[i]], prior.K, 
-               mapping.bias.ok=mapping.bias$bias[xx[[i]]$vcf.ids]>=max.mapping.bias,
+               mapping.bias.ok=info(vcf[xx[[i]]$vcf.ids])[[paste0(prefix, "MBB")]]>=max.mapping.bias,
                seg.id=seg.idx[i], min.variants.segment))
 
     xx <- lapply(tmp, lapply, function(x) x$best)
@@ -236,9 +232,10 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     posteriors$ML.AR[posteriors$ML.AR > 1] <- 1 
 
     posteriors$AR <- unlist(geno(vcf[vcf.ids])$FA[, tumor.id.in.vcf])
-    posteriors$AR.ADJUSTED <- posteriors$AR / mapping.bias$bias[vcf.ids]
-    posteriors$AR.ADJUSTED[posteriors$AR.ADJUSTED>1] <- 1
-    posteriors$MAPPING.BIAS <- mapping.bias$bias[vcf.ids]
+    posteriors$AR.ADJUSTED <- NA
+    posteriors$MAPPING.BIAS <- info(vcf[vcf.ids])[[paste0(prefix, "MBB")]]
+    posteriors$AR.ADJUSTED <- posteriors$AR / posteriors$MAPPING.BIAS
+    posteriors$AR.ADJUSTED[posteriors$AR.ADJUSTED > 1] <- 1
     # Extract LOH
     posteriors$ML.LOH <- (posteriors$ML.M == posteriors$ML.C | 
         posteriors$ML.M == 0 | posteriors$ML.C == 1)
@@ -260,8 +257,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         depth = depth,
         max.coverage.vcf = max.coverage.vcf, 
         bias = posteriors$MAPPING.BIAS,
-        mu = mapping.bias$mu[vcf.ids],
-        rho = mapping.bias$rho[vcf.ids])
+        mu = info(vcf[vcf.ids])[[paste0(prefix, "MBMU")]],
+        rho = info(vcf[vcf.ids])[[paste0(prefix, "MBRHO")]])
 
     rm.snv.posteriors <- apply(likelihoods, 1, max)
     idx.ignore <- rm.snv.posteriors == 0 |
@@ -276,9 +273,9 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     posteriors$prior.contamination <- prior.cont[vcf.ids]
     posteriors$on.target <- info(vcf[vcf.ids])[[paste0(prefix, "OnTarget")]]
     posteriors$seg.id <- queryHits(ov)
-
-    if (!is.null(mapping.bias$pon.count)) {
-        posteriors$pon.count <- mapping.bias$pon.count[vcf.ids]
+    
+    posteriors$pon.count <- info(vcf[vcf.ids])[[paste0(prefix, "MBPON")]]
+    if (!is.null(posteriors$pon.count)) {
         idx.ignore <- idx.ignore | 
             (posteriors$pon.count > max.pon & posteriors$prior.somatic > 0.1)
         posteriors$FLAGGED <- idx.ignore

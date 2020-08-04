@@ -17,7 +17,8 @@
 #' @param smooth Impute mapping bias of variants not found in the panel by
 #' smoothing of neighboring SNPs. Requires \code{mapping.bias.file}.
 #' @param smooth.n Number of neighboring variants used for smoothing.
-#' @return A \code{data.frame} with elements \item{bias}{A \code{numeric(nrow(vcf))} 
+#' @return Adds elements to the \code{vcf} \code{INFO} field
+#' \item{bias}{A \code{numeric(nrow(vcf))} 
 #' vector with the mapping bias of for each
 #' variant in the \code{CollapsedVCF}. Mapping bias is expected as scaling
 #' factor. Adjusted allelic fraction is (observed allelic fraction)/(mapping
@@ -63,7 +64,8 @@ smooth = TRUE, smooth.n = 5) {
     max.bias <- 1.2
     tmp[tmp > max.bias] <- max.bias
     if (is.null(mapping.bias.file)) {
-        return(data.frame(bias = tmp, shape1 = NA, shape2 = NA))
+        return(.annotateMappingBiasVcf(vcf, 
+                    data.frame(bias = tmp, pon.count = 0, mu = NA, rho = NA)))
     }
 
     if (tolower(file_ext(mapping.bias.file)) == "rds") {
@@ -73,11 +75,28 @@ smooth = TRUE, smooth.n = 5) {
     } else {
         .stopUserError("mapping.bias.file must be a file with *.rds suffix.")
     }
-    .annotateMappingBias(tmp, vcf, mappingBias, max.bias, smooth, smooth.n)
+    .annotateMappingBiasVcf(vcf, 
+        .annotateMappingBias(tmp, vcf, mappingBias, max.bias, smooth, smooth.n)
+    )    
 }
 
 
-
+.annotateMappingBiasVcf <- function(vcf, mappingBias) {
+    prefix <- .getPureCNPrefixVcf(vcf)
+    if (length(vcf) != nrow(mappingBias)) {
+        .stopRuntimeError("vcf and mappingBias do not align.")
+    }    
+    newInfo <- DataFrame(
+        Number = 1, 
+        Type = c("Float", "Integer", "Float", "Float"),
+        Description = c("Mapping Bias", "PoN Count", "mu of beta-binomial fit",
+                        "rho of beta-binomial fit"),
+        row.names = paste0(prefix, c("MBB", "MBPON", "MBMU", "MBRHO")))
+    colnames(mappingBias) <- rownames(newInfo)
+    info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
+    info(vcf) <- cbind(info(vcf), mappingBias) 
+    return(vcf)
+}    
 .annotateMappingBias <- function(tmp, vcf, mappingBias, max.bias, smooth, smooth.n) {
     mappingBias <- .checkSeqlevelStyle(vcf, mappingBias, "mapping.bias.file", "vcf")
     .compareGenomes <- function(x, y) {
@@ -110,11 +129,12 @@ smooth = TRUE, smooth.n = 5) {
         rho[idx] <- mappingBias$rho[ov][idx]
     }
     if (smooth) {
+        idx <- !(idx | grepl("purecn_ignore", fixed(vcf)$FILTER))
         flog.info("Imputing mapping bias for %i variants...", 
-            sum(!idx, na.rm = TRUE))
-        near <- nearest(vcf[!idx], mappingBias, ignore.strand=TRUE)
-        start.var <- start(vcf)[!idx]
-        tmp[!idx][!is.na(near)] <- sapply(which(!is.na(near)), function(i) .extractBias(near[i], start.var[i]))
+            sum(idx, na.rm = TRUE))
+        near <- nearest(vcf[idx], mappingBias, ignore.strand=TRUE)
+        start.var <- start(vcf)[idx]
+        tmp[idx][!is.na(near)] <- sapply(which(!is.na(near)), function(i) .extractBias(near[i], start.var[i]))
     }
     if (anyNA(tmp)) {
         flog.warn("Could not impute mapping bias for all variants. Did you use calculateMappingBiasVcf?")
