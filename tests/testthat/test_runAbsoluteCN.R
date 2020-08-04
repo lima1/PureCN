@@ -127,7 +127,9 @@ test_that("Example data with VCF produces expected output", {
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
         tumor.coverage.file = tumor.coverage.file, vcf.file = vcf.file,
         genome = "hg19", test.purity = seq(0.3, 0.7, by = 0.05), plot.cnv = FALSE,
-        max.candidate.solutions = 1, min.ploidy = 1.5, max.ploidy = 2.1)
+        max.candidate.solutions = 1, min.ploidy = 1.5, max.ploidy = 2.1,
+        vcf.field.prefix = "PureCN."
+    )
     expect_equal(ret$results[[1]]$fraction.balanced, 0.21, tolerance = 0.01)
     s <- predictSomatic(ret)
     expect_equal(s$AR/s$MAPPING.BIAS, s$AR.ADJUSTED)
@@ -136,6 +138,7 @@ test_that("Example data with VCF produces expected output", {
     expect_equal(as.numeric(colnames(ret$candidates$all)), c(seq(0.3, 
         0.34, by = 1/50), seq(0.35, 0.7, by = 1/30)))
     plotAbs(ret, type = "overview")
+    expect_equal(info(ret$input$vcf)$PureCN.OnTarget, rep(1, length(ret$input$vcf)))
 })
 
 test_that("Mapping bias function works", {
@@ -150,7 +153,8 @@ test_that("Mapping bias function works", {
             35811642)
         tmp[idx] <- 0.9
         tmp2[idx] <- 2
-        data.frame(bias = tmp, pon.count = tmp2, shape1 = NA, shape2 = NA)
+        return(PureCN:::.annotateMappingBiasVcf(vcf, 
+                    data.frame(bias = tmp, pon.count = tmp2, mu = NA, rho = NA)))
     }
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
         tumor.coverage.file = tumor.coverage.file, args.filterVcf = list(remove.off.target.snvs = FALSE), 
@@ -356,6 +360,7 @@ test_that("Betabin model runs with example data", {
     geno(vcf)$AD[, 1] <- ad1
     geno(vcf)$FA <- NULL
     geno(vcf)$DP <- NULL
+    geno(vcf)$BQ[,2] <- geno(vcf)$BQ[,1]
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
         tumor.coverage.file = tumor.coverage.file, sampleid = "LIB-02252e4", 
         vcf.file = vcf, max.candidate.solutions = 1, genome = "hg19", 

@@ -11,7 +11,6 @@
 #' this VCF will only contain variants not filtered out by the \code{filterVcf}
 #' functions. Variants outside segments or intervals might be included or not
 #' depending on \code{\link{runAbsoluteCN}} arguments.
-#' @param vcf.field.prefix Prefix all VCF info field names with this string.
 #' @return A \code{data.frame} or \code{CollapsedVCF} with SNV state posterior
 #' probabilities.
 #' @author Markus Riester
@@ -29,16 +28,15 @@
 #' 
 #' # write a VCF file
 #' purecnVcf <- predictSomatic(purecn.example.output, return.vcf=TRUE)
-#' writeVcf(purecnVcf, file="Sample1_PureCN.vcf")
+#' writeVcf(purecnVcf, file = "Sample1_PureCN.vcf")
 #' 
 #' @export predictSomatic
-predictSomatic <- function(res, id = 1, return.vcf = FALSE, 
-    vcf.field.prefix = ""){
+predictSomatic <- function(res, id = 1, return.vcf = FALSE) {
     pp   <- .addSymbols(res$results[[id]])
     if (return.vcf) {
         vcf <- res$input$vcf[
             res$results[[id]]$SNV.posterior$vcf.ids]
-        return(.annotatePosteriorsVcf(pp, vcf, prefix=vcf.field.prefix))
+        return(.annotatePosteriorsVcf(pp, vcf))
     }
     pp
 }
@@ -56,7 +54,7 @@ predictSomatic <- function(res, id = 1, return.vcf = FALSE,
     result$SNV.posterior$posteriors
 }
     
-.annotatePosteriorsVcf <- function(pp, vcf, prefix="") {
+.annotatePosteriorsVcf <- function(pp, vcf) {
     if (nrow(pp) != nrow(vcf)) {
          .stopRuntimeError("Posteriors and filtered VCF do not align.")
     }
@@ -83,6 +81,7 @@ predictSomatic <- function(res, id = 1, return.vcf = FALSE,
     descriptionPp <- gsub("GHOMOZYGOUS", 
         " homozygous", descriptionPp)
     idxCols <- grep("^ML", colnames(pp))
+    prefix <- .getPureCNPrefixVcf(vcf)
     colnames(pp) <- paste0(prefix, colnames(pp))
     newInfoPosterior <- DataFrame(
         Number = 1, 

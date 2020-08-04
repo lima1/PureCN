@@ -322,6 +322,7 @@ if (file.exists(file.rds) && !opt$force) {
             max.homozygous.loss = as.numeric(strsplit(opt$maxhomozygousloss,",")[[1]]),
             post.optimize = opt$postoptimize,
             speedup.heuristics = opt$speedupheuristics,
+            vcf.field.prefix = "PureCN.",
             BPPARAM = BPPARAM)
     invisible(dev.off())
     if (opt$bootstrapn > 0) {
@@ -382,8 +383,7 @@ if (is(ret$results[[1]]$gene.calls, "data.frame")) {
 if (!is.null(ret$input$vcf)) {
     if (opt$outvcf) {
         file.vcf <- paste0(out, ".vcf")
-        vcfanno <- predictSomatic(ret, return.vcf = TRUE,
-            vcf.field.prefix = "PureCN.")
+        vcfanno <- predictSomatic(ret, return.vcf = TRUE)
         writeVcf(vcfanno, file = file.vcf)
         bgzip(file.vcf, paste0(file.vcf, ".gz"), overwrite = TRUE)
         indexTabix(paste0(file.vcf, ".gz"), format = "vcf")

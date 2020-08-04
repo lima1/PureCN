@@ -34,9 +34,11 @@ test_that("stats.file filtering works", {
 })
 
 test_that("skipping base quality works", {
-    f1 <- filterVcfBasic(vcf, min.base.quality=NULL)
-    f2 <- filterVcfBasic(vcf, min.base.quality=0)
+    f1 <- filterVcfBasic(vcf, min.base.quality = NULL)
+    f2 <- filterVcfBasic(vcf, min.base.quality = 0)
     expect_equal(length(f1$vcf), length(f2$vcf))
+    expect_error(filterVcfBasic(vcf, min.base.quality = 50), 
+                 "No variants passed")
 })
 
 test_that("M2 VCF with POP_AF flag is annotated with DB flag", {
@@ -90,6 +92,9 @@ test_that("issue 109 is fixed", {
 test_that("Missing FA does not cause crash", {
      tmp <- geno(vcf)$FA[2,1][[1]] 
      geno(vcf)$FA[2,1][[1]] <- NA
-     expect_output(PureCN:::.readAndCheckVcf(vcf, "hg19"), rownames(vcf)[2])
+     expect_output( 
+        x <- PureCN:::.readAndCheckVcf(vcf, "hg19"), rownames(vcf)[2])
+     expect_equivalent(PureCN:::.countVariants(vcf),
+                       PureCN:::.countVariants(x) + 1)
      geno(vcf)$FA[2,1][[1]] <- tmp
 })    

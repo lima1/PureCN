@@ -23,8 +23,9 @@
 #' @param DB.info.flag Flag in INFO of VCF that marks presence in common
 #' germline databases. Defaults to \code{DB} that may contain somatic variants
 #' if it is from an unfiltered dbSNP VCF.
-#' @return A \code{numeric(nrow(vcf))} vector with the prior probability of
-#' somatic status for each variant in the \code{CollapsedVCF}.
+#' @return The \code{vcf} with \code{numeric(nrow(vcf))} vector with the
+#' prior probability of somatic status for each variant in the 
+#' \code{CollapsedVCF} added to the \code{INFO} field \code{PR}.
 #' @author Markus Riester
 #' @examples
 #' 
@@ -32,7 +33,7 @@
 #' # fun.setPriorVcf and args.setPriorVcf comments.
 #' vcf.file <- system.file("extdata", "example.vcf.gz", package="PureCN")
 #' vcf <- readVcf(vcf.file, "hg19")
-#' vcf.priorsomatic <- setPriorVcf(vcf)        
+#' vcf <- setPriorVcf(vcf)        
 #' 
 #' @export setPriorVcf
 setPriorVcf <- function(vcf, prior.somatic = c(0.5, 0.0005, 0.999, 0.0001,
@@ -68,5 +69,17 @@ setPriorVcf <- function(vcf, prior.somatic = c(0.5, 0.0005, 0.999, 0.0001,
                 tmp[2], tmp[1])
          }      
     }     
-    prior.somatic
+    .annotateVcfPrior(vcf, prior.somatic)
 }
+.annotateVcfPrior <- function(vcf, prior.somatic) {
+    key <- paste0(.getPureCNPrefixVcf(vcf), "PR")
+    newInfo <- DataFrame(
+        Number = 1, Type = "Float",
+        Description = "Prior probability somatic",
+        row.names = key)
+    
+    info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
+    info(vcf)[[key]] <- prior.somatic
+    return(vcf)
+}
+

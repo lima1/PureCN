@@ -35,11 +35,11 @@ ignore=c("clustered_events", "t_lod", "str_contraction",
     if (is.null(fixed(vcf)$FILTER)) return(
         filterVcfBasic(vcf, tumor.id.in.vcf, ...))
     
-    n <- nrow(vcf)
+    n <- .countVariants(vcf)
 
     ids <- sort(unique(unlist(sapply(ignore, grep, fixed(vcf)$FILTER))))
-    if (length(ids)) vcf <- vcf[-ids]
-    flog.info("Removing %i MuTect2 calls due to blacklisted failure reasons.", 
-        n-nrow(vcf))
+    vcf <- .removeVariants(vcf, ids, "Mutect2")
+    flog.info("Removing %i Mutect2 calls due to blacklisted failure reasons.", 
+        n-.countVariants(vcf))
     filterVcfBasic(vcf, tumor.id.in.vcf, ...)
 }

@@ -33,6 +33,8 @@ SIGNIFICANT USER-VISIBLE CHANGES
       when callable is not provided
     o plotAbs in chromosome mode now displays wider range of log2 ratios
       (makes it possible to examine outliers)
+    o Moved vcf.field.prefix from predictSomatic to runAbsoluteCN since it now
+      adds more fields like prior somatic and mapping bias to the VCF
         
 
 BUGFIXES
