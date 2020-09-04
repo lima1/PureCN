@@ -136,6 +136,8 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         try(flog.debug("Kappa: %f", PSCBS::estimateKappa(segPSCBS)), silent = TRUE)
         seg <- .PSCBSoutput2DNAcopy(segPSCBS, sampleid)
         if (undo.SD <= 0 || is.null(max.segments) || nrow(seg) < max.segments) break
+        flog.info("Found %i segments, exceeding max.segments threshold of %i.",
+            nrow(seg), max.segments)    
         undo.SD <- undo.SD * 1.5
         try.again <- try.again + 1
     }

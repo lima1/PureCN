@@ -163,16 +163,18 @@ if (!is.null(file.rds) && file.exists(file.rds)) {
     if (is.null(out)) out <- sub(".rds$", "", file.rds)
 } else {
     if (is.null(sampleid)) stop("Need --sampleid.")
-    if (is.null(opt$genome)) stop("Need --genome")
+    if (is.null(opt$genome)) stop("Need --genome.")
     out <- .getFilePrefix(out, sampleid)
     file.rds <- paste0(out, ".rds")
     if (is.null(seg.file)) {
+        if (is.null(tumor.coverage.file)) stop("Need either --tumor or --segfile.")
         tumor.coverage.file <- normalizePath(tumor.coverage.file,
             mustWork = TRUE)
     }
 }
     
 normalizePath(dirname(out), mustWork = TRUE)
+if (file.access(dirname(out), 2) < 0) stop("Permission denied to write in --out.")
 
 flog.info("Loading PureCN %s...", Biobase::package.version("PureCN"))
 suppressPackageStartupMessages(library(PureCN))

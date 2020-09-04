@@ -58,6 +58,7 @@ interval.file <- opt$intervals
 if (is.null(opt$outdir)) stop("Need --outdir")
 
 outdir <- normalizePath(opt$outdir, mustWork = TRUE)
+if (file.access(dirname(outdir), 2) < 0) stop("Permission denied to write in --outdir.")
 
 interval.file <- normalizePath(interval.file, mustWork = TRUE)
 

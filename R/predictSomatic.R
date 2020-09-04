@@ -41,6 +41,28 @@ predictSomatic <- function(res, id = 1, return.vcf = FALSE) {
     pp
 }
 
+.calcMultisamplePosteriors <- function(ret.list) {
+    pool <- Reduce(union, lapply(ret.list, function(r)
+        as.character(rowRanges(r$input$vcf))))
+    pos <- lapply(ret.list, function(r) match(as.character(GRanges(r$results[[1]]$SNV.posterior$posteriors)), pool))
+    pos.align <- lapply(seq_along(pool), function(i)
+                           lapply(pos, function(j) which(j == i)))
+    likelihoods <- lapply(pos.align, function(i) do.call(rbind, lapply(seq_along(i), function(j)
+              ret.list[[j]]$results[[1]]$SNV.posterior$likelihoods[i[[j]],])))
+    idx <- grep("SOMATIC.M", colnames(likelihoods[[1]]))
+    pp <- sapply(likelihoods, function(l) 
+                 sum(apply(l,1,function(x) sum(x[idx]))) /
+                 sum(apply(l,1,function(x) sum(x))))
+    names(pp) <- pool
+    lapply(ret.list, function(x) {
+        ps <- predictSomatic(x)
+        keys <- as.character(GRanges(ps))
+        data.frame(Sampleid = x$input$sampleid,
+                   ps,
+                   MULTI.POSTERIOR.SOMATIC = pp[keys])
+    })
+}       
+
 .addSymbols <- function(result) {
     if (is(result$gene.calls, "data.frame")) {
         g.gr <- GRanges(result$gene.calls)
