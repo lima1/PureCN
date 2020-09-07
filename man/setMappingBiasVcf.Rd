@@ -30,7 +30,8 @@ smoothing of neighboring SNPs. Requires \code{mapping.bias.file}.}
 \item{smooth.n}{Number of neighboring variants used for smoothing.}
 }
 \value{
-A \code{data.frame} with elements \item{bias}{A \code{numeric(nrow(vcf))} 
+Adds elements to the \code{vcf} \code{INFO} field
+\item{bias}{A \code{numeric(nrow(vcf))} 
 vector with the mapping bias of for each
 variant in the \code{CollapsedVCF}. Mapping bias is expected as scaling
 factor. Adjusted allelic fraction is (observed allelic fraction)/(mapping

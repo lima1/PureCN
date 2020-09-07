@@ -118,7 +118,7 @@
 #' @param max.coverage.vcf This will set the maximum number of reads in the SNV
 #' fitting.  This is to avoid that small non-reference biases that come
 #' apparent only at high coverages have a dramatic influence on likelihood
-#' scores.
+#' scores. Only relevant for \code{model = "beta"}.
 #' @param max.non.clonal Maximum genomic fraction assigned to a subclonal copy
 #' number state.
 #' @param max.homozygous.loss \code{double(2)} with maximum chromosome fraction 
@@ -194,9 +194,9 @@
 #' observed to expected allelic fractions of alterations in \code{vcf.file}. 
 #' The latter can be useful to account for significant overdispersion, for example 
 #' due to mapping biases when no pool of normals is available or due to other
-#' unmodeled biases, e.g. amplification biases.
-#' The amount of expected overdispersion can be controlled via the 
-#' \code{max.coverage.vcf} argument (the higher, the less expected bias).
+#' unmodeled biases, e.g. amplification biases. The beta-binomial model is only
+#' recommended with a sufficiently sized pool of normal samples
+#' (more than 10 normals)
 #' @param post.optimize Optimize purity using final SCNA-fit and variants. This
 #' might take a long time when lots of variants need to be fitted, but will
 #' typically result in a slightly more accurate purity, especially for rather
