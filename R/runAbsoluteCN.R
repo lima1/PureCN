@@ -907,8 +907,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         SNV.posterior <- NULL
         p <- sol$purity
         if (!is.null(vcf.file)) {
-            flog.info("Fitting variants for local optimum %i/%i...", 
-                sol$candidate.id, nrow(candidate.solutions$candidates), p)
+            flog.info("Fitting variants with %s model for local optimum %i/%i...", 
+                model, sol$candidate.id, nrow(candidate.solutions$candidates), p)
         }
         if (sol$fraction.subclonal > max.non.clonal) {
             .stopRuntimeError(".fitSolution received high subclonal solution.")

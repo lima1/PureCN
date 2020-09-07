@@ -32,6 +32,7 @@ max.exon.ratio) {
     max.M <- floor(Ci/2)
     idx.germline <- test.num.copy+length(test.num.copy)+1
     idx.somatic <- test.num.copy+1
+    variant.ok <- mapping.bias.ok & is.finite(apply(yy, 1, max))
     yys <- lapply(0:max.M, function(Mi) {
         for (i in test.num.copy) {
             n.cases.germ <- ifelse(Mi==Ci-Mi,1,2)
@@ -57,14 +58,15 @@ max.exon.ratio) {
         yy
     })    
     # if not enough variants in segment, flag
-    flag <- sum(mapping.bias.ok) < min.variants.segment
-    if (!sum(mapping.bias.ok)) {
-        mapping.bias.ok <- rep(TRUE, length(mapping.bias.ok))
+    flag <- sum(variant.ok) < min.variants.segment
+    if (!sum(variant.ok)) {
+        # still use them to avoid erroring out, but we will ignore the output because
+        # of flagging
+        variant.ok <- rep(TRUE, length(variant.ok))
     }
 
     likelihoodScores <- vapply(yys, function(x) { 
-        idx <- mapping.bias.ok & is.finite(apply(yy, 1, max))
-        sum(apply(x[idx, , drop = FALSE], 1, max))
+        sum(apply(x[variant.ok, , drop = FALSE], 1, max))
     }, double(1))
 
     best <- which.max(likelihoodScores)
@@ -116,12 +118,13 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 
     ar_all <- unlist(geno(vcf)$FA[, tumor.id.in.vcf])
     bias_all <- info(vcf)[[paste0(prefix, "MBB")]]
-    ar_all <- ar_all / bias_all
-    ar_all[ar_all > 1] <- 1
     dp_all <- unlist(geno(vcf)$DP[, tumor.id.in.vcf])
-    rho_all <- .imputeBetaBin(dp_all, bias_all, 
+    impute <- .imputeBetaBin(dp_all, bias_all, 
         mu = info(vcf)[[paste0(prefix, "MBMU")]],
-        rho = info(vcf)[[paste0(prefix, "MBRHO")]])$rho
+        rho = info(vcf)[[paste0(prefix, "MBRHO")]])
+    rho_all <- impute$rho
+    ar_all <- ar_all / (impute$mu * 2)
+    ar_all[ar_all > 1] <- 1
     
     if (snv.model!="betabin") dp_all[dp_all>max.coverage.vcf] <- max.coverage.vcf
 
@@ -269,7 +272,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         rho = info(vcf[vcf.ids])[[paste0(prefix, "MBRHO")]])
 
     rm.snv.posteriors <- apply(likelihoods, 1, max)
-    idx.ignore <- rm.snv.posteriors == 0 |
+    idx.ignore <- rm.snv.posteriors == 0 | is.na(rm.snv.posteriors) |
         posteriors$MAPPING.BIAS < max.mapping.bias |
         posteriors$start != posteriors$end
 
@@ -302,6 +305,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 }
 
 .extractMLSNVState <- function(snv.posteriors) {
+    # should not happen, but to avoid failure of which.max
+    snv.posteriors[is.nan(snv.posteriors)] <- 0
     l1 <- apply(snv.posteriors, 1, which.max)
     xx <- do.call(rbind, strsplit(colnames(snv.posteriors)[l1], "\\."))
     xx[, 1] <- ifelse(xx[, 1] == "GERMLINE", FALSE, TRUE)
