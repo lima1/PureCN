@@ -352,9 +352,13 @@ Important recommendations:
   `r Biocpkg("BiocParallel")` for details. This script will use the default
   backend.
 
-- `--funsegmentation PSCBS` will become the new default in 1.18.  Support for
+- `--funsegmentation PSCBS` will become the new default in 1.22.  Support for
   interval weights currently requires a patch (see Section
   \@ref(installation)).
+
+- `--model betabin` will become the new default in 1.22 with larger panel of
+  normals (probably more than 10-15 normal samples). We encourage users to try
+  this model and appreciate feedback.
 
 - Defaults are well calibrated and should produce close to ideal results for
   most samples. A few common cases where changing defaults makes sense:
