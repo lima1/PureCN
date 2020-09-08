@@ -32,6 +32,7 @@ max.exon.ratio) {
     max.M <- floor(Ci/2)
     idx.germline <- test.num.copy+length(test.num.copy)+1
     idx.somatic <- test.num.copy+1
+    variant.ok <- mapping.bias.ok & is.finite(apply(yy, 1, max))
     yys <- lapply(0:max.M, function(Mi) {
         for (i in test.num.copy) {
             n.cases.germ <- ifelse(Mi==Ci-Mi,1,2)
@@ -57,13 +58,17 @@ max.exon.ratio) {
         yy
     })    
     # if not enough variants in segment, flag
-    flag <- sum(mapping.bias.ok) < min.variants.segment
-    if (!sum(mapping.bias.ok)) {
-        mapping.bias.ok <- rep(TRUE, length(mapping.bias.ok))
+    flag <- sum(variant.ok) < min.variants.segment
+    if (!sum(variant.ok)) {
+        # still use them to avoid erroring out, but we will ignore the output because
+        # of flagging
+        variant.ok <- rep(TRUE, length(variant.ok))
     }
 
-    likelihoodScores <- vapply(yys, function(x) 
-        sum(apply(x[mapping.bias.ok,,drop=FALSE], 1, max)),double(1))
+    likelihoodScores <- vapply(yys, function(x) { 
+        sum(apply(x[variant.ok, , drop = FALSE], 1, max))
+    }, double(1))
+
     best <- which.max(likelihoodScores)
     # transform and scale 
     likelihoodScores <- exp(likelihoodScores - likelihoodScores[best])
@@ -86,13 +91,13 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8, max.pon,
     min.variants.segment) {
     
-    .dbeta <- function(x, shape1, shape2, log, size) dbeta(x=x, 
-        shape1=shape1, shape2=shape2, log=log)
-    if (snv.model=="betabin") {
-        .dbeta <- function(x, shape1, shape2, log, size) {
-            size <- pmin(size, max.coverage.vcf)
-            dbetabinom.ab(x=round(x*size),shape1=shape1, shape2=shape2, 
-                size=size, log=TRUE)
+    .dbeta <- function(x, shape1, shape2, log, size, rho) dbeta(x=x, 
+        shape1 = shape1, shape2 = shape2, log = log)
+    if (snv.model == "betabin") {
+        .dbeta <- function(x, shape1, shape2, log, size, rho) {
+            prob <- ((shape1-1)/(shape1+shape2-2))
+            dbetabinom(x = round(x * size),prob = prob, 
+                size = size, rho = rho, log = TRUE)
          }
     }
     prefix <- .getPureCNPrefixVcf(vcf)
@@ -112,10 +117,15 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     seg.idx <- which(seq_len(nrow(C.likelihood)) %in% queryHits(ov))
 
     ar_all <- unlist(geno(vcf)$FA[, tumor.id.in.vcf])
-    ar_all <- ar_all / info(vcf)[[paste0(prefix, "MBB")]]
+    bias_all <- info(vcf)[[paste0(prefix, "MBB")]]
+    dp_all <- unlist(geno(vcf)$DP[, tumor.id.in.vcf])
+    impute <- .imputeBetaBin(dp_all, bias_all, 
+        mu = info(vcf)[[paste0(prefix, "MBMU")]],
+        rho = info(vcf)[[paste0(prefix, "MBRHO")]])
+    rho_all <- impute$rho
+    ar_all <- ar_all / (impute$mu * 2)
     ar_all[ar_all > 1] <- 1
     
-    dp_all <- unlist(geno(vcf)$DP[, tumor.id.in.vcf])
     if (snv.model!="betabin") dp_all[dp_all>max.coverage.vcf] <- max.coverage.vcf
 
     # Fit variants in all segments
@@ -141,18 +151,19 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
                     if (skip[j]) return(mInf_all)
                     .dbeta(x = dbetax[j],
                     shape1 = shape1,
-                    shape2 = shape2, log = TRUE, size = dp_all[idx]) - priorM
+                    shape2 = shape2, log = TRUE, size = dp_all[idx],
+                    rho = rho_all[idx]) - priorM
                 })
                 do.call(cbind,l)
             })
             
             p.ar.cont.1 <- .dbeta(x = (p * Ci + 2 * (1 - p - cont.rate))/
                   (p * Ci + 2 * (1 - p)),shape1=shape1, shape2=shape2, 
-                  log=TRUE, size=dp_all[idx]) - priorM
+                  log=TRUE, size=dp_all[idx], rho = rho_all[idx]) - priorM
 
             p.ar.cont.2 <- .dbeta(x = cont.rate / (p * Ci + 2 * (1 - p)), 
                   shape1 = shape1, shape2 = shape2, log = TRUE, 
-                  size = dp_all[idx]) - priorM
+                  size = dp_all[idx], rho = rho_all[idx]) - priorM
 
             # add prior probabilities for somatic vs germline
             p.ar[[1]] <- p.ar[[1]] + log(prior.somatic[idx])
@@ -261,7 +272,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         rho = info(vcf[vcf.ids])[[paste0(prefix, "MBRHO")]])
 
     rm.snv.posteriors <- apply(likelihoods, 1, max)
-    idx.ignore <- rm.snv.posteriors == 0 |
+    idx.ignore <- rm.snv.posteriors == 0 | is.na(rm.snv.posteriors) |
         posteriors$MAPPING.BIAS < max.mapping.bias |
         posteriors$start != posteriors$end
 
@@ -294,6 +305,8 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 }
 
 .extractMLSNVState <- function(snv.posteriors) {
+    # should not happen, but to avoid failure of which.max
+    snv.posteriors[is.nan(snv.posteriors)] <- 0
     l1 <- apply(snv.posteriors, 1, which.max)
     xx <- do.call(rbind, strsplit(colnames(snv.posteriors)[l1], "\\."))
     xx[, 1] <- ifelse(xx[, 1] == "GERMLINE", FALSE, TRUE)
@@ -1056,7 +1069,7 @@ na.rm = TRUE)
     return(c(ccf_point, ccf_lower, ccf_upper))
 }
 
-.calculate_allelic_imbalance <- function(vaf, depth, max.coverage.vcf, bias, mu, rho) {
+.imputeBetaBin <- function(depth, bias, mu, rho) {
     if (is.null(mu)) { 
         mu <- bias / 2
     } else {    
@@ -1069,7 +1082,11 @@ na.rm = TRUE)
         idx <- is.na(rho)
         rho[idx] <- mean(rho, na.rm = TRUE)
     }
-    dbetabinom(x = round(vaf * depth), depth, prob = mu, rho = rho, log = TRUE) 
+    list(mu = mu, rho = rho)
+}    
+.calculate_allelic_imbalance <- function(vaf, depth, max.coverage.vcf, bias, mu, rho) {
+    impute <- .imputeBetaBin(depth, bias, mu, rho)
+    dbetabinom(x = round(vaf * depth), depth, prob = impute$mu, rho = impute$rho, log = TRUE) 
 }    
 
 .getExonLrs <- function(seg.gr, tumor, log.ratio, idx = NULL) {

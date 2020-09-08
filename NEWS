@@ -8,6 +8,9 @@ NEW FEATURES
       from additional biopsies from the same patient when available
     o PSCBS segmentation now identifies on-target breakpoints first when
       off-target is noisy, thus boosting sensitivity in on-target regions
+    o Beta-binomial model in runAbsoluteCN now uses the fits in mapping bias
+      database. We plan to set this as default in upcoming versions and
+      appreciate feedback.
     
     
 SIGNIFICANT USER-VISIBLE CHANGES

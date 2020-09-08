@@ -600,10 +600,11 @@ decrease the classification performance significantly
         obtain position-specific mapping bias information
     \item Exclude variants in regions of low mappability    
     \item Use a somatic posterior probability cutoff of 0.8 and 0.2 for somatic
-        and germline variants, respectively.  This appears to be a good
-        compromise of call rate and accuracy. If the beta-binomial model was
-        selected in the \Rcode{model} argument of \Rfunction{runAbsoluteCN},
-        these cutoffs might need to be relaxed to get acceptable call rates.
+    and germline variants, respectively.  This appears to be a good compromise
+    of call rate and accuracy. If the beta-binomial model was selected in the
+    \Rcode{model} argument of \Rfunction{runAbsoluteCN} with small panel of
+    normals, these cutoffs might need to be relaxed to get acceptable call
+    rates.
     \item Add a \Rcode{Cosmic.CNT} info field to the VCF or provide a COSMIC VCF
         in \Rfunction{runAbsoluteCN} (see Section~\ref{seccosmic}). 
 \end{itemize}        
@@ -1613,10 +1614,12 @@ for artifact filtering. A few recommendations:
 
     \item With smaller pool of normals, we additionally recommend filtering SNPs
         from low quality regions (Section~\ref{artifactfiltering2}).
-        Additionally, it is worth trying the beta-binomial function instead of
+
+    \item It is worth trying the beta-binomial function instead of
         the default in the \Rcode{model} argument of \Rfunction{runAbsoluteCN}.
         This will incorporate uncertainty of observed variant allelic fractions
-        in the variant fitting step.
+        in the variant fitting step. The more normals, the more SNPs will have
+        reliable estimates of allelic fraction overdispersion.
     
     \item \textit{Do I really need a pool of normals? I only have tumor samples.}
         Unfortunately, yes. If you used a commercial capture kit, you might be
