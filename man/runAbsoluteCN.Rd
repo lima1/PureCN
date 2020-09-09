@@ -28,7 +28,7 @@ runAbsoluteCN(
   fun.focal = findFocal,
   args.focal = list(),
   sampleid = NULL,
-  min.ploidy = 1,
+  min.ploidy = 1.4,
   max.ploidy = 6,
   test.num.copy = 0:7,
   test.purity = seq(0.15, 0.95, by = 0.01),

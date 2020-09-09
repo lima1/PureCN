@@ -38,6 +38,7 @@ SIGNIFICANT USER-VISIBLE CHANGES
       (makes it possible to examine outliers)
     o Moved vcf.field.prefix from predictSomatic to runAbsoluteCN since it now
       adds more fields like prior somatic and mapping bias to the VCF
+    o Changed default of runAbsoluteCN min.ploidy to 1.4  
         
 
 BUGFIXES
@@ -47,7 +48,7 @@ BUGFIXES
     o Fixed a bug in preprocessIntervals/IntervalFile.R when input contained
       overlapping and stranded intervals  
     o Fix for crash when GC-correction is attempted on empty coverage (for example
-      off-target region with off-target reads)  
+      off-target region without any off-target reads)  
     o Fix for crash when VCF FA field contained missing values
 
 
