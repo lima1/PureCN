@@ -90,6 +90,7 @@ suppressPackageStartupMessages(library(rtracklayer))
 
 intervals <- try(import(in.file), silent = TRUE)
 if (is(intervals, "try-error")) { 
+    flog.warn("Could not parse --infile with rtracklayer:\n\n%s\nTrying GATK3 parser that will probably fail...", intervals)
     intervals <- in.file
 } else {
     if (sum(c("MT", "chrM", "chMT") %in% seqlevels(intervals))) {
