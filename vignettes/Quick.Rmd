@@ -166,9 +166,10 @@ tool to generate a VCF for each sample.
 
 Important recommendations:
 
-- Use _MuTect 1.1.7_ if possible
+- Use _MuTect 1.1.7_ if possible; _Mutect 2_ from _GATK 4.1.7+_ is now out of
+  alpha.
 
-- VCFs from most other tumor-only callers such as _MuTect 2_, _VarScan2_ and
+- VCFs from most other tumor-only callers such as _VarScan2_ and
   _FreeBayes_ are supported, but only very limited artifact filtering will be
   performed for these callers.  Make sure to provide filtered VCFs. See the FAQ
   section in the main vignette for common problems and questions related to
@@ -187,6 +188,18 @@ Important recommendations:
 
 The following describes `r Biocpkg("PureCN")` runs with internal copy number
 normalization and segmentation. 
+
+What you will need:
+
+- The interval file generated above
+
+- BAM files of normal samples (see main vignette for recommendations)
+
+- BAM files of tumor samples (normal samples are not required to be matched to
+  these tumor samples)
+
+- VCF files generated above for all tumor and normal BAM files
+
 
 ## Coverage
 
