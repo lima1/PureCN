@@ -95,7 +95,7 @@ Before [posting](https://github.com/lima1/PureCN/issues) a bug report:
 
 Dummer et al. (2020). "Combined PD-1, BRAF and MEK inhibition in advanced
 BRAF-mutant melanoma: safety run-in and biomarker cohorts of COMBI-i". _Nature
-Medicine_. doi:[10.1038/s41591-020-1082-2](https://doi.org/10.1038/s41591-020-1082-2).
+Medicine_. doi: [10.1038/s41591-020-1082-2](https://doi.org/10.1038/s41591-020-1082-2).
 
 Bertucci et al. (2019). "Genomic characterization of metastatic breast cancers".
 _Nature_. doi: [10.1038/s41586-019-1056-z](https://doi.org/10.1038/s41586-019-1056-z).
