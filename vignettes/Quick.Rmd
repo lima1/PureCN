@@ -193,10 +193,12 @@ What you will need:
 
 - The interval file generated above
 
-- BAM files of normal samples (see main vignette for recommendations)
+- BAM files of tumor samples. 
 
-- BAM files of tumor samples (normal samples are not required to be matched to
-  these tumor samples)
+- BAM files of normal samples (see main vignette for recommendations). These
+  normal samples are not required to be patient-matched to the tumor samples,
+  but they need to be processed-matched (same assay run through the same
+  alignment pipeline, ideally sequenced in the same lab)
 
 - VCF files generated above for all tumor and normal BAM files
 
@@ -408,6 +410,14 @@ Important recommendations:
       for whole-exome data).
 
 # Run PureCN with third-party segmentation
+
+What you will need:
+
+- Output of third-party tools (see details below)
+
+- VCF files for all tumor samples and some normal files (see main vignette for
+  questions related to required normal samples) 
+
 
 ## General usage
 

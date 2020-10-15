@@ -116,7 +116,14 @@ min.width = 3, all.genes = FALSE, purity = NULL, BPPARAM = NULL) {
     calls$percentile.genome <- ecdf(calls$gene.mean)(calls$gene.mean) * 100
     ecdf_chr <- sapply(seqlevelsInUse(calls_gr), function(i)
         ecdf(calls$gene.mean[calls$chr == i]))
-    calls$percentile.chromosome <- sapply(seq(nrow(calls)), function(i)
+    idx <- seq(nrow(calls))
+    idx <- idx[calls$chr[i] %in% names(ecdf_chr)]
+    if (length(idx) != nrow(calls)) {
+        flog.warn("Unable to calculate chromosome percentile for %s.",
+            paste(sort(unique(calls$chr[!calls$chr %in% names(ecdf_chr)]))))
+    } 
+    calls$percentile.genome <- NA
+    calls$percentile.chromosome[idx] <- sapply(idx, function(i)
         ecdf_chr[[calls$chr[i]]](calls$gene.mean[i])) * 100
 
     calls$type <- NA
