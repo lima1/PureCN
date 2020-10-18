@@ -69,6 +69,7 @@ min.width = 3, all.genes = FALSE, purity = NULL, BPPARAM = NULL) {
     tumor_normal_noise_ratio <- max(1, tumor_normal_noise_ratio)
         
     calls <- res$results[[1]]$gene.calls
+    calls$chr <- as.character(calls$chr)
     calls$p.value <- NA
     calls$percentile.genome <- ecdf(calls$gene.mean)(calls$gene.mean) * 100
     calls$percentile.chromosome <- NA 

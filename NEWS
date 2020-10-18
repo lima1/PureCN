@@ -50,6 +50,8 @@ BUGFIXES
     o Fix for crash when GC-correction is attempted on empty coverage (for example
       off-target region without any off-target reads)  
     o Fix for crash when VCF FA field contained missing values
+    o Fix for a bug in callAmplificationsInLowPurity that can cause a wrong
+      chromosome percentile
 
 
 Changes in version 1.18.0
