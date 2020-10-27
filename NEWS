@@ -1,3 +1,7 @@
+Changes in version 1.22.0
+-------------------------
+
+
 Changes in version 1.20.0
 -------------------------
 
@@ -11,7 +15,6 @@ NEW FEATURES
     o Beta-binomial model in runAbsoluteCN now uses the fits in mapping bias
       database. We plan to set this as default in upcoming versions and
       appreciate feedback.
-    
     
 SIGNIFICANT USER-VISIBLE CHANGES
 
@@ -40,15 +43,14 @@ SIGNIFICANT USER-VISIBLE CHANGES
       adds more fields like prior somatic and mapping bias to the VCF
     o Changed default of runAbsoluteCN min.ploidy to 1.4  
         
-
 BUGFIXES
 
     o Fix for crash with CNVkit input when log-ratio contained highly negative
       outliers
     o Fixed a bug in preprocessIntervals/IntervalFile.R when input contained
       overlapping and stranded intervals  
-    o Fix for crash when GC-correction is attempted on empty coverage (for example
-      off-target region without any off-target reads)  
+    o Fix for crash when GC-correction is attempted on empty coverage (for
+      example off-target region without any off-target reads)  
     o Fix for crash when VCF FA field contained missing values
     o Fix for a bug in callAmplificationsInLowPurity that can cause a wrong
       chromosome percentile
