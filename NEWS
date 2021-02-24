@@ -1,6 +1,14 @@
 Changes in version 1.22.0
 -------------------------
 
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Added min.total.counts filter to filterIntervals to remove
+      intervals with low number of read counts in combined tumor and normal.
+      Useful especially for off-target filtering in highly efficient assays
+      where standard filters keep too many high variance regions.
+    o Removed defunct calculateIntervalWeights function
+
 
 Changes in version 1.20.0
 -------------------------

@@ -11,6 +11,7 @@ filterIntervals(
   seg.file,
   filter.lowhigh.gc = 0.001,
   min.coverage = 15,
+  min.total.counts = 120,
   min.targeted.base = 5,
   normalDB = NULL
 )
@@ -34,6 +35,9 @@ not have been worked on those. Requires \code{interval.file}.}
 lower coverage are ignored. If a \code{normalDB} is provided, then this
 database already provides information about low quality intervals and the
 \code{min.coverage} is set to \code{min.coverage/10000}.}
+
+\item{min.total.counts}{Exclude intervals with fewer than that many reads
+in combined tumor and normal.}
 
 \item{min.targeted.base}{Exclude intervals with targeted base (size in bp)
 smaller than this cutoff. This is useful when the same interval file was

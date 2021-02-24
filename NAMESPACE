@@ -3,7 +3,6 @@
 export(annotateTargets)
 export(bootstrapResults)
 export(calculateBamCoverageByInterval)
-export(calculateIntervalWeights)
 export(calculateLogRatio)
 export(calculateMappingBiasGatk4)
 export(calculateMappingBiasVcf)

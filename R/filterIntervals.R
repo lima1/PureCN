@@ -19,6 +19,8 @@
 #' lower coverage are ignored. If a \code{normalDB} is provided, then this
 #' database already provides information about low quality intervals and the
 #' \code{min.coverage} is set to \code{min.coverage/10000}.
+#' @param min.total.counts Exclude intervals with fewer than that many reads
+#' in combined tumor and normal. 
 #' @param min.targeted.base Exclude intervals with targeted base (size in bp)
 #' smaller than this cutoff. This is useful when the same interval file was
 #' used to calculate GC content. For such small targets, the GC content is
@@ -55,8 +57,8 @@
 #' 
 #' @export filterIntervals
 filterIntervals <- function(normal, tumor, log.ratio, seg.file, 
-    filter.lowhigh.gc = 0.001, min.coverage = 15, min.targeted.base = 5, 
-    normalDB = NULL) {
+    filter.lowhigh.gc = 0.001, min.coverage = 15, min.total.counts = 120,
+    min.targeted.base = 5, normalDB = NULL) {
     intervalsUsed <- .filterIntervalsNotNA(log.ratio)
     # With segmentation file, ignore all filters
     if (!is.null(seg.file)) return(intervalsUsed)
@@ -82,6 +84,9 @@ filterIntervals <- function(normal, tumor, log.ratio, seg.file,
         
     intervalsUsed <- .filterIntervalsCoverage(intervalsUsed, normal, tumor, 
         min.coverage)
+
+    intervalsUsed <- .filterIntervalsTotalCounts(intervalsUsed, normal, tumor, 
+        min.total.counts)
 
     return(intervalsUsed)
 }
@@ -207,6 +212,21 @@ normalDB.min.coverage, normalDB.max.missing) {
     }    
     intervalsUsed
 }
+.filterIntervalsTotalCounts <- function(intervalsUsed, normal, tumor, min.total.counts) {
+
+    well.covered.interval.idx <- ( normal$counts + tumor$counts ) >= min.total.counts
+    well.covered.interval.idx[is.na(well.covered.interval.idx)] <- FALSE
+
+    nBefore <- sum(intervalsUsed)
+    intervalsUsed <- intervalsUsed & well.covered.interval.idx
+    nAfter <- sum(intervalsUsed)
+    if (nAfter < nBefore) {
+        flog.info("Removing %i low count (< %.0f total reads) intervals.", nBefore-nAfter, 
+            min.total.counts)
+    }    
+    intervalsUsed
+}
+
 
 .filterIntervalsLowHighGC <- function(intervalsUsed, tumor, filter.lowhigh.gc) {
     qq <- quantile(tumor$gc_bias, p=c(filter.lowhigh.gc, 
