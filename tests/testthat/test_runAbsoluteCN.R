@@ -130,7 +130,7 @@ test_that("Example data with VCF produces expected output", {
         max.candidate.solutions = 1, min.ploidy = 1.5, max.ploidy = 2.1,
         vcf.field.prefix = "PureCN."
     )
-    expect_equal(ret$results[[1]]$fraction.balanced, 0.21, tolerance = 0.01)
+    expect_equal(ret$results[[1]]$fraction.balanced, 0.19, tolerance = 0.02)
     s <- predictSomatic(ret)
     expect_equal(s$AR/s$MAPPING.BIAS, s$AR.ADJUSTED)
     expect_equal(0.65, ret$results[[1]]$purity)

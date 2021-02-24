@@ -3,10 +3,7 @@ r: bioc-release
 cache: packages
 
 before_install:
-  - tlmgr install bera
-  - tlmgr install nowidow
-  - tlmgr install parnotes
-  - tlmgr install marginfix
+  - sudo apt-get -y install texlive-latex-extra texlive-fonts-extra
 
 r_check_args:  --no-vignettes --timings
 
