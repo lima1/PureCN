@@ -6,7 +6,7 @@ before_install:
   - sudo apt-get -y install texlive-latex-extra texlive-fonts-extra
   - tlmgr --repository ctan update --self
   - tlmgr --repository ctan update --all || true 
-  - tlmgr --repository ctan install bera
+  - tlmgr --repository ctan install bera pdftexcmds nowidow parnotes marginfix
 
 r_check_args:  --no-vignettes --timings
 
