@@ -48,6 +48,10 @@ smooth = TRUE, smooth.n = 5) {
          normal.id.in.vcf <- .getNormalIdInVcf(vcf, tumor.id.in.vcf)
          faAll <- as.numeric(geno(vcf)$FA[!info(vcf)$SOMATIC, normal.id.in.vcf])
          mappingBias <- mean(faAll, na.rm=TRUE) * 2
+         if (is.nan(mappingBias)) {
+             flog.warn("Calculated mapping bias from somatic SNVs is not a number. Setting it to 0.49 but there is likely an issue with your input VCF.")
+             mappingBias <- 0.49
+         }
          flog.info("Found SOMATIC annotation in VCF. Setting mapping bias to %.3f.",
             mappingBias)
     }

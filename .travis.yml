@@ -4,8 +4,8 @@ cache: packages
 
 before_install:
   - sudo apt-get -y install texlive-latex-extra texlive-fonts-extra
-  - sudo tlmgr update --all || true 
-  - sudo tlmgr install bera
+  - tlmgr update --all || true 
+  - tlmgr install bera
 
 r_check_args:  --no-vignettes --timings
 

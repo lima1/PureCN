@@ -9,6 +9,11 @@ SIGNIFICANT USER-VISIBLE CHANGES
       where standard filters keep too many high variance regions.
     o Removed defunct calculateIntervalWeights function
 
+BUGFIXES
+
+    o Fix for nonsensical error message when VCF does not contain germline 
+      variants (#166).
+
 
 Changes in version 1.20.0
 -------------------------
