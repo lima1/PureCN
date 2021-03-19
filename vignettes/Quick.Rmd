@@ -167,7 +167,7 @@ tool to generate a VCF for each sample.
 Important recommendations:
 
 - Use _MuTect 1.1.7_ if possible; _Mutect 2_ from _GATK 4.1.7+_ is now out of
-  alpha.
+  alpha (earlier _Mutect 2_ versions are not supported and will not work).
 
 - VCFs from most other tumor-only callers such as _VarScan2_ and
   _FreeBayes_ are supported, but only very limited artifact filtering will be
@@ -178,7 +178,10 @@ Important recommendations:
 - Since germline SNPs are needed to infer allele-specific copy numbers, the
   provided VCF needs to contain both somatic and germline variants.  Make sure
   that upstream filtering does not remove high quality SNPs, in particular due
-  to presence in germline databases.
+  to presence in germline databases. _Mutect 1.1.7_ automatically calls SNPs, 
+  but _Mutect 2_ does not. Make sure to run _Mutect 2_ with
+  `--genotype-germline-sites true --genotype-pon-sites true`. You will not get
+  usuable output without those flags.
 
 - Run the variant caller with a 50-75 base pair interval padding to increase the
   number of heterozygous SNPs
@@ -412,6 +415,14 @@ Important recommendations:
       for whole-exome data).
 
 # Run PureCN with third-party segmentation
+
+Our internal _PureCN_ normalization combined with the _PSCBS_ segmentation
+should produce highly competitive results and we encourage users to try it and
+compare it to their existing pipelines. However, we realize that often it is
+not an option to change tools in production pipelines and we therefore made it
+relatively easy to use _PureCN_ with third-party tools. We provide examples for
+_CNVkit_ and _GATK4_ and it should be straightforward to adapt those for other
+tools.
 
 What you will need:
 
