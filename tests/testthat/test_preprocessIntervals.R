@@ -151,7 +151,7 @@ test_that("Offtarget settings work as expected", {
     x <- preprocessIntervals(intervals3, reference.file, min.target.width = 10)
     expect_equal(x$gc_bias, c(0.4533333, 0.5057143, 0.5733333,
         0.48, 0.36), tolerance = 0.001)
-    seqlevelsStyle(intervals3) <- "NCBI"
+    seqlevelsStyle(intervals3) <- "Ensembl"
     x <- preprocessIntervals(intervals3, reference.file, min.target.width = 10)
     expect_equal(x$gc_bias, c(0.4533333, 0.5057143, 0.5733333, 
         0.48, 0.36), tolerance = 0.001)
@@ -160,7 +160,7 @@ test_that("Offtarget settings work as expected", {
     mappability.file3 <- system.file("extdata", "ex3_mappability.bed", 
         package = "PureCN", mustWork = TRUE)
     mappability3 <- import(mappability.file3)
-    seqlevelsStyle(mappability3) <- "NCBI"
+    seqlevelsStyle(mappability3) <- "Ensembl"
     x <- preprocessIntervals(intervals3, reference.file, 
         mappability = mappability3, min.target.width = 10)
     expect_equal(x$gc_bias, c(0.4533333, 0.5057143, 0.5733333, 

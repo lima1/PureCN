@@ -16,9 +16,9 @@ test_that("NCBI-style chromosome names work", {
     vcf <- readVcf(vcf.file)
     normal <- readCoverageFile(normal.coverage.file)
     tumor <- readCoverageFile(tumor.coverage.file)
-    seqlevelsStyle(vcf) <- "NCBI"
-    seqlevelsStyle(normal) <- "NCBI"
-    seqlevelsStyle(tumor) <- "NCBI"
+    seqlevelsStyle(vcf) <- "Ensembl"
+    seqlevelsStyle(normal) <- "Ensembl"
+    seqlevelsStyle(tumor) <- "Ensembl"
     ret <- runAbsoluteCN(normal.coverage.file = normal, tumor.coverage.file = tumor, 
         genome = "hg19", vcf.file = vcf, sampleid = "Sample1", 
         min.ploidy = 1.4, max.ploidy = 2.4, test.purity = seq(0.4, 

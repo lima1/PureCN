@@ -13,7 +13,7 @@ test_that("KIF1B is correctly annotated with UCSC chromosome names", {
 
 test_that("KIF1B is correctly annotated with NCBI chromosome names", {
     x <- head(test_coverage, 100)
-    seqlevelsStyle(x) <- "NCBI"
+    seqlevelsStyle(x) <- "Ensembl"
     x <- annotateTargets(x, TxDb.Hsapiens.UCSC.hg19.knownGene, 
         org.Hs.eg.db)
     expect_equal(x$Gene[67], "KIF1B")

@@ -1107,3 +1107,19 @@ na.rm = TRUE)
     }
     exon.lrs
 }
+
+# there are way too many bugs with this, so let's have one function we can more easily
+# debug
+.getSeqlevelsStyle <- function(x) {
+    if (is(x, "character")) {
+        sl <- x
+    } else {    
+        sl <- try(seqlevels(x))
+    }    
+    if (is(sl, "character")) {
+        style <- seqlevelsStyle(sl)
+        if ("Ensembl" %in% style) style <- "Ensembl"
+        return(style[1])    
+    }
+    seqlevelsStyle(x)
+}        

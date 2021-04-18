@@ -75,7 +75,7 @@ if (is.null(knownGenome[[opt$genome]])) {
     flog.warn("Package %s not found.", knownGenome[[opt$genome]])
 } else {
     coding <- cds(get(knownGenome[[opt$genome]]))
-    seqlevelsStyle(coding) <- seqlevelsStyle(intervals)[1]
+    seqlevelsStyle(coding) <- PureCN:::.getSeqlevelsStyle(intervals)
     intervalsCDS <- reduce(intersect(intervals, unstrand(coding)))
 
     if (!is.null(opt$exclude)) {

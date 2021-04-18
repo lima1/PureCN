@@ -82,7 +82,7 @@ processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumors[[1]]))
     intervalsUsed <- .filterIntervalsChrHash(intervalsUsed, tumors[[1]], chr.hash)
     centromeres <- .getCentromerePositions(centromeres, genome, 
-            if (is.null(tumors[[1]])) NULL else seqlevelsStyle(tumors[[1]]))
+            if (is.null(tumors[[1]])) NULL else .getSeqlevelsStyle(tumors[[1]]))
     if (is.null(centromeres)) {
         .stopUserError("Cannot find centromeres for ", genome,
             ". Provide them manually or select a supported genome.")

@@ -207,11 +207,11 @@ test_that("Missing Gene column in interval.file is handled correctly", {
 
 test_that("Different chromosome naming styles throw exceptions", {
     vcf <- readVcf(vcf.file, "hg19")
-    seqlevelsStyle(vcf) <- "ENSEMBL"
+    seqlevelsStyle(vcf) <- "Ensembl"
     normCov <- readCoverageFile(normal.coverage.file)
     tumorCov <- readCoverageFile(tumor.coverage.file)
-    seqlevelsStyle(normCov) <- "ENSEMBL"
-    seqlevelsStyle(tumorCov) <- "ENSEMBL"
+    seqlevelsStyle(normCov) <- "Ensembl"
+    seqlevelsStyle(tumorCov) <- "Ensembl"
     expect_error(runAbsoluteCN(normal.coverage.file, tumor.coverage.file, 
         genome = "hg19", vcf.file = vcf),
         "Different chromosome names in coverage and VCF")

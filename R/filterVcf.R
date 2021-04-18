@@ -216,6 +216,10 @@ interval.padding = 50, DB.info.flag = "DB") {
         flog.warn("Less than half of variants in dbSNP. Make sure that VCF %s", 
             "contains both germline and somatic variants.")
     }
+
+    # remove seqlevels we filtered out
+    seqlevels(vcf) <- seqlevelsInUse(vcf)
+
     list(
         vcf=vcf, 
         flag=flag, 
@@ -542,7 +546,7 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         flog.info("VCF already COSMIC annotated. Skipping.")
         return(vcf)        
     }
-    cosmicSeqStyle <- seqlevelsStyle(headerTabix(
+    cosmicSeqStyle <- .getSeqlevelsStyle(headerTabix(
         TabixFile(cosmic.vcf.file))$seqnames)
 
     vcfRenamedSL <- vcf

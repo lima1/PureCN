@@ -320,10 +320,10 @@ preprocessIntervals <- function(interval.file, reference.file,
     x
 }    
 .checkSeqlevelStyle <- function(ref, x, name1, name2="reference") {
-    refSeqlevelStyle <- try(seqlevelsStyle(ref), silent=TRUE)
+    refSeqlevelStyle <- try(.getSeqlevelsStyle(ref), silent=TRUE)
     # if unknown, we cannot check and correct
     if (is(refSeqlevelStyle, "try-error")) return(x)
-    xSeqlevelStyle <- try(seqlevelsStyle(x), silent=TRUE)
+    xSeqlevelStyle <- try(.getSeqlevelsStyle(x), silent=TRUE)
 
     if (is(xSeqlevelStyle, "try-error")) {
         .stopUserError("Chromosome naming style of ", name1, 

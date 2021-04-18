@@ -558,7 +558,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     segProvided <- readSegmentationFile(seg.file, sampleid, model.homozygous = model.homozygous)
 
     centromeres <- .getCentromerePositions(centromeres, genome, 
-        if (is.null(vcf)) NULL else seqlevelsStyle(vcf))
+        if (is.null(vcf)) NULL else .getSeqlevelsStyle(vcf))
     
     args.segmentation <- c(list(normal = normal, tumor = tumor, log.ratio = log.ratio, 
         seg = segProvided, plot.cnv = plot.cnv,  
