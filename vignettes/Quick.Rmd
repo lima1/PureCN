@@ -414,6 +414,23 @@ Important recommendations:
       `--maxnonclonal` to 0.3-0.4 (this will increase the runtime significantly
       for whole-exome data).
 
+- A few recommendations for checks whether the _PureCN_ setup is correct:
+
+    - The "Mean standard deviation of log-ratios" reported in the log file
+      should be fairly low for high quality data. Older FFPE data can be around
+      0.4, but high coverage, relatively recent samples should approach the
+      0.15 minimum.
+
+    - The fraction of targets with SNPs should be between 10 and 15 percent.
+      If it is significantly lower, make sure that the variant caller was used
+      with 50-100bp interval padding or no interval file at all. Also check
+      that the interval file was generated using the baits coordinates, not the
+      targets (the baits BED file should have a more even size distribution,
+      e.g. 120bp and multiples of it).
+      
+    - Read all warnings. 
+        
+
 # Run PureCN with third-party segmentation
 
 Our internal _PureCN_ normalization combined with the _PSCBS_ segmentation
@@ -493,6 +510,8 @@ Important recommendations:
   information, `--mappingbiasfile` can be skipped
 
 - _CNVkit_ runs without normal reference samples are not recommended
+
+- The `--statsfile` is only required for _Mutect 1.1.7_
 
 ## Recommended _GATK4_ usage
 
