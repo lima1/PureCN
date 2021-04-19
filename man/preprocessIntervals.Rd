@@ -15,7 +15,7 @@ preprocessIntervals(
   average.off.target.width = 2e+05,
   off.target.padding = -500,
   mappability = NULL,
-  min.mappability = c(0.5, 0.1, 0.7),
+  min.mappability = c(0.6, 0.1, 0.7),
   reptiming = NULL,
   average.reptiming.width = 1e+05,
   exclude = NULL,

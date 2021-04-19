@@ -116,7 +116,12 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
             idxot <- input$on.target
             if (use.weights) {
                 idxot <- input$on.target & input$weights >= median(input$weights, na.rm = TRUE)
-            }    
+                if (!is.null(input$mappability) && any(!is.na(input$mappability))) {
+                    idxot <- idxot & !is.na(input$mappability) & input$mappability > 0.9
+                }    
+            }
+            flog.info("Using %i high quality (out of %i) on-target intervals for initial breakpoint calculation.",
+                sum(idxot), sum(input$on.target)) 
             segPSCBSot <- PSCBS::segmentByNonPairedPSCBS(input[idxot,], tauA=tauA, 
                 flavor=flavor, undoTCN=undo.SD, knownSegments=knownSegments, 
                 min.width=3,alphaTCN=alpha/2, ...)
