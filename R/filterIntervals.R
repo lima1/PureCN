@@ -25,6 +25,8 @@
 #' smaller than this cutoff. This is useful when the same interval file was
 #' used to calculate GC content. For such small targets, the GC content is
 #' likely very different from the true GC content of the probes.
+#' @param min.mappability \code{double(2)} specifying the minimum mappability score
+#' for on-target, off-target in that order.
 #' @param normalDB Normal database, created with
 #' \code{\link{createNormalDatabase}}.
 #' @return \code{logical(length(log.ratio))} specifying which intervals should be
@@ -58,7 +60,7 @@
 #' @export filterIntervals
 filterIntervals <- function(normal, tumor, log.ratio, seg.file, 
     filter.lowhigh.gc = 0.001, min.coverage = 15, min.total.counts = 120,
-    min.targeted.base = 5, normalDB = NULL) {
+    min.targeted.base = 5, min.mappability = c(0.6, 0.1), normalDB = NULL) {
     intervalsUsed <- .filterIntervalsNotNA(log.ratio)
     # With segmentation file, ignore all filters
     if (!is.null(seg.file)) return(intervalsUsed)
@@ -88,9 +90,13 @@ filterIntervals <- function(normal, tumor, log.ratio, seg.file,
     intervalsUsed <- .filterIntervalsTotalCounts(intervalsUsed, normal, tumor, 
         min.total.counts)
 
+    intervalsUsed <- .filterIntervalsMappability(intervalsUsed, tumor,
+        min.mappability)
+
     return(intervalsUsed)
 }
 
+    
 .checkNormalDB <- function(tumor, normalDB) {
     if (!is(normalDB, "list")) {
         .stopUserError("normalDB not a valid normalDB object. ",
@@ -239,6 +245,25 @@ normalDB.min.coverage, normalDB.max.missing) {
 
     if (nAfter < nBefore) {
         flog.info("Removing %i low/high GC targets.", nBefore-nAfter)
+    }
+    intervalsUsed
+}
+
+.filterIntervalsMappability <- function(intervalsUsed, tumor, min.mappability) {
+    if (is.null(tumor$mappability) || all(is.na(tumor$mappability))) {
+        return(intervalsUsed)
+    }    
+    if (any(is.na(tumor$mappability))) {
+        flog.warn("Some intervals do not have a mappability score, assuming they are fine.")
+    }
+    nBefore <- sum(intervalsUsed)
+    intervalsUsed <- intervalsUsed & ( is.na(tumor$mappability) |
+        (tumor$on.target & tumor$mappability >= min.mappability[1]) |
+        (!tumor$on.target & tumor$mappability >= min.mappability[2]))
+    nAfter <- sum(intervalsUsed)
+
+    if (nAfter < nBefore) {
+        flog.info("Removing %i low mappability intervals.", nBefore-nAfter)
     }
     intervalsUsed
 }

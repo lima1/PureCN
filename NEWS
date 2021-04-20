@@ -9,6 +9,8 @@ SIGNIFICANT USER-VISIBLE CHANGES
       where standard filters keep too many high variance regions.
     o Changed default of min.mappability in preprocessIntervals for on-target
       intervals to 0.6 (from 0.5)  
+    o Added min.mappability also to filterIntervals so that more conservative
+      cutoffs can be tested after normalDB generation  
     o PSCBS: 1.20.0 two-step segmentation slightly tweaked in that only
       high quality on-target intervals (high mappability and low PoN noise)
       are used in the first segmentation  

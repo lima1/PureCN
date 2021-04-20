@@ -13,6 +13,7 @@ filterIntervals(
   min.coverage = 15,
   min.total.counts = 120,
   min.targeted.base = 5,
+  min.mappability = c(0.6, 0.1),
   normalDB = NULL
 )
 }
@@ -43,6 +44,9 @@ in combined tumor and normal.}
 smaller than this cutoff. This is useful when the same interval file was
 used to calculate GC content. For such small targets, the GC content is
 likely very different from the true GC content of the probes.}
+
+\item{min.mappability}{\code{double(2)} specifying the minimum mappability score
+for on-target, off-target in that order.}
 
 \item{normalDB}{Normal database, created with
 \code{\link{createNormalDatabase}}.}
