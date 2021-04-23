@@ -26,6 +26,7 @@
 #'
 #' @importFrom GenomicRanges GRangesList
 #' @importFrom VGAM vglm Coef betabinomial dbetabinom
+#' @importFrom data.table rbindlist
 #' @export calculateMappingBiasVcf
 calculateMappingBiasVcf <- function(normal.panel.vcf.file,
                                     min.normals = 1,
@@ -144,9 +145,9 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     genomicsdb::disconnect(db)
     flog.info("Collecting variant information...")
     # concat with minimal memory overhead
-    m_alt <- do.call(rbind, lapply(parsed_ad_list, function(x) x$alt))
+    m_alt <- as.matrix(rbindlist(lapply(parsed_ad_list, function(x) data.frame(x$alt)), fill = TRUE))
     for (i in seq_along(parsed_ad_list)) parsed_ad_list[[i]]$alt <- NULL
-    m_ref <- do.call(rbind, lapply(parsed_ad_list, function(x) x$ref))
+    m_ref <- as.matrix(rbindlist(lapply(parsed_ad_list, function(x) data.frame(x$ref)), fill = TRUE))
     for (i in seq_along(parsed_ad_list)) parsed_ad_list[[i]]$ref <- NULL
     gr <- unlist(GRangesList(lapply(parsed_ad_list, function(x) x$gr)))
     parsed_ad_list <- NULL

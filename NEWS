@@ -25,6 +25,8 @@ BUGFIXES
       variants (#166).
     o Fix for various issues related to the seqlevelsStyle function (e.g.
       #171)   
+    o Fix for crash in calculateMappingBiasGatk4 when not all samples had 
+      a single variant call on a particular chromosome (chrY)
       
 
 Changes in version 1.20.0
