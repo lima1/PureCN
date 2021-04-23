@@ -74,6 +74,8 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
 #' fitting a beta distribution
 #' @param min.median.coverage.betafit Minimum median coverage of normals with
 #' heterozygous SNP for fitting a beta distribution
+#' @param AF.info.field Field in the \code{workspace} that stores the allelic 
+#' fraction
 #' @return A \code{GRanges} object with mapping bias and number of normal
 #' samples with this variant.
 #' @author Markus Riester
@@ -96,7 +98,8 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
 calculateMappingBiasGatk4 <- function(workspace, reference.genome,
                                     min.normals = 1,
                                     min.normals.betafit = 7,
-                                    min.median.coverage.betafit = 5) {
+                                    min.median.coverage.betafit = 5,
+                                    AF.info.field = "AF") {
 
     if (!requireNamespace("genomicsdb", quietly = TRUE) || 
         !requireNamespace("jsonlite", quietly = TRUE)
@@ -109,7 +112,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         vid_mapping_file = file.path(workspace, "vidmap.json"),
         callset_mapping_file=file.path(workspace, "callset.json"),
         reference_genome = reference.genome,
-        c("DP", "AD", "AF"))
+        c("DP", "AD", AF.info.field))
 
     jcallset <- jsonlite::read_json(file.path(workspace, "callset.json"))
     jvidmap <- jsonlite::read_json(file.path(workspace, "vidmap.json"))
@@ -136,7 +139,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
             column_ranges = list(c(c_offset, c_offset + c_length)),
             row_ranges = row_ranges
         ))
-        .parseADGenomicsDb(query)
+        .parseADGenomicsDb(query, AF.info.field)
     })
     genomicsdb::disconnect(db)
     flog.info("Collecting variant information...")
@@ -161,9 +164,9 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     return(bias)
 }
 
-.parseADGenomicsDb <- function(query) {
+.parseADGenomicsDb <- function(query, AF.info.field = "AF") {
     ref <-  dcast(query, CHROM+POS+END+REF+ALT~SAMPLE, value.var = "AD")
-    af <-  dcast(query, CHROM+POS+END+REF+ALT~SAMPLE, value.var = "AF")
+    af <-  dcast(query, CHROM+POS+END+REF+ALT~SAMPLE, value.var = AF.info.field)
     gr <- GRanges(seqnames = ref$CHROM, IRanges(start = ref$POS, end = ref$END),
         strand = NULL, DataFrame(REF = ref$REF, ALT = ref$ALT))
     genomic_change <- paste0(as.character(gr), "_", ref$REF, ">", ref$ALT)

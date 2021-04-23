@@ -14,6 +14,9 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o PSCBS: 1.20.0 two-step segmentation slightly tweaked in that only
       high quality on-target intervals (high mappability and low PoN noise)
       are used in the first segmentation  
+    o Added --skipgcnorm flag to Coverage.R to skip GC-normalization  
+    o Added AF.info.field option to calculateMappingBiasGatk4 for non-standard
+      GenomicsDB imports
     o Removed defunct calculateIntervalWeights function
 
 BUGFIXES

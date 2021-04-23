@@ -12,6 +12,8 @@ option_list <- list(
         help="Optional assay name used in output names [default %default]"),
     make_option(c("--genome"), action="store", type="character", default=NULL,
         help="Genome version, used in output names [default %default]"),
+    make_option(c("--genomicsdb_af_field"), action="store", type="character", default="AF",
+        help="Info field name where the allelic fraction is stored [default %default]"),
     make_option(c("--outdir"), action="store", type="character", default=NULL,
         help="Output directory to which results should be written"),
     make_option(c("-v", "--version"), action="store_true", default=FALSE, 
@@ -63,7 +65,8 @@ if (!is.null(opt$normal_panel)) {
         suppressPackageStartupMessages(library(PureCN))
         flog.info("Creating mapping bias database.")
         if (file.exists(file.path(opt$normal_panel, "callset.json"))) {
-            bias <- calculateMappingBiasGatk4(opt$normal_panel, genome)
+            bias <- calculateMappingBiasGatk4(opt$normal_panel, genome,
+                AF.info.field = opt$genomicsdb_af_field)
         } else {
             bias <- calculateMappingBiasVcf(opt$normal_panel, genome = genome)
         }

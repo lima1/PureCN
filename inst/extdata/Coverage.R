@@ -20,6 +20,8 @@ option_list <- list(
         help = "Count reads marked as duplicates [default %default]"),
     make_option(c("--removemapq0"), action = "store_true", default = FALSE, 
         help = "Not count reads marked with mapping quality 0 [default %default]"),
+    make_option(c("--skipgcnorm"), action = "store_true", default = FALSE, 
+        help = "Skips GC-normalization [default %default]"),
     make_option(c("--outdir"), action = "store", type = "character", 
         default = NULL,
         help = "Output directory to which results should be written"),
@@ -187,7 +189,7 @@ if (!is.null(bam.file)) {
    }
 }
 
-if (!is.null(gatk.coverage) || !is.null(coverageFiles)) {
+if (!opt$skipgcnorm && (!is.null(gatk.coverage) || !is.null(coverageFiles))) {
     # started not from BAMs?
     if (is.null(coverageFiles)) {
         if (grepl(".list$", gatk.coverage)) {

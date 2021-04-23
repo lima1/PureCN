@@ -9,7 +9,8 @@ calculateMappingBiasGatk4(
   reference.genome,
   min.normals = 1,
   min.normals.betafit = 7,
-  min.median.coverage.betafit = 5
+  min.median.coverage.betafit = 5,
+  AF.info.field = "AF"
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ fitting a beta distribution}
 
 \item{min.median.coverage.betafit}{Minimum median coverage of normals with
 heterozygous SNP for fitting a beta distribution}
+
+\item{AF.info.field}{Field in the \code{workspace} that stores the allelic 
+fraction}
 }
 \value{
 A \code{GRanges} object with mapping bias and number of normal

@@ -613,6 +613,7 @@ Argument name      | Corresponding PureCN argument | PureCN function
 `--method`         | `method`  | `correctCoverageBias`
 `--keepduplicates` | `keep.duplicates`  | `calculateBamCoverageByInterval`
 `--removemapq0`    | `mapqFilter`  | `ScanBamParam`
+`--skipgcnorm`     | | `correctCoverageBias`
 `--outdir`         | | 
 `--cores`          | | Number of CPUs to use when multiple BAMs are provided 
 `--parallel`       | | Use default `r Biocpkg("BiocParallel")` backend when multiple BAMs are provided 
@@ -630,6 +631,7 @@ Argument name          | Corresponding PureCN argument | PureCN function
 `--normal_panel`    | `normal.panel.vcf.file` | `calculateMappingBiasVcf` 
 `--assay -a`          | Optional assay name | Used in output file names. 
 `--genome -g`        | Optional genome version | Used in output file names. 
+`--genomicsdb_af_field` | For GenomicsDB import, allelic fraction field | `calculateMappingBiasGatk4` 
 `--outdir -o`         | | 
 `--version -v`        | | 
 `--force -f`          | | 
