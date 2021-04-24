@@ -127,14 +127,15 @@ test_that("Example data with VCF produces expected output", {
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file, 
         tumor.coverage.file = tumor.coverage.file, vcf.file = vcf.file,
         genome = "hg19", test.purity = seq(0.3, 0.7, by = 0.05), plot.cnv = FALSE,
+        args.filterIntervals = list( min.total.count = 0 ),
         max.candidate.solutions = 1, min.ploidy = 1.5, max.ploidy = 2.1,
         vcf.field.prefix = "PureCN."
     )
-    expect_equal(ret$results[[1]]$fraction.balanced, 0.19, tolerance = 0.02)
+    expect_equal(ret$results[[1]]$fraction.balanced, 0.2, tolerance = 0.02)
     s <- predictSomatic(ret)
     expect_equal(s$AR/s$MAPPING.BIAS, s$AR.ADJUSTED)
     expect_equal(0.65, ret$results[[1]]$purity)
-    expect_equal(0.93, ret$results[[1]]$GoF, tolerance = 0.01)
+    expect_equal(0.92, ret$results[[1]]$GoF, tolerance = 0.02)
     expect_equal(as.numeric(colnames(ret$candidates$all)), c(seq(0.3, 
         0.34, by = 1/50), seq(0.35, 0.7, by = 1/30)))
     plotAbs(ret, type = "overview")
