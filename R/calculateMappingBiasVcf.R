@@ -48,7 +48,11 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
             min.normals = min.normals, 
             min.normals.betafit = min.normals.betafit,
             min.median.coverage.betafit = min.median.coverage.betafit)
-        ret <- append(ret, GRangesList(mappingBias))
+        if (length(ret)) {
+            ret <- append(ret, GRangesList(mappingBias))
+        } else {
+            ret <- GRangesList(mappingBias)
+        }
         cntVar <- cntVar + yieldSize
         cntStep <- cntStep + 1
     }
