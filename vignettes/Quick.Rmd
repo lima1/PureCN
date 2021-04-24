@@ -661,6 +661,8 @@ Argument name          | Corresponding PureCN argument | PureCN function
 `--dbinfoflag`       | `DB.info.flag` | `runAbsoluteCN`     
 `--popafinfofield`   | `POPAF.info.field` | `runAbsoluteCN`     
 `--mincosmiccnt`     | `min.cosmic.cnt` | `setPriorVcf`     
+`--padding`          | `interval.padding` | `filterVcfBasic`  
+`--mintotalcounts`   | `min.total.counts` | `filterIntervals`  
 `--funsegmentation`  | `fun.segmentation` | `runAbsoluteCN`  
 `--alpha`            | `alpha` | `segmentationCBS` 
 `--undosd`           | `undo.SD` | `segmentationCBS` 

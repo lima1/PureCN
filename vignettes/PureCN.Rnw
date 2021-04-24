@@ -415,9 +415,16 @@ ret <-runAbsoluteCN(normal.coverage.file = pool,
     tumor.coverage.file = tumor.coverage.file, vcf.file = vcf.file, 
     genome = "hg19", sampleid = "Sample1", 
     interval.file = interval.file, normalDB = normalDB,
-# args.setMappingBiasVcf=list(mapping.bias.file = mapping.bias.file),
-# args.filterVcf=list(snp.blacklist = snp.blacklist, 
-# stats.file = mutect.stats.file), 
+#    args.setMappingBiasVcf=list(
+        # mapping.bias.file = mapping.bias.file
+#    ),
+    args.filterVcf=list(
+        # snp.blacklist = snp.blacklist, 
+        # stats.file = mutect.stats.file
+    ),
+    args.filterIntervals = list(
+        min.total.counts = 50
+    ), 
     post.optimize = FALSE, plot.cnv = FALSE, verbose = FALSE)
 @
 
@@ -433,7 +440,9 @@ provided via \Rcode{args.setMappingBiasVcf} to correct read mapping biases.  The
 files specified in \Rcode{args.filterVcf} help \Biocpkg{PureCN} filtering SNVs
 more efficiently for artifacts as described in Sections~\ref{artifactfiltering}
 and \ref{artifactfiltering2}.  The \Rcode{snp.blacklist} is only necessary if
-neither a matched normal nor a large pool of normals is available. 
+neither a matched normal nor a large pool of normals is available. We set
+\Rcode{min.total.counts} to a very low value to make this toy example use all
+simulated intervals. 
 
 The \Rcode{post.optimize} flag will increase the runtime by about a factor of
 2-5, but might return slightly more accurate purity estimates. For high quality

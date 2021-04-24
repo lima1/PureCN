@@ -54,6 +54,9 @@ option_list <- list(
     make_option(c("--padding"), action = "store", type = "integer",
         default = formals(PureCN::filterVcfBasic)$interval.padding,
         help = "VCF Filter: Keep variants in the flanking region of specified size [default %default]"),
+    make_option(c("--mintotalcounts"), action = "store", type = "integer",
+        default = formals(PureCN::filterIntervals)$min.total.counts,
+        help = "Interval Filter: Keep only intervals with at least that many counts in both tumor and (tanget) normal [default %default]"),
     make_option(c("--funsegmentation"), action = "store", type = "character", default = "CBS",
         help = "Segmentation: Algorithm. CBS, PSCBS, Hclust, or none [default %default]"),
     make_option(c("--alpha"), action = "store", type = "double",
@@ -307,6 +310,7 @@ if (file.exists(file.rds) && !opt$force) {
                 af.range = af.range, stats.file = opt$statsfile,
                 ignore = mutect.ignore,
                 interval.padding = opt$padding),
+            args.filterIntervals = list(min.total.counts = opt$mintotalcounts),
             fun.segmentation = fun.segmentation,
             args.segmentation = list(
                 alpha = opt$alpha, undo.SD = opt$undosd),

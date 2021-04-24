@@ -11,7 +11,7 @@ filterIntervals(
   seg.file,
   filter.lowhigh.gc = 0.001,
   min.coverage = 15,
-  min.total.counts = 120,
+  min.total.counts = 100,
   min.targeted.base = 5,
   min.mappability = c(0.6, 0.1),
   normalDB = NULL
