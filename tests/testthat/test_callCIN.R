@@ -10,7 +10,7 @@ test_that("Example is called correctly", {
     expect_equal(sum(loh$size[!idx])/sum(loh$size), ret, tol = 0.001)
     loh <- loh[!is.na(loh$M),]
     ret <- callCIN(purecn.example.output)
-    expect_equal(0.481, ret, tol = 0.01)
+    expect_equal(0.481, ret, tol = 0.02)
     ret <- callCIN(purecn.example.output, reference.state = "normal")
     idx <- loh$C == 2 & loh$M == 1
     expect_equal(sum(loh$size[!idx])/sum(loh$size), ret, tol = 0.001)
