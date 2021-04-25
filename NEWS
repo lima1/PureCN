@@ -27,6 +27,8 @@ BUGFIXES
       #171)   
     o Fix for crash in calculateMappingBiasGatk4 when not all samples had 
       a single variant call on a particular chromosome (chrY)
+    o Fix related to annotating mapping bias with triallelic sites and 
+      GenomicsDB  
       
 
 Changes in version 1.20.0

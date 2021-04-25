@@ -76,6 +76,7 @@ smooth = TRUE, smooth.n = 5) {
         flog.info("Loading mapping bias file %s...",
             basename(mapping.bias.file))
         mappingBias <- readRDS(mapping.bias.file)
+        flog.info("Found %i variants in mapping bias file.", length(mappingBias))
     } else {
         .stopUserError("mapping.bias.file must be a file with *.rds suffix.")
     }
@@ -100,7 +101,26 @@ smooth = TRUE, smooth.n = 5) {
     info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
     info(vcf) <- cbind(info(vcf), mappingBias) 
     return(vcf)
-}    
+}  
+.findOverlapsCheckAlt <- function(a, b) {
+    ov1 <- findOverlaps(a, b, select = "first")
+    if ( (!is(a, "VCF") && is.null(a$ALT)) || 
+         (!is(b, "VCF") && is.null(b$ALT)))
+        return(ov1)
+    ov2 <- findOverlaps(a, b, select = "last")
+    .get_alt <- function(x) {
+        if (!is.null(x$ALT)) return(gsub("\\[|\\]","",x$ALT))
+        sapply(alt(x), as.character)
+    }        
+    idx <- which(ov1 != ov2)
+    if (length(idx)) {
+        alt_a <- .get_alt(a[idx])
+        alt_b <- list(.get_alt(b[ov1[idx]]), .get_alt(b[ov2[idx]]))
+        alt_m <- sapply(seq_along(alt_a), function(i) ifelse(alt_a[i] == alt_b[[2]][i], 2, 1))
+        ov1[idx[which(alt_m != 1)]] <- ov2[idx[which(alt_m != 1)]] 
+    }
+    return(ov1)
+}     
 .annotateMappingBias <- function(tmp, vcf, mappingBias, max.bias, smooth, smooth.n) {
     mappingBias <- .checkSeqlevelStyle(vcf, mappingBias, "mapping.bias.file", "vcf")
     .compareGenomes <- function(x, y) {
@@ -124,7 +144,7 @@ smooth = TRUE, smooth.n = 5) {
     ponCnt <- integer(length(tmp))
     mu <- rep(NA, length(tmp))
     rho <- rep(NA, length(tmp))
-    ov <- findOverlaps(vcf, mappingBias, select = "first")
+    ov <- .findOverlapsCheckAlt(vcf, mappingBias)
     idx <- !is.na(ov)
     tmp[idx] <- mappingBias$bias[ov][idx]
     ponCnt[idx] <- mappingBias$pon.count[ov][idx]
