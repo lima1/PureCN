@@ -11,6 +11,7 @@ createNormalDatabase(
   min.coverage = 0.25,
   max.missing = 0.03,
   low.coverage = 15,
+  optimal.off.target.counts = 120,
   plot = FALSE,
   ...
 )
@@ -35,6 +36,9 @@ specified fraction of normal samples.}
 
 \item{low.coverage}{Specifies the maximum number of total reads 
 (NOT average coverage) to call a target low coverage.}
+
+\item{optimal.off.target.counts}{Used to suggest an optimal off-target
+interval width (BETA).}
 
 \item{plot}{Diagnostics plot, useful to tune parameters.}
 

@@ -18,6 +18,8 @@
 #' specified fraction of normal samples.
 #' @param low.coverage Specifies the maximum number of total reads 
 #' (NOT average coverage) to call a target low coverage.
+#' @param optimal.off.target.counts Used to suggest an optimal off-target
+#' interval width (BETA). 
 #' @param plot Diagnostics plot, useful to tune parameters.
 #' @param \dots Arguments passed to the \code{prcomp} function.
 #' @return A normal database that can be used in the
@@ -38,7 +40,8 @@
 #' @importFrom Matrix tcrossprod
 createNormalDatabase <- function(normal.coverage.files, sex = NULL,
 coverage.outliers = c(0.25, 4), min.coverage = 0.25,
-max.missing = 0.03, low.coverage = 15, plot = FALSE, ...) {
+max.missing = 0.03, low.coverage = 15,
+optimal.off.target.counts = 120, plot = FALSE, ...) {
     normal.coverage.files <- normalizePath(normal.coverage.files)
 
     if (any(duplicated(normal.coverage.files))) {
@@ -50,6 +53,14 @@ max.missing = 0.03, low.coverage = 15, plot = FALSE, ...) {
     }
 
     normals <- .readNormals(normal.coverage.files)
+    
+    if (!all(normals[[1]]$on.target)) {
+        ot_w <- median(sapply(lapply(normals, function(x) width(x)[!x$on.target]), median, na.rm = TRUE))
+        ot_c <- median(sapply(lapply(normals, function(x) x$counts[!x$on.target]), median, na.rm = TRUE))
+        optimal_width <- round(optimal.off.target.counts / ot_c * ot_w / 100000, digits=1)*100000
+        flog.info("Recommended median off-target width is %i compared to %i currently available.",
+            round(optimal_width), round(ot_w))
+    }
 
     normals.m <- do.call(cbind, 
         lapply(normals, function(x) x$counts))

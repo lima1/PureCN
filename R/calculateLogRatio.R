@@ -67,12 +67,3 @@ calculateLogRatio <- function(normal, tumor) {
                sum(idxFinite), mean.log.ratio)
     return(log.ratio - mean.log.ratio)
 }
-
-.calibrate_log_ratio_on_off <- function(log.ratio, granges) {
-    for (on.target in c(FALSE, TRUE)) {
-        idx <- granges$on.target==on.target
-        if (!sum(idx)) next
-        log.ratio[idx] <- .calibrate_log_ratio(log.ratio[idx], granges[idx])
-    }
-    log.ratio
-}    

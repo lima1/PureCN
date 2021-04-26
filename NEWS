@@ -1,6 +1,11 @@
 Changes in version 1.22.0
 -------------------------
 
+NEW FEATURES
+
+    o calculateNormalDatabase now suggests an off-target interval width that
+      minimizes noise while keeping the resolution as high as possible
+
 SIGNIFICANT USER-VISIBLE CHANGES
 
     o Added min.total.counts filter to filterIntervals to remove

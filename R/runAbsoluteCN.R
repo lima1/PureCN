@@ -1013,8 +1013,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                         sol$fraction.subclonal > max.non.clonal, logical(1))
     if (sum(is.na(idxFailed))) .stopRuntimeError("NAs in fraction.subclonal.")
     if (sum(idxFailed)) {
-        flog.info("Skipping %i solutions exceeding max.non.clonal (%.2f).",
-                  sum(idxFailed), max.non.clonal)
+        tmp <- sapply(which(idxFailed), function(i) paste0(results[[i]]$purity, "/", round(results[[i]]$ploidy, digits = 2)))
+        flog.info("Skipping %i solutions exceeding max.non.clonal (%.2f): %s (purity/tumor ploidy)",
+                  sum(idxFailed), max.non.clonal, paste(tmp, collapse=", "))
     }
     results <- results[which(!idxFailed)]
 
