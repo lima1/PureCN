@@ -284,7 +284,11 @@ Important recommendations:
 - For ideal results, examine the `interval_weights.png` file to find good
   off-target bin widths. You will need to re-run `IntervalFile.R` with the
   `--offtargetwidth` parameter and re-calculate the coverages. `NormalDB.R`
-  will also give a suggestion for a good width.
+  will also give a suggestion for a good minimum width. We do not recommend
+  going lower than this estimate; setting `--offtargetwidth` to value larger
+  than this value can decrease noise at the cost of loss in resolution.
+  Setting it to 1.2-1.5x the minimum recommendation (that should be ideally <
+  250kb) is a good starting point.
 
 - The `--assay` argument is optional and is only used to add the provided assay
   name to all output files
