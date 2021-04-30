@@ -1705,7 +1705,7 @@ to use that information, but it might not always make sense to do so:
         off-target reads can thus provide relatively clean additional
         information.
     \item Very efficient assays with low off-target mapping might not provide a
-        large number of reads in useful window sizes (usually below 0.2Kb),
+        large number of reads in useful window sizes (usually below 0.2Mb),
         especially when total sequencing coverages are rather low. This can
         result in off-target data that are significantly noisier than
         on-target data.
@@ -1714,6 +1714,17 @@ to use that information, but it might not always make sense to do so:
         off-target reads. If the off-target noise is consistently larger than
         the on-target noise, you can try increasing the off-target bin width -
         and vice versa make it smaller when the on-target noise is larger.
+\end{itemize}
+
+\paragraph{Questions related to GC normalization.}
+\begin{itemize} 
+    \item Explicit GC-normalization is useful whenever a significant difference in tumor
+and normal controls is suspected. One example would be FFPE tumors normalized
+with blood controls. Otherwise the normalization using the panel of normals
+should automatically remove any GC bias.
+    \item Smaller panels of normals might also benefit from explicit GC-normalization.
+    \item Otherwise it is safe skip the GC-normalization. In the command line tools,
+set \Rcode{--skipgcnorm} in \Rcode{Coverage.R}.
 \end{itemize}
 
 \paragraph{If all or most of the samples are flagged as:}

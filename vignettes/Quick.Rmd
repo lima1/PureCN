@@ -34,7 +34,7 @@ versions 1.16 and later. For versions 1.8 to 1.14, please re-run `NormalDB.R`
 
 ```
 $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
-    --coveragefiles example_normal.list \
+    --coveragefiles example_normal_coverages.list \
     --genome hg19 --normal_panel $NORMAL_PANEL --assay agilent_v6
 ```
 
@@ -236,33 +236,43 @@ $ Rscript $PURECN/Coverage.R --outdir $OUT \
 Important recommendations:
 
 - Only provide `--keepduplicates` or `--removemapq0` if you know what you are
-doing and always use the same command line arguments for tumor and the normals
+  doing and always use the same command line arguments for tumor and the
+  normals
+
+- It can be safe to skip the GC-normalization with `--skipgcnorm` when tumor
+  and normal samples are expected to exhibit similar biases and a sufficient
+  number of normal samples is available. A good example would be plasma
+  sequencing.
+  
+- A potential negative impact of GC-normalization is much more
+  likely in very small targeted panels (< 0.5Mb) and worth benchmarking.
 
 
 ## NormalDB
 
 To build a normal database for coverage normalization, copy the paths to all
-GC-normalized normal coverage files in a single text file, line-by-line:
+(GC-normalized) normal coverage files in a single text file, line-by-line:
 
 ```
-ls -a normal*loess.txt.gz | cat > example_normal.list
+ls -a normal*_loess.txt.gz | cat > example_normal_coverages.list
+# In case no GC-normalization is performed:
+# ls -a normal*_coverage.txt.gz | cat > example_normal_coverages.list
 
-# From already GC-normalized files
 $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
-    --coveragefiles example_normal.list \
+    --coveragefiles example_normal_coverages.list \
     --genome hg19 --assay agilent_v6
 
 # When normal panel VCF is available (highly recommended for
 # unmatched samples)
 $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
-    --coveragefiles example_normal.list \
+    --coveragefiles example_normal_coverages.list \
     --normal_panel $NORMAL_PANEL \
     --genome hg19 \
     --assay agilent_v6
 
 # For a Mutect2/GATK4 normal panel GenomicsDB (experimental)
 $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
-    --coveragefiles example_normal.list \
+    --coveragefiles example_normal_coverages.list \
     --normal_panel $GENOMICSDB-WORKSPACE-PATH/pon_db \
     --genome hg19 \
     --assay agilent_v6
@@ -356,6 +366,9 @@ Important recommendations:
 - Always provide the normal coverage database to ignore low quality regions in
   the segmentation and to increase the sensitivity for homozygous deletions in
   high purity samples.
+
+- Double check that in `--tumor` and `--normaldb`, GC-normalization is either
+  used in both  (`*_loess.txt.gz`) or skipped in both (`*_coverages.txt.gz`).
 
 - The normal panel VCF file is useful for mapping bias correction and especially
   recommended without matched normals. See the FAQ of the main vignette how to

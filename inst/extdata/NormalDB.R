@@ -89,7 +89,7 @@ if (length(coverageFiles)) {
             output.file)
     } else {
         suppressPackageStartupMessages(library(PureCN))
-        flog.info("Creating normalDB. Assuming coverage files are GC-normalized.")
+        flog.info("Creating normalDB...")
         interval.weight.png <- .getFileName(outdir,"interval_weights",".png", assay, 
             genome)
         png(interval.weight.png, width = 800, height = 400)
