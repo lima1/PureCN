@@ -14,6 +14,7 @@ segmentationGATK4(
   normal.id.in.vcf = NULL,
   prune.hclust.h = NULL,
   prune.hclust.method = NULL,
+  additional.cmd.args = "",
   chr.hash = NULL,
   ...
 )
@@ -41,15 +42,15 @@ VCF.}
 
 \item{prune.hclust.method}{Ignored in this function.}
 
+\item{additional.cmd.args}{\code{character(1)}. By default,
+\code{ModelSegments} is called with default parameters. Provide additional 
+arguments here.}
+
 \item{chr.hash}{Not needed here since \code{ModelSegments} does not
 require numbered chromosome names.}
 
 \item{...}{Currently unused arguments provided to other segmentation
 functions.}
-
-\item{additional.cmd.args}{\code{character(1)}. By default,
-\code{ModelSegments} is called with default parameters. Provide additional 
-arguments here.}
 }
 \value{
 \code{data.frame} containing the segmentation.
@@ -78,6 +79,7 @@ vcf.file <- system.file("extdata", "example.vcf.gz",
      tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, 
      sampleid="Sample1",  genome="hg19",
      fun.segmentation = segmentationGATK4, max.ploidy=4,
+     args.segmentation = list(additional.cmd.args = "--gcs-max-retries 19"),
      test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 }
 

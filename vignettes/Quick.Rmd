@@ -684,6 +684,7 @@ Argument name          | Corresponding PureCN argument | PureCN function
 `--funsegmentation`  | `fun.segmentation` | `runAbsoluteCN`  
 `--alpha`            | `alpha` | `segmentationCBS` 
 `--undosd`           | `undo.SD` | `segmentationCBS` 
+`--additionalcmdargs`| `additional.cmd.args` | `segmentationGATK4` 
 `--maxsegments`      | `max.segments` | `runAbsoluteCN` 
 `--minpurity`        | `test.purity` | `runAbsoluteCN` 
 `--maxpurity`        | `test.purity` | `runAbsoluteCN` 

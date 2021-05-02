@@ -61,7 +61,7 @@ readSegmentationFile <- function(seg.file, sampleid, model.homozygous = FALSE,
         colnames(seg) <- required.colnames
     }    
 
-    if (!identical(as.character(as.numeric(seg$chrom)), as.character(seg$chrom))) {
+    if (!identical(as.character(suppressWarnings(as.numeric(seg$chrom))), as.character(seg$chrom))) {
         flog.warn("Expecting numeric chromosome names in seg.file, assuming file is properly sorted.")
         seg$chrom <- .strip.chr.name(seg$chrom, .getChrHash(seg$chrom))
     }    

@@ -42,6 +42,7 @@
 #' @param chr.hash Mapping of non-numerical chromsome names to numerical names
 #' (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are 
 #' properly ordered.
+#' @param additional.cmd.args \code{character(1)}. Ignored.
 #' @param centromeres A \code{GRanges} with centromere positions.
 #' If not \code{NULL}, add breakpoints at centromeres. 
 #' @param \dots Additional parameters passed to the 
@@ -84,7 +85,7 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     tumor.id.in.vcf = 1, normal.id.in.vcf = NULL, max.segments = NULL,
     boost.on.target.max.size = 30,
     prune.hclust.h = NULL, prune.hclust.method = "ward.D", chr.hash = NULL,
-    centromeres = NULL, ...) {
+    additional.cmd.args = "", centromeres = NULL, ...) {
 
     if (!requireNamespace("PSCBS", quietly = TRUE)) {
         .stopUserError("segmentationPSCBS requires the PSCBS package.")

@@ -48,6 +48,7 @@
 #'      tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, 
 #'      sampleid="Sample1",  genome="hg19",
 #'      fun.segmentation = segmentationGATK4, max.ploidy=4,
+#'      args.segmentation = list(additional.cmd.args = "--gcs-max-retries 19"),
 #'      test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 #'}
 #' 
@@ -56,6 +57,7 @@
 segmentationGATK4 <- function(normal, tumor, log.ratio, seg, 
     vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
     prune.hclust.h = NULL, prune.hclust.method = NULL,
+    additional.cmd.args = "",
     chr.hash = NULL, ...) {
 
     min.version <- "4.1.7.0"
@@ -82,6 +84,7 @@ segmentationGATK4 <- function(normal, tumor, log.ratio, seg,
               "--allelic-counts", output.vcf.file,
               "--denoised-copy-ratios", output.lr.file,
               "--output-prefix", "tumor",
+              additional.cmd.args,
               "-O", output.dir)
     output <- try(system2("gatk", args, stderr = TRUE, stdout = TRUE))
     if (is(output, "try-error")) {
@@ -93,6 +96,8 @@ segmentationGATK4 <- function(normal, tumor, log.ratio, seg,
     rownames(seg) <- NULL
     file.remove(output.vcf.file)
     file.remove(output.lr.file)
+    attr(seg, "ModelSegments.Output") <- output
+    attr(seg, "ModelSegments.Args") <- args
     seg[idx.enough.markers,]
 }
 

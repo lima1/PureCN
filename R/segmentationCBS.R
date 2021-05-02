@@ -35,6 +35,7 @@
 #' @param chr.hash Mapping of non-numerical chromsome names to numerical names
 #' (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are
 #' properly ordered.
+#' @param additional.cmd.args \code{character(1)}. Ignored.
 #' @param centromeres A \code{GRanges} object with centromere positions.
 #' Currently not supported in this function.
 #' @return \code{data.frame} containing the segmentation.
@@ -74,7 +75,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     sampleid, weight.flag.pvalue = 0.01, alpha = 0.005, 
     undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
     max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
-    chr.hash = NULL, centromeres = NULL) {
+    chr.hash = NULL, additional.cmd.args = "", centromeres = NULL) {
     
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
     

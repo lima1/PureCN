@@ -21,6 +21,7 @@ segmentationCBS(
   prune.hclust.h = NULL,
   prune.hclust.method = "ward.D",
   chr.hash = NULL,
+  additional.cmd.args = "",
   centromeres = NULL
 )
 }
@@ -70,6 +71,8 @@ step. See documentation for the \code{hclust} function.}
 \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
 (e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are
 properly ordered.}
+
+\item{additional.cmd.args}{\code{character(1)}. Ignored.}
 
 \item{centromeres}{A \code{GRanges} object with centromere positions.
 Currently not supported in this function.}
