@@ -36,34 +36,38 @@ readAllelicCountsFile <- function(file, format, zero=NULL) {
         ALT_NUCLEOTIDE = unlist(CharacterList(alt(vcf)))
     )
     con <- file(file, open = "w")
-    writeLines(paste("@RG", "ID:PureCN", paste0("SM:", samples(header(vcf))[id]), sep="\t"), con)
+    .writeGATKHeader(vcf, id, con, "allelic counts")
     write.table(outputCounts, con, row.names = FALSE, quote = FALSE, sep = "\t")
     close(con)
     invisible(outputCounts)
 }
 
 .readAllelicCountsFileGatk4 <- function(file, zero) {
-    .extractSampleId <- function(line) {
+    .extractField <- function(line, field) {
         fields <- strsplit(line, "\t")[[1]]
-        fields <- fields[grep("^SM:", fields)]
-        gsub("^SM:", "", fields[1]) 
+        key <- paste0("^", field, ":")
+        fields <- fields[grep(key, fields)]
+        gsub(key, "", fields[1]) 
     }
 
     if (!is.null(zero)) flog.warn("zero ignored for GATK4 files.")
     con <- file(file, open = "r")
     sid <- NULL
+    sl <- list()
     while ( TRUE ) {
         line = readLines(con, n = 1)
         if ( length(line) == 0 || !grepl("^@", line)[1]) {
             break
         }
-        if (grepl("^@RG", line)[1]) sid <- .extractSampleId(line)
+        if (grepl("^@RG", line)[1]) sid <- .extractField(line, "SM")
+        if (grepl("^@SQ", line)[1]) {
+            sl[[.extractField(line, "SN")]] <- .extractField(line, "LN")
+        }
     }
 
     inputCounts <- read.delim(con, header = FALSE)
     colnames(inputCounts) <- strsplit(line, "\t")[[1]]
     close(con)
-    inputCounts <-inputCounts[which(inputCounts$ALT_COUNT > 0),]
     gr <- GRanges(seqnames = inputCounts$CONTIG, IRanges(start = inputCounts$POSITION, end = inputCounts$POSITION))
     vcf <- VCF(gr, 
                 colData = DataFrame(Samples = 1, row.names = sid),
@@ -85,6 +89,10 @@ readAllelicCountsFile <- function(file, format, zero=NULL) {
     info(vcf)$DB <- TRUE
     geno(vcf)$AD <- matrix(lapply(seq(nrow(inputCounts)), function(i) c( inputCounts$REF_COUNT[i], inputCounts$ALT_COUNT[i])), ncol = 1, dimnames = list(NULL, sid))
     names(vcf) <- paste0(seqnames(vcf), ":", start(vcf))
+    if (length(sl)) {
+        sl <- sapply(sl, as.numeric)
+        seqlengths(vcf) <- sl[names(seqlengths(vcf))]  
+    }
     .readAndCheckVcf(vcf)
 }
 

@@ -1,4 +1,5 @@
 context("readLogRatioFile")
+data(purecn.example.output)
 
 test_that("Example data matches", {
     logratio.file <- system.file("extdata", "example_gatk4_denoised_cr.tsv.gz", 
@@ -13,3 +14,19 @@ test_that("Example data matches", {
     expect_equal(as.character(logratio), as.character(logratio2))
     expect_equal(logratio$log.ratio, logratio2$log.ratio)
 })
+
+test_that("parsing -> writing -> parsing works", {
+    x <- purecn.example.output
+    y <- x
+    y$input$log.ratio$log.ratio <- NULL
+    output.file <- tempfile(fileext = ".tsv")
+    expect_error(
+        PureCN:::.writeLogRatioFileGATK4(y, output.file),
+        "log.ratio NULL"      
+    )
+    PureCN:::.writeLogRatioFileGATK4(x, output.file)
+    z <- readLogRatioFile(output.file)
+    expect_equivalent(x$input$log.ratio$log.ratio, z$log.ratio)
+    file.remove(output.file)
+})
+

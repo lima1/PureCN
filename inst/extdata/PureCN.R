@@ -11,7 +11,7 @@ option_list <- list(
     make_option(c("--tumor"), action = "store", type = "character",
                 default = NULL, help = "Input: tumor coverage, GC-normalized"),
     make_option(c("--vcf"), action = "store", type = "character", default = NULL,
-                help = "Input: VCF file"),
+                help = "Input: VCF file. Read counts of common SNPs can be provided in GATK4 CollectAllelicCounts format (file suffix .tsv)."),
     make_option(c("--rds"), action = "store", type = "character", default = NULL,
         help = "Input: PureCN output RDS file, used to regenerate plots and files after manual curation"),
     make_option(c("--mappingbiasfile"), action = "store", type = "character", default = NULL,
@@ -296,9 +296,13 @@ if (file.exists(file.rds) && !opt$force) {
         }
         log.ratio <- log.ratio$log.ratio
     }    
-    
+    vcf <- opt$vcf
+    if (!is.null(vcf) && file_ext(vcf) == "tsv") {
+        flog.info("*.tsv file provided for --vcf, assuming GATK4 CollectAllelicCounts format")
+        vcf <- readAllelicCountsFile(vcf)
+    }    
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
-            tumor.coverage.file = tumor.coverage.file, vcf.file = opt$vcf,
+            tumor.coverage.file = tumor.coverage.file, vcf.file = vcf,
             sampleid = sampleid, plot.cnv = TRUE,
             interval.file = opt$intervals,
             genome = opt$genome, seg.file = seg.file,
@@ -330,6 +334,8 @@ if (file.exists(file.rds) && !opt$force) {
             speedup.heuristics = opt$speedupheuristics,
             vcf.field.prefix = "PureCN.",
             BPPARAM = BPPARAM)
+    # free memory
+    vcf <- NULL
     invisible(dev.off())
     if (opt$bootstrapn > 0) {
         ret <- bootstrapResults(ret, n = opt$bootstrapn) 
@@ -404,8 +410,7 @@ if (!is.null(ret$input$vcf)) {
 
     file.pdf <- paste0(out, "_chromosomes.pdf")
     pdf(file.pdf, width = 9, height = 10)
-    vcf <- ret$input$vcf[ret$results[[1]]$SNV.posterior$vcf.ids]
-    chromosomes <- seqlevelsInUse(vcf)
+    chromosomes <- seqlevelsInUse(ret$input$vcf[ret$results[[1]]$SNV.posterior$vcf.ids])
     chromosomes <- chromosomes[orderSeqlevels(chromosomes)]
     for (chrom in chromosomes) {
         plotAbs(ret, 1, type = "BAF", chr = chrom)

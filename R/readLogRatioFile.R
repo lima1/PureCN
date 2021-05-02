@@ -46,3 +46,32 @@ readLogRatioFile <- function(file, format, zero = NULL) {
     gr$log.ratio <- x[,4]
     gr
 }
+
+.writeLogRatioFileGATK4 <- function(x, file) {
+    gr <- x$input$log.ratio
+    if (is.null(gr$log.ratio)) {
+        .stopRuntimeError("log.ratio NULL in .writeLogRatioFileGATK4")
+    }
+    output <- data.frame(
+        CONTIG = seqnames(gr),
+        START = start(gr),
+        END = end(gr),
+        LOG2_COPY_RATIO = gr$log.ratio
+    )
+    con <- file(file, open = "w")
+    .writeGATKHeader(x$input$vcf, id = 1, con, "log-ratio")
+    write.table(output, con, row.names = FALSE, quote = FALSE, sep = "\t")
+    close(con)
+    invisible(output)
+}
+.writeGATKHeader <- function(vcf, id = 1, con, file_type) {
+    writeLines(paste("@HD", "VN:1.6", sep="\t"), con)
+    if (any(is.na(seqlengths(vcf)))) {
+        flog.warn("Cannot find all contig lengths while exporting %s file.",
+            file_type)
+    } else {
+        sl <- seqlengths(vcf)
+        writeLines(paste("@SQ", paste0("SN:",names(sl)), paste0("LN:", sl), sep="\t"), con)
+    }
+    writeLines(paste("@RG", "ID:PureCN", paste0("SM:", samples(header(vcf))[id]), sep="\t"), con)
+}    
