@@ -35,13 +35,17 @@ readSegmentationFile <- function(seg.file, sampleid, model.homozygous = FALSE,
     return("DNAcopy")
 }
 .convertSegGATK4 <- function(seg, sampleid) {
+    lr_col_id <- "LOG2_COPY_RATIO_POSTERIOR_50"
+    if (is.null(seg[[lr_col_id]])) {
+        lr_col_id <- "MEAN_LOG2_COPY_RATIO"
+    }
     data.frame(
         ID = sampleid,
         chrom = seg$CONTIG,
         loc.start = seg$START,
         loc.end = seg$END,
         num.mark = seg$NUM_POINTS_COPY_RATIO,
-        seg.mean = seg$LOG2_COPY_RATIO_POSTERIOR_50
+        seg.mean = seg[[lr_col_id]]
     )
 }    
 .checkSeg <- function(seg, sampleid, model.homozygous, verbose=TRUE) {

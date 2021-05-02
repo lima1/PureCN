@@ -47,8 +47,8 @@ readLogRatioFile <- function(file, format, zero = NULL) {
     gr
 }
 
-.writeLogRatioFileGATK4 <- function(x, file) {
-    gr <- x$input$log.ratio
+.writeLogRatioFileGATK4 <- function(x, id = 1, file) {
+    gr <- x$log.ratio
     if (is.null(gr$log.ratio)) {
         .stopRuntimeError("log.ratio NULL in .writeLogRatioFileGATK4")
     }
@@ -59,7 +59,7 @@ readLogRatioFile <- function(file, format, zero = NULL) {
         LOG2_COPY_RATIO = gr$log.ratio
     )
     con <- file(file, open = "w")
-    .writeGATKHeader(x$input$vcf, id = 1, con, "log-ratio")
+    .writeGATKHeader(x$vcf, id, con, "log-ratio")
     write.table(output, con, row.names = FALSE, quote = FALSE, sep = "\t")
     close(con)
     invisible(output)
@@ -73,5 +73,6 @@ readLogRatioFile <- function(file, format, zero = NULL) {
         sl <- seqlengths(vcf)
         writeLines(paste("@SQ", paste0("SN:",names(sl)), paste0("LN:", sl), sep="\t"), con)
     }
-    writeLines(paste("@RG", "ID:PureCN", paste0("SM:", samples(header(vcf))[id]), sep="\t"), con)
+    sampleid <- .getSampleIdFromVcf(vcf, id)
+    writeLines(paste("@RG", "ID:PureCN", paste0("SM:", sampleid), sep="\t"), con)
 }    

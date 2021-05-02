@@ -16,17 +16,17 @@ test_that("Example data matches", {
 })
 
 test_that("parsing -> writing -> parsing works", {
-    x <- purecn.example.output
+    x <- purecn.example.output$input
     y <- x
-    y$input$log.ratio$log.ratio <- NULL
+    y$log.ratio$log.ratio <- NULL
     output.file <- tempfile(fileext = ".tsv")
     expect_error(
-        PureCN:::.writeLogRatioFileGATK4(y, output.file),
+        PureCN:::.writeLogRatioFileGATK4(y, 1, output.file),
         "log.ratio NULL"      
     )
-    PureCN:::.writeLogRatioFileGATK4(x, output.file)
+    PureCN:::.writeLogRatioFileGATK4(x, 1, output.file)
     z <- readLogRatioFile(output.file)
-    expect_equivalent(x$input$log.ratio$log.ratio, z$log.ratio)
+    expect_equivalent(x$log.ratio$log.ratio, z$log.ratio)
     file.remove(output.file)
 })
 

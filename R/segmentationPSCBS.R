@@ -6,7 +6,7 @@
 #' \code{args.segmentation}.
 #' 
 #' 
-#' @param normal Coverage data for normal sample.
+#' @param normal Coverage data for normal sample. Ignored in this function.
 #' @param tumor Coverage data for tumor sample.
 #' @param log.ratio Copy number log-ratios, one for each exon in coverage file.
 #' @param seg If segmentation was provided by the user, this data structure

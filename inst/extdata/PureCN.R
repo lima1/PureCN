@@ -58,7 +58,7 @@ option_list <- list(
         default = formals(PureCN::filterIntervals)$min.total.counts,
         help = "Interval Filter: Keep only intervals with at least that many counts in both tumor and (tanget) normal [default %default]"),
     make_option(c("--funsegmentation"), action = "store", type = "character", default = "CBS",
-        help = "Segmentation: Algorithm. CBS, PSCBS, Hclust, or none [default %default]"),
+        help = "Segmentation: Algorithm. CBS, PSCBS, GATK4, Hclust, or none [default %default]"),
     make_option(c("--alpha"), action = "store", type = "double",
         default = formals(PureCN::segmentationCBS)$alpha,
         help = "Segmentation: significance of breakpoints [default %default]"),
@@ -260,6 +260,8 @@ if (file.exists(file.rds) && !opt$force) {
         } else if (opt$funsegmentation == "Hclust") {
             fun.segmentation <- segmentationHclust
             if (!is.null(seg.file)) uses.recommended.fun <- TRUE
+        } else if (opt$funsegmentation == "GATK4") {
+            fun.segmentation <- segmentationGATK4
         } else if (opt$funsegmentation == "none") {
             fun.segmentation <- function(seg, ...) seg
         } else {
@@ -297,7 +299,7 @@ if (file.exists(file.rds) && !opt$force) {
         log.ratio <- log.ratio$log.ratio
     }    
     vcf <- opt$vcf
-    if (!is.null(vcf) && file_ext(vcf) == "tsv") {
+    if (!is.null(vcf) && tools::file_ext(vcf) == "tsv") {
         flog.info("*.tsv file provided for --vcf, assuming GATK4 CollectAllelicCounts format")
         vcf <- readAllelicCountsFile(vcf)
     }    

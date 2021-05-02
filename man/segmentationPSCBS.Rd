@@ -29,7 +29,7 @@ segmentationPSCBS(
 )
 }
 \arguments{
-\item{normal}{Coverage data for normal sample.}
+\item{normal}{Coverage data for normal sample. Ignored in this function.}
 
 \item{tumor}{Coverage data for tumor sample.}
 
