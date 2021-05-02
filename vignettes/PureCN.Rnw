@@ -1045,9 +1045,26 @@ CONTIG	START	END	LOG2_COPY_RATIO
 1	3690585	3691264	0.126205
 \end{verbatim}
 
-It is highly recommended to compare the log2-ratios obtained by \Biocpkg{PureCN}
-and the third-party tool, since some pipelines automatically adjust log2-ratios
-for a default purity value. 
+It is highly recommended to compare the log2-ratios obtained by
+\Biocpkg{PureCN} and the third-party tool, since some pipelines automatically
+adjust log2-ratios for a default purity value. 
+
+The function \Rfunction{readAllelicCountsFile} can be used to parse a
+\software{GATK4 CollectAllelicCounts} file into a VCF supported by
+\Biocpkg{PureCN}\footnote{Only the \Rcode{RG} header line is required for
+extracting the sample id}:
+
+\begin{verbatim}
+@HD	VN:1.6
+@SQ	SN:1	LN:248956422
+@SQ	SN:2	LN:242193529
+...
+@RG	ID:GATK	SM:LIB-02240e4
+CONTIG	POSITION	REF_COUNT	ALT_COUNT	REF_NUCLEOTIDE	ALT_NUCLEOTIDE
+1	114515871	177	189	G	A
+1	150044293	119	157	T	G
+\end{verbatim}
+
 
 \subsubsection{Multi-sample segmentation}
 \label{multisampleseg}

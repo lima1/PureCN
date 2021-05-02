@@ -5,6 +5,8 @@ NEW FEATURES
 
     o calculateNormalDatabase now suggests an off-target interval width that
       minimizes noise while keeping the resolution as high as possible
+    o Added support for GATK4 CollectAllelicCounts output as alternative
+      to Mutect  
 
 SIGNIFICANT USER-VISIBLE CHANGES
 

@@ -58,9 +58,14 @@ if (is.null(genome)) stop("Need --genome")
 flog.info("Loading PureCN %s...", Biobase::package.version("PureCN"))
 if (!is.null(opt$normal_panel)) {
     output.file <- .getFileName(outdir,"mapping_bias",".rds", assay, genome)
+    output.bed.file <- .getFileName(outdir,"mapping_bias_hq_sites",".bed", assay, genome)
     if (file.exists(output.file) && !opt$force) {
         flog.info("%s already exists. Skipping... (--force will overwrite)",
             output.file)
+        if (!file.exists(output.bed.file)) {
+            flog.info("Loading existing %s...", basename(output.file))
+            bias <- readRDS(output.file)
+        }    
     } else {
         suppressPackageStartupMessages(library(PureCN))
         flog.info("Creating mapping bias database.")
@@ -72,6 +77,12 @@ if (!is.null(opt$normal_panel)) {
         }
         saveRDS(bias, file = output.file)
     }
+    if (!file.exists(output.bed.file) || opt$force) {
+        suppressPackageStartupMessages(library(rtracklayer))
+        tmp <- bias[abs(bias$bias - 1) < 0.2 & !bias$triallelic & bias$pon.cnt > 1,]
+        mcols(tmp) <- NULL
+        export(tmp, con = output.bed.file)
+    }    
 }
     
 if (is.null(opt$coveragefiles)) {
