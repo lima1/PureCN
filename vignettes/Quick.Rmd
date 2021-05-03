@@ -390,20 +390,25 @@ Important recommendations:
   `r Biocpkg("BiocParallel")` for details. This script will use the default
   backend.
 
-- `--funsegmentation PSCBS` will become the new default in 1.22.  Support for
-  interval weights currently requires a patch (see Section
-  \@ref(installation)).
+- `--funsegmentation PSCBS` will become the new recommendation in 1.22.  Support
+  for interval weights currently requires a patch (see Section
+  \@ref(installation)). See below for some more details on the best choice of
+  the method.
 
-- `--model betabin` will become the new default in 1.22 with larger panel of
-  normals (probably more than 10-15 normal samples). We encourage users to try
-  this model and appreciate feedback.
+- `--model betabin` is the new recommendation in 1.22 with larger panel of
+  normals (more than 10-15 normal samples). We encourage users to try this
+  model and appreciate feedback.
 
 - Defaults are well calibrated and should produce close to ideal results for
   most samples. A few common cases where changing defaults makes sense:
 
     - High purity and high quality: For cancer types with a high expected
       purity, such as ovarian cancer, AND when quality is expected to be very
-      good (high coverage, young samples), `--maxcopynumber 8`
+      good (high coverage, young samples), `--maxcopynumber 8`. 
+      (`r Biocpkg("PureCN")` reports copy numbers greater than this value, but
+      will stop fitting SNP allelic fractions to the exact allele-specific copy
+      number because this will get impossible very quickly with high copy
+      numbers - and computationally expensive.) 
 
     - Small panels with high coverage: `--padding 100` (or higher), requires
       running the variant caller with this padding or without interval file. Use
@@ -431,6 +436,32 @@ Important recommendations:
       with high heterogenity, it is also recommended to increase
       `--maxnonclonal` to 0.3-0.4 (this will increase the runtime significantly
       for whole-exome data).
+    
+    - The choice of the segmentation function can also make a significant
+      impact and unfortunately there is not yet a universal method that works
+      best in all scenarios.
+
+        - PSCBS: A good and safe starting point, especially with off-target
+          regions that might exhibit different noise profiles compared to
+          on-target.
+        
+        - GATK4: Most recent addition to PureCN. Not yet well tested, but
+          theoretically best choice with a larger number of SNPs per intervals,
+          for example assays with copy number backbones. We appreciate feedback.
+
+        - CBS: Simple, fast and well tested. Does not support SNP information,
+          so only recommended for settings with a very small SNPs/intervals
+          ratio, for example small targeted panels (<1Mb) with healthy off-target
+          coverage (<150kb resolution and similar log ratio noise compared to 
+          on-target).
+
+        - copynumber: For cases with multiple time points or biopsies. This is   
+          automatically chosen with `--additionaltumors` and currently not
+          supported in a single-sample analysis.
+
+        - Hclust/none: For third-party segmentations. `Hclust` clusters segments
+          in an attempt to calibrate log-ratios across chromosomes, `none`
+          largely keeps everything as provided.
 
 - A few recommendations for checks whether the _PureCN_ setup is correct:
 
@@ -451,13 +482,13 @@ Important recommendations:
 
 # Run PureCN with third-party segmentation
 
-Our internal _PureCN_ normalization combined with the _PSCBS_ segmentation
-should produce highly competitive results and we encourage users to try it and
-compare it to their existing pipelines. However, we realize that often it is
-not an option to change tools in production pipelines and we therefore made it
-relatively easy to use _PureCN_ with third-party tools. We provide examples for
-_CNVkit_ and _GATK4_ and it should be straightforward to adapt those for other
-tools.
+Our internal _PureCN_ normalization combined with the _PSCBS_ or
+_GATK4_segmentation should produce highly competitive results and we encourage
+users to try it and compare it to their existing pipelines. However, we realize
+that often it is not an option to change tools in production pipelines and we
+therefore made it relatively easy to use _PureCN_ with third-party tools. We
+provide examples for _CNVkit_ and _GATK4_ and it should be straightforward to
+adapt those for other tools.
 
 What you will need:
 
@@ -529,7 +560,8 @@ Important recommendations:
 
 - _CNVkit_ runs without normal reference samples are not recommended
 
-- The `--statsfile` is only required for _Mutect 1.1.7_
+- The `--statsfile` is only supported for _Mutect 1.1.7_. _Mutect 2_ provides
+  the filter flags directly in the VCF.
 
 ## Recommended _GATK4_ usage
 
