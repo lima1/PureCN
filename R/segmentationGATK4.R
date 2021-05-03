@@ -91,13 +91,15 @@ segmentationGATK4 <- function(normal, tumor, log.ratio, seg,
         .stopUserError("GATK4 ModelSegments runtime error: ",
             output, "\nArguments: ", args)
     }
-    seg <- readSegmentationFile(file.path(output.dir, "tumor.modelFinal.seg"), sampleid)
+    seg.file <- file.path(output.dir, "tumor.modelFinal.seg")
+    seg <- readSegmentationFile(seg.file, sampleid)
     idx.enough.markers <- seg$num.mark > 1
     rownames(seg) <- NULL
+    attr(seg, "ModelSegments.Output") <- readChar(seg.file, file.info(seg.file)$size)
+    attr(seg, "ModelSegments.Log") <- output
+    attr(seg, "ModelSegments.Args") <- args
     file.remove(output.vcf.file)
     file.remove(output.lr.file)
-    attr(seg, "ModelSegments.Output") <- output
-    attr(seg, "ModelSegments.Args") <- args
     seg[idx.enough.markers,]
 }
 

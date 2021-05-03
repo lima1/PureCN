@@ -7,7 +7,7 @@ NEW FEATURES
       minimizes noise while keeping the resolution as high as possible
     o Added support for GATK4 CollectAllelicCounts output as alternative
       to Mutect  
-    o Added segmentationGATK4 to used GATK4's segmentation function 
+    o Added segmentationGATK4 to use GATK4's segmentation function 
       ModelSegments 
 
 SIGNIFICANT USER-VISIBLE CHANGES
