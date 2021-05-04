@@ -12,10 +12,9 @@ before_install:
 install:
   - df -h
   - export PATH=~/install/anaconda/bin:$PATH
-  - conda config --add channels defaults
   - conda config --add channels bioconda
   - conda config --add channels conda-forge
-  - conda install gatk4
+  - conda install --yes gatk4
 
 r_check_args:  --no-vignettes --timings
 
