@@ -58,7 +58,7 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
             flog.warn("Excessive %s, ignoring this flag. Check your data.", flag)
         }
     }
-    gr.stat <- GRanges(seqnames=stats$contig, 
+    gr.stats <- GRanges(seqnames=stats$contig, 
         IRanges(start=stats$position, end=stats$position))
     
     ov <- findOverlaps(vcf, gr.stats)
