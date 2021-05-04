@@ -15,6 +15,9 @@ install:
   - conda config --add channels bioconda
   - conda config --add channels conda-forge
   - conda install --yes gatk4
+  - conda clean --yes --tarballs --index-cache
+  - rm Miniconda3-py37_4.8.3-Linux-x86_64.sh
+  - gatk --version
 
 r_check_args:  --no-vignettes --timings
 
