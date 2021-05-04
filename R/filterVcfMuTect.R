@@ -48,15 +48,18 @@ ignore=c("clustered_read_position", "fstar_tumor_lod", "nearby_gap_events",
         flog.warn("MuTect stats file lacks contig and position columns.")
         return(filterVcfBasic(vcf, tumor.id.in.vcf, ...))
     }
-
-    # check for excessive nearby_gap_events
-    if ("nearby_gap_events" %in% ignore &&
-        sum(grepl("nearby_gap_events", stats$failure_reasons))/nrow(stats) > 0.5) {
-        ignore <- ignore[-match("nearby_gap_events", ignore)]
-        flog.warn("Excessive nearby_gap_events, ignoring this flag. Check your data.")
+    
+    # check for excessive flags that can point to input data issues,
+    # correct variants that were incorrectly flagged
+    for (flag in c("nearby_gap_events", "seen_in_panel_of_normals")) {
+        if (flag %in% ignore &&
+            sum(grepl(flag, stats$failure_reasons))/nrow(stats) > 0.2) {
+            ignore <- ignore[-match(flag, ignore)]
+            flog.warn("Excessive %s, ignoring this flag. Check your data.", flag)
+        }
     }
-
-    gr.stats <- GRanges(seqnames=stats$contig, 
+    gr.stat
+     <- GRanges(seqnames=stats$contig, 
         IRanges(start=stats$position, end=stats$position))
     
     ov <- findOverlaps(vcf, gr.stats)

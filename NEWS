@@ -38,6 +38,8 @@ BUGFIXES
       a single variant call on a particular chromosome (chrY)
     o Fix related to annotating mapping bias with triallelic sites and 
       GenomicsDB  
+    o Fixed an issue in Mutect 1.1.7 data in which good SNPs were ignored
+      (#174)  
       
 
 Changes in version 1.20.0
