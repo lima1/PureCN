@@ -270,7 +270,7 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
     --genome hg19 \
     --assay agilent_v6
 
-# For a Mutect2/GATK4 normal panel GenomicsDB (experimental)
+# For a Mutect2/GATK4 normal panel GenomicsDB (beta)
 $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
     --coveragefiles example_normal_coverages.list \
     --normal_panel $GENOMICSDB-WORKSPACE-PATH/pon_db \
@@ -586,6 +586,19 @@ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --force --postoptimize --seed 123
 ```
 
+Important recommendations:
+
+- The `--funsegmentation` can be set to none in most cases. This will keep the
+  segmentation largely as provided. `Hclust` clusters segments which can avoid
+  over-segmentation, but will alter the GATK4 segmentation, which might not be
+  desired.
+
+- Beta support for providing _CollectAllelicCounts output instead of _Mutect_
+  is available: `--vcf ${SAMPLEID}.allelicCounts.tsv` will automatically convert the 
+  SNP counts into a supported VCF. Note that this will not use any somatic SNV
+  and indel information available in _Mutect_ VCFs and thus will also not provide any
+  clonality annotation.
+  
 # Biomarkers
 
 `Dx.R` provides copy number and mutation metrics commonly used as biomarkers,
