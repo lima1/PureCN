@@ -65,6 +65,9 @@ option_list <- list(
     make_option(c("--undosd"), action = "store", type = "double",
         default = formals(PureCN::segmentationCBS)$undo.SD,
         help = "Segmentation: DNAcopy undo.SD argument. If NULL, tries to find a sensible default [default %default]."),
+    make_option(c("--changepointspenalty"), action = "store", type = "double",
+        default = formals(PureCN::segmentationGATK4)$changepoints.penalty,
+        help = "Segmentation: GATK4 ModelSegments --number-of-changepoints-penalty-factor argument. If NULL, tries to find a sensible default [default %default]."),
     make_option(c("--additionalcmdargs"), action = "store", type = "character",
         default = formals(PureCN::segmentationGATK4)$additional.cmd.args,
         help = "Segmentation: Used in GATK4 segmentation function to add additional ModelSegments arguments [default %default]"),
@@ -304,6 +307,13 @@ if (file.exists(file.rds) && !opt$force) {
         flog.info("*.tsv file provided for --vcf, assuming GATK4 CollectAllelicCounts format")
         vcf <- readAllelicCountsFile(vcf)
     }    
+    args.segmentation <- list(
+        alpha = opt$alpha, undo.SD = opt$undosd,
+        additional.cmd.args = opt$additionalcmdargs
+    )
+    if (opt$funsegmentation == "GATK4" && !is.null(opt$changepointspenalty)) {
+        args.segmentation$changepoint.penalty <- opt$changepointspenalty
+    }    
     ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
             tumor.coverage.file = tumor.coverage.file, vcf.file = vcf,
             sampleid = sampleid, plot.cnv = TRUE,
@@ -319,9 +329,7 @@ if (file.exists(file.rds) && !opt$force) {
                 interval.padding = opt$padding),
             args.filterIntervals = list(min.total.counts = opt$mintotalcounts),
             fun.segmentation = fun.segmentation,
-            args.segmentation = list(
-                alpha = opt$alpha, undo.SD = opt$undosd,
-                additional.cmd.args = opt$additionalcmdargs),
+            args.segmentation = args.segmentation,
             args.setMappingBiasVcf =
                 list(mapping.bias.file = opt$mappingbiasfile),
             args.setPriorVcf = list(min.cosmic.cnt = opt$mincosmiccnt),

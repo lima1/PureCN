@@ -20,6 +20,9 @@
 #' @param normal.id.in.vcf Id of normal in in VCF. Currently not used.
 #' @param prune.hclust.h Ignored in this function.
 #' @param prune.hclust.method Ignored in this function.
+#' @param changepoints.penality The \code{--number-of-changepoints-penalty-factor}.
+#' If \code{NULL}, find a sensible default. Ignored when provided in 
+#' \code{additional.cmd.args}.
 #' @param additional.cmd.args \code{character(1)}. By default,
 #' \code{ModelSegments} is called with default parameters. Provide additional 
 #' arguments here.
@@ -57,7 +60,7 @@
 segmentationGATK4 <- function(normal, tumor, log.ratio, seg, 
     vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
     prune.hclust.h = NULL, prune.hclust.method = NULL,
-    additional.cmd.args = "",
+    changepoints.penality = NULL, additional.cmd.args = "",
     chr.hash = NULL, ...) {
 
     min.version <- "4.1.7.0"
@@ -80,10 +83,22 @@ segmentationGATK4 <- function(normal, tumor, log.ratio, seg,
     .writeLogRatioFileGATK4(list(vcf=vcf, log.ratio = tumor), tumor.id.in.vcf, output.lr.file)
     output.dir <- tempdir()
     sampleid <- .getSampleIdFromVcf(vcf, tumor.id.in.vcf)
+    changepoints.arg <- ""
+    if (!grepl("number-of-changepoints-penalty-factor", 
+         additional.cmd.args)[1]) {
+        if (is.null(changepoints.penality)) {
+            changepoints.penality <- .getSDundo(log.ratio)
+        }     
+        flog.info("Setting --number-of-changepoints-penalty-factor to %f.",
+            changepoints.penality)
+        changepoints.arg <- paste("--number-of-changepoints-penalty-factor",
+            changepoints.penality)
+    }
     args <- paste("ModelSegments",
               "--allelic-counts", output.vcf.file,
               "--denoised-copy-ratios", output.lr.file,
               "--output-prefix", "tumor",
+              changepoints.arg,
               additional.cmd.args,
               "-O", output.dir)
     output <- try(system2("gatk", args, stderr = TRUE, stdout = TRUE))

@@ -14,6 +14,7 @@ segmentationGATK4(
   normal.id.in.vcf = NULL,
   prune.hclust.h = NULL,
   prune.hclust.method = NULL,
+  changepoints.penality = NULL,
   additional.cmd.args = "",
   chr.hash = NULL,
   ...
@@ -41,6 +42,10 @@ VCF.}
 \item{prune.hclust.h}{Ignored in this function.}
 
 \item{prune.hclust.method}{Ignored in this function.}
+
+\item{changepoints.penality}{The \code{--number-of-changepoints-penalty-factor}.
+If \code{NULL}, find a sensible default. Ignored when provided in 
+\code{additional.cmd.args}.}
 
 \item{additional.cmd.args}{\code{character(1)}. By default,
 \code{ModelSegments} is called with default parameters. Provide additional 

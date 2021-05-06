@@ -589,9 +589,9 @@ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
 Important recommendations:
 
 - The `--funsegmentation` can be set to none in most cases. This will keep the
-  segmentation largely as provided. `Hclust` clusters segments which can avoid
-  over-segmentation, but will alter the GATK4 segmentation, which might not be
-  desired.
+  segmentation largely as provided. `Hclust` clusters segments to avoid
+  over-segmentation and to calibrate log-ratios across chromosomes.  This will
+  thus alter the GATK4 segmentation, which might not be desired.
 
 - Beta support for providing _CollectAllelicCounts output instead of _Mutect_
   is available: `--vcf ${SAMPLEID}.allelicCounts.tsv` will automatically convert the 
@@ -729,6 +729,7 @@ Argument name          | Corresponding PureCN argument | PureCN function
 `--funsegmentation`  | `fun.segmentation` | `runAbsoluteCN`  
 `--alpha`            | `alpha` | `segmentationCBS` 
 `--undosd`           | `undo.SD` | `segmentationCBS` 
+`--changepointspenalty`| `changepoints.penalty` | `segmentationGATK4` 
 `--additionalcmdargs`| `additional.cmd.args` | `segmentationGATK4` 
 `--maxsegments`      | `max.segments` | `runAbsoluteCN` 
 `--minpurity`        | `test.purity` | `runAbsoluteCN` 
