@@ -82,8 +82,11 @@ BiocManager::install("raerose01/deconstructSigs")
 ```
 
 For the experimental support of importing variant calls from 
-GATK4 GenomicsDB, follow the installations instructions from
+_GATK4 GenomicsDB_, follow the installations instructions from
 [GenomicsDB-R](https://github.com/nalinigans/GenomicsDB-R).
+
+The _GATK4_ segmentation requires the `gatk` binary in path. Versions 4.1.7.0
+and newer are supported.
 
 
 # Prepare environment and assay-specific reference files
@@ -390,8 +393,8 @@ Important recommendations:
   `r Biocpkg("BiocParallel")` for details. This script will use the default
   backend.
 
-- `--funsegmentation PSCBS` will become the new recommendation in 1.22.  Support
-  for interval weights currently requires a patch (see Section
+- `--funsegmentation PSCBS` is the new recommendation in 1.22.  Support for
+  interval weights currently requires a patch (see Section
   \@ref(installation)). See below for some more details on the best choice of
   the method.
 
@@ -427,9 +430,6 @@ Important recommendations:
       (or lower, when there is UMI-based error correction). Note that the
       estimated purity can be very wrong when the true purity is below 5-7%;
       these samples are usually flagged as non-aberrant.
-
-    - Amplicon data: `--model betabin` (Amplicon data is not officially
-      supported)
 
     - All assays: `--maxsegments` should set to a value so that with few
       exceptions only poor quality samples exceed this cutoff. For cancer types
@@ -593,11 +593,11 @@ Important recommendations:
   over-segmentation and to calibrate log-ratios across chromosomes.  This will
   thus alter the GATK4 segmentation, which might not be desired.
 
-- Beta support for providing _CollectAllelicCounts output instead of _Mutect_
-  is available: `--vcf ${SAMPLEID}.allelicCounts.tsv` will automatically convert the 
-  SNP counts into a supported VCF. Note that this will not use any somatic SNV
-  and indel information available in _Mutect_ VCFs and thus will also not provide any
-  clonality annotation.
+- Beta support for providing _CollectAllelicCounts_ output instead of _Mutect_
+  is available. Use `--vcf ${SAMPLEID}.allelicCounts.tsv` to automatically
+  import the SNP counts and convert them into a supported VCF. Note that this
+  will not use any somatic SNV and indel information available in _Mutect_ VCFs
+  and thus will also not provide any clonality annotation.
   
 # Biomarkers
 

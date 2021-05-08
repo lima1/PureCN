@@ -79,7 +79,7 @@ if (!is.null(opt$normal_panel)) {
     }
     if (!file.exists(output.bed.file) || opt$force) {
         suppressPackageStartupMessages(library(rtracklayer))
-        tmp <- bias[abs(bias$bias - 1) < 0.2 & !bias$triallelic & bias$pon.cnt > 1,]
+        tmp <- bias[abs(bias$bias - 1) < 0.2 & !bias$triallelic & bias$pon.count > 1,]
         mcols(tmp) <- NULL
         export(tmp, con = output.bed.file)
     }    
