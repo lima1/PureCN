@@ -1,3 +1,4 @@
+.github
 .travis.yml
 LICENSE
 codecov.R
