@@ -269,9 +269,9 @@ Third column gene symbol. This file is generated with the
 \code{\link{preprocessIntervals}} function.}
 
 \item{max.dropout}{Measures GC bias as ratio of coverage in AT-rich (GC <
-0.5) versus GC-rich on-target regions (GC >= 0.5). High drop-out might 
-indicate that  data was not GC-normalized or that the sample quality might 
-be insufficient.
+0.5) versus GC-rich on-target regions (GC >= 0.5). High coverage drop-out might 
+indicate that  data was not GC-normalized (optional with larger pool of 
+normal samples). A warning pointing to a normalized log-ratio drop-out likely
 Requires \code{interval.file}.}
 
 \item{min.logr.sdev}{Minimum log-ratio standard deviation used in the 

@@ -952,28 +952,40 @@ na.rm = TRUE)
     flog.info("Done.")
     flog.info(strrep("-", 60))
 }    
-.calcGCmetric <- function(gc_bias, coverage, on.target) {
+.calcGCmetric <- function(gc_bias, coverage, on.target, field = "average.coverage") {
     idx <- which(coverage$on.target==on.target)
     if (!length(idx)) return(NA)
-    gcbins <- split(coverage[idx]$average.coverage, 
-        gc_bias[idx] < 0.5)
+    gcbins <- split(mcols(coverage[idx])[,field], gc_bias[idx] < 0.5)
     mean(gcbins[[1]], na.rm=TRUE) / mean(gcbins[[2]], na.rm=TRUE) 
 }
-.checkGCBias <- function(normal, tumor, max.dropout, on.target=TRUE) {
+.checkGCBias <- function(normal, tumor, log.ratio, max.dropout, on.target = TRUE) {
+    # vector instead of tumor meta column provided
+   
+    if (is(log.ratio, "numeric") && length(log.ratio) == length(tumor)) {
+        tumor$ratio <- 2^(log.ratio)
+    } else {
+        .stopRuntimeError("tumor and log.ratio do not align in .checkGCBias")
+    }    
 
     gcMetricNormal <- .calcGCmetric(tumor$gc_bias, normal, on.target)
     gcMetricTumor <- .calcGCmetric(tumor$gc_bias, tumor, on.target)
+    gcMetricLogRatio <- .calcGCmetric(tumor$gc_bias, tumor, on.target, "ratio")
 
     if (is.na(gcMetricTumor)) return(FALSE)
 
-    flog.info("AT/GC dropout%s: %.2f (tumor), %.2f (normal). ", 
-        ifelse(on.target,""," (off-target regions)"), gcMetricTumor, gcMetricNormal)
-    if (gcMetricNormal < max.dropout[1] || 
+    flog.info("AT/GC dropout%s: %.2f (tumor), %.2f (normal), %.2f (coverage log-ratio). ", 
+        ifelse(on.target,""," (off-target regions)"), gcMetricTumor,
+        gcMetricNormal, gcMetricLogRatio)
+    # throw warning only when the gc bias extends to normalzed log-ratio
+    if (gcMetricLogRatio < max.dropout[1] || 
+        gcMetricLogRatio > max.dropout[2]) {
+        flog.warn("High GC-bias in normalized tumor vs normal log2 ratio.")
+        return(TRUE)
+    } else if (gcMetricNormal < max.dropout[1] || 
         gcMetricNormal > max.dropout[2] ||
         gcMetricTumor  < max.dropout[1] ||
         gcMetricTumor  > max.dropout[2]) {
-        flog.warn("High GC-bias in normal or tumor. Is data GC-normalized?")
-        return(TRUE)
+        flog.info("High GC-bias in normal and/or tumor coverage.")
     }
     return(FALSE)
 }

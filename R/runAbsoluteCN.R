@@ -161,9 +161,10 @@
 #' Third column gene symbol. This file is generated with the
 #' \code{\link{preprocessIntervals}} function.
 #' @param max.dropout Measures GC bias as ratio of coverage in AT-rich (GC <
-#' 0.5) versus GC-rich on-target regions (GC >= 0.5). High drop-out might 
-#' indicate that  data was not GC-normalized or that the sample quality might 
-#' be insufficient.
+#' 0.5) versus GC-rich on-target regions (GC >= 0.5). High coverage drop-out might 
+#' indicate that  data was not GC-normalized (optional with larger pool of 
+#' normal samples). A warning pointing to a normalized log-ratio drop-out likely
+#  indicates that the sample quality is insufficient.
 #' Requires \code{interval.file}.
 #' @param min.logr.sdev Minimum log-ratio standard deviation used in the 
 #' model. Useful to make fitting more robust to outliers in very clean
@@ -464,9 +465,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     # clean up noisy targets, but not if the segmentation was already provided.
     if (is.null(seg.file)) {
         if (!is.null(interval.file)) {
-            dropoutWarning <- .checkGCBias(normal, tumor, max.dropout)
+            dropoutWarning <- .checkGCBias(normal, tumor, log.ratio, max.dropout)
         } else {
-            flog.info("No interval.file provided. Cannot check if data was GC-normalized. Was it?")
+            flog.info("No interval.file provided. Cannot check for any GC-biases.")
         }
     }
     
