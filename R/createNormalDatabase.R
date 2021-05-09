@@ -51,6 +51,11 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
     if (length(normal.coverage.files) < 2) {
         .stopUserError("At least 2 normal.coverage.files required.")
     }
+    if (is(normal.coverage.files, "character") &&
+        any(grepl("_coverage.txt", normal.coverage.files)) &&
+        any(grepl("_loess.txt", normal.coverage.files))) {
+        .stopUserError("normal.coverage.files with _coverage.txt and _loess.txt suffix provided. Provide either only GC-normalized or raw coverage files!")
+    }
 
     normals <- .readNormals(normal.coverage.files)
     

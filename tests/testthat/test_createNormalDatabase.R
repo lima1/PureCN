@@ -66,3 +66,10 @@ test_that("Exceptions happen with outdated databases", {
     expect_error( calculateTangentNormal(tumor.coverage.file, normalDB2), "incompatible")
 })
 
+
+test_that("Exception thrown when user mixed gc-normalized and raw coverages.", {
+    normal.coverage.files.wrong <- c(tempfile(fileext="_coverage.txt"), tempfile(fileext="_loess.txt"))
+    file.create(normal.coverage.files.wrong)
+    expect_error( createNormalDatabase(normal.coverage.files.wrong), "suffix")
+    file.remove(normal.coverage.files.wrong)
+})
