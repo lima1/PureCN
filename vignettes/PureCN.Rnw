@@ -1401,8 +1401,11 @@ look noisy? If yes, then
 difficult, especially in low purity samples. Normal coverages below 50X might
 result in high variance of log2-ratios. See Section~\ref{bestnormal} for finding
 a good normal sample for log2-ratio calculation.
-    \item Is the coverage data of both tumor and normal GC-normalized? If not, 
-    see \Rfunction{correctCoverageBias}.
+    \item Is the coverage data of both tumor and normal GC-normalized? If not,
+    see \Rfunction{correctCoverageBias}. It can be safe to skip the
+    normalization, with large panels of normals potentially even slighly
+    beneficial, but make sure that GC-normalization was either skipped or
+    performed in both tumor sample and normal coverage database.
     \item Is the quality of both tumor and normal sufficient? A high AT or
 GC-dropout might result in high variance of log2-ratios. Challenging FFPE samples
 also might need parameter tuning of the segmentation function. See 

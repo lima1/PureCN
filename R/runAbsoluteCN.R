@@ -164,7 +164,9 @@
 #' 0.5) versus GC-rich on-target regions (GC >= 0.5). High coverage drop-out might 
 #' indicate that  data was not GC-normalized (optional with larger pool of 
 #' normal samples). A warning pointing to a normalized log-ratio drop-out likely
-#  indicates that the sample quality is insufficient.
+#' indicates that the sample quality is insufficient. For log-ratio drop-out,
+#' a warning is thrown when half the \code{max.dropout} is reached since it 
+#' is calculated using both tumor and normal.
 #' Requires \code{interval.file}.
 #' @param min.logr.sdev Minimum log-ratio standard deviation used in the 
 #' model. Useful to make fitting more robust to outliers in very clean

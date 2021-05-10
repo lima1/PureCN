@@ -977,8 +977,9 @@ na.rm = TRUE)
         ifelse(on.target,""," (off-target regions)"), gcMetricTumor,
         gcMetricNormal, gcMetricLogRatio)
     # throw warning only when the gc bias extends to normalzed log-ratio
-    if (gcMetricLogRatio < max.dropout[1] || 
-        gcMetricLogRatio > max.dropout[2]) {
+    max.dropout.half <- sapply(max.dropout, function(x) x + (1 - x)/2)
+    if (gcMetricLogRatio < max.dropout.half[1] || 
+        gcMetricLogRatio > max.dropout.half[2]) {
         flog.warn("High GC-bias in normalized tumor vs normal log2 ratio.")
         return(TRUE)
     } else if (gcMetricNormal < max.dropout[1] || 
