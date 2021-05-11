@@ -156,6 +156,7 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
             method=prune.hclust.method, chr.hash=chr.hash)
     }
     seg <- .addAverageWeights(seg, weight.flag.pvalue, tumor, chr.hash)
+    seg <- .fixBreakpointsInBaits(tumor, log.ratio, seg, chr.hash)
     seg
 }
 

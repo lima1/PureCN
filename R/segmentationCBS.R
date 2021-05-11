@@ -100,6 +100,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     rownames(x$cna$output) <- NULL
     finalSeg <- x$cna$output[idx.enough.markers,]
     finalSeg <- .addAverageWeights(finalSeg, weight.flag.pvalue, tumor, chr.hash)
+    finalSeg <- .fixBreakpointsInBaits(tumor, log.ratio, finalSeg, chr.hash)
     .debugSegmentation(origSeg, finalSeg)
     finalSeg
 }
@@ -433,3 +434,35 @@ plot.cnv=TRUE, max.segments=NULL, chr.hash=chr.hash) {
     sapply(seq(nrow(seg)), function(i) 
         sum(seg$seg.weight[i] > permutations[[as.character(seg$num.mark[i])]]) / perm)
 }
+
+.fixBreakpointsInBaits <- function(tumor, log.ratio, seg, chr.hash) {
+    # if the segmentation function placed the breakpoint within
+    # a bait, correct the breakpoint to the beginning or end 
+    seg.gr <- GRanges(seqnames=.add.chr.name(seg$chrom, chr.hash), 
+        IRanges(start=seg$loc.start, end=seg$loc.end))
+
+    ov_1 <- findOverlaps(tumor, seg.gr, select = "first")
+    ov_2 <- findOverlaps(tumor, seg.gr, select = "last")
+
+    if (length(log.ratio) != length(tumor)) {
+        .stopRuntimeError("tumor and log.ratio do not align in .fixBreakpointsInBaits")
+    }    
+
+    idx <- which(ov_1 != ov_2 & tumor$on.target)
+    if (!length(idx)) return(seg)
+    for (i in idx) {    
+        if (abs(log.ratio[i] - seg$seg.mean[ov_1[i]]) < 
+            abs(log.ratio[i] - seg$seg.mean[ov_2[i]])) {
+            # fits first segment better, so set breakpoint to the end
+            # of bait
+            seg[ov_1[i], "loc.end"] <- end(tumor)[i]
+            seg[ov_2[i], "loc.start"] <- end(tumor)[i] + 1
+        } else {
+            # otherwise to the beginning
+            seg[ov_1[i], "loc.end"] <- start(tumor)[i] -1
+            seg[ov_2[i], "loc.start"] <- start(tumor)[i]
+        }     
+    }
+    return(seg)
+}
+ 

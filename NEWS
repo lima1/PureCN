@@ -26,6 +26,9 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Added --skipgcnorm flag to Coverage.R to skip GC-normalization  
     o Added AF.info.field option to calculateMappingBiasGatk4 for non-standard
       GenomicsDB imports
+    o If segmentation functions adds breakpoints within baits, these
+      breakpoints are now moved to the beginning or end of that bait to avoid
+      that a single bait is assigned to two segments
     o Removed defunct calculateIntervalWeights function
 
 BUGFIXES
