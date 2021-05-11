@@ -89,12 +89,12 @@ reference.file <- normalizePath(opt$fasta, mustWork = TRUE)
 suppressPackageStartupMessages(library(rtracklayer))
 
 intervals <- try(import(in.file), silent = TRUE)
-seqlevels(intervals) <- seqlevelsInUse(intervals)
 
 if (is(intervals, "try-error")) { 
     flog.warn("Could not parse --infile with rtracklayer:\n\n%s\nTrying GATK3 parser that will probably fail...", intervals)
     intervals <- in.file
 } else {
+    seqlevels(intervals) <- seqlevelsInUse(intervals)
     if (sum(c("MT", "chrM", "chMT") %in% seqlevels(intervals))) {
         flog.warn("--infile contains mitochondrion sequence. It is highly recommended to exclude those baits.")
     }

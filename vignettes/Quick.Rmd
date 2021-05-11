@@ -218,11 +218,6 @@ For each sample, tumor and normal, calculate GC-normalized coverages:
 $ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
     --bam ${SAMPLEID}.bam \
     --intervals $OUT_REF/baits_hg19_intervals.txt
-
-# GC-normalize coverage from a GATK DepthOfCoverage file
-Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
-    --coverage ${SAMPLEID}.coverage.sample_interval_summary \ 
-    --intervals $OUT_REF/baits_hg19_intervals.txt
 ```
 
 Similar to GATK, this script also takes a text file containing a list of BAM or
@@ -230,7 +225,7 @@ coverage file names (one per line). The file extension must be `.list`:
 
 ```
 # Calculate and GC-normalize coverage from a list of BAM files 
-$ Rscript $PURECN/Coverage.R --outdir $OUT \ 
+$ Rscript $PURECN/Coverage.R --outdir $OUT/normals \ 
     --bam normals.list \
     --intervals $OUT_REF/baits_hg19_intervals.txt \
     --cores 4
@@ -245,11 +240,22 @@ Important recommendations:
 - It can be safe to skip the GC-normalization with `--skipgcnorm` when tumor
   and normal samples are expected to exhibit similar biases and a sufficient
   number of normal samples is available. A good example would be plasma
-  sequencing.
+  sequencing. In contrast, old FFPE samples normalized against blood controls
+  will more likely benefit from GC-normalization.
   
 - A potential negative impact of GC-normalization is much more
   likely in very small targeted panels (< 0.5Mb) and worth benchmarking.
 
+- When supported third-party tools are used to calculate coverage (currently
+  _CNVkit_, _GATK3_ and _GATK4_), it is possible to GC-normalize those
+  coverages with a matching interval file:
+
+```
+# GC-normalize coverage from a GATK DepthOfCoverage file
+Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
+    --coverage ${SAMPLEID}.coverage.sample_interval_summary \ 
+    --intervals $OUT_REF/baits_hg19_intervals.txt
+```
 
 ## NormalDB
 
@@ -257,9 +263,9 @@ To build a normal database for coverage normalization, copy the paths to all
 (GC-normalized) normal coverage files in a single text file, line-by-line:
 
 ```
-ls -a normal*_loess.txt.gz | cat > example_normal_coverages.list
+ls -a $OUT/normals/*_loess.txt.gz | cat > example_normal_coverages.list
 # In case no GC-normalization is performed:
-# ls -a normal*_coverage.txt.gz | cat > example_normal_coverages.list
+# ls -a $OUT/normals/*_coverage.txt.gz | cat > example_normal_coverages.list
 
 $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
     --coveragefiles example_normal_coverages.list \
@@ -438,16 +444,17 @@ Important recommendations:
       for whole-exome data).
     
     - The choice of the segmentation function can also make a significant
-      impact and unfortunately there is not yet a universal method that works
+      difference and unfortunately there is not yet a universal method that works
       best in all scenarios.
 
         - PSCBS: A good and safe starting point, especially with off-target
           regions that might exhibit different noise profiles compared to
           on-target.
         
-        - GATK4: Most recent addition to PureCN. Not yet well tested, but
-          theoretically best choice with a larger number of SNPs per intervals,
-          for example assays with copy number backbones. We appreciate feedback.
+        - GATK4: Most recent addition. Not yet well tested in `r
+          Biocpkg("PureCN")`, but theoretically best choice with a larger
+          number of SNPs per intervals, for example assays with copy number
+          backbones. We appreciate feedback.
 
         - CBS: Simple, fast and well tested. Does not support SNP information,
           so only recommended for settings with a very small SNPs/intervals
@@ -468,7 +475,11 @@ Important recommendations:
     - The "Mean standard deviation of log-ratios" reported in the log file
       should be fairly low for high quality data. Older FFPE data can be around
       0.4, but high coverage, relatively recent samples should approach the
-      0.15 minimum.
+      0.15 minimum. If off-target is consistently noisier than on-target, it is
+      probably worth increasing the off-target bin size and start from scratch
+      (or in case of whole-exome sequencing, ignore off-target reads since they
+      do not provide much additional information when bins are large and/or
+      noisy).
 
     - The fraction of targets with SNPs should be between 10 and 15 percent.
       If it is significantly lower, make sure that the variant caller was used
@@ -482,10 +493,10 @@ Important recommendations:
 
 # Run PureCN with third-party segmentation
 
-Our internal _PureCN_ normalization combined with the _PSCBS_ or
-_GATK4_segmentation should produce highly competitive results and we encourage
-users to try it and compare it to their existing pipelines. However, we realize
-that often it is not an option to change tools in production pipelines and we
+Our internal _PureCN_ normalization combined with the _PSCBS_ or _GATK4_
+segmentation should produce highly competitive results and we encourage users
+to try it and compare it to their existing pipelines. However, we realize that
+often it is not an option to change tools in production pipelines and we
 therefore made it relatively easy to use _PureCN_ with third-party tools. We
 provide examples for _CNVkit_ and _GATK4_ and it should be straightforward to
 adapt those for other tools.
