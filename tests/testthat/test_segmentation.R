@@ -6,6 +6,8 @@ tumor.coverage.file <- system.file("extdata", "example_tumor_tiny.txt",
     package="PureCN")
 vcf.file <- system.file("extdata", "example.vcf.gz",
     package="PureCN")
+seg.file <- system.file("extdata", "example_seg.txt",
+    package="PureCN")
 
 test_that("Precomputed boudaries are correct", {
     data(purecn.DNAcopy.bdry)
@@ -32,3 +34,31 @@ test_that("GATK4 wrapper works for example data.", {
     expect_equal(0.65, ret$results[[1]]$purity, tolerance = 0.02)
     expect_equal(1.62, ret$results[[1]]$ploidy, tolerance = 0.2)
 })
+
+test_that("private function .fixBreakpoint.", {
+    seg <- readSegmentationFile(seg.file, "Sample1")
+    data(purecn.example.output)
+    gr <- purecn.example.output$input$log.ratio
+    lr <- gr$log.ratio
+    seg_1 <- PureCN:::.fixBreakpointsInBaits(gr, lr, seg, purecn.example.output$input$chr.hash)
+    expect_equivalent(seg_1$loc.start, seg$loc.start)
+    expect_equivalent(seg_1$loc.end, seg$loc.end)
+
+    seg[24,"loc.start"] <- 82403793 + 1
+    seg[44,"loc.end"] <- 57507347
+
+    seg_1 <- PureCN:::.fixBreakpointsInBaits(gr, lr, seg, purecn.example.output$input$chr.hash)
+
+    expect_equivalent(seg[23, "loc.start"], seg_1[23,"loc.start"])
+    expect_equivalent(82403838, seg_1[23,"loc.end"])
+    expect_equivalent(82403838 + 1, seg_1[24,"loc.start"])
+    expect_equivalent(seg[24, "loc.end"], seg_1[24,"loc.end"])
+
+    expect_equivalent(seg[44, "loc.start"], seg_1[44,"loc.start"])
+    expect_equivalent(57507289-1, seg_1[44,"loc.end"])
+    expect_equivalent(57507289, seg_1[45,"loc.start"])
+    expect_equivalent(seg[45, "loc.end"], seg_1[45,"loc.end"])
+    
+    expect_equivalent( seg$loc.start[-c(23,24,44,45)], seg_1$loc.start[-c(23,24,44,45)] )
+    expect_equivalent( seg$loc.end[-c(23,24,44,45)], seg_1$loc.end[-c(23,24,44,45)] )
+})    
