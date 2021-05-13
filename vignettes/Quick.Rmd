@@ -322,7 +322,7 @@ Important recommendations:
 ## PureCN
 
 Now that the assay-specific files are created and all coverages calculated, we
-run `PureCN.R` to normalize, segment and determine purity and ploidy:
+run `r Biocpkg("PureCN")` to normalize, segment and determine purity and ploidy:
 
 ```
 mkdir $OUT/$SAMPLEID
@@ -377,7 +377,7 @@ Important recommendations:
   high purity samples.
 
 - Double check that in `--tumor` and `--normaldb`, GC-normalization is either
-  used in both  (`*_loess.txt.gz`) or skipped in both (`*_coverages.txt.gz`).
+  used in both  (`*_loess.txt.gz`) or skipped in both (`*_coverage.txt.gz`).
 
 - The normal panel VCF file is useful for mapping bias correction and especially
   recommended without matched normals. See the FAQ of the main vignette how to
@@ -451,8 +451,8 @@ Important recommendations:
           regions that might exhibit different noise profiles compared to
           on-target.
         
-        - GATK4: Most recent addition. Not yet well tested in `r
-          Biocpkg("PureCN")`, but theoretically best choice with a larger
+        - GATK4: Most recent addition. Not yet well tested in
+          `r Biocpkg("PureCN")`, but theoretically best choice with a larger
           number of SNPs per intervals, for example assays with copy number
           backbones. We appreciate feedback.
 
@@ -470,7 +470,8 @@ Important recommendations:
           in an attempt to calibrate log-ratios across chromosomes, `none`
           largely keeps everything as provided.
 
-- A few recommendations for checks whether the _PureCN_ setup is correct:
+- A few recommendations for checks whether the `r Biocpkg("PureCN")` setup is
+  correct:
 
     - The "Mean standard deviation of log-ratios" reported in the log file
       should be fairly low for high quality data. Older FFPE data can be around
@@ -493,13 +494,13 @@ Important recommendations:
 
 # Run PureCN with third-party segmentation
 
-Our internal _PureCN_ normalization combined with the _PSCBS_ or _GATK4_
-segmentation should produce highly competitive results and we encourage users
-to try it and compare it to their existing pipelines. However, we realize that
-often it is not an option to change tools in production pipelines and we
-therefore made it relatively easy to use _PureCN_ with third-party tools. We
-provide examples for _CNVkit_ and _GATK4_ and it should be straightforward to
-adapt those for other tools.
+Our internal `r Biocpkg("PureCN")` normalization combined with the _PSCBS_ or
+_GATK4_ segmentation should produce highly competitive results and we encourage
+users to try it and compare it to their existing pipelines. However, we realize
+that often it is not an option to change tools in production pipelines and we
+therefore made it relatively easy to use `r Biocpkg("PureCN")` with third-party
+tools. We provide examples for _CNVkit_ and _GATK4_ and it should be
+straightforward to adapt those for other tools.
 
 What you will need:
 
