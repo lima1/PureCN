@@ -149,9 +149,14 @@ if (opt$signatures && require(deconstructSigs)) {
         }
         bsg <- get(bsgPkg)
     }
-    if (nrow(s) >= 10) {
-        databases <- strsplit(opt$signature_databases, ":")[[1]]
-        for (database in databases) {
+    databases <- strsplit(opt$signature_databases, ":")[[1]]
+    for (database in databases) {
+        signatures.ref <- get(database)
+        flog.info("Using %s signature database.", database)
+        database_name <- if (length(databases) > 1) gsub("signatures.", "_", database) else ""
+        outfile <- paste0(outPrefix, database_name, "_signatures.csv")
+        outfile_pdf <- paste0(outPrefix, database_name, "_signatures.pdf")
+        if (nrow(s) >= 10) {
             sig.type <- if (grepl("^signatures.dbs", database)[1]) "DBS" else "SBS"
             s[["REF"]] <- as.character(s[["REF"]])
             s[["ALT"]] <- as.character(s[["ALT"]])
@@ -159,22 +164,21 @@ if (opt$signatures && require(deconstructSigs)) {
                             sample.id = "Sampleid", chr = "chr", pos = "start", 
                             ref = "REF", alt = "ALT", bsg = bsg, sig.type = sig.type,
                             dbs_table = dbs_possible)
-            signatures.ref <- get(database)
-            flog.info("Using %s signature database.", database)
             sigs <- whichSignatures(tumor.ref = sigs.input, 
                                     signatures.ref = signatures.ref, 
                                     contexts.needed = TRUE, 
                                     tri.counts.method = "default")
-            database_name <- if (length(databases) > 1) gsub("signatures.", "_", database) else ""
-            outfile <- paste0(outPrefix, database_name, "_signatures.pdf")
-            pdf(outfile)
+            pdf(outfile_pdf)
             plotSignatures(sigs, sig.type = sig.type)
             makePie(sigs)
             invisible(dev.off())
-            outfile <- paste0(outPrefix, database_name, "_signatures.csv")
             write.csv(sigs$weights, file = outfile)
-        }
-    } else {
-        flog.warn("Not enough somatic calls to deconstruct signatures.")
+        } else {
+            flog.warn("Not enough somatic calls to deconstruct signatures.")
+            m <- data.frame(matrix(nrow=1, ncol=nrow(signatures.ref)))
+            colnames(m) <- rownames(signatures.ref)
+            rownames(m) <- sampleid
+            write.csv(m, file = outfile)
+        }     
     }
 }

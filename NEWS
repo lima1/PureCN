@@ -29,6 +29,8 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o If segmentation functions add breakpoints within baits, these
       breakpoints are now moved to the beginning or end of that bait to avoid
       that a single bait is assigned to two segments
+    o Dx.R now always generates a _signatures.csv file with --signatures, even
+      if insufficient number of mutations  
     o Removed defunct calculateIntervalWeights function
 
 BUGFIXES
