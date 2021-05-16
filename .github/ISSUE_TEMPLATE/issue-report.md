@@ -1,6 +1,7 @@
 ---
 name: Issue report
-about: Create a report to help us improve
+about: For issues related to your PureCN output, please use this template if possible.
+  Otherwise start with a blank issue.
 title: ''
 labels: ''
 assignees: ''
@@ -8,7 +9,7 @@ assignees: ''
 ---
 
 **Describe the issue**
-A clear and concise description of what the bug is.
+A clear and concise description of what the issue is.
 
 **To Reproduce**
 Copy and paste your complete command line arguments from PureCN.R. If possible and potentially relevant, also copy the output of NormalDB.R and Coverage.R.
