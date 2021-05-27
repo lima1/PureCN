@@ -42,8 +42,10 @@ in.file <- normalizePath(opt$infile, mustWork=TRUE)
 suppressPackageStartupMessages(library(rtracklayer))
 
 intervals <- try(import(in.file), silent=TRUE)
-if (is(intervals, "try-error")) intervals <- in.file
-
+if (is(intervals, "try-error")) { 
+    flog.warn("Could not parse --infile with rtracklayer:\n\n%s\nTrying GATK3 parser that will probably fail...", intervals)
+    intervals <- in.file
+}
 knownGenome <- list(
     hg18 = "TxDb.Hsapiens.UCSC.hg18.knownGene",
     hg19 = "TxDb.Hsapiens.UCSC.hg19.knownGene",

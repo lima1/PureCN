@@ -75,9 +75,16 @@ if (!is.null(opt$normal_panel)) {
         } else {
             bias <- calculateMappingBiasVcf(opt$normal_panel, genome = genome)
         }
-        saveRDS(bias, file = output.file)
+        if (length(bias)) {
+            saveRDS(bias, file = output.file)
+        }
     }
-    if (!file.exists(output.bed.file) || opt$force) {
+    if (!length(bias)) {
+        flog.warn("No variants in mapping bias database. Check your --normal_panel!")
+    } else {
+        flog.warn("Found %i variants in mapping bias database.", length(bias))
+    }
+    if ((!file.exists(output.bed.file) || opt$force) && length(bias)) {
         suppressPackageStartupMessages(library(rtracklayer))
         tmp <- bias[abs(bias$bias - 1) < 0.2 & !bias$triallelic & bias$pon.count > 1,]
         mcols(tmp) <- NULL
