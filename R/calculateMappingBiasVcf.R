@@ -4,9 +4,9 @@
 #' panel of normals VCF.
 #'
 #'
-#' @param normal.panel.vcf.file Combined VCF file of a panel of normals,
-#' reference and alt counts as AD genotype field. Should be compressed and
-#' indexed with bgzip and tabix, respectively.
+#' @param normal.panel.vcf.file \code{character(1)} Combined VCF file of
+#' a panel of normals, reference and alt counts as AD genotype field. 
+#' Needs to be compressed and indexed with bgzip and tabix, respectively.
 #' @param min.normals Minimum number of normals with heterozygous SNP for
 #' calculating position-specific mapping bias. 
 #' @param min.normals.betafit Minimum number of normals with heterozygous SNP
