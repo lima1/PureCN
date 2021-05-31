@@ -93,6 +93,11 @@ Before [posting](https://github.com/lima1/PureCN/issues) a bug report:
 
 ## Selected citations
 
+Pereira et al. (2021). "Cell-free DNA captures tumor heterogeneity and driver
+alterations in rapid autopsies with pre-treated metastatic cancer". _Nature
+Communications_. doi:
+[10.1038/s41467-021-23394-4](https://doi.org/10.1038/s41467-021-23394-4).
+
 Dummer et al. (2020). "Combined PD-1, BRAF and MEK inhibition in advanced
 BRAF-mutant melanoma: safety run-in and biomarker cohorts of COMBI-i". _Nature
 Medicine_. doi: [10.1038/s41591-020-1082-2](https://doi.org/10.1038/s41591-020-1082-2).

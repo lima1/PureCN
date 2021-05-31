@@ -1,6 +1,14 @@
 Changes in version 1.24.0
 -------------------------
 
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o More robust alignment of on- and off-target tumor vs normal log2 ratios.
+      Ratios are shifted so that median difference of neighboring on/off-target
+      pairs is 0. This should fix spurious segments consisting of only on- or 
+      off-target regions in high quality samples where those minor off-sets
+      sometimes exceeded the noise.
+
 BUGFIXES
 
     o Fix for crash when --normal_panel in NormalDB.R contained no variants

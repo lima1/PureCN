@@ -52,6 +52,10 @@ calculateLogRatio <- function(normal, tumor) {
                      log2(total.cov.normal/total.cov.tumor)
         tumor[idx]$log.ratio <- .calibrate_log_ratio(log.ratio, tumor[idx])
     }
+    if (!all(tumor$on.target)) {
+        # try to align the off-target and on-target log-ratios better
+        tumor$log.ratio <- .calibrate_off_target_log_ratio(tumor)
+    }    
     tumor$log.ratio
 }
 
@@ -66,4 +70,15 @@ calculateLogRatio <- function(normal, tumor) {
     flog.debug("Calibrating %i log-ratios by %f.",
                sum(idxFinite), mean.log.ratio)
     return(log.ratio - mean.log.ratio)
+}
+
+.calibrate_off_target_log_ratio <- function(granges) {
+    idx <- granges$on.target
+    g1 <- granges[idx]
+    g2 <- granges[!idx]
+    nr <- nearest(g1,g2)
+    d2 <- median(g1$log.ratio - g2$log.ratio[nr], na.rm = TRUE) / 2
+    granges$log.ratio[idx] <- granges$log.ratio[idx] - d2
+    granges$log.ratio[!idx] <- granges$log.ratio[!idx] + d2
+    return(granges$log.ratio)
 }
