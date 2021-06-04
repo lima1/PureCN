@@ -78,6 +78,9 @@ calculateLogRatio <- function(normal, tumor) {
     g2 <- granges[!idx]
     nr <- nearest(g1,g2)
     d2 <- median(g1$log.ratio - g2$log.ratio[nr], na.rm = TRUE) / 2
+    if (d2 > 0.1) {
+        flog.warn("Large potential mis-calibration of on- and off-target log2 ratios: %.2f", d2)
+    }
     granges$log.ratio[idx] <- granges$log.ratio[idx] - d2
     granges$log.ratio[!idx] <- granges$log.ratio[!idx] + d2
     return(granges$log.ratio)
