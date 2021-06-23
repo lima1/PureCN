@@ -15,6 +15,7 @@ BUGFIXES
       (#180).
     o Fix for crash when rtracklayer failed to parse --infile in
       FilterCallableLoci.R (#182)
+    o More robust parsing of VCF with missing GT field (#184)  
 
 
 Changes in version 1.22.0

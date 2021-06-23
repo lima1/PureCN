@@ -98,3 +98,10 @@ test_that("Missing FA does not cause crash", {
                        PureCN:::.countVariants(x) + 1)
      geno(vcf)$FA[2,1][[1]] <- tmp
 })    
+
+test_that("issue 184 is fixed", {
+    vcf.file <- system.file("extdata", "issue184.vcf.gz", package = "PureCN")
+    vcf.184 <- PureCN:::.readAndCheckVcf(vcf.file)
+    expect_output(x <- PureCN:::.getTumorIdInVcf(vcf.184), "GT field in VCF contains missing values")
+    expect_equivalent("TC_098_1.2", x)
+})
