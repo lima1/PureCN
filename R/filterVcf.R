@@ -297,8 +297,12 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
         }        
         if (!is.null(geno(vcf)$GT)) {
             cs <- colSums(geno(vcf)$GT=="0")
+            if (any(is.na(cs))) {
+                flog.warn("GT field in VCF contains missing values.")
+                cs <- colSums(geno(vcf)$GT=="0", na.rm = TRUE)
+            }    
             if (max(cs) > 0) return(which.min(cs))
-            cs <- colSums(geno(vcf)$GT=="0/0")
+            cs <- colSums(geno(vcf)$GT=="0/0", na.rm = TRUE)
             if (max(cs) > 0) return(which.min(cs))
         }
         if (!is.null(geno(vcf)$FA)) {
