@@ -109,7 +109,14 @@ smooth = TRUE, smooth.n = 5) {
         return(ov1)
     ov2 <- findOverlaps(a, b, select = "last")
     .get_alt <- function(x) {
-        if (!is.null(x$ALT)) return(gsub("\\[|\\]","",x$ALT))
+        if (!is.null(x$ALT)) {
+            if (is(x$ALT, "character")) {
+                # GenomicsDB cleanup
+                return(gsub("\\[|\\]","",x$ALT))
+            } else {
+                return(sapply(x$ALT, as.character))
+            }
+        }
         sapply(alt(x), as.character)
     }        
     idx <- which(ov1 != ov2)
