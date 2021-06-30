@@ -123,7 +123,8 @@ smooth = TRUE, smooth.n = 5) {
     if (length(idx)) {
         alt_a <- .get_alt(a[idx])
         alt_b <- list(.get_alt(b[ov1[idx]]), .get_alt(b[ov2[idx]]))
-        alt_m <- sapply(seq_along(alt_a), function(i) ifelse(alt_a[i] %in% alt_b[[2]][i], 2, 1))
+        alt_m <- sapply(seq_along(alt_a), function(i)
+            ifelse(alt_a[i] %in% unlist(alt_b[[2]][i]), 2, 1))
         ov1[idx[which(alt_m != 1)]] <- ov2[idx[which(alt_m != 1)]] 
     }
     return(ov1)

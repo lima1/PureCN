@@ -63,4 +63,7 @@ test_that("Issue 184_2 is fixed", {
     alt(vcf.184.2) <- DNAStringSetList("A")
     expect_equal(2, PureCN:::.findOverlapsCheckAlt(vcf.184.2, mb.184.2))
     expect_equal(1, PureCN:::.findOverlapsCheckAlt(vcf.184.2, rev(mb.184.2)))
+    mb.184.2$ALT <- c("[T]", "[A]")
+    expect_equal(2, PureCN:::.findOverlapsCheckAlt(vcf.184.2, mb.184.2))
+    expect_equal(1, PureCN:::.findOverlapsCheckAlt(vcf.184.2, rev(mb.184.2)))
 })    
