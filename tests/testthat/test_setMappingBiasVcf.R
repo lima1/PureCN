@@ -51,3 +51,16 @@ test_that("GenomicsDB import works", {
     expect_equal(2101, length(bias))
     unlink(tmp_dir, recursive=TRUE)
 })
+
+
+test_that("Issue 184_2 is fixed", {
+    vcf.184.2 <- readVcf(system.file("extdata", "issue184_2.vcf.gz",
+        package = "PureCN"))
+    mb.184.2 <- readRDS(system.file("extdata", "issue184_2_mb.rds",
+        package = "PureCN"))
+    expect_equal(1, PureCN:::.findOverlapsCheckAlt(vcf.184.2, mb.184.2))
+    expect_equal(2, PureCN:::.findOverlapsCheckAlt(vcf.184.2, rev(mb.184.2)))
+    alt(vcf.184.2) <- DNAStringSetList("A")
+    expect_equal(2, PureCN:::.findOverlapsCheckAlt(vcf.184.2, mb.184.2))
+    expect_equal(1, PureCN:::.findOverlapsCheckAlt(vcf.184.2, rev(mb.184.2)))
+})    

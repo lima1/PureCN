@@ -16,6 +16,8 @@ BUGFIXES
     o Fix for crash when rtracklayer failed to parse --infile in
       FilterCallableLoci.R (#182)
     o More robust parsing of VCF with missing GT field (#184)  
+    o Fix for bug and crash when mapping bias RDS file contains variants with
+      multiple alt alleles (#184)
 
 
 Changes in version 1.22.0
