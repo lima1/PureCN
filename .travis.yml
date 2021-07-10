@@ -8,8 +8,13 @@ before_install:
   - tlmgr --repository ctan install bera pdftexcmds nowidow parnotes marginfix infwarerr ragged2e everysel
   - export MINICONDA3_X86_64=Miniconda3-py37_4.8.3-Linux-x86_64.sh
   - wget --progress=dot:giga https://repo.anaconda.com/miniconda/$MINICONDA3_X86_64
+  - rm -rf ~/install/anaconda  
   - bash $MINICONDA3_X86_64 -b -p ~/install/anaconda
 
+r_packages:
+  - knitr
+  - rmarkdown
+    
 install:
   - df -h
   - export PATH=~/install/anaconda/bin:$PATH
