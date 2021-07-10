@@ -1,5 +1,11 @@
 language: r
+
+os: linux
+
+dist: focal  
+
 r: bioc-release
+  
 cache: packages
 
 before_install:
