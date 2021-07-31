@@ -151,6 +151,7 @@ jobs:
 
       - name: Install LaTex dependencies
         run: |
+          tlmgr init-usertree
           tlmgr --repository ctan install bera pdftexcmds nowidow parnotes marginfix infwarerr ragged2e everysel
 
       - name: Install dependencies pass 1
