@@ -115,7 +115,7 @@ jobs:
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         run: |
-          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y texlive-base texlive-extra-utils", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
+          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y texlive-base texlive-extra-utils texlive-fonts-extra", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
           echo $sysreqs
           sudo -s eval "$sysreqs"
 
@@ -136,7 +136,8 @@ jobs:
           ## For installing usethis's dependency gert
           brew install libgit2
 
-          brew install --cask basictex
+          brew install --cask mactex-no-gui
+          eval "$(/usr/libexec/path_helper)"
 
       - name: Install BiocManager
         run: |
@@ -149,10 +150,6 @@ jobs:
           BiocManager::install(version = "${{ matrix.config.bioc }}", ask = FALSE, force = TRUE)
         shell: Rscript {0}
 
-      - name: Install LaTex dependencies
-        run: |
-          tlmgr init-usertree
-          tlmgr --repository ctan install bera pdftexcmds nowidow parnotes marginfix infwarerr ragged2e everysel
 
       - name: Install dependencies pass 1
         run: |
