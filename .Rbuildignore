@@ -2,3 +2,4 @@
 .travis.yml
 LICENSE
 codecov.R
+^\.github$
