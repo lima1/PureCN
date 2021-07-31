@@ -54,7 +54,6 @@ jobs:
         config:
           - { os: ubuntu-latest, r: '4.1', bioc: '3.13', cont: "bioconductor/bioconductor_docker:RELEASE_3_13", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
           - { os: macOS-latest, r: '4.1', bioc: '3.13'}
-          - { os: windows-latest, r: '4.1', bioc: '3.13'}
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       RSPM: ${{ matrix.config.rspm }}
@@ -116,7 +115,7 @@ jobs:
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         run: |
-          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
+          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y texlive-base texlive-extra-utils", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
           echo $sysreqs
           sudo -s eval "$sysreqs"
 
@@ -137,11 +136,7 @@ jobs:
           ## For installing usethis's dependency gert
           brew install libgit2
 
-      - name: Install Windows system dependencies
-        if: runner.os == 'Windows'
-        run: |
-          ## Edit below if you have any Windows system dependencies
-        shell: Rscript {0}
+          brew install --cask basictex
 
       - name: Install BiocManager
         run: |
