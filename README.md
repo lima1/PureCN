@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/lima1/PureCN.svg?branch=master)](https://travis-ci.org/lima1/PureCN)
+[![BioC status](http://www.bioconductor.org/shields/build/release/bioc/PureCN.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/PureCN)
+[![Platforms](http://www.bioconductor.org/shields/availability/release/PureCN.svg)](https://www.bioconductor.org/packages/release/bioc/html/PureCN.html#archives)
 [![Coverage](https://img.shields.io/codecov/c/github/lima1/PureCN.svg)](https://codecov.io/gh/lima1/PureCN)
 [![License: Artistic-2.0](https://img.shields.io/badge/License-Artistic%202.0-0298c3.svg)](https://opensource.org/licenses/Artistic-2.0) 
 
