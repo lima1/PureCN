@@ -136,7 +136,7 @@ jobs:
           ## For installing usethis's dependency gert
           brew install libgit2
 
-          brew install --cask mactex-no-gui
+          brew install --cask mactex
           eval "$(/usr/libexec/path_helper)"
 
       - name: Install BiocManager
@@ -231,6 +231,7 @@ jobs:
           BiocCheck::BiocCheck(
               dir('check', 'tar.gz$', full.names = TRUE),
               `quit-with-status` = TRUE,
+              `no-check-pkg-size` = TRUE,
               `no-check-R-ver` = TRUE,
               `no-check-bioc-help` = TRUE
           )
