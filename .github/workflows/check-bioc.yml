@@ -122,8 +122,7 @@ jobs:
         run: |
            wget --no-verbose https://github.com/broadinstitute/gatk/releases/download/4.2.1.0/gatk-4.2.1.0.zip
            mkdir $HOME/tools
-           mv gatk-4.2.1.0.zip $HOME/tools
-           unzip $HOME/tools/gatk-4.2.1.0.zip
+           unzip gatk-4.2.1.0.zip -d $HOME/tools
            echo "$HOME/tools/gatk-4.2.1.0" >> $GITHUB_PATH
 
       - name: Show GATK4 version
