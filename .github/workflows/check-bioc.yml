@@ -114,9 +114,20 @@ jobs:
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         run: |
-          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y texlive-base texlive-extra-utils texlive-fonts-extra", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
+          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y wget texlive-base texlive-extra-utils texlive-fonts-extra", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
           echo $sysreqs
           sudo -s eval "$sysreqs"
+
+      - name: Install GATK4
+        run: |
+           wget https://github.com/broadinstitute/gatk/releases/download/4.2.1.0/gatk-4.2.1.0.zip
+           unzip gatk-4.2.1.0.zip
+           echo "$PWD/gatk-4.2.1.0" >> $GITHUB_PATH
+
+      - name: Show GATK4 version
+        run: |
+           echo "$PATH"
+           gatk --version
 
       - name: Install BiocManager
         run: |

@@ -18,6 +18,7 @@ BUGFIXES
     o More robust parsing of VCF with missing GT field (#184)  
     o Fix for bug and crash when mapping bias RDS file contains variants with
       multiple alt alleles (#184)
+    o Added missing dependency 'markdown'
 
 
 Changes in version 1.22.0
