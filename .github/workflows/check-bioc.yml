@@ -123,7 +123,8 @@ jobs:
            wget --no-verbose https://github.com/broadinstitute/gatk/releases/download/4.2.1.0/gatk-4.2.1.0.zip
            mkdir $HOME/tools
            unzip gatk-4.2.1.0.zip -d $HOME/tools
-           echo "$HOME/tools/gatk-4.2.1.0" >> $GITHUB_PATH
+           #echo "$HOME/tools/gatk-4.2.1.0" >> $GITHUB_PATH
+           sudo -s ln -s "$HOME/tools/gatk-4.2.1.0/gatk" /usr/local/bin/gatk
 
       - name: Show GATK4 version
         run: |
