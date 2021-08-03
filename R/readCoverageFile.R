@@ -170,6 +170,7 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     }
     
     targetGC <- GRanges(inputGC[,1], ranges=NULL, strand=NULL, inputGC[,-1])
+    targetGC <- sort(sortSeqlevels(targetGC))
 
     ov <- findOverlaps(tumor, targetGC) 
     if (!identical(as.character(tumor), as.character(targetGC))) {

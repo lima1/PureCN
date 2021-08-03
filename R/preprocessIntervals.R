@@ -92,8 +92,11 @@ preprocessIntervals <- function(interval.file, reference.file,
     # be nice and fix it if necessary
     interval.gr <- .checkSeqlevelStyle(scanFaIndex(reference.file), interval.gr, "interval")
     interval.gr <- .checkSeqlengths(scanFaIndex(reference.file), interval.gr)
+    # should be sorted by now, but to be safe try again
+    interval.gr <- sort(sortSeqlevels(interval.gr))
     interval.gr <- .checkTargetWidth(interval.gr, min.target.width,
         match.arg(small.targets))
+   
     if (is.null(interval.gr$on.target)) interval.gr$on.target <- TRUE    
     if (!is.null(mappability)) {
         mappability <- .checkSeqlevelStyle(scanFaIndex(reference.file), mappability, "mappability")
