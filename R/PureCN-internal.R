@@ -920,7 +920,7 @@ na.rm = TRUE)
         " invalid input data or parameters (PureCN ", 
         packageVersion("PureCN"), ").")
     flog.fatal(paste(strwrap(msg),"\n"))
-    stop(paste(strwrap(msg),"\n"), call.= FALSE)
+    stop(paste(strwrap(msg),collapse = "\n"), call.= FALSE)
 }
 .stopRuntimeError <- function(...) {
     msg <- paste(c(...), collapse="")
@@ -928,7 +928,7 @@ na.rm = TRUE)
         " invalid input data or parameters. Please report bug (PureCN ", 
         packageVersion("PureCN"), ").")
     flog.fatal(paste(strwrap(msg),"\n"))
-    stop(paste(strwrap(msg),"\n"), call.= FALSE)
+    stop(paste(strwrap(msg),collapse = "\n"), call.= FALSE)
 }
 .logHeader <- function(l) {
     flog.info(strrep("-", 60))

@@ -224,7 +224,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         if (sum(idx) >= min.normals.betafit && mdp >= min.median.coverage.betafit) {
             fit <- suppressWarnings(try(vglm(cbind(alt[i,idx], 
                 ref[i,idx]) ~ 1, betabinomial, trace = FALSE)))
-            if (class(fit) == "try-error") {
+            if (is(fit, "try-error")) {
                 flog.warn("Could not fit beta binomial dist for %s (%s).",
                     rownames(alt)[i],
                     paste0(round(fa[i, idx], digits = 3), collapse=","))

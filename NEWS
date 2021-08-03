@@ -20,7 +20,7 @@ BUGFIXES
       multiple alt alleles (#184)
     o Added missing dependency 'markdown'
     o Fix for crash when only a small number of off-target intervals pass
-      filters (#192)
+      filters (#190)
 
 
 Changes in version 1.22.0

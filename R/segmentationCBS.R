@@ -270,7 +270,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
             if (debug) message(paste(i, "LR diff:", 
                 abs(seg$seg.mean[i]-seg$seg.mean[i-1]), "Size: ", 
                 seg$num.mark[i-1], "PV:", p.t, "PV bp:",seg$pval[i-1], 
-                "Merged:", merged[i],"\n", sep=" "))
+                "Merged:", merged[i],"\n", collapse = " "))
         }
         x$cna$output <- x$cna$output[!merged,]
         seg <- seg[!merged,]
