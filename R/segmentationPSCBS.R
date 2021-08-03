@@ -163,6 +163,9 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 .PSCBSinput <- function(tumor, log.ratio, vcf, tumor.id.in.vcf, 
                         normal.id.in.vcf, chr.hash) {
     if (is.null(tumor$weights)) tumor$weights <- 1
+    if (is.null(vcf)) {
+        .stopUserError("segmentationPSCBS requires VCF file.")
+    }         
     ov <- findOverlaps(vcf, tumor)
     d.f <- cbind(as.data.frame(tumor[subjectHits(ov)]), 
         CT = 2 ^ (log.ratio+1)[subjectHits(ov)], 

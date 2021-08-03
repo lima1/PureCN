@@ -80,20 +80,20 @@ option_list <- list(
     make_option(c("--maxpurity"), action = "store", type = "double",
         default = formals(PureCN::runAbsoluteCN)$test.purity[[3]],
         help = "Maximum considered purity [default %default]"),
-    make_option(c("--minploidy"), action = "store", type = "double", 
+    make_option(c("--minploidy"), action = "store", type = "double",
         default = formals(PureCN::runAbsoluteCN)$min.ploidy,
         help = "Minimum considered ploidy [default %default]"),
-    make_option(c("--maxploidy"), action = "store", type = "double", 
+    make_option(c("--maxploidy"), action = "store", type = "double",
         default = formals(PureCN::runAbsoluteCN)$max.ploidy,
         help = "Maximum considered ploidy [default %default]"),
-    make_option(c("--maxcopynumber"), action = "store", type = "double", 
+    make_option(c("--maxcopynumber"), action = "store", type = "double",
         default =  max(eval(formals(PureCN::runAbsoluteCN)$test.num.copy)),
         help = "Maximum allele-specific integer copy number [default %default]"),
     make_option(c("--postoptimize"), action = "store_true", default = FALSE,
         help = "Post-optimization [default %default]"),
     make_option(c("--bootstrapn"), action = "store", type = "integer", default = 0,
         help = "Number of bootstrap replicates [default %default]"),
-    make_option(c("--speedupheuristics"), action = "store", type = "integer", 
+    make_option(c("--speedupheuristics"), action = "store", type = "integer",
         default =  max(eval(formals(PureCN::runAbsoluteCN)$speedup.heuristics)),
         help = "Tries to avoid spending computation time on unlikely local optima [default %default]"),
     make_option(c("--modelhomozygous"), action = "store_true", default = FALSE,
@@ -108,7 +108,7 @@ option_list <- list(
         default = formals(PureCN::runAbsoluteCN)$max.non.clonal,
         help = "Maximum genomic fraction assigned to a subclonal copy number state [default %default]"),
     make_option(c("--maxhomozygousloss"), action = "store", type = "character",
-        default = paste(formals(PureCN::runAbsoluteCN)$max.homozygous.loss[2:3], collapse=","),
+        default = paste(formals(PureCN::runAbsoluteCN)$max.homozygous.loss[2:3], collapse = ","),
         help = "Maximum genomic fraction assigned to a complete loss and maximum size of a loss in bp [default %default]"),
     make_option(c("--outvcf"), action = "store_true", default = FALSE,
         help = "Output: Annotate input VCF with posterior probabilities. Otherwise only produce CSV file."),
@@ -255,7 +255,14 @@ if (file.exists(file.rds) && !opt$force) {
     test.purity <- seq(opt$minpurity, opt$maxpurity, by = 0.01)
 
     uses.recommended.fun <- FALSE
-    recommended.fun <- if (is.null(seg.file)) "PSCBS" else "Hclust"
+    recommended.fun <- "Hclust"
+    if (is.null(seg.file)) { 
+        if (!is.null(opt$vcf)) {
+            recommended.fun <- "PSCBS"
+        } else {
+            recommended.fun <- "CBS"
+        }    
+    }
     fun.segmentation <- segmentationCBS
     if (opt$funsegmentation != "CBS") {
         if (opt$funsegmentation == "PSCBS") {
@@ -271,7 +278,10 @@ if (file.exists(file.rds) && !opt$force) {
         } else {
             stop("Unknown segmentation function")
         }
+    } else if (is.null(opt$vcf)) {
+        uses.recommended.fun <- TRUE
     }
+
     if (!uses.recommended.fun) {
         flog.warn("Recommended to provide --funsegmentation %s.", recommended.fun)
     }

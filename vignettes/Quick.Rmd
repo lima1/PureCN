@@ -481,6 +481,14 @@ Important recommendations:
       (or in case of whole-exome sequencing, ignore off-target reads since they
       do not provide much additional information when bins are large and/or
       noisy).
+    
+    - Related to that, a warning is thrown when less than 10% of all intervals
+      passing filters are off-target intervals. Whole-exome sequencing is
+      usually around that value. If the log-ratio standard deviation is similar
+      or even lower than the one for on-target, it is worth keeping off-target
+      regions. Otherwise off-target might add more noise than signal.
+      Off-target information is automatically ignored when the passing rate
+      falls below 5% of all intervals. 
 
     - The fraction of targets with SNPs should be between 10 and 15 percent.
       If it is significantly lower, make sure that the variant caller was used
@@ -488,7 +496,7 @@ Important recommendations:
       that the interval file was generated using the baits coordinates, not the
       targets (the baits BED file should have a more even size distribution,
       e.g. 120bp and multiples of it).
-      
+    
     - Read all warnings. 
         
 

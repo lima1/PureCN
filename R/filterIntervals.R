@@ -284,12 +284,12 @@ normalDB.min.coverage, normalDB.max.missing) {
     }    
     nBefore <- sum(intervalsUsed)
     if (f < min.fraction.offtarget) {
-        flog.warn("Not enough off-target intervals. Ignoring them (%i on-target, %i off-target, %.2f).",
+        flog.warn("Not enough off-target intervals. Ignoring them (%i on-target, %i off-target, ratio %.2f).",
             m, n, f)
         intervalsUsed <- intervalsUsed & !is.na(tumor$on.target) &
             tumor$on.target
     } else if (f < 0.1) {
-        flog.warn("Low number of off-target intervals. You might want to exclude them (%i on-target, %i off-target, %.2f).",
+        flog.warn("Low number of off-target intervals. You might want to exclude them (%i on-target, %i off-target, ratio %.2f).",
             m, n, f)
     }    
     nAfter <- sum(intervalsUsed)
