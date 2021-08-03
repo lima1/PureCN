@@ -14,6 +14,7 @@ filterIntervals(
   min.total.counts = 100,
   min.targeted.base = 5,
   min.mappability = c(0.6, 0.1),
+  min.fraction.offtarget = 0.05,
   normalDB = NULL
 )
 }
@@ -47,6 +48,9 @@ likely very different from the true GC content of the probes.}
 
 \item{min.mappability}{\code{double(2)} specifying the minimum mappability score
 for on-target, off-target in that order.}
+
+\item{min.fraction.offtarget}{Skip off-target regions when less than the 
+specified fraction of all intervals passes all filters}
 
 \item{normalDB}{Normal database, created with
 \code{\link{createNormalDatabase}}.}

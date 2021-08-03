@@ -27,6 +27,8 @@
 #' likely very different from the true GC content of the probes.
 #' @param min.mappability \code{double(2)} specifying the minimum mappability score
 #' for on-target, off-target in that order.
+#' @param min.fraction.offtarget Skip off-target regions when less than the 
+#' specified fraction of all intervals passes all filters
 #' @param normalDB Normal database, created with
 #' \code{\link{createNormalDatabase}}.
 #' @return \code{logical(length(log.ratio))} specifying which intervals should be
@@ -60,7 +62,8 @@
 #' @export filterIntervals
 filterIntervals <- function(normal, tumor, log.ratio, seg.file, 
     filter.lowhigh.gc = 0.001, min.coverage = 15, min.total.counts = 100,
-    min.targeted.base = 5, min.mappability = c(0.6, 0.1), normalDB = NULL) {
+    min.targeted.base = 5, min.mappability = c(0.6, 0.1), 
+    min.fraction.offtarget = 0.05, normalDB = NULL) {
     intervalsUsed <- .filterIntervalsNotNA(log.ratio)
     # With segmentation file, ignore all filters
     if (!is.null(seg.file)) return(intervalsUsed)
@@ -92,7 +95,9 @@ filterIntervals <- function(normal, tumor, log.ratio, seg.file,
 
     intervalsUsed <- .filterIntervalsMappability(intervalsUsed, tumor,
         min.mappability)
-
+    
+    intervalsUsed <- .filterIntervalsOfftarget(intervalsUsed, tumor,
+                                               min.fraction.offtarget)
     return(intervalsUsed)
 }
 
@@ -264,6 +269,33 @@ normalDB.min.coverage, normalDB.max.missing) {
 
     if (nAfter < nBefore) {
         flog.info("Removing %i low mappability intervals.", nBefore-nAfter)
+    }
+    intervalsUsed
+}
+
+.filterIntervalsOfftarget <- function(intervalsUsed, tumor,
+                                      min.fraction.offtarget) {
+    
+    n <- sum(!tumor$on.target[intervalsUsed], na.rm = TRUE)
+    m <- sum(tumor$on.target[intervalsUsed], na.rm = TRUE)
+    f <- n / (n + m)
+    if (!n) {
+        return(intervalsUsed)
+    }    
+    nBefore <- sum(intervalsUsed)
+    if (f < min.fraction.offtarget) {
+        flog.warn("Not enough off-target intervals. Ignoring them (%i on-target, %i off-target, %.2f).",
+            n, m, f)
+        intervalsUsed <- intervalsUsed & !is.na(tumor$on.target) &
+            tumor$on.target
+    } else if (f < 0.1) {
+        flog.warn("Low number of off-target intervals. You might want to exclude them (%i on-target, %i off-target, %.2f).",
+            n, m, f)
+    }    
+    nAfter <- sum(intervalsUsed)
+
+    if (nAfter < nBefore) {
+        flog.info("Removing %i off-target intervals.", nBefore-nAfter)
     }
     intervalsUsed
 }
