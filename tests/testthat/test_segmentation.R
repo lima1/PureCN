@@ -36,6 +36,16 @@ test_that("GATK4 wrapper works for example data.", {
     expect_equal(1.62, ret$results[[1]]$ploidy, tolerance = 0.2)
 })
 
+test_that("Hclust segmentation works", {
+    expect_error(runAbsoluteCN(normal.coverage.file = normal.coverage.file,
+        tumor.coverage.file = tumor.coverage.file,
+        sampleid = "Sample1",  genome = "hg19",
+        fun.segmentation = segmentationHclust,
+        max.candidate.solutions = 1, plot.cnv = FALSE),
+        "segmentationHclust requires an")
+})
+
+
 test_that("private function .fixBreakpoint.", {
     seg <- readSegmentationFile(seg.file, "Sample1")
     data(purecn.example.output)

@@ -46,9 +46,9 @@ functions.}
 \code{data.frame} containing the segmentation.
 }
 \description{
-A minimal segmentation function useful when segmentation was performed by 
-third-pary tools. When a \code{CollapsedVCF} with germline SNPs is provided, 
-it will cluster segments using \code{hclust}. Otherwise it will use the 
+A minimal segmentation function useful when segmentation was performed by
+third-pary tools. When a \code{CollapsedVCF} with germline SNPs is provided,
+it will cluster segments using \code{hclust}. Otherwise it will use the
 segmentation as provided.
 This function is called via the
 \code{fun.segmentation} argument of \code{\link{runAbsoluteCN}}.  The
@@ -56,14 +56,14 @@ arguments are passed via \code{args.segmentation}.
 }
 \examples{
 
-vcf.file <- system.file("extdata", "example.vcf.gz", 
+vcf.file <- system.file("extdata", "example.vcf.gz",
     package="PureCN")
-interval.file <- system.file("extdata", "example_intervals_tiny.txt", 
+interval.file <- system.file("extdata", "example_intervals_tiny.txt",
     package="PureCN")
-seg.file <- system.file('extdata', 'example_seg.txt', 
+seg.file <- system.file('extdata', 'example_seg.txt',
     package = 'PureCN')
 
-res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=segmentationHclust, 
+res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=segmentationHclust,
     max.ploidy = 4, vcf.file=vcf.file,
     test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
     genome='hg19', interval.file=interval.file)

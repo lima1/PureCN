@@ -22,7 +22,9 @@ BUGFIXES
     o Fix for crash when only a small number of off-target intervals pass
       filters (#190)
     o Fix for crash when PSCBS segmentation was selected without VCF file
-      (#190)  
+      (#190)
+    o Fix for crash when Hclust segmentation was selected without segmentation
+      file (#190)
 
 
 Changes in version 1.22.0
