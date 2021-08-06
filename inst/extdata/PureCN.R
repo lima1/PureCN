@@ -414,7 +414,8 @@ if (is(ret$results[[1]]$gene.calls, "data.frame")) {
     flog.warn("--intervals does not contain gene symbols. Not generating gene-level calls.")
 }
     
-if (!is.null(ret$input$vcf)) {
+if (!is.null(ret$input$vcf) &&
+    !is.null(ret$results[[1]]$SNV.posterior)) {
     if (opt$outvcf) {
         file.vcf <- paste0(out, ".vcf")
         vcfanno <- predictSomatic(ret, return.vcf = TRUE)

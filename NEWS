@@ -8,6 +8,7 @@ SIGNIFICANT USER-VISIBLE CHANGES
       pairs is 0. This should fix spurious segments consisting of only on- or 
       off-target regions in high quality samples where those minor off-sets
       sometimes exceeded the noise.
+    o Added min.variants argument to runAbsoluteCN
 
 BUGFIXES
 
@@ -25,6 +26,7 @@ BUGFIXES
       (#190)
     o Fix for crash when Hclust segmentation was selected without segmentation
       file (#190)
+    o Fix for crash when not many variant pass filters (#192)
 
 
 Changes in version 1.22.0

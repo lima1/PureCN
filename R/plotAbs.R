@@ -86,7 +86,8 @@ col.snps = "#2b6391", col.chr.shading = "#f0f0f0", ...) {
         for (i in ids) {
             par(mfrow = c(1,1))
             plotAbs(res, i, type = "hist")
-            if (!is.null(res$input$vcf)) {
+            if (!is.null(res$input$vcf) && 
+                !is.null(res$results[[i]]$SNV.posterior)) {
                 plotAbs(res, i, type = "BAF", ...)
                 plotAbs(res, i, type = "AF", ...)
             }

@@ -56,6 +56,7 @@ runAbsoluteCN(
   max.logr.sdev = 0.6,
   max.segments = 300,
   min.gof = 0.8,
+  min.variants = 20,
   plot.cnv = TRUE,
   vcf.field.prefix = "",
   cosmic.vcf.file = NULL,
@@ -288,6 +289,9 @@ deviation larger than this. Assay specific and needs to be calibrated.}
 Assay specific and needs to be calibrated.}
 
 \item{min.gof}{Flag purity/ploidy solutions with poor fit.}
+
+\item{min.variants}{Do not attempt to fit allelic fractions for samples 
+with fewer variants passing all filters.}
 
 \item{plot.cnv}{Generate segmentation plots.}
 

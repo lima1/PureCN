@@ -176,6 +176,8 @@
 #' @param max.segments Flag noisy samples with a large number of segments.
 #' Assay specific and needs to be calibrated.
 #' @param min.gof Flag purity/ploidy solutions with poor fit.
+#' @param min.variants Do not attempt to fit allelic fractions for samples 
+#' with fewer variants passing all filters.
 #' @param plot.cnv Generate segmentation plots.
 #' @param vcf.field.prefix Prefix all newly created VCF field names with
 #' this string.
@@ -292,7 +294,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     model.homozygous = FALSE, error = 0.001,
     interval.file = NULL, max.dropout = c(0.95, 1.1), 
     min.logr.sdev = 0.15, max.logr.sdev = 0.6, 
-    max.segments = 300, min.gof = 0.8, plot.cnv = TRUE, 
+    max.segments = 300, min.gof = 0.8, min.variants = 20,
+    plot.cnv = TRUE, 
     vcf.field.prefix = "",
     cosmic.vcf.file = NULL, DB.info.flag = "DB", 
     POPAF.info.field = "POP_AF", min.pop.af = 0.001,
@@ -919,7 +922,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         
         gene.calls <- .getGeneCalls(sol$seg, tumor, log.ratio, fun.focal, 
             args.focal, chr.hash)
-
+        
         if (!is.null(vcf.file)) {
             if (post.optimize) {
                 idx <- c(match(p, test.purity), 
@@ -1023,13 +1026,17 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     results <- results[which(!idxFailed)]
 
     # fit SNVs
-    if (is.null(BPPARAM) || is.null(vcf.file)) {
-        results <- lapply(results, .fitSolution)
-    } else {
-        results <- BiocParallel::bplapply(results, 
-                                          .fitSolution, BPPARAM = BPPARAM)
+    if (!is.null(vcf.file) && .countVariants(vcf) < min.variants) {
+        flog.warn("Insufficient number of variants %i passing filters. There is an issue with your data.",
+                  .countVariants(vcf))
+    } else {    
+        if (is.null(BPPARAM) || is.null(vcf.file)) {
+            results <- lapply(results, .fitSolution)
+        } else {
+            results <- BiocParallel::bplapply(results, 
+                                              .fitSolution, BPPARAM = BPPARAM)
+        }
     }
-
     results <- .rankResults(results)
     results <- .filterDuplicatedResults(results)
 

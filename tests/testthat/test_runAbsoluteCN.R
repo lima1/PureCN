@@ -45,6 +45,18 @@ test_that("VCF is not necessary to produce output", {
         genome = "hg19",
         fun.segmentation = segmentationPSCBS),
         "segmentationPSCBS requires VCF")
+
+    expect_output(ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
+        tumor.coverage.file = tumor.coverage.file,
+        candidates = purecn.example.output$candidates,
+        normalDB = normalDB,
+        vcf.file = vcf.file,
+        genome = "hg19",
+        test.purity = seq(0.4, 0.7, by = 0.05), min.ploidy = 1.5,
+        max.ploidy = 2.4, max.candidate.solutions = 1,
+        min.variants = 1000),
+        "Insufficient number of variants")
+    expect_true(is.null(ret$results[[1]]$SNV.posterior))
 })
 
 test_that("Exceptions happen with incorrect input data", {
