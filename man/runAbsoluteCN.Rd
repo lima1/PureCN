@@ -88,7 +88,7 @@ Needs to be either a file name or data read with the
 If \code{NULL}, calculated based on coverage files.}
 
 \item{seg.file}{Segmented data. Optional, to support third-pary
-segmentation tools.  If \code{NULL}, use coverage files or 
+segmentation tools.  If \code{NULL}, use coverage files or
 \code{log.ratio} to segment the data.}
 
 \item{seg.file.sdev}{If \code{seg.file} provided, the log-ratio standard
@@ -150,8 +150,8 @@ coverage files. Needs to return a \code{logical} vector whether an interval
 should be used for segmentation. Defaults to \code{\link{filterIntervals}}.}
 
 \item{args.filterIntervals}{Arguments for target filtering function. Arguments
-\code{normal}, \code{tumor}, \code{log.ratio},  
-\code{min.coverage}\code{seg.file} and \code{normalDB} are required and 
+\code{normal}, \code{tumor}, \code{log.ratio},
+\code{min.coverage}\code{seg.file} and \code{normalDB} are required and
 automatically set.}
 
 \item{fun.segmentation}{Function for segmenting the copy number log-ratios.
@@ -161,7 +161,7 @@ segmentation. Defaults to \code{\link{segmentationCBS}}.}
 \item{args.segmentation}{Arguments for segmentation function. Arguments
 \code{normal}, \code{tumor}, \code{log.ratio}, \code{plot.cnv},
 \code{sampleid}, \code{vcf}, \code{tumor.id.in.vcf},
-\code{centromeres} are required in the segmentation function 
+\code{centromeres} are required in the segmentation function
 and automatically set.}
 
 \item{fun.focal}{Function for identifying focal amplifications. Defaults to
@@ -203,12 +203,12 @@ of local optima.}
 (\code{return.object$candidates}).  If \code{NULL}, do 2D grid search and
 find local optima.}
 
-\item{min.coverage}{Minimum coverage in both normal and tumor. Intervals and 
-variants with lower coverage are ignored. This value is provided to the 
-\code{args.filterIntervals} and \code{args.filterVcf} lists, but can be 
+\item{min.coverage}{Minimum coverage in both normal and tumor. Intervals and
+variants with lower coverage are ignored. This value is provided to the
+\code{args.filterIntervals} and \code{args.filterVcf} lists, but can be
 overwritten in these lists if different cutoffs for the coverage and variant
-filters are wanted. To increase the sensitivity of homozygous deletions in 
-high purity samples, the coverage cutoff in tumor is automatically lowered by 
+filters are wanted. To increase the sensitivity of homozygous deletions in
+high purity samples, the coverage cutoff in tumor is automatically lowered by
 50 percent if the normal coverage is high.}
 
 \item{max.coverage.vcf}{This will set the maximum number of reads in the SNV
@@ -219,7 +219,7 @@ scores. Only relevant for \code{model = "beta"}.}
 \item{max.non.clonal}{Maximum genomic fraction assigned to a subclonal copy
 number state.}
 
-\item{max.homozygous.loss}{\code{double(2)} with maximum chromosome fraction 
+\item{max.homozygous.loss}{\code{double(2)} with maximum chromosome fraction
 assigned to homozygous loss and maximum size of a homozygous loss segment.}
 
 \item{non.clonal.M}{Average expected cellular fraction of sub-clonal somatic
@@ -231,9 +231,9 @@ fractions are calculated.}
 likelihood score calculation. Note that bias is reported on an inverse
 scale; a variant with mapping bias of 1 has no bias.}
 
-\item{max.pon}{Exclude variants found more than \code{max.pon} times in 
+\item{max.pon}{Exclude variants found more than \code{max.pon} times in
 pool of normals and not in dbSNP. Requires \code{mapping.bias.file} in
-\code{\link{setMappingBiasVcf}}. Should be set to a value high enough 
+\code{\link{setMappingBiasVcf}}. Should be set to a value high enough
 to be much more likely an artifact and not a true germline variant not
 present in dbSNP.}
 
@@ -270,15 +270,15 @@ Third column gene symbol. This file is generated with the
 \code{\link{preprocessIntervals}} function.}
 
 \item{max.dropout}{Measures GC bias as ratio of coverage in AT-rich (GC <
-0.5) versus GC-rich on-target regions (GC >= 0.5). High coverage drop-out might 
-indicate that  data was not GC-normalized (optional with larger pool of 
+0.5) versus GC-rich on-target regions (GC >= 0.5). High coverage drop-out might
+indicate that  data was not GC-normalized (optional with larger pool of
 normal samples). A warning pointing to a normalized log-ratio drop-out likely
 indicates that the sample quality is insufficient. For log-ratio drop-out,
-a warning is thrown when half the \code{max.dropout} is reached since it 
+a warning is thrown when half the \code{max.dropout} is reached since it
 is calculated using both tumor and normal.
 Requires \code{interval.file}.}
 
-\item{min.logr.sdev}{Minimum log-ratio standard deviation used in the 
+\item{min.logr.sdev}{Minimum log-ratio standard deviation used in the
 model. Useful to make fitting more robust to outliers in very clean
 data.}
 
@@ -290,7 +290,7 @@ Assay specific and needs to be calibrated.}
 
 \item{min.gof}{Flag purity/ploidy solutions with poor fit.}
 
-\item{min.variants}{Do not attempt to fit allelic fractions for samples 
+\item{min.variants}{Do not attempt to fit allelic fractions for samples
 with fewer variants passing all filters.}
 
 \item{plot.cnv}{Generate segmentation plots.}
@@ -313,12 +313,12 @@ if it is from an unfiltered dbSNP VCF.}
 contains population allele frequencies. The \code{DB} info flag has priority
 over this field when both exist.}
 
-\item{min.pop.af}{Minimum population allele frequency in 
+\item{min.pop.af}{Minimum population allele frequency in
 \code{POPAF.info.field} to set a high germline prior probability.}
 
 \item{model}{Use either a beta or a beta-binomial distribution for fitting
-observed to expected allelic fractions of alterations in \code{vcf.file}. 
-The latter can be useful to account for significant overdispersion, for example 
+observed to expected allelic fractions of alterations in \code{vcf.file}.
+The latter can be useful to account for significant overdispersion, for example
 due to mapping biases when no pool of normals is available or due to other
 unmodeled biases, e.g. amplification biases. The beta-binomial model is only
 recommended with a sufficiently sized pool of normal samples
@@ -331,8 +331,8 @@ silent genomes or very low purities. Otherwise, it will just use the purity
 determined via the SCNA-fit.}
 
 \item{speedup.heuristics}{Tries to avoid spending computation time on
-local optima that are unlikely correct. Set to 0 to turn this off, to 1 to 
-only apply heuristics that in worst case will decrease accuracy slightly or 
+local optima that are unlikely correct. Set to 0 to turn this off, to 1 to
+only apply heuristics that in worst case will decrease accuracy slightly or
 to 2 to turn on all heuristics.}
 
 \item{BPPARAM}{\code{BiocParallelParam} object. If \code{NULL}, does not
@@ -348,36 +348,36 @@ A list with elements \item{candidates}{Results of the grid search.}
 input data.}
 }
 \description{
-This function takes as input tumor and normal control coverage data and 
-a VCF containing allelic fractions of germline variants and somatic 
-mutations. Normal control does not need to be from the same patient. 
-In case VCF does not contain somatic status, it should contain dbSNP and 
-optionally COSMIC annotation. Returns purity and ploidy combinations, 
-sorted by likelihood score. Provides copy number and LOH data, by both 
+This function takes as input tumor and normal control coverage data and
+a VCF containing allelic fractions of germline variants and somatic
+mutations. Normal control does not need to be from the same patient.
+In case VCF does not contain somatic status, it should contain dbSNP and
+optionally COSMIC annotation. Returns purity and ploidy combinations,
+sorted by likelihood score. Provides copy number and LOH data, by both
 gene and genomic region.
 }
 \examples{
 
-normal.coverage.file <- system.file('extdata', 'example_normal_tiny.txt', 
+normal.coverage.file <- system.file('extdata', 'example_normal_tiny.txt',
     package='PureCN')
-tumor.coverage.file <- system.file('extdata', 'example_tumor_tiny.txt', 
+tumor.coverage.file <- system.file('extdata', 'example_tumor_tiny.txt',
     package='PureCN')
-vcf.file <- system.file('extdata', 'example.vcf.gz', 
+vcf.file <- system.file('extdata', 'example.vcf.gz',
     package='PureCN')
-interval.file <- system.file('extdata', 'example_intervals_tiny.txt', 
+interval.file <- system.file('extdata', 'example_intervals_tiny.txt',
     package='PureCN')
 
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
-ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
+ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
     tumor.coverage.file=tumor.coverage.file, genome='hg19', vcf.file=vcf.file,
     sampleid='Sample1', interval.file=interval.file,
     max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
 
 
 # If a high-quality segmentation was obtained with third-party tools:
-seg.file <- system.file('extdata', 'example_seg.txt', 
+seg.file <- system.file('extdata', 'example_seg.txt',
     package = 'PureCN')
 
 # By default, PureCN will re-segment the data, for example to identify
@@ -391,11 +391,11 @@ res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=funSeg, max.ploidy = 4,
 
 }
 \references{
-Riester et al. (2016). PureCN: Copy number calling and SNV 
-classification using targeted short read sequencing. Source Code for Biology 
-and Medicine, 11, pp. 13. 
+Riester et al. (2016). PureCN: Copy number calling and SNV
+classification using targeted short read sequencing. Source Code for Biology
+and Medicine, 11, pp. 13.
 
-Carter et al. (2012), Absolute quantification of somatic DNA alterations in 
+Carter et al. (2012), Absolute quantification of somatic DNA alterations in
 human cancer. Nature Biotechnology.
 }
 \seealso{

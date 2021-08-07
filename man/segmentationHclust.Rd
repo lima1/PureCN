@@ -63,10 +63,12 @@ interval.file <- system.file("extdata", "example_intervals_tiny.txt",
 seg.file <- system.file('extdata', 'example_seg.txt',
     package = 'PureCN')
 
-res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=segmentationHclust,
-    max.ploidy = 4, vcf.file=vcf.file,
-    test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
-    genome='hg19', interval.file=interval.file)
+res <- runAbsoluteCN(seg.file = seg.file,
+    fun.segmentation = segmentationHclust,
+    max.ploidy = 4, vcf.file = vcf.file,
+    test.purity = seq(0.3, 0.7, by = 0.05),
+    max.candidate.solutions = 1,
+    genome = 'hg19', interval.file = interval.file)
 
 }
 \seealso{

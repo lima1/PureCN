@@ -87,32 +87,34 @@ arguments are passed via \code{args.segmentation}.
 }
 \examples{
 
-normal.coverage.file <- system.file("extdata", "example_normal_tiny.txt", 
-    package="PureCN")
-tumor.coverage.file <- system.file("extdata", "example_tumor_tiny.txt", 
-    package="PureCN")
-vcf.file <- system.file("extdata", "example.vcf.gz", 
-    package="PureCN")
-interval.file <- system.file("extdata", "example_intervals_tiny.txt", 
-    package="PureCN")
+normal.coverage.file <- system.file("extdata", "example_normal_tiny.txt",
+    package = "PureCN")
+tumor.coverage.file <- system.file("extdata", "example_tumor_tiny.txt",
+    package = "PureCN")
+vcf.file <- system.file("extdata", "example.vcf.gz",
+    package = "PureCN")
+interval.file <- system.file("extdata", "example_intervals_tiny.txt",
+    package = "PureCN")
 
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
-ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-    tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, genome="hg19", 
-    sampleid="Sample1", interval.file=interval.file, 
-    max.candidate.solutions=1, max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), 
-    fun.segmentation=segmentationCBS, args.segmentation=list(alpha=0.001))
+ret <-runAbsoluteCN(normal.coverage.file = normal.coverage.file,
+    tumor.coverage.file = tumor.coverage.file, vcf.file = vcf.file,
+    genome = "hg19", sampleid = "Sample1", interval.file = interval.file,
+    max.candidate.solutions = 1, max.ploidy = 4,
+    test.purity = seq(0.3, 0.7, by = 0.05),
+    fun.segmentation = segmentationCBS,
+    args.segmentation = list(alpha = 0.001))
 
 }
 \references{
-Olshen, A. B., Venkatraman, E. S., Lucito, R., Wigler, M. 
-(2004). Circular binary segmentation for the analysis of array-based DNA 
+Olshen, A. B., Venkatraman, E. S., Lucito, R., Wigler, M.
+(2004). Circular binary segmentation for the analysis of array-based DNA
 copy number data. Biostatistics 5: 557-572.
 
-Venkatraman, E. S., Olshen, A. B. (2007). A faster circular binary 
-segmentation algorithm for the analysis of array CGH data. Bioinformatics 
+Venkatraman, E. S., Olshen, A. B. (2007). A faster circular binary
+segmentation algorithm for the analysis of array CGH data. Bioinformatics
 23: 657-63.
 }
 \seealso{

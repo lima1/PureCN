@@ -40,10 +40,12 @@
 #' seg.file <- system.file('extdata', 'example_seg.txt',
 #'     package = 'PureCN')
 #'
-#' res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=segmentationHclust,
-#'     max.ploidy = 4, vcf.file=vcf.file,
-#'     test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
-#'     genome='hg19', interval.file=interval.file)
+#' res <- runAbsoluteCN(seg.file = seg.file,
+#'     fun.segmentation = segmentationHclust,
+#'     max.ploidy = 4, vcf.file = vcf.file,
+#'     test.purity = seq(0.3, 0.7, by = 0.05),
+#'     max.candidate.solutions = 1,
+#'     genome = 'hg19', interval.file = interval.file)
 #'
 #' @export segmentationHclust
 segmentationHclust <- function(seg,
@@ -55,8 +57,8 @@ segmentationHclust <- function(seg,
     }
     if (!is.null(vcf)) {
         if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(vcf))
-        seg <- .pruneByHclust(seg, vcf, tumor.id.in.vcf, 
-            h = prune.hclust.h, 
+        seg <- .pruneByHclust(seg, vcf, tumor.id.in.vcf,
+            h = prune.hclust.h,
             method = prune.hclust.method, chr.hash = chr.hash)
     }
     idx.enough.markers <- seg$num.mark > 1

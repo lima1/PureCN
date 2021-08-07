@@ -21,8 +21,8 @@ readSegmentationFile(
 \item{model.homozygous}{Unless \code{TRUE}, checks for very small log2-ratios
 that cannot happen in samples with normal contamination}
 
-\item{format}{File format. If missing, derived from the file 
-extension. Currently DNAcopy, and GATK4 
+\item{format}{File format. If missing, derived from the file
+extension. Currently DNAcopy, and GATK4
 (ModelSegments) format supported. CNVkit uses DNAcopy format.}
 
 \item{zero}{Start position is 0-based. Default is \code{FALSE}.}
