@@ -9,6 +9,7 @@ SIGNIFICANT USER-VISIBLE CHANGES
       off-target regions in high quality samples where those minor off-sets
       sometimes exceeded the noise.
     o Added min.variants argument to runAbsoluteCN
+    o Added PureCN version to runAbsoluteCN results object (ret$version)
 
 BUGFIXES
 

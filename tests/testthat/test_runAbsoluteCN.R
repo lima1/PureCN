@@ -27,7 +27,8 @@ test_that("VCF is not necessary to produce output", {
         test.purity = seq(0.4, 0.7, by = 0.05), min.ploidy = 1.5,
         max.ploidy = 2.4, max.candidate.solutions = 1,
         BPPARAM = BiocParallel::bpparam())
-
+    
+    expect_true(!is.null(ret$version))
     tmpFile <- tempfile(fileext = ".rds")
     saveRDS(ret, tmpFile)
     createCurationFile(tmpFile)
@@ -151,6 +152,7 @@ test_that("Example data with VCF produces expected output", {
         max.candidate.solutions = 1, min.ploidy = 1.5, max.ploidy = 2.1,
         vcf.field.prefix = "PureCN."
     )
+    expect_true(!is.null(ret$version))
     expect_equal(ret$results[[1]]$fraction.balanced, 0.2, tolerance = 0.02)
     s <- predictSomatic(ret)
     expect_equal(s$AR / s$MAPPING.BIAS, s$AR.ADJUSTED)

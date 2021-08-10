@@ -265,6 +265,7 @@
 #' @import DNAcopy
 #' @import IRanges
 #' @import VariantAnnotation
+#' @importFrom Biobase package.version
 #' @importFrom GenomicRanges GRanges tile
 #' @importFrom stats complete.cases dbeta dnorm dunif runif weighted.mean
 #'             dbinom C
@@ -914,7 +915,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         p <- sol$purity
         if (!is.null(vcf.file)) {
             flog.info("Fitting variants with %s model for local optimum %i/%i...",
-                model, sol$candidate.id, nrow(candidate.solutions$candidates), p)
+                model, sol$candidate.id, nrow(candidate.solutions$candidates))
         }
         if (sol$fraction.subclonal > max.non.clonal) {
             .stopRuntimeError(".fitSolution received high subclonal solution.")
@@ -1124,6 +1125,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             args = list(
                 filterVcf = args.filterVcf[vapply(args.filterVcf, object.size, double(1)) < 1000],
                 filterIntervals = args.filterIntervals[vapply(args.filterIntervals, object.size, double(1)) < 1000])
-        )
+        ),
+        version = package.version("PureCN")
     )
 }
