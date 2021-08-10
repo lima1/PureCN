@@ -1,3 +1,4 @@
+[![R-CMD-check-bioc](https://github.com/lima1/PureCN/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/lima1/PureCN/actions/workflows/check-bioc.yml)
 [![BioC status](http://www.bioconductor.org/shields/build/release/bioc/PureCN.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/PureCN)
 [![Platforms](http://www.bioconductor.org/shields/availability/release/PureCN.svg)](https://www.bioconductor.org/packages/release/bioc/html/PureCN.html#archives)
 [![Coverage](https://img.shields.io/codecov/c/github/lima1/PureCN.svg)](https://codecov.io/gh/lima1/PureCN)
