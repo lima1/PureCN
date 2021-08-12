@@ -572,7 +572,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         seg = segProvided, plot.cnv = plot.cnv,
         sampleid = sampleid, vcf = vcf.germline, tumor.id.in.vcf = tumor.id.in.vcf,
         normal.id.in.vcf = normal.id.in.vcf, max.segments = max.segments, chr.hash = chr.hash,
-        centromeres = centromeres), args.segmentation)
+        min.logr.sdev = min.logr.sdev, centromeres = centromeres), args.segmentation)
 
     vcf.germline <- NULL
     seg <- do.call(fun.segmentation,

@@ -9,6 +9,7 @@ segmentationHclust(
   vcf = NULL,
   tumor.id.in.vcf = 1,
   normal.id.in.vcf = NULL,
+  min.logr.sdev = 0.15,
   prune.hclust.h = NULL,
   prune.hclust.method = "ward.D",
   chr.hash = NULL,
@@ -27,6 +28,10 @@ ignores this user provided segmentation.}
 VCF.}
 
 \item{normal.id.in.vcf}{Id of normal in in VCF. Currently not used.}
+
+\item{min.logr.sdev}{Minimum log-ratio standard deviation used in the
+model. Useful to make fitting more robust to outliers in very clean
+data (currently not used in this segmentation function).}
 
 \item{prune.hclust.h}{Height in the \code{hclust} pruning step. Increasing
 this value will merge segments more aggressively. If NULL, try to find a

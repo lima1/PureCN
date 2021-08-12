@@ -21,6 +21,7 @@ segmentationPSCBS(
   normal.id.in.vcf = NULL,
   max.segments = NULL,
   boost.on.target.max.size = 30,
+  min.logr.sdev = 0.15,
   prune.hclust.h = NULL,
   prune.hclust.method = "ward.D",
   chr.hash = NULL,
@@ -63,10 +64,10 @@ function.}
 \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in
 VCF.}
 
-\item{normal.id.in.vcf}{Id of normal in in VCF. If \code{NULL}, 
+\item{normal.id.in.vcf}{Id of normal in in VCF. If \code{NULL},
 use unpaired PSCBS.}
 
-\item{max.segments}{If not \code{NULL}, try a higher \code{undo.SD} 
+\item{max.segments}{If not \code{NULL}, try a higher \code{undo.SD}
 parameter if number of segments exceeds the threshold.}
 
 \item{boost.on.target.max.size}{When off-target regions are noisy
@@ -74,15 +75,19 @@ compared to on-target, try to find small segments of specified
 maximum size that might be missed to due the increased noise.
 Set to 0 to turn boosting off.}
 
+\item{min.logr.sdev}{Minimum log-ratio standard deviation used in the
+model. Useful to make fitting more robust to outliers in very clean
+data.}
+
 \item{prune.hclust.h}{Height in the \code{hclust} pruning step. Increasing
-this value will merge segments more aggressively. If \code{NULL}, try to 
+this value will merge segments more aggressively. If \code{NULL}, try to
 find a sensible default.}
 
 \item{prune.hclust.method}{Cluster method used in the \code{hclust} pruning
 step. See documentation for the \code{hclust} function.}
 
 \item{chr.hash}{Mapping of non-numerical chromsome names to numerical names
-(e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are 
+(e.g. chr1 to 1, chr2 to 2, etc.). If \code{NULL}, assume chromsomes are
 properly ordered.}
 
 \item{additional.cmd.args}{\code{character(1)}. Ignored.}
@@ -90,7 +95,7 @@ properly ordered.}
 \item{centromeres}{A \code{GRanges} with centromere positions.
 If not \code{NULL}, add breakpoints at centromeres.}
 
-\item{\dots}{Additional parameters passed to the 
+\item{\dots}{Additional parameters passed to the
 \code{segmentByNonPairedPSCBS} function.}
 }
 \value{
@@ -104,33 +109,33 @@ function is called via the \code{fun.segmentation} argument of
 }
 \examples{
 
-normal.coverage.file <- system.file("extdata", "example_normal_tiny.txt", 
-    package="PureCN")
-tumor.coverage.file <- system.file("extdata", "example_tumor_tiny.txt", 
-    package="PureCN")
+normal.coverage.file <- system.file("extdata", "example_normal_tiny.txt",
+    package = "PureCN")
+tumor.coverage.file <- system.file("extdata", "example_tumor_tiny.txt",
+    package = "PureCN")
 vcf.file <- system.file("extdata", "example.vcf.gz",
-    package="PureCN")
+    package = "PureCN")
 
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
- ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file, 
-     tumor.coverage.file=tumor.coverage.file, vcf.file=vcf.file, 
-     sampleid="Sample1",  genome="hg19",
-     fun.segmentation=segmentationPSCBS, max.ploidy=4,
-     test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
+ ret <-runAbsoluteCN(normal.coverage.file = normal.coverage.file,
+     tumor.coverage.file = tumor.coverage.file, vcf.file = vcf.file,
+     sampleid = "Sample1",  genome = "hg19",
+     fun.segmentation = segmentationPSCBS, max.ploidy = 4,
+     test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions = 1)
 
 }
 \references{
-Olshen, A. B., Venkatraman, E. S., Lucito, R., Wigler, M. 
-(2004). Circular binary segmentation for the analysis of array-based DNA 
+Olshen, A. B., Venkatraman, E. S., Lucito, R., Wigler, M.
+(2004). Circular binary segmentation for the analysis of array-based DNA
 copy number data. Biostatistics 5: 557-572.
 
-Venkatraman, E. S., Olshen, A. B. (2007). A faster circular binary 
-segmentation algorithm for the analysis of array CGH data. Bioinformatics 
+Venkatraman, E. S., Olshen, A. B. (2007). A faster circular binary
+segmentation algorithm for the analysis of array CGH data. Bioinformatics
 23: 657-63.
 
-Olshen et al. (2011). Parent-specific copy number in paired tumor-normal 
+Olshen et al. (2011). Parent-specific copy number in paired tumor-normal
 studies using circular binary segmentation. Bioinformatics.
 }
 \seealso{

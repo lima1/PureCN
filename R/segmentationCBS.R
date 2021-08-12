@@ -27,6 +27,9 @@
 #' @param normal.id.in.vcf Id of normal in in VCF. Currently not used.
 #' @param max.segments If not \code{NULL}, try a higher \code{undo.SD}
 #' parameter if number of segments exceeds the threshold.
+#' @param min.logr.sdev Minimum log-ratio standard deviation used in the
+#' model. Useful to make fitting more robust to outliers in very clean
+#' data (currently not used in this segmentation function).
 #' @param prune.hclust.h Height in the \code{hclust} pruning step. Increasing
 #' this value will merge segments more aggressively. If NULL, try to find a
 #' sensible default.
@@ -76,7 +79,8 @@
 segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     sampleid, weight.flag.pvalue = 0.01, alpha = 0.005,
     undo.SD = NULL, vcf = NULL, tumor.id.in.vcf = 1, normal.id.in.vcf = NULL,
-    max.segments = NULL, prune.hclust.h = NULL, prune.hclust.method = "ward.D",
+    max.segments = NULL, min.logr.sdev = 0.15,
+    prune.hclust.h = NULL, prune.hclust.method = "ward.D",
     chr.hash = NULL, additional.cmd.args = "", centromeres = NULL) {
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
