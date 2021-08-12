@@ -49,7 +49,7 @@ likely very different from the true GC content of the probes.}
 \item{min.mappability}{\code{double(2)} specifying the minimum mappability score
 for on-target, off-target in that order.}
 
-\item{min.fraction.offtarget}{Skip off-target regions when less than the 
+\item{min.fraction.offtarget}{Skip off-target regions when less than the
 specified fraction of all intervals passes all filters}
 
 \item{normalDB}{Normal database, created with
@@ -67,28 +67,29 @@ arguments are passed via \code{args.filterIntervals}.
 }
 \examples{
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-    package="PureCN")
+normal.coverage.file <- system.file("extdata", "example_normal.txt",
+    package = "PureCN")
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
+    package = "PureCN")
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 normalDB <- createNormalDatabase(normal.coverage.files)
 
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN")
-vcf.file <- system.file("extdata", "example.vcf.gz", 
-    package="PureCN")
-interval.file <- system.file("extdata", "example_intervals.txt", 
-    package="PureCN")
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt",
+    package = "PureCN")
+vcf.file <- system.file("extdata", "example.vcf.gz",
+    package = "PureCN")
+interval.file <- system.file("extdata", "example_intervals.txt",
+    package = "PureCN")
 
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
-ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
-    tumor.coverage.file=tumor.coverage.file, genome="hg19", vcf.file=vcf.file,
-    sampleid="Sample1", interval.file=interval.file, normalDB=normalDB,
-    args.filterIntervals=list(min.targeted.base=10), max.ploidy=4, 
-    test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
+ret <-runAbsoluteCN(normal.coverage.file = normal.coverage.file,
+    tumor.coverage.file = tumor.coverage.file,
+    genome = "hg19", vcf.file = vcf.file, normalDB = normalDB,
+    sampleid = "Sample1", interval.file = interval.file,
+    args.filterIntervals = list(min.targeted.base = 10), max.ploidy = 4,
+    test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions = 1)
 
 }
 \author{

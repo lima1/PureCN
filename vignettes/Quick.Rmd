@@ -746,6 +746,7 @@ Argument name          | Corresponding PureCN argument | PureCN function
 `--mincosmiccnt`     | `min.cosmic.cnt` | `setPriorVcf`     
 `--padding`          | `interval.padding` | `filterVcfBasic`  
 `--mintotalcounts`   | `min.total.counts` | `filterIntervals`  
+`--minfractionofftarget`   | `min.fraction.offtarget` | `filterIntervals`  
 `--funsegmentation`  | `fun.segmentation` | `runAbsoluteCN`  
 `--alpha`            | `alpha` | `segmentationCBS` 
 `--undosd`           | `undo.SD` | `segmentationCBS` 

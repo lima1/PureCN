@@ -57,6 +57,9 @@ option_list <- list(
     make_option(c("--mintotalcounts"), action = "store", type = "integer",
         default = formals(PureCN::filterIntervals)$min.total.counts,
         help = "Interval Filter: Keep only intervals with at least that many counts in both tumor and (tanget) normal [default %default]"),
+    make_option(c("--minfractionofftarget"), action = "store", type = "double",
+        default = formals(PureCN::filterIntervals)$min.fraction.offtarget,
+        help = "Interval Filter: Ignore off-target internals when only the specified fraction of all intervals are off-target intervals  [default %default]"),
     make_option(c("--funsegmentation"), action = "store", type = "character", default = "CBS",
         help = "Segmentation: Algorithm. CBS, PSCBS, GATK4, Hclust, or none [default %default]"),
     make_option(c("--alpha"), action = "store", type = "double",
@@ -337,7 +340,10 @@ if (file.exists(file.rds) && !opt$force) {
                 af.range = af.range, stats.file = opt$statsfile,
                 ignore = mutect.ignore,
                 interval.padding = opt$padding),
-            args.filterIntervals = list(min.total.counts = opt$mintotalcounts),
+            args.filterIntervals = list(
+                min.total.counts = opt$mintotalcounts,
+                 min.fraction.offtarget = opt$minfractionofftarget
+            ),
             fun.segmentation = fun.segmentation,
             args.segmentation = args.segmentation,
             args.setMappingBiasVcf =

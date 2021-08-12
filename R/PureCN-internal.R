@@ -29,9 +29,9 @@ max.exon.ratio) {
     seg.id, min.variants.segment) {
     prior.M <- list(0.2,0.15,c(0.1,0.25),c(0.1,0.3),c(0.1,0.2,0.55))
     prior.M <- c(list(1), lapply(prior.M, function(x) c(x, 1-sum(x))))
-    max.M <- floor(Ci/2)
-    idx.germline <- test.num.copy+length(test.num.copy)+1
-    idx.somatic <- test.num.copy+1
+    max.M <- floor(Ci / 2)
+    idx.germline <- test.num.copy + length(test.num.copy) + 1
+    idx.somatic <- test.num.copy + 1
     variant.ok <- mapping.bias.ok & is.finite(apply(yy, 1, max))
     yys <- lapply(0:max.M, function(Mi) {
         for (i in test.num.copy) {
@@ -44,19 +44,19 @@ max.exon.ratio) {
                 yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(1-prior.K) - log(Cx + 1 - n.cases.germ)
 
                 # allow somatic mutations always have M=1
-                if (i<=1) {
+                if (i <= 1) {
                     yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(prior.K) - log(n.cases.somatic)
                 } else {
                     yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] +
                         log(1-prior.K) - log(Cx + 1 - n.cases.somatic)
-                }    
+                } 
             } else {
-                yy[,idx.germline[i+1]] <- yy[,idx.germline[i+1]] + log(prior.K) -log(n.cases.germ)
-                yy[,idx.somatic[i+1]] <- yy[,idx.somatic[i+1]] + log(prior.K) - log(n.cases.somatic)
-            }    
+                yy[, idx.germline[i + 1]] <- yy[, idx.germline[i + 1]] + log(prior.K) - log(n.cases.germ)
+                yy[, idx.somatic[i + 1]] <- yy[, idx.somatic[i + 1]] + log(prior.K) - log(n.cases.somatic)
+            }
         }
         yy
-    })    
+    })
     # if not enough variants in segment, flag
     flag <- sum(variant.ok) < min.variants.segment
     if (!sum(variant.ok)) {
@@ -65,17 +65,22 @@ max.exon.ratio) {
         variant.ok <- rep(TRUE, length(variant.ok))
     }
 
-    likelihoodScores <- vapply(yys, function(x) { 
+    likelihoodScores <- vapply(yys, function(x) {
         sum(apply(x[variant.ok, , drop = FALSE], 1, max))
     }, double(1))
 
     best <- which.max(likelihoodScores)
-    # transform and scale 
+    # this should not happen...
+    if (!length(best)) {
+        flag <- TRUE
+        best <- 1
+    }
+    # transform and scale
     likelihoodScores <- exp(likelihoodScores - likelihoodScores[best])
-    posterior <- likelihoodScores[best]/sum(likelihoodScores, na.rm=TRUE)
-    if (is.na(posterior) || posterior < 0.5) flag <- TRUE 
+    posterior <- likelihoodScores[best] / sum(likelihoodScores, na.rm = TRUE)
+    if (is.na(posterior) || posterior < 0.5) flag <- TRUE
 
-    list(best=yys[[best]], M=test.num.copy[best], flag=flag, posterior=posterior)
+    list(best = yys[[best]], M = test.num.copy[best], flag = flag, posterior = posterior)
 }
 
 # calculate likelihood scores for all possible minor copy numbers
