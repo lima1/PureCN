@@ -10,9 +10,13 @@ SIGNIFICANT USER-VISIBLE CHANGES
       sometimes exceeded the noise.
     o Added min.variants argument to runAbsoluteCN
     o Added PureCN version to runAbsoluteCN results object (ret$version)
-    o Do not attempt two-step segmentation in PSCBS when off-target noise is still
-      very small (< 0.15). Happens with super clean data and can lead to over-segmentation
-      due to other biases.
+    o Addressed observed over-segmentations in very clean data:
+      - Do not attempt two-step segmentation in PSCBS when off-target noise is
+        still very small (< 0.15, min.logr.sdev in runAbsoluteCN)
+      - Increase automatically determined undo.SD in all segmentation functions
+        when noise is very small (< min.logr.sdev)
+      - min.logr.sdev is now accessible in PureCN.R via --minlogrsdev
+      
 
 BUGFIXES
 

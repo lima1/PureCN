@@ -20,7 +20,7 @@
 #' @param normal.id.in.vcf Id of normal in in VCF. Currently not used.
 #' @param min.logr.sdev Minimum log-ratio standard deviation used in the
 #' model. Useful to make fitting more robust to outliers in very clean
-#' data (currently not used in this segmentation function).
+#' data.
 #' @param prune.hclust.h Ignored in this function.
 #' @param prune.hclust.method Ignored in this function.
 #' @param changepoints.penality The \code{--number-of-changepoints-penalty-factor}.
@@ -90,7 +90,7 @@ segmentationGATK4 <- function(normal, tumor, log.ratio, seg,
     if (!grepl("number-of-changepoints-penalty-factor", 
          additional.cmd.args)[1]) {
         if (is.null(changepoints.penality)) {
-            changepoints.penality <- .getSDundo(log.ratio)
+            changepoints.penality <- .getSDundo(log.ratio, min.logr.sdev)
         }     
         flog.info("Setting --number-of-changepoints-penalty-factor to %f.",
             changepoints.penality)

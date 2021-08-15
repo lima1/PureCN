@@ -42,7 +42,7 @@ VCF.}
 
 \item{min.logr.sdev}{Minimum log-ratio standard deviation used in the
 model. Useful to make fitting more robust to outliers in very clean
-data (currently not used in this segmentation function).}
+data.}
 
 \item{prune.hclust.h}{Ignored in this function.}
 

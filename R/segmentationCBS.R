@@ -29,7 +29,7 @@
 #' parameter if number of segments exceeds the threshold.
 #' @param min.logr.sdev Minimum log-ratio standard deviation used in the
 #' model. Useful to make fitting more robust to outliers in very clean
-#' data (currently not used in this segmentation function).
+#' data.
 #' @param prune.hclust.h Height in the \code{hclust} pruning step. Increasing
 #' this value will merge segments more aggressively. If NULL, try to find a
 #' sensible default.
@@ -91,6 +91,7 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     x <- .CNV.analyze2(normal, tumor, log.ratio = log.ratio,
         plot.cnv = plot.cnv, sampleid = sampleid, alpha = alpha,
         weights = tumor$weights, sdundo = undo.SD, max.segments = max.segments,
+        min.logr.sdev = min.logr.sdev,
         chr.hash = chr.hash)
     origSeg <- x$cna$output
 
@@ -288,17 +289,23 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     sum(abs(diff(log.ratio)) < 0.0001) / length(log.ratio) > 0.9
 }
 
-.getSDundo <- function(log.ratio, d = 0.1) {
+.getSDundo <- function(log.ratio, d = 0.1, min.logr.sdev = 0.15) {
     # did user provide segmentation? Then the sd of the log-ratio
     # is wrong and shouldn't be used
     if (.isFakeLogRatio(log.ratio)) return(0)
+    sd.min.ratio <- min.logr.sdev / .robustSd(log.ratio)
+    sd.min.ratio <- round(min(2, max(1, sd.min.ratio)), digits=1)
+    if (sd.min.ratio > 1) {
+        flog.info("Very clean log-ratios, will increase default undo.SD parameter by a factor of %.1f.",
+            sd.min.ratio)
+    }
     # a crude way of estimating purity - in heigher purity samples, we
     # can undo a little bit more aggressively
     q <- quantile(log.ratio, p = c(d, 1 - d))
     q.diff <- abs(q[1] - q[2])
-    if (q.diff < 0.5) return(0.5)
-    if (q.diff < 1) return(0.75)
-    if (q.diff < 1.5) return(1)
+    if (q.diff < 0.5) return(0.5 * sd.min.ratio)
+    if (q.diff < 1) return(0.75 * sd.min.ratio)
+    if (q.diff < 1.5) return(1 * sd.min.ratio)
     return(1.25)
 }
 
@@ -324,10 +331,10 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 .CNV.analyze2 <-
 function(normal, tumor, log.ratio = NULL, weights = NULL, sdundo = NULL,
 undo.splits = "sdundo", alpha, eta = 0.05, nperm = 10000, sampleid = NULL,
-plot.cnv = TRUE, max.segments = NULL, chr.hash = chr.hash) {
+plot.cnv = TRUE, max.segments = NULL, min.logr.sdev = 0.15, chr.hash = chr.hash) {
     
     if (is.null(sdundo)) {
-        sdundo <- .getSDundo(log.ratio)
+        sdundo <- .getSDundo(log.ratio, min.logr.sdev)
     }
 
     CNA.obj <- .getCNAobject(log.ratio, normal, chr.hash, sampleid)

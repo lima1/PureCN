@@ -106,7 +106,7 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
 
     knownSegmentsCentromeres <- .PSCBSgetKnownSegments(centromeres, chr.hash)
 
-    if (is.null(undo.SD)) undo.SD <- .getSDundo(log.ratio)
+    if (is.null(undo.SD)) undo.SD <- .getSDundo(log.ratio, min.logr.sdev)
 
     try.again <- 0
     while (try.again < 2) {
