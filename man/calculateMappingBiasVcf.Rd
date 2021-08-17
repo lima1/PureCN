@@ -15,7 +15,7 @@ calculateMappingBiasVcf(
 }
 \arguments{
 \item{normal.panel.vcf.file}{\code{character(1)} Combined VCF file of
-a panel of normals, reference and alt counts as AD genotype field. 
+a panel of normals, reference and alt counts as AD genotype field.
 Needs to be compressed and indexed with bgzip and tabix, respectively.}
 
 \item{min.normals}{Minimum number of normals with heterozygous SNP for
@@ -41,7 +41,8 @@ panel of normals VCF.
 }
 \examples{
 
-normal.panel.vcf <- system.file("extdata", "normalpanel.vcf.gz", package="PureCN")
+normal.panel.vcf <- system.file("extdata", "normalpanel.vcf.gz",
+    package = "PureCN")
 bias <- calculateMappingBiasVcf(normal.panel.vcf, genome = "h19")
 saveRDS(bias, "mapping_bias.rds")
 

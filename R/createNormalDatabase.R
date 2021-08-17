@@ -1,10 +1,10 @@
 #' Create database of normal samples
-#' 
+#'
 #' Function to create a database of normal samples, used to normalize
 #' tumor coverages.
-#' 
-#' 
-#' @param normal.coverage.files Vector with file names pointing to 
+#'
+#'
+#' @param normal.coverage.files Vector with file names pointing to
 #' coverage files of normal samples.
 #' @param sex \code{character(length(normal.coverage.files))} with sex for all
 #' files.  \code{F} for female, \code{M} for male. If all chromosomes are
@@ -12,14 +12,14 @@
 #' @param coverage.outliers Exclude samples with coverages below or above
 #' the specified cutoffs (fractions of the normal sample coverages median).
 #' Only for databases with more than 5 samples.
-#' @param min.coverage Exclude intervals with coverage lower than 
+#' @param min.coverage Exclude intervals with coverage lower than
 #' the specified fraction of the chromosome median in the pool of normals.
 #' @param max.missing Exclude intervals with zero coverage in the
 #' specified fraction of normal samples.
-#' @param low.coverage Specifies the maximum number of total reads 
+#' @param low.coverage Specifies the maximum number of total reads
 #' (NOT average coverage) to call a target low coverage.
 #' @param optimal.off.target.counts Used to suggest an optimal off-target
-#' interval width (BETA). 
+#' interval width (BETA).
 #' @param plot Diagnostics plot, useful to tune parameters.
 #' @param \dots Arguments passed to the \code{prcomp} function.
 #' @return A normal database that can be used in the
@@ -28,11 +28,11 @@
 #' @author Markus Riester
 #' @seealso \code{\link{calculateTangentNormal}}
 #' @examples
-#' 
-#' normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-#'     package="PureCN")
-#' normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-#'     package="PureCN")
+#'
+#' normal.coverage.file <- system.file("extdata", "example_normal.txt",
+#'     package = "PureCN")
+#' normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
+#'     package = "PureCN")
 #' normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 #' normalDB <- createNormalDatabase(normal.coverage.files)
 #' 
@@ -58,37 +58,37 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
     }
 
     normals <- .readNormals(normal.coverage.files)
-    
+
     if (!all(normals[[1]]$on.target)) {
         ot_w <- median(sapply(lapply(normals, function(x) width(x)[!x$on.target]), median, na.rm = TRUE))
         ot_c <- median(sapply(lapply(normals, function(x) x$counts[!x$on.target]), median, na.rm = TRUE))
-        optimal_width <- round(optimal.off.target.counts / ot_c * ot_w / 100000, digits=1)*100000
+        optimal_width <- round(optimal.off.target.counts / ot_c * ot_w / 100000, digits = 1) * 100000
         flog.info("Recommended minimum off-target width is %i compared to %i currently available.",
             round(optimal_width), round(ot_w))
     }
 
-    normals.m <- do.call(cbind, 
+    normals.m <- do.call(cbind,
         lapply(normals, function(x) x$counts))
 
-    low.coverage.targets <- .warnLowCoverageTargets(normals.m, normals[[1]], 
+    low.coverage.targets <- .warnLowCoverageTargets(normals.m, normals[[1]],
         low.coverage)
     normals.m[is.na(normals.m)] <- 0
 
-    z <- apply(normals.m,2,mean)
+    z <- apply(normals.m, 2, mean)
     idx.failed <- rep(FALSE, length(normals))
 
     if (length(normals) > 5) {
-        idx.failed <- z < median(z) * coverage.outliers[1] | 
+        idx.failed <- z < median(z) * coverage.outliers[1] |
                       z > median(z) * coverage.outliers[2]
-        if (sum(idx.failed)) {              
-            flog.info("Dropping %s due to outlier coverage.", 
-                paste(basename(normal.coverage.files[idx.failed]),collapse=", "))
+        if (sum(idx.failed)) {
+            flog.info("Dropping %s due to outlier coverage.",
+                paste(basename(normal.coverage.files[idx.failed]), collapse = ", "))
         }
         normals <- normals[!idx.failed]
-        normals.m <- normals.m[,!idx.failed,drop = FALSE]
+        normals.m <- normals.m[, !idx.failed, drop = FALSE]
         normal.coverage.files <- normal.coverage.files[!idx.failed]
     }
-    sex.determined <- sapply(normals,getSexFromCoverage)
+    sex.determined <- sapply(normals, getSexFromCoverage)
     if (is.null(sex)) {
         sex <- sex.determined
     } else {
@@ -98,14 +98,14 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
         sex <- sex[!idx.failed]
         idx.sex <- sex %in% c(NA, "F", "M", "diploid")
         sex[!idx.sex] <- NA
-        if (sum(!idx.sex)>0) warning("Unexpected values in sex ignored.")
+        if (sum(!idx.sex) > 0) warning("Unexpected values in sex ignored.")
         for (i in seq_along(sex.determined)) {
             if (!is.na(sex.determined[i]) && sex[i] != "diploid" &&
                 sex.determined[i] != sex[i]) {
-                flog.warn("Sex mismatch in %s. Sex provided is %s, but could be %s.", 
+                flog.warn("Sex mismatch in %s. Sex provided is %s, but could be %s.",
                     normal.coverage.files[i], sex[i], sex.determined[i])
-            }    
-        }    
+            }
+        }
     }
 
 
@@ -113,14 +113,14 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
         idx <- normals[[1]]$on.target == on.target
         intervals <- normals[[1]][idx]
         if (length(intervals)) {
-            flog.info("Processing %s-target regions...", 
-                ifelse(on.target, "on", "off") )
-        }    
-        .standardizeNormals(normals.m[idx,], normals[[1]][idx], min.coverage, 
+            flog.info("Processing %s-target regions...",
+                ifelse(on.target, "on", "off"))
+        }
+        .standardizeNormals(normals.m[idx, ], normals[[1]][idx], min.coverage,
             max.missing, sex)
     })
-    
-    # merge back some on-target and off-target interval statistics 
+
+    # merge back some on-target and off-target interval statistics
     intervals.used <- logical(length(normals[[1]]))
     fraction.missing <- double(length(normals[[1]]))
     intervals.used[normals[[1]]$on.target] <- groups[[1]]$intervals.used
@@ -130,7 +130,7 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
         intervals.used[!normals[[1]]$on.target] <- groups[[2]]$intervals.used
         fraction.missing[!normals[[1]]$on.target] <- groups[[2]]$fraction.missing
     }
-        
+   
     normalDB <- list(
         normal.coverage.files = normal.coverage.files,
         intervals = as.character(normals[[1]]),
@@ -155,7 +155,7 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
     if (n.low > sum(intervals$on.target, na.rm = TRUE) * 0.05) {
         flog.warn("You are likely not using the correct baits file!")
     }
-    low.intervals    
+    low.intervals
 }
      
 .standardizeNormals <- function(counts, intervals, min.coverage, max.missing, sex) {
@@ -214,6 +214,7 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
                                         F = fcnts_interval_medians_F,        
                                         M = fcnts_interval_medians_M),
         fraction.missing = fraction.missing,
+        dist.t = dist(t(fcnts_std_final)),
         present=TRUE
     )
 }

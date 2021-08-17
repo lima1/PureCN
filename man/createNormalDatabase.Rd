@@ -17,7 +17,7 @@ createNormalDatabase(
 )
 }
 \arguments{
-\item{normal.coverage.files}{Vector with file names pointing to 
+\item{normal.coverage.files}{Vector with file names pointing to
 coverage files of normal samples.}
 
 \item{sex}{\code{character(length(normal.coverage.files))} with sex for all
@@ -28,13 +28,13 @@ diploid, specify \code{diploid}. If \code{NULL}, determine from coverage.}
 the specified cutoffs (fractions of the normal sample coverages median).
 Only for databases with more than 5 samples.}
 
-\item{min.coverage}{Exclude intervals with coverage lower than 
+\item{min.coverage}{Exclude intervals with coverage lower than
 the specified fraction of the chromosome median in the pool of normals.}
 
 \item{max.missing}{Exclude intervals with zero coverage in the
 specified fraction of normal samples.}
 
-\item{low.coverage}{Specifies the maximum number of total reads 
+\item{low.coverage}{Specifies the maximum number of total reads
 (NOT average coverage) to call a target low coverage.}
 
 \item{optimal.off.target.counts}{Used to suggest an optimal off-target
@@ -55,10 +55,10 @@ tumor coverages.
 }
 \examples{
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-    package="PureCN")
+normal.coverage.file <- system.file("extdata", "example_normal.txt",
+    package = "PureCN")
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
+    package = "PureCN")
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 normalDB <- createNormalDatabase(normal.coverage.files)
 

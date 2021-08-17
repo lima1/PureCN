@@ -16,6 +16,8 @@ SIGNIFICANT USER-VISIBLE CHANGES
       - Increase automatically determined undo.SD in all segmentation functions
         when noise is very small (< min.logr.sdev)
       - min.logr.sdev is now accessible in PureCN.R via --minlogrsdev
+    o Added pairwise sample distances to normalDB output object helpful for
+      finding noisy samples or batches in normal databases  
       
 
 BUGFIXES

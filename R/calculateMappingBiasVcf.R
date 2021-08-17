@@ -1,14 +1,14 @@
-#' Calculate Mapping Bias 
+#' Calculate Mapping Bias
 #'
 #' Function calculate mapping bias for each variant in the provided
 #' panel of normals VCF.
 #'
 #'
 #' @param normal.panel.vcf.file \code{character(1)} Combined VCF file of
-#' a panel of normals, reference and alt counts as AD genotype field. 
+#' a panel of normals, reference and alt counts as AD genotype field.
 #' Needs to be compressed and indexed with bgzip and tabix, respectively.
 #' @param min.normals Minimum number of normals with heterozygous SNP for
-#' calculating position-specific mapping bias. 
+#' calculating position-specific mapping bias.
 #' @param min.normals.betafit Minimum number of normals with heterozygous SNP
 #' fitting a beta distribution
 #' @param min.median.coverage.betafit Minimum median coverage of normals with
@@ -20,7 +20,8 @@
 #' @author Markus Riester
 #' @examples
 #'
-#' normal.panel.vcf <- system.file("extdata", "normalpanel.vcf.gz", package="PureCN")
+#' normal.panel.vcf <- system.file("extdata", "normalpanel.vcf.gz",
+#'     package = "PureCN")
 #' bias <- calculateMappingBiasVcf(normal.panel.vcf, genome = "h19")
 #' saveRDS(bias, "mapping_bias.rds")
 #'
@@ -45,7 +46,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
             flog.info("Position %s:%i", as.character(seqnames(vcf_yield)[1]), start(vcf_yield)[1])
         }
         mappingBias <- .calculateMappingBias(nvcf = vcf_yield,
-            min.normals = min.normals, 
+            min.normals = min.normals,
             min.normals.betafit = min.normals.betafit,
             min.median.coverage.betafit = min.median.coverage.betafit)
         if (length(ret)) {
@@ -74,7 +75,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
 #' @param workspace Path to the GenomicsDB created by \code{GenomicsDBImport}
 #' @param reference.genome Reference FASTA file.
 #' @param min.normals Minimum number of normals with heterozygous SNP for
-#' calculating position-specific mapping bias. 
+#' calculating position-specific mapping bias.
 #' @param min.normals.betafit Minimum number of normals with heterozygous SNP
 #' fitting a beta distribution
 #' @param min.median.coverage.betafit Minimum median coverage of normals with
@@ -170,21 +171,21 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
 }
 
 .parseADGenomicsDb <- function(query, AF.info.field = "AF") {
-    ref <-  dcast(query, CHROM+POS+END+REF+ALT~SAMPLE, value.var = "AD")
-    af <-  dcast(query, CHROM+POS+END+REF+ALT~SAMPLE, value.var = AF.info.field)
+    ref <-  dcast(query, CHROM + POS + END + REF + ALT ~ SAMPLE, value.var = "AD")
+    af <-  dcast(query, CHROM + POS + END + REF + ALT ~ SAMPLE, value.var = AF.info.field)
     gr <- GRanges(seqnames = ref$CHROM, IRanges(start = ref$POS, end = ref$END),
         strand = NULL, DataFrame(REF = ref$REF, ALT = ref$ALT))
     genomic_change <- paste0(as.character(gr), "_", ref$REF, ">", ref$ALT)
     ref <- as.matrix(ref[,-(1:5)])
     af <- as.matrix(af[,-(1:5)])
-    alt <- round(ref/(1-af)-ref)
+    alt <- round(ref / (1 - af) - ref)
     rownames(ref) <- genomic_change
     rownames(af) <- genomic_change
     rownames(alt) <- genomic_change
     list(ref = ref, alt = alt, gr = gr)
 }
     
-.calculateMappingBias <- function(nvcf, alt = NULL, ref = NULL, gr = NULL, 
+.calculateMappingBias <- function(nvcf, alt = NULL, ref = NULL, gr = NULL,
                                   min.normals, min.normals.betafit = 7,
                                   min.median.coverage.betafit = 5,
                                   verbose = FALSE) {
@@ -193,10 +194,9 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
             .stopUserError("The normal.panel.vcf.file contains only a single sample.")
         }
         # TODO: deal with tri-allelic sites
-        alt <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][2])
-        ref <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][1])
-        fa  <- apply(geno(nvcf)$AD, c(1,2), function(x) x[[1]][2]/sum(x[[1]]))
-        rownames(alt) <-  as.character(rowRanges(nvcf))
+        alt <- apply(geno(nvcf)$AD, c(1, 2), function(x) x[[1]][2])
+        ref <- apply(geno(nvcf)$AD, c(1, 2), function(x) x[[1]][1])
+        fa  <- apply(geno(nvcf)$AD, c(1, 2), function(x) x[[1]][2] / sum(x[[1]]))
         gr <- rowRanges(nvcf)
     } else {
         if (is.null(alt) || is.null(ref) || is.null(gr) || ncol(ref) != ncol(alt)) {
@@ -207,49 +207,49 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         }
         fa <- alt / (ref + alt)
     }
-    ponCntHits <- apply(alt,1,function(x) sum(!is.na(x)))
+    ponCntHits <- apply(alt, 1, function(x) sum(!is.na(x)))
     if (verbose) {
-        flog.info("Fitting beta-binomial distributions. Might take a while...") 
-    }        
+        flog.info("Fitting beta-binomial distributions. Might take a while...")
+    }
     x <- sapply(seq_len(nrow(fa)), function(i) {
         if (verbose && !(i %% 50000)) {
-            flog.info("Position %s (variant %.0f/%.0f)", rownames(alt)[i], i, nrow(alt))
+            flog.info("Position %s (variant %.0f/%.0f)", as.character(gr)[i], i, nrow(alt))
         }
-        idx <- !is.na(fa[i,]) & fa[i,] > 0.05 & fa[i,] < 0.9
+        idx <- !is.na(fa[i, ]) & fa[i, ] > 0.05 & fa[i, ] < 0.9
         shapes <- c(NA, NA)
         if (!sum(idx) >= min.normals) return(c(0, 0, 0, 0, shapes))
-        dp <- alt[i,] + ref[i,] 
-        mdp <- median(dp, na.rm = TRUE)   
+        dp <- alt[i, ] + ref[i, ]
+        mdp <- median(dp, na.rm = TRUE)
 
         if (sum(idx) >= min.normals.betafit && mdp >= min.median.coverage.betafit) {
-            fit <- suppressWarnings(try(vglm(cbind(alt[i,idx], 
-                ref[i,idx]) ~ 1, betabinomial, trace = FALSE)))
+            fit <- suppressWarnings(try(vglm(cbind(alt[i, idx],
+                ref[i, idx]) ~ 1, betabinomial, trace = FALSE)))
             if (is(fit, "try-error")) {
                 flog.warn("Could not fit beta binomial dist for %s (%s).",
-                    rownames(alt)[i],
-                    paste0(round(fa[i, idx], digits = 3), collapse=","))
-            } else {    
+                    as.character(gr)[i],
+                    paste0(round(fa[i, idx], digits = 3), collapse = ","))
+            } else {
                 shapes <- Coef(fit)
             }
         }
-        c(sum(ref[i,idx]), sum(alt[i,idx]), sum(idx), mean(fa[i, idx]), shapes)
+        c(sum(ref[i, idx]), sum(alt[i, idx]), sum(idx), mean(fa[i, idx]), shapes)
     })
     # Add an average "normal" SNP (average coverage and allelic fraction > 0.4)
     # as empirical prior
-    gr$bias <- .adjustEmpBayes(x[1:4,]) * 2
+    gr$bias <- .adjustEmpBayes(x[1:4, ]) * 2
     gr$pon.count <- ponCntHits
-    gr$mu <- x[5,]
-    gr$rho <- x[6,]
+    gr$mu <- x[5, ]
+    gr$rho <- x[6, ]
     gr <- gr[order(gr$pon.count, decreasing = TRUE)]
     gr <- sort(gr)
     gr$triallelic <- FALSE
-    gr$triallelic[duplicated(gr, fromLast = FALSE) | 
-                  duplicated(gr, fromLast = TRUE) ] <- TRUE
-    gr              
+    gr$triallelic[duplicated(gr, fromLast = FALSE) |
+                  duplicated(gr, fromLast = TRUE)] <- TRUE
+    gr
 }
  
 .readNormalPanelVcfLarge <- function(vcf, normal.panel.vcf.file,
-    max.file.size=1, geno="AD", expand=FALSE) {
+    max.file.size = 1, geno = "AD", expand = FALSE) {
     genome <- genome(vcf)[1]
     if (!file.exists(normal.panel.vcf.file)) {
         .stopUserError("normal.panel.vcf.file ", normal.panel.vcf.file,
@@ -279,7 +279,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
             " Check your database.")
         shape1 <- 0
         shape2 <- 0
-    } else {   
+    } else {
         # calculate the average number of ref and alt reads per sample
         shape1 <- sum(xg[1, ]) / sum(xg[3, ])
         shape2 <- sum(xg[2, ]) / sum(xg[3, ])
@@ -288,5 +288,5 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     x[1, ] <- x[1, ] + shape1
     x[2, ] <- x[2, ] + shape2
     # get the alt allelic fraction for all SNPs
-    apply(x, 2, function(y) y[2] / sum(head(y,2)))
+    apply(x, 2, function(y) y[2] / sum(head(y, 2)))
 }
