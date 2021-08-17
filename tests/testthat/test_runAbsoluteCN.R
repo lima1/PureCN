@@ -162,6 +162,7 @@ test_that("Example data with VCF produces expected output", {
         0.34, by = 1 / 50), seq(0.35, 0.7, by = 1 / 30)))
     plotAbs(ret, type = "overview")
     expect_equal(info(ret$input$vcf)$PureCN.OnTarget, rep(1, length(ret$input$vcf)))
+    expect_equal(0.3195055, ret$input$mapd$all, tolerance = 0.025)
 })
 
 test_that("Mapping bias function works", {

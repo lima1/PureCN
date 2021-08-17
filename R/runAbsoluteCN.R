@@ -662,15 +662,19 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     llik <- -Inf
     li <- .getSegSizes(seg)
     C <- rep(2, length(li))
-  
+    mapd <- list(all = median(abs(diff(log.ratio))))
     if (sum(li < 0) > 0)
         .stopRuntimeError("Some segments have negative size.")
-    flog.info("Mean standard deviation of log-ratios: %.2f", sd.seg)
+    flog.info("Mean standard deviation of log-ratios: %.2f (MAPD: %.2f)",
+        sd.seg, median(abs(diff(log.ratio))))
     if (sum(!tumor$on.target, na.rm = TRUE)) {
-        flog.info("Mean standard deviation of on-target log-ratios only: %.2f",
-            sd.seg.ontarget)
-        flog.info("Mean standard deviation of off-target log-ratios only: %.2f",
-            sd.seg.offtarget)
+        mapd$on.target <- median(abs(diff(log.ratio[tumor$on.target])))
+        mapd$off.target <- median(abs(diff(log.ratio[!tumor$on.target])))
+        off.target = 
+        flog.info("Mean standard deviation of on-target log-ratios only: %.2f (MAPD: %.2f)",
+            sd.seg.ontarget, mapd$on.target)
+        flog.info("Mean standard deviation of off-target log-ratios only: %.2f (MAPD: %.2f)",
+            sd.seg.offtarget, mapd$off.target)
     }
     log.ratio.offset <- rep(0, nrow(seg))
 
@@ -1116,7 +1120,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         results = results,
         input = list(tumor = tumor.coverage.file, normal = normal.coverage.file,
             log.ratio = GRanges(normal[, 1], on.target = normal$on.target, log.ratio = log.ratio),
-            log.ratio.sdev = sd.seg, vcf = vcf, sampleid = sampleid,
+            log.ratio.sdev = sd.seg, mapd = mapd, vcf = vcf, sampleid = sampleid,
             test.num.copy = test.num.copy,
             sex = sex, sex.vcf = sex.vcf, chr.hash = chr.hash, centromeres = centromeres,
             mapping.bias.rho = if (is.null(rho) || all(is.na(rho))) NULL else mean(rho, na.rm = TRUE),

@@ -1,6 +1,11 @@
 Changes in version 1.24.0
 -------------------------
 
+NEW FEATURES
+
+    o Report median absolute pairwise difference (MAPD) of tumor vs normal log2
+      ratios in runAbsoluteCN
+
 SIGNIFICANT USER-VISIBLE CHANGES
 
     o More robust alignment of on- and off-target tumor vs normal log2 ratios.
@@ -19,7 +24,6 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Added pairwise sample distances to normalDB output object helpful for
       finding noisy samples or batches in normal databases  
       
-
 BUGFIXES
 
     o Fix for crash when --normal_panel in NormalDB.R contained no variants
