@@ -670,7 +670,6 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (sum(!tumor$on.target, na.rm = TRUE)) {
         mapd$on.target <- median(abs(diff(log.ratio[tumor$on.target])))
         mapd$off.target <- median(abs(diff(log.ratio[!tumor$on.target])))
-        off.target = 
         flog.info("Mean standard deviation of on-target log-ratios only: %.2f (MAPD: %.2f)",
             sd.seg.ontarget, mapd$on.target)
         flog.info("Mean standard deviation of off-target log-ratios only: %.2f (MAPD: %.2f)",
