@@ -40,7 +40,7 @@ BUGFIXES
       (#190)
     o Fix for crash when Hclust segmentation was selected without segmentation
       file (#190)
-    o Fix for crash when not many variant pass filters (#192)
+    o Fix for crashes when not many variant pass filters (#192, #195)
     o Fix for crash when provided segmentation does not have chromosomes
       in common with VCF (#192)
 

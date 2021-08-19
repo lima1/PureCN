@@ -63,9 +63,12 @@ callMutationBurden <- function(res, id = 1, remove.flagged = TRUE,
     if (is.null(res$input$vcf)) {
         .stopUserError("runAbsoluteCN was run without a VCF file.")
     }
+    if (is.null(res$results[[id]]$SNV.posterior)) {
+        .stopUserError("runAbsoluteCN filtered out all variants. Check your input data.")
+    }
 
     p <- GRanges(predictSomatic(res, id))
-
+    
     callableBases <- NA
     callableBasesOntarget <- NA
     callableBasesFlanking <- NA
