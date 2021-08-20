@@ -23,6 +23,8 @@ SIGNIFICANT USER-VISIBLE CHANGES
       - min.logr.sdev is now accessible in PureCN.R via --minlogrsdev
     o Added pairwise sample distances to normalDB output object helpful for
       finding noisy samples or batches in normal databases  
+    o Do not error out readCurationFile when CSV is missing and directory
+      is not writable when re-generating it (#196)
       
 BUGFIXES
 

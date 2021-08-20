@@ -44,10 +44,10 @@ Function that can be used to read the curated output of the
 
 data(purecn.example.output)
 file.rds <- "Sample1_PureCN.rds"
-createCurationFile(file.rds) 
-# User can change the maximum likelihood solution manually in the generated 
+createCurationFile(file.rds)
+# User can change the maximum likelihood solution manually in the generated
 # CSV file. The correct solution is then loaded with readCurationFile.
-purecn.curated.example.output <-readCurationFile(file.rds) 
+purecn.curated.example.output <-readCurationFile(file.rds)
 
 }
 \seealso{

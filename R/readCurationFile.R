@@ -1,9 +1,9 @@
 #' Read curation file
-#' 
+#'
 #' Function that can be used to read the curated output of the
 #' \code{\link{runAbsoluteCN}} function.
-#' 
-#' 
+#'
+#'
 #' @param file.rds Output of the \code{\link{runAbsoluteCN}} function,
 #' serialized with \code{saveRDS}.
 #' @param file.curation Filename of a curation file that points to the correct
@@ -21,25 +21,29 @@
 #' @author Markus Riester
 #' @seealso \code{\link{runAbsoluteCN} \link{createCurationFile}}
 #' @examples
-#' 
+#'
 #' data(purecn.example.output)
 #' file.rds <- "Sample1_PureCN.rds"
-#' createCurationFile(file.rds) 
-#' # User can change the maximum likelihood solution manually in the generated 
+#' createCurationFile(file.rds)
+#' # User can change the maximum likelihood solution manually in the generated
 #' # CSV file. The correct solution is then loaded with readCurationFile.
-#' purecn.curated.example.output <-readCurationFile(file.rds) 
-#' 
+#' purecn.curated.example.output <-readCurationFile(file.rds)
+#'
 #' @export readCurationFile
 #' @importFrom utils read.csv
 readCurationFile <- function(file.rds,
 file.curation = gsub(".rds$", ".csv", file.rds),
-remove.failed = FALSE, report.best.only=FALSE, min.ploidy = NULL,
+remove.failed = FALSE, report.best.only = FALSE, min.ploidy = NULL,
 max.ploidy = NULL) {
     flog.info("Reading %s...", file.rds)
     res <- readRDS(file.rds)
     if (!file.exists(file.curation)) {
         flog.warn("Curation file %s does not exist, creating one.", file.curation)
-        createCurationFile(file.rds)
+        output <- try(createCurationFile(file.rds))
+        if (is(output, "try-error")) {
+            flog.warn("Failed to write %s: %s", file.curation, output)
+            return(res)
+        }
     }
     curation <- read.csv(file.curation, as.is=TRUE, nrows=1)
     .checkLogical <- function(field) {

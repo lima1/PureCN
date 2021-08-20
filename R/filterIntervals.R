@@ -82,17 +82,18 @@ filterIntervals <- function(normal, tumor, log.ratio, seg.file,
         min.targeted.base, min.coverage)
 
     if (!is.null(normalDB)) {
-        min.coverage <- min.coverage / 10000
+        min.coverage <- 0
+        normal$average.coverage[is.na(normal$average.coverage)] <- min.coverage
         flog.info("normalDB provided. Setting minimum coverage for segmentation to %.4fX.", min.coverage)
     } else {
         flog.warn("No normalDB provided. Provide one for better results.")
     }
-   
-    intervalsUsed <- .filterIntervalsCoverage(intervalsUsed, normal, tumor,
-        min.coverage)
 
     intervalsUsed <- .filterIntervalsTotalCounts(intervalsUsed, normal, tumor,
         min.total.counts)
+
+    intervalsUsed <- .filterIntervalsCoverage(intervalsUsed, normal, tumor,
+        min.coverage)
 
     intervalsUsed <- .filterIntervalsMappability(intervalsUsed, tumor,
         min.mappability)
@@ -224,6 +225,7 @@ normalDB.min.coverage, normalDB.max.missing) {
     }
     intervalsUsed
 }
+
 .filterIntervalsTotalCounts <- function(intervalsUsed, normal, tumor, min.total.counts) {
 
     well.covered.interval.idx <- (normal$counts + tumor$counts) >= min.total.counts
@@ -258,7 +260,7 @@ normalDB.min.coverage, normalDB.max.missing) {
 .filterIntervalsMappability <- function(intervalsUsed, tumor, min.mappability) {
     if (is.null(tumor$mappability) || all(is.na(tumor$mappability))) {
         return(intervalsUsed)
-    }    
+    }
     if (any(is.na(tumor$mappability))) {
         flog.warn("Some intervals do not have a mappability score, assuming they are fine.")
     }
