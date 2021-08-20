@@ -19,10 +19,10 @@ callMutationBurden(
 \arguments{
 \item{res}{Return object of the \code{\link{runAbsoluteCN}} function.}
 
-\item{id}{Candidate solution to extract mutation burden from. 
+\item{id}{Candidate solution to extract mutation burden from.
 \code{id=1} will use the maximum likelihood solution.}
 
-\item{remove.flagged}{Remove variants flagged by 
+\item{remove.flagged}{Remove variants flagged by
 \code{\link{predictSomatic}}.}
 
 \item{min.prior.somatic}{Exclude variants with somatic prior
@@ -44,7 +44,7 @@ should be counted (\code{TRUE}) or not (\code{FALSE}). Default
 is to keep only single nucleotide variants.}
 
 \item{callable}{\code{GRanges} object with callable genomic regions,
-for example obtained by \sQuote{GATK CallableLoci} BED file, imported 
+for example obtained by \sQuote{GATK CallableLoci} BED file, imported
 with \code{rtracklayer}.}
 
 \item{exclude}{\code{GRanges} object with genomic regions that
@@ -65,19 +65,20 @@ callMutationBurden(purecn.example.output)
 
 # To calculate exact mutations per megabase, we can provide a BED
 # file containing all callable regions
-callableBed <- import(system.file("extdata", "example_callable.bed.gz", 
+callableBed <- import(system.file("extdata", "example_callable.bed.gz",
     package = "PureCN"))
 
-# We can exclude some regions for mutation burden calculation, 
+# We can exclude some regions for mutation burden calculation,
 # for example intronic regions. 
-exclude <- GRanges(seqnames="chr1", IRanges(start=1, 
-    end=max(end(callableBed))))
+exclude <- GRanges(seqnames = "chr1", IRanges(start = 1, 
+    end = max(end(callableBed))))
 
 # We can also exclude specific mutations by filtering the input VCF
 myVcfFilter <- function(vcf) seqnames(vcf)!="chr2"
 
-callsCallable <- callMutationBurden(purecn.example.output, 
-    callable=callableBed, exclude=exclude, fun.countMutation=myVcfFilter)
+callsCallable <- callMutationBurden(purecn.example.output,
+    callable = callableBed, exclude = exclude,
+    fun.countMutation = myVcfFilter)
 
 }
 \seealso{

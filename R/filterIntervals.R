@@ -82,8 +82,7 @@ filterIntervals <- function(normal, tumor, log.ratio, seg.file,
         min.targeted.base, min.coverage)
 
     if (!is.null(normalDB)) {
-        min.coverage <- 0
-        normal$average.coverage[is.na(normal$average.coverage)] <- min.coverage
+        min.coverage <- min.coverage / 10000
         flog.info("normalDB provided. Setting minimum coverage for segmentation to %.4fX.", min.coverage)
     } else {
         flog.warn("No normalDB provided. Provide one for better results.")
