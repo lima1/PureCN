@@ -26,7 +26,7 @@ calculating position-specific mapping bias.}
 \item{min.normals.betafit}{Minimum number of normals with heterozygous SNP
 fitting a beta binomial distribution}
 
-\item{min.normals.assign.betafit}{Minimum number of normals with 
+\item{min.normals.assign.betafit}{Minimum number of normals with
 heterozygous SNPs to assign to a beta binomal fit cluster}
 
 \item{min.median.coverage.betafit}{Minimum median coverage of normals with

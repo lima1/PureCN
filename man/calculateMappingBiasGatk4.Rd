@@ -26,7 +26,7 @@ calculating position-specific mapping bias.}
 \item{min.normals.betafit}{Minimum number of normals with heterozygous SNP
 fitting a beta distribution}
 
-\item{min.normals.assign.betafit}{Minimum number of normals with 
+\item{min.normals.assign.betafit}{Minimum number of normals with
 heterozygous SNPs to assign to a beta binomal fit cluster}
 
 \item{min.median.coverage.betafit}{Minimum median coverage of normals with
@@ -34,7 +34,7 @@ heterozygous SNP for fitting a beta distribution}
 
 \item{num.betafit.clusters}{Maximum number of beta binomial fit clusters}
 
-\item{AF.info.field}{Field in the \code{workspace} that stores the allelic 
+\item{AF.info.field}{Field in the \code{workspace} that stores the allelic
 fraction}
 }
 \value{
@@ -47,8 +47,8 @@ panel of normals GenomicsDB.
 }
 \examples{
 
-\dontrun{ 
-resources_file <- system.file("extdata", "gatk4_pon_db.tgz", 
+\dontrun{
+resources_file <- system.file("extdata", "gatk4_pon_db.tgz",
     package = "PureCN")
 tmp_dir <- tempdir()
 untar(resources_file, exdir = tmp_dir)

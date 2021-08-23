@@ -11,7 +11,7 @@
 #' calculating position-specific mapping bias.
 #' @param min.normals.betafit Minimum number of normals with heterozygous SNP
 #' fitting a beta binomial distribution
-#' @param min.normals.assign.betafit Minimum number of normals with 
+#' @param min.normals.assign.betafit Minimum number of normals with
 #' heterozygous SNPs to assign to a beta binomal fit cluster
 #' @param min.median.coverage.betafit Minimum median coverage of normals with
 #' heterozygous SNP for fitting a beta distribution
@@ -89,20 +89,20 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
 #' calculating position-specific mapping bias.
 #' @param min.normals.betafit Minimum number of normals with heterozygous SNP
 #' fitting a beta distribution
-#' @param min.normals.assign.betafit Minimum number of normals with 
+#' @param min.normals.assign.betafit Minimum number of normals with
 #' heterozygous SNPs to assign to a beta binomal fit cluster
 #' @param min.median.coverage.betafit Minimum median coverage of normals with
 #' heterozygous SNP for fitting a beta distribution
 #' @param num.betafit.clusters Maximum number of beta binomial fit clusters
-#' @param AF.info.field Field in the \code{workspace} that stores the allelic 
+#' @param AF.info.field Field in the \code{workspace} that stores the allelic
 #' fraction
 #' @return A \code{GRanges} object with mapping bias and number of normal
 #' samples with this variant.
 #' @author Markus Riester
 #' @examples
 #'
-#' \dontrun{ 
-#' resources_file <- system.file("extdata", "gatk4_pon_db.tgz", 
+#' \dontrun{
+#' resources_file <- system.file("extdata", "gatk4_pon_db.tgz",
 #'     package = "PureCN")
 #' tmp_dir <- tempdir()
 #' untar(resources_file, exdir = tmp_dir)
@@ -123,7 +123,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
                                     num.betafit.clusters = 9,
                                     AF.info.field = "AF") {
 
-    if (!requireNamespace("genomicsdb", quietly = TRUE) || 
+    if (!requireNamespace("genomicsdb", quietly = TRUE) ||
         !requireNamespace("jsonlite", quietly = TRUE)
         ) {
         .stopUserError("Install the genomicsdb and jsonlite R packages for GenomicsDB import.")
@@ -132,7 +132,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
 
     db <- genomicsdb::connect(workspace = workspace,
         vid_mapping_file = file.path(workspace, "vidmap.json"),
-        callset_mapping_file=file.path(workspace, "callset.json"),
+        callset_mapping_file = file.path(workspace, "callset.json"),
         reference_genome = reference.genome,
         c("DP", "AD", AF.info.field))
 
@@ -140,7 +140,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     jvidmap <- jsonlite::read_json(file.path(workspace, "vidmap.json"))
     
     # get all available arrays
-    arrays <- sapply(dir(workspace, full.names=TRUE), file.path, "genomicsdb_meta_dir")
+    arrays <- sapply(dir(workspace, full.names = TRUE), file.path, "genomicsdb_meta_dir")
     arrays <- basename(names(arrays)[which(file.exists(arrays))])
     # get offsets and lengths
     contigs <- sapply(arrays, function(ary) strsplit(ary, "\\$")[[1]][1])
@@ -156,8 +156,8 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
 
         flog.info("Processing %s (offset %.0f, length %.0f)...",
             arrays[i], c_offset, c_length)
-        query <- data.table(genomicsdb::query_variant_calls(db, 
-            array = arrays[i], 
+        query <- data.table(genomicsdb::query_variant_calls(db,
+            array = arrays[i],
             column_ranges = list(c(c_offset, c_offset + c_length)),
             row_ranges = row_ranges
         ))
@@ -314,8 +314,9 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
 
 .clusterFa <- function(gr, fa, alt, ref, min.normals.assign.betafit = 3, num.betafit.clusters = 9) {
     idx <- !is.na(gr$mu)
-    if (sum(idx) < num.betafit.clusters) return(gr) 
-    flog.info("Clustering beta binomial fits...")    
+    gr$clustered <- FALSE
+    if (sum(idx) < num.betafit.clusters) return(gr)
+    flog.info("Clustering beta binomial fits...")
     fit <- Mclust(mcols(gr)[idx, c("mu", "rho")], G = seq_len(num.betafit.clusters))
     x <- sapply(seq_len(nrow(fa)), function(i) {
         idx <- !is.na(fa[i, ]) & fa[i, ] > 0.05 & fa[i, ] < 0.9
@@ -331,7 +332,8 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     idxa <- is.na(gr$mu) & !is.na(x)
     flog.info("Assigning (%i/%i) variants a clustered beta binomal fit.",
         sum(idxa), length(gr))
-    gr$mu[idxa] <- fit$parameters$mean[1,x[idxa]]
-    gr$rho[idxa] <- fit$parameters$mean[2,x[idxa]]
+    gr$mu[idxa] <- fit$parameters$mean[1, x[idxa]]
+    gr$rho[idxa] <- fit$parameters$mean[2, x[idxa]]
+    gr$clustered[idxa] <- TRUE
     return(gr)
-}    
+}
