@@ -10,9 +10,12 @@
 #' @param min.normals Minimum number of normals with heterozygous SNP for
 #' calculating position-specific mapping bias.
 #' @param min.normals.betafit Minimum number of normals with heterozygous SNP
-#' fitting a beta distribution
+#' fitting a beta binomial distribution
+#' @param min.normals.assign.betafit Minimum number of normals with 
+#' heterozygous SNPs to assign to a beta binomal fit cluster
 #' @param min.median.coverage.betafit Minimum median coverage of normals with
 #' heterozygous SNP for fitting a beta distribution
+#' @param num.betafit.clusters Maximum number of beta binomial fit clusters
 #' @param yieldSize See \code{TabixFile}
 #' @param genome See \code{readVcf}
 #' @return A \code{GRanges} object with mapping bias and number of normal
@@ -28,12 +31,15 @@
 #' @importFrom GenomicRanges GRangesList
 #' @importFrom VGAM vglm Coef betabinomial dbetabinom
 #' @importFrom data.table rbindlist
+#' @importFrom mclust Mclust mclustBIC emControl
 #' @export calculateMappingBiasVcf
 calculateMappingBiasVcf <- function(normal.panel.vcf.file,
                                     min.normals = 1,
                                     min.normals.betafit = 7,
+                                    min.normals.assign.betafit = 3,
                                     min.median.coverage.betafit = 5,
-                                    yieldSize = 5000, genome) {
+                                    num.betafit.clusters = 9,
+                                    yieldSize = 50000, genome) {
     tab <- TabixFile(normal.panel.vcf.file, yieldSize = yieldSize)
     open(tab)
     param <- ScanVcfParam(geno = c("AD"), fixed = "ALT", info = NA)
@@ -48,7 +54,10 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
         mappingBias <- .calculateMappingBias(nvcf = vcf_yield,
             min.normals = min.normals,
             min.normals.betafit = min.normals.betafit,
-            min.median.coverage.betafit = min.median.coverage.betafit)
+            min.normals.assign.betafit = min.normals.assign.betafit,
+            min.median.coverage.betafit = min.median.coverage.betafit,
+            num.betafit.clusters = num.betafit.clusters
+        )
         if (length(ret)) {
             ret <- append(ret, GRangesList(mappingBias))
         } else {
@@ -61,7 +70,9 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
     attr(bias, "normal.panel.vcf.file") <- normal.panel.vcf.file
     attr(bias, "min.normals") <- min.normals
     attr(bias, "min.normals.betafit") <- min.normals.betafit
+    attr(bias, "min.normals.assign.betafit") <- min.normals.assign.betafit
     attr(bias, "min.median.coverage.betafit") <- min.median.coverage.betafit
+    attr(bias, "num.betafit.clusters") <- num.betafit.clusters
     attr(bias, "genome") <- genome
     bias
 }
@@ -78,8 +89,11 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
 #' calculating position-specific mapping bias.
 #' @param min.normals.betafit Minimum number of normals with heterozygous SNP
 #' fitting a beta distribution
+#' @param min.normals.assign.betafit Minimum number of normals with 
+#' heterozygous SNPs to assign to a beta binomal fit cluster
 #' @param min.median.coverage.betafit Minimum median coverage of normals with
 #' heterozygous SNP for fitting a beta distribution
+#' @param num.betafit.clusters Maximum number of beta binomial fit clusters
 #' @param AF.info.field Field in the \code{workspace} that stores the allelic 
 #' fraction
 #' @return A \code{GRanges} object with mapping bias and number of normal
@@ -104,7 +118,9 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
 calculateMappingBiasGatk4 <- function(workspace, reference.genome,
                                     min.normals = 1,
                                     min.normals.betafit = 7,
+                                    min.normals.assign.betafit = 3,
                                     min.median.coverage.betafit = 5,
+                                    num.betafit.clusters = 9,
                                     AF.info.field = "AF") {
 
     if (!requireNamespace("genomicsdb", quietly = TRUE) || 
@@ -160,7 +176,9 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         alt = m_alt, ref = m_ref, gr = gr,
         min.normals = min.normals,
         min.normals.betafit = min.normals.betafit,
+        min.normals.assign.betafit = min.normals.assign.betafit,
         min.median.coverage.betafit = min.median.coverage.betafit,
+        num.betafit.clusters = num.betafit.clusters,
         verbose = TRUE
     )
     attr(bias, "workspace") <- workspace
@@ -187,7 +205,9 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     
 .calculateMappingBias <- function(nvcf, alt = NULL, ref = NULL, gr = NULL,
                                   min.normals, min.normals.betafit = 7,
+                                  min.normals.assign.betafit = 3,
                                   min.median.coverage.betafit = 5,
+                                  num.betafit.clusters = 9,
                                   verbose = FALSE) {
     if (!is.null(nvcf)) {
         if (ncol(nvcf) < 2) {
@@ -240,6 +260,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     gr$pon.count <- ponCntHits
     gr$mu <- x[5, ]
     gr$rho <- x[6, ]
+    gr <- .clusterFa(gr, fa, alt, ref, min.normals.assign.betafit, num.betafit.clusters)
     gr <- gr[order(gr$pon.count, decreasing = TRUE)]
     gr <- sort(gr)
     gr$triallelic <- FALSE
@@ -290,3 +311,27 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     # get the alt allelic fraction for all SNPs
     apply(x, 2, function(y) y[2] / sum(head(y, 2)))
 }
+
+.clusterFa <- function(gr, fa, alt, ref, min.normals.assign.betafit = 3, num.betafit.clusters = 9) {
+    idx <- !is.na(gr$mu)
+    if (sum(idx) < num.betafit.clusters) return(gr) 
+    flog.info("Clustering beta binomial fits...")    
+    fit <- Mclust(mcols(gr)[idx, c("mu", "rho")], G = seq_len(num.betafit.clusters))
+    x <- sapply(seq_len(nrow(fa)), function(i) {
+        idx <- !is.na(fa[i, ]) & fa[i, ] > 0.05 & fa[i, ] < 0.9
+        if (!sum(idx) >= min.normals.assign.betafit) return(NA)
+        ll <- apply(fit$parameters$mean, 2, function(m) {
+                sum(dbetabinom(x = alt[i, idx], prob = m[1],
+                   size = alt[i, idx] + ref[i, idx],
+                   rho = m[2], log = TRUE))
+        })
+        if (is.infinite(max(ll))) return(NA)
+        which.max(ll)
+    })
+    idxa <- is.na(gr$mu) & !is.na(x)
+    flog.info("Assigning (%i/%i) variants a clustered beta binomal fit.",
+        sum(idxa), length(gr))
+    gr$mu[idxa] <- fit$parameters$mean[1,x[idxa]]
+    gr$rho[idxa] <- fit$parameters$mean[2,x[idxa]]
+    return(gr)
+}    

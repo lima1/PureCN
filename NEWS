@@ -5,6 +5,9 @@ NEW FEATURES
 
     o Report median absolute pairwise difference (MAPD) of tumor vs normal log2
       ratios in runAbsoluteCN
+    o Improved mapping bias estimates: variants with insufficient information
+      for position-specific fits (default 3-6 heterozygous variants) 
+      are clustered and assigned to the most similar fit  
 
 SIGNIFICANT USER-VISIBLE CHANGES
 
@@ -25,6 +28,7 @@ SIGNIFICANT USER-VISIBLE CHANGES
       finding noisy samples or batches in normal databases  
     o Do not error out readCurationFile when CSV is missing and directory
       is not writable when re-generating it (#196)
+    o Add segmentation parameters as attributes to segmentation data.frame  
       
 BUGFIXES
 

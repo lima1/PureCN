@@ -9,7 +9,9 @@ calculateMappingBiasGatk4(
   reference.genome,
   min.normals = 1,
   min.normals.betafit = 7,
+  min.normals.assign.betafit = 3,
   min.median.coverage.betafit = 5,
+  num.betafit.clusters = 9,
   AF.info.field = "AF"
 )
 }
@@ -24,8 +26,13 @@ calculating position-specific mapping bias.}
 \item{min.normals.betafit}{Minimum number of normals with heterozygous SNP
 fitting a beta distribution}
 
+\item{min.normals.assign.betafit}{Minimum number of normals with 
+heterozygous SNPs to assign to a beta binomal fit cluster}
+
 \item{min.median.coverage.betafit}{Minimum median coverage of normals with
 heterozygous SNP for fitting a beta distribution}
+
+\item{num.betafit.clusters}{Maximum number of beta binomial fit clusters}
 
 \item{AF.info.field}{Field in the \code{workspace} that stores the allelic 
 fraction}

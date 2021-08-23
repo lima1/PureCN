@@ -8,8 +8,10 @@ calculateMappingBiasVcf(
   normal.panel.vcf.file,
   min.normals = 1,
   min.normals.betafit = 7,
+  min.normals.assign.betafit = 3,
   min.median.coverage.betafit = 5,
-  yieldSize = 5000,
+  num.betafit.clusters = 9,
+  yieldSize = 50000,
   genome
 )
 }
@@ -22,10 +24,15 @@ Needs to be compressed and indexed with bgzip and tabix, respectively.}
 calculating position-specific mapping bias.}
 
 \item{min.normals.betafit}{Minimum number of normals with heterozygous SNP
-fitting a beta distribution}
+fitting a beta binomial distribution}
+
+\item{min.normals.assign.betafit}{Minimum number of normals with 
+heterozygous SNPs to assign to a beta binomal fit cluster}
 
 \item{min.median.coverage.betafit}{Minimum median coverage of normals with
 heterozygous SNP for fitting a beta distribution}
+
+\item{num.betafit.clusters}{Maximum number of beta binomial fit clusters}
 
 \item{yieldSize}{See \code{TabixFile}}
 

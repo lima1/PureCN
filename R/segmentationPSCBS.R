@@ -146,6 +146,14 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
             min.width = 3,alphaTCN = alpha, ...)
         try(flog.debug("Kappa: %f", PSCBS::estimateKappa(segPSCBS)), silent = TRUE)
         seg <- .PSCBSoutput2DNAcopy(segPSCBS, sampleid)
+        if (flog.threshold() == "DEBUG") {
+            flog.debug("Re-running segmentation without undo.SD...") 
+            segusd <- PSCBS::segmentByNonPairedPSCBS(input, tauA = tauA,
+                flavor = flavor, undoTCN = 0, knownSegments = knownSegments,
+                min.width = 3,alphaTCN = alpha, ...)
+            segusd <- .PSCBSoutput2DNAcopy(segusd, sampleid)
+            attr(seg, "Debug.undo.SD") <- segusd
+        }
         if (undo.SD <= 0 || is.null(max.segments) || nrow(seg) < max.segments) break
         flog.info("Found %i segments, exceeding max.segments threshold of %i.",
             nrow(seg), max.segments)
@@ -162,6 +170,17 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     }
     seg <- .addAverageWeights(seg, weight.flag.pvalue, tumor, chr.hash)
     seg <- .fixBreakpointsInBaits(tumor, log.ratio, seg, chr.hash)
+    attr(seg, "PSCBS.Args") <- list(
+        alpha = alpha,
+        boost.on.target.max.size = boost.on.target.max.size,
+        flavor = flavor, 
+        iterations = try.again + 1,
+        min.logr.sdev = min.logr.sdev,
+        prune.hclust.h = prune.hclust.h,
+        prune.hclust.method = prune.hclust.method,
+        tauA = tauA,
+        undo.SD = undo.SD
+    )
     seg
 }
 
