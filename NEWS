@@ -28,7 +28,9 @@ SIGNIFICANT USER-VISIBLE CHANGES
       finding noisy samples or batches in normal databases  
     o Do not error out readCurationFile when CSV is missing and directory
       is not writable when re-generating it (#196)
-    o Add segmentation parameters as attributes to segmentation data.frame  
+    o Add segmentation parameters as attributes to segmentation data.frame
+    o Added min.betafit.rho to calculateMappingBias*
+    o Made --normal_panel in PureCN.R defunct
       
 BUGFIXES
 

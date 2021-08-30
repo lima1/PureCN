@@ -12,6 +12,7 @@ calculateMappingBiasGatk4(
   min.normals.assign.betafit = 3,
   min.median.coverage.betafit = 5,
   num.betafit.clusters = 9,
+  min.betafit.rho = 1e-04,
   AF.info.field = "AF"
 )
 }
@@ -33,6 +34,8 @@ heterozygous SNPs to assign to a beta binomal fit cluster}
 heterozygous SNP for fitting a beta distribution}
 
 \item{num.betafit.clusters}{Maximum number of beta binomial fit clusters}
+
+\item{min.betafit.rho}{Minimum dispersion factor rho}
 
 \item{AF.info.field}{Field in the \code{workspace} that stores the allelic
 fraction}
