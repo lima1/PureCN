@@ -13,7 +13,7 @@ calculateMappingBiasGatk4(
   min.median.coverage.betafit = 5,
   num.betafit.clusters = 9,
   min.betafit.rho = 1e-04,
-  max.betafit.rho = 0.1,
+  max.betafit.rho = 0.2,
   AF.info.field = "AF"
 )
 }

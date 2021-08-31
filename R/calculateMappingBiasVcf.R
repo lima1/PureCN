@@ -42,7 +42,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
                                     min.median.coverage.betafit = 5,
                                     num.betafit.clusters = 9,
                                     min.betafit.rho = 1e-04,
-                                    max.betafit.rho = 0.1,
+                                    max.betafit.rho = 0.2,
                                     yieldSize = 50000, genome) {
     tab <- TabixFile(normal.panel.vcf.file, yieldSize = yieldSize)
     open(tab)
@@ -132,7 +132,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
                                     min.median.coverage.betafit = 5,
                                     num.betafit.clusters = 9,
                                     min.betafit.rho = 1e-04,
-                                    max.betafit.rho = 0.1,
+                                    max.betafit.rho = 0.2,
                                     AF.info.field = "AF") {
 
     if (!requireNamespace("genomicsdb", quietly = TRUE) ||
@@ -223,7 +223,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
                                   min.median.coverage.betafit = 5,
                                   num.betafit.clusters = 9,
                                   min.betafit.rho = 1e-04,
-                                  max.betafit.rho = 0.1,
+                                  max.betafit.rho = 0.2,
                                   verbose = FALSE) {
     if (!is.null(nvcf)) {
         if (ncol(nvcf) < 2) {
