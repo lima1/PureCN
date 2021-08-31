@@ -17,6 +17,7 @@
 #' heterozygous SNP for fitting a beta binomial distribution
 #' @param num.betafit.clusters Maximum number of beta binomial fit clusters
 #' @param min.betafit.rho Minimum dispersion factor rho
+#' @param max.betafit.rho Maximum dispersion factor rho
 #' @param yieldSize See \code{TabixFile}
 #' @param genome See \code{readVcf}
 #' @return A \code{GRanges} object with mapping bias and number of normal
@@ -41,6 +42,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
                                     min.median.coverage.betafit = 5,
                                     num.betafit.clusters = 9,
                                     min.betafit.rho = 1e-04,
+                                    max.betafit.rho = 0.1,
                                     yieldSize = 50000, genome) {
     tab <- TabixFile(normal.panel.vcf.file, yieldSize = yieldSize)
     open(tab)
@@ -59,7 +61,8 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
             min.normals.assign.betafit = min.normals.assign.betafit,
             min.median.coverage.betafit = min.median.coverage.betafit,
             num.betafit.clusters = num.betafit.clusters,
-            min.betafit.rho = min.betafit.rho
+            min.betafit.rho = min.betafit.rho,
+            max.betafit.rho = max.betafit.rho
         )
         if (length(ret)) {
             ret <- append(ret, GRangesList(mappingBias))
@@ -77,6 +80,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
     attr(bias, "min.median.coverage.betafit") <- min.median.coverage.betafit
     attr(bias, "num.betafit.clusters") <- num.betafit.clusters
     attr(bias, "min.betafit.rho") <- min.betafit.rho
+    attr(bias, "max.betafit.rho") <- max.betafit.rho
     attr(bias, "genome") <- genome
     bias
 }
@@ -99,6 +103,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
 #' heterozygous SNP for fitting a beta distribution
 #' @param num.betafit.clusters Maximum number of beta binomial fit clusters
 #' @param min.betafit.rho Minimum dispersion factor rho
+#' @param max.betafit.rho Maximum dispersion factor rho
 #' @param AF.info.field Field in the \code{workspace} that stores the allelic
 #' fraction
 #' @return A \code{GRanges} object with mapping bias and number of normal
@@ -127,6 +132,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
                                     min.median.coverage.betafit = 5,
                                     num.betafit.clusters = 9,
                                     min.betafit.rho = 1e-04,
+                                    max.betafit.rho = 0.1,
                                     AF.info.field = "AF") {
 
     if (!requireNamespace("genomicsdb", quietly = TRUE) ||
@@ -186,6 +192,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         min.median.coverage.betafit = min.median.coverage.betafit,
         num.betafit.clusters = num.betafit.clusters,
         min.betafit.rho = min.betafit.rho,
+        max.betafit.rho = max.betafit.rho,
         verbose = TRUE
     )
     attr(bias, "workspace") <- workspace
@@ -216,6 +223,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
                                   min.median.coverage.betafit = 5,
                                   num.betafit.clusters = 9,
                                   min.betafit.rho = 1e-04,
+                                  max.betafit.rho = 0.1,
                                   verbose = FALSE) {
     if (!is.null(nvcf)) {
         if (ncol(nvcf) < 2) {
@@ -267,7 +275,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     gr$bias <- .adjustEmpBayes(x[1:4, ]) * 2
     gr$pon.count <- ponCntHits
     gr$mu <- x[5, ]
-    gr$rho <- pmax(min.betafit.rho, x[6, ])
+    gr$rho <- pmin(max.betafit.rho, pmax(min.betafit.rho, x[6, ]))
     gr <- .clusterFa(gr, fa, alt, ref, min.normals.assign.betafit, num.betafit.clusters)
     gr <- gr[order(gr$pon.count, decreasing = TRUE)]
     gr <- sort(gr)

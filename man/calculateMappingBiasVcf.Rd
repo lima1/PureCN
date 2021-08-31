@@ -12,6 +12,7 @@ calculateMappingBiasVcf(
   min.median.coverage.betafit = 5,
   num.betafit.clusters = 9,
   min.betafit.rho = 1e-04,
+  max.betafit.rho = 0.1,
   yieldSize = 50000,
   genome
 )
@@ -36,6 +37,8 @@ heterozygous SNP for fitting a beta binomial distribution}
 \item{num.betafit.clusters}{Maximum number of beta binomial fit clusters}
 
 \item{min.betafit.rho}{Minimum dispersion factor rho}
+
+\item{max.betafit.rho}{Maximum dispersion factor rho}
 
 \item{yieldSize}{See \code{TabixFile}}
 
