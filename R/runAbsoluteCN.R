@@ -594,6 +594,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     seg.gr <- GRanges(seqnames = .add.chr.name(seg$chrom, chr.hash),
                 IRanges(start = round(seg$loc.start), end = seg$loc.end))
 
+    missing.sl <- setdiff(seqlevelsInUse(tumor), seqlevelsInUse(seg.gr))
+    if (length(missing.sl)) {
+        .stopUserError("Seqlevels missing in provided segmentation: ",
+                       paste(missing.sl, collapse = ","))
+    }    
+
     flog.info("Found %i segments with median size of %.2fMb.",
               length(seg.gr), median(width(seg.gr) / 1e+6))
 

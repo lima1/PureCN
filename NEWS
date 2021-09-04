@@ -50,7 +50,8 @@ BUGFIXES
       file (#190)
     o Fix for crashes when not many variant pass filters (#192, #195)
     o Fix for crash when provided segmentation does not have chromosomes
-      in common with VCF (#192)
+      in common with VCF (#192) or does not provide all chromosomes present in
+      the coverage file (#192)
 
 
 Changes in version 1.22.0

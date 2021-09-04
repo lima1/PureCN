@@ -417,3 +417,15 @@ test_that("normalDB objects are used correctly", {
         plot.cnv = FALSE, min.ploidy = 1.5, max.ploidy = 2.1, test.purity = seq(0.4,
             0.7, by = 0.05), max.candidate.solutions = 1)
 })
+
+test_that("Issue 192 is fixed", {
+    expect_error(
+    runAbsoluteCN(tumor = system.file("extdata", "issue192_tumor.cnr",
+                                      package = "PureCN"),
+                  seg.file = system.file("extdata", "issue192_tumor.seg",
+                                         package = "PureCN"),
+                  sampleid = "tumor",
+                  genome = "hg19",
+                  fun.segmentation = segmentationHclust),
+    "Seqlevels missing in provided segmentation")
+})
