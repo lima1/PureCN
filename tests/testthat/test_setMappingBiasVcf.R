@@ -14,23 +14,25 @@ test_that("Mapping bias without normal panel matches", {
 })
 
 test_that("Precomputed mapping bias matches", {
-    normal_panel <- system.file("extdata", "normalpanel.vcf.gz", 
+    normal_panel <- system.file("extdata", "normalpanel.vcf.gz",
         package = "PureCN")
+    set.seed(123)
     mb <- calculateMappingBiasVcf(normal_panel, genome = "hg19")
     ov <- findOverlaps(vcf, mb, select = "first")
     idx <- !is.na(ov)
     expect_equivalent(head(mb$pon.count[ov[idx]], 3), c(15, 5, 27))
-    expect_equal(head(mb$bias[ov[idx]],3), c(0.3362525, 1.0002354, 
-        1.0119481), tolerance = 0.001)
+    expect_equal(head(mb$bias[ov[idx]], 3), c(0.212590, 0.981208,
+        1.020470), tolerance = 0.005)
 
     normal_panel_precomp <- tempfile(fileext = ".rds")
     saveRDS(mb, file = normal_panel_precomp)
     mb <- setMappingBiasVcf(vcf, mapping.bias.file = normal_panel_precomp)
     idx <- info(mb)$MBPON > 0
     expect_equal(head(info(mb)$MBPON[idx], 3), c(15, 5, 27))
-    expect_equal(head(info(mb)$MBB[idx], 3), c(0.3362525, 1.0002354, 
-        1.0119481), tolerance = 0.001)
-    expect_equal( weighted.mean(c(1.00023541351692, 1.01194812157128, 0.915037402634247), c(5,27,12)),
+    expect_equal(head(info(mb)$MBB[idx], 3), c(0.212590, 0.981208,
+        1.020470), tolerance = 0.005)
+    expect_equal(weighted.mean(c(0.981208, 1.020470, 0.912353),
+        c(5, 27, 12)),
         info(mb)$MBB[230], tolerance = 0.001)
     file.remove(normal_panel_precomp)
 
@@ -42,14 +44,14 @@ test_that("Precomputed mapping bias matches", {
 test_that("GenomicsDB import works", {
     skip_if_not(requireNamespace("genomicsdb"), "genomicsdb required")
     skip_if_not(requireNamespace("jsonlite"), "jsonlite required")
-    resources_file <- system.file("extdata", "gatk4_pon_db.tgz", 
+    resources_file <- system.file("extdata", "gatk4_pon_db.tgz",
         package = "PureCN")
     tmp_dir <- tempdir()
     untar(resources_file, exdir = tmp_dir)
     workspace <- file.path(tmp_dir, "gatk4_pon_db")
     bias <- calculateMappingBiasGatk4(workspace, "hg19")
     expect_equal(2101, length(bias))
-    unlink(tmp_dir, recursive=TRUE)
+    unlink(tmp_dir, recursive = TRUE)
 })
 
 

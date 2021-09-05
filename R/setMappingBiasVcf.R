@@ -62,11 +62,6 @@ smooth = TRUE, smooth.n = 5) {
             "available.")
     }
     tmp <- rep(mappingBias, nrow(vcf))
-    # Defines the maximum value for the mapping bias scaling factor.
-    # 1 assumes that the reference allele can never have
-    # a lower mappability than the alt allele.
-    max.bias <- 1.2
-    tmp[tmp > max.bias] <- max.bias
     if (is.null(mapping.bias.file)) {
         return(.annotateMappingBiasVcf(vcf, 
                     data.frame(bias = tmp, pon.count = 0, mu = NA, rho = NA)))
@@ -81,7 +76,7 @@ smooth = TRUE, smooth.n = 5) {
         .stopUserError("mapping.bias.file must be a file with *.rds suffix.")
     }
     .annotateMappingBiasVcf(vcf, 
-        .annotateMappingBias(tmp, vcf, mappingBias, max.bias, smooth, smooth.n)
+        .annotateMappingBias(tmp, vcf, mappingBias, smooth, smooth.n)
     )    
 }
 
@@ -129,7 +124,7 @@ smooth = TRUE, smooth.n = 5) {
     }
     return(ov1)
 }     
-.annotateMappingBias <- function(tmp, vcf, mappingBias, max.bias, smooth, smooth.n) {
+.annotateMappingBias <- function(tmp, vcf, mappingBias, smooth, smooth.n) {
     mappingBias <- .checkSeqlevelStyle(vcf, mappingBias, "mapping.bias.file", "vcf")
     .compareGenomes <- function(x, y) {
         gx <- genome(x)
@@ -172,7 +167,6 @@ smooth = TRUE, smooth.n = 5) {
         flog.warn("Could not impute mapping bias for all variants. Did you use calculateMappingBiasVcf?")
         tmp[is.na(tmp)] <- 1
     }
-    tmp[tmp > max.bias] <- max.bias
     return(data.frame(bias = tmp, pon.count = ponCnt,
                 mu = mu, rho = rho))
 }

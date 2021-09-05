@@ -38,6 +38,15 @@ $ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
     --genome hg19 --normal_panel $NORMAL_PANEL --assay agilent_v6
 ```
 
+When using `--model betabin` in `PureCN.R`, we recommend for all previous
+versions re-creating the mapping bias database by re-running `NormalDB.R`: 
+
+```
+# only re-creating the mapping bias file
+$ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
+    --genome hg19 --normal_panel $NORMAL_PANEL --assay agilent_v6
+```
+
 For upgrades from version 1.6, we highly recommend starting from scratch
 following this tutorial.
 
@@ -128,8 +137,16 @@ See the `r Biocpkg("rtracklayer")` documentation for problems loading the file.
 Check that the genome version of the baits file matches the reference.  Do not
 include chrM baits in case the capture kit includes some.
 
+We do not recommend padding the baits file manually unless the coverages are
+very low (<30X) where the increased counts from the padded regions might decrease
+sampling variance slightly. Note that we do however strongly recommend running the
+variant caller with a padding of at least 50bp to increase the number of
+informative SNPs, see below in the VCF section.
+
 The `--offtarget` flag will include off-target reads. Including them is
-recommended except for Amplicon data.
+recommended except for Amplicon data. For whole-exome data, the benefit is
+usually also limited unless the assay is inefficient with a high fraction of
+off-target reads (>10-15%).
 
 The `--genome` version is needed to annotate exons with gene symbols.  Use
 hg19/hg38 for human genomes, not b37/b38. You might get a warning that an
@@ -170,7 +187,8 @@ tool to generate a VCF for each sample.
 Important recommendations:
 
 - Use _MuTect 1.1.7_ if possible; _Mutect 2_ from _GATK 4.1.7+_ is now out of
-  alpha (earlier _Mutect 2_ versions are not supported and will not work).
+  alpha and VCFs generated following the best practices somatic workflow should
+  work (earlier _Mutect 2_ versions are not supported and will not work).
 
 - VCFs from most other tumor-only callers such as _VarScan2_ and
   _FreeBayes_ are supported, but only very limited artifact filtering will be
@@ -186,8 +204,11 @@ Important recommendations:
   `--genotype-germline-sites true --genotype-pon-sites true`. You will not get
   usuable output without those flags.
 
-- Run the variant caller with a 50-75 base pair interval padding to increase the
-  number of heterozygous SNPs
+- Run the variant caller with a 50-75 base pair interval padding to increase
+  the number of heterozygous SNPs (for example `--interval_padding` and
+  `--interval-padding` in _Mutect 1.1.7_ and _Mutect 2_, respectively). For
+  very high coverages beyond 1000X, it is safe to increase this value up to
+  200bp.
 
 
 # Run PureCN with internal segmentation
@@ -753,6 +774,7 @@ Argument name          | Corresponding PureCN argument | PureCN function
 `--changepointspenalty`| `changepoints.penalty` | `segmentationGATK4` 
 `--additionalcmdargs`| `additional.cmd.args` | `segmentationGATK4` 
 `--maxsegments`      | `max.segments` | `runAbsoluteCN` 
+`--minlogrsdev`      | `min.logr.sdev` | `runAbsoluteCN` 
 `--minpurity`        | `test.purity` | `runAbsoluteCN` 
 `--maxpurity`        | `test.purity` | `runAbsoluteCN` 
 `--minploidy`        | `min.ploidy` | `runAbsoluteCN` 

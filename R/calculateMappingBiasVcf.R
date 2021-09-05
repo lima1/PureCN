@@ -253,7 +253,8 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         }
         idx <- !is.na(fa[i, ]) & fa[i, ] > 0.05 & fa[i, ] < 0.9
         shapes <- c(NA, NA)
-        if (!sum(idx) >= min.normals) return(c(0, 0, 0, 0, shapes))
+        debug.ll <- rep(NA, 6)
+        if (!sum(idx) >= min.normals) return(c(rep(0, 4), shapes, debug.ll))
         dp <- alt[i, ] + ref[i, ]
         mdp <- median(dp, na.rm = TRUE)
 
@@ -261,27 +262,59 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
             fit <- suppressWarnings(try(vglm(cbind(alt[i, idx],
                 ref[i, idx]) ~ 1, betabinomial, trace = FALSE)))
             if (is(fit, "try-error")) {
-                flog.warn("Could not fit beta binomial dist for %s (%s).",
+                flog.warn("Could not fit beta binomial dist for %s (alt %s, ref %s, fa %s).",
                     as.character(gr)[i],
+                    paste0(alt[i, idx], collapse = ","),
+                    paste0(ref[i, idx], collapse = ","),
                     paste0(round(fa[i, idx], digits = 3), collapse = ","))
+
             } else {
                 shapes <- Coef(fit)
+                debug.fit <- dbetabinom(x = alt[i, idx], prob = shapes[1],
+                   size = dp[idx],
+                   rho = shapes[2], log = TRUE)
+                imin <- which.min(debug.fit)
+                if (length(imin)) {
+                    debug.ll1 <- c(alt[i,idx][imin], dp[idx][imin], debug.fit[imin])
+                } else {
+                    debug.ll1 <- rep(NA, 3)
+                }        
+                imax <- which.max(debug.fit)
+                if (length(imax)) {
+                    debug.ll2 <- c(alt[i,idx][imax], dp[idx][imax], debug.fit[imax])
+                } else {
+                    debug.ll2 <- rep(NA, 3)
+                }        
+                debug.ll <- c(debug.ll1, debug.ll2)
             }
         }
-        c(sum(ref[i, idx]), sum(alt[i, idx]), sum(idx), mean(fa[i, idx]), shapes)
+        c(sum(ref[i, idx]), sum(alt[i, idx]), sum(idx), mean(fa[i, idx]), shapes, debug.ll)
     })
     # Add an average "normal" SNP (average coverage and allelic fraction > 0.4)
-    # as empirical prior
+    # as empirical prior for variants with insufficient pon count for beta binomial
+    # fit
     gr$bias <- .adjustEmpBayes(x[1:4, ]) * 2
     gr$pon.count <- ponCntHits
     gr$mu <- x[5, ]
     gr$rho <- pmin(max.betafit.rho, pmax(min.betafit.rho, x[6, ]))
+    if (flog.threshold() == "DEBUG") {
+        mcols(gr)[["debug.ll.min.alt"]] <- x[7,]
+        mcols(gr)[["debug.ll.min.dp"]] <- x[8,]
+        mcols(gr)[["debug.ll.min"]] <- x[9,]
+        mcols(gr)[["debug.ll.max.alt"]] <- x[10,]
+        mcols(gr)[["debug.ll.max.dp"]] <- x[11,]
+        mcols(gr)[["debug.ll.max"]] <- x[12,]
+    }
     gr <- .clusterFa(gr, fa, alt, ref, min.normals.assign.betafit, num.betafit.clusters)
     gr <- gr[order(gr$pon.count, decreasing = TRUE)]
     gr <- sort(gr)
+    idx <- !is.na(gr$mu)
+    # use the beta binomial mu as bias when available
+    gr[idx]$bias <- gr[idx]$mu * 2 
     gr$triallelic <- FALSE
     gr$triallelic[duplicated(gr, fromLast = FALSE) |
                   duplicated(gr, fromLast = TRUE)] <- TRUE
+                 
     gr
 }
  
@@ -334,13 +367,14 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     if (sum(idx) < num.betafit.clusters) return(gr)
     flog.info("Clustering beta binomial fits...")
     fit <- Mclust(mcols(gr)[idx, c("mu", "rho")], G = seq_len(num.betafit.clusters))
+    prior <-  log(table(fit$classification) / length(fit$classification))
     x <- sapply(seq_len(nrow(fa)), function(i) {
         idx <- !is.na(fa[i, ]) & fa[i, ] > 0.05 & fa[i, ] < 0.9
         if (!sum(idx) >= min.normals.assign.betafit) return(NA)
-        ll <- apply(fit$parameters$mean, 2, function(m) {
+        ll <- apply(rbind(fit$parameters$mean, prior), 2, function(m) {
                 sum(dbetabinom(x = alt[i, idx], prob = m[1],
                    size = alt[i, idx] + ref[i, idx],
-                   rho = m[2], log = TRUE))
+                   rho = m[2], log = TRUE)) + m[3]
         })
         if (is.infinite(max(ll))) return(NA)
         which.max(ll)

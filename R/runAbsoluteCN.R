@@ -320,7 +320,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     .checkParameters(test.purity, min.ploidy, max.ploidy, max.non.clonal,
         max.homozygous.loss, sampleid, prior.K, prior.contamination, prior.purity,
         iterations, min.gof, model.homozygous, interval.file, log.ratio.calibration,
-        test.num.copy)
+        test.num.copy, max.mapping.bias)
 
     test.num.copy <- sort(test.num.copy)
 
@@ -548,7 +548,9 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         vcf <- do.call(fun.setMappingBiasVcf,
             .checkArgs(args.setMappingBiasVcf, "setMappingBiasVcf"))
         idxHqGermline <- info(vcf)[[paste0(vcf.field.prefix, "PR")]] < 0.1 &
-            info(vcf)[[paste0(vcf.field.prefix, "MBB")]] >= max.mapping.bias
+            info(vcf)[[paste0(vcf.field.prefix, "MBB")]] >= max.mapping.bias & 
+            info(vcf)[[paste0(vcf.field.prefix, "MBB")]] <= (2 - max.mapping.bias)
+
         flog.info("Excluding %i novel or poor quality variants from segmentation.", sum(!idxHqGermline))
         # for larger pool of normals, require that we have seen the SNP
         pon.count <- info(vcf)[[paste0(vcf.field.prefix, "MBPON")]]

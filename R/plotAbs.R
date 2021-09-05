@@ -162,7 +162,8 @@ ss) {
 .getVariantPosteriors <- function(res, id, max.mapping.bias = NULL) {
     r <- res$results[[id]]$SNV.posterior$posteriors
     if (!is.null(r) && !is.null(max.mapping.bias)) {
-        r <- r[r$MAPPING.BIAS >= max.mapping.bias,]
+        r <- r[r$MAPPING.BIAS >= max.mapping.bias & 
+               r$MAPPING.BIAS <= (2 - max.mapping.bias), ]
     }    
     r
 }
@@ -296,7 +297,7 @@ ss) {
 
     }    
     if (!is.null(max.mapping.bias)) {
-        idx <- idx & r$MAPPING.BIAS >= max.mapping.bias
+        idx <- idx & r$MAPPING.BIAS >= max.mapping.bias & r$MAPPING.BIAS <= (2 - max.mapping.bias)
     }
     if (!sum(idx)) {
         flog.warn("No variants to plot")

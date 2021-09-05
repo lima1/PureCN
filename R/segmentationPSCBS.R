@@ -191,9 +191,15 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
         .stopUserError("segmentationPSCBS requires VCF file.")
     }
     ov <- findOverlaps(vcf, tumor)
+    betat <- unlist(geno(vcf[queryHits(ov)])$FA[, tumor.id.in.vcf])
+    prefix <- .getPureCNPrefixVcf(vcf)
+    mapping.bias <- info(vcf[queryHits(ov)])[[paste0(prefix, "MBB")]]
+    betat.adj <- pmin(1, betat / mapping.bias)
+    flog.info("MAPD of %i allelic fractions: %.2f (%.2f adjusted).",
+        length(betat), median(abs(diff(betat))), median(abs(diff(betat.adj))))
     d.f <- cbind(as.data.frame(tumor[subjectHits(ov)]),
         CT = 2 ^ (log.ratio+1)[subjectHits(ov)],
-        betaT = unlist(geno(vcf[queryHits(ov)])$FA[, tumor.id.in.vcf]),
+        betaT = betat,
         betaN = NA,
         x = start(vcf[queryHits(ov)]),
         w = tumor$weights[subjectHits(ov)])

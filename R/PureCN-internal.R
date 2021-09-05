@@ -93,7 +93,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 .calcSNVLLik <- function(vcf, tumor.id.in.vcf, ov, p, test.num.copy, 
     C.likelihood, C, opt.C, median.C, snv.model, snv.lr, 
     sampleid = NULL, cont.rate = 0.01, prior.K, max.coverage.vcf, non.clonal.M,
-    model.homozygous=FALSE, error=0.001, max.mapping.bias=0.8, max.pon,
+    model.homozygous = FALSE, error = 0.001, max.mapping.bias = 0.8, max.pon,
     min.variants.segment) {
     
     .dbeta <- function(x, shape1, shape2, log, size, rho) dbeta(x=x, 
@@ -182,18 +182,18 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
             p.ar[[4]] <- p.ar.cont.2 + log(prior.cont[idx])
 
             # homozygous state
-            p.ar[[5]] <- dbinom(round((1-ar_all[idx])*dp_all[idx]),size=round(dp_all[idx]), 
-                prob=error/3, log=TRUE) + priorHom + log(1-prior.somatic[idx])
-             
+            p.ar[[5]] <- dbinom(round((1 - ar_all[idx]) * dp_all[idx]),
+                size = round(dp_all[idx]), prob = error / 3, log = TRUE) +
+                priorHom + log(1 - prior.somatic[idx])
             do.call(cbind, p.ar)
         }))
-        
     })
     
     tmp <- lapply(seq_along(xx),function(i) .calcMsSegment(xx[[i]]$likelihoods, 
                test.num.copy, opt.C[seg.idx[i]], prior.K, 
-               mapping.bias.ok=info(vcf[xx[[i]]$vcf.ids])[[paste0(prefix, "MBB")]]>=max.mapping.bias,
-               seg.id=seg.idx[i], min.variants.segment))
+               mapping.bias.ok = info(vcf[xx[[i]]$vcf.ids])[[paste0(prefix, "MBB")]] >= max.mapping.bias &
+                                 info(vcf[xx[[i]]$vcf.ids])[[paste0(prefix, "MBB")]] <= (2 - max.mapping.bias),
+               seg.id = seg.idx[i], min.variants.segment))
 
     xx <- lapply(tmp, lapply, function(x) x$best)
     
@@ -201,7 +201,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
         segmentValue <- sapply(seq_along(tmp), function(i) 
             tmp[[i]][[min(C[seg.idx[i]], max(test.num.copy))+1]][[field]])
         segmentValue <- unlist(sapply(seq_along(seg.idx), function(i) 
-            rep(segmentValue[i], sum(seg.idx[i]==queryHits(ov)))))
+            rep(segmentValue[i], sum(seg.idx[i] == queryHits(ov)))))
     }
     # Get segment M's for each SNV
     segment.M <- .extractValues(tmp, "M")
@@ -250,8 +250,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     posteriors$AR <- unlist(geno(vcf[vcf.ids])$FA[, tumor.id.in.vcf])
     posteriors$AR.ADJUSTED <- NA
     posteriors$MAPPING.BIAS <- info(vcf[vcf.ids])[[paste0(prefix, "MBB")]]
-    posteriors$AR.ADJUSTED <- posteriors$AR / posteriors$MAPPING.BIAS
-    posteriors$AR.ADJUSTED[posteriors$AR.ADJUSTED > 1] <- 1
+    posteriors$AR.ADJUSTED <- pmin(1, posteriors$AR / posteriors$MAPPING.BIAS)
     # Extract LOH
     posteriors$ML.LOH <- (posteriors$ML.M == posteriors$ML.C | 
         posteriors$ML.M == 0 | posteriors$ML.C == 1)
@@ -279,6 +278,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     rm.snv.posteriors <- apply(likelihoods, 1, max)
     idx.ignore <- rm.snv.posteriors == 0 | is.na(rm.snv.posteriors) |
         posteriors$MAPPING.BIAS < max.mapping.bias |
+        posteriors$MAPPING.BIAS > (2 - max.mapping.bias) |
         posteriors$start != posteriors$end
 
     posteriors$FLAGGED <- idx.ignore
@@ -337,7 +337,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
 .checkParameters <- function(test.purity, min.ploidy, max.ploidy, 
     max.non.clonal, max.homozygous.loss, sampleid, prior.K, 
     prior.contamination, prior.purity, iterations, min.gof, model.homozygous, 
-    interval.file, log.ratio.calibration, test.num.copy) {
+    interval.file, log.ratio.calibration, test.num.copy, max.mapping.bias) {
     if (min(test.purity) <= 0 || max(test.purity) > 0.99) 
         .stopUserError("test.purity not within expected range.")
     if (min.ploidy <= 0 || max.ploidy <= 2) 
@@ -354,6 +354,7 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
     .checkFraction(prior.K, "prior.K")
     .checkFraction(prior.contamination, "prior.contamination")
     .checkFraction(min.gof, "min.gof")
+    .checkFraction(max.mapping.bias, "max.mapping.bias")
 
     tmp <- sapply(prior.purity, .checkFraction, "prior.purity")
 
@@ -1039,11 +1040,12 @@ na.rm = TRUE)
     return(exon.lrs)
 }
 
-.estimateContamination <- function(pp,  max.mapping.bias=NULL, min.fraction.chromosomes=0.8) {
-    if (is.null(max.mapping.bias)) max.mapping.bias=0
+.estimateContamination <- function(pp,  max.mapping.bias = NULL, min.fraction.chromosomes = 0.8) {
+    if (is.null(max.mapping.bias)) max.mapping.bias <- 0
 
     idx <- pp$GERMLINE.CONTHIGH + pp$GERMLINE.CONTLOW > 0.5 & 
-        pp$MAPPING.BIAS >= max.mapping.bias
+        pp$MAPPING.BIAS >= max.mapping.bias &
+        pp$MAPPING.BIAS <= (2 - max.mapping.bias)
 
     if (!length(which(idx))) return(0)
     df <- data.frame(
