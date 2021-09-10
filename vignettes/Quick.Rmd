@@ -418,7 +418,10 @@ Important recommendations:
     
 - The `--parallel` flag will enable the parallel fitting of local optima. See 
   `r Biocpkg("BiocParallel")` for details. This script will use the default
-  backend.
+  backend. `--cores` is a short cut to use the specified number of CPUs instead
+  of the default backend. Only specify one of the two arguments. **Note that
+  memory usage can increase linearly with number of cores and insufficient
+  memory can result in random crashes.**
 
 - `--funsegmentation PSCBS` is the new recommendation in 1.22.  Support for
   interval weights currently requires a patch (see Section

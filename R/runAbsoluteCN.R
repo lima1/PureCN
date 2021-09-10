@@ -1046,8 +1046,15 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         if (is.null(BPPARAM) || is.null(vcf.file)) {
             results <- lapply(results, .fitSolution)
         } else {
-            results <- BiocParallel::bplapply(results,
-                                              .fitSolution, BPPARAM = BPPARAM)
+            results <- BiocParallel::bptry(BiocParallel::bplapply(results,
+                                              .fitSolution, BPPARAM = BPPARAM))
+
+            if (!all(BiocParallel::bpok(results))) {
+                .stopRuntimeError("Error in parallel variant fitting: ",
+                    tail(attr(results[[which(!BiocParallel::bpok(results))]], "traceback")),
+                    "\nBefore reporting an issue, try again with fewer cores and/or more memory."
+                )
+            }
         }
     }
     results <- .rankResults(results)
