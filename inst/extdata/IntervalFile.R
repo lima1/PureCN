@@ -9,37 +9,38 @@ option_list <- list(
     make_option(c("--infile"), action = "store", type = "character", 
         default = NULL,
         help = "Infile specifying target (baits) intervals. Needs to be parsable by rtracklayer."),
-    make_option(c("--offtarget"), action = "store_true",
+    make_option(c("--off-target"), action = "store_true",
         default = formals(PureCN::preprocessIntervals)$off.target, 
         help = "Include off-target regions [default %default]"),
-    make_option(c("--targetwidth"), action = "store", type = "integer",
+    make_option(c("--average-target-width"), action = "store", type = "integer",
         default = formals(PureCN::preprocessIntervals)$average.target.width, 
         help = "Split large targets to approximately that size [default %default]"),
-    make_option(c("--mintargetwidth"), action = "store", type = "integer",
+    make_option(c("--min-target-width"), action = "store", type = "integer",
         default = formals(PureCN::preprocessIntervals)$min.target.width, 
         help = "Either resize or drop targets smaller than specified [default %default]"),
-    make_option(c("--smalltargets"), action = "store", type = "character",
+    make_option(c("--small-targets"), action = "store", type = "character",
         default = formals(PureCN::preprocessIntervals)$small.targets[[2]], 
         help = "Either 'resize' or 'drop' small targets [default %default]"),
-    make_option(c("--offtargetwidth"), action = "store", type = "integer",
+    make_option(c("--average-off-target-width"), action = "store", type = "integer",
         default = formals(PureCN::preprocessIntervals)$average.off.target.width, 
         help = "Bin off-target regions to approximately that size [default %default]"),
-    make_option(c("--offtargetseqlevels"), action = "store", type = "character",
+    make_option(c("--off-target-seqlevels"), action = "store", type = "character",
         default = formals(PureCN::preprocessIntervals)$off.target.seqlevels[[2]], 
         help = "Controls how to deal with chromosomes/contigs not found in infile. One of targeted, all [default %default]"),
     make_option(c("--mappability"), action = "store", type = "character", 
         help = "File parsable by rtracklayer specifying mappability scores of genomic regions."),
-    make_option(c("--minmappability"), action = "store", type = "character", 
+    make_option(c("--min-mappability"), action = "store", type = "character", 
         default = paste(eval(formals(PureCN::preprocessIntervals)$min.mappability), collapse=","),
         help = "Minimum mappability for on-target, off-target and chrY regions [default %default]"),
     make_option(c("--reptiming"), action = "store", type = "character", default = NULL,
         help = "File parsable by rtracklayer specifying replication timing scores of genomic regions."),
-    make_option(c("--reptimingwidth"), action = "store", type = "integer", default = 100000,
+    make_option(c("--average-reptiming-width"), action = "store", type = "integer",
+        default = formals(PureCN::preprocessIntervals)$average.reptiming.width, 
         help = "Average the replication timing data into bins of the specified size [default %default]"),
     make_option(c("--genome"), action = "store", type = "character", 
         default = NULL,
         help = "Genome version. If one of hg18, hg19, hg38, mm9, mm10, rn4, rn5, rn6, canFam3 will annotate intervals with gene symbols"),
-    make_option(c("--outfile"), action = "store", type = "character", 
+    make_option(c("--out-file"), action = "store", type = "character", 
         default = NULL,
         help = "Outfile of annotated targets optimized for copy number calling."),
     make_option(c("--export"), action = "store", type = "character", default = NULL,
@@ -52,18 +53,43 @@ option_list <- list(
         help = "Overwrite existing files")
 )
 
-opt <- parse_args(OptionParser(option_list = option_list))
+alias_list <- list(
+    "offtarget" = "off-target",
+    "targetwidth" = "average-target-width",
+    "mintargetwidth" = "min-target-width",
+    "smalltargets" = "small-targets",
+    "offtargetwidth" = "average-off-target-width",
+    "offtargetseqlevels" = "off-target-seqlevels",
+    "minmappability" = "min-mappability",
+    "reptimingwidth" = "average-reptiming-width",
+    "outfile" = "out-file"
+)
+replace_alias <- function(x, deprecated = TRUE) {
+    idx <- match(x, paste0("--", names(alias_list)))
+    if (any(!is.na(idx))) {
+        replaced <- paste0("--", alias_list[na.omit(idx)])
+        x[!is.na(idx)] <- replaced
+        if (deprecated) {
+            flog.warn("Deprecated arguments, use %s instead.", paste(replaced, collapse=" "))
+        }
+    }
+    return(x)
+}
+    
+opt <- parse_args(OptionParser(option_list = option_list),
+    args = replace_alias(commandArgs(trailingOnly = TRUE)),
+    convert_hyphens_to_underscores = TRUE)
 
 if (opt$version) {
     message(as.character(packageVersion("PureCN")))
     q(status = 1)
 }
 
-outfile <- opt$outfile
+outfile <- opt$out_file
 
 if (is.null(opt$infile)) stop("Need --infile.")
 if (is.null(opt$fasta)) stop("Need --fasta.")
-if (is.null(opt$outfile)) stop("Need --outfile.")
+if (is.null(outfile)) stop("Need --out-file.")
 
 if (!opt$force && file.exists(outfile)) {
     stop(outfile, " exists. Use --force to overwrite.")
@@ -79,7 +105,7 @@ if (!opt$force && file.exists(outfile)) {
     }
 }
 
-.checkOutputDir(opt$outfile)
+.checkOutputDir(outfile)
 .checkOutputDir(opt$export)
 .checkOutputDir(opt$exclude)
 
@@ -126,22 +152,22 @@ if (!is.null(reptiming)) {
     reptiming <- import(reptiming)
 }
 
-if (!opt$offtarget) {
+if (!opt$off_target) {
     flog.info("Will not add off-target regions. This is only recommended for%s",
-     " Amplicon data. Add --offtarget to include them.")
+     " Amplicon data. Add --off-target to include them.")
 }
 
-min.mappability <- as.numeric(strsplit(opt$minmappability, ",")[[1]])
+min.mappability <- as.numeric(strsplit(opt$min_mappability, ",")[[1]])
 
 outGC <- preprocessIntervals(intervals, reference.file,
-    output.file = outfile, off.target = opt$offtarget,
+    output.file = outfile, off.target = opt$off_target,
     mappability = mappability, min.mappability = min.mappability,
-    min.target.width = opt$mintargetwidth,
-    small.targets = opt$smalltargets,
-    average.off.target.width = opt$offtargetwidth,
-    reptiming = reptiming, average.reptiming.width = opt$reptimingwidth,
-    off.target.seqlevels = opt$offtargetseqlevels,
-    exclude = exclude, average.target.width = opt$targetwidth)
+    min.target.width = opt$min_target_width,
+    small.targets = opt$small_targets,
+    average.off.target.width = opt$average_off_target_width,
+    reptiming = reptiming, average.reptiming.width = opt$average_reptiming_width,
+    off.target.seqlevels = opt$off_target_seqlevels,
+    exclude = exclude, average.target.width = opt$average_target_width)
 
 knownGenome <- list(
     hg18 = "TxDb.Hsapiens.UCSC.hg18.knownGene",

@@ -13,14 +13,14 @@ option_list <- list(
         default = NULL,
         help = paste("TMB: File parsable by rtracklayer specifying regions to exclude",
          "from mutation burden calculation, e.g. intronic regions")),
-    make_option(c("--maxpriorsomatic"), action = "store", type = "double",
+    make_option(c("--max-prior-somatic"), action = "store", type = "double",
         default = formals(PureCN::callMutationBurden)$max.prior.somatic,
         help = "TMB: Can be used to exclude hotspot mutations with high somatic prior probability [default %default]"),
-    make_option(c("--keepindels"), action = "store_true", default = FALSE, 
+    make_option(c("--keep-indels"), action = "store_true", default = FALSE, 
         help = "TMB: count indels"),
     make_option(c("--signatures"), action = "store_true", default = FALSE, 
         help="Attempt the deconstruction of COSMIC signatures (requires deconstructSigs package)"),
-    make_option(c("--signature_databases"), action = "store", type = "character", 
+    make_option(c("--signature-databases"), action = "store", type = "character", 
         default = "signatures.exome.cosmic.v3.may2019", 
         help = "Use the specified signature databases provided by deconstrucSigs. To test multiple databases, provide them : separated [%default]."),
     make_option(c("--out"), action = "store", type = "character",
@@ -31,20 +31,36 @@ option_list <- list(
     make_option(c("-f", "--force"), action = "store_true", default = FALSE, 
         help="Overwrite existing files")
 )
-
-opt <- parse_args(OptionParser(option_list=option_list))
+alias_list <- list(
+    "signature_databases" = "signature-databases",
+    "maxpriorsomatic" = "max-prior-somatic",
+    "keepindels" = "keep-indels"
+)
+replace_alias <- function(x, deprecated = TRUE) {
+    idx <- match(x, paste0("--", names(alias_list)))
+    if (any(!is.na(idx))) {
+        replaced <- paste0("--", alias_list[na.omit(idx)])
+        x[!is.na(idx)] <- replaced
+        if (deprecated) {
+            flog.warn("Deprecated arguments, use %s instead.", paste(replaced, collapse=" "))
+        }
+    }
+    return(x)
+}
+    
+opt <- parse_args(OptionParser(option_list = option_list),
+    args = replace_alias(commandArgs(trailingOnly = TRUE)),
+    convert_hyphens_to_underscores = TRUE)
 
 if (opt$version) {
     message(as.character(packageVersion("PureCN")))
-    q(status=1)
-}    
+    q(status = 1)
+}
 
 # Parse input rds
 infileRds <- opt$rds
 if (is.null(infileRds)) stop("Need --rds")
 infileRds <- normalizePath(infileRds, mustWork = TRUE)
-
-# Parse outdir
 
 # Parse both BED files restricting covered region
 callableFile <- opt$callable
@@ -100,10 +116,10 @@ if (!opt$force && file.exists(outfileMb)) {
 flog.info("Calling mutation burden...")
 
 fun.countMutation <- eval(formals(callMutationBurden)$fun.countMutation)
-if (opt$keepindels) fun.countMutation <- function(vcf) width(vcf) >= 1
+if (opt$keep_indels) fun.countMutation <- function(vcf) width(vcf) >= 1
     
 mb <- callMutationBurden(res, callable = callable, exclude = exclude,
-        max.prior.somatic = opt$maxpriorsomatic,
+        max.prior.somatic = opt$max_prior_somatic,
         fun.countMutation = fun.countMutation)
 
 write.csv(cbind(Sampleid=sampleid, mb), file = outfileMb, row.names = FALSE,

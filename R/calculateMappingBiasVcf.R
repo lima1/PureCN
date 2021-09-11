@@ -13,6 +13,9 @@
 #' fitting a beta binomial distribution
 #' @param min.normals.assign.betafit Minimum number of normals with
 #' heterozygous SNPs to assign to a beta binomal fit cluster
+#' @param min.normals.position.specific.fit Minimum normals to use
+#' position-specific beta-binomial fits. Otherwise only clustered fits are
+#' used.
 #' @param min.median.coverage.betafit Minimum median coverage of normals with
 #' heterozygous SNP for fitting a beta binomial distribution
 #' @param num.betafit.clusters Maximum number of beta binomial fit clusters
@@ -39,6 +42,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
                                     min.normals = 1,
                                     min.normals.betafit = 7,
                                     min.normals.assign.betafit = 3,
+                                    min.normals.position.specific.fit = 10,
                                     min.median.coverage.betafit = 5,
                                     num.betafit.clusters = 9,
                                     min.betafit.rho = 1e-04,
@@ -59,6 +63,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
             min.normals = min.normals,
             min.normals.betafit = min.normals.betafit,
             min.normals.assign.betafit = min.normals.assign.betafit,
+            min.normals.position.specific.fit = min.normals.position.specific.fit,
             min.median.coverage.betafit = min.median.coverage.betafit,
             num.betafit.clusters = num.betafit.clusters,
             min.betafit.rho = min.betafit.rho,
@@ -77,6 +82,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
     attr(bias, "min.normals") <- min.normals
     attr(bias, "min.normals.betafit") <- min.normals.betafit
     attr(bias, "min.normals.assign.betafit") <- min.normals.assign.betafit
+    attr(bias, "min.normals.position.specific.fit") <- min.normals.position.specific.fit
     attr(bias, "min.median.coverage.betafit") <- min.median.coverage.betafit
     attr(bias, "num.betafit.clusters") <- num.betafit.clusters
     attr(bias, "min.betafit.rho") <- min.betafit.rho
@@ -99,6 +105,9 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
 #' fitting a beta distribution
 #' @param min.normals.assign.betafit Minimum number of normals with
 #' heterozygous SNPs to assign to a beta binomal fit cluster
+#' @param min.normals.position.specific.fit Minimum normals to use
+#' position-specific beta-binomial fits. Otherwise only clustered fits are
+#' used.
 #' @param min.median.coverage.betafit Minimum median coverage of normals with
 #' heterozygous SNP for fitting a beta distribution
 #' @param num.betafit.clusters Maximum number of beta binomial fit clusters
@@ -129,6 +138,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
                                     min.normals = 1,
                                     min.normals.betafit = 7,
                                     min.normals.assign.betafit = 3,
+                                    min.normals.position.specific.fit = 10,
                                     min.median.coverage.betafit = 5,
                                     num.betafit.clusters = 9,
                                     min.betafit.rho = 1e-04,
@@ -189,6 +199,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         min.normals = min.normals,
         min.normals.betafit = min.normals.betafit,
         min.normals.assign.betafit = min.normals.assign.betafit,
+        min.normals.position.specific.fit = min.normals.position.specific.fit,
         min.median.coverage.betafit = min.median.coverage.betafit,
         num.betafit.clusters = num.betafit.clusters,
         min.betafit.rho = min.betafit.rho,
@@ -220,11 +231,36 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
 .calculateMappingBias <- function(nvcf, alt = NULL, ref = NULL, gr = NULL,
                                   min.normals, min.normals.betafit = 7,
                                   min.normals.assign.betafit = 3,
+                                  min.normals.position.specific.fit = 10,
                                   min.median.coverage.betafit = 5,
                                   num.betafit.clusters = 9,
                                   min.betafit.rho = 1e-04,
                                   max.betafit.rho = 0.2,
                                   verbose = FALSE) {
+
+    if (min.normals < 1) {
+        .stopUserError("min.normals (", min.normals, ") must be >= 1.")
+    }
+    if (min.normals > min.normals.assign.betafit) {
+        .stopUserError("min.normals (", min.normals,
+        ") cannot be larger than min.normals.assign.betafit (", min.normals.assign.betafit, ").")
+    }
+    if (min.normals.assign.betafit > min.normals.betafit) {
+        .stopUserError("min.normals.assign.betafit (", min.normals.assign.betafit,
+        ") cannot be larger than min.normals.betafit (", min.normals.betafit, ").")
+    }
+    if (min.normals.betafit > min.normals.position.specific.fit) {
+        .stopUserError("min.normals.betafit (", min.normals.betafit,
+        ") cannot be larger than min.normals.position.specific.fit (", min.normals.position.specific.fit, ").")
+    }
+    .checkFraction(min.betafit.rho, "min.betafit.rho")
+    .checkFraction(max.betafit.rho, "max.betafit.rho")
+    if (min.betafit.rho > max.betafit.rho) {
+        .stopUserError("min.betafit.rho (", round(min.betafit.rho, digits = 3),
+        ") cannot be larger than max.betafit.rho (",
+        round(max.betafit.rho, digits = 3), ").")
+    }
+     
     if (!is.null(nvcf)) {
         if (ncol(nvcf) < 2) {
             .stopUserError("The normal.panel.vcf.file contains only a single sample.")
@@ -242,6 +278,16 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
             .stopUserError("The normal.panel.vcf.file contains only a single sample.")
         }
         fa <- alt / (ref + alt)
+    }
+    position.specific.fits <- TRUE
+    if (ncol(fa) < min.normals.position.specific.fit) {
+        position.specific.fits <- FALSE
+        flog.info("Not enough normal samples (%i) for position-specific beta-binomial fits.", ncol(fa))
+        if (ncol(fa) > min.normals.assign.betafit) {
+            min.normals.betafit <- min.normals.assign.betafit
+            flog.info("Lowering min.normals.betafit to min.normals.assign.beta.fit (%i) to seed clustering with sufficient fits.",
+                min.normals.betafit)
+        }
     }
     ponCntHits <- apply(alt, 1, function(x) sum(!is.na(x)))
     if (verbose) {
@@ -305,7 +351,8 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         mcols(gr)[["debug.ll.max.dp"]] <- x[11,]
         mcols(gr)[["debug.ll.max"]] <- x[12,]
     }
-    gr <- .clusterFa(gr, fa, alt, ref, min.normals.assign.betafit, num.betafit.clusters)
+    gr <- .clusterFa(gr, fa, alt, ref, min.normals.assign.betafit,
+                     num.betafit.clusters, position.specific.fits)
     gr <- gr[order(gr$pon.count, decreasing = TRUE)]
     gr <- sort(gr)
     idx <- !is.na(gr$mu)
@@ -361,7 +408,8 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     apply(x, 2, function(y) y[2] / sum(head(y, 2)))
 }
 
-.clusterFa <- function(gr, fa, alt, ref, min.normals.assign.betafit = 3, num.betafit.clusters = 9) {
+.clusterFa <- function(gr, fa, alt, ref, min.normals.assign.betafit = 3, num.betafit.clusters = 9,
+                       position.specific.fits = TRUE) {
     idx <- !is.na(gr$mu)
     gr$clustered <- FALSE
     if (sum(idx) < num.betafit.clusters) return(gr)
@@ -379,7 +427,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         if (is.infinite(max(ll))) return(NA)
         which.max(ll)
     })
-    idxa <- is.na(gr$mu) & !is.na(x)
+    idxa <- ( is.na(gr$mu) | !position.specific.fits) & !is.na(x)
     flog.info("Assigning (%i/%i) variants a clustered beta binomal fit.",
         sum(idxa), length(gr))
     gr$mu[idxa] <- fit$parameters$mean[1, x[idxa]]

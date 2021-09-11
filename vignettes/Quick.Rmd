@@ -33,9 +33,9 @@ versions 1.16 and later. For versions 1.8 to 1.14, please re-run `NormalDB.R`
 (see also below): 
 
 ```
-$ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
-    --coveragefiles example_normal_coverages.list \
-    --genome hg19 --normal_panel $NORMAL_PANEL --assay agilent_v6
+$ Rscript $PURECN/NormalDB.R --out-dir $OUT_REF \
+    --coverage-files example_normal_coverages.list \
+    --genome hg19 --normal-panel $NORMAL_PANEL --assay agilent_v6
 ```
 
 When using `--model betabin` in `PureCN.R`, we recommend for all previous
@@ -43,8 +43,8 @@ versions re-creating the mapping bias database by re-running `NormalDB.R`:
 
 ```
 # only re-creating the mapping bias file
-$ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
-    --genome hg19 --normal_panel $NORMAL_PANEL --assay agilent_v6
+$ Rscript $PURECN/NormalDB.R --out-dir $OUT_REF \
+    --genome hg19 --normal-panel $NORMAL_PANEL --assay agilent_v6
 ```
 
 For upgrades from version 1.6, we highly recommend starting from scratch
@@ -125,7 +125,7 @@ Usage: /path/to/PureCN/inst/extdata/PureCN.R [options] ...
 # specify path where PureCN should store reference files
 $ export OUT_REF="reference_files"
 $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
-    --fasta hg19.fa --outfile $OUT_REF/baits_hg19_intervals.txt \
+    --fasta hg19.fa --out-file $OUT_REF/baits_hg19_intervals.txt \
     --offtarget --genome hg19 \
     --export $OUT_REF/baits_optimized_hg19.bed \
     --mappability wgEncodeCrgMapabilityAlign100mer.bigWig \
@@ -236,7 +236,7 @@ For each sample, tumor and normal, calculate GC-normalized coverages:
 
 ```
 # Calculate and GC-normalize coverage from a BAM file 
-$ Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \ 
+$ Rscript $PURECN/Coverage.R --out-dir $OUT/$SAMPLEID \ 
     --bam ${SAMPLEID}.bam \
     --intervals $OUT_REF/baits_hg19_intervals.txt
 ```
@@ -246,7 +246,7 @@ coverage file names (one per line). The file extension must be `.list`:
 
 ```
 # Calculate and GC-normalize coverage from a list of BAM files 
-$ Rscript $PURECN/Coverage.R --outdir $OUT/normals \ 
+$ Rscript $PURECN/Coverage.R --out-dir $OUT/normals \ 
     --bam normals.list \
     --intervals $OUT_REF/baits_hg19_intervals.txt \
     --cores 4
@@ -273,7 +273,7 @@ Important recommendations:
 
 ```
 # GC-normalize coverage from a GATK DepthOfCoverage file
-Rscript $PURECN/Coverage.R --outdir $OUT/$SAMPLEID \
+Rscript $PURECN/Coverage.R --out-dir $OUT/$SAMPLEID \
     --coverage ${SAMPLEID}.coverage.sample_interval_summary \ 
     --intervals $OUT_REF/baits_hg19_intervals.txt
 ```
@@ -288,22 +288,22 @@ ls -a $OUT/normals/*_loess.txt.gz | cat > example_normal_coverages.list
 # In case no GC-normalization is performed:
 # ls -a $OUT/normals/*_coverage.txt.gz | cat > example_normal_coverages.list
 
-$ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
-    --coveragefiles example_normal_coverages.list \
+$ Rscript $PURECN/NormalDB.R --out-dir $OUT_REF \
+    --coverage-files example_normal_coverages.list \
     --genome hg19 --assay agilent_v6
 
 # When normal panel VCF is available (highly recommended for
 # unmatched samples)
-$ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
-    --coveragefiles example_normal_coverages.list \
-    --normal_panel $NORMAL_PANEL \
+$ Rscript $PURECN/NormalDB.R --out-dir $OUT_REF \
+    --coverage-files example_normal_coverages.list \
+    --normal-panel $NORMAL_PANEL \
     --genome hg19 \
     --assay agilent_v6
 
 # For a Mutect2/GATK4 normal panel GenomicsDB (beta)
-$ Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
-    --coveragefiles example_normal_coverages.list \
-    --normal_panel $GENOMICSDB-WORKSPACE-PATH/pon_db \
+$ Rscript $PURECN/NormalDB.R --out-dir $OUT_REF \
+    --coverage-files example_normal_coverages.list \
+    --normal-panel $GENOMICSDB-WORKSPACE-PATH/pon_db \
     --genome hg19 \
     --assay agilent_v6
 ```
@@ -335,7 +335,7 @@ Important recommendations:
 
 - A warning pointing to the likely use of a wrong baits file means that more
   than 5% of targets have close to 0 coverage in all normal samples. A BED file
-  with the low coverage targets will be generated in `--outdir`.  If for any
+  with the low coverage targets will be generated in `--out-dir`.  If for any
   reason there is no access to the correct file, it is recommended to re-run the
   `IntervalFile.R` command and provide this BED file with `--exclude`.
 
@@ -362,14 +362,14 @@ $ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
     --tumor $OUT/$SAMPLEID/${SAMPLEID}_coverage_loess.txt.gz \
     --sampleid $SAMPLEID \
     --vcf ${SAMPLEID}_mutect.vcf \
-    --statsfile ${SAMPLEID}_mutect_stats.txt \
-    --funsegmentation PSCBS \
+    --stats-file ${SAMPLEID}_mutect_stats.txt \
+    --fun-segmentation PSCBS \
     --normaldb $OUT_REF/normalDB_hg19.rds \
-    --mappingbiasfile $OUT_REF/mapping_bias_hg19.rds \
+    --mapping-bias-file $OUT_REF/mapping_bias_hg19.rds \
     --intervals $OUT_REF/baits_hg19_intervals.txt \
-    --snpblacklist hg19_simpleRepeats.bed \
+    --snp-blacklist hg19_simpleRepeats.bed \
     --genome hg19 \
-    --force --postoptimize --seed 123
+    --force --post-optimize --seed 123
 
 # With a matched normal (test run; for production pipelines we recommend the
 # unmatched workflow described above)
@@ -409,7 +409,7 @@ Important recommendations:
   that performs good artifact filtering, this file is not needed. Do NOT 
   provide this file for _Mutect 2_.
 
-- The `--postoptimize` flag defines that purity should be optimized using both
+- The `--post-optimize` flag defines that purity should be optimized using both
   variant allelic fractions and copy number instead of copy number only.  This
   results in a significant runtime increase for whole-exome data.
 
@@ -423,7 +423,7 @@ Important recommendations:
   memory usage can increase linearly with number of cores and insufficient
   memory can result in random crashes.**
 
-- `--funsegmentation PSCBS` is the new recommendation in 1.22.  Support for
+- `--fun-segmentation PSCBS` is the new recommendation in 1.22.  Support for
   interval weights currently requires a patch (see Section
   \@ref(installation)). See below for some more details on the best choice of
   the method.
@@ -437,34 +437,34 @@ Important recommendations:
 
     - High purity and high quality: For cancer types with a high expected
       purity, such as ovarian cancer, AND when quality is expected to be very
-      good (high coverage, young samples), `--maxcopynumber 8`. 
+      good (high coverage, young samples), `--max-copynumber 8`. 
       (`r Biocpkg("PureCN")` reports copy numbers greater than this value, but
       will stop fitting SNP allelic fractions to the exact allele-specific copy
       number because this will get impossible very quickly with high copy
       numbers - and computationally expensive.) 
 
-    - Small panels with high coverage: `--padding 100` (or higher), requires
+    - Small panels with high coverage: `--interval-padding 100` (or higher), requires
       running the variant caller with this padding or without interval file. Use
       the same settings for the panel of normals VCF so that SNPs in the
       flanking regions have reliable mapping bias estimates. The
-      `--maxhomozygousloss` parameter might also need some adjustment for very
+      `--max-homozygous-loss` parameter might also need some adjustment for very
       small panels with large gaps around captured deletions.
 
     - Cell lines: Safely skip the search for low purity solutions in cell lines:
-      `--maxcopynumber 8`, `--minpurity 0.9`, `--maxpurity 0.99`.  Add
-      `--modelhomozygous` to find regions of LOH in samples without normal
+      `--max-copynumber 8`, `--min-purity 0.9`, `--max-purity 0.99`.  Add
+      `--model-homozygous` to find regions of LOH in samples without normal
       contamination (do not provide this flag when matched normal data are
       available in the VCF).
 
-    - cfDNA: `--minpurity 0.1`, `--minaf 0.01` (or lower) and `--error 0.0005`
+    - cfDNA: `--min-purity 0.1`, `--min-af 0.01` (or lower) and `--error 0.0005`
       (or lower, when there is UMI-based error correction). Note that the
       estimated purity can be very wrong when the true purity is below 5-7%;
       these samples are usually flagged as non-aberrant.
 
-    - All assays: `--maxsegments` should set to a value so that with few
+    - All assays: `--max-segments` should set to a value so that with few
       exceptions only poor quality samples exceed this cutoff. For cancer types
       with high heterogenity, it is also recommended to increase
-      `--maxnonclonal` to 0.3-0.4 (this will increase the runtime significantly
+      `--max-non-clonal` to 0.3-0.4 (this will increase the runtime significantly
       for whole-exome data).
     
     - The choice of the segmentation function can also make a significant
@@ -480,14 +480,14 @@ Important recommendations:
           number of SNPs per intervals, for example assays with copy number
           backbones. We appreciate feedback.
 
-        - CBS: Simple, fast and well tested. Does not support SNP information,
-          so only recommended for settings with a very small SNPs/intervals
-          ratio, for example small targeted panels (<1Mb) with healthy off-target
-          coverage (<150kb resolution and similar log ratio noise compared to 
-          on-target).
+        - CBS: Simple, fast and well tested. Does not fully support SNP
+          information, so only recommended for settings with a very small
+          SNPs/intervals ratio, for example small targeted panels (<1Mb) with
+          healthy off-target coverage (<150kb resolution and similar log ratio
+          noise compared to on-target).
 
         - copynumber: For cases with multiple time points or biopsies. This is   
-          automatically chosen with `--additionaltumors` and currently not
+          automatically chosen with `--additional-tumors` and currently not
           supported in a single-sample analysis.
 
         - Hclust/none: For third-party segmentations. `Hclust` clusters segments
@@ -550,7 +550,7 @@ _GATK4_, _EXCAVATOR2_). For a minimal test run:
 ```
 Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
-    --segfile $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
+    --seg-file $OUT/$SAMPLEID/${SAMPLEID}.cnvkit.seg \
     --vcf ${SAMPLEID}_mutect.vcf \
     --intervals $OUT_REF/baits_hg19_intervals.txt \
     --genome hg19 
@@ -568,7 +568,7 @@ and genome. Here an _CNVkit_ example:
 # Recommended: Provide a normal panel VCF to remove mapping biases, pre-compute
 # position-specific bias for much faster runtimes with large panels
 # This needs to be done only once for each assay
-Rscript $PURECN/NormalDB.R --outdir $OUT_REF --normal_panel $NORMAL_PANEL \
+Rscript $PURECN/NormalDB.R --out-dir $OUT_REF --normal-panel $NORMAL_PANEL \
     --assay agilent_v6 --genome hg19 --force
 
 # Export the segmentation in DNAcopy format
@@ -579,19 +579,19 @@ cnvkit.py export seg $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.cns --enumerate-chroms \
 Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
     --tumor $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.cnr \
-    --segfile $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.seg \
-    --mappingbiasfile $OUT_REF/mapping_bias_agilent_v6_hg19.rds \
+    --seg-file $OUT/$SAMPLEID/${SAMPLEID}_cnvkit.seg \
+    --mapping-bias-file $OUT_REF/mapping_bias_agilent_v6_hg19.rds \
     --vcf ${SAMPLEID}_mutect.vcf \
-    --statsfile ${SAMPLEID}_mutect_stats.txt \
-    --snpblacklist hg19_simpleRepeats.bed \
+    --stats-file ${SAMPLEID}_mutect_stats.txt \
+    --snp-blacklist hg19_simpleRepeats.bed \
     --genome hg19 \
-    --funsegmentation Hclust \
-    --force --postoptimize --seed 123
+    --fun-segmentation Hclust \
+    --force --post-optimize --seed 123
 ```
 
 Important recommendations:
 
-- The `--funsegmentation` argument controls if the data should to be
+- The `--fun-segmentation` argument controls if the data should to be
   re-segmented using germline BAFs (default). Set this value to `none` if the
   provided segmentation should be used as is.  The recommended `Hclust` will
   only cluster provided segments.
@@ -600,11 +600,11 @@ Important recommendations:
   the `--intervals` argument is not required.
 
 - In test runs, especially when the input VCF contains matched normal
-  information, `--mappingbiasfile` can be skipped
+  information, `--mapping-bias-file` can be skipped
 
 - _CNVkit_ runs without normal reference samples are not recommended
 
-- The `--statsfile` is only supported for _Mutect 1.1.7_. _Mutect 2_ provides
+- The `--stats-file` is only supported for _Mutect 1.1.7_. _Mutect 2_ provides
   the filter flags directly in the VCF.
 
 ## Recommended _GATK4_ usage
@@ -613,26 +613,26 @@ Important recommendations:
 # Recommended: Provide a normal panel GenomicsDB to remove mapping
 # biases, pre-compute position-specific bias for much faster runtimes
 # with large panels. This needs to be done only once for each assay. 
-Rscript $PURECN/NormalDB.R --outdir $OUT_REF \
-    --normal_panel $GENOMICSDB-WORKSPACE-PATH/pon_db \
+Rscript $PURECN/NormalDB.R --out-dir $OUT_REF \
+    --normal-panel $GENOMICSDB-WORKSPACE-PATH/pon_db \
     --assay agilent_v6 --genome hg19 --force
 
 Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID  \
     --sampleid $SAMPLEID \
     --tumor $OUT/$SAMPLEID/${SAMPLEID}.hdf5 \
-    --logratiofile $OUT/$SAMPLEID/${SAMPLEID}.denoisedCR.tsv \
-    --segfile $OUT/$SAMPLEID/${SAMPLEID}.modelFinal.seg \
-    --mappingbiasfile $OUT_REF/mapping_bias_agilent_v6_hg19.rds \
+    --log-ratio-file $OUT/$SAMPLEID/${SAMPLEID}.denoisedCR.tsv \
+    --seg-file $OUT/$SAMPLEID/${SAMPLEID}.modelFinal.seg \
+    --mapping-bias-file $OUT_REF/mapping_bias_agilent_v6_hg19.rds \
     --vcf ${SAMPLEID}_mutect2_filtered.vcf \
-    --snpblacklist hg19_simpleRepeats.bed \
+    --snp-blacklist hg19_simpleRepeats.bed \
     --genome hg19 \
-    --funsegmentation Hclust \
-    --force --postoptimize --seed 123
+    --fun-segmentation Hclust \
+    --force --post-optimize --seed 123
 ```
 
 Important recommendations:
 
-- The `--funsegmentation` can be set to none in most cases. This will keep the
+- The `--fun-segmentation` can be set to none in most cases. This will keep the
   segmentation largely as provided. `Hclust` clusters segments to avoid
   over-segmentation and to calibrate log-ratios across chromosomes.  This will
   thus alter the GATK4 segmentation, which might not be desired.
@@ -657,7 +657,7 @@ grep CALLABLE ${SAMPLEID}_callable_status.bed > \
     ${SAMPLEID}_callable_status_filtered.bed
 
 # Only count mutations in callable regions, also subtract what was
-# ignored in PureCN.R via --snpblacklist, like simple repeats, from the
+# ignored in PureCN.R via --snp-blacklist, like simple repeats, from the
 # mutation per megabase calculation
 # Also search for the COSMIC mutation signatures
 # (http://cancer.sanger.ac.uk/cosmic/signatures)
@@ -669,8 +669,8 @@ Rscript $PureCN/Dx.R --out $OUT/$SAMPLEID/$SAMPLEID \
 
 # Restrict mutation burden calculation to coding sequences
 Rscript $PureCN/FilterCallableLoci.R --genome hg19 \
-    --infile ${SAMPLEID}_callable_status_filtered.bed \
-    --outfile ${SAMPLEID}_callable_status_filtered_cds.bed \
+    --in-file ${SAMPLEID}_callable_status_filtered.bed \
+    --out-file ${SAMPLEID}_callable_status_filtered_cds.bed \
     --exclude '^HLA'
  
 Rscript $PureCN/Dx.R --out $OUT/$SAMPLEID/${SAMPLEID}_cds \
@@ -684,6 +684,9 @@ Important recommendations:
 - Run _GATK CallableLoci_ with `--minDepth N` where N is roughly 20% of the mean
   target coverage of all samples.
 
+- If `--callable` is missing, all intervals passing filters are assumed to be
+  callable.
+
 
 # Reference
 
@@ -691,18 +694,18 @@ Argument name          | Corresponding PureCN argument | PureCN function
 -----------------------|-------------------------------|----------------
 `--fasta`              | `reference.file` | `preprocessIntervals` 
 `--infile`             | `interval.file` | `preprocessIntervals` 
-`--offtarget`          |     `off.target`    | `preprocessIntervals` 
-`--targetwidth`        | `average.target.width` | `preprocessIntervals` 
-`--mintargetwidth`     | `min.target.width` | `preprocessIntervals` 
-`--smalltargets`       | `small.targets` | `preprocessIntervals` 
-`--offtargetwidth`     | `average.off.target.width` | `preprocessIntervals` 
-`--offtargetseqlevels` | `off.target.seqlevels` | `preprocessIntervals` 
+`--off-target`          | `off.target`    | `preprocessIntervals` 
+`--average-target-width`        | `average.target.width` | `preprocessIntervals` 
+`--min-target-width`     | `min.target.width` | `preprocessIntervals` 
+`--small-targets`       | `small.targets` | `preprocessIntervals` 
+`--average-off-target-width`     | `average.off.target.width` | `preprocessIntervals` 
+`--off-target-seqlevels` | `off.target.seqlevels` | `preprocessIntervals` 
 `--mappability`        | `mappability`   | `preprocessIntervals` 
-`--minmappability`     | `min.mappability`   | `preprocessIntervals` 
+`--min-mappability`     | `min.mappability`   | `preprocessIntervals` 
 `--reptiming`          | `reptiming`   | `preprocessIntervals` 
-`--reptimingwidth`     | `average.reptiming.width` | `preprocessIntervals`  
+`--average-reptiming-width`     | `average.reptiming.width` | `preprocessIntervals`  
 `--genome`             | `txdb`, `org` | `annotateTargets` 
-`--outfile`            | | 
+`--out-file`            | | 
 `--export`             | | `rtracklayer::export`  
 `--version -v`         | | 
 `--force -f`           | | 
@@ -718,10 +721,10 @@ Argument name      | Corresponding PureCN argument | PureCN function
 `--coverage`       | `coverage.file` | `correctCoverageBias`
 `--intervals`      | `interval.file`  | `correctCoverageBias` 
 `--method`         | `method`  | `correctCoverageBias`
-`--keepduplicates` | `keep.duplicates`  | `calculateBamCoverageByInterval`
-`--removemapq0`    | `mapqFilter`  | `ScanBamParam`
-`--skipgcnorm`     | | `correctCoverageBias`
-`--outdir`         | | 
+`--keep-duplicates` | `keep.duplicates`  | `calculateBamCoverageByInterval`
+`--remove-mapq0`    | `mapqFilter`  | `ScanBamParam`
+`--skip-gc-norm`     | | `correctCoverageBias`
+`--out-dir`         | | 
 `--cores`          | | Number of CPUs to use when multiple BAMs are provided 
 `--parallel`       | | Use default `r Biocpkg("BiocParallel")` backend when multiple BAMs are provided 
 `--seed`           | | 
@@ -734,12 +737,13 @@ Argument name      | Corresponding PureCN argument | PureCN function
 
 Argument name          | Corresponding PureCN argument | PureCN function 
 -----------------------|-------------------------------|----------------
-`--coveragefiles`   | `normal.coverage.files` | `createNormalDatabase`
-`--normal_panel`    | `normal.panel.vcf.file` | `calculateMappingBiasVcf` 
+`--coverage-files`   | `normal.coverage.files` | `createNormalDatabase`
+`--normal-panel`    | `normal.panel.vcf.file` | `calculateMappingBiasVcf` 
 `--assay -a`          | Optional assay name | Used in output file names. 
 `--genome -g`        | Optional genome version | Used in output file names. 
-`--genomicsdb_af_field` | For GenomicsDB import, allelic fraction field | `calculateMappingBiasGatk4` 
-`--outdir -o`         | | 
+`--genomicsdb-af-field` | For GenomicsDB import, allelic fraction field | `calculateMappingBiasGatk4` 
+`--min-normals-position-specific-fit` | `min.normals.position.specific.fit` | `calculateMappingBiasVcf`, `calculateMappingBiasGatk4` 
+`--out-dir -o`         | | 
 `--version -v`        | | 
 `--force -f`          | | 
 `--help -h`           | | 
@@ -753,44 +757,44 @@ Argument name          | Corresponding PureCN argument | PureCN function
 `--tumor`            | `tumor.coverage.file`     | `runAbsoluteCN` 
 `--vcf`              | `vcf.file`          | `runAbsoluteCN`   
 `--rds`              | `file.rds`          | `readCurationFile`   
-`--mappingbiasfile`  | `mapping.bias.file` | `setMappingBiasVcf` 
+`--mapping-bias-file`  | `mapping.bias.file` | `setMappingBiasVcf` 
 `--normaldb`         | `normalDB` (serialized with `saveRDS`) | `calculateTangentNormal`, `filterTargets` 
-`--segfile`          | `seg.file`           | `runAbsoluteCN`  
-`--logratiofile`     | `log.ratio`          | `runAbsoluteCN`  
-`--additionaltumors` | `tumor.coverage.files` | `processMultipleSamples`  
+`--seg-file`          | `seg.file`           | `runAbsoluteCN`  
+`--log-ratio-file`     | `log.ratio`          | `runAbsoluteCN`  
+`--additional-tumors` | `tumor.coverage.files` | `processMultipleSamples`  
 `--sex`              | `sex`                | `runAbsoluteCN`  
 `--genome`           | `genome`             | `runAbsoluteCN`  
 `--intervals`        | `interval.file`      | `runAbsoluteCN`   
-`--statsfile`        | `stats.file` | `filterVcfMuTect`        
-`--minaf`            | `af.range` | `filterVcfBasic` 
-`--snpblacklist`     | `snp.blacklist` | `filterVcfBasic`     
+`--stats-file`        | `stats.file` | `filterVcfMuTect`        
+`--min-af`            | `af.range` | `filterVcfBasic` 
+`--snp-blacklist`     | `snp.blacklist` | `filterVcfBasic`     
 `--error`            | `error` | `runAbsoluteCN`     
-`--dbinfoflag`       | `DB.info.flag` | `runAbsoluteCN`     
-`--popafinfofield`   | `POPAF.info.field` | `runAbsoluteCN`     
-`--mincosmiccnt`     | `min.cosmic.cnt` | `setPriorVcf`     
-`--padding`          | `interval.padding` | `filterVcfBasic`  
-`--mintotalcounts`   | `min.total.counts` | `filterIntervals`  
-`--minfractionofftarget`   | `min.fraction.offtarget` | `filterIntervals`  
-`--funsegmentation`  | `fun.segmentation` | `runAbsoluteCN`  
+`--db-info-flag`       | `DB.info.flag` | `runAbsoluteCN`     
+`--popaf-info-field`   | `POPAF.info.field` | `runAbsoluteCN`     
+`--min-cosmic-cnt`     | `min.cosmic.cnt` | `setPriorVcf`     
+`--interval-padding`          | `interval.padding` | `filterVcfBasic`  
+`--min-total-counts`   | `min.total.counts` | `filterIntervals`  
+`--min-fraction-offtarget`   | `min.fraction.offtarget` | `filterIntervals`  
+`--fun-segmentation`  | `fun.segmentation` | `runAbsoluteCN`  
 `--alpha`            | `alpha` | `segmentationCBS` 
-`--undosd`           | `undo.SD` | `segmentationCBS` 
-`--changepointspenalty`| `changepoints.penalty` | `segmentationGATK4` 
-`--additionalcmdargs`| `additional.cmd.args` | `segmentationGATK4` 
-`--maxsegments`      | `max.segments` | `runAbsoluteCN` 
-`--minlogrsdev`      | `min.logr.sdev` | `runAbsoluteCN` 
-`--minpurity`        | `test.purity` | `runAbsoluteCN` 
-`--maxpurity`        | `test.purity` | `runAbsoluteCN` 
-`--minploidy`        | `min.ploidy` | `runAbsoluteCN` 
-`--maxploidy`        | `max.ploidy` | `runAbsoluteCN` 
-`--maxcopynumber`   | `test.num.copy` | `runAbsoluteCN` 
-`--postoptimize`     | `post.optimize` | `runAbsoluteCN`     
-`--bootstrapn`       | `n` | `bootstrapResults` 
-`--modelhomozygous`  | `model.homozygous` | `runAbsoluteCN`  
+`--undo-sd`           | `undo.SD` | `segmentationCBS` 
+`--changepoints-penalty`| `changepoints.penalty` | `segmentationGATK4` 
+`--additional-cmd-args`| `additional.cmd.args` | `segmentationGATK4` 
+`--max-segments`      | `max.segments` | `runAbsoluteCN` 
+`--min-logr-sdev`      | `min.logr.sdev` | `runAbsoluteCN` 
+`--min-purity`        | `test.purity` | `runAbsoluteCN` 
+`--max-purity`        | `test.purity` | `runAbsoluteCN` 
+`--min-ploidy`        | `min.ploidy` | `runAbsoluteCN` 
+`--max-ploidy`        | `max.ploidy` | `runAbsoluteCN` 
+`--max-copynumber`   | `test.num.copy` | `runAbsoluteCN` 
+`--post-optimize`     | `post.optimize` | `runAbsoluteCN`     
+`--bootstrap-n`       | `n` | `bootstrapResults` 
+`--model-homozygous`  | `model.homozygous` | `runAbsoluteCN`  
 `--model`            | `model` | `runAbsoluteCN`  
-`--logratiocalibration` | `log.ratio.calibration` | `runAbsoluteCN`  
-`--maxnonclonal`     | `max.non.clonal` | `runAbsoluteCN`  
-`--maxhomozygousloss` | `max.homozygous.loss` | `runAbsoluteCN`  
-`--outvcf`           | `return.vcf` | `predictSomatic` 
+`--log-ratio-calibration` | `log.ratio.calibration` | `runAbsoluteCN`  
+`--max-non-clonal`     | `max.non.clonal` | `runAbsoluteCN`  
+`--max-homozygous-loss` | `max.homozygous.loss` | `runAbsoluteCN`  
+`--out-vcf`           | `return.vcf` | `predictSomatic` 
 `--out -o`           | |                            
 `--parallel`         | `BPPARAM` | `runAbsoluteCN` 
 `--cores`            | `BPPARAM` | `runAbsoluteCN` 
@@ -806,9 +810,9 @@ Argument name   | Corresponding PureCN argument | PureCN function
 `--rds`         | `file.rds` | `readCurationFile`   
 `--callable`    | `callable` | `callMutationBurden` 
 `--exclude`     | `exclude`  | `callMutationBurden` 
-`--maxpriorsomatic` | `max.prior.somatic`  | `callMutationBurden` 
+`--max-prior-somatic` | `max.prior.somatic`  | `callMutationBurden` 
 `--signatures` | | `deconstructSigs::whichSignatures` 
-`--signature_databases` | | `deconstructSigs::whichSignatures` 
+`--signature-databases` | | `deconstructSigs::whichSignatures` 
 `--out`         | | 
 `--version -v`  | | 
 `--force -f`    | | 

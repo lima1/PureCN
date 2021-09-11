@@ -69,3 +69,35 @@ test_that("Issue 184_2 is fixed", {
     expect_equal(2, PureCN:::.findOverlapsCheckAlt(vcf.184.2, mb.184.2))
     expect_equal(1, PureCN:::.findOverlapsCheckAlt(vcf.184.2, rev(mb.184.2)))
 })    
+test_that("Exceptions happen with wrong parameters", {
+    normal_panel <- system.file("extdata", "normalpanel.vcf.gz",
+        package = "PureCN")
+    expect_error(
+        calculateMappingBiasVcf(normal_panel, genome = "hg19", min.normals = 0),
+        "min.normals (0) must be", fixed = TRUE
+    )
+    expect_error(
+        calculateMappingBiasVcf(normal_panel, genome = "hg19", min.normals = 10),
+        "min.normals (10) cannot be larger", fixed = TRUE
+    )
+    expect_error(
+        calculateMappingBiasVcf(normal_panel, genome = "hg19", min.normals.assign.betafit = 10),
+        "min.normals.assign.betafit (10) cannot be larger", fixed = TRUE
+    )
+    expect_error(
+        calculateMappingBiasVcf(normal_panel, genome = "hg19", min.normals.betafit = 20),
+        "min.normals.betafit (20) cannot be larger", fixed = TRUE
+    )
+    expect_error(
+        calculateMappingBiasVcf(normal_panel, genome = "hg19", min.betafit.rho = 20),
+        "min.betafit.rho"
+    )
+    expect_error(
+        calculateMappingBiasVcf(normal_panel, genome = "hg19", max.betafit.rho = 20),
+        "max.betafit.rho"
+    )
+    expect_error(
+        calculateMappingBiasVcf(normal_panel, genome = "hg19", min.betafit.rho = 0.9),
+        "min.betafit.rho (0.9", fixed = TRUE
+    )
+})   

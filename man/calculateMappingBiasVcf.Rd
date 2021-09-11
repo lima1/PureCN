@@ -9,6 +9,7 @@ calculateMappingBiasVcf(
   min.normals = 1,
   min.normals.betafit = 7,
   min.normals.assign.betafit = 3,
+  min.normals.position.specific.fit = 10,
   min.median.coverage.betafit = 5,
   num.betafit.clusters = 9,
   min.betafit.rho = 1e-04,
@@ -30,6 +31,10 @@ fitting a beta binomial distribution}
 
 \item{min.normals.assign.betafit}{Minimum number of normals with
 heterozygous SNPs to assign to a beta binomal fit cluster}
+
+\item{min.normals.position.specific.fit}{Minimum normals to use
+position-specific beta-binomial fits. Otherwise only clustered fits are
+used.}
 
 \item{min.median.coverage.betafit}{Minimum median coverage of normals with
 heterozygous SNP for fitting a beta binomial distribution}

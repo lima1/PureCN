@@ -6,13 +6,13 @@ suppressPackageStartupMessages(library(futile.logger))
 ### Parsing command line ------------------------------------------------------
 
 option_list <- list(
-    make_option(c("--infile"), action="store", type="character", default=NULL,
-        help="Infile specifying callable intervals. Needs to be parsable by rtracklayer."),
-    make_option(c("--genome"), action="store", type="character", default=NULL,
+    make_option(c("--in-file"), action = "store", type = "character", default = NULL,
+        help = "Infile specifying callable intervals. Needs to be parsable by rtracklayer."),
+    make_option(c("--genome"), action = "store", type = "character", default = NULL,
         help="Genome version to filter non-CDS region. One of hg18, hg19, hg38, mm9, mm10, rn4, rn5, rn6, canFam3."),
     make_option(c("--exclude"), action="store", type="character", default=NULL,
         help="Regular expression matching gene symbols to ignore, e.g. '^HLA'. Can also be a file parsable by rtracklayer."),
-    make_option(c("--outfile"), action="store", type="character", default=NULL,
+    make_option(c("--out-file"), action="store", type="character", default=NULL,
         help="Outfile with overlapping CDS regions in BED format."),
     make_option(c("-v", "--version"), action="store_true", default=FALSE, 
         help="Print PureCN version"),
@@ -20,30 +20,47 @@ option_list <- list(
         help="Overwrite existing files")
 )
 
-opt <- parse_args(OptionParser(option_list=option_list))
+alias_list <- list(
+    "infile" = "in-file",
+    "outfile" = "out-file"
+)
+replace_alias <- function(x, deprecated = TRUE) {
+    idx <- match(x, paste0("--", names(alias_list)))
+    if (any(!is.na(idx))) {
+        replaced <- paste0("--", alias_list[na.omit(idx)])
+        x[!is.na(idx)] <- replaced
+        if (deprecated) {
+            flog.warn("Deprecated arguments, use %s instead.", paste(replaced, collapse=" "))
+        }
+    }
+    return(x)
+}
+    
+opt <- parse_args(OptionParser(option_list = option_list),
+    args = replace_alias(commandArgs(trailingOnly = TRUE)),
+    convert_hyphens_to_underscores = TRUE)
 
 if (opt$version) {
     message(as.character(packageVersion("PureCN")))
-    q(status=1)
-}    
+    q(status = 1)
+}
 
-outfile <- opt$outfile
 
-if (is.null(opt$infile)) stop("Need --infile.")
+if (is.null(opt$in_file)) stop("Need --in-file.")
 if (is.null(opt$genome)) stop("Need --genome.")
-if (is.null(opt$outfile)) stop("Need --outfile.")
+if (is.null(out$out_file)) stop("Need --out-file.")
 
-if (!opt$force && file.exists(outfile)) {
-    stop(outfile, " exists. Use --force to overwrite.")
+if (!opt$force && file.exists(opt$out_file)) {
+    stop(opt$out_file, " exists. Use --force to overwrite.")
 }    
 
-in.file <- normalizePath(opt$infile, mustWork=TRUE)
+in.file <- normalizePath(opt$in_file, mustWork = TRUE)
 
 suppressPackageStartupMessages(library(rtracklayer))
 
-intervals <- try(import(in.file), silent=TRUE)
-if (is(intervals, "try-error")) { 
-    flog.warn("Could not parse --infile with rtracklayer:\n\n%s\nTrying GATK3 parser that will probably fail...", intervals)
+intervals <- try(import(in.file), silent = TRUE)
+if (is(intervals, "try-error")) {
+    flog.warn("Could not parse --in-file with rtracklayer:\n\n%s\nTrying GATK3 parser that will probably fail...", intervals)
     intervals <- in.file
 }
 knownGenome <- list(
@@ -73,7 +90,7 @@ knownOrg <- list(
 flog.info("Loading %s...", knownGenome[[opt$genome]])
 if (is.null(knownGenome[[opt$genome]])) {
     flog.warn("%s genome not known. %s", genome)
-} else if (!suppressPackageStartupMessages(require(knownGenome[[opt$genome]], character.only=TRUE))) {
+} else if (!suppressPackageStartupMessages(require(knownGenome[[opt$genome]], character.only = TRUE))) {
     flog.warn("Package %s not found.", knownGenome[[opt$genome]])
 } else {
     coding <- cds(get(knownGenome[[opt$genome]]))
@@ -96,10 +113,9 @@ if (is.null(knownGenome[[opt$genome]])) {
             flog.info("Excluded region of size %ibp.", sum(width(exclude)))
             intervalsCDS <- setdiff(intervalsCDS, exclude)
         }
-    }    
-    export(intervalsCDS, opt$outfile)
+    } 
+    export(intervalsCDS, opt$out_file)
     flog.info("Total size of CDS region: %.2fMb (%.2fMb input).", 
         PureCN:::.calcTargetedGenome(intervalsCDS), 
         PureCN:::.calcTargetedGenome(intervals))
 }
-
