@@ -545,8 +545,8 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     vcf
 }
     
-.addCosmicCNT <- function(vcf, cosmic.vcf.file) {
-    if (!is.null(info(vcf)$Cosmic.CNT)) {
+.addCosmicCNT <- function(vcf, cosmic.vcf.file, Cosmic.CNT.info.field) {
+    if (!is.null(info(vcf)[[Cosmic.CNT.info.field]])) {
         flog.info("VCF already COSMIC annotated. Skipping.")
         return(vcf)        
     }
@@ -561,9 +561,9 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     # look-up the variants in COSMIC
     cosmic.vcf <- readVcf(cosmic.vcf.file, genome = genome(vcfRenamedSL)[1],  
         ScanVcfParam(which = rowRanges(vcfRenamedSL),
-            info="CNT",
-            fixed="ALT",
-            geno=NA
+            info = "CNT",
+            fixed = "ALT",
+            geno = NA
         )
     )
     ov <- findOverlaps(vcfRenamedSL, cosmic.vcf, type = "equal")
@@ -580,12 +580,12 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     }
     
     newInfo <- DataFrame(
-        Number=1, Type="Integer",
-        Description="How many samples in Cosmic have this mutation",
-        row.names="Cosmic.CNT")
+        Number = 1, Type = "Integer",
+        Description = "How many samples in Cosmic have this mutation",
+        row.names = Cosmic.CNT.info.field)
     info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
-    info(vcf)$Cosmic.CNT <- NA
-    info(vcf)$Cosmic.CNT[queryHits(ov)] <- info(cosmic.vcf[subjectHits(ov)])$CNT
+    info(vcf)[[Cosmic.CNT.info.field]] <- NA
+    info(vcf)[[Cosmic.CNT.info.field]][queryHits(ov)] <- info(cosmic.vcf[subjectHits(ov)])$CNT
     vcf
 }
 

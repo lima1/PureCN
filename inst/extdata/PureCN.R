@@ -45,6 +45,11 @@ option_list <- list(
     make_option(c("--popaf-info-field"), action = "store", type = "character",
         default = formals(PureCN::runAbsoluteCN)$POPAF.info.field,
         help = "VCF Filter: VCF INFO field providing population allele frequency [default %default]"),
+    make_option(c("--cosmic-cnt-info-field"), action = "store", type = "character",
+        default = formals(PureCN::runAbsoluteCN)$Cosmic.CNT.info.field,
+        help = "VCF Filter: VCF INFO field providing counts in the Cosmic database [default %default]"),
+    make_option(c("--cosmic-vcf-file"), action = "store", type = "character", default = NULL,
+        help = "VCF Filter: Adds a Cosmic.CNT INFO annotation using a Cosmic VCF. Added for convenience, we recommend adding annotations upstream [default %default]"),
     make_option(c("--min-cosmic-cnt"), action = "store", type = "integer",
         default = formals(PureCN::setPriorVcf)$min.cosmic.cnt,
         help = "VCF Filter: Min number of COSMIC hits [default %default]"),
@@ -96,7 +101,7 @@ option_list <- list(
         help = "Post-optimization [default %default]"),
     make_option(c("--bootstrap-n"), action = "store", type = "integer", default = 0,
         help = "Number of bootstrap replicates [default %default]"),
-    make_option(c("--speedupheuristics"), action = "store", type = "integer",
+    make_option(c("--speedup-heuristics"), action = "store", type = "integer",
         default =  max(eval(formals(PureCN::runAbsoluteCN)$speedup.heuristics)),
         help = "Tries to avoid spending computation time on unlikely local optima [default %default]"),
     make_option(c("--model-homozygous"), action = "store_true", default = FALSE,
@@ -161,6 +166,7 @@ alias_list <- list(
     "logratiocalibration" = "log-ratio-calibration",
     "maxnonclonal" = "max-non-clonal",
     "maxhomozygousloss" = "max-homozygous-loss",
+    "speedupheuristics" = "speedup-heuristics",
     "outvcf" = "out-vcf"
 )    
 replace_alias <- function(x, deprecated = TRUE) {
@@ -398,12 +404,14 @@ if (file.exists(file.rds) && !opt$force) {
             min.logr.sdev = opt$min_logr_sdev,
             error = opt$error, DB.info.flag = opt$db_info_flag,
             POPAF.info.field = opt$popaf_info_field,
+            Cosmic.CNT.info.field = opt$cosmic_cnt_info_field,
             log.ratio.calibration = opt$log_ratio_calibration,
             max.non.clonal = opt$max_non_clonal,
             max.homozygous.loss = as.numeric(strsplit(opt$max_homozygous_loss, ",")[[1]]),
             post.optimize = opt$post_optimize,
-            speedup.heuristics = opt$speedupheuristics,
+            speedup.heuristics = opt$speedup_heuristics,
             vcf.field.prefix = "PureCN.",
+            cosmic.vcf.file = opt$cosmic_vcf_file,
             BPPARAM = BPPARAM)
     # free memory
     vcf <- NULL

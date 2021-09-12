@@ -105,7 +105,7 @@ and newer are supported.
   scripts:
 
 ```{r path}
-system.file("extdata", package="PureCN")
+system.file("extdata", package = "PureCN")
 ```
 
 - Exit R and store this path in an environment variable, for example in 
@@ -126,7 +126,7 @@ Usage: /path/to/PureCN/inst/extdata/PureCN.R [options] ...
 $ export OUT_REF="reference_files"
 $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
     --fasta hg19.fa --out-file $OUT_REF/baits_hg19_intervals.txt \
-    --offtarget --genome hg19 \
+    --off-target --genome hg19 \
     --export $OUT_REF/baits_optimized_hg19.bed \
     --mappability wgEncodeCrgMapabilityAlign100mer.bigWig \
     --reptiming wgEncodeUwRepliSeqK562WaveSignalRep1.bigWig
@@ -143,7 +143,7 @@ sampling variance slightly. Note that we do however strongly recommend running t
 variant caller with a padding of at least 50bp to increase the number of
 informative SNPs, see below in the VCF section.
 
-The `--offtarget` flag will include off-target reads. Including them is
+The `--off-target` flag will include off-target reads. Including them is
 recommended except for Amplicon data. For whole-exome data, the benefit is
 usually also limited unless the assay is inefficient with a high fraction of
 off-target reads (>10-15%).
@@ -176,7 +176,7 @@ Similarly, the `--reptiming` argument takes a replication timing score in the
 same format.  If provided, GC-normalized and log-transformed coverage is tested
 for a linear relationship with this score and normalized accordingly.  This is
 optional and provides only a minor benefit for coverage normalization, but can
-identify samples with high proliferation. Requires `--offtarget` to be useful. 
+identify samples with high proliferation. Requires `--off-target` to be useful. 
 
 
 # Create VCF files
@@ -254,11 +254,11 @@ $ Rscript $PURECN/Coverage.R --out-dir $OUT/normals \
 
 Important recommendations:
 
-- Only provide `--keepduplicates` or `--removemapq0` if you know what you are
+- Only provide `--keep-duplicates` or `--remove-mapq0` if you know what you are
   doing and always use the same command line arguments for tumor and the
   normals
 
-- It can be safe to skip the GC-normalization with `--skipgcnorm` when tumor
+- It can be safe to skip the GC-normalization with `--skip-gc-norm` when tumor
   and normal samples are expected to exhibit similar biases and a sufficient
   number of normal samples is available. A good example would be plasma
   sequencing. In contrast, old FFPE samples normalized against blood controls
@@ -323,9 +323,9 @@ Important recommendations:
 
 - For ideal results, examine the `interval_weights.png` file to find good
   off-target bin widths. You will need to re-run `IntervalFile.R` with the
-  `--offtargetwidth` parameter and re-calculate the coverages. `NormalDB.R`
+  `--average-off-target-width` parameter and re-calculate the coverages. `NormalDB.R`
   will also give a suggestion for a good minimum width. We do not recommend
-  going lower than this estimate; setting `--offtargetwidth` to value larger
+  going lower than this estimate; setting `--average-off-target-width` to value larger
   than this value can decrease noise at the cost of loss in resolution.
   Setting it to 1.2-1.5x the minimum recommendation (that should be ideally <
   250kb) is a good starting point.
@@ -771,6 +771,7 @@ Argument name          | Corresponding PureCN argument | PureCN function
 `--error`            | `error` | `runAbsoluteCN`     
 `--db-info-flag`       | `DB.info.flag` | `runAbsoluteCN`     
 `--popaf-info-field`   | `POPAF.info.field` | `runAbsoluteCN`     
+`--cosmic-cnt-info-field`   | `Cosmic.CNT.info.field` | `runAbsoluteCN`     
 `--min-cosmic-cnt`     | `min.cosmic.cnt` | `setPriorVcf`     
 `--interval-padding`          | `interval.padding` | `filterVcfBasic`  
 `--min-total-counts`   | `min.total.counts` | `filterIntervals`  
@@ -789,6 +790,7 @@ Argument name          | Corresponding PureCN argument | PureCN function
 `--max-copynumber`   | `test.num.copy` | `runAbsoluteCN` 
 `--post-optimize`     | `post.optimize` | `runAbsoluteCN`     
 `--bootstrap-n`       | `n` | `bootstrapResults` 
+`--speedup-heuristics` | `speedup.heuristics` | `runAbsoluteCN`     
 `--model-homozygous`  | `model.homozygous` | `runAbsoluteCN`  
 `--model`            | `model` | `runAbsoluteCN`  
 `--log-ratio-calibration` | `log.ratio.calibration` | `runAbsoluteCN`  

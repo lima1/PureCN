@@ -9,7 +9,8 @@ setPriorVcf(
   prior.somatic = c(0.5, 5e-04, 0.999, 1e-04, 0.995, 0.5),
   tumor.id.in.vcf = NULL,
   min.cosmic.cnt = 6,
-  DB.info.flag = "DB"
+  DB.info.flag = "DB",
+  Cosmic.CNT.info.field = "Cosmic.CNT"
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ call variant as likely somatic.}
 \item{DB.info.flag}{Flag in INFO of VCF that marks presence in common
 germline databases. Defaults to \code{DB} that may contain somatic variants
 if it is from an unfiltered dbSNP VCF.}
+
+\item{Cosmic.CNT.info.field}{Info field containing hits in the Cosmic database}
 }
 \value{
 The \code{vcf} with \code{numeric(nrow(vcf))} vector with the

@@ -23,6 +23,7 @@
 #' @param DB.info.flag Flag in INFO of VCF that marks presence in common
 #' germline databases. Defaults to \code{DB} that may contain somatic variants
 #' if it is from an unfiltered dbSNP VCF.
+#' @param Cosmic.CNT.info.field Info field containing hits in the Cosmic database
 #' @return The \code{vcf} with \code{numeric(nrow(vcf))} vector with the
 #' prior probability of somatic status for each variant in the 
 #' \code{CollapsedVCF} added to the \code{INFO} field \code{PR}.
@@ -39,7 +40,7 @@
 setPriorVcf <- function(vcf, prior.somatic = c(0.5, 0.0005, 0.999, 0.0001,
                                                0.995, 0.5),
                         tumor.id.in.vcf = NULL, min.cosmic.cnt = 6, 
-                        DB.info.flag = "DB") {
+                        DB.info.flag = "DB", Cosmic.CNT.info.field = "Cosmic.CNT") {
     if (is.null(tumor.id.in.vcf)) {
         tumor.id.in.vcf <- .getTumorIdInVcf(vcf)
     }
@@ -55,14 +56,14 @@ setPriorVcf <- function(vcf, prior.somatic = c(0.5, 0.0005, 0.999, 0.0001,
          tmp <- prior.somatic
          prior.somatic <- ifelse(info(vcf)[[DB.info.flag]],
             prior.somatic[2], prior.somatic[1])
-         if (!is.null(info(vcf)$Cosmic.CNT)) {
+         if (!is.null(info(vcf)[[Cosmic.CNT.info.field]])) {
              flog.info("Found COSMIC annotation in VCF. Requiring %i hits.", 
                 min.cosmic.cnt)
              flog.info("Setting somatic prior probabilities for hits to %f or to %f if in both COSMIC and dbSNP.", 
                 tmp[5], tmp[6])
 
-             prior.somatic[which(info(vcf)$Cosmic.CNT >= min.cosmic.cnt)] <- tmp[5]
-             prior.somatic[which(info(vcf)$Cosmic.CNT >= min.cosmic.cnt & 
+             prior.somatic[which(info(vcf)[[Cosmic.CNT.info.field]] >= min.cosmic.cnt)] <- tmp[5]
+             prior.somatic[which(info(vcf)[[Cosmic.CNT.info.field]] >= min.cosmic.cnt & 
                 info(vcf)[[DB.info.flag]])] <- tmp[6]
          } else {
              flog.info("Setting somatic prior probabilities for dbSNP hits to %f or to %f otherwise.", 

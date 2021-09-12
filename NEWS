@@ -8,6 +8,7 @@ NEW FEATURES
     o Improved mapping bias estimates: variants with insufficient information
       for position-specific fits (default 3-6 heterozygous variants) 
       are clustered and assigned to the most similar fit  
+    o Make Cosmic.CNT INFO field name customizable  
 
 SIGNIFICANT USER-VISIBLE CHANGES
     

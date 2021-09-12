@@ -193,6 +193,7 @@
 #' @param POPAF.info.field As alternative to a flag, use an info field that
 #' contains population allele frequencies. The \code{DB} info flag has priority
 #' over this field when both exist.
+#' @param Cosmic.CNT.info.field Info field containing hits in the Cosmic database
 #' @param min.pop.af Minimum population allele frequency in
 #' \code{POPAF.info.field} to set a high germline prior probability.
 #' @param model Use either a beta or a beta-binomial distribution for fitting
@@ -298,8 +299,11 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     max.segments = 300, min.gof = 0.8, min.variants = 20,
     plot.cnv = TRUE,
     vcf.field.prefix = "",
-    cosmic.vcf.file = NULL, DB.info.flag = "DB",
-    POPAF.info.field = "POP_AF", min.pop.af = 0.001,
+    cosmic.vcf.file = NULL, 
+    DB.info.flag = "DB",
+    POPAF.info.field = "POP_AF",
+    Cosmic.CNT.info.field = "Cosmic.CNT",
+    min.pop.af = 0.001,
     model = c("beta", "betabin"),
     post.optimize = FALSE, speedup.heuristics = 2, BPPARAM = NULL,
     log.file = NULL, verbose = TRUE) {
@@ -534,11 +538,12 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         vcf <- vcf.filtering$vcf
 
         if (!is.null(cosmic.vcf.file)) {
-            vcf <- .addCosmicCNT(vcf, cosmic.vcf.file)
+            vcf <- .addCosmicCNT(vcf, cosmic.vcf.file, Cosmic.CNT.info.field)
         }
 
         args.setPriorVcf <- c(list(vcf = vcf, tumor.id.in.vcf = tumor.id.in.vcf,
-            DB.info.flag = DB.info.flag), args.setPriorVcf)
+            DB.info.flag = DB.info.flag,
+            Cosmic.CNT.info.field = Cosmic.CNT.info.field), args.setPriorVcf)
         vcf <- do.call(fun.setPriorVcf,
             .checkArgs(args.setPriorVcf, "setPriorVcf"))
 

@@ -62,6 +62,7 @@ runAbsoluteCN(
   cosmic.vcf.file = NULL,
   DB.info.flag = "DB",
   POPAF.info.field = "POP_AF",
+  Cosmic.CNT.info.field = "Cosmic.CNT",
   min.pop.af = 0.001,
   model = c("beta", "betabin"),
   post.optimize = FALSE,
@@ -312,6 +313,8 @@ if it is from an unfiltered dbSNP VCF.}
 \item{POPAF.info.field}{As alternative to a flag, use an info field that
 contains population allele frequencies. The \code{DB} info flag has priority
 over this field when both exist.}
+
+\item{Cosmic.CNT.info.field}{Info field containing hits in the Cosmic database}
 
 \item{min.pop.af}{Minimum population allele frequency in
 \code{POPAF.info.field} to set a high germline prior probability.}
