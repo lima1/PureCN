@@ -6,7 +6,7 @@ suppressPackageStartupMessages(library(futile.logger))
 option_list <- list(
     make_option(c("--fasta"), action = "store", type = "character", 
         default = NULL, help = "Reference Fasta file"),
-    make_option(c("--infile"), action = "store", type = "character", 
+    make_option(c("--in-file"), action = "store", type = "character", 
         default = NULL,
         help = "Infile specifying target (baits) intervals. Needs to be parsable by rtracklayer."),
     make_option(c("--off-target"), action = "store_true",
@@ -26,7 +26,7 @@ option_list <- list(
         help = "Bin off-target regions to approximately that size [default %default]"),
     make_option(c("--off-target-seqlevels"), action = "store", type = "character",
         default = formals(PureCN::preprocessIntervals)$off.target.seqlevels[[2]], 
-        help = "Controls how to deal with chromosomes/contigs not found in infile. One of targeted, all [default %default]"),
+        help = "Controls how to deal with chromosomes/contigs not found in --in-file. One of targeted, all [default %default]"),
     make_option(c("--mappability"), action = "store", type = "character", 
         help = "File parsable by rtracklayer specifying mappability scores of genomic regions."),
     make_option(c("--min-mappability"), action = "store", type = "character", 
@@ -46,7 +46,7 @@ option_list <- list(
     make_option(c("--export"), action = "store", type = "character", default = NULL,
         help = "Export optimized intervals using rtracklayer. The file extension specifies the format."),
     make_option(c("--exclude"), action = "store", type = "character", 
-        help = "File parsable by rtracklayer specifying baits that should be excluded from --infile."),
+        help = "File parsable by rtracklayer specifying baits that should be excluded from --in-file."),
     make_option(c("-v", "--version"), action = "store_true", default = FALSE,
         help = "Print PureCN version"),
     make_option(c("-f", "--force"), action = "store_true", default = FALSE,
@@ -54,6 +54,7 @@ option_list <- list(
 )
 
 alias_list <- list(
+    "infile" = "in-file",
     "offtarget" = "off-target",
     "targetwidth" = "average-target-width",
     "mintargetwidth" = "min-target-width",
@@ -87,7 +88,7 @@ if (opt$version) {
 
 outfile <- opt$out_file
 
-if (is.null(opt$infile)) stop("Need --infile.")
+if (is.null(opt$in_file)) stop("Need --in-file.")
 if (is.null(opt$fasta)) stop("Need --fasta.")
 if (is.null(outfile)) stop("Need --out-file.")
 
@@ -109,7 +110,7 @@ if (!opt$force && file.exists(outfile)) {
 .checkOutputDir(opt$export)
 .checkOutputDir(opt$exclude)
 
-in.file <- normalizePath(opt$infile, mustWork = TRUE)
+in.file <- normalizePath(opt$in_file, mustWork = TRUE)
 reference.file <- normalizePath(opt$fasta, mustWork = TRUE)
 
 suppressPackageStartupMessages(library(rtracklayer))
@@ -117,12 +118,12 @@ suppressPackageStartupMessages(library(rtracklayer))
 intervals <- try(import(in.file), silent = TRUE)
 
 if (is(intervals, "try-error")) { 
-    flog.warn("Could not parse --infile with rtracklayer:\n\n%s\nTrying GATK3 parser that will probably fail...", intervals)
+    flog.warn("Could not parse --in-file with rtracklayer:\n\n%s\nTrying GATK3 parser that will probably fail...", intervals)
     intervals <- in.file
 } else {
     seqlevels(intervals) <- seqlevelsInUse(intervals)
     if (sum(c("MT", "chrM", "chMT") %in% seqlevels(intervals))) {
-        flog.warn("--infile contains mitochondrion sequence. It is highly recommended to exclude those baits.")
+        flog.warn("--in-file contains mitochondrion sequence. It is highly recommended to exclude those baits.")
     }
 }    
 mappability <- opt$mappability

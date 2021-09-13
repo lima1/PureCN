@@ -124,7 +124,7 @@ Usage: /path/to/PureCN/inst/extdata/PureCN.R [options] ...
 ```
 # specify path where PureCN should store reference files
 $ export OUT_REF="reference_files"
-$ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \ 
+$ Rscript $PURECN/IntervalFile.R --in-file baits_hg19.bed \ 
     --fasta hg19.fa --out-file $OUT_REF/baits_hg19_intervals.txt \
     --off-target --genome hg19 \
     --export $OUT_REF/baits_optimized_hg19.bed \
@@ -132,7 +132,7 @@ $ Rscript $PURECN/IntervalFile.R --infile baits_hg19.bed \
     --reptiming wgEncodeUwRepliSeqK562WaveSignalRep1.bigWig
 ```
 Internally, this script uses `r Biocpkg("rtracklayer")` to parse the
-`infile`. Make sure that the file format matches the file extension.
+`in-file`. Make sure that the file format matches the file extension.
 See the `r Biocpkg("rtracklayer")` documentation for problems loading the file.
 Check that the genome version of the baits file matches the reference.  Do not
 include chrM baits in case the capture kit includes some.
@@ -693,7 +693,7 @@ Important recommendations:
 Argument name          | Corresponding PureCN argument | PureCN function 
 -----------------------|-------------------------------|----------------
 `--fasta`              | `reference.file` | `preprocessIntervals` 
-`--infile`             | `interval.file` | `preprocessIntervals` 
+`--in-file`             | `interval.file` | `preprocessIntervals` 
 `--off-target`          | `off.target`    | `preprocessIntervals` 
 `--average-target-width`        | `average.target.width` | `preprocessIntervals` 
 `--min-target-width`     | `min.target.width` | `preprocessIntervals` 
