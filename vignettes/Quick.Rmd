@@ -369,6 +369,7 @@ $ Rscript $PURECN/PureCN.R --out $OUT/$SAMPLEID \
     --intervals $OUT_REF/baits_hg19_intervals.txt \
     --snp-blacklist hg19_simpleRepeats.bed \
     --genome hg19 \
+    --model betabin \
     --force --post-optimize --seed 123
 
 # With a matched normal (test run; for production pipelines we recommend the
@@ -429,15 +430,14 @@ Important recommendations:
   the method.
 
 - `--model betabin` is the new recommendation in 1.22 with larger panel of
-  normals (more than 10-15 normal samples). We encourage users to try this
-  model and appreciate feedback.
+  normals (more than 10-15 normal samples). 
 
 - Defaults are well calibrated and should produce close to ideal results for
   most samples. A few common cases where changing defaults makes sense:
 
     - High purity and high quality: For cancer types with a high expected
       purity, such as ovarian cancer, AND when quality is expected to be very
-      good (high coverage, young samples), `--max-copynumber 8`. 
+      good (high coverage, young samples), `--max-copy-number 8`. 
       (`r Biocpkg("PureCN")` reports copy numbers greater than this value, but
       will stop fitting SNP allelic fractions to the exact allele-specific copy
       number because this will get impossible very quickly with high copy
@@ -451,7 +451,7 @@ Important recommendations:
       small panels with large gaps around captured deletions.
 
     - Cell lines: Safely skip the search for low purity solutions in cell lines:
-      `--max-copynumber 8`, `--min-purity 0.9`, `--max-purity 0.99`.  Add
+      `--max-copy-number 8`, `--min-purity 0.9`, `--max-purity 0.99`.  Add
       `--model-homozygous` to find regions of LOH in samples without normal
       contamination (do not provide this flag when matched normal data are
       available in the VCF).
@@ -787,7 +787,7 @@ Argument name          | Corresponding PureCN argument | PureCN function
 `--max-purity`        | `test.purity` | `runAbsoluteCN` 
 `--min-ploidy`        | `min.ploidy` | `runAbsoluteCN` 
 `--max-ploidy`        | `max.ploidy` | `runAbsoluteCN` 
-`--max-copynumber`   | `test.num.copy` | `runAbsoluteCN` 
+`--max-copy-number`   | `test.num.copy` | `runAbsoluteCN` 
 `--post-optimize`     | `post.optimize` | `runAbsoluteCN`     
 `--bootstrap-n`       | `n` | `bootstrapResults` 
 `--speedup-heuristics` | `speedup.heuristics` | `runAbsoluteCN`     

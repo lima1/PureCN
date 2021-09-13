@@ -15,7 +15,7 @@ option_list <- list(
     make_option(c("--genomicsdb-af-field"), action = "store", type = "character", default = "AF",
         help = "Info field name where the allelic fraction is stored [default %default]"),
     make_option(c("--min-normals-position-specific-fit"), action = "store", type = "integer",
-        default = formals(PureCN::calculateMappingBiasVcf)$min.normals.position.specific.fit, 
+        default = formals(PureCN::calculateMappingBiasVcf)$min.normals.position.specific.fit,
         help = "Only change if you know what you are doing [default %default]"),
     make_option(c("--out-dir"), action = "store", type = "character", default = NULL,
         help = "Output directory to which results should be written"),
@@ -37,7 +37,7 @@ replace_alias <- function(x, deprecated = TRUE) {
         replaced <- paste0("--", alias_list[na.omit(idx)])
         x[!is.na(idx)] <- replaced
         if (deprecated) {
-            flog.warn("Deprecated arguments, use %s instead.", paste(replaced, collapse=" "))
+            flog.warn("Deprecated arguments, use %s instead.", paste(replaced, collapse = " "))
         }
     }
     return(x)
@@ -124,7 +124,7 @@ if (!is.null(opt$normal_panel)) {
 
 if (is.null(opt$coverage_files)) {
     if (is.null(opt$normal_panel)) stop("need --coverage-files.")
-    flog.warn("No --coverage-files provided. Cannot generate normal database.")
+    flog.warn("No --coverage-files provided. Skipping normal coverage database generation.")
     q(status = 1)
 }
 
