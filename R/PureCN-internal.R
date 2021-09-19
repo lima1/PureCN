@@ -998,7 +998,7 @@ na.rm = TRUE)
 }
 
 .gcGeneToCoverage <- function(interval.file, min.coverage, min.total.counts) {
-    gc.data <- readCoverageFile(interval.file)
+    gc.data <- readIntervalFile(interval.file)
     gc.data$average.coverage <- min.coverage
     gc.data$coverage <- min.coverage * width(gc.data)
     gc.data$counts <- Inf

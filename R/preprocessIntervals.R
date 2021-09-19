@@ -1,10 +1,10 @@
 #' Preprocess intervals
-#' 
-#' Optimize intervals for copy number calling by tiling long intervals and by 
-#' including off-target regions. Uses \code{scanFa} from the Rsamtools package 
+#'
+#' Optimize intervals for copy number calling by tiling long intervals and by
+#' including off-target regions. Uses \code{scanFa} from the Rsamtools package
 #' to retrieve GC content of intervals in a reference FASTA file. If provided,
 #' will annotate intervals with mappability and replication timing scores.
-#' 
+#'
 #' @param interval.file File specifying the intervals. Interval is expected in
 #' first column in format CHR:START-END.  Instead of a file, a \code{GRanges}
 #' object can be provided. This allows the use of BED files for example. Note
@@ -27,38 +27,38 @@
 #' ignored, assuming that \code{mappability} covers the whole accessible genome.
 #' @param min.mappability \code{double(3)} specifying the minimum mappability score
 #' for on-target, off-target, and chrY regions in that order. The chrY regions
-#' are only used for sex determination in \sQuote{PureCN} and are therefore 
+#' are only used for sex determination in \sQuote{PureCN} and are therefore
 #' treated differently. Requires \code{mappability}.
-#' @param reptiming Annotate intervals with replication timing score. Expected as 
-#' \code{GRanges} object with first meta column being the score. 
+#' @param reptiming Annotate intervals with replication timing score. Expected as
+#' \code{GRanges} object with first meta column being the score.
 #' @param average.reptiming.width Tile \code{reptiming} into bins of specified
-#' width. 
+#' width.
 #' @param exclude Any target that overlaps with this \code{GRanges} object
-#' will be excluded. 
+#' will be excluded.
 #' @param off.target.seqlevels Controls how to deal with chromosomes/contigs
 #' found in the \code{reference.file} but not in the \code{interval.file}.
 #' @param small.targets Strategy to deal with targets smaller than
 #' \code{min.target.width}.
 #' @return Returns GC content by interval as \code{GRanges} object.
 #' @author Markus Riester
-#' @references Talevich et al. (2016). CNVkit: Genome-Wide Copy Number 
+#' @references Talevich et al. (2016). CNVkit: Genome-Wide Copy Number
 #' Detection and Visualization from Targeted DNA Sequencing. PLoS Comput Biol.
 #'
 #' @examples
-#' 
-#' reference.file <- system.file("extdata", "ex2_reference.fa", 
-#'     package="PureCN", mustWork = TRUE)
-#' interval.file <- system.file("extdata", "ex2_intervals.txt", 
-#'     package="PureCN", mustWork = TRUE)
-#' bed.file <- system.file("extdata", "ex2_intervals.bed", 
-#'     package="PureCN", mustWork = TRUE)
-#' preprocessIntervals(interval.file, reference.file, 
-#'     output.file="gc_file.txt")
-#' 
+#'
+#' reference.file <- system.file("extdata", "ex2_reference.fa",
+#'     package = "PureCN", mustWork = TRUE)
+#' interval.file <- system.file("extdata", "ex2_intervals.txt",
+#'     package = "PureCN", mustWork = TRUE)
+#' bed.file <- system.file("extdata", "ex2_intervals.bed",
+#'     package = "PureCN", mustWork = TRUE)
+#' preprocessIntervals(interval.file, reference.file,
+#'     output.file = "gc_file.txt")
+#'
 #' intervals <- import(bed.file)
-#' preprocessIntervals(intervals, reference.file, 
-#'     output.file="gc_file.txt")
-#' 
+#' preprocessIntervals(intervals, reference.file,
+#'     output.file = "gc_file.txt")
+#'
 #' @export preprocessIntervals
 #' @importFrom BiocGenerics unstrand score
 #' @importFrom Biostrings letterFrequency
@@ -75,12 +75,12 @@ preprocessIntervals <- function(interval.file, reference.file,
                                 min.off.target.width = 20000,
                                 average.off.target.width = 200000,
                                 off.target.padding = -500, mappability = NULL,
-                                min.mappability = c(0.6, 0.1, 0.7), 
+                                min.mappability = c(0.6, 0.1, 0.7),
                                 reptiming = NULL,
                                 average.reptiming.width = 100000,
                                 exclude = NULL,
-                                off.target.seqlevels=c("targeted", "all"),
-                                small.targets=c("resize", "drop")) {
+                                off.target.seqlevels = c("targeted", "all"),
+                                small.targets = c("resize", "drop")) {
 
     if (is(interval.file, "GRanges")) {
         interval.gr <- .checkIntervals(unstrand(interval.file))
@@ -96,20 +96,20 @@ preprocessIntervals <- function(interval.file, reference.file,
     interval.gr <- sort(sortSeqlevels(interval.gr))
     interval.gr <- .checkTargetWidth(interval.gr, min.target.width,
         match.arg(small.targets))
-   
-    if (is.null(interval.gr$on.target)) interval.gr$on.target <- TRUE    
+
+    if (is.null(interval.gr$on.target)) interval.gr$on.target <- TRUE
     if (!is.null(mappability)) {
         mappability <- .checkSeqlevelStyle(scanFaIndex(reference.file), mappability, "mappability")
         mappability <- .remove0MappabilityRegions(mappability)
     }
     if (!is.null(reptiming)) {
-        reptiming <- .checkSeqlevelStyle(scanFaIndex(reference.file), reptiming, 
+        reptiming <- .checkSeqlevelStyle(scanFaIndex(reference.file), reptiming,
                                          "reptiming")
-        reptiming <- .tileReptiming(seqinfo(scanFaIndex(reference.file)), 
+        reptiming <- .tileReptiming(seqinfo(scanFaIndex(reference.file)),
                                     reptiming, average.reptiming.width)
     }
      
-    containsOfftarget <- sum(interval.gr$on.target)!=length(interval.gr)
+    containsOfftarget <- sum(interval.gr$on.target) != length(interval.gr)
 
     if (containsOfftarget) {
         flog.warn("Intervals contain off-target regions. %s",
@@ -121,14 +121,14 @@ preprocessIntervals <- function(interval.file, reference.file,
         # find off-target regions
         if (off.target) {
             off.target.seqlevels <- match.arg(off.target.seqlevels)
-            interval.gr <- .annotateIntervalsOfftarget(interval.gr, 
+            interval.gr <- .annotateIntervalsOfftarget(interval.gr,
                 reference.file, mappability, off.target.padding,
-                min.off.target.width, average.off.target.width, 
+                min.off.target.width, average.off.target.width,
                 off.target.seqlevels)
         }
     }
 
-    interval.gr <- .annotateIntervalsMappability(interval.gr, mappability, 
+    interval.gr <- .annotateIntervalsMappability(interval.gr, mappability,
         min.mappability)
     interval.gr <- .annotateIntervalsReptiming(interval.gr, reptiming)
     interval.gr <- .annotateIntervalsGC(interval.gr, reference.file)
@@ -137,7 +137,7 @@ preprocessIntervals <- function(interval.file, reference.file,
 
     if (!is.null(output.file)) {
         .writeIntervals(interval.gr, output.file)
-    }    
+    }
     invisible(interval.gr)
 }
 
@@ -151,23 +151,23 @@ preprocessIntervals <- function(interval.file, reference.file,
     offRegions
 }
 
-.annotateIntervalsOfftarget <- function(interval.gr, reference.file, 
+.annotateIntervalsOfftarget <- function(interval.gr, reference.file,
                                         mappability, off.target.padding,
                                         min.off.target.width,
-                                        average.off.target.width, 
+                                        average.off.target.width,
                                         off.target.seqlevels) {
 
     if (off.target.padding > 0) {
         .stopUserError("off.target.padding must be negative.")
-    }    
+    }
     offRegions <- setdiff(scanFaIndex(reference.file), unstrand(interval.gr))
-    offRegions <- .dropShortUntargetedSeqLevels(offRegions, interval.gr, 
+    offRegions <- .dropShortUntargetedSeqLevels(offRegions, interval.gr,
         average.off.target.width)
 
     if (!is.null(mappability)) {
         offRegions <- intersect(offRegions, mappability)
-    }    
-    offRegions <- offRegions[width(offRegions)>off.target.padding*-2]
+    }
+    offRegions <- offRegions[width(offRegions) > off.target.padding * -2]
     if (!length(offRegions)) {
         .stopUserError("No off-target regions after filtering for mappability ",
             "and off.target.padding")
@@ -176,30 +176,31 @@ preprocessIntervals <- function(interval.file, reference.file,
 
     flog.info("Tiling off-target regions to an average width of %i.",
         average.off.target.width)
-        
-    offRegions <- unlist(tile(offRegions, width=average.off.target.width))
+   
+    offRegions <- unlist(tile(offRegions, width = average.off.target.width))
     offRegions$on.target <- FALSE
-    offRegions <- offRegions[width(offRegions)>=min.off.target.width]
+    offRegions <- offRegions[width(offRegions) >= min.off.target.width]
     seqlevelsBefore <- seqlevelsInUse(offRegions)
     if (off.target.seqlevels == "targeted") {
-        offRegions <- offRegions[seqnames(offRegions) %in% 
+        offRegions <- offRegions[seqnames(offRegions) %in%
             seqlevelsInUse(interval.gr)]
     }
     seqlevelsAfter <- seqlevelsInUse(offRegions)
     if (!identical(seqlevelsBefore, seqlevelsAfter)) {
-        flog.info("Removing following contigs from off-target regions: %s", 
-            paste(setdiff(seqlevelsBefore, seqlevelsAfter), collapse=","))
+        flog.info("Removing following contigs from off-target regions: %s",
+            paste(setdiff(seqlevelsBefore, seqlevelsAfter), collapse = ","))
+        seqlevels(offRegions) <- seqlevelsInUse(offRegions)
     }
-    merge(offRegions, interval.gr, all = TRUE, sort=TRUE)
+    merge(offRegions, interval.gr, all = TRUE, sort = TRUE)
 }
 
-# add GC content 
+# add GC content
 .annotateIntervalsGC <- function(interval.gr, reference.file) {
     flog.info("Calculating GC-content...")
     x <- scanFa(reference.file, interval.gr)
-    GC.count <- letterFrequency(x,"GC")
-    all.count <- letterFrequency(x,"ATGC")
-    interval.gr$gc_bias <- as.vector(ifelse(all.count==0,NA,GC.count/all.count))
+    GC.count <- letterFrequency(x, "GC")
+    all.count <- letterFrequency(x, "ATGC")
+    interval.gr$gc_bias <- as.vector(ifelse(all.count == 0, NA, GC.count / all.count))
     # exclude unavailable regions
     interval.gr[which(!is.na(interval.gr$gc_bias))]
 }
@@ -213,15 +214,15 @@ preprocessIntervals <- function(interval.file, reference.file,
     nBefore <- sum(interval.gr$on.target)
     interval.gr <- interval.gr[
         (interval.gr$on.target & interval.gr$mappability >= min.mappability[1]) |
-        (!interval.gr$on.target & interval.gr$mappability >= min.mappability[2]) ]
-    # remove chrY low mappability    
+        (!interval.gr$on.target & interval.gr$mappability >= min.mappability[2])]
+    # remove chrY low mappability
     sex.chr <- .getSexChr(seqlevels(interval.gr))[2]
     interval.gr <- interval.gr[!seqnames(interval.gr) %in% sex.chr |
-        interval.gr$mappability >= min.mappability[3] ]
+        interval.gr$mappability >= min.mappability[3]]
     nAfter <- sum(interval.gr$on.target)
     if (nBefore > nAfter) {
-        flog.info("Removing %i intervals with low mappability score (<%.2f).", 
-            nBefore-nAfter, min.mappability[1])
+        flog.info("Removing %i intervals with low mappability score (<%.2f).",
+            nBefore - nAfter, min.mappability[1])
     }
     interval.gr
 }
@@ -248,30 +249,31 @@ preprocessIntervals <- function(interval.file, reference.file,
         ov <- findOverlaps(interval.gr, y)
         colScore <- .getColScore(y)
 
-        mappScore <- aggregate(mcols(y)[subjectHits(ov),colScore], 
-            by=list(queryHits(ov)), mean)
-        mcols(interval.gr)[[label]][mappScore[,1]] <- mappScore[,2]
+        mappScore <- aggregate(mcols(y)[subjectHits(ov),colScore],
+            by = list(queryHits(ov)), mean)
+        mcols(interval.gr)[[label]][mappScore[, 1]] <- mappScore[, 2]
         idxNA <- is.na(mcols(interval.gr)[[label]])
 
         if (sum(idxNA)) {
             if (!is.null(interval.gr$on.target)) {
                 sumOntarget <- sum(idxNA & interval.gr$on.target, na.rm = TRUE)
-                flog.warn("%i intervals without %s score (%i on-target).", 
+                flog.warn("%i intervals without %s score (%i on-target).",
                     sum(idxNA), label, sumOntarget)
             }
             mcols(interval.gr)[[label]][idxNA] <- 0
-        }    
+        } 
     } else {
         flog.warn("No %s scores provided.", label)
-    }    
+    }
     return(interval.gr)
 }
 
 .splitIntervals <- function(interval.gr, average.target.width) {
     # split large targets
     if (!is.null(average.target.width)) {
-        tmp <- tile(interval.gr, width=average.target.width)
-        interval.gr <- unlist(tmp)
+        tmp <- unlist(tile(interval.gr, width = average.target.width))
+        seqlengths(tmp) <- seqlengths(interval.gr)
+        interval.gr <- tmp
         interval.gr$on.target <- TRUE
         nChanges <- sum(elementNROWS(tmp) > 1)
 
@@ -286,12 +288,12 @@ preprocessIntervals <- function(interval.file, reference.file,
 .excludeIntervals <- function(interval.gr, exclude) {
     if (is.null(exclude)) return(interval.gr)
     nBefore <- length(interval.gr)
-    interval.gr <- interval.gr[which(!overlapsAny(interval.gr, exclude) | 
+    interval.gr <- interval.gr[which(!overlapsAny(interval.gr, exclude) |
                                      !interval.gr$on.target)]
 
     nAfter <- length(interval.gr)
     if (nBefore > nAfter) {
-        flog.info("Removing %i targets overlapping with exclude.", 
+        flog.info("Removing %i targets overlapping with exclude.",
             nBefore - nAfter)
     }
     interval.gr
@@ -300,19 +302,23 @@ preprocessIntervals <- function(interval.file, reference.file,
 .remove0MappabilityRegions <- function(mappability) {
     mappability <- .checkColScore(mappability, "mappability")
     colScore <- .getColScore(mappability)
-    mappability[which(mcols(mappability)[, colScore]>0),]
+    mappability[which(mcols(mappability)[, colScore] > 0), ]
 }
         
 .writeIntervals <- function(interval.gr, output.file) {
     tmp <- data.frame(
-        Target=as.character(interval.gr),
-        gc_bias=interval.gr$gc_bias,
-        mappability=interval.gr$mappability,
-        reptiming=interval.gr$reptiming,
-        Gene=interval.gr$Gene,
-        on_target=interval.gr$on.target
-    )    
-    fwrite(tmp, file = output.file, row.names = FALSE, quote = FALSE, sep = "\t")
+        Target = as.character(interval.gr),
+        gc_bias = interval.gr$gc_bias,
+        mappability = interval.gr$mappability,
+        reptiming = interval.gr$reptiming,
+        Gene = interval.gr$Gene,
+        on_target = interval.gr$on.target
+    )
+    con <- file(output.file, open = "w")
+    .writeGATKHeader(interval.gr, id = NULL, con, "interval")
+    #fwrite(tmp, file = output.file, row.names = FALSE, quote = FALSE, sep = "\t")
+    write.table(tmp, con, row.names = FALSE, quote = FALSE, sep = "\t")
+    close(con)
 }
 
 .checkSeqlengths <- function(ref, x) {
@@ -321,31 +327,32 @@ preprocessIntervals <- function(interval.file, reference.file,
         seqlengths(x)[isc] <- seqlengths(ref)[isc]
     }
     x
-}    
+}   
 .checkSeqlevelStyle <- function(ref, x, name1, name2="reference") {
-    refSeqlevelStyle <- try(.getSeqlevelsStyle(ref), silent=TRUE)
+    refSeqlevelStyle <- try(.getSeqlevelsStyle(ref), silent = TRUE)
     # if unknown, we cannot check and correct
     if (is(refSeqlevelStyle, "try-error")) return(x)
-    xSeqlevelStyle <- try(.getSeqlevelsStyle(x), silent=TRUE)
+    xSeqlevelStyle <- try(.getSeqlevelsStyle(x), silent = TRUE)
 
     if (is(xSeqlevelStyle, "try-error")) {
-        .stopUserError("Chromosome naming style of ", name1, 
-            " file unknown, should be ", refSeqlevelStyle, ".") 
-    }    
+        .stopUserError("Chromosome naming style of ", name1,
+            " file unknown, should be ", refSeqlevelStyle, ".")
+    }
 
-    if (!length(intersect(xSeqlevelStyle,refSeqlevelStyle))) {
-        flog.warn("Chromosome naming style of %s file (%s) was different from %s (%s).", 
+    if (!length(intersect(xSeqlevelStyle, refSeqlevelStyle))) {
+        flog.warn("Chromosome naming style of %s file (%s) was different from %s (%s).",
             name1, xSeqlevelStyle, name2, refSeqlevelStyle)
         seqlevelsStyle(x) <- refSeqlevelStyle[1]
     }
     x
-}       
+}
+   
 .tileReptiming <- function(seqinfo.ref, reptiming, average.reptiming.width) {
     if (is.null(average.reptiming.width) || average.reptiming.width <= 1) {
         return(reptiming)
     }
     flog.info("Averaging reptiming into bins of size %i...", average.reptiming.width)
-    bins <- tileGenome(seqinfo.ref, tilewidth = average.reptiming.width, 
+    bins <- tileGenome(seqinfo.ref, tilewidth = average.reptiming.width,
         cut.last.tile.in.chrom = TRUE)
     reptiming <- .addScoreToGr(bins, reptiming, "score")
     reptiming <- reptiming[!is.na(score(reptiming))]
@@ -357,15 +364,15 @@ preprocessIntervals <- function(interval.file, reference.file,
         flog.warn("Found small target regions (< %ibp). Will %s them.",
             min.target.width, small.targets)
         if (small.targets == "drop") {
-            interval.gr <- interval.gr[!idx,]
+            interval.gr <- interval.gr[!idx, ]
         } else {
             off <- floor((width(interval.gr[idx]) - min.target.width) / 2)
             start(interval.gr[idx]) <- pmax(start(interval.gr[idx]) + off, 1)
             end(interval.gr[idx]) <- pmin(start(interval.gr[idx]) + min.target.width - 1,
-                seqlengths(interval.gr)[as.character(seqnames(interval.gr[idx]))], 
+                seqlengths(interval.gr)[as.character(seqnames(interval.gr[idx]))],
                 na.rm = TRUE)
             interval.gr <- reduce(interval.gr)
         }
     }
     interval.gr
-}    
+}

@@ -362,21 +362,22 @@ gene and genomic region.
 \examples{
 
 normal.coverage.file <- system.file('extdata', 'example_normal_tiny.txt',
-    package='PureCN')
+    package = 'PureCN')
 tumor.coverage.file <- system.file('extdata', 'example_tumor_tiny.txt',
-    package='PureCN')
+    package = 'PureCN')
 vcf.file <- system.file('extdata', 'example.vcf.gz',
-    package='PureCN')
+    package = 'PureCN')
 interval.file <- system.file('extdata', 'example_intervals_tiny.txt',
-    package='PureCN')
+    package = 'PureCN')
 
 # The max.candidate.solutions, max.ploidy and test.purity parameters are set to
 # non-default values to speed-up this example.  This is not a good idea for real
 # samples.
-ret <-runAbsoluteCN(normal.coverage.file=normal.coverage.file,
-    tumor.coverage.file=tumor.coverage.file, genome='hg19', vcf.file=vcf.file,
-    sampleid='Sample1', interval.file=interval.file,
-    max.ploidy=4, test.purity=seq(0.3,0.7,by=0.05), max.candidate.solutions=1)
+ret <-runAbsoluteCN(normal.coverage.file = normal.coverage.file,
+    tumor.coverage.file = tumor.coverage.file, genome = 'hg19',
+    vcf.file = vcf.file, sampleid = 'Sample1',
+    interval.file = interval.file, max.ploidy = 4,
+    test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions = 1)
 
 
 # If a high-quality segmentation was obtained with third-party tools:
@@ -388,9 +389,10 @@ seg.file <- system.file('extdata', 'example_seg.txt',
 # a minimal segmentation function which just returns the provided one:
 funSeg <- function(seg, ...) return(seg)
 
-res <- runAbsoluteCN(seg.file=seg.file, fun.segmentation=funSeg, max.ploidy = 4,
-    test.purity = seq(0.3, 0.7, by = 0.05), max.candidate.solutions=1,
-    genome='hg19', interval.file=interval.file)
+res <- runAbsoluteCN(seg.file = seg.file, fun.segmentation = funSeg,
+    max.ploidy = 4, test.purity = seq(0.3, 0.7, by = 0.05),
+    max.candidate.solutions = 1,
+    genome='hg19', interval.file = interval.file)
 
 }
 \references{

@@ -54,11 +54,11 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     inputCoverage$on_target <- as.logical(inputCoverage$on_target)
 
     targetCoverage <- GRanges(inputCoverage$Target, 
-        coverage=inputCoverage$total_coverage, 
-        average.coverage=NA,
-        counts=inputCoverage$counts,
-        on.target=inputCoverage$on_target,
-        duplication.rate=inputCoverage$duplication_rate)
+        coverage = inputCoverage$total_coverage, 
+        average.coverage = NA,
+        counts = inputCoverage$counts,
+        on.target = inputCoverage$on_target,
+        duplication.rate = inputCoverage$duplication_rate)
     targetCoverage <- .addAverageCoverage(targetCoverage)
     targetCoverage
 }
@@ -78,10 +78,10 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
 }
 
 .addAverageCoverage <- function(x) {
-    x$average.coverage <- x$coverage/width(x)
+    x$average.coverage <- x$coverage / width(x)
     x
 }    
-.readCoverageCnn <- function(file, zero, format="cnn") {
+.readCoverageCnn <- function(file, zero, format = "cnn") {
     if (is.null(zero)) zero <- TRUE
     inputCoverage <- fread(file, sep = "\t")
     if (zero) inputCoverage$start <- inputCoverage$start + 1
@@ -91,11 +91,11 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     targetCoverage$on.target <- TRUE
     targetCoverage$depth <- NULL
     targetCoverage$Gene <- targetCoverage$gene
-    targetCoverage$on.target[which(targetCoverage$Gene=="Background")] <- FALSE
-    targetCoverage$on.target[which(targetCoverage$Gene=="Antitarget")] <- FALSE
+    targetCoverage$on.target[which(targetCoverage$Gene == "Background")] <- FALSE
+    targetCoverage$on.target[which(targetCoverage$Gene == "Antitarget")] <- FALSE
     targetCoverage$gene <- NULL
     targetCoverage$duplication.rate <- NA
-    if (format=="cnr") {
+    if (format == "cnr") {
         targetCoverage$log.ratio <- targetCoverage$log2
     }
     targetCoverage$log2 <- NULL
@@ -148,36 +148,13 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     tumor$gc_bias <- as.numeric(tumor$gc_bias)
     if (is.null(tumor$Gene)) tumor$Gene <- "."
 
-    inputGC <- read.delim(interval.file, as.is = TRUE)
-    if (is.null(inputGC$gc_bias)) {
-        .stopUserError("No gc_bias column in interval.file.")
-    }    
-    if (is.null(inputGC$Gene)) {
-        if (verbose) flog.info("No Gene column in interval.file. You won't get gene-level calls.")
-        inputGC$Gene <- "."
-    }
-    if (is.null(inputGC$on_target)) {
-        if (verbose) flog.info("No on_target column in interval.file. Recreate this file with IntervalFile.R.")
-        inputGC$on_target <- TRUE
-    }
-    if (is.null(inputGC$mappability)) {
-        if (verbose) flog.info("No mappability column in interval.file.")
-        inputGC$mappability <- 1
-    }
-    if (is.null(inputGC$reptiming)) {
-        if (verbose) flog.info("No reptiming column in interval.file.")
-        inputGC$reptiming <- NA
-    }
-    
-    targetGC <- GRanges(inputGC[,1], ranges=NULL, strand=NULL, inputGC[,-1])
-    targetGC <- sort(sortSeqlevels(targetGC))
-
-    ov <- findOverlaps(tumor, targetGC) 
+    targetGC <- readIntervalFile(interval.file)
+    ov <- findOverlaps(tumor, targetGC)
     if (!identical(as.character(tumor), as.character(targetGC))) {
         # if only a few intervals are missing, maybe because of some poor 
         # quality regions, we just ignore those, otherwise we stop because 
         # user probably used the wrong file for the assay
-        if (length(ov) < length(tumor)/2) {
+        if (length(ov) < length(tumor) / 2) {
             .stopUserError("tumor.coverage.file and interval.file do not align.")
         } else {
             flog.warn("tumor.coverage.file and interval.file do not align.")
@@ -185,9 +162,9 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     }
 
     if (!is.null(tumor$on.target)) {
-        if (!identical(tumor[queryHits(ov)]$on.target, targetGC[subjectHits(ov)]$on_target)) {
+        if (!identical(tumor[queryHits(ov)]$on.target, targetGC[subjectHits(ov)]$on.target)) {
             flog.warn("Intervals in coverage and interval.file have conflicting on/off-target annotation.")
-            tumor[queryHits(ov)]$on.target <- targetGC[subjectHits(ov)]$on_target
+            tumor[queryHits(ov)]$on.target <- targetGC[subjectHits(ov)]$on.target
         }
     } 
     tumor[queryHits(ov)]$mappability <- targetGC[subjectHits(ov)]$mappability

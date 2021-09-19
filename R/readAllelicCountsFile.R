@@ -42,20 +42,17 @@ readAllelicCountsFile <- function(file, format, zero=NULL) {
     invisible(outputCounts)
 }
 
-.readAllelicCountsFileGatk4 <- function(file, zero) {
+.parseGATKHeader <- function(con) {
     .extractField <- function(line, field) {
         fields <- strsplit(line, "\t")[[1]]
         key <- paste0("^", field, ":")
         fields <- fields[grep(key, fields)]
         gsub(key, "", fields[1]) 
     }
-
-    if (!is.null(zero)) flog.warn("zero ignored for GATK4 files.")
-    con <- file(file, open = "r")
     sid <- NULL
     sl <- list()
     while ( TRUE ) {
-        line = readLines(con, n = 1)
+        line <- readLines(con, n = 1)
         if ( length(line) == 0 || !grepl("^@", line)[1]) {
             break
         }
@@ -64,35 +61,43 @@ readAllelicCountsFile <- function(file, format, zero=NULL) {
             sl[[.extractField(line, "SN")]] <- .extractField(line, "LN")
         }
     }
+    return(list(sid = sid, sl = sl, last_line = line))
+}
 
+.readAllelicCountsFileGatk4 <- function(file, zero) {
+    if (!is.null(zero)) flog.warn("zero ignored for GATK4 files.")
+    con <- file(file, open = "r")
+    header <- .parseGATKHeader(con)
     inputCounts <- read.delim(con, header = FALSE)
-    colnames(inputCounts) <- strsplit(line, "\t")[[1]]
+    colnames(inputCounts) <- strsplit(header$last_line, "\t")[[1]]
     close(con)
     gr <- GRanges(seqnames = inputCounts$CONTIG, IRanges(start = inputCounts$POSITION, end = inputCounts$POSITION))
     vcf <- VCF(gr, 
-                colData = DataFrame(Samples = 1, row.names = sid),
-                exptData = list(header = VCFHeader(samples = sid)))
+                colData = DataFrame(Samples = 1, row.names = header$sid),
+                exptData = list(header = VCFHeader(samples = header$sid)))
     ref(vcf) <- DNAStringSet(inputCounts$REF_NUCLEOTIDE)
     alt(vcf) <- DNAStringSetList(lapply(inputCounts$ALT_NUCLEOTIDE, DNAStringSet))
     info(header(vcf)) <- DataFrame(
-        Number ="0",
+        Number = "0",
         Type = "Flag",
         Description = "dbSNP Membership",
-        row.names="DB")
+        row.names = "DB")
 
     geno(header(vcf)) <- DataFrame(
         Number =".",
         Type = "Integer",
         Description = "Allelic depths for the ref and alt alleles in the order listed",
-        row.names="AD")
+        row.names = "AD")
 
     info(vcf)$DB <- TRUE
-    geno(vcf)$AD <- matrix(lapply(seq(nrow(inputCounts)), function(i) c( inputCounts$REF_COUNT[i], inputCounts$ALT_COUNT[i])), ncol = 1, dimnames = list(NULL, sid))
+    geno(vcf)$AD <- matrix(lapply(seq(nrow(inputCounts)), function(i)
+            c(inputCounts$REF_COUNT[i], inputCounts$ALT_COUNT[i])),
+        ncol = 1, dimnames = list(NULL, header$sid))
+
     names(vcf) <- paste0(seqnames(vcf), ":", start(vcf))
-    if (length(sl)) {
-        sl <- sapply(sl, as.numeric)
-        seqlengths(vcf) <- sl[names(seqlengths(vcf))]  
+    if (length(header$sl)) {
+        header$sl <- sapply(header$sl, as.numeric)
+        seqlengths(vcf) <- header$sl[names(seqlengths(vcf))]  
     }
     .readAndCheckVcf(vcf)
 }
-

@@ -194,19 +194,6 @@ knownOrg <- list(
     canFam3 = "org.Cf.eg.db"
 )
 
-.writeGc <- function(interval.gr, output.file) {
-    tmp <- data.frame(
-        Target = as.character(interval.gr),
-        gc_bias = interval.gr$gc_bias,
-        mappability = interval.gr$mappability,
-        reptiming = interval.gr$reptiming,
-        Gene = interval.gr$Gene,
-        on_target = interval.gr$on.target
-    )    
-    write.table(tmp, file = output.file, row.names = FALSE, quote = FALSE, 
-                sep = "\t")
-}
-
 if (!is.null(opt$genome) ) {
     if (is.null(knownGenome[[opt$genome]])) {
         flog.warn("%s genome not known. %s Known genomes: %s", opt$genome, 
@@ -221,7 +208,7 @@ if (!is.null(opt$genome) ) {
     } else {
         outGC <- suppressMessages(annotateTargets(outGC,
             get(knownGenome[[opt$genome]]), get(knownOrg[[opt$genome]])))
-        .writeGc(outGC, outfile)
+        PureCN:::.writeIntervals(outGC, outfile)
     }
 } else {
     flog.warn("Specify --genome to get gene symbol annotation.")

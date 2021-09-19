@@ -12,7 +12,7 @@ output.file <- tempfile(fileext = ".txt")
 test_that("GC-bias of example reference and intervals (GATK format) matches", {
     gc <- preprocessIntervals(interval.file, reference.file, 
         output.file = output.file, min.target.width = 10)
-    x <- read.delim(output.file, as.is = TRUE)
+    x <- readIntervalFile(output.file)
     expect_equal(x$gc_bias, c(0.4533333, 0.5057143, 0.5733333, 
         0.48, 0.36), tolerance = 0.001)
     expect_equal(gc$gc_bias, c(0.4533333, 0.5057143, 0.5733333, 
@@ -20,25 +20,25 @@ test_that("GC-bias of example reference and intervals (GATK format) matches", {
 })
 
 test_that("GC-bias of example reference and intervals (BED format) matches", {
-    x <- read.delim(output.file, as.is = TRUE)
+    x <- readIntervalFile(output.file)
     intervals <- import(bed.file)
     output.file2 <- tempfile(fileext = ".txt")
     y <- preprocessIntervals(intervals, reference.file, 
         output.file = output.file2, min.target.width = 10)
     expect_equal(y$gc_bias, x$gc_bias)
-    expect_equal(as.character(y), x$Target)
-    y <- read.delim(output.file2)
+    expect_equal(as.character(y), as.character(x))
+    y <- readIntervalFile(output.file2)
     file.remove(output.file2)
     expect_equal(y$gc_bias, x$gc_bias)
 })
 
 test_that("exclude option works", {
-    x <- read.delim(output.file, as.is = TRUE)
+    x <- readIntervalFile(output.file)
     intervals <- import(bed.file)
     y <- preprocessIntervals(intervals, reference.file,
-        exclude=intervals[2], min.target.width = 10)
+        exclude = intervals[2], min.target.width = 10)
     expect_equal(y$gc_bias, x$gc_bias[-2])
-    expect_equal(as.character(y), x$Target[-2])
+    expect_equal(as.character(y), as.character(x)[-2])
     expect_equal(y$gc_bias, x$gc_bias[-2])
 })
 
@@ -120,7 +120,7 @@ test_that("Offtarget settings work as expected", {
     expect_equal(gcMap$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
 
     expect_output(gcMap <- preprocessIntervals(intervals, reference.file,
-        mappability = mappability, min.mappability=c(1,1,1)),
+        mappability = mappability, min.mappability = c(1,1,1)),
         "Removing 1 intervals with low mappability score")
     expect_equal(gcMap$mappability, c(1, 1, 1, 1), tolerance = 0.001)
     

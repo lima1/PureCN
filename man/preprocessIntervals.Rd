@@ -56,10 +56,10 @@ ignored, assuming that \code{mappability} covers the whole accessible genome.}
 
 \item{min.mappability}{\code{double(3)} specifying the minimum mappability score
 for on-target, off-target, and chrY regions in that order. The chrY regions
-are only used for sex determination in \sQuote{PureCN} and are therefore 
+are only used for sex determination in \sQuote{PureCN} and are therefore
 treated differently. Requires \code{mappability}.}
 
-\item{reptiming}{Annotate intervals with replication timing score. Expected as 
+\item{reptiming}{Annotate intervals with replication timing score. Expected as
 \code{GRanges} object with first meta column being the score.}
 
 \item{average.reptiming.width}{Tile \code{reptiming} into bins of specified
@@ -78,29 +78,29 @@ found in the \code{reference.file} but not in the \code{interval.file}.}
 Returns GC content by interval as \code{GRanges} object.
 }
 \description{
-Optimize intervals for copy number calling by tiling long intervals and by 
-including off-target regions. Uses \code{scanFa} from the Rsamtools package 
+Optimize intervals for copy number calling by tiling long intervals and by
+including off-target regions. Uses \code{scanFa} from the Rsamtools package
 to retrieve GC content of intervals in a reference FASTA file. If provided,
 will annotate intervals with mappability and replication timing scores.
 }
 \examples{
 
-reference.file <- system.file("extdata", "ex2_reference.fa", 
-    package="PureCN", mustWork = TRUE)
-interval.file <- system.file("extdata", "ex2_intervals.txt", 
-    package="PureCN", mustWork = TRUE)
-bed.file <- system.file("extdata", "ex2_intervals.bed", 
-    package="PureCN", mustWork = TRUE)
-preprocessIntervals(interval.file, reference.file, 
-    output.file="gc_file.txt")
+reference.file <- system.file("extdata", "ex2_reference.fa",
+    package = "PureCN", mustWork = TRUE)
+interval.file <- system.file("extdata", "ex2_intervals.txt",
+    package = "PureCN", mustWork = TRUE)
+bed.file <- system.file("extdata", "ex2_intervals.bed",
+    package = "PureCN", mustWork = TRUE)
+preprocessIntervals(interval.file, reference.file,
+    output.file = "gc_file.txt")
 
 intervals <- import(bed.file)
-preprocessIntervals(intervals, reference.file, 
-    output.file="gc_file.txt")
+preprocessIntervals(intervals, reference.file,
+    output.file = "gc_file.txt")
 
 }
 \references{
-Talevich et al. (2016). CNVkit: Genome-Wide Copy Number 
+Talevich et al. (2016). CNVkit: Genome-Wide Copy Number
 Detection and Visualization from Targeted DNA Sequencing. PLoS Comput Biol.
 }
 \author{

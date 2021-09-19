@@ -34,6 +34,8 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Add segmentation parameters as attributes to segmentation data.frame
     o Added min.betafit.rho and max.betafit.rho to calculateMappingBias*
     o Made --normal_panel in PureCN.R defunct
+    o Added GATK/Picard header with sequence lengths to interval file,
+      added readIntervalFile function to parse it
       
 BUGFIXES
 

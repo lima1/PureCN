@@ -41,10 +41,18 @@ readLogRatioFile <- function(file, format, zero = NULL) {
 }
 
 .readLogRatioFileGATK4 <- function(file, zero = FALSE) {
-    x <- read.delim(file, comment.char = "@", as.is = TRUE)
+    con <- file(file, open = "r")
+    header <- .parseGATKHeader(con)
+    x <- read.delim(con, header = FALSE, as.is = TRUE)
+    colnames(x) <- strsplit(header$last_line, "\t")[[1]]
     gr <- GRanges(x[,1], IRanges(start = x[,2], end = x[,3]))
     gr$log.ratio <- x[,4]
-    gr
+    gr <- sort(sortSeqlevels(gr))
+    if (length(header$sl)) {
+        header$sl <- sapply(header$sl, as.numeric)
+        seqlengths(gr) <- header$sl[names(seqlengths(gr))]
+    }
+    return(gr)
 }
 
 .writeLogRatioFileGATK4 <- function(x, id = 1, file) {
@@ -65,14 +73,16 @@ readLogRatioFile <- function(file, format, zero = NULL) {
     invisible(output)
 }
 .writeGATKHeader <- function(vcf, id = 1, con, file_type) {
-    writeLines(paste("@HD", "VN:1.6", sep="\t"), con)
+    writeLines(paste("@HD", "VN:1.6", sep = "\t"), con)
     if (any(is.na(seqlengths(vcf)))) {
         flog.warn("Cannot find all contig lengths while exporting %s file.",
             file_type)
     } else {
         sl <- seqlengths(vcf)
-        writeLines(paste("@SQ", paste0("SN:",names(sl)), paste0("LN:", sl), sep="\t"), con)
+        writeLines(paste("@SQ", paste0("SN:",names(sl)), paste0("LN:", sl), sep = "\t"), con)
     }
-    sampleid <- .getSampleIdFromVcf(vcf, id)
-    writeLines(paste("@RG", "ID:PureCN", paste0("SM:", sampleid), sep="\t"), con)
+    if (!is.null(id)) {
+        sampleid <- .getSampleIdFromVcf(vcf, id)
+        writeLines(paste("@RG", "ID:PureCN", paste0("SM:", sampleid), sep = "\t"), con)
+   } 
 }    

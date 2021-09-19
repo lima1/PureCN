@@ -8,6 +8,7 @@ test_that("Example data matches", {
     expect_equal(21, length(logratio))
     expect_equal(0.109473, logratio$log.ratio[1], tolerance = .00001)
     expect_equal(-0.185664, logratio$log.ratio[21], tolerance = .00001)
+    expect_equivalent(seqlengths(logratio), c(248956422, 242193529, 156040895))
     logratio.file2 <- system.file("extdata", "example_logratio.txt.gz", 
         package = "PureCN")
     logratio2 <- readLogRatioFile(logratio.file2)
