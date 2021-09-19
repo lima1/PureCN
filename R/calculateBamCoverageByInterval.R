@@ -40,7 +40,8 @@
 calculateBamCoverageByInterval <- function(bam.file, interval.file,
     output.file = NULL, index.file = bam.file, keep.duplicates = FALSE,
     ...) {
-    intervalGr <- readCoverageFile(interval.file)
+    intervalGr <- readIntervalFile(interval.file, strict = FALSE,
+        verbose = FALSE)
 
     param <- ScanBamParam(what = c("pos", "qwidth", "flag"),
                 which = intervalGr,
