@@ -1,8 +1,8 @@
 #' Bootstrapping variant fits
 #'
-#' This function bootstraps variants, then optionally re-ranks solutions by 
+#' This function bootstraps variants, then optionally re-ranks solutions by
 #' using the bootstrap estimate of the likelihood score, and then optionally
-#' removes solutions that never ranked high in any bootstrap replicate. 
+#' removes solutions that never ranked high in any bootstrap replicate.
 #'
 #'
 #' @param res Return object of the \code{\link{runAbsoluteCN}} function.
@@ -10,7 +10,7 @@
 #' @param top Include solution if it appears in the top \code{n} solutions of
 #' any bootstrap replicate. If \code{NULL}, do not filter solutions.
 #' @param reorder Reorder results by bootstrap value.
-#' @return Returns a \code{\link{runAbsoluteCN}} object with added bootstrap 
+#' @return Returns a \code{\link{runAbsoluteCN}} object with added bootstrap
 #' value to each solution. This value
 #' is the fraction of bootstrap replicates in which the solution ranked first.
 #' @author Markus Riester
@@ -25,8 +25,8 @@
 #' @importFrom utils head
 bootstrapResults <- function(res, n = 500, top = NULL, reorder = FALSE) {
     if (length(res$results) < 2) return(res)
-    if (is.null(top)) top <- length(res$results)    
-    res$results <- .bootstrapResults(res$results, n = n, top = top, 
+    if (is.null(top)) top <- length(res$results)
+    res$results <- .bootstrapResults(res$results, n = n, top = top,
         reorder = reorder)
     res
 }
@@ -56,7 +56,7 @@ bootstrapResults <- function(res, n = 500, top = NULL, reorder = FALSE) {
     if (reorder) {
         results <- results[order(sapply(results, function(x) x$bootstrap.value),
             decreasing = TRUE)]
-    }    
+    }
     .flagBootstrap(results)
 }
 

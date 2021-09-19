@@ -22,13 +22,13 @@ Averages the coverage of a list of samples.
 }
 \examples{
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-    package="PureCN")
+normal.coverage.file <- system.file("extdata", "example_normal.txt",
+    package = "PureCN")
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
+    package = "PureCN")
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 pool <- poolCoverage(lapply(normal.coverage.files, readCoverageFile),
-     remove.chrs=c("chrX", "chrY"))
+     remove.chrs = c("chrX", "chrY"))
 
 }
 \seealso{

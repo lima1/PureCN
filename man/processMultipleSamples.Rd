@@ -55,26 +55,26 @@ properly ordered.}
 \code{data.frame} containing the segmentation.
 }
 \description{
-This function performs normalization and segmentation when multiple 
+This function performs normalization and segmentation when multiple
 for the same patient are available.
 }
 \examples{
 
-normal1.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
-    package="PureCN")
+normal1.coverage.file <- system.file("extdata", "example_normal.txt",
+    package = "PureCN")
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
+    package = "PureCN")
 tumor1.coverage.file <- system.file("extdata", "example_tumor.txt",
-    package="PureCN")
+    package = "PureCN")
 tumor2.coverage.file <- system.file("extdata", "example_tumor2.txt",
-    package="PureCN")
+    package = "PureCN")
 
 normal.coverage.files <- c(normal1.coverage.file, normal2.coverage.file)
 tumor.coverage.files <- c(tumor1.coverage.file, tumor2.coverage.file)
 
 normalDB <- createNormalDatabase(normal.coverage.files)
 
-seg <- processMultipleSamples(tumor.coverage.files, 
+seg <- processMultipleSamples(tumor.coverage.files,
          sampleids = c("Sample1", "Sample2"),
          normalDB = normalDB,
          genome = "hg19")
@@ -82,7 +82,7 @@ seg <- processMultipleSamples(tumor.coverage.files,
 }
 \references{
 Nilsen G., Liestol K., Van Loo P., Vollan H., Eide M., Rueda O.,
-Chin S., Russell R., Baumbusch L., Caldas C., Borresen-Dale A., 
+Chin S., Russell R., Baumbusch L., Caldas C., Borresen-Dale A.,
 Lingjaerde O. (2012). "Copynumber: Efficient algorithms for single- and
 multi-track copy number segmentation." BMC Genomics, 13(1), 591.
 }

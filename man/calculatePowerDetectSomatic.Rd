@@ -46,31 +46,33 @@ hypothesis that an alt allele is a sequencing error rather than a true
 }
 \examples{
 
-purity <- c(0.1,0.15,0.2,0.25,0.4,0.6,1)
-coverage <- seq(5,35,1)
-power <- lapply(purity, function(p) sapply(coverage, function(cv) 
-    calculatePowerDetectSomatic(coverage=cv, purity=p, ploidy=2, 
-    verbose=FALSE)$power))
+purity <- c(0.1, 0.15, 0.2, 0.25, 0.4, 0.6, 1)
+coverage <- seq(5, 35, 1)
+power <- lapply(purity, function(p) sapply(coverage, function(cv)
+    calculatePowerDetectSomatic(coverage = cv, purity = p, ploidy = 2,
+    verbose = FALSE)$power))
 
 # Figure S7b in Carter et al.
-plot(coverage, power[[1]], col=1, xlab="Sequence coverage", 
-    ylab="Detection power", ylim=c(0,1), type="l")
+plot(coverage, power[[1]], col = 1, xlab = "Sequence coverage",
+    ylab = "Detection power", ylim = c(0, 1), type = "l")
 
-for (i in 2:length(power)) lines(coverage, power[[i]], col=i)
-abline(h=0.8, lty=2, col="grey")     
-legend("bottomright", legend=paste("Purity", purity), fill=seq_along(purity))
+for (i in 2:length(power)) lines(coverage, power[[i]], col = i)
+abline(h = 0.8, lty = 2, col = "grey")
+legend("bottomright", legend = paste("Purity", purity),
+    fill = seq_along(purity))
 
 # Figure S7c in Carter et al.
-coverage <- seq(5,350,1)
-power <- lapply(purity, function(p) sapply(coverage, function(cv) 
-    calculatePowerDetectSomatic(coverage=cv, purity=p, ploidy=2, 
-        cell.fraction=0.2, verbose=FALSE)$power))
-plot(coverage, power[[1]], col=1, xlab="Sequence coverage", 
-    ylab="Detection power", ylim=c(0,1), type="l")
+coverage <- seq(5, 350, 1)
+power <- lapply(purity, function(p) sapply(coverage, function(cv)
+    calculatePowerDetectSomatic(coverage = cv, purity = p, ploidy = 2,
+        cell.fraction = 0.2, verbose = FALSE)$power))
+plot(coverage, power[[1]], col = 1, xlab = "Sequence coverage",
+    ylab = "Detection power", ylim = c(0, 1), type = "l")
 
-for (i in 2:length(power)) lines(coverage, power[[i]], col=i)
-abline(h=0.8, lty=2, col="grey")     
-legend("bottomright", legend=paste("Purity", purity), fill=seq_along(purity))
+for (i in 2:length(power)) lines(coverage, power[[i]], col = i)
+abline(h = 0.8, lty = 2, col = "grey")
+legend("bottomright", legend = paste("Purity", purity),
+    fill = seq_along(purity))
 
 }
 \references{

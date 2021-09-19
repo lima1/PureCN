@@ -132,7 +132,7 @@ $ Rscript $PURECN/IntervalFile.R --in-file baits_hg19.bed \
     --reptiming wgEncodeUwRepliSeqK562WaveSignalRep1.bigWig
 ```
 Internally, this script uses `r Biocpkg("rtracklayer")` to parse the
-`in-file`. Make sure that the file format matches the file extension.
+`--in-file`. Make sure that the file format matches the file extension.
 See the `r Biocpkg("rtracklayer")` documentation for problems loading the file.
 Check that the genome version of the baits file matches the reference.  Do not
 include chrM baits in case the capture kit includes some.

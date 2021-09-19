@@ -1,5 +1,5 @@
-Changes in version 1.24.0
--------------------------
+Changes in version 2.0.0
+------------------------
 
 NEW FEATURES
 
@@ -26,7 +26,7 @@ SIGNIFICANT USER-VISIBLE CHANGES
         still very small (< 0.15, min.logr.sdev in runAbsoluteCN)
       - Increase automatically determined undo.SD in all segmentation functions
         when noise is very small (< min.logr.sdev)
-      - min.logr.sdev is now accessible in PureCN.R via --minlogrsdev
+      - min.logr.sdev is now accessible in PureCN.R via --min-logr-sdev
     o Added pairwise sample distances to normalDB output object helpful for
       finding noisy samples or batches in normal databases  
     o Do not error out readCurationFile when CSV is missing and directory

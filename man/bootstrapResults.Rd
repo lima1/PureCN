@@ -17,12 +17,12 @@ any bootstrap replicate. If \code{NULL}, do not filter solutions.}
 \item{reorder}{Reorder results by bootstrap value.}
 }
 \value{
-Returns a \code{\link{runAbsoluteCN}} object with added bootstrap 
+Returns a \code{\link{runAbsoluteCN}} object with added bootstrap
 value to each solution. This value
 is the fraction of bootstrap replicates in which the solution ranked first.
 }
 \description{
-This function bootstraps variants, then optionally re-ranks solutions by 
+This function bootstraps variants, then optionally re-ranks solutions by
 using the bootstrap estimate of the likelihood score, and then optionally
 removes solutions that never ranked high in any bootstrap replicate.
 }

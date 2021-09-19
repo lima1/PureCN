@@ -58,7 +58,7 @@ available.
 }
 \examples{
 
-vcf.file <- system.file("extdata", "example.vcf.gz", package="PureCN")
+vcf.file <- system.file("extdata", "example.vcf.gz", package = "PureCN")
 vcf <- readVcf(vcf.file, "hg19")
 # This example vcf is filtered and contains no homozygous calls,
 # which are necessary for determining sex from chromosome X.

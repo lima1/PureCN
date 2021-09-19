@@ -38,16 +38,16 @@ estimation is applied. If the \code{plot.bias} parameter is set as
 \item{output.qc.file}{Write miscellaneous coverage QC metrics to file.}
 }
 \description{
-Takes as input coverage data and a mapping file for GC content and 
-optionally replication timing. Will then normalize coverage data for 
+Takes as input coverage data and a mapping file for GC content and
+optionally replication timing. Will then normalize coverage data for
 GC-bias.  Plots the pre and post normalization GC profiles.
 }
 \examples{
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-interval.file <- system.file("extdata", "example_intervals.txt", 
-    package="PureCN")
+normal.coverage.file <- system.file("extdata", "example_normal.txt",
+    package = "PureCN")
+interval.file <- system.file("extdata", "example_intervals.txt",
+    package = "PureCN")
 coverage <- correctCoverageBias(normal.coverage.file, interval.file)
 
 }

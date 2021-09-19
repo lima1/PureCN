@@ -1799,7 +1799,7 @@ with blood controls. Otherwise the normalization using the panel of normals
 should automatically remove any GC bias.
     \item Smaller panels of normals might also benefit from explicit GC-normalization.
     \item Otherwise it is safe skip the GC-normalization. In the command line tools,
-set \Rcode{--skipgcnorm} in \Rcode{Coverage.R}.
+set \Rcode{--skip-gc-norm} in \Rcode{Coverage.R}.
 \end{itemize}
 
 \paragraph{If all or most of the samples are flagged as:}

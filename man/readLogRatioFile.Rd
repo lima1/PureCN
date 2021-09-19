@@ -9,7 +9,7 @@ readLogRatioFile(file, format, zero = NULL)
 \arguments{
 \item{file}{Log2 coverage file.}
 
-\item{format}{File format. If missing, derived from the file 
+\item{format}{File format. If missing, derived from the file
 extension. Currently GATK4 DenoiseReadCounts format supported.
 A simple GATK3-style format, two columns with coordinates
 as string in format chr:start-stop in first and log2-ratio
@@ -22,7 +22,7 @@ for GATK, \code{TRUE} for BED file based intervals.}
 A \code{GRange} with the log2 ratio.
 }
 \description{
-Read log2 ratio file produced by external tools like The Genome Analysis 
+Read log2 ratio file produced by external tools like The Genome Analysis
 Toolkit version 4.
 }
 \examples{

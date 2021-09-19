@@ -36,7 +36,7 @@ callAlterationsFromSegmentation(
 \item{interval.file}{A mapping file that assigns GC content and gene symbols
 to each exon in the coverage files. Used for generating gene-level calls.
 First column in format CHR:START-END. Second column GC content (0 to 1).
-Third column gene symbol. This file is generated with the 
+Third column gene symbol. This file is generated with the
 \code{\link{preprocessIntervals}} function.}
 
 \item{fun.focal}{Function for identifying focal amplifications. Defaults to
@@ -60,12 +60,12 @@ file can contain multiple samples.
 
 data(purecn.example.output)
 seg <- purecn.example.output$results[[1]]$seg
-interval.file <- system.file("extdata", "example_intervals.txt", 
+interval.file <- system.file("extdata", "example_intervals.txt",
         package = "PureCN")
 
-calls <- callAlterationsFromSegmentation(sampleid=seg$ID, chr=seg$chrom,
-    start=seg$loc.start, end=seg$loc.end, num.mark=seg$num.mark,
-    seg.mean=seg$seg.mean, C=seg$C, interval.file=interval.file)
+calls <- callAlterationsFromSegmentation(sampleid = seg$ID, chr = seg$chrom,
+    start = seg$loc.start, end = seg$loc.end, num.mark = seg$num.mark,
+    seg.mean = seg$seg.mean, C = seg$C, interval.file = interval.file)
 
 }
 \author{

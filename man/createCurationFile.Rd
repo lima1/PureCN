@@ -32,8 +32,8 @@ in the output of a \code{\link{runAbsoluteCN}} run.
 
 data(purecn.example.output)
 file.rds <- "Sample1_PureCN.rds"
-saveRDS(purecn.example.output, file=file.rds)
-createCurationFile(file.rds) 
+saveRDS(purecn.example.output, file = file.rds)
+createCurationFile(file.rds)
 
 }
 \seealso{
