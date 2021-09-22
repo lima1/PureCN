@@ -3,3 +3,4 @@
 LICENSE
 codecov.R
 ^\.github$
+Dockerfile
