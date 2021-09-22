@@ -26,13 +26,13 @@ RUN cd GenomicsDB/scripts/prereqs && \
 	./install_prereqs.sh
 RUN chmod +x $GENOMICSDB_PATH/genomicsdb_prereqs.sh && \
 	$GENOMICSDB_PATH/genomicsdb_prereqs.sh && \
-	cmake -DCMAKE_PREFIX_INSTALL=$GENOMICSDB_PATH ./GenomicsDB && \
+	cmake -DCMAKE_INSTALL_PREFIX=$GENOMICSDB_PATH ./GenomicsDB && \
 	make && make install && \
 	rm -rf /tmp/GenomicsDB
 
 # install GenomicsDB R bindings
 RUN Rscript -e 'library(remotes);\
-remotes::install_github("nalinigans/GenomicsDB-R", ref="master", configure.args="--with-genomicsdb=/GenomicsDB/")'
+remotes::install_github("nalinigans/GenomicsDB-R", ref="master", configure.args="--with-genomicsdb=/opt/GenomicsDB/")'
 
 # install PureCN
 RUN Rscript -e 'BiocManager::install("lima1/PureCN")'
