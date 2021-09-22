@@ -38,7 +38,8 @@ remotes::install_github("nalinigans/GenomicsDB-R", ref="master", configure.args=
 RUN Rscript -e 'BiocManager::install("lima1/PureCN")'
 ENV PURECN=/usr/local/lib/R/site-library/PureCN/extdata
 
-# add symbolic link
+# add symbolic link and paths
+ENV PATH $GENOMICSDB_PATH/bin:$PATH
 WORKDIR /opt
 RUN ln -s $PURECN /opt/PureCN
 
