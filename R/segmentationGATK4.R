@@ -71,6 +71,9 @@ segmentationGATK4 <- function(normal, tumor, log.ratio, seg,
         .stopUserError("Unable to find a recent (>= %s) gatk binary.",
             min.version)
     }    
+    .checkParametersSegmentation(alpha = NULL, undo.SD = NULL, 
+        max.segments = NULL, min.logr.sdev = min.logr.sdev,
+        prune.hclust.h = prune.hclust.h)
     output.vcf.file <- NULL    
     if (!is.null(vcf)) {
         output.vcf.file <- tempfile(fileext = ".tsv")

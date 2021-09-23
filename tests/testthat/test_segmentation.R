@@ -75,3 +75,12 @@ test_that("private function .fixBreakpoint.", {
     expect_equivalent(seg$loc.end[-c(23, 24, 44, 45)],
         seg_1$loc.end[-c(23, 24, 44, 45)])
 })
+
+test_that("issue 201 is fixed.", {
+    expect_error(runAbsoluteCN(normal.coverage.file = normal.coverage.file,
+        tumor.coverage.file = tumor.coverage.file,
+        sampleid = "Sample1",  genome = "hg19",
+        args.segmentation = list(undo.SD = "A"),
+        max.candidate.solutions = 1, plot.cnv = FALSE),
+        "undo.SD")
+})    

@@ -93,6 +93,8 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     if (!requireNamespace("PSCBS", quietly = TRUE)) {
         .stopUserError("segmentationPSCBS requires the PSCBS package.")
     }
+   
+    .checkParametersSegmentation(alpha, undo.SD, max.segments, min.logr.sdev, prune.hclust.h)
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
 

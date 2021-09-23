@@ -82,6 +82,8 @@ segmentationCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     max.segments = NULL, min.logr.sdev = 0.15,
     prune.hclust.h = NULL, prune.hclust.method = "ward.D",
     chr.hash = NULL, additional.cmd.args = "", centromeres = NULL) {
+    
+    .checkParametersSegmentation(alpha, undo.SD, max.segments, min.logr.sdev, prune.hclust.h)
 
     if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(tumor))
 
@@ -477,4 +479,14 @@ plot.cnv = TRUE, max.segments = NULL, min.logr.sdev = 0.15, chr.hash = chr.hash)
         }
     }
     return(seg)
+}
+
+.checkParametersSegmentation <- function(alpha, undo.SD, max.segments,
+    min.logr.sdev, prune.hclust.h) {
+    stopifnot(is.null(alpha) || is.numeric(alpha))
+    stopifnot(is.null(undo.SD) || is.numeric(undo.SD))
+    stopifnot(is.null(max.segments) || is.numeric(max.segments))
+    stopifnot(is.numeric(min.logr.sdev))
+    stopifnot(is.null(prune.hclust.h) || is.numeric(prune.hclust.h))
+    if (!is.null(alpha)) .checkFraction(alpha, "alpha")
 }

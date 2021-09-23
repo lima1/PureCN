@@ -1,4 +1,3 @@
-# PureCN v1.22.2
 FROM bioconductor/bioconductor_docker:devel
 
 # install base packages

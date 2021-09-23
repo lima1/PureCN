@@ -58,6 +58,10 @@ segmentationHclust <- function(seg,
     if (is.null(seg)) {
         .stopUserError("segmentationHclust requires an input segmentation.")  
     }
+    .checkParametersSegmentation(alpha = NULL, undo.SD = NULL,
+        max.segments = NULL, min.logr.sdev = min.logr.sdev,
+        prune.hclust.h = prune.hclust.h)
+
     if (!is.null(vcf)) {
         if (is.null(chr.hash)) chr.hash <- .getChrHash(seqlevels(vcf))
         seg <- .pruneByHclust(seg, vcf, tumor.id.in.vcf,
