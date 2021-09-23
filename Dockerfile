@@ -1,4 +1,3 @@
-# PureCN v1.22.2
 FROM bioconductor/bioconductor_docker:RELEASE_3_13
 
 # install base packages
@@ -26,20 +25,28 @@ RUN cd GenomicsDB/scripts/prereqs && \
 	./install_prereqs.sh
 RUN chmod +x $GENOMICSDB_PATH/genomicsdb_prereqs.sh && \
 	$GENOMICSDB_PATH/genomicsdb_prereqs.sh && \
-	cmake -DCMAKE_PREFIX_INSTALL=$GENOMICSDB_PATH ./GenomicsDB && \
+	cmake -DCMAKE_INSTALL_PREFIX=$GENOMICSDB_PATH ./GenomicsDB && \
 	make && make install && \
 	rm -rf /tmp/GenomicsDB
 
 # install GenomicsDB R bindings
 RUN Rscript -e 'library(remotes);\
-remotes::install_github("nalinigans/GenomicsDB-R", ref="master", configure.args="--with-genomicsdb=/GenomicsDB/")'
+remotes::install_github("nalinigans/GenomicsDB-R", ref="master", configure.args="--with-genomicsdb=/opt/GenomicsDB/")'
 
 # install PureCN
 RUN Rscript -e 'BiocManager::install("lima1/PureCN", ref = "RELEASE_3_13")'
 ENV PURECN=/usr/local/lib/R/site-library/PureCN/extdata
 
-# add symbolic link
+# add symbolic link and paths
+ENV PATH $GENOMICSDB_PATH/bin:$PATH
 WORKDIR /opt
 RUN ln -s $PURECN /opt/PureCN
+
+# install GATK4
+RUN wget --no-verbose https://github.com/broadinstitute/gatk/releases/download/4.2.2.0/gatk-4.2.2.0.zip && \
+    unzip gatk-4.2.2.0.zip -d /opt && \
+    rm gatk-4.2.2.0.zip
+
+ENV PATH /opt/gatk-4.2.2.0:$PATH
 
 CMD ["/bin/bash"]
