@@ -604,6 +604,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
                 IRanges(start = round(seg$loc.start), end = seg$loc.end))
 
     missing.sl <- setdiff(seqlevelsInUse(tumor), seqlevelsInUse(seg.gr))
+    missing.sl <- missing.sl[!missing.sl %in% .getSexChr(seqlevelsInUse(tumor))]
+
     if (!is.null(seg.file) && length(missing.sl)) {
         .stopUserError("Seqlevels missing in provided segmentation: ",
                        paste(missing.sl, collapse = ","))
