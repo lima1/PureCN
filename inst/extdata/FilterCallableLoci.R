@@ -48,7 +48,7 @@ if (opt$version) {
 
 if (is.null(opt$in_file)) stop("Need --in-file.")
 if (is.null(opt$genome)) stop("Need --genome.")
-if (is.null(out$out_file)) stop("Need --out-file.")
+if (is.null(opt$out_file)) stop("Need --out-file.")
 
 if (!opt$force && file.exists(opt$out_file)) {
     stop(opt$out_file, " exists. Use --force to overwrite.")
