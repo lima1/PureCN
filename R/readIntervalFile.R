@@ -22,7 +22,7 @@
 readIntervalFile <- function(interval.file, strict = TRUE, verbose = TRUE) {
     con <- file(interval.file, open = "r")
     header <- .parseGATKHeader(con)
-    intervals <- read.delim(con, header = FALSE)
+    intervals <- read.delim(con, header = FALSE, stringsAsFactors = FALSE)
     colnames(intervals) <- strsplit(header$last_line, "\t")[[1]]
     close(con)
     if (is.null(intervals$gc_bias) && strict) {
