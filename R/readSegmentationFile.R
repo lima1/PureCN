@@ -23,7 +23,7 @@
 readSegmentationFile <- function(seg.file, sampleid, model.homozygous = FALSE,
     format, zero = FALSE, verbose = TRUE) {
     if (is.null(seg.file)) return(NULL)
-    seg <- read.delim(seg.file, comment.char = "@")
+    seg <- read.delim(seg.file, comment.char = "@", stringsAsFactors = FALSE)
     if (missing(format)) format <- .getSegFormat(seg)
     if (format == "GATK4") seg <- .convertSegGATK4(seg, sampleid)
     if (verbose) flog.info("Loaded provided segmentation file %s (format %s).",

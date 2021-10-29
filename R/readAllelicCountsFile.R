@@ -68,7 +68,7 @@ readAllelicCountsFile <- function(file, format, zero=NULL) {
     if (!is.null(zero)) flog.warn("zero ignored for GATK4 files.")
     con <- file(file, open = "r")
     header <- .parseGATKHeader(con)
-    inputCounts <- read.delim(con, header = FALSE)
+    inputCounts <- read.delim(con, header = FALSE, stringsAsFactors = FALSE)
     colnames(inputCounts) <- strsplit(header$last_line, "\t")[[1]]
     close(con)
     gr <- GRanges(seqnames = inputCounts$CONTIG, IRanges(start = inputCounts$POSITION, end = inputCounts$POSITION))

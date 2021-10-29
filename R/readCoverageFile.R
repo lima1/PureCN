@@ -140,7 +140,7 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     }    
 }
 
-.addGCData <- function(tumor, interval.file, verbose=TRUE) {
+.addGCData <- function(tumor, interval.file, verbose = TRUE) {
     tumor$mappability <- 1
     tumor$reptiming <- NA
     tumor$reptiming <- as.numeric(tumor$reptiming)
@@ -170,7 +170,7 @@ readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
     tumor[queryHits(ov)]$mappability <- targetGC[subjectHits(ov)]$mappability
     tumor[queryHits(ov)]$reptiming <- targetGC[subjectHits(ov)]$reptiming
     tumor[queryHits(ov)]$gc_bias <- targetGC[subjectHits(ov)]$gc_bias
-    tumor[queryHits(ov)]$Gene <- targetGC[subjectHits(ov)]$Gene
+    tumor[queryHits(ov)]$Gene <- as.character(targetGC[subjectHits(ov)]$Gene)
     tumor <- .checkSymbolsChromosome(tumor)
     return(tumor)
 }
