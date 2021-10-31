@@ -49,10 +49,11 @@ conda install -c bioconda bioconductor-purecn=1.22.1
 
 A [Dockerhub](https://hub.docker.com/r/markusriester/purecn) image of the
 latest stable version with recommended dependencies such as
-[GenomicsDB](https://github.com/GenomicsDB/GenomicsDB) pre-installed:
+[GenomicsDB](https://github.com/GenomicsDB/GenomicsDB) and
+[GATK 4](https://github.com/broadinstitute/gatk) pre-installed:
 
 ```
-docker pull markusriester/purecn
+docker pull markusriester/purecn:latest
 ```
 
 
