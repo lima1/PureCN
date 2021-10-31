@@ -2,9 +2,9 @@ FROM bioconductor/bioconductor_docker:RELEASE_3_14
 
 # install base packages
 RUN Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)){install.packages("BiocManager")}; \
-	BiocManager::install("TxDb.Hsapiens.UCSC.hg38.knownGene", "TxDb.Hsapiens.UCSC.hg19.knownGene")'
+    BiocManager::install(c("TxDb.Hsapiens.UCSC.hg38.knownGene", "TxDb.Hsapiens.UCSC.hg19.knownGene"))'
 RUN Rscript -e 'install.packages(c("optparse", "R.utils")); \
-	BiocManager::install(c("remotes", "raerose01/deconstructSigs"));'
+    BiocManager::install(c("remotes", "raerose01/deconstructSigs"));'
 RUN Rscript -e 'BiocManager::install(c("GenomicRanges", "IRanges", "DNAcopy", "Biostrings", "GenomicFeatures", "rtracklayer",\
 "S4Vectors", "rhdf5", "VariantAnnotation", "Rsamtools", "BiocGenerics"))'
 
@@ -12,18 +12,18 @@ RUN Rscript -e 'BiocManager::install(c("GenomicRanges", "IRanges", "DNAcopy", "B
 RUN Rscript -e 'BiocManager::install("lima1/PSCBS", ref="add_dnacopy_weighting")'
 
 RUN apt-get update \
-	&& apt-get install -y --no-install-recommends apt-utils \
-	&& apt-get install -y --no-install-recommends \
-	texlive \
-	texlive-latex-extra \
-	texlive-fonts-extra \
-	texlive-bibtex-extra \
-	texlive-science \
-	texi2html \
-	texinfo \
+    && apt-get install -y --no-install-recommends apt-utils \
+    && apt-get install -y --no-install-recommends \
+    texlive \
+    texlive-latex-extra \
+    texlive-fonts-extra \
+    texlive-bibtex-extra \
+    texlive-science \
+    texi2html \
+    texinfo \
     python-is-python3 \
-	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # install GenomicsDB
 ENV GENOMICSDB_PATH=/opt/GenomicsDB
@@ -33,15 +33,17 @@ ENV PREREQS_ENV=$GENOMICSDB_PATH/genomicsdb_prereqs.sh
 
 WORKDIR /tmp
 RUN git clone -b develop https://github.com/GenomicsDB/GenomicsDB && \
-	cd GenomicsDB && \
-	git checkout f945f3db507c32e460033c284addc801a05b6919
+    cd GenomicsDB && \
+    git checkout f945f3db507c32e460033c284addc801a05b6919
 RUN cd GenomicsDB/scripts/prereqs && \
-	./install_prereqs.sh
+    ./install_prereqs.sh && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 RUN chmod +x $GENOMICSDB_PATH/genomicsdb_prereqs.sh && \
-	$GENOMICSDB_PATH/genomicsdb_prereqs.sh && \
-	cmake -DCMAKE_INSTALL_PREFIX=$GENOMICSDB_PATH ./GenomicsDB && \
-	make && make install && \
-	rm -rf /tmp/GenomicsDB
+    $GENOMICSDB_PATH/genomicsdb_prereqs.sh && \
+    cmake -DCMAKE_INSTALL_PREFIX=$GENOMICSDB_PATH ./GenomicsDB && \
+    make && make install && \
+    rm -rf /tmp/GenomicsDB
 
 # install GenomicsDB R bindings
 RUN Rscript -e 'library(remotes);\
