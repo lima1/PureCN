@@ -1,8 +1,8 @@
-FROM bioconductor/bioconductor_docker:devel
+FROM bioconductor/bioconductor_docker:RELEASE_3_14
 
 # install base packages
 RUN Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)){install.packages("BiocManager")}; \
-	BiocManager::install("TxDb.Hsapiens.UCSC.hg38.knownGene")'
+	BiocManager::install("TxDb.Hsapiens.UCSC.hg38.knownGene", "TxDb.Hsapiens.UCSC.hg19.knownGene")'
 RUN Rscript -e 'install.packages(c("optparse", "R.utils")); \
 	BiocManager::install(c("remotes", "raerose01/deconstructSigs"));'
 RUN Rscript -e 'BiocManager::install(c("GenomicRanges", "IRanges", "DNAcopy", "Biostrings", "GenomicFeatures", "rtracklayer",\
@@ -10,6 +10,20 @@ RUN Rscript -e 'BiocManager::install(c("GenomicRanges", "IRanges", "DNAcopy", "B
 
 # patched PSCBS with support of interval weights
 RUN Rscript -e 'BiocManager::install("lima1/PSCBS", ref="add_dnacopy_weighting")'
+
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends apt-utils \
+	&& apt-get install -y --no-install-recommends \
+	texlive \
+	texlive-latex-extra \
+	texlive-fonts-extra \
+	texlive-bibtex-extra \
+	texlive-science \
+	texi2html \
+	texinfo \
+    python-is-python3 \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/*
 
 # install GenomicsDB
 ENV GENOMICSDB_PATH=/opt/GenomicsDB
@@ -34,7 +48,7 @@ RUN Rscript -e 'library(remotes);\
 remotes::install_github("nalinigans/GenomicsDB-R", ref="master", configure.args="--with-genomicsdb=/opt/GenomicsDB/")'
 
 # install PureCN
-RUN Rscript -e 'BiocManager::install("lima1/PureCN")'
+RUN Rscript -e 'BiocManager::install("PureCN", dependencies = TRUE)'
 ENV PURECN=/usr/local/lib/R/site-library/PureCN/extdata
 
 # add symbolic link and paths
