@@ -63,7 +63,8 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
         ot_w <- median(sapply(lapply(normals, function(x) width(x)[!x$on.target]), median, na.rm = TRUE))
         ot_c <- median(sapply(lapply(normals, function(x) x$counts[!x$on.target]), median, na.rm = TRUE))
         if (ot_w < 5000) {
-            flog.warn("Small median off-target width (%.1f). Double check that this is correct.")
+            flog.warn("Small median off-target width (%.1f). Double check that this is correct.",
+                ot_w)
         }
         if (ot_c < 1) {
             flog.warn("Not enough off-target counts. Suggest re-running IntervalFile.R without --off-target.")
