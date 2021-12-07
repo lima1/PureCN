@@ -62,9 +62,16 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
     if (!all(normals[[1]]$on.target)) {
         ot_w <- median(sapply(lapply(normals, function(x) width(x)[!x$on.target]), median, na.rm = TRUE))
         ot_c <- median(sapply(lapply(normals, function(x) x$counts[!x$on.target]), median, na.rm = TRUE))
-        optimal_width <- round(optimal.off.target.counts / ot_c * ot_w / 100000, digits = 1) * 100000
-        flog.info("Recommended minimum off-target width is %i compared to %i currently available.",
-            round(optimal_width), round(ot_w))
+        if (ot_w < 5000) {
+            flog.warn("Small median off-target width (%.1f). Double check that this is correct.")
+        }
+        if (ot_c < 1) {
+            flog.warn("Not enough off-target counts. Suggest re-running IntervalFile.R without --off-target.")
+        } else {    
+            optimal_width <- round(optimal.off.target.counts / ot_c * ot_w / 100000, digits = 1) * 100000
+            flog.info("Recommended minimum off-target width is %i compared to %i currently available.",
+                round(optimal_width), round(ot_w))
+        }
     }
 
     normals.m <- do.call(cbind,
@@ -158,7 +165,7 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
     low.intervals
 }
      
-.standardizeNormals <- function(counts, intervals, min.coverage, max.missing, sex) {
+.standardizeNormals <- function(counts, intervals, min.coverage, max.missing, sex, return.counts = FALSE) {
     if (!length(intervals)) return(list(present = FALSE))
     # recalculate without dropped samples
     fcnts <- apply(counts, 2, function(x) x/sum(x))
@@ -192,21 +199,21 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
 
             fcnts_std[, i] <- fcnts_std[,i] / iv
         }
-    } else {  
+    } else {
         fcnts_std <- apply(fcnts,2,function(x) x/fcnts_interval_medians)
     }
     fcnts_interval_non_zero_medians <- apply(fcnts_std, 1, function(x) median(x[x>0]))
     fcnts_std_imp <- apply(fcnts_std, 2, function(x) { x[x<=0] <- fcnts_interval_non_zero_medians[x<=0]; x})
     p=0.001
-    li <- quantile(as.vector(fcnts_std_imp),probs=c(p, 1-p))
+    li <- quantile(as.vector(fcnts_std_imp), probs= c(p, 1-p))
     fcnts_std_trunc <- fcnts_std_imp
-    fcnts_std_trunc[fcnts_std_imp<li[1]] <- li[1]
-    fcnts_std_trunc[fcnts_std_imp>li[2]] <- li[2]
-    fcnts_std_final <- apply(fcnts_std_trunc, 2, function(x) log2(x/median(x)))
+    fcnts_std_trunc[fcnts_std_imp < li[1]] <- li[1]
+    fcnts_std_trunc[fcnts_std_imp > li[2]] <- li[2]
+    fcnts_std_final <- apply(fcnts_std_trunc, 2, function(x) log2(x / median(x)))
     fcnts_std_final - median(apply(fcnts_std_final,2,median))
     s <- svd(fcnts_std_final)
 
-    list(
+    ret <- list(
         projection = s$u,
         projection.v = s$v,
         intervals.used = intervals.used,
@@ -215,8 +222,12 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
                                         M = fcnts_interval_medians_M),
         fraction.missing = fraction.missing,
         dist.t = dist(t(fcnts_std_final)),
-        present=TRUE
+        present = TRUE
     )
+    if (return.counts) {
+        ret$counts <- fcnts_std_final
+    }
+    return(ret)
 }
 
 .denoiseSample <- function(x, normalDB, num.eigen, sex) {

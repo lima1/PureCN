@@ -112,7 +112,7 @@ if (!is.null(opt$normal_panel)) {
     if (!length(bias)) {
         flog.warn("No variants in mapping bias database. Check your --normal-panel!")
     } else {
-        flog.warn("Found %i variants in mapping bias database.", length(bias))
+        flog.info("Found %i variants in mapping bias database.", length(bias))
     }
     if ((!file.exists(output.bed.file) || opt$force) && length(bias)) {
         suppressPackageStartupMessages(library(rtracklayer))
