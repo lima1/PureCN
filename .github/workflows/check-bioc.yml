@@ -52,7 +52,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest, r: '4.1', bioc: '3.13', cont: "bioconductor/bioconductor_docker:RELEASE_3_13", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
+          - { os: ubuntu-latest, r: '4.1', bioc: '3.14', cont: "bioconductor/bioconductor_docker:RELEASE_3_14", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       RSPM: ${{ matrix.config.rspm }}
@@ -100,16 +100,16 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_13-r-4.1-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_13-r-4.1-
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_14-r-4.1-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_14-r-4.1-
 
       - name: Cache R packages on Linux
         if: "!contains(github.event.head_commit.message, '/nocache') && runner.os == 'Linux' "
         uses: actions/cache@v2
         with:
           path: /home/runner/work/_temp/Library
-          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_13-r-4.1-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_13-r-4.1-
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_14-r-4.1-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-RELEASE_3_14-r-4.1-
 
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
@@ -120,11 +120,11 @@ jobs:
 
       - name: Install GATK4
         run: |
-           wget --no-verbose https://github.com/broadinstitute/gatk/releases/download/4.2.2.0/gatk-4.2.2.0.zip
+           wget --no-verbose https://github.com/broadinstitute/gatk/releases/download/4.2.3.0/gatk-4.2.3.0.zip
            mkdir $HOME/tools
-           unzip gatk-4.2.2.0.zip -d $HOME/tools
-           sudo -s ln -s "$HOME/tools/gatk-4.2.2.0/gatk" /usr/local/bin/gatk
-           rm gatk-4.2.2.0.zip
+           unzip gatk-4.2.3.0.zip -d $HOME/tools
+           sudo -s ln -s "$HOME/tools/gatk-4.2.3.0/gatk" /usr/local/bin/gatk
+           rm gatk-4.2.3.0.zip
 
       - name: Show GATK4 version
         run: |
@@ -255,7 +255,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@master
         with:
-          name: ${{ runner.os }}-biocversion-RELEASE_3_13-r-4.1-results
+          name: ${{ runner.os }}-biocversion-RELEASE_3_14-r-4.1-results
           path: check
 
       - uses: docker/build-push-action@v1
