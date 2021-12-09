@@ -63,7 +63,7 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
         ot_w <- median(sapply(lapply(normals, function(x) width(x)[!x$on.target]), median, na.rm = TRUE))
         ot_c <- median(sapply(lapply(normals, function(x) x$counts[!x$on.target]), median, na.rm = TRUE))
         if (ot_w < 5000) {
-            flog.warn("Small median off-target width (%.1f). Double check that this is correct.",
+            flog.warn("Small median off-target width (%.0f). Double check that this is correct.",
                 ot_w)
         }
         if (ot_c < 1) {
@@ -72,6 +72,9 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
             optimal_width <- round(optimal.off.target.counts / ot_c * ot_w / 100000, digits = 1) * 100000
             flog.info("Recommended minimum off-target width is %i compared to %i currently available.",
                 round(optimal_width), round(ot_w))
+            if (optimal_width > 350000) {
+                flog.warn("Large minimum off-target width, your assay might not provide sufficient off-target reads to make including them useful.")
+            }
         }
     }
 
