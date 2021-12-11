@@ -105,3 +105,17 @@ test_that("issue 184 is fixed", {
     expect_output(x <- PureCN:::.getTumorIdInVcf(vcf.184), "GT field in VCF contains missing values")
     expect_equivalent("TC_098_1.2", x)
 })
+
+test_that("Missing BQ is handled correctly", {
+    vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package = "PureCN")
+    vcf <- PureCN:::.readAndCheckVcf(vcf.file, "hg19")
+    expect_equal(range(geno(vcf)$BQ[, 1]), c(8,36))
+    vcf.bq <- vcf
+    geno(vcf.bq)$BQ <- NULL
+    tmp <- rownames(geno(header(vcf.bq)))
+    geno(header(vcf.bq)) <-  geno(header(vcf.bq))[-match("BQ", tmp),]
+    output.file <- tempfile(fileext = ".vcf")
+    writeVcf(vcf.bq, file = output.file)
+    vcf.bq2 <- PureCN:::.readAndCheckVcf(output.file, "hg19")
+    file.remove(output.file)
+})

@@ -495,7 +495,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
         flog.info("Loading VCF...")
         vcf <- .readAndCheckVcf(vcf.file, genome = genome,
             DB.info.flag = DB.info.flag, POPAF.info.field = POPAF.info.field,
-            min.pop.af = min.pop.af, vcf.field.prefix = vcf.field.prefix)
+            min.pop.af = min.pop.af, error = error,
+            vcf.field.prefix = vcf.field.prefix)
 
         if (length(intersect(seqlevels(tumor), seqlevels(vcf))) < 1) {
             .stopUserError("Different chromosome names in coverage and VCF.")

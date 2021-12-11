@@ -13,6 +13,7 @@ filterVcfBasic(
   contamination.range = c(0.01, 0.075),
   min.coverage = 15,
   min.base.quality = 25,
+  max.base.quality = 50,
   min.supporting.reads = NULL,
   error = 0.001,
   target.granges = NULL,
@@ -51,8 +52,12 @@ contamination estimation steps will be performed later on.}
 \item{min.coverage}{Minimum coverage in tumor. Variants with lower coverage
 are ignored.}
 
-\item{min.base.quality}{Minimim base quality in tumor. Requires a \code{BQ}
-genotype field in the VCF.}
+\item{min.base.quality}{Minimium base quality in tumor. Requires a \code{BQ}
+genotype field in the VCF. Values below this value will be ignored.}
+
+\item{max.base.quality}{Maximum base quality in tumor. Requires a \code{BQ}
+genotype field in the VCF. Variants exceeding this value will have their
+BQ capped at this value.}
 
 \item{min.supporting.reads}{Minimum number of reads supporting the alt
 allele.  If \code{NULL}, calculate based on coverage and assuming sequencing

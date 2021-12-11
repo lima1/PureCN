@@ -24,8 +24,11 @@
 #' contamination estimation steps will be performed later on.
 #' @param min.coverage Minimum coverage in tumor. Variants with lower coverage
 #' are ignored.
-#' @param min.base.quality Minimim base quality in tumor. Requires a \code{BQ}
-#' genotype field in the VCF.
+#' @param min.base.quality Minimium base quality in tumor. Requires a \code{BQ}
+#' genotype field in the VCF. Values below this value will be ignored.
+#' @param max.base.quality Maximum base quality in tumor. Requires a \code{BQ}
+#' genotype field in the VCF. Variants exceeding this value will have their
+#' BQ capped at this value.
 #' @param min.supporting.reads Minimum number of reads supporting the alt
 #' allele.  If \code{NULL}, calculate based on coverage and assuming sequencing
 #' error of 10^-3.
@@ -64,6 +67,7 @@
 filterVcfBasic <- function(vcf, tumor.id.in.vcf = NULL, 
 use.somatic.status = TRUE, snp.blacklist = NULL, af.range = c(0.03, 0.97),
 contamination.range = c(0.01, 0.075), min.coverage = 15, min.base.quality = 25,
+max.base.quality = 50,
 min.supporting.reads = NULL, error = 0.001, target.granges = NULL,
 remove.off.target.snvs = TRUE, model.homozygous = FALSE, 
 interval.padding = 50, DB.info.flag = "DB") {
@@ -85,17 +89,17 @@ interval.padding = 50, DB.info.flag = "DB") {
     # find supporting read cutoffs based on coverage and sequencing error
     #--------------------------------------------------------------------------
     if (is.null(min.supporting.reads)) {
-        depths <- geno(vcf)$DP[,tumor.id.in.vcf]
+        depths <- geno(vcf)$DP[, tumor.id.in.vcf]
         minDepth <- round(log2(mean(depths)))
 
         depths <- sort(unique(round(log2(depths))))
-        depths <- depths[depths>=minDepth]
+        depths <- depths[depths >= minDepth]
         depths <- 2^depths
 
         cutoffs <- sapply(depths, function(d) 
-            calculatePowerDetectSomatic(d, ploidy=2, purity=1, error=error, 
-                verbose=FALSE)$k)
-        depths <- c(0,depths)
+            calculatePowerDetectSomatic(d, ploidy = 2, purity = 1, error = error, 
+                verbose = FALSE)$k)
+        depths <- c(0, depths)
     } else {
         depths <- 0
         cutoffs <- min.supporting.reads
@@ -212,7 +216,8 @@ interval.padding = 50, DB.info.flag = "DB") {
                 n.vcf.before.filter - .countVariants(vcf))
         }
     }
-    if (!is.null(info(vcf)[[DB.info.flag]]) && sum(info(vcf)[[DB.info.flag]]) < nrow(vcf)/2) {
+    if (!is.null(info(vcf)[[DB.info.flag]]) &&
+        sum(info(vcf)[[DB.info.flag]]) < nrow(vcf) / 2) {
         flog.warn("Less than half of variants in dbSNP. Make sure that VCF %s", 
             "contains both germline and somatic variants.")
     }
@@ -221,26 +226,26 @@ interval.padding = 50, DB.info.flag = "DB") {
     seqlevels(vcf) <- seqlevelsInUse(vcf)
 
     list(
-        vcf=vcf, 
-        flag=flag, 
-        flag_comment=flag_comment 
+        vcf = vcf, 
+        flag = flag, 
+        flag_comment = flag_comment 
     )
 }
 
 # If a matched normal is available, this will remove all
 # heterozygous germline SNPs with biased allelic fractions   
 .testGermline <-
-function(vcf, tumor.id.in.vcf, allowed=0.05) {
+function(vcf, tumor.id.in.vcf, allowed = 0.05) {
     # extract normal allelic fractions and total coverage from the VCF
-    arAll <- as.numeric(geno(vcf)$FA[,-match(tumor.id.in.vcf,
+    arAll <- as.numeric(geno(vcf)$FA[, -match(tumor.id.in.vcf,
         colnames(geno(vcf)$FA))])
-    dpAll <- as.numeric(geno(vcf)$DP[,-match(tumor.id.in.vcf, 
+    dpAll <- as.numeric(geno(vcf)$DP[, -match(tumor.id.in.vcf, 
         colnames(geno(vcf)$DP))])
     
     # calculate probability that true allelic fraction in normal is 0.5
     pBeta <-pbeta(1/2,
-            shape1 = arAll*dpAll+1,
-            shape2 = (1-arAll)*dpAll+1,log.p=FALSE)
+            shape1 = arAll * dpAll + 1,
+            shape2 = (1 - arAll) * dpAll + 1, log.p = FALSE)
     
     # keep only somatic, non-biased and if allelic ratio is close
     # enough. The latter is useful for ultra-deep sequencing, when
@@ -251,16 +256,16 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     .removeVariants(vcf, !idx, "matched germline")
 }
 # calculate allelic fraction from read depths
-.addFaField <- function(vcf, field="FA") {
+.addFaField <- function(vcf, field = "FA") {
     if (is.null(geno(vcf)$AD)) {
         .stopRuntimeError("No AD geno field in VCF.")
     }
     matrixFA <- do.call(rbind, apply(geno(vcf)$AD,1, function(x) lapply(x,
-        function(y) y[2]/sum(y))))
+        function(y) y[2] / sum(y))))
     newGeno <- DataFrame(
-        Number="A", Type="Float",
-        Description="Allele fraction of the alternate allele",
-        row.names=field)
+        Number = "A", Type = "Float",
+        Description = "Allele fraction of the alternate allele",
+        row.names = field)
     geno(header(vcf)) <- rbind(geno(header(vcf)), newGeno)
     geno(vcf)[[field]] <- matrixFA
     vcf
@@ -269,15 +274,31 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     if (is.null(geno(vcf)$AD)) {
         .stopRuntimeError("No AD geno field in VCF.")
     }
-    matrixDP <- apply(geno(vcf)$AD,2,sapply, sum)
+    matrixDP <- apply(geno(vcf)$AD, 2, sapply, sum)
     newGeno <- DataFrame(
-        Number=1, Type="Integer",
-        Description="Approximate read depth",
-        row.names=field)
+        Number = 1, Type = "Integer",
+        Description = "Approximate read depth",
+        row.names = field)
     geno(header(vcf)) <- rbind(geno(header(vcf)), newGeno)
     geno(vcf)[[field]] <- matrixDP
     vcf
 }
+.addBqField <- function(vcf, error = 0.001, field = "BQ") {
+    flog.warn("Did not find base quality scores, will use global error rate of %.4f instead.",
+        error)
+    matrixBQ <- matrix(-10*log10(error),
+        nrow = nrow(vcf), ncol = ncol(vcf),
+        dimnames = list(rownames(vcf), colnames(vcf)))
+
+    newGeno <- DataFrame(
+        Number = "A", Type = "Float",
+        Description = "Average base quality",
+        row.names = field)
+    geno(header(vcf)) <- rbind(geno(header(vcf)), newGeno)
+    geno(vcf)[[field]] <- matrixBQ
+    vcf
+}
+
 .addFilterFlag <- function(vcf) {
     newFilter <- DataFrame(
         Description = "Ignored by PureCN",
@@ -341,8 +362,8 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 }    
 .readAndCheckVcf <- function(vcf.file, genome, DB.info.flag = "DB", 
                              POPAF.info.field = "POP_AF", 
-                             min.pop.af = 0.001, check.DB = TRUE,
-                             vcf.field.prefix = NULL) {
+                             min.pop.af = 0.001, error = 0.001,
+                             check.DB = TRUE, vcf.field.prefix = NULL) {
     if (is(vcf.file, "character")) {
         vcf <- readVcf(vcf.file, genome)
     } else if (!is(vcf.file, "CollapsedVCF")) {
@@ -421,6 +442,16 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
             sum(idx), rownames(vcf)[idx][1])
         vcf <- .removeVariants(vcf, idx, "NA FA")
     }
+    # we don't know yet which sample is tumor. in case normal has no base quality
+    # scores, pick the sample with lowest number of NAs
+    bqs <- lapply(seq(ncol(vcf)), function(i) .getBQFromVcf(vcf, i, na.sub = FALSE))
+    bq <- bqs[[which.min(sapply(bqs, function(x) sum(is.na(x))))]]
+
+    if (is.null(bq) || all(is.na(bq))) {
+        vcf <- .addBqField(vcf, error)
+    } else if (any(is.na(bq))) {
+        flog.warn("BQ FORMAT field contains NAs. Removing %i variants.", n - length(vcf))
+    }    
     meta(header(vcf))$purecnprefix <- DataFrame(
         Value = vcf.field.prefix,
         row.names = "purecnprefix"
@@ -624,19 +655,32 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
     vcf
 }
 
-.filterVcfByBQ <- function(vcf, tumor.id.in.vcf, min.base.quality) {
-    n.vcf.before.filter <- .countVariants(vcf)
-    idx <- NULL
+.getBQFromVcf <- function(vcf, tumor.id.in.vcf, max.base.quality = 50,
+    na.sub = TRUE, error = 0.001) {
+    x <- NULL
     if (!is.null(geno(vcf)$BQ)) {
         # Mutect 1
-        idx <- as.numeric(geno(vcf)$BQ[,tumor.id.in.vcf]) < min.base.quality
+        x <- as.numeric(geno(vcf)$BQ[, tumor.id.in.vcf])
     } else if (!is.null(geno(vcf)$MBQ)) {
         # Mutect 2
-        idx <- as.numeric(geno(vcf)$MBQ[,tumor.id.in.vcf]) < min.base.quality
+        x <- as.numeric(geno(vcf)$MBQ[, tumor.id.in.vcf]) 
     } else if (!is.null(rowRanges(vcf)$QUAL)) {
         # Freebayes
-        idx <- as.numeric(rowRanges(vcf)$QUAL) < min.base.quality
+        x <- as.numeric(rowRanges(vcf)$QUAL) 
     }
+    if (!is.null(x)) {
+        x <- pmin(max.base.quality, x)
+        idx <- is.na(x)
+        if (any(idx) && na.sub) {
+            x[idx] <- -10 * log10(error)
+        }    
+    }
+    return(x)
+}
+
+.filterVcfByBQ <- function(vcf, tumor.id.in.vcf, min.base.quality) {
+    n.vcf.before.filter <- .countVariants(vcf)
+    idx <- .getBQFromVcf(vcf, tumor.id.in.vcf) < min.base.quality
     vcf <- .removeVariants(vcf, idx, "BQ", na.rm = FALSE)
     flog.info("Removing %i low quality variants with BQ < %i.", 
         n.vcf.before.filter - .countVariants(vcf), min.base.quality) 
@@ -649,6 +693,10 @@ function(vcf, tumor.id.in.vcf, allowed=0.05) {
 
 # in future this will use the FILTER flag to remove variants
 .removeVariants <- function(vcf, idx, label, na.rm = TRUE) {
+    if (is.null(idx)) {
+        flog.warn("Could not identify variants at filter step %s.", label)
+        return(vcf)
+    }    
     if (is(idx, "integer")) {
         idx <- seq(length(vcf)) %in% idx
     }    
