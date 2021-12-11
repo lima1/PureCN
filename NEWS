@@ -1,10 +1,19 @@
 Changes in version 2.2.0
 ------------------------
 
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o When base quality scores are found in the VCF, they are now used to
+      calculate the minimum number of supporting reads (instead of assuming a
+      default BQ of 30). By default BQ is capped at 50 and variants below 25
+      are ignored. Set min.supporting.reads to 0 to turn this off (#206).
+      
 BUGFIXES
 
     o Fixed an issue with old R versions where factors were not converted to 
       strings, resulting in numbers instead of gene symbols
+    o Fix for a crash when there are no off-target reads in off-target regions
+      (#209). 
       
 
 Changes in version 2.0.0

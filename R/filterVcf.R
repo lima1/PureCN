@@ -85,7 +85,11 @@ interval.padding = 50, DB.info.flag = "DB") {
     } else {
         info(vcf)$SOMATIC <- NULL
     }    
-
+    bqs <- .getBQFromVcf(vcf, tumor.id.in.vcf, max.base.quality = max.base.quality,
+        na.sub = TRUE, error = error)
+    if (length(unique(bqs)) > 1) {
+        flog.info("Base quality scores range from %.0f to %0.f", min(bqs), max(bqs))
+    }
     # find supporting read cutoffs based on coverage and sequencing error
     #--------------------------------------------------------------------------
     if (is.null(min.supporting.reads)) {
@@ -95,10 +99,13 @@ interval.padding = 50, DB.info.flag = "DB") {
         depths <- sort(unique(round(log2(depths))))
         depths <- depths[depths >= minDepth]
         depths <- 2^depths
-
-        cutoffs <- sapply(depths, function(d) 
-            calculatePowerDetectSomatic(d, ploidy = 2, purity = 1, error = error, 
-                verbose = FALSE)$k)
+        errorsp <- sort(unique(bqs))
+        errors <- 10^(-errorsp / 10)
+        cutoffs <- sapply(errors, function(e) sapply(depths, function(d) 
+            calculatePowerDetectSomatic(d, ploidy = 2, purity = 1, error = e, 
+                verbose = FALSE)$k))
+        colnames(cutoffs) <- errorsp
+        rownames(cutoffs) <- depths
         depths <- c(0, depths)
     } else {
         depths <- 0
@@ -116,9 +123,14 @@ interval.padding = 50, DB.info.flag = "DB") {
                 min.supporting.reads | 
                 geno(vcf)$DP[,tumor.id.in.vcf] < depth
            }
-
-        for (i in seq_along(cutoffs)) {
-            idx <- idx & .filterVcfByAD(vcf, cutoffs[i], depths[i])
+        bqs <- .getBQFromVcf(vcf, tumor.id.in.vcf, max.base.quality = max.base.quality,
+            na.sub = TRUE, error = error)
+        if (length(bqs) != length(vcf)) {
+            .stopRuntimeError("BQ scores and VCF do not align.")
+        }
+        for (i in seq(nrow(cutoffs))) {
+            colid <- match(bqs, colnames(cutoffs))
+            idx <- idx & .filterVcfByAD(vcf, cutoffs[i, colid], depths[i])
         }
         idx
     }    
@@ -673,7 +685,9 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
         idx <- is.na(x)
         if (any(idx) && na.sub) {
             x[idx] <- -10 * log10(error)
-        }    
+        }
+        # make sure we have integers here
+        x <- floor(x)
     }
     return(x)
 }

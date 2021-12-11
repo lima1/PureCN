@@ -117,5 +117,6 @@ test_that("Missing BQ is handled correctly", {
     output.file <- tempfile(fileext = ".vcf")
     writeVcf(vcf.bq, file = output.file)
     vcf.bq2 <- PureCN:::.readAndCheckVcf(output.file, "hg19")
+    expect_equal(range(geno(vcf.bq2)$BQ[, 1]), c(30,30))
     file.remove(output.file)
 })
