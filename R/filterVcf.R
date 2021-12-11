@@ -95,6 +95,8 @@ interval.padding = 50, DB.info.flag = "DB") {
         } 
         flog.info("Global base quality score of %0.f", bqs[1])
     }
+    errorsp <- sort(unique(bqs))
+    errors <- 10^(-errorsp / 10)
     # find supporting read cutoffs based on coverage and sequencing error
     #--------------------------------------------------------------------------
     if (is.null(min.supporting.reads)) {
@@ -104,8 +106,6 @@ interval.padding = 50, DB.info.flag = "DB") {
         depths <- sort(unique(round(log2(depths))))
         depths <- depths[depths >= minDepth]
         depths <- 2^depths
-        errorsp <- sort(unique(bqs))
-        errors <- 10^(-errorsp / 10)
         cutoffs <- sapply(errors, function(e) sapply(depths, function(d) 
             calculatePowerDetectSomatic(d, ploidy = 2, purity = 1, error = e, 
                 verbose = FALSE)$k))
@@ -119,7 +119,8 @@ interval.padding = 50, DB.info.flag = "DB") {
         depths <- c(0, depths)
     } else {
         depths <- 0
-        cutoffs <- min.supporting.reads
+        cutoffs <- matrix(min.supporting.reads, nrow = 1, ncol = length(errorsp),
+            dimnames = list(0, errorsp))
     }
     n <- .countVariants(vcf)
         
@@ -132,7 +133,7 @@ interval.padding = 50, DB.info.flag = "DB") {
             do.call(rbind, geno(vcf)$AD[,tumor.id.in.vcf])[,ifelse(ref,1,2)] >= 
                 min.supporting.reads | 
                 geno(vcf)$DP[,tumor.id.in.vcf] < depth
-           }
+        }
         bqs <- .getBQFromVcf(vcf, tumor.id.in.vcf, max.base.quality = max.base.quality,
             na.sub = TRUE, error = error)
         if (length(bqs) != length(vcf)) {
@@ -144,9 +145,9 @@ interval.padding = 50, DB.info.flag = "DB") {
         }
         idx
     }    
-    idxNotAlt <- .sufficientReads(vcf,ref=FALSE, depths, cutoffs)
+    idxNotAlt <- .sufficientReads(vcf,ref = FALSE, depths, cutoffs)
     vcf <- .removeVariants(vcf, !idxNotAlt, "sufficient reads")
-    idxNotHomozygous <- .sufficientReads(vcf,ref=TRUE, depths, cutoffs)
+    idxNotHomozygous <- .sufficientReads(vcf,ref = TRUE, depths, cutoffs)
     if (!sum(idxNotHomozygous)) .stopUserError("None of the heterozygous variants in provided VCF passed filtering.")
     #--------------------------------------------------------------------------
 
