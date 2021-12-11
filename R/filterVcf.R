@@ -89,6 +89,11 @@ interval.padding = 50, DB.info.flag = "DB") {
         na.sub = TRUE, error = error)
     if (length(unique(bqs)) > 1) {
         flog.info("Base quality scores range from %.0f to %0.f", min(bqs), max(bqs))
+    } else {
+        if (is.null(bqs[1])) {
+            .stopRuntimeError("NULL value observed for BQS.")
+        } 
+        flog.info("Global base quality score of %0.f", bqs[1])
     }
     # find supporting read cutoffs based on coverage and sequencing error
     #--------------------------------------------------------------------------
@@ -106,6 +111,11 @@ interval.padding = 50, DB.info.flag = "DB") {
                 verbose = FALSE)$k))
         colnames(cutoffs) <- errorsp
         rownames(cutoffs) <- depths
+        if (any(is.na(cutoffs))) {
+            .stopRuntimeError("Observed NAs in minimum supporting reads calculation.")
+        }
+        flog.info("Minimum number of supporting reads ranges from %.0f to %.0f, depending on coverage and BQS.",
+            min(cutoffs), max(cutoffs))
         depths <- c(0, depths)
     } else {
         depths <- 0
@@ -195,8 +205,8 @@ interval.padding = 50, DB.info.flag = "DB") {
         geno(vcf)$FA[,tumor.id.in.vcf] >= af.range[2],
         "homozygous af.range")
 
-    flog.info("Removing %i variants with AF < %.3f or AF >= %.3f or less than %i supporting reads or depth < %i.", 
-        n-.countVariants(vcf), af.range[1], af.range[2], cutoffs[1], min.coverage)
+    flog.info("Removing %i variants with AF < %.3f or AF >= %.3f or insufficient supporting reads or depth < %i.", 
+        n-.countVariants(vcf), af.range[1], af.range[2], min.coverage)
     n <- .countVariants(vcf)
 
     if (!is.null(snp.blacklist)) {
