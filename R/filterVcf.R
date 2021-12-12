@@ -29,11 +29,15 @@
 #' @param max.base.quality Maximum base quality in tumor. Requires a \code{BQ}
 #' genotype field in the VCF. Variants exceeding this value will have their
 #' BQ capped at this value.
+#' @param base.quality.offset Adds the specified value to the base quality score. 
+#' Useful to add some cushion for too optimistically calibrated scores.
+#' Requires a \code{BQ} genotype field in the VCF. 
 #' @param min.supporting.reads Minimum number of reads supporting the alt
 #' allele.  If \code{NULL}, calculate based on coverage and assuming sequencing
 #' error of 10^-3.
 #' @param error Estimated sequencing error rate. Used to calculate minimum
-#' number of supporting reads using \code{\link{calculatePowerDetectSomatic}}.
+#' number of supporting reads using \code{\link{calculatePowerDetectSomatic}}
+#' when base quality scores are not available.
 #' @param target.granges \code{GenomicRanges} object specifiying the target
 #' postions. Used to remove off-target reads. If \code{NULL}, do not check
 #' whether variants are on or off-target.
@@ -67,7 +71,7 @@
 filterVcfBasic <- function(vcf, tumor.id.in.vcf = NULL, 
 use.somatic.status = TRUE, snp.blacklist = NULL, af.range = c(0.03, 0.97),
 contamination.range = c(0.01, 0.075), min.coverage = 15, min.base.quality = 25,
-max.base.quality = 50,
+max.base.quality = 50, base.quality.offset = -1,
 min.supporting.reads = NULL, error = 0.001, target.granges = NULL,
 remove.off.target.snvs = TRUE, model.homozygous = FALSE, 
 interval.padding = 50, DB.info.flag = "DB") {
@@ -86,9 +90,10 @@ interval.padding = 50, DB.info.flag = "DB") {
         info(vcf)$SOMATIC <- NULL
     }    
     bqs <- .getBQFromVcf(vcf, tumor.id.in.vcf, max.base.quality = max.base.quality,
-        na.sub = TRUE, error = error)
+        na.sub = TRUE, error = error, base.quality.offset = base.quality.offset)
     if (length(unique(bqs)) > 1) {
-        flog.info("Base quality scores range from %.0f to %0.f", min(bqs), max(bqs))
+        flog.info("Base quality scores range from %.0f to %0.f (offset by %0.f)", min(bqs), max(bqs),
+            base.quality.offset)
     } else {
         if (is.null(bqs[1])) {
             .stopRuntimeError("NULL value observed for BQS.")
@@ -135,7 +140,7 @@ interval.padding = 50, DB.info.flag = "DB") {
                 geno(vcf)$DP[,tumor.id.in.vcf] < depth
         }
         bqs <- .getBQFromVcf(vcf, tumor.id.in.vcf, max.base.quality = max.base.quality,
-            na.sub = TRUE, error = error)
+            na.sub = TRUE, error = error, base.quality.offset = base.quality.offset)
         if (length(bqs) != length(vcf)) {
             .stopRuntimeError("BQ scores and VCF do not align.")
         }
@@ -679,7 +684,7 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
 }
 
 .getBQFromVcf <- function(vcf, tumor.id.in.vcf, max.base.quality = 50,
-    na.sub = TRUE, error = 0.001) {
+    na.sub = TRUE, error = 0.001, base.quality.offset = -1) {
     x <- NULL
     if (!is.null(geno(vcf)$BQ)) {
         # Mutect 1
@@ -697,6 +702,7 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
         if (any(idx) && na.sub) {
             x[idx] <- -10 * log10(error)
         }
+        x <- x + base.quality.offset
         # make sure we have integers here
         x <- floor(x)
     }
@@ -705,9 +711,9 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
 
 .filterVcfByBQ <- function(vcf, tumor.id.in.vcf, min.base.quality) {
     n.vcf.before.filter <- .countVariants(vcf)
-    idx <- .getBQFromVcf(vcf, tumor.id.in.vcf) < min.base.quality
+    idx <- .getBQFromVcf(vcf, tumor.id.in.vcf, base.quality.offset = 0) < min.base.quality
     vcf <- .removeVariants(vcf, idx, "BQ", na.rm = FALSE)
-    flog.info("Removing %i low quality variants with BQ < %i.", 
+    flog.info("Removing %i low quality variants with non-offset BQ < %i.", 
         n.vcf.before.filter - .countVariants(vcf), min.base.quality) 
     vcf
 }         
