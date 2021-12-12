@@ -35,8 +35,8 @@ something like a B-allele frequency plot known from SNP arrays: it plots
 allele frequencies of germline variants (or most likely germline when status
 is not available) against copy number. \code{AF} plots observed allelic
 fractions against expected (purity), maximum likelihood (optimal
-multiplicity) allelic fractions. \code{all} plots types \code{BAF} and 
-\code{AF} for all local optima, and is useful for generating a PDF for 
+multiplicity) allelic fractions. \code{all} plots types \code{BAF} and
+\code{AF} for all local optima, and is useful for generating a PDF for
 manual inspection.}
 
 \item{chr}{If \code{NULL}, show all chromosomes, otherwise only the ones
