@@ -45,8 +45,8 @@ contamination. If a matched normal is available, this value is ignored,
 because homozygosity can be confirmed in the normal.}
 
 \item{contamination.range}{Count variants in dbSNP with allelic fraction
-in the specified range. If the number of these putative contamination 
-variants exceeds an expected value and if they are found on almost all 
+in the specified range. If the number of these putative contamination
+variants exceeds an expected value and if they are found on almost all
 chromosomes, the sample is flagged as potentially contaminated and extra
 contamination estimation steps will be performed later on.}
 
@@ -60,7 +60,7 @@ genotype field in the VCF. Values below this value will be ignored.}
 genotype field in the VCF. Variants exceeding this value will have their
 BQ capped at this value.}
 
-\item{base.quality.offset}{Subtracts the specified value from the base quality score. 
+\item{base.quality.offset}{Subtracts the specified value from the base quality score.
 Useful to add some cushion for too optimistically calibrated scores.
 Requires a \code{BQ} genotype field in the VCF.}
 
@@ -99,11 +99,11 @@ Function to remove artifacts and low confidence/quality variant calls.
 }
 \examples{
 
-# This function is typically only called by runAbsolute via 
+# This function is typically only called by runAbsolute via
 # fun.filterVcf and args.filterVcf.
 vcf.file <- system.file("extdata", "example.vcf.gz", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")
-vcf.filtered <- filterVcfBasic(vcf)        
+vcf.filtered <- filterVcfBasic(vcf)
 
 }
 \seealso{
