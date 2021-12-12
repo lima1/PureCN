@@ -14,7 +14,7 @@ filterVcfBasic(
   min.coverage = 15,
   min.base.quality = 25,
   max.base.quality = 50,
-  base.quality.offset = -1,
+  base.quality.offset = 1,
   min.supporting.reads = NULL,
   error = 0.001,
   target.granges = NULL,
@@ -60,7 +60,7 @@ genotype field in the VCF. Values below this value will be ignored.}
 genotype field in the VCF. Variants exceeding this value will have their
 BQ capped at this value.}
 
-\item{base.quality.offset}{Adds the specified value to the base quality score. 
+\item{base.quality.offset}{Subtracts the specified value from the base quality score. 
 Useful to add some cushion for too optimistically calibrated scores.
 Requires a \code{BQ} genotype field in the VCF.}
 

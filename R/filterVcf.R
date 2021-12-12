@@ -29,7 +29,7 @@
 #' @param max.base.quality Maximum base quality in tumor. Requires a \code{BQ}
 #' genotype field in the VCF. Variants exceeding this value will have their
 #' BQ capped at this value.
-#' @param base.quality.offset Adds the specified value to the base quality score. 
+#' @param base.quality.offset Subtracts the specified value from the base quality score. 
 #' Useful to add some cushion for too optimistically calibrated scores.
 #' Requires a \code{BQ} genotype field in the VCF. 
 #' @param min.supporting.reads Minimum number of reads supporting the alt
@@ -71,7 +71,7 @@
 filterVcfBasic <- function(vcf, tumor.id.in.vcf = NULL, 
 use.somatic.status = TRUE, snp.blacklist = NULL, af.range = c(0.03, 0.97),
 contamination.range = c(0.01, 0.075), min.coverage = 15, min.base.quality = 25,
-max.base.quality = 50, base.quality.offset = -1,
+max.base.quality = 50, base.quality.offset = 1,
 min.supporting.reads = NULL, error = 0.001, target.granges = NULL,
 remove.off.target.snvs = TRUE, model.homozygous = FALSE, 
 interval.padding = 50, DB.info.flag = "DB") {
@@ -684,7 +684,7 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
 }
 
 .getBQFromVcf <- function(vcf, tumor.id.in.vcf, max.base.quality = 50,
-    na.sub = TRUE, error = 0.001, base.quality.offset = -1) {
+    na.sub = TRUE, error = 0.001, base.quality.offset = 2) {
     x <- NULL
     if (!is.null(geno(vcf)$BQ)) {
         # Mutect 1
@@ -702,7 +702,7 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
         if (any(idx) && na.sub) {
             x[idx] <- -10 * log10(error)
         }
-        x <- x + base.quality.offset
+        x <- x - base.quality.offset
         # make sure we have integers here
         x <- floor(x)
     }
