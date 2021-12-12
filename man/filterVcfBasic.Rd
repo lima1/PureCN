@@ -13,6 +13,8 @@ filterVcfBasic(
   contamination.range = c(0.01, 0.075),
   min.coverage = 15,
   min.base.quality = 25,
+  max.base.quality = 50,
+  base.quality.offset = 1,
   min.supporting.reads = NULL,
   error = 0.001,
   target.granges = NULL,
@@ -43,23 +45,32 @@ contamination. If a matched normal is available, this value is ignored,
 because homozygosity can be confirmed in the normal.}
 
 \item{contamination.range}{Count variants in dbSNP with allelic fraction
-in the specified range. If the number of these putative contamination 
-variants exceeds an expected value and if they are found on almost all 
+in the specified range. If the number of these putative contamination
+variants exceeds an expected value and if they are found on almost all
 chromosomes, the sample is flagged as potentially contaminated and extra
 contamination estimation steps will be performed later on.}
 
 \item{min.coverage}{Minimum coverage in tumor. Variants with lower coverage
 are ignored.}
 
-\item{min.base.quality}{Minimim base quality in tumor. Requires a \code{BQ}
-genotype field in the VCF.}
+\item{min.base.quality}{Minimium base quality in tumor. Requires a \code{BQ}
+genotype field in the VCF. Values below this value will be ignored.}
+
+\item{max.base.quality}{Maximum base quality in tumor. Requires a \code{BQ}
+genotype field in the VCF. Variants exceeding this value will have their
+BQ capped at this value.}
+
+\item{base.quality.offset}{Subtracts the specified value from the base quality score.
+Useful to add some cushion for too optimistically calibrated scores.
+Requires a \code{BQ} genotype field in the VCF.}
 
 \item{min.supporting.reads}{Minimum number of reads supporting the alt
 allele.  If \code{NULL}, calculate based on coverage and assuming sequencing
 error of 10^-3.}
 
 \item{error}{Estimated sequencing error rate. Used to calculate minimum
-number of supporting reads using \code{\link{calculatePowerDetectSomatic}}.}
+number of supporting reads using \code{\link{calculatePowerDetectSomatic}}
+when base quality scores are not available.}
 
 \item{target.granges}{\code{GenomicRanges} object specifiying the target
 postions. Used to remove off-target reads. If \code{NULL}, do not check
@@ -88,11 +99,11 @@ Function to remove artifacts and low confidence/quality variant calls.
 }
 \examples{
 
-# This function is typically only called by runAbsolute via 
+# This function is typically only called by runAbsolute via
 # fun.filterVcf and args.filterVcf.
 vcf.file <- system.file("extdata", "example.vcf.gz", package="PureCN")
 vcf <- readVcf(vcf.file, "hg19")
-vcf.filtered <- filterVcfBasic(vcf)        
+vcf.filtered <- filterVcfBasic(vcf)
 
 }
 \seealso{
