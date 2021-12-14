@@ -64,16 +64,10 @@ verbose = TRUE) {
         .stopUserError("cell.fraction not in expected range.")
     }
 
-    # calculate minimum number of required sequencing reads with mutation
-    .pk <- function(m) {
-        if (m == 0) return(1)
-        dbinom(m, size = coverage, prob = error / 3)
-     }
-     k <- min(which(vapply(seq(0, coverage), .pk, double(1)) < fpr)) - 1
-     if (verbose) message("Minimum ", k, " supporting reads.")
+    k <- .calcMinSupportingReadsForPower(coverage, error, fpr, verbose)
 
-     # find allelic fraction to test
-     if (is.null(f)) {
+    # find allelic fraction to test
+    if (is.null(f)) {
          if (is.null(purity) || is.null(ploidy)) {
              .stopUserError("Need either f or purity and ploidy.")
          }
@@ -89,6 +83,10 @@ verbose = TRUE) {
      if (verbose) message("Expected allelic fraction ", f, ".")
 
      # calculate power
+     .pk <- function(m) {
+        if (m == 0) return(1)
+        dbinom(m, size = coverage, prob = error / 3)
+     }
      .d <- function(k) {
          (fpr - .pk(k)) / (.pk(k - 1) - .pk(k))
      }
@@ -100,4 +98,17 @@ verbose = TRUE) {
         k = k,
         f = f
     )
+}
+
+# private function for when we only need this value, not power
+.calcMinSupportingReadsForPower <- function(coverage, error = 0.001,
+    fpr = 5e-07, verbose = FALSE) {
+    # calculate minimum number of required sequencing reads with mutation
+    .pk <- function(m) {
+        if (m == 0) return(1)
+        dbinom(m, size = coverage, prob = error / 3)
+     }
+     k <- min(which(vapply(seq(0, coverage), .pk, double(1)) < fpr)) - 1
+     if (verbose) message("Minimum ", k, " supporting reads.")
+     return(k)    
 }

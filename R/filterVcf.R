@@ -103,36 +103,10 @@ interval.padding = 50, DB.info.flag = "DB") {
     if (median(bqs) > 40) {
         flog.info("High median base quality score (%.0f). UMI-barcoded data?", median(bqs))
     }    
-    errorsp <- sort(unique(bqs))
-    errors <- 10^(-errorsp / 10)
-    # find supporting read cutoffs based on coverage and sequencing error
-    #--------------------------------------------------------------------------
-    if (is.null(min.supporting.reads)) {
-        depths <- geno(vcf)$DP[, tumor.id.in.vcf]
-        minDepth <- round(log2(mean(depths)))
-
-        depths <- sort(unique(round(log2(depths))))
-        depths <- depths[depths >= minDepth]
-        depths <- 2^depths
-        cutoffs <- sapply(errors, function(e) sapply(depths, function(d)
-            calculatePowerDetectSomatic(d, ploidy = 2, purity = 1, error = e,
-                verbose = FALSE)$k))
-        colnames(cutoffs) <- errorsp
-        rownames(cutoffs) <- depths
-        if (any(is.na(cutoffs))) {
-            .stopRuntimeError("Observed NAs in minimum supporting reads calculation.")
-        }
-        flog.info("Minimum number of supporting reads ranges from %.0f to %.0f, depending on coverage and BQS.",
-            min(cutoffs), max(cutoffs))
-        depths <- c(0, depths)
-    } else {
-        depths <- 0
-        cutoffs <- matrix(min.supporting.reads, nrow = 1, ncol = length(errorsp),
-            dimnames = list(0, errorsp))
-    }
+    cutoffs <- .calcMinSupportingReadsForFiltering(vcf, tumor.id.in.vcf, bqs, min.supporting.reads)
     n <- .countVariants(vcf)
 
-    .sufficientReads <- function(vcf, ref, depths, cutoffs) {
+    .sufficientReads <- function(vcf, ref, cutoffs) {
         idx <- rep(TRUE, nrow(vcf))
 
         .filterVcfByAD <- function(vcf, min.supporting.reads, depth) {
@@ -149,13 +123,13 @@ interval.padding = 50, DB.info.flag = "DB") {
         }
         for (i in seq(nrow(cutoffs))) {
             colid <- match(bqs, colnames(cutoffs))
-            idx <- idx & .filterVcfByAD(vcf, cutoffs[i, colid], depths[i])
+            idx <- idx & .filterVcfByAD(vcf, cutoffs[i, colid], as.numeric(rownames(cutoffs))[i])
         }
         idx
     }
-    idxNotAlt <- .sufficientReads(vcf, ref = FALSE, depths, cutoffs)
+    idxNotAlt <- .sufficientReads(vcf, ref = FALSE, cutoffs)
     vcf <- .removeVariants(vcf, !idxNotAlt, "sufficient reads")
-    idxNotHomozygous <- .sufficientReads(vcf, ref = TRUE, depths, cutoffs)
+    idxNotHomozygous <- .sufficientReads(vcf, ref = TRUE, cutoffs)
     if (!sum(idxNotHomozygous)) .stopUserError("None of the heterozygous variants in provided VCF passed filtering.")
     #--------------------------------------------------------------------------
 
@@ -751,3 +725,34 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
     }
     nrow(vcf)
 }
+
+#returns a bqs by coverage matrix with min reads cutoffs
+.calcMinSupportingReadsForFiltering <- function(vcf, tumor.id.in.vcf, bqs, min.supporting.reads) {
+    errorsp <- sort(unique(bqs))
+    errors <- 10^(-errorsp / 10)
+    # find supporting read cutoffs based on coverage and sequencing error
+    #--------------------------------------------------------------------------
+    if (is.null(min.supporting.reads)) {
+        depthsall <- geno(vcf)$DP[, tumor.id.in.vcf]
+        depths <- sort(unique(round(log2(depthsall))))
+        depths <- 2^depths
+        # this should not happen, but 0 coverage will confuse the power calculations
+        if (min(depths) < 1) { 
+            depths[depths < 1] <- 1
+            depths <- unique(depths)
+        }    
+        cutoffs <- sapply(errors, function(e) sapply(depths, function(d)
+            suppressWarnings(.calcMinSupportingReadsForPower(coverage = d, error = e))))
+        colnames(cutoffs) <- errorsp
+        rownames(cutoffs) <- depths
+        if (any(is.na(cutoffs))) {
+            .stopRuntimeError("Observed NAs in minimum supporting reads calculation.")
+        }
+        flog.info("Minimum number of supporting reads ranges from %.0f to %.0f, depending on coverage and BQS.",
+            min(cutoffs), max(cutoffs))
+    } else {
+        cutoffs <- matrix(min.supporting.reads, nrow = 1, ncol = length(errorsp),
+            dimnames = list(0, errorsp))
+    }
+    return(cutoffs)
+}    

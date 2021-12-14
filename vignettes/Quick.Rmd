@@ -66,7 +66,7 @@ Alternatively, manually install the packages required by the command line
 scripts:
 
 ```
-BiocManager::install(c("PureCN", "optparse", 
+BiocManager::install(c("PureCN", "optparse", "R.utils",
     "TxDb.Hsapiens.UCSC.hg19.knownGene", "org.Hs.eg.db"))
 ```
 
