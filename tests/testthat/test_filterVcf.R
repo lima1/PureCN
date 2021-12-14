@@ -109,14 +109,19 @@ test_that("issue 184 is fixed", {
 test_that("Missing BQ is handled correctly", {
     vcf.file <- system.file("extdata", "example_vcf.vcf.gz", package = "PureCN")
     vcf <- PureCN:::.readAndCheckVcf(vcf.file, "hg19")
-    expect_equal(range(geno(vcf)$BQ[, 1]), c(8,36))
+    expect_equal(range(geno(vcf)$BQ[, 1]), c(8, 36))
     vcf.bq <- vcf
     geno(vcf.bq)$BQ <- NULL
     tmp <- rownames(geno(header(vcf.bq)))
-    geno(header(vcf.bq)) <-  geno(header(vcf.bq))[-match("BQ", tmp),]
+    geno(header(vcf.bq)) <-  geno(header(vcf.bq))[-match("BQ", tmp), ]
     output.file <- tempfile(fileext = ".vcf")
     writeVcf(vcf.bq, file = output.file)
     vcf.bq2 <- PureCN:::.readAndCheckVcf(output.file, "hg19")
-    expect_equal(range(geno(vcf.bq2)$BQ[, 1]), c(30,30))
+    expect_equal(range(geno(vcf.bq2)$BQ[, 1]), c(30, 30))
     file.remove(output.file)
+})
+
+test_that("Providing min.supporting.reads works", {
+    x <- filterVcfBasic(vcf, use.somatic.status = FALSE, min.supporting.reads = 10)
+    expect_equal(min(sapply(geno(x$vcf)$AD[,1], function(x) x[2])), 10)
 })
