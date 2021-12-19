@@ -141,7 +141,12 @@ We do not recommend padding the baits file manually unless the coverages are
 very low (<30X) where the increased counts from the padded regions might decrease
 sampling variance slightly. Note that we do however strongly recommend running the
 variant caller with a padding of at least 50bp to increase the number of
-informative SNPs, see below in the VCF section.
+informative SNPs, see below in the VCF section. Double check that the genome
+version of the `--in-file` is correct - many assays are still designed using
+older references and might need to be lifted over to the pipeline reference.
+If possible, do NOT use a BED file that contains the targeted exons, instead use
+the coordinates of the baits. These are optimized for GC-content and mappability and
+will produce cleaner coverage profiles.
 
 The `--off-target` flag will include off-target reads. Including them is
 recommended except for Amplicon data. For whole-exome data, the benefit is
