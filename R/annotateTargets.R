@@ -21,7 +21,7 @@
 #' x <- head(readCoverageFile(normal.coverage.file),100)
 #' x <- annotateTargets(x,TxDb.Hsapiens.UCSC.hg19.knownGene, org.Hs.eg.db)
 #'
-#' @importFrom GenomicFeatures transcriptsByOverlaps exonsByOverlaps
+#' @importFrom GenomicFeatures transcriptsByOverlaps exonsByOverlaps cdsByOverlaps
 #' @export annotateTargets
 annotateTargets <- function(x, txdb, org) {
     if (!is.null(x$on.target)) {
@@ -35,6 +35,7 @@ annotateTargets <- function(x, txdb, org) {
         select(org, vapply(id$GENEID, function(x) x[1], character(1)),
                "SYMBOL")[, 2])
 
+    idCds <- cdsByOverlaps(txdb, ranges = x[idx], columns = "GENEID")
     idExons <- exonsByOverlaps(txdb, ranges = x[idx], columns = "GENEID")
     idExons$SYMBOL <- suppressWarnings(
         select(org, vapply(idExons$GENEID, function(x) x[1], character(1)),
@@ -46,16 +47,16 @@ annotateTargets <- function(x, txdb, org) {
     # for targets with multiple gene hits, use the one with most overlapping
     # targets
     d.f <- data.frame(i = queryHits(ov),
+                      GENEID = as.character(id$GENEID[subjectHits(ov)]),
                       SYMBOL = as.character(id$SYMBOL[subjectHits(ov)]))
     d.f <- d.f[!duplicated(d.f), ]
 
-    # remove non-coding transcripts and ORFs
+    # remove non-coding transcripts
     d.f <- d.f[!grepl("-AS\\d$", d.f$SYMBOL), ]
     d.f <- d.f[!grepl("^LOC\\d", d.f$SYMBOL), ]
-    d.f <- d.f[!grepl("\\dorf\\d", d.f$SYMBOL), ]
     d.f <- d.f[!grepl("^FLJ\\d+$", d.f$SYMBOL), ]
 
-    d.f$COUNT <- table(d.f$SYMBOL)[d.f$SYMBOL]
+    d.f$Count <- table(d.f$SYMBOL)[d.f$SYMBOL]
 
     # in case multiple symbols have the same number of targets, prioritize the
     # ones overlapping exons
@@ -63,15 +64,27 @@ annotateTargets <- function(x, txdb, org) {
         i = queryHits(ovExons),
         SYMBOL = as.character(idExons$SYMBOL[subjectHits(ovExons)]))
 
-    d.f$OverlapsExon <- ifelse(paste(d.f[, 1], d.f[, 2]) %in%
-                               paste(d.fExons[, 1], d.fExons[, 2]), 1, 2)
-    # reorder and pick the best transcript
-    d.f <- d.f[order(d.f$i, d.f$COUNT, d.f$OverlapsExon), ]
+    # downweight orfs
+    d.fExons <- d.fExons[!grepl("\\dorf\\d", d.fExons$SYMBOL), ]
+    d.f$CountExons <- table(d.fExons$SYMBOL)[d.f$SYMBOL]
+    d.f$CountExons[is.na(d.f$CountExons)] <- 0
+
+    d.f$OverlapsExon <- ifelse(paste(d.f$i, d.f$SYMBOL) %in%
+                               paste(d.fExons$i, d.fExons$SYMBOL), 1, 0)
+    d.f$IsCds <- ifelse(d.f$GENEID %in% unique(unlist(idCds$GENEID)), 1, 0)
+
+    # reorder and pick the best transcript:
+    #  - deprioritize non-protein coding transcripts 
+    #  - deprioritize non-exon overlapping intervals
+    #  - deprioritize genes with low total exon count (might not be the main target)
+    #  - in the very unlikely case of a tie, use the total transcript count
+    d.f <- d.f[order(d.f$i, d.f$IsCds, d.f$OverlapsExon, d.f$CountExons, d.f$Count), ]
     d.f$FLAG <- duplicated(d.f$i, fromLast = TRUE)
+    d.f <- d.f[order(d.f$i, d.f$FLAG), ]
     d.f <- d.f[!duplicated(d.f$i), ]
 
     # Exclude targets for which we have multiple hits, but only one interval
-    d.f <- d.f[!d.f$FLAG | d.f$COUNT > 2, ]
+    d.f <- d.f[!d.f$FLAG | d.f$Count > 2, ]
     if (is.null(x$Gene)) x$Gene <- "."
     x[idx]$Gene[d.f$i] <- as.character(d.f$SYMBOL)
     x$Gene[is.na(x$Gene)] <- "."
