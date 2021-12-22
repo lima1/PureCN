@@ -526,6 +526,12 @@ Important recommendations:
       targets (the baits BED file should have a more even size distribution,
       e.g. 120bp and multiples of it).
     
+    - "Initial testing for significant sample cross-contamination" in the log
+      file should not have many false positives, i.e. should be "unlikely" for
+      most samples, not "maybe". Insufficient artifact removal can result in
+      too many false SNPs calls with low allelic fractions, confusing the
+      contamination caller.
+    
     - Read all warnings. 
         
 
