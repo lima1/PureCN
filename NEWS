@@ -1,6 +1,10 @@
 Changes in version 2.2.0
 ------------------------
 
+NEW FEATURES
+    o Added chunks parameter to Coverage.R and calculateBamCoverageByInterval
+      to reduce memory usage (#218)
+
 SIGNIFICANT USER-VISIBLE CHANGES
 
     o When base quality scores are found in the VCF, they are now used to

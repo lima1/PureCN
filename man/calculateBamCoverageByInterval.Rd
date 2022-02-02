@@ -10,6 +10,7 @@ calculateBamCoverageByInterval(
   output.file = NULL,
   index.file = bam.file,
   keep.duplicates = FALSE,
+  chunks = 20,
   ...
 )
 }
@@ -26,6 +27,9 @@ the \code{\link{readCoverageFile}} function.}
 suffix, see \code{?scanBam}.}
 
 \item{keep.duplicates}{Keep or remove duplicated reads.}
+
+\item{chunks}{Split \code{interval.file} into specified number of chunks
+to reduce memory usage.}
 
 \item{...}{Additional parameters passed to \code{ScanBamParam}.}
 }
