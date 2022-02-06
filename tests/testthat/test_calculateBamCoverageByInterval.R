@@ -38,4 +38,26 @@ test_that("Coverage output is correct", {
     expect_error(correctCoverageBias(x, interval.file))
 })
 
+test_that("Reading BAM in chunks works", {
+    fl <- system.file("extdata", "ex1.bam", package = "Rsamtools",
+                      mustWork = TRUE)
+    res0 <- scanBam(fl)[[1]] # always list-of-lists
+    idx <- sort(sample(length(res0[[1]]), 300))
+    idx <- idx[!is.na(res0$pos[idx])]
+    x <- GRanges(seqnames = res0$rname[idx],
+        IRanges(start = res0$pos[idx], end = res0$pos[idx] + 20))
+    x$Gene <- "."
+    x$on.target <- TRUE
+    x$gc_bias <- NA
+    x$mappability <- NA
+    x$reptiming <- NA
+    f2 <- tempfile()
+    suppressWarnings(PureCN:::.writeIntervals(x, f2))
+    r1 <- calculateBamCoverageByInterval(fl, f2)
+    r2 <- calculateBamCoverageByInterval(fl, f2, chunks = 3)
+    file.remove(f2)
+    expect_equal(as.character(r1), as.character(x))
+    expect_equal(as.character(r2), as.character(x))
+    expect_equivalent(r1$counts, r2$counts)
+})    
 file.remove(output.file)
