@@ -25,6 +25,9 @@ option_list <- list(
     make_option(c("--out-dir"), action = "store", type = "character", 
         default = NULL,
         help = "Output directory to which results should be written"),
+    make_option(c("--chunks"), action = "store", type = "integer",
+        default = formals(PureCN::calculateBamCoverageByInterval)$chunks, 
+        help = "Split intervals into specified number of chunks to reduce memory usage [default %default]"),
     make_option(c("--parallel"), action = "store_true", default = FALSE,
         help = "Use BiocParallel to calculate coverage in parallel whem --bam is a list of BAM files."),
     make_option(c("--cores"), action = "store", type = "integer", default = 1,
@@ -132,6 +135,7 @@ getCoverageBams <- function(bamFiles, indexFiles, outdir, interval.file,
             PureCN::calculateBamCoverageByInterval(bam.file = bam.file,
                 interval.file = interval.file, output.file = output.file,
                 index.file = index.file, keep.duplicates = keep.duplicates,
+                chunks = opt$chunks,
                 mapqFilter = if (remove_mapq0) 1 else NA)
         }
         output.file
@@ -168,6 +172,11 @@ indexFiles <- NULL
 flog.info("Loading PureCN %s...", Biobase::package.version("PureCN"))
 
 suppressPackageStartupMessages(library(PureCN))
+debug <- FALSE
+if (Sys.getenv("PURECN_DEBUG") != "") {
+    flog.threshold("DEBUG")
+    debug <- TRUE
+}
     
 if (!is.null(bam.file)) {
     bam.file <- normalizePath(bam.file, mustWork=TRUE)
