@@ -42,6 +42,9 @@
 calculateBamCoverageByInterval <- function(bam.file, interval.file,
     output.file = NULL, index.file = bam.file, keep.duplicates = FALSE,
     chunks = 20, ...) {
+    flog.debug("Used Ncells/Vcells: %s (Mb)",
+        paste(suppressMessages(gc()[,2]), collapse = "/"))
+
     intervalGrAll <- readIntervalFile(interval.file, strict = FALSE,
         verbose = FALSE)
     # skip splitting with small panels
@@ -78,7 +81,12 @@ calculateBamCoverageByInterval <- function(bam.file, interval.file,
         intervalGr$duplication.rate <- 1 -
             vapply(xDupFiltered, function(y) length(y$pos), integer(1)) /
             vapply(xAll, function(y) length(y$pos), integer(1))
-        intervalGr    
+
+        flog.debug("Used Ncells/Vcells: %s (Mb)",
+            paste(suppressMessages(gc()[,2]), collapse = "/"))
+        
+        x <- xAll <- xDupFiltered <- NULL    
+        intervalGr
     }
     intervalGrAll <- split(intervalGrAll, chunkIds)
 

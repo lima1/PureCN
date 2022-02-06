@@ -172,6 +172,11 @@ indexFiles <- NULL
 flog.info("Loading PureCN %s...", Biobase::package.version("PureCN"))
 
 suppressPackageStartupMessages(library(PureCN))
+debug <- FALSE
+if (Sys.getenv("PURECN_DEBUG") != "") {
+    flog.threshold("DEBUG")
+    debug <- TRUE
+}
     
 if (!is.null(bam.file)) {
     bam.file <- normalizePath(bam.file, mustWork=TRUE)
