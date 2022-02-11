@@ -171,6 +171,20 @@ normalDB.min.coverage, normalDB.max.missing) {
     intervalsUsed
 }
 
+.filterIntervalsCentromeres <- function(intervalsUsed, tumor, centromeres) {
+    if (is.null(centromeres)) return(intervalsUsed)
+    nBefore <- sum(intervalsUsed)
+    intervalsUsed <- intervalsUsed & seqnames(tumor) %in% seqlevels(centromeres)
+    nAfter <- sum(intervalsUsed)
+
+    if (nAfter < nBefore) {
+        flog.info("Removing %i intervals on non-standard chromosomes not listed in centromeres (%s).",
+            nBefore - nAfter,
+            paste(seqlevels(tumor)[!seqlevels(tumor) %in% seqlevels(centromeres)], collapse = ","))
+    }
+    intervalsUsed
+}
+
 .filterIntervalsTargetedBase <- function(intervalsUsed, tumor, min.targeted.base) {
     if (is.null(min.targeted.base)) return(intervalsUsed)
     nBefore <- sum(intervalsUsed)

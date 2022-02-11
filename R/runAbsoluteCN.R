@@ -421,6 +421,10 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     if (!is.null(interval.file)) {
         tumor <- .addGCData(tumor, interval.file)
     }
+    if (is.null(centromeres) && !missing(genome)) {
+        centromeres <- .getCentromerePositions(centromeres, genome,
+            if (is.null(tumor)) NULL else .getSeqlevelsStyle(tumor))
+    }
 
     args.filterIntervals <- c(list(normal = normal, tumor = tumor,
         log.ratio = log.ratio, seg.file = seg.file,
@@ -437,6 +441,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
 
     # chr.hash is an internal data structure, so we need to do this separately.
     intervalsUsed <- .filterIntervalsChrHash(intervalsUsed, tumor, chr.hash)
+    intervalsUsed <- .filterIntervalsCentromeres(intervalsUsed, tumor, centromeres)
     intervalsUsed <- which(intervalsUsed)
     if (length(tumor) != length(normal) ||
         length(tumor) != length(log.ratio)) {
@@ -573,10 +578,8 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
 
     flog.info("Sample sex: %s", sex)
     flog.info("Segmenting data...")
-    segProvided <- readSegmentationFile(seg.file, sampleid, model.homozygous = model.homozygous)
 
-    centromeres <- .getCentromerePositions(centromeres, genome,
-        if (is.null(vcf)) NULL else .getSeqlevelsStyle(vcf))
+    segProvided <- readSegmentationFile(seg.file, sampleid, model.homozygous = model.homozygous)
     
     args.segmentation <- c(list(normal = normal, tumor = tumor, log.ratio = log.ratio, 
         seg = segProvided, plot.cnv = plot.cnv,
