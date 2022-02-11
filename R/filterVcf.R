@@ -89,6 +89,10 @@ interval.padding = 50, DB.info.flag = "DB") {
     } else {
         info(vcf)$SOMATIC <- NULL
     }
+    if (!is.null(min.base.quality) && min.base.quality > 0) {
+        vcf <- .filterVcfByBQ(vcf, tumor.id.in.vcf, min.base.quality)
+    }
+
     bqs <- .getBQFromVcf(vcf, tumor.id.in.vcf, max.base.quality = max.base.quality,
         na.sub = TRUE, error = error, base.quality.offset = base.quality.offset)
     if (length(unique(bqs)) > 1) {
@@ -204,10 +208,6 @@ interval.padding = 50, DB.info.flag = "DB") {
             flog.info("Removing %i blacklisted variants.",
                       n - .countVariants(vcf))
         }
-    }
-
-    if (!is.null(min.base.quality) && min.base.quality > 0) {
-        vcf <- .filterVcfByBQ(vcf, tumor.id.in.vcf, min.base.quality)
     }
 
     if (!is.null(target.granges)) {
@@ -669,6 +669,9 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
     } else if (!is.null(geno(vcf)$MBQ)) {
         # Mutect 2
         x <- as.numeric(geno(vcf)$MBQ[, tumor.id.in.vcf])
+    } else if (!is.null(info(vcf)$MBQ)) {
+        # Mutect 2.2
+        x <- sapply(info(vcf)$MBQ, function(x) x[2])
     } else if (!is.null(rowRanges(vcf)$QUAL)) {
         # Freebayes
         x <- as.numeric(rowRanges(vcf)$QUAL)
@@ -742,7 +745,7 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
             depths <- unique(depths)
         }    
         cutoffs <- sapply(errors, function(e) sapply(depths, function(d)
-            suppressWarnings(.calcMinSupportingReadsForPower(coverage = d, error = e))))
+            min(d + 1, suppressWarnings(.calcMinSupportingReadsForPower(coverage = d, error = e)))))
         colnames(cutoffs) <- errorsp
         rownames(cutoffs) <- depths
         if (any(is.na(cutoffs))) {
