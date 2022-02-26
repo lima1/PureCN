@@ -1,14 +1,14 @@
 context("processMultipleSamples")
 
 test_that("example output correct", {
-	normal1.coverage.file <- system.file("extdata", "example_normal.txt",
-		package="PureCN")
-	normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
-		package="PureCN")
-	tumor1.coverage.file <- system.file("extdata", "example_tumor.txt",
-		package="PureCN")
-	tumor2.coverage.file <- system.file("extdata", "example_tumor2.txt",
-		package="PureCN")
+	normal1.coverage.file <- system.file("extdata", "example_normal.txt.gz",
+		package = "PureCN")
+	normal2.coverage.file <- system.file("extdata", "example_normal2.txt.gz",
+		package = "PureCN")
+	tumor1.coverage.file <- system.file("extdata", "example_tumor.txt.gz",
+		package = "PureCN")
+	tumor2.coverage.file <- system.file("extdata", "example_tumor2.txt.gz",
+		package = "PureCN")
 
 	normal.coverage.files <- c(normal1.coverage.file, normal2.coverage.file)
 	tumor.coverage.files <- c(tumor1.coverage.file, tumor2.coverage.file)

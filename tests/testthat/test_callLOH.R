@@ -8,9 +8,9 @@ test_that("Example is called correctly", {
 })
 
 test_that("NCBI-style chromosome names work", {
-    normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+    normal.coverage.file <- system.file("extdata", "example_normal.txt.gz", 
         package = "PureCN")
-    tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+    tumor.coverage.file <- system.file("extdata", "example_tumor.txt.gz", 
         package = "PureCN")
     vcf.file <- system.file("extdata", "example.vcf.gz", package = "PureCN")
     vcf <- readVcf(vcf.file)

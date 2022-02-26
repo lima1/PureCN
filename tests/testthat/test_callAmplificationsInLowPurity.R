@@ -1,8 +1,8 @@
 context("callAmplificationsInLowPurity")
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt.gz", 
     package = "PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt.gz", 
     package = "PureCN")
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 normalDB <- createNormalDatabase(normal.coverage.files)
@@ -12,7 +12,7 @@ test_that("Example is called correctly", {
     m <- callAmplificationsInLowPurity(purecn.example.output,
        normalDB, all.genes = TRUE, purity = 0.65)
     m2 <- callAmplificationsInLowPurity(purecn.example.output,
-       normalDB, all.genes = TRUE, purity = 0.65, BPPARAM=BiocParallel::bpparam())
+       normalDB, all.genes = TRUE, purity = 0.65, BPPARAM = BiocParallel::bpparam())
     esr2 <- m["ESR2", ]
     expect_equal(as.character(esr2$chr), "chr14")
     expect_true(esr2$start > 64694600)

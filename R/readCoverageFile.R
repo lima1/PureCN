@@ -16,15 +16,15 @@
 #' @seealso \code{\link{calculateBamCoverageByInterval}}
 #' @examples
 #' 
-#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-#'     package="PureCN")
+#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt.gz", 
+#'     package = "PureCN")
 #' coverage <- readCoverageFile(tumor.coverage.file)
-#' 
+#'
 #' @importFrom tools file_ext
 #' @importFrom rhdf5 H5Fopen
 #' @importFrom data.table fread
 #' @export readCoverageFile
-readCoverageFile <- function(file, format, zero=NULL, read.length = 100) {
+readCoverageFile <- function(file, format, zero = NULL, read.length = 100) {
     if (missing(format)) format <- .getFormat(file)
     if (format %in% c("cnn", "cnr")) {
         targetCoverage <- .readCoverageCnn(file, zero, format)

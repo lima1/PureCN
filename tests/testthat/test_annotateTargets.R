@@ -1,7 +1,7 @@
 context("annotateTargets") 
 library(TxDb.Hsapiens.UCSC.hg19.knownGene)
 library(org.Hs.eg.db)
-test_coverage <- readCoverageFile(system.file("extdata", "example_normal.txt",
+test_coverage <- readCoverageFile(system.file("extdata", "example_normal.txt.gz",
     package = "PureCN"))
 
 test_that("KIF1B is correctly annotated with UCSC chromosome names", {

@@ -4,10 +4,10 @@ vcf.file <- system.file("extdata", "example.vcf.gz", package = "PureCN")
 ac.file <- system.file("extdata", "example_allelic_counts.tsv", package = "PureCN")
 vcf <- readVcf(vcf.file, "hg19")
 data(purecn.example.output)
-normal.coverage.file <- system.file('extdata', 'example_normal.txt', 
-     package='PureCN')
-tumor.coverage.file <- system.file('extdata', 'example_tumor.txt', 
-     package='PureCN')
+normal.coverage.file <- system.file('extdata', 'example_normal.txt.gz', 
+     package = 'PureCN')
+tumor.coverage.file <- system.file('extdata', 'example_tumor.txt.gz', 
+     package = 'PureCN')
 
 test_that("example parses correctly", {
     vcf_ac <- readAllelicCountsFile(ac.file)
@@ -25,8 +25,8 @@ test_that("parsing -> writing -> parsing works", {
         vcf.file = vcf,
         genome = "hg19",
         test.purity = seq(0.4, 0.7, by = 0.05), min.ploidy = 1.5, 
-        max.ploidy = 2.4, max.candidate.solutions = 1, plot.cnv=FALSE)
-    expect_true(length(ret$results)>0)
+        max.ploidy = 2.4, max.candidate.solutions = 1, plot.cnv = FALSE)
+    expect_true(length(ret$results) > 0)
     file.remove(output.file)
 })
 

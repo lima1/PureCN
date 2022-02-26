@@ -1,6 +1,6 @@
 context("getSexFromCoverage")
 
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt.gz", 
     package = "PureCN")
 coverage <- readCoverageFile(tumor.coverage.file)
 chr22 <- coverage[which(seqnames(coverage) == "chr22")]

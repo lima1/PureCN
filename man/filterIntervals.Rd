@@ -67,14 +67,14 @@ arguments are passed via \code{args.filterIntervals}.
 }
 \examples{
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt",
+normal.coverage.file <- system.file("extdata", "example_normal.txt.gz",
     package = "PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt.gz",
     package = "PureCN")
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file)
 normalDB <- createNormalDatabase(normal.coverage.files)
 
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt",
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt.gz",
     package = "PureCN")
 vcf.file <- system.file("extdata", "example.vcf.gz",
     package = "PureCN")

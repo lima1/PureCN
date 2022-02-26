@@ -41,7 +41,7 @@ tuned for the assay.
 }
 \examples{
 
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt",
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt.gz",
     package = "PureCN")
 sex <- getSexFromCoverage(tumor.coverage.file)
 

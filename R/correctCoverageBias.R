@@ -29,7 +29,7 @@ globalVariables(names = c("..level.."))
 #' @seealso \code{\link{preprocessIntervals}}
 #' @examples
 #'
-#' normal.coverage.file <- system.file("extdata", "example_normal.txt",
+#' normal.coverage.file <- system.file("extdata", "example_normal.txt.gz",
 #'     package = "PureCN")
 #' interval.file <- system.file("extdata", "example_intervals.txt",
 #'     package = "PureCN")

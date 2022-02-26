@@ -60,13 +60,13 @@ for the same patient are available.
 }
 \examples{
 
-normal1.coverage.file <- system.file("extdata", "example_normal.txt",
+normal1.coverage.file <- system.file("extdata", "example_normal.txt.gz",
     package = "PureCN")
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt",
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt.gz",
     package = "PureCN")
-tumor1.coverage.file <- system.file("extdata", "example_tumor.txt",
+tumor1.coverage.file <- system.file("extdata", "example_tumor.txt.gz",
     package = "PureCN")
-tumor2.coverage.file <- system.file("extdata", "example_tumor2.txt",
+tumor2.coverage.file <- system.file("extdata", "example_tumor2.txt.gz",
     package = "PureCN")
 
 normal.coverage.files <- c(normal1.coverage.file, normal2.coverage.file)

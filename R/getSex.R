@@ -25,7 +25,7 @@
 #' @seealso \code{\link{getSexFromVcf}}
 #' @examples
 #'
-#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt",
+#' tumor.coverage.file <- system.file("extdata", "example_tumor.txt.gz",
 #'     package = "PureCN")
 #' sex <- getSexFromCoverage(tumor.coverage.file)
 #'

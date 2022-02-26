@@ -44,7 +44,7 @@ GC-bias.  Plots the pre and post normalization GC profiles.
 }
 \examples{
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt",
+normal.coverage.file <- system.file("extdata", "example_normal.txt.gz",
     package = "PureCN")
 interval.file <- system.file("extdata", "example_intervals.txt",
     package = "PureCN")

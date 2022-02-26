@@ -28,8 +28,8 @@ Toolkit or by \code{\link{calculateBamCoverageByInterval}}.
 }
 \examples{
 
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN")
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt.gz", 
+    package = "PureCN")
 coverage <- readCoverageFile(tumor.coverage.file)
 
 }

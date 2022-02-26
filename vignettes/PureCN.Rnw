@@ -246,12 +246,12 @@ We now load a few example files that we will use throughout this tutorial:
 <<example_files, message=FALSE, warning=FALSE, results='hide'>>=
 library(PureCN)
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt",
+normal.coverage.file <- system.file("extdata", "example_normal.txt.gz",
     package = "PureCN") 
-normal2.coverage.file <- system.file("extdata", "example_normal2.txt", 
+normal2.coverage.file <- system.file("extdata", "example_normal2.txt.gz", 
     package = "PureCN") 
 normal.coverage.files <- c(normal.coverage.file, normal2.coverage.file) 
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt.gz", 
     package = "PureCN") 
 seg.file <- system.file("extdata", "example_seg.txt",
     package = "PureCN")
@@ -304,7 +304,7 @@ is used.
 
 <<figuregccorrect, fig.show='hide', fig.width=7, fig.height=7, warning=FALSE>>=
 correctCoverageBias(normal.coverage.file, interval.file, 
-    output.file = "example_normal_loess.txt", plot.bias = TRUE)
+    output.file = "example_normal_loess.txt.gz", plot.bias = TRUE)
 @
 \incfig{figure/figuregccorrect-1}{0.95\textwidth}{Coverage before and after
 normalization for GC-content and replication timing.} 
@@ -1119,7 +1119,7 @@ importantly from higher quality biopsies, and align breakpoints.
 
 <<figuremultiplesamples, fig.show='hide', fig.width=6, fig.height=3>>=
 
-tumor2.coverage.file <- system.file("extdata", "example_tumor2.txt",
+tumor2.coverage.file <- system.file("extdata", "example_tumor2.txt.gz",
     package="PureCN")
 
 tumor.coverage.files <- c(tumor.coverage.file, tumor2.coverage.file)

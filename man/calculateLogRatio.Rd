@@ -25,10 +25,10 @@ the user.
 }
 \examples{
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
-    package="PureCN")
-tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
-    package="PureCN")
+normal.coverage.file <- system.file("extdata", "example_normal.txt.gz", 
+    package = "PureCN")
+tumor.coverage.file <- system.file("extdata", "example_tumor.txt.gz", 
+    package = "PureCN")
 normal <- readCoverageFile(normal.coverage.file)
 tumor <- readCoverageFile(tumor.coverage.file)
 log.ratio <- calculateLogRatio(normal, tumor)
