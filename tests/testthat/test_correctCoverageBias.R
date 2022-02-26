@@ -1,6 +1,6 @@
 context("correctCoverageBias")
 
-normal.coverage.file <- system.file("extdata", "example_normal.txt", 
+normal.coverage.file <- system.file("extdata", "example_normal.txt.gz", 
     package = "PureCN")
 interval.file <- system.file("extdata", "ex2_intervals.txt", 
     package = "PureCN", mustWork = TRUE)

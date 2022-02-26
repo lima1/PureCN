@@ -1,7 +1,7 @@
 context("readCoverageFile")
 
 test_that("Example data matches and pooling works", {
-    tumor.coverage.file <- system.file("extdata", "example_tumor.txt", 
+    tumor.coverage.file <- system.file("extdata", "example_tumor.txt.gz", 
         package = "PureCN")
     coverage <- readCoverageFile(tumor.coverage.file)
     expect_equal(length(coverage), 10049)
