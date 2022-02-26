@@ -52,6 +52,16 @@ test_that("GenomicsDB import works", {
     bias <- calculateMappingBiasGatk4(workspace, "hg19")
     expect_equal(2101, length(bias))
     unlink(tmp_dir, recursive = TRUE)
+    # newer 4.2.5.0 GenomicsDB
+    resources_file <- system.file("extdata", "gatk4_m2_test_pon_db.tgz",
+        package = "PureCN")
+    tmp_dir <- tempdir()
+    untar(resources_file, exdir = tmp_dir)
+    workspace <- file.path(tmp_dir, "gatk4_m2_test_pon_db")
+    bias <- calculateMappingBiasGatk4(workspace, "hg38")
+    expect_equivalent(bias$pon.count, c(3, 3, 2, 6, 2, 6, 5, 6, 8, 1, 1, 1, 3, 2, 1, 1, 3, 3, 3))
+    unlink(tmp_dir, recursive = TRUE)
+
 })
 
 
