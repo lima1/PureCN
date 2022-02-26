@@ -24,6 +24,8 @@ BUGFIXES
     o Fix for a crash when there are no off-target reads in off-target regions
       (#209).
     o Fixed parsing of base quality scores in Mutect 2.2   
+    o Fixed crash in GenomicsDB parsing when there were no variants in contig
+      (#225)
  
 
 Changes in version 2.0.0
