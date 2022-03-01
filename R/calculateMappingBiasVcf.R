@@ -188,6 +188,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
     genomicsdb::disconnect(db)
     flog.info("Collecting variant information...")
     # concat with minimal memory overhead
+    parsed_ad_list <- parsed_ad_list[!sapply(parsed_ad_list, is.null)]
     m_alt <- as.matrix(rbindlist(lapply(parsed_ad_list, function(x) data.frame(x$alt)), fill = TRUE))
     for (i in seq_along(parsed_ad_list)) parsed_ad_list[[i]]$alt <- NULL
     m_ref <- as.matrix(rbindlist(lapply(parsed_ad_list, function(x) data.frame(x$ref)), fill = TRUE))
@@ -214,6 +215,7 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
 }
 
 .parseADGenomicsDb <- function(query, AF.info.field = "AF") {
+    if (!nrow(query)) return(NULL)
     ref <-  dcast(query, CHROM + POS + END + REF + ALT ~ SAMPLE, value.var = "AD")
     af <-  dcast(query, CHROM + POS + END + REF + ALT ~ SAMPLE, value.var = AF.info.field)
     gr <- GRanges(seqnames = ref$CHROM, IRanges(start = ref$POS, end = ref$END),
