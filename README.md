@@ -45,7 +45,7 @@ To get the lastest stable version from
 currently only available from GitHub directly):
 
 ```
-conda install -c bioconda bioconductor-purecn=2.0.1
+conda install -c bioconda bioconductor-purecn=2.0.2
 ```
 
 A [Dockerhub](https://hub.docker.com/r/markusriester/purecn) image of the
