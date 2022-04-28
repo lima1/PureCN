@@ -59,10 +59,11 @@ WORKDIR /opt
 RUN ln -s $PURECN /opt/PureCN
 
 # install GATK4
-RUN wget --no-verbose https://github.com/broadinstitute/gatk/releases/download/4.2.5.0/gatk-4.2.5.0.zip && \
-    unzip gatk-4.2.5.0.zip -d /opt && \
-    rm gatk-4.2.5.0.zip
+ENV GATK_VERSION="4.2.6.1"
+RUN wget --no-verbose https://github.com/broadinstitute/gatk/releases/download/${GATK_VERSION}/gatk-${GATK_VERSION}.zip && \
+    unzip gatk-${GATK_VERSION}.zip -d /opt && \
+    rm gatk-${GATK_VERSION}.zip
 
-ENV PATH /opt/gatk-4.2.5.0:$PATH
+ENV PATH /opt/gatk-${GATK_VERSION}:$PATH
 
 CMD ["/bin/bash"]
