@@ -1,5 +1,5 @@
-FROM bioconductor/bioconductor_docker:RELEASE_3_15
-#FROM bioconductor/bioconductor_docker:devel
+#FROM bioconductor/bioconductor_docker:RELEASE_3_15
+FROM bioconductor/bioconductor_docker:devel
 
 # install base packages
 RUN Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)){install.packages("BiocManager")}; \
@@ -17,16 +17,16 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# RUN apt-get install -y --no-install-recommends \
-#     texlive \
-#     texlive-latex-extra \
-#     texlive-fonts-extra \
-#     texlive-bibtex-extra \
-#     texlive-science \
-#     texi2html \
-#     texinfo \
-#     && apt-get clean \
-#     && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y --no-install-recommends \
+    texlive \
+    texlive-latex-extra \
+    texlive-fonts-extra \
+    texlive-bibtex-extra \
+    texlive-science \
+    texi2html \
+    texinfo \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # install GenomicsDB
 ENV GENOMICSDB_PATH=/opt/GenomicsDB
@@ -53,8 +53,8 @@ RUN Rscript -e 'library(remotes);\
 remotes::install_github("nalinigans/GenomicsDB-R", ref="master", configure.args="--with-genomicsdb=/opt/GenomicsDB/")'
 
 # install PureCN
-RUN Rscript -e 'BiocManager::install("PureCN", dependencies = TRUE)'
-#RUN Rscript -e 'BiocManager::install("lima1/PureCN", dependencies = TRUE)'
+#RUN Rscript -e 'BiocManager::install("PureCN", dependencies = TRUE)'
+RUN Rscript -e 'BiocManager::install("lima1/PureCN", dependencies = TRUE)'
 ENV PURECN=/usr/local/lib/R/site-library/PureCN/extdata
 
 # add symbolic link and paths
