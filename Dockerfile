@@ -1,5 +1,5 @@
-#FROM bioconductor/bioconductor_docker:RELEASE_3_15
-FROM bioconductor/bioconductor_docker:devel
+FROM bioconductor/bioconductor_docker:RELEASE_3_17
+#FROM bioconductor/bioconductor_docker:devel
 
 # install base packages
 RUN Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)){install.packages("BiocManager")}; \
@@ -18,6 +18,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get install -y --no-install-recommends \
+    openjdk-17-jre-headless \
     texlive \
     texlive-latex-extra \
     texlive-fonts-extra \
@@ -63,7 +64,7 @@ WORKDIR /opt
 RUN ln -s $PURECN /opt/PureCN
 
 # install GATK4
-ENV GATK_VERSION="4.2.6.1"
+ENV GATK_VERSION="4.4.0.0"
 RUN wget --no-verbose https://github.com/broadinstitute/gatk/releases/download/${GATK_VERSION}/gatk-${GATK_VERSION}.zip && \
     unzip gatk-${GATK_VERSION}.zip -d /opt && \
     rm gatk-${GATK_VERSION}.zip

@@ -31,7 +31,7 @@ For outdated R/Bioconductor versions, you can try backporting the latest stable
 version (this should work fine for Bioconductor 3.3 and later):
 
 ```
-BiocManager::install("lima1/PureCN", ref = "RELEASE_3_15")
+BiocManager::install("lima1/PureCN", ref = "RELEASE_3_17")
 ```
 
 If you want the latest and greatest from the developer branch:
@@ -45,7 +45,7 @@ To get the lastest stable version from
 currently only available from GitHub directly):
 
 ```
-conda install -c bioconda bioconductor-purecn=2.0.2
+conda install -c bioconda bioconductor-purecn=2.4.0
 ```
 
 A [Dockerhub](https://hub.docker.com/r/markusriester/purecn) image of the
