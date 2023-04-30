@@ -119,11 +119,12 @@ jobs:
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         run: |
-          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y python-is-python3 wget texlive-base texlive-extra-utils texlive-fonts-extra", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
+          sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y python-is-python3 openjdk-17-jre-headless wget texlive-base texlive-extra-utils texlive-fonts-extra", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
           echo $sysreqs
           sudo -s eval "$sysreqs"
 
       - name: Install GATK4
+        if: runner.os == 'Linux'
         run: |
            wget --no-verbose https://github.com/broadinstitute/gatk/releases/download/4.4.0.0/gatk-4.4.0.0.zip
            mkdir $HOME/tools
@@ -132,6 +133,7 @@ jobs:
            rm gatk-4.4.0.0.zip
 
       - name: Show GATK4 version
+        if: runner.os == 'Linux'
         run: |
            echo "$PATH"
            gatk --version
