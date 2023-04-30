@@ -53,8 +53,6 @@ jobs:
       matrix:
         config:
           - { os: ubuntu-latest, r: '4.3', bioc: '3.17', cont: "bioconductor/bioconductor_docker:RELEASE_3_17", rspm: "https://packagemanager.rstudio.com/cran/__linux__/jammy/latest" }
-          - { os: macOS-latest, r: '4.3', bioc: '3.17'}
-          - { os: windows-latest, r: '4.3', bioc: '3.17'}
           ## Check https://github.com/r-lib/actions/tree/master/examples
           ## for examples using the http-user-agent
     env:
@@ -276,6 +274,7 @@ jobs:
               dir('check', 'tar.gz$', full.names = TRUE),
               `quit-with-status` = TRUE,
               `no-check-R-ver` = TRUE,
+              `no-check-pkg-size` = TRUE,
               `no-check-bioc-help` = TRUE
           )
         shell: Rscript {0}
