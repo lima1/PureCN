@@ -2,7 +2,7 @@ Package: PureCN
 Type: Package
 Title: Copy number calling and SNV classification using
     targeted short read sequencing
-Version: 2.7.3
+Version: 2.7.4
 Date: 2023-05-01
 Authors@R: c(person("Markus", "Riester",
                     role = c("aut", "cre"),
