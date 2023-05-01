@@ -455,7 +455,7 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
     if (is.null(bq) || all(is.na(bq))) {
         vcf <- .addBqField(vcf, error)
     } else if (any(is.na(bq))) {
-        flog.warn("BQ FORMAT field contains NAs. Removing %i variants.", n - length(vcf))
+        flog.warn("BQ FORMAT field contains NAs.")
     }
     meta(header(vcf))$purecnprefix <- DataFrame(
         Value = vcf.field.prefix,
