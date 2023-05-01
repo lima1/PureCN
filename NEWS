@@ -9,6 +9,7 @@ SIGNIFICANT USER-VISIBLE CHANGES
 BUGFIXES
 
     o Fixed an issue with callLOH and --model-homozygous (#254) 
+    o Fixed crash when VCF contained NAs in base quality scores (#249)
 
     
 Changes in version 2.2.0
