@@ -4,7 +4,7 @@ Changes in version 2.8.0
 SIGNIFICANT USER-VISIBLE CHANGES
 
     o Make processMultipleSamples temporarily defunct because the 
-      copynumber packages was removed from Bioconductor
+      copynumber package was removed from Bioconductor
 
 BUGFIXES
 
