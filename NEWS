@@ -6,7 +6,11 @@ SIGNIFICANT USER-VISIBLE CHANGES
     o Make processMultipleSamples temporarily defunct because the 
       copynumber packages was removed from Bioconductor
 
+BUGFIXES
 
+    o Fixed an issue with callLOH and --model-homozygous (#254) 
+
+    
 Changes in version 2.2.0
 ------------------------
 
