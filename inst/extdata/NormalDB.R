@@ -71,7 +71,7 @@ if (is.null(outdir)) {
     stop("need --out-dir")
 }
 outdir <- normalizePath(outdir, mustWork = TRUE)
-if (file.access(dirname(outdir), 2) < 0) stop("Permission denied to write in --out-dir.")
+if (file.access(outdir, 2) < 0) stop("Permission denied to write in --out-dir.")
     
 assay <- opt$assay
 genome <- opt$genome

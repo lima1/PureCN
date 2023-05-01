@@ -10,6 +10,8 @@ BUGFIXES
 
     o Fixed an issue with callLOH and --model-homozygous (#254) 
     o Fixed crash when VCF contained NAs in base quality scores (#249)
+    o Fixed wrong check for outdir write permissions in Coverage.R and
+      NormalDB.R (#258) 
 
     
 Changes in version 2.2.0
