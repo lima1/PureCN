@@ -14,6 +14,7 @@ BUGFIXES
     o Fixed crash when VCF contained NAs in base quality scores (#249)
     o Fixed wrong check for outdir write permissions in Coverage.R and
       NormalDB.R (#258) 
+    o Fixed inverted return codes in couple of scripts (#284)  
 
     
 Changes in version 2.2.0
