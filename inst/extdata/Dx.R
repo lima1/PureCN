@@ -54,7 +54,7 @@ opt <- parse_args(OptionParser(option_list = option_list),
 
 if (opt$version) {
     message(as.character(packageVersion("PureCN")))
-    q(status = 1)
+    q(status = 0)
 }
 
 # Parse input rds
@@ -150,7 +150,7 @@ if (opt$signatures && require(deconstructSigs)) {
 
     if (compareVersion(package.version("deconstructSigs"), "1.9.0") < 0) {
         flog.fatal("deconstructSigs package is outdated. >= 1.9.0 required")
-        q(status = 0)
+        q(status = 1)
     }    
 
     s <- x[ x$ML.SOMATIC & x$prior.somatic > 0.1 & !x$FLAGGED ,]
@@ -161,7 +161,7 @@ if (opt$signatures && require(deconstructSigs)) {
         bsgPkg <- paste0("BSgenome.Hsapiens.UCSC.", genome)
         if (!require(bsgPkg, character.only = TRUE)) { 
             flog.fatal("%s not found.", bsgPkg)
-            q(status = 0)
+            q(status = 1)
         }
         bsg <- get(bsgPkg)
     }

@@ -52,7 +52,7 @@ opt <- parse_args(OptionParser(option_list = option_list),
 
 if (opt$version) {
     message(as.character(packageVersion("PureCN")))
-    q(status = 1)
+    q(status = 0)
 }
 
 if (Sys.getenv("PURECN_DEBUG") != "") {
@@ -128,7 +128,7 @@ if (!is.null(opt$normal_panel)) {
 if (is.null(opt$coverage_files)) {
     if (is.null(opt$normal_panel)) stop("need --coverage-files.")
     flog.warn("No --coverage-files provided. Skipping normal coverage database generation.")
-    q(status = 1)
+    q(status = 0)
 }
 
 coverageFiles <- .checkFileList(opt$coverage_files)

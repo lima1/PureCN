@@ -65,7 +65,7 @@ opt <- parse_args(OptionParser(option_list = option_list),
 
 if (opt$version) {
     message(as.character(packageVersion("PureCN")))
-    q(status = 1)
+    q(status = 0)
 }
 
 if (!is.null(opt$seed)) {
@@ -101,7 +101,7 @@ interval.file <- normalizePath(interval.file, mustWork = TRUE)
 checkDataTableVersion <- function() {
     if (compareVersion(package.version("data.table"), "1.12.4") < 0) {
         flog.fatal("data.table package is outdated. >= 1.12.4 required")
-        q(status = 0)
+        q(status = 1)
     }
     return(TRUE)
 }
