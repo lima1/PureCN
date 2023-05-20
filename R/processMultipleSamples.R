@@ -47,10 +47,10 @@
 #'
 #' normalDB <- createNormalDatabase(normal.coverage.files)
 #'
-#' seg <- processMultipleSamples(tumor.coverage.files,
-#'          sampleids = c("Sample1", "Sample2"),
-#'          normalDB = normalDB,
-#'          genome = "hg19")
+#' # seg <- processMultipleSamples(tumor.coverage.files,
+#' #          sampleids = c("Sample1", "Sample2"),
+#' #          normalDB = normalDB,
+#' #          genome = "hg19")
 #'
 #' @export processMultipleSamples
 processMultipleSamples <- function(tumor.coverage.files, sampleids, normalDB,

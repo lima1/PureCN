@@ -42,7 +42,7 @@ opt <- parse_args(OptionParser(option_list = option_list),
 
 if (opt$version) {
     message(as.character(packageVersion("PureCN")))
-    q(status = 1)
+    q(status = 0)
 }
 
 

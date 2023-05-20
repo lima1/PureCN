@@ -1,6 +1,8 @@
 context("processMultipleSamples")
 
 test_that("example output correct", {
+	skip_if_not(requireNamespace("copynumber"), "copynumber required")
+
 	normal1.coverage.file <- system.file("extdata", "example_normal.txt.gz",
 		package = "PureCN")
 	normal2.coverage.file <- system.file("extdata", "example_normal2.txt.gz",
