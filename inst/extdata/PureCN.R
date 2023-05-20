@@ -129,9 +129,6 @@ option_list <- list(
     make_option(c("--out"), action = "store", type = "character", default = NULL,
         help = paste("Output: File name prefix to which results should be written.",
         "If out is a directory, will use out/sampleid.")),
-    make_option(c("--rds-version"), action = "store", type = "integer", default = NULL,
-        help = paste("Output: RDS files serialized with workspace version.",
-        "Default uses the saveRDS default. To get R versions prior to 3.6.0 being able to read, use --rds-version=2.")),
     make_option(c("--seed"), action = "store", type = "integer", default = NULL,
         help = "Seed for random number generator [default %default]"),
     make_option(c("--parallel"), action = "store_true", default = FALSE,
@@ -430,7 +427,7 @@ if (file.exists(file.rds) && !opt$force) {
     if (opt$bootstrap_n > 0) {
         ret <- bootstrapResults(ret, n = opt$bootstrap_n)
     }
-    saveRDS(ret, file = file.rds, version = opt[["rds_version"]])
+    saveRDS(ret, file = file.rds)
 }
 
 ### Create output files -------------------------------------------------------

@@ -1,12 +1,5 @@
-Changes in version 2.8.0
+Changes in version 2.6.1
 ------------------------
-
-SIGNIFICANT USER-VISIBLE CHANGES
-
-    o Make processMultipleSamples temporarily defunct because the 
-      copynumber package was removed from Bioconductor
-    o Make it possible to specify saveRDS version to make output files
-      readable by old R versions prior to 3.6.0 (#255)  
 
 BUGFIXES
 

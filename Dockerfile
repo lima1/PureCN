@@ -1,5 +1,5 @@
-#FROM bioconductor/bioconductor_docker:RELEASE_3_15
-FROM bioconductor/bioconductor_docker:devel
+FROM bioconductor/bioconductor_docker:RELEASE_3_17
+#FROM bioconductor/bioconductor_docker:devel
 
 # install base packages
 RUN Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)){install.packages("BiocManager")}; \

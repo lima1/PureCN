@@ -19,9 +19,6 @@ option_list <- list(
         help = "Only change if you know what you are doing [default %default]"),
     make_option(c("--out-dir"), action = "store", type = "character", default = NULL,
         help = "Output directory to which results should be written"),
-    make_option(c("--rds-version"), action = "store", type = "integer", default = NULL,
-        help = paste("Output: RDS files serialized with workspace version.",
-        "Default uses the saveRDS default. To get R versions prior to 3.6.0 being able to read, use --rds-version=2.")),
     make_option(c("-v", "--version"), action = "store_true", default = FALSE,
         help = "Print PureCN version"),
     make_option(c("-f", "--force"), action = "store_true", default = FALSE,
@@ -109,7 +106,7 @@ if (!is.null(opt$normal_panel)) {
                 min.normals.position.specific.fit = opt$min_normals_position_specific_fit)
         }
         if (length(bias)) {
-            saveRDS(bias, file = output.file, version = opt[["rds_version"]])
+            saveRDS(bias, file = output.file)
         }
     }
     if (!length(bias)) {
@@ -146,7 +143,7 @@ if (length(coverageFiles)) {
         png(interval.weight.png, width = 800, height = 400)
         normalDB <- createNormalDatabase(coverageFiles, plot = TRUE)
         invisible(dev.off())
-        saveRDS(normalDB, file = output.file, version = opt[["rds_version"]])
+        saveRDS(normalDB, file = output.file)
         if (length(normalDB$low.coverage.targets) > 0) {
             output.low.coverage.file <- .getFileName(outdir, "low_coverage_targets", ".bed", assay, genome)
             suppressPackageStartupMessages(library(rtracklayer))
