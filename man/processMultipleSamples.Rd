@@ -74,10 +74,10 @@ tumor.coverage.files <- c(tumor1.coverage.file, tumor2.coverage.file)
 
 normalDB <- createNormalDatabase(normal.coverage.files)
 
-seg <- processMultipleSamples(tumor.coverage.files,
-         sampleids = c("Sample1", "Sample2"),
-         normalDB = normalDB,
-         genome = "hg19")
+# seg <- processMultipleSamples(tumor.coverage.files,
+#          sampleids = c("Sample1", "Sample2"),
+#          normalDB = normalDB,
+#          genome = "hg19")
 
 }
 \references{
