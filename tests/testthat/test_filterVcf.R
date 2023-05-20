@@ -125,3 +125,11 @@ test_that("Providing min.supporting.reads works", {
     x <- filterVcfBasic(vcf, use.somatic.status = FALSE, min.supporting.reads = 10)
     expect_equal(min(sapply(geno(x$vcf)$AD[,1], function(x) x[2])), 10)
 })
+
+test_that("issue 249", {
+    # set random BQ to NA
+    vcf.bq <- vcf
+    geno(vcf.bq)$BQ[[2, 1]] <- NA
+    vcf.bq <- PureCN:::.readAndCheckVcf(vcf.bq, "hg19")
+    expect_equal(NA, geno(vcf.bq)$BQ[[2, 1]])
+})

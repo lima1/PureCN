@@ -2,8 +2,8 @@ Package: PureCN
 Type: Package
 Title: Copy number calling and SNV classification using
     targeted short read sequencing
-Version: 2.6.0
-Date: 2022-02-25
+Version: 2.6.1
+Date: 2023-05-20
 Authors@R: c(person("Markus", "Riester",
                     role = c("aut", "cre"),
                     email = "markus.riester@novartis.com",
@@ -52,7 +52,6 @@ Suggests:
     PSCBS,
     R.utils,
     TxDb.Hsapiens.UCSC.hg19.knownGene,
-    copynumber,
     covr,
     knitr,
     optparse,
@@ -62,7 +61,8 @@ Suggests:
     rmarkdown,
     testthat
 Enhances:
-    genomicsdb (>= 0.0.3)
+    genomicsdb (>= 0.0.3),
+    copynumber
 VignetteBuilder: knitr
 License: Artistic-2.0
 URL: https://github.com/lima1/PureCN
@@ -70,4 +70,4 @@ biocViews: CopyNumberVariation, Software, Sequencing,
     VariantAnnotation, VariantDetection, Coverage, ImmunoOncology
 NeedsCompilation: no
 ByteCompile: yes
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3

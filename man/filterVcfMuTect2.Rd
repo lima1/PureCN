@@ -7,9 +7,9 @@
 filterVcfMuTect2(
   vcf,
   tumor.id.in.vcf = NULL,
-  ignore = c("clustered_events", "t_lod", "str_contraction", "read_position",
-    "position", "fragment_length", "multiallelic", "clipping", "strand_artifact",
-    "strand_bias", "slippage", "weak_evidence", "orientation", "haplotype"),
+  ignore = c("clustered_events", "t_lod", "str_contraction", "read_position", "position",
+    "fragment_length", "multiallelic", "clipping", "strand_artifact", "strand_bias",
+    "slippage", "weak_evidence", "orientation", "haplotype"),
   ...
 )
 }

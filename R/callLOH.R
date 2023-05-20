@@ -37,7 +37,8 @@ callLOH <- function(res, id = 1, arm.cutoff = 0.9,
     bm <- res$results[[id]]$SNV.posterior$posteriors
     bm <- bm[which(!bm$ML.SOMATIC &
                     bm$GERMLINE.CONTLOW < 0.5 &
-                    bm$GERMLINE.CONTHIGH < 0.5), ]
+                    bm$GERMLINE.CONTHIGH < 0.5 &
+                    bm$GERMLINE.HOMOZYGOUS < 0.5), ]
 
     if (is.null(bm)) {
         .stopRuntimeError("SNV.posterior NULL in callLOH.")

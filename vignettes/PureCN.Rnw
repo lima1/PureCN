@@ -1108,50 +1108,6 @@ It is highly recommended to compare the log2-ratios obtained by
 \Biocpkg{PureCN} and the third-party tool, since some pipelines automatically
 adjust log2-ratios for a default purity value. 
 
-\subsubsection{Multi-sample segmentation}
-\label{multisampleseg}
-When multiple biopsies from the same patient are available, it might be
-beneficial to use a multi-sample segmentation that attempts to find a single
-segmentation for all biopsies. The idea is to share information, most
-importantly from higher quality biopsies, and align breakpoints.
-\Biocpkg{PureCN} supports the \Rfunction{multipcf} segmentation from the
-\Biocpkg{copynumber} package:
-
-<<figuremultiplesamples, fig.show='hide', fig.width=6, fig.height=3>>=
-
-tumor2.coverage.file <- system.file("extdata", "example_tumor2.txt.gz",
-    package="PureCN")
-
-tumor.coverage.files <- c(tumor.coverage.file, tumor2.coverage.file)
-
-seg <- processMultipleSamples(tumor.coverage.files,
-         sampleids = c("Sample1", "Sample2"),
-         normalDB = normalDB,
-         genome = "hg19", verbose = FALSE)
-seg.file <- tempfile(fileext = ".seg")
-write.table(seg, seg.file, row.names = FALSE, sep = "\t")
-retMulti <- runAbsoluteCN(tumor.coverage.file = tumor.coverage.file, 
-    normal.coverage.file = pool, 
-    seg.file = seg.file, vcf.file = vcf.file, max.candidate.solutions = 1, 
-    fun.segmentation = segmentationHclust, plot.cnv = FALSE,
-    genome = "hg19", min.ploidy = 1.5, max.ploidy = 2.1, 
-    test.purity = seq(0.4, 0.7, by = 0.05), sampleid = "Sample1",
-    post.optimize = TRUE)
-@
-\incfig{figure/figuremultiplesamples-1}{0.75\textwidth}{\Biocpkg{copynumber} output
-via \Rfunction{processMultipleSamples}.}
-Again, the \Rcode{min.ploidy}, \Rcode{max.ploidy} and \Rcode{test.purity}
-arguments are set to reduce the runtime of this toy example and should not be
-used for real data. The \Rfunction{segmentationHclust} function clusters
-segments using B-allele frequencies and joins adjacent segments when they are in
-the same cluster. Providing the \Rfunction{calculateTangentNormal} output
-\Rcode{pool} via \Rcode{normal.coverage.file} gives \Rfunction{runAbsoluteCN}
-access to the copy number ratios of all intervals, not only the segment-level
-ones. This function also supports weighting samples. By default, when coverages
-were calculated using \Biocpkg{PureCN}, samples are weighted by the inverse of
-the read duplication rates. This usually dramatically reduces the number of
-spurious segments.
-
 \subsection{COSMIC annotation}
 \label{seccosmic}
 If a matched normal is not available, it is also helpful to provide
@@ -1527,10 +1483,8 @@ Figure~\ref{figure/figureexample2-1}:
     
 	\item This tool was originally designed for single sample pipelines. It
 becomes more common to have multiple biopsies per patient and sharing
-information across biopsies might be beneficial. While there is basic
-functionality for multi-sample segmentation (see \ref{multisampleseg}), we
-currently have no plans to support multiple biopsies in the likelihood model
-directly. Other tools worth checking out are lumosVar 2.0 \cite{Halperin2019}
+information across biopsies might be beneficial. 
+Other tools worth checking out are lumosVar 2.0 \cite{Halperin2019}
 and SuperFreq \cite{Flensburg2020}.
 \end{itemize}
 
