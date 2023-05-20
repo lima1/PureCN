@@ -58,10 +58,6 @@ properly ordered.}
 This function performs normalization and segmentation when multiple
 for the same patient are available.
 }
-\details{
-CURRENTLY DEFUNCT BECAUSE IT DEPENDS ON THE DEFUNCT COPYNUMBER PACKAGE.
-We are working on a replacement.
-}
 \examples{
 
 normal1.coverage.file <- system.file("extdata", "example_normal.txt.gz",
@@ -78,10 +74,10 @@ tumor.coverage.files <- c(tumor1.coverage.file, tumor2.coverage.file)
 
 normalDB <- createNormalDatabase(normal.coverage.files)
 
-# seg <- processMultipleSamples(tumor.coverage.files,
-#         sampleids = c("Sample1", "Sample2"),
-#         normalDB = normalDB,
-#         genome = "hg19")
+seg <- processMultipleSamples(tumor.coverage.files,
+         sampleids = c("Sample1", "Sample2"),
+         normalDB = normalDB,
+         genome = "hg19")
 
 }
 \references{
