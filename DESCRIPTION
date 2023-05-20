@@ -52,7 +52,6 @@ Suggests:
     PSCBS,
     R.utils,
     TxDb.Hsapiens.UCSC.hg19.knownGene,
-    copynumber,
     covr,
     knitr,
     optparse,
@@ -62,7 +61,8 @@ Suggests:
     rmarkdown,
     testthat
 Enhances:
-    genomicsdb (>= 0.0.3)
+    genomicsdb (>= 0.0.3),
+    copynumber
 VignetteBuilder: knitr
 License: Artistic-2.0
 URL: https://github.com/lima1/PureCN
