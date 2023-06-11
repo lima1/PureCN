@@ -51,7 +51,7 @@ callAlterations <- function(res, id = 1, cutoffs = c(0.5, 6, 7),
             log.ratio.cutoffs[1]
     }
 
-    calls <- res$results[[1]]$gene.calls
+    calls <- res$results[[id]]$gene.calls
     calls$type <- NA
     calls$type[amp.ids] <- "AMPLIFICATION"
     calls$type[del.ids] <- "DELETION"
