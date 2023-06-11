@@ -1,4 +1,4 @@
-Changes in version 2.6.1
+Changes in version 2.6.2
 ------------------------
 
 BUGFIXES
@@ -9,6 +9,8 @@ BUGFIXES
       NormalDB.R (#258) 
     o Fixed inverted return codes in couple of scripts (#284)
     o Made defunct copynumber package optional  	
+    o Fixed an issue in callAlterations where the id argument was largely
+      ignored (#292)
 
     
 Changes in version 2.2.0
