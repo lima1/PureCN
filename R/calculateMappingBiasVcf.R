@@ -151,13 +151,19 @@ calculateMappingBiasGatk4 <- function(workspace, reference.genome,
         .stopUserError("Install the genomicsdb and jsonlite R packages for GenomicsDB import.")
     }
     workspace <- normalizePath(workspace, mustWork = TRUE)
-
-    db <- genomicsdb::connect(workspace = workspace,
-        vid_mapping_file = file.path(workspace, "vidmap.json"),
-        callset_mapping_file = file.path(workspace, "callset.json"),
-        reference_genome = reference.genome,
-        c("DP", "AD", AF.info.field))
-
+    
+    if (!is.null(formals(genomicsdb::connect)$reference_genome)) {
+        db <- genomicsdb::connect(workspace = workspace,
+            vid_mapping_file = file.path(workspace, "vidmap.json"),
+            callset_mapping_file = file.path(workspace, "callset.json"),
+            reference_genome = reference.genome,
+            attributes = c("DP", "AD", AF.info.field))
+    } else {
+        db <- genomicsdb::connect(workspace = workspace,
+            vid_mapping_file = file.path(workspace, "vidmap.json"),
+            callset_mapping_file = file.path(workspace, "callset.json"),
+            attributes = c("DP", "AD", AF.info.field))
+    }    
     jcallset <- jsonlite::read_json(file.path(workspace, "callset.json"))
     jvidmap <- jsonlite::read_json(file.path(workspace, "vidmap.json"))
     
