@@ -17,6 +17,8 @@ BUGFIXES
     o Fixed inverted return codes in couple of scripts (#284)  
     o Fixed an issue in callAlterations where the id argument was largely
       ignored (#292)
+    o Fixed broken support for GenomicsDB-R from their developer branch 
+      (#296)    
 
     
 Changes in version 2.2.0
