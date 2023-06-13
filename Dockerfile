@@ -14,16 +14,22 @@ RUN Rscript -e 'BiocManager::install("lima1/PSCBS", ref="add_dnacopy_weighting")
 
 RUN apt update \
     && apt install -y --no-install-recommends apt-utils python-is-python3 \
-    texlive \
     openjdk-17-jre-headless \
-    texlive-latex-extra \
-    texlive-fonts-extra \
-    texlive-bibtex-extra \
-    texlive-science \
-    texi2html \
-    texinfo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# tex support for building vignettes
+# RUN apt update \
+#     && apt install -y --no-install-recommends \
+#     texlive \
+#     texlive-latex-extra \
+#     texlive-fonts-extra \
+#     texlive-bibtex-extra \
+#     texlive-science \
+#     texi2html \
+#     texinfo \
+#     && apt-get clean \
+#     && rm -rf /var/lib/apt/lists/*
 
 # install GenomicsDB
 ENV GENOMICSDB_PATH=/opt/GenomicsDB
@@ -40,6 +46,7 @@ WORKDIR /tmp
 RUN git clone --recursive --branch master https://github.com/GenomicsDB/GenomicsDB.git && \
     cd GenomicsDB/scripts/prereqs && \
     ./install_prereqs.sh && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 RUN chmod +x $PREREQS_ENV && \
