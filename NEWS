@@ -1,4 +1,4 @@
-Changes in version 2.6.2
+Changes in version 2.6.4
 ------------------------
 
 BUGFIXES
@@ -12,7 +12,8 @@ BUGFIXES
     o Fixed an issue in callAlterations where the id argument was largely
       ignored (#292)
     o Fixed broken support for GenomicsDB-R from their developer branch 
-      (#296)    
+      (#296)
+    o Fixed crash in plotAbs (#260)  
 
     
 Changes in version 2.2.0
