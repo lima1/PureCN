@@ -606,8 +606,9 @@ ss) {
     parm <- par("mar")
     par(mar = c(5, 4, 4, 4) + 0.1)
     xc <- .matrixTotalPloidyToTumorPloidy(res$candidates$all)
-    xc[is.infinite(xc)] <- min(xc[!is.infinite(xc)])
-    xc[xc < quantile(xc, p=0.2)] <- quantile(xc, p=0.2)
+    xc[is.infinite(xc)] <- min(xc[!is.infinite(xc)], na.rm = TRUE)
+    xc[is.na(xc)] <- min(xc[!is.infinite(xc)], na.rm = TRUE)
+    xc[xc < quantile(xc, p = 0.2)] <- quantile(xc, p = 0.2)
 
     mycol.image <- colorRampPalette(rev(brewer.pal(n = 7,
         name = "RdYlBu")))(100)
