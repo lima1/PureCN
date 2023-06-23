@@ -592,7 +592,12 @@ c(test.num.copy, round(opt.C))[i], prior.K, mapping.bias.ok, seg.id, min.variant
             by = list(seqnames, start, end, C, C.flagged, seg.mean, seg.id,
                       seg.length, LR, focal, weights)]
     }
-
+    multi_chrom_symbols <- names(which(sapply(lapply(split(as.character(dt$seqnames), dt$Gene), unique), length) > 1))
+    if (length(multi_chrom_symbols)) {
+        flog.warn("Some gene symbols found on multiple chromosomes. Use of approved symbols suggested.")
+        idx <- which(dt$Gene %in% multi_chrom_symbols)
+        dt$Gene[idx] <- paste(dt$Gene[idx], dt$seqnames[idx], sep = "__")
+    }    
     gene.calls <- data.frame(dt[, list(chr = seqnames[1], start = min(start), 
         end = max(end), 
         C = as.double(C[which.min(seg.length)]), 
