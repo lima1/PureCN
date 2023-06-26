@@ -20,6 +20,8 @@ BUGFIXES
     o Fixed broken support for GenomicsDB-R from their developer branch 
       (#296)
     o Fixed crash in plotAbs (#260)   
+    o Fixed an issue with gene-level calls when annotation contained
+      non-official symbols found on multiple chromosomes (#298)
 
     
 Changes in version 2.2.0
