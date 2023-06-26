@@ -253,6 +253,7 @@ test_that("Different chromosome naming styles throw exceptions", {
         quote = FALSE)
     gc2 <- gc1
     gc2$Gene[2:4] <- paste("SCNN1D,XXXL")
+    gc2$Gene[1002:1004] <- paste("PXDN,XXXL")
     write.table(gc2, file = output.file2, row.names = FALSE, sep = "\t",
         quote = FALSE)
     set.seed(123)
@@ -273,14 +274,20 @@ test_that("Different chromosome naming styles throw exceptions", {
     expect_equal(gpnmb$type, "AMPLIFICATION")
     caAret <- callAlterations(ret, all.genes = TRUE)
     caAret2 <- callAlterations(ret2, all.genes = TRUE)
-    expect_equal(nrow(caAret2), nrow(caAret) + 1)
+    expect_equal(nrow(caAret2), nrow(caAret) + 2)
     expect_equal(caAret2[rownames(caAret), "C"], caAret$C)
     expect_equal(caAret2[rownames(caAret), "start"], caAret$start)
-    expect_equal(caAret2["XXXL", "number.targets"], 3)
-    expect_equal(caAret2["XXXL", "start"], 1216606)
-    expect_equal(caAret2["XXXL", "end"], 1217696)
-    expect_equal(caAret2["XXXL", "C"], caAret["SCNN1D", "C"])
-    expect_equal(caAret2["XXXL", "seg.mean"], caAret["SCNN1D",
+    expect_equal(caAret2["XXXL__1", "number.targets"], 3)
+    expect_equal(caAret2["XXXL__1", "start"], 1216606)
+    expect_equal(caAret2["XXXL__1", "end"], 1217696)
+    expect_equal(caAret2["XXXL__1", "C"], caAret["SCNN1D", "C"])
+    expect_equal(caAret2["XXXL__1", "seg.mean"], caAret["SCNN1D",
+        "seg.mean"])
+    expect_equal(caAret2["XXXL__2", "number.targets"], 3)
+    expect_equal(caAret2["XXXL__2", "start"], 1695700)
+    expect_equal(caAret2["XXXL__2", "end"], 1748228)
+    expect_equal(caAret2["XXXL__2", "C"], caAret["PXDN", "C"])
+    expect_equal(caAret2["XXXL__2", "seg.mean"], caAret["PXDN",
         "seg.mean"])
     plotAbs(ret, 1, type = "all")
     expect_error(plotAbs(ret, 1, type = "BAF", chr = "chr1"))
