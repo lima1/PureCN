@@ -22,6 +22,8 @@ BUGFIXES
     o Fixed crash in plotAbs (#260)   
     o Fixed an issue with gene-level calls when annotation contained
       non-official symbols found on multiple chromosomes (#298)
+    o Fixed a wrongly formatted error message when no germline database
+      information was found (#302)  
 
     
 Changes in version 2.2.0
