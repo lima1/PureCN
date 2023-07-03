@@ -412,7 +412,8 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
         flog.warn("DP FORMAT field contains NAs. Removing %i variants.", n - length(vcf))
     }
     if (check.DB) {
-        if (is.null(info(vcf)[[DB.info.flag]])) {
+        if (is.null(info(vcf)[[DB.info.flag]]) ||
+            all(unlist(sapply(info(vcf)[[DB.info.flag]], is.na)))) {
             # try to add an DB field based on rownames
             vcf <- .addDbField(vcf, DB.info.flag, POPAF.info.field, min.pop.af)
         } else if (!is.null(info(vcf)[[POPAF.info.field]])) {
