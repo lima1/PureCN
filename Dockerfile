@@ -33,17 +33,19 @@ RUN apt update \
 
 # install GenomicsDB
 ENV GENOMICSDB_PATH=/opt/GenomicsDB
+ENV GENOMICSDB_BRANCH=develop
 RUN mkdir $GENOMICSDB_PATH
 ENV INSTALL_PREFIX=$GENOMICSDB_PATH
 ENV PREREQS_ENV=$GENOMICSDB_PATH/genomicsdb_prereqs.sh
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
 ENV MAVEN_VERSION=3.9.2
 
 RUN ls $JAVA_HOME
 
 WORKDIR /tmp
 
-RUN git clone --recursive --branch master https://github.com/GenomicsDB/GenomicsDB.git && \
+RUN git clone --recursive --branch $GENOMICSDB_BRANCH https://github.com/GenomicsDB/GenomicsDB.git && \
     cd GenomicsDB/scripts/prereqs && \
     ./install_prereqs.sh && \
     apt-get clean && \
