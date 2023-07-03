@@ -512,8 +512,8 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
         db <- grepl("^rs", rownames(vcf))
 
         if (!sum(db)) {
-           .stopUserError("vcf.file has no %s or %s info field for membership in germline databases.",
-            DB.info.flag, POPAF.info.field)
+           .stopUserError("vcf.file has no ", DB.info.flag, " or ", POPAF.info.field,
+               " info field for membership in germline databases.")
         } else {
            flog.warn("vcf.file has no %s or %s info field for membership in germline databases.%s",
                DB.info.flag, POPAF.info.field, " Guessing it based on available dbSNP ID.")
