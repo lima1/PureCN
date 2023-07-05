@@ -23,7 +23,8 @@ BUGFIXES
     o Fixed an issue with gene-level calls when annotation contained
       non-official symbols found on multiple chromosomes (#298)
     o Fixed a wrongly formatted error message when no germline database
-      information was found (#302)  
+      information was found (#302)
+    o Fixed a crash when DB field in VCF only contains NAs(#301) 
 
     
 Changes in version 2.2.0
