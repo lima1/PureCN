@@ -39,7 +39,7 @@ ENV INSTALL_PREFIX=$GENOMICSDB_PATH
 ENV PREREQS_ENV=$GENOMICSDB_PATH/genomicsdb_prereqs.sh
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
-ENV MAVEN_VERSION=3.9.2
+ENV MAVEN_VERSION=3.9.3
 
 RUN ls $JAVA_HOME
 
