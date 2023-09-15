@@ -947,7 +947,7 @@ NOISY SEGMENTATION & More than \Rcode{max.segments} \\
 NON-ABERRANT & $\geq 99 $\% of genome has identical copy number and $\geq 0.5$\% has second most common state \\
 POLYGENOMIC & $\geq 0.75 \times$ \Rcode{max.non.clonal} fraction of the genome in sub-clonal state \\
 POOR GOF & GoF $<$ \Rcode{min.gof} \\
-POTENTIAL SAMPLE CONTAMINATION & Significant portion of dbSNP variants potentially cross-contaminated \\
+POTENTIAL SAMPLE CONTAMINATION & Significant portion of variants present in germline databases are potentially cross-contaminated \\
 RARE KARYOTYPE & Ploidy $< 1.5$ or  $> 4.5$  \\
 \bottomrule
 \end{tabular}
@@ -1115,12 +1115,12 @@ If a matched normal is not available, it is also helpful to provide
 \Rcode{cosmic.vcf.file} (or via a \Rcode{Cosmic.CNT} INFO field in the VCF).
 While this has limited effect on purity and ploidy estimation due the sparsity
 of hotspot mutations, it often helps in the manual curation to compare how well
-high confidence germline (dbSNP) vs. somatic (COSMIC) variants fit a particular
-purity/ploidy combination. 
+high confidence germline (based on dbSNP membership or POPAF) vs. somatic (COSMIC)
+variants fit a particular purity/ploidy combination. 
 
 For variant classification (Section~\ref{predictsomatic}), providing COSMIC
-annotation also avoids that hotspot mutations with dbSNP id get assigned a very
-low prior probability of being somatic.
+annotation also avoids that hotspot mutations in germline databases get assigned
+a very low prior probability of being somatic.
 
 \subsection{ExAC and gnomAD annotation}
 

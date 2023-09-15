@@ -19,14 +19,15 @@ function from the VariantAnnotation package.}
 
 \item{prior.somatic}{Prior probabilities for somatic mutations. First value
 is for the case when no matched normals are available and the variant is not
-in dbSNP (second value). Third value is for variants with MuTect somatic
-call. Different from 1, because somatic mutations in segments of copy number
-0 have 0 probability and artifacts can thus have dramatic influence on
+in germline databases (second value). Third value is for variants with MuTect
+somatic call. Different from 1, because somatic mutations in segments of copy
+number 0 have 0 probability and artifacts can thus have dramatic influence on
 likelihood score. Forth value is for variants not labeled as somatic by
 MuTect. Last two values are optional, if vcf contains a flag Cosmic.CNT, it
-will set the prior probability for variants with CNT > 2 to the first of
+will set the prior probability for variants with CNT > 6 to the first of
 those values in case of no matched normal available (0.995 default).  Final
-value is for the case that variant is in both dbSNP and COSMIC > 2.}
+value is for the case that variant is in both germline databases and
+COSMIC count > 6.}
 
 \item{tumor.id.in.vcf}{Id of tumor in case multiple samples are stored in
 VCF.}
@@ -36,7 +37,7 @@ call variant as likely somatic.}
 
 \item{DB.info.flag}{Flag in INFO of VCF that marks presence in common
 germline databases. Defaults to \code{DB} that may contain somatic variants
-if it is from an unfiltered dbSNP VCF.}
+if it is from an unfiltered germline database.}
 
 \item{Cosmic.CNT.info.field}{Info field containing hits in the Cosmic database}
 }

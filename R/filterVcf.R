@@ -17,7 +17,7 @@
 #' which potentially have allelic fractions smaller than 1 due to artifacts or
 #' contamination. If a matched normal is available, this value is ignored,
 #' because homozygosity can be confirmed in the normal.
-#' @param contamination.range Count variants in dbSNP with allelic fraction
+#' @param contamination.range Count variants in germline databases with allelic fraction
 #' in the specified range. If the number of these putative contamination
 #' variants exceeds an expected value and if they are found on almost all
 #' chromosomes, the sample is flagged as potentially contaminated and extra
@@ -49,7 +49,7 @@
 #' the specified size in bp. Requires \code{target.granges}.
 #' @param DB.info.flag Flag in INFO of VCF that marks presence in common
 #' germline databases. Defaults to \code{DB} that may contain somatic variants
-#' if it is from an unfiltered dbSNP VCF.
+#' if it is from an unfiltered germline database.
 #' @return A list with elements \item{vcf}{The filtered \code{CollapsedVCF}
 #' object.} \item{flag}{A flag (\code{logical(1)}) if problems were
 #' identified.} \item{flag_comment}{A comment describing the flagging.}
@@ -160,7 +160,7 @@ interval.padding = 50, DB.info.flag = "DB") {
             ifelse(fractionContaminated > minFractionContaminated, "maybe", "unlikely"))
     }
 
-    # do we have many low allelic fraction calls that are in dbSNP on basically
+    # do we have many low allelic fraction calls that are in germline databases on basically
     # all chromosomes? then we found some contamination
     if (sum(runLength(seqnames(rowRanges(vcf[idx]))) > 3) >= 20 &&
         fractionContaminated >= minFractionContaminated) {
@@ -223,7 +223,7 @@ interval.padding = 50, DB.info.flag = "DB") {
     }
     if (!is.null(info(vcf)[[DB.info.flag]]) &&
         sum(info(vcf)[[DB.info.flag]]) < nrow(vcf) / 2) {
-        flog.warn("Less than half of variants in dbSNP. Make sure that VCF %s",
+        flog.warn("Less than half of variants are likely somatic. Make sure that VCF %s",
             "contains both germline and somatic variants.")
     }
 
@@ -501,7 +501,7 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
     } else if (!is.null(info(vcf)[[POPAF.info.field]]) &&
         max(unlist(info(vcf)[[POPAF.info.field]]), na.rm = TRUE) > 0.05) {
         if (max(unlist(info(vcf)[[POPAF.info.field]]), na.rm = TRUE) > 1.1) {
-            flog.info("Maximum of POPAP INFO is > 1, assuming -log10 scaled values")
+            flog.info("Maximum of POPAF INFO is > 1, assuming -log10 scaled values")
             db <- info(vcf)[[POPAF.info.field]] < -log10(min.pop.af)
         } else {
             db <- info(vcf)[[POPAF.info.field]] > min.pop.af
@@ -523,7 +523,7 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
     newInfo <- DataFrame(
         Number = 0,
         Type = "Flag",
-        Description = "dbSNP Membership",
+        Description = "Likely somatic status, based on SOMATIC or Cosmic.CNT info fields, population allele frequency, or dbSNP membership",
         row.names = DB.info.flag)
     info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
     info(vcf)[[DB.info.flag]] <- db
