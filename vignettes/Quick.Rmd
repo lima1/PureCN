@@ -207,7 +207,10 @@ Important recommendations:
   to presence in germline databases. _Mutect 1.1.7_ automatically calls SNPs, 
   but _Mutect 2_ does not. Make sure to run _Mutect 2_ with
   `--genotype-germline-sites true --genotype-pon-sites true`. You will not get
-  usuable output without those flags.
+  usuable output without those flags. Since _Mutect 2_ from _GATK 4.2.0+_,
+  average base quality scores can be very low and variants will be too
+  aggressively removed by _PureCN_.  You will need to set `--min-base-quality
+  20` in _PureCN.R_ to keep them.
 
 - Run the variant caller with a 50-75 base pair interval padding to increase
   the number of heterozygous SNPs (for example `--interval_padding` and
@@ -524,7 +527,9 @@ Important recommendations:
       with 50-100bp interval padding or no interval file at all. Also check
       that the interval file was generated using the baits coordinates, not the
       targets (the baits BED file should have a more even size distribution,
-      e.g. 120bp and multiples of it).
+      e.g. 120bp and multiples of it). If many variants are removed by the
+      default 25 base quality feature, you might be using _Mutect 2_ and need
+      to re-run _PureCN.R_ with `--min-base-quality 20`.
     
     - "Initial testing for significant sample cross-contamination" in the log
       file should not have many false positives, i.e. should be "unlikely" for
