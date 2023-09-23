@@ -42,6 +42,9 @@ option_list <- list(
     make_option(c("--base-quality-offset"), action = "store", type = "integer",
         default = formals(PureCN::filterVcfBasic)$base.quality.offset,
         help = "VCF Filter: Subtracts the specified value from the base quality score [default %default]"),
+    make_option(c("--min-base-quality"), action = "store", type = "integer",
+        default = formals(PureCN::filterVcfBasic)$min.base.quality,
+        help = "VCF Filter: Minimum base quality for variants. Set to 0 to turn off filter [default %default]"),
     make_option(c("--min-supporting-reads"), action = "store", type = "integer",
         default = formals(PureCN::filterVcfBasic)$min.supporting.reads,
         help = "VCF Filter: Instead of calculating the min. number of supporting reads, use specified one [default %default]"),
@@ -177,14 +180,14 @@ alias_list <- list(
     "maxhomozygousloss" = "max-homozygous-loss",
     "speedupheuristics" = "speedup-heuristics",
     "outvcf" = "out-vcf"
-)    
+)
 replace_alias <- function(x, deprecated = TRUE) {
     idx <- match(x, paste0("--", names(alias_list)))
     if (any(!is.na(idx))) {
         replaced <- paste0("--", alias_list[na.omit(idx)])
         x[!is.na(idx)] <- replaced
         if (deprecated) {
-            flog.warn("Deprecated arguments, use %s instead.", paste(replaced, collapse=" "))
+            flog.warn("Deprecated arguments, use %s instead.", paste(replaced, collapse = " "))
         }
     }
     return(x)
@@ -253,9 +256,9 @@ if (Sys.getenv("PURECN_DEBUG") != "") {
 }
 
 .checkFileList <- function(file) {
-    files <- read.delim(file, as.is = TRUE, header = FALSE)[,1]
+    files <- read.delim(file, as.is = TRUE, header = FALSE)[, 1]
     numExists <- sum(file.exists(files), na.rm = TRUE)
-    if (numExists < length(files)) { 
+    if (numExists < length(files)) {
         stop("File not exists in file ", file)
     }
     files
@@ -397,6 +400,7 @@ if (file.exists(file.rds) && !opt$force) {
                 af.range = af.range, stats.file = opt$stats_file,
                 min.supporting.reads = opt$min_supporting_reads,
                 base.quality.offset = opt$base_quality_offset,
+                min.base.quality = opt$min_base_quality,
                 ignore = mutect.ignore,
                 interval.padding = opt$interval_padding),
             args.filterIntervals = list(

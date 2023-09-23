@@ -693,6 +693,9 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
 .filterVcfByBQ <- function(vcf, tumor.id.in.vcf, min.base.quality) {
     n.vcf.before.filter <- .countVariants(vcf)
     idx <- .getBQFromVcf(vcf, tumor.id.in.vcf, base.quality.offset = 0) < min.base.quality
+    if (sum(idx, na.rm = TRUE) / length(idx) > 0.5) {
+        flog.warn("Many variants removed by min.base.quality (%i) filter. You might want to lower the cutoff.", min.base.quality)
+    }
     vcf <- .removeVariants(vcf, idx, "BQ", na.rm = FALSE)
     flog.info("Removing %i low quality variants with non-offset BQ < %i.",
         n.vcf.before.filter - .countVariants(vcf), min.base.quality)

@@ -133,3 +133,10 @@ test_that("issue 249", {
     vcf.bq <- PureCN:::.readAndCheckVcf(vcf.bq, "hg19")
     expect_equal(NA, geno(vcf.bq)$BQ[[2, 1]])
 })
+
+test_that("issue 320", {
+    # set random BQ to NA
+    expect_output(x <- filterVcfBasic(vcf, use.somatic.status = FALSE, min.base.quality = 34),
+        "Many variants removed by min.base.quality")
+    expect_equal(34, min(sapply(geno(x$vcf)$BQ[,1], function(x) x[1])))
+})
