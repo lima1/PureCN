@@ -25,6 +25,7 @@ BUGFIXES
     o Fixed a wrongly formatted error message when no germline database
       information was found (#302)
     o Fixed a crash when DB field in VCF only contains NAs(#301) 
+    o Added --min-base-quality argument for PureCN.R (#320)
 
     
 Changes in version 2.2.0
