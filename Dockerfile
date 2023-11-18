@@ -1,5 +1,5 @@
-#FROM bioconductor/bioconductor_docker:RELEASE_3_17
-FROM bioconductor/bioconductor_docker:devel
+FROM bioconductor/bioconductor_docker:RELEASE_3_18
+#FROM bioconductor/bioconductor_docker:devel
 
 # install base packages
 RUN Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)){install.packages("BiocManager")}; \
@@ -62,8 +62,8 @@ RUN Rscript -e 'library(remotes);\
 remotes::install_github("nalinigans/GenomicsDB-R", ref="develop", configure.args="--with-genomicsdb=/opt/GenomicsDB/")'
 
 # install PureCN
-#RUN Rscript -e 'BiocManager::install("PureCN", dependencies = TRUE)'
-RUN Rscript -e 'BiocManager::install("lima1/PureCN", ref = "RELEASE_3_17", dependencies = TRUE)'
+RUN Rscript -e 'BiocManager::install("PureCN", dependencies = TRUE)'
+#RUN Rscript -e 'BiocManager::install("lima1/PureCN", ref = "RELEASE_3_18", dependencies = TRUE)'
 ENV PURECN=/usr/local/lib/R/site-library/PureCN/extdata
 
 # add symbolic link and paths
