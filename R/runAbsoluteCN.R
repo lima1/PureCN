@@ -1145,6 +1145,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
     list(
         candidates = candidate.solutions,
         results = results,
+        exon.lrs = exon.lrs,
         input = list(tumor = tumor.coverage.file, normal = normal.coverage.file,
             log.ratio = GRanges(normal[, 1], on.target = normal$on.target, log.ratio = log.ratio),
             log.ratio.sdev = sd.seg, mapd = mapd, vcf = vcf, sampleid = sampleid,
