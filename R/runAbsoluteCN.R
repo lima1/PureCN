@@ -1153,7 +1153,7 @@ runAbsoluteCN <- function(normal.coverage.file = NULL,
             mapping.bias.rho = if (is.null(rho) || all(is.na(rho))) NULL else mean(rho, na.rm = TRUE),
             vcf.field.prefix = vcf.field.prefix,
             interval.file = interval.file,
-            exon.lrs = exon.lrs,
+            interval.lrs = exon.lrs,
             args = list(
                 filterVcf = args.filterVcf[vapply(args.filterVcf, object.size, double(1)) < 1000],
                 filterIntervals = args.filterIntervals[vapply(args.filterIntervals, object.size, double(1)) < 1000])
