@@ -1,6 +1,11 @@
 Changes in version 2.10.0
 -------------------------
 
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o Provide interval-level likelihood scores in runAbsoluteCN return
+      object. Thanks @tinyheero (#335).
+
 BUGFIXES
 
     o Bugfix #296 was not merged into the developer branch and did not make 
