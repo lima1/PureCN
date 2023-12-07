@@ -170,7 +170,7 @@ ss) {
 
 .getAFPlotGroups <- function(r, single.mode) {
     if (single.mode) {
-        groupLevels <- c("dbSNP/germline", "dbSNP/somatic", "novel/somatic",
+        groupLevels <- c("dbSNP or POPAF/germline", "dbSNP or POPAF/somatic", "novel/somatic",
             "novel/germline", "COSMIC/germline", "COSMIC/somatic", "contamination")
         r$group <- groupLevels[1]
         r$group[r$prior.somatic < 0.1 & r$ML.SOMATIC] <- groupLevels[2]
@@ -566,7 +566,7 @@ ss) {
                 y=r$ML.AR[r$ML.SOMATIC][idx.labels],
                 labels=scatter.labels[idx.labels])
         }
-        idxSomatic <- !grepl("germline|dbSNP|contamination", as.character(r$group))
+        idxSomatic <- !grepl("germline|dbSNP or POPAF|contamination", as.character(r$group))
         if (sum(idxSomatic)) {
             colSomatic <- mycol.palette$color[match(names(sort(table(r$group[idxSomatic]),
                 decreasing=TRUE)[1]), mycol.palette$group)]

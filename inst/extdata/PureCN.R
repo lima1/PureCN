@@ -105,7 +105,7 @@ option_list <- list(
         help = "Maximum considered ploidy [default %default]"),
     make_option(c("--max-copy-number"), action = "store", type = "double",
         default =  max(eval(formals(PureCN::runAbsoluteCN)$test.num.copy)),
-        help = "Maximum allele-specific integer copy number [default %default]"),
+        help = "Maximum allele-specific integer copy number, only used for fitting allele-specific copy numbers. Higher copy numbers might still be inferred and reported [default %default]"),
     make_option(c("--post-optimize"), action = "store_true", default = FALSE,
         help = "Post-optimization [default %default]"),
     make_option(c("--bootstrap-n"), action = "store", type = "integer", default = 0,

@@ -3,10 +3,10 @@
 #' This function takes as input tumor and normal control coverage data and
 #' a VCF containing allelic fractions of germline variants and somatic
 #' mutations. Normal control does not need to be from the same patient.
-#' In case VCF does not contain somatic status, it should contain dbSNP and
-#' optionally COSMIC annotation. Returns purity and ploidy combinations,
-#' sorted by likelihood score. Provides copy number and LOH data, by both
-#' gene and genomic region.
+#' In case VCF does not contain somatic status, it should contain either
+#' dbSNP or population allele frequencies, and  optionally COSMIC annotation.
+#' Returns purity and ploidy combinations, sorted by likelihood score.
+#' Provides copy number and LOH data, by both gene and genomic region.
 #'
 #'
 #' @param normal.coverage.file Coverage file of normal control (optional
@@ -29,7 +29,7 @@
 #' @param vcf.file VCF file.
 #' Optional, but typically needed to select between local optima of similar
 #' likelihood. Can also be a \code{CollapsedVCF}, read with the \code{readVcf}
-#' function.  Requires a DB info flag for dbSNP membership. The default
+#' function.  Requires a DB info flag for likely somatic status. The default
 #' \code{fun.setPriorVcf} function will also look for a Cosmic.CNT slot (see
 #' \code{cosmic.vcf.file}), containing the hits in the COSMIC database. Again,
 #' do not expect very useful results without a VCF file.
@@ -131,10 +131,10 @@
 #' likelihood score calculation. Note that bias is reported on an inverse
 #' scale; a variant with mapping bias of 1 has no bias.
 #' @param max.pon Exclude variants found more than \code{max.pon} times in
-#' pool of normals and not in dbSNP. Requires \code{mapping.bias.file} in
-#' \code{\link{setMappingBiasVcf}}. Should be set to a value high enough
+#' pool of normals and not in germline databases. Requires \code{mapping.bias.file}
+#' in \code{\link{setMappingBiasVcf}}. Should be set to a value high enough
 #' to be much more likely an artifact and not a true germline variant not
-#' present in dbSNP.
+#' present in germline databases.
 #' @param min.variants.segment Flag segments with fewer variants. The
 #' minor copy number estimation is not reliable with insufficient variants.
 #' @param iterations Maximum number of iterations in the Simulated Annealing
@@ -189,7 +189,7 @@
 #' and indexed with bgzip and tabix, respectively.
 #' @param DB.info.flag Flag in INFO of VCF that marks presence in common
 #' germline databases. Defaults to \code{DB} that may contain somatic variants
-#' if it is from an unfiltered dbSNP VCF.
+#' if it is from an unfiltered germline database.
 #' @param POPAF.info.field As alternative to a flag, use an info field that
 #' contains population allele frequencies. The \code{DB} info flag has priority
 #' over this field when both exist.

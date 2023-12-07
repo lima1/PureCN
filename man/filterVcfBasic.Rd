@@ -44,7 +44,7 @@ which potentially have allelic fractions smaller than 1 due to artifacts or
 contamination. If a matched normal is available, this value is ignored,
 because homozygosity can be confirmed in the normal.}
 
-\item{contamination.range}{Count variants in dbSNP with allelic fraction
+\item{contamination.range}{Count variants in germline databases with allelic fraction
 in the specified range. If the number of these putative contamination
 variants exceeds an expected value and if they are found on almost all
 chromosomes, the sample is flagged as potentially contaminated and extra
@@ -87,7 +87,7 @@ the specified size in bp. Requires \code{target.granges}.}
 
 \item{DB.info.flag}{Flag in INFO of VCF that marks presence in common
 germline databases. Defaults to \code{DB} that may contain somatic variants
-if it is from an unfiltered dbSNP VCF.}
+if it is from an unfiltered germline database.}
 }
 \value{
 A list with elements \item{vcf}{The filtered \code{CollapsedVCF}
