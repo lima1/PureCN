@@ -29,7 +29,7 @@
 #' @param vcf.file VCF file.
 #' Optional, but typically needed to select between local optima of similar
 #' likelihood. Can also be a \code{CollapsedVCF}, read with the \code{readVcf}
-#' function.  Requires a DB info flag for likely somatic status. The default
+#' function.  Requires a DB info flag for likely germline status. The default
 #' \code{fun.setPriorVcf} function will also look for a Cosmic.CNT slot (see
 #' \code{cosmic.vcf.file}), containing the hits in the COSMIC database. Again,
 #' do not expect very useful results without a VCF file.

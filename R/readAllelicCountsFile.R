@@ -80,7 +80,7 @@ readAllelicCountsFile <- function(file, format, zero=NULL) {
     info(header(vcf)) <- DataFrame(
         Number = "0",
         Type = "Flag",
-        Description = "Likely somatic status, based on SOMATIC or Cosmic.CNT info fields, population allele frequency, or dbSNP membership",
+        Description = "Likely somatic status, based on SOMATIC or Cosmic.CNT info fields, population allele frequency, or germline database membership",
         row.names = "DB")
 
     geno(header(vcf)) <- DataFrame(

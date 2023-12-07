@@ -223,7 +223,7 @@ interval.padding = 50, DB.info.flag = "DB") {
     }
     if (!is.null(info(vcf)[[DB.info.flag]]) &&
         sum(info(vcf)[[DB.info.flag]]) < nrow(vcf) / 2) {
-        flog.warn("Less than half of variants are likely somatic. Make sure that VCF %s",
+        flog.warn("Less than half of variants are annoted as germline database member. Make sure that VCF %s",
             "contains both germline and somatic variants.")
     }
 
@@ -523,7 +523,7 @@ function(vcf, tumor.id.in.vcf, allowed = 0.05) {
     newInfo <- DataFrame(
         Number = 0,
         Type = "Flag",
-        Description = "Likely somatic status, based on SOMATIC or Cosmic.CNT info fields, population allele frequency, or dbSNP membership",
+        Description = "Likely somatic status, based on SOMATIC or Cosmic.CNT info fields, population allele frequency, or germline database membership",
         row.names = DB.info.flag)
     info(header(vcf)) <- rbind(info(header(vcf)), newInfo)
     info(vcf)[[DB.info.flag]] <- db

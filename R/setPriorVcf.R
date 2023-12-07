@@ -60,14 +60,14 @@ setPriorVcf <- function(vcf, prior.somatic = c(0.5, 0.0005, 0.999, 0.0001,
          if (!is.null(info(vcf)[[Cosmic.CNT.info.field]])) {
              flog.info("Found COSMIC annotation in VCF. Requiring %i hits.", 
                 min.cosmic.cnt)
-             flog.info("Setting somatic prior probabilities for hits to %f or to %f if in both COSMIC and likely somatic based on dbSNP membership or population allele frequency.", 
+             flog.info("Setting somatic prior probabilities for hits to %f or to %f if in both COSMIC and likely germline based on dbSNP membership or population allele frequency.", 
                 tmp[5], tmp[6])
 
              prior.somatic[which(info(vcf)[[Cosmic.CNT.info.field]] >= min.cosmic.cnt)] <- tmp[5]
              prior.somatic[which(info(vcf)[[Cosmic.CNT.info.field]] >= min.cosmic.cnt & 
                 info(vcf)[[DB.info.flag]])] <- tmp[6]
          } else {
-             flog.info("Setting somatic prior probabilities for likely somatic hits to %f or to %f otherwise.", 
+             flog.info("Setting somatic prior probabilities for likely germline hits to %f or to %f otherwise.", 
                 tmp[2], tmp[1])
          }      
     }     

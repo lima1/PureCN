@@ -5,6 +5,7 @@ SIGNIFICANT USER-VISIBLE CHANGES
 
     o Provide interval-level likelihood scores in runAbsoluteCN return
       object. Thanks @tinyheero (#335).
+    o Documentation updates. Thanks @ddrichel (#325).  
 
 BUGFIXES
 
