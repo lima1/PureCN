@@ -1,5 +1,5 @@
-#FROM bioconductor/bioconductor_docker:RELEASE_3_17
-FROM bioconductor/bioconductor_docker:devel
+FROM bioconductor/bioconductor_docker:RELEASE_3_18
+#FROM bioconductor/bioconductor_docker:devel
 
 # install base packages
 RUN Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)){install.packages("BiocManager")}; \
@@ -33,13 +33,13 @@ RUN apt update \
 
 # install GenomicsDB
 ENV GENOMICSDB_PATH=/opt/GenomicsDB
-ENV GENOMICSDB_BRANCH=develop
+ENV GENOMICSDB_BRANCH=master
 RUN mkdir $GENOMICSDB_PATH
 ENV INSTALL_PREFIX=$GENOMICSDB_PATH
 ENV PREREQS_ENV=$GENOMICSDB_PATH/genomicsdb_prereqs.sh
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
-ENV MAVEN_VERSION=3.9.3
+#ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+ENV MAVEN_VERSION=3.9.5
 
 RUN ls $JAVA_HOME
 
@@ -59,11 +59,11 @@ RUN chmod +x $PREREQS_ENV && \
   
 # install GenomicsDB R bindings
 RUN Rscript -e 'library(remotes);\
-remotes::install_github("nalinigans/GenomicsDB-R", ref="develop", configure.args="--with-genomicsdb=/opt/GenomicsDB/")'
+remotes::install_github("nalinigans/GenomicsDB-R", ref="master", configure.args="--with-genomicsdb=/opt/GenomicsDB/")'
 
 # install PureCN
-#RUN Rscript -e 'BiocManager::install("PureCN", dependencies = TRUE)'
-RUN Rscript -e 'BiocManager::install("lima1/PureCN", ref = "RELEASE_3_17", dependencies = TRUE)'
+RUN Rscript -e 'BiocManager::install("PureCN", dependencies = TRUE)'
+#RUN Rscript -e 'BiocManager::install("lima1/PureCN", ref = "RELEASE_3_18", dependencies = TRUE)'
 ENV PURECN=/usr/local/lib/R/site-library/PureCN/extdata
 
 # add symbolic link and paths
