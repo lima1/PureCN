@@ -2,8 +2,8 @@
 title: "PureCN best practices"
 author:
       name: Markus Riester
-      affiliation: Novartis Institutes for BioMedical Research 
-output: 
+      affiliation: Novartis Biomedical Research 
+output:
   BiocStyle::html_document:
     toc_float: true
   BiocStyle::pdf_document: default  

@@ -15,7 +15,7 @@ BiocStyle::latex()
 \title{Copy number calling and SNV classification using 
 targeted short read sequencing}
 \author[1]{Markus Riester}
-\affil[1]{Novartis Institutes for BioMedical Research, Cambridge, MA}
+\affil[1]{Novartis Biomedical Research, Cambridge, MA}
 
 \begin{document}
 
