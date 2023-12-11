@@ -134,10 +134,8 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
                 flavor = flavor, undoTCN = undo.SD, knownSegments = knownSegments, 
                 min.width = 3,alphaTCN = alpha / 2, ...)
             segot <- .PSCBSoutput2DNAcopy(segPSCBSot, sampleid)
-            if (!is.null(vcf)) {
-                segot <- .pruneByHclust(segot, vcf, tumor.id.in.vcf, h = prune.hclust.h,
-                    method = prune.hclust.method, chr.hash = chr.hash)
-            }
+            segot <- .pruneByHclust(segot, vcf, tumor.id.in.vcf, h = prune.hclust.h,
+                method = prune.hclust.method, chr.hash = chr.hash)
             segot <- segot[segot$num.mark > 3 &
                            segot$num.mark <= boost.on.target.max.size, 2:4]
             colnames(segot) <- colnames(knownSegments)[1:3]
@@ -166,10 +164,8 @@ segmentationPSCBS <- function(normal, tumor, log.ratio, seg, plot.cnv,
     if (plot.cnv) PSCBS::plotTracks(segPSCBS)
     segPSCBS <- NULL
 
-    if (!is.null(vcf)) {
-        seg <- .pruneByHclust(seg, vcf, tumor.id.in.vcf, h = prune.hclust.h,
-            method = prune.hclust.method, chr.hash = chr.hash)
-    }
+    seg <- .pruneByHclust(seg, vcf, tumor.id.in.vcf, h = prune.hclust.h,
+        method = prune.hclust.method, chr.hash = chr.hash)
     seg <- .addAverageWeights(seg, weight.flag.pvalue, tumor, chr.hash)
     seg <- .fixBreakpointsInBaits(tumor, log.ratio, seg, chr.hash)
     attr(seg, "PSCBS.Args") <- list(
