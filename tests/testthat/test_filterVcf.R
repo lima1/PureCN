@@ -46,16 +46,16 @@ test_that("M2 VCF with POP_AF flag is annotated with DB flag", {
     vcf.m2.file <- system.file("extdata", "example_mutect2.vcf.gz", package = "PureCN")
     vcf.m2 <- PureCN:::.readAndCheckVcf(vcf.m2.file, "hg38")
     expect_equal(c(TRUE, rep(FALSE, 10)), info(vcf.m2)$DB)
-    expect_equal(unlist(info(vcf.m2)$POP_AF>0.001), info(vcf.m2)$DB)
+    expect_equal(unlist(info(vcf.m2)$POP_AF > 0.001), info(vcf.m2)$DB)
 
-    expect_output(filterVcfMuTect(vcf.m2, use.somatic.status=FALSE), 
-        "Less than half of variants in dbSNP")
+    expect_output(filterVcfMuTect(vcf.m2, use.somatic.status = FALSE), 
+        "Less than half of variants are annoted as germline database member")
     output.file <- tempfile(fileext = ".vcf")
     writeVcf(vcf.m2, file = output.file)
     expect_output(vcf.m2 <- PureCN:::.readAndCheckVcf(output.file, "hg38"),
         "Will ignore POP_AF")
     expect_equal(c(TRUE, rep(FALSE, 10)), info(vcf.m2)$DB)
-    expect_equal(unlist(info(vcf.m2)$POP_AF>0.001), info(vcf.m2)$DB)
+    expect_equal(unlist(info(vcf.m2)$POP_AF > 0.001), info(vcf.m2)$DB)
     file.remove(output.file)
 
     vcf.m2 <- PureCN:::.readAndCheckVcf(vcf.m2.file, "hg38")
