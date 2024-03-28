@@ -204,17 +204,17 @@ optimal.off.target.counts = 120, plot = FALSE, ...) {
             fcnts_std[, i] <- fcnts_std[,i] / iv
         }
     } else {
-        fcnts_std <- apply(fcnts,2,function(x) x/fcnts_interval_medians)
+        fcnts_std <- apply(fcnts, 2, function(x) x / fcnts_interval_medians)
     }
-    fcnts_interval_non_zero_medians <- apply(fcnts_std, 1, function(x) median(x[x>0]))
-    fcnts_std_imp <- apply(fcnts_std, 2, function(x) { x[x<=0] <- fcnts_interval_non_zero_medians[x<=0]; x})
-    p=0.001
-    li <- quantile(as.vector(fcnts_std_imp), probs= c(p, 1-p))
+    fcnts_interval_non_zero_medians <- apply(fcnts_std, 1, function(x) median(x[x > 0]))
+    fcnts_std_imp <- apply(fcnts_std, 2, function(x) { x[x <= 0] <- fcnts_interval_non_zero_medians[x <= 0]; x})
+    p <- 0.001
+    li <- quantile(as.vector(fcnts_std_imp), probs = c(p, 1 - p))
     fcnts_std_trunc <- fcnts_std_imp
     fcnts_std_trunc[fcnts_std_imp < li[1]] <- li[1]
     fcnts_std_trunc[fcnts_std_imp > li[2]] <- li[2]
     fcnts_std_final <- apply(fcnts_std_trunc, 2, function(x) log2(x / median(x)))
-    fcnts_std_final - median(apply(fcnts_std_final,2,median))
+    fcnts_std_final <- fcnts_std_final - median(apply(fcnts_std_final, 2, median))
     s <- svd(fcnts_std_final)
 
     ret <- list(

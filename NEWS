@@ -11,6 +11,8 @@ BUGFIXES
 
     o Bugfix #296 was not merged into the developer branch and did not make 
       it into 2.8.0.
+    o Log ratios not shiften to median of sample medians as intended (#356).
+      Thanks @sleyn.  
 
 
 Changes in version 2.8.0
