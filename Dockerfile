@@ -1,4 +1,4 @@
-FROM bioconductor/bioconductor_docker:RELEASE_3_18
+FROM bioconductor/bioconductor_docker:RELEASE_3_19
 #FROM bioconductor/bioconductor_docker:devel
 
 # install base packages
@@ -37,11 +37,9 @@ ENV GENOMICSDB_BRANCH=master
 RUN mkdir $GENOMICSDB_PATH
 ENV INSTALL_PREFIX=$GENOMICSDB_PATH
 ENV PREREQS_ENV=$GENOMICSDB_PATH/genomicsdb_prereqs.sh
-ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-#ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
-ENV MAVEN_VERSION=3.9.5
-
-RUN ls $JAVA_HOME
+#ARG TARGETPLATFORM
+#RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"; else JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64; fi
+#ENV MAVEN_VERSION=3.9.5
 
 WORKDIR /tmp
 
@@ -63,7 +61,7 @@ remotes::install_github("nalinigans/GenomicsDB-R", ref="master", configure.args=
 
 # install PureCN
 RUN Rscript -e 'BiocManager::install("PureCN", dependencies = TRUE)'
-#RUN Rscript -e 'BiocManager::install("lima1/PureCN", ref = "RELEASE_3_18", dependencies = TRUE)'
+#RUN Rscript -e 'BiocManager::install("lima1/PureCN", ref = "RELEASE_3_19", dependencies = TRUE)'
 ENV PURECN=/usr/local/lib/R/site-library/PureCN/extdata
 
 # add symbolic link and paths
@@ -72,7 +70,7 @@ WORKDIR /opt
 RUN ln -s $PURECN /opt/PureCN
 
 # install GATK4
-ENV GATK_VERSION="4.4.0.0"
+ENV GATK_VERSION="4.5.0.0"
 RUN wget --no-verbose https://github.com/broadinstitute/gatk/releases/download/${GATK_VERSION}/gatk-${GATK_VERSION}.zip && \
     unzip gatk-${GATK_VERSION}.zip -d /opt && \
     rm gatk-${GATK_VERSION}.zip

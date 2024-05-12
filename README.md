@@ -31,7 +31,7 @@ For outdated R/Bioconductor versions, you can try backporting the latest stable
 version (this should work fine for Bioconductor 3.3 and later):
 
 ```
-BiocManager::install("lima1/PureCN", ref = "RELEASE_3_18")
+BiocManager::install("lima1/PureCN", ref = "RELEASE_3_19")
 ```
 
 If you want the latest and greatest from the developer branch:
