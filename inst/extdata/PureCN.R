@@ -376,6 +376,11 @@ if (file.exists(file.rds) && !opt$force) {
             # coverage files align
             tumor.coverage.file <- subsetByOverlaps(tumor.coverage.file, log.ratio)
         }
+        if (!is.null(normal.coverage.file)) {
+            # With GATK4 log-ratios,  normal samples need to be filtered as well
+            # as the tumor samples, or they won't align
+            normal.coverage.file <- subsetByOverlaps(normal.coverage.file, log.ratio)
+        }
         log.ratio <- log.ratio$log.ratio
     }
     vcf <- opt$vcf
