@@ -1,3 +1,13 @@
+Changes in version 2.16.0
+-------------------------
+
+BUGFIXES
+	
+    o Fixed a crash when GATK log-ratios and a normal coverage file were
+      provided (#386)
+    o Fixed a few code warnings (e.g. #387)
+
+
 Changes in version 2.14.0
 -------------------------
 
