@@ -62,7 +62,7 @@
 #' @export preprocessIntervals
 #' @importFrom BiocGenerics unstrand score
 #' @importFrom Biostrings letterFrequency
-#' @importFrom GenomeInfoDb seqlengths seqlevelsInUse seqlevels<- seqlengths<-
+#' @importFrom Seqinfo seqlengths seqlevelsInUse seqlevels<- seqlengths<-
 #' @importFrom GenomicRanges tileGenome
 #' @importFrom S4Vectors mcols
 #' @importFrom rtracklayer import

@@ -64,8 +64,8 @@
 #' vcf.filtered <- filterVcfBasic(vcf)
 #'
 #' @export filterVcfBasic
-#' @importFrom GenomeInfoDb seqnames seqlevelsStyle seqlevelsStyle<-
-#'             genomeStyles sortSeqlevels
+#' @importFrom Seqinfo seqnames sortSeqlevels
+#' @importFrom GenomeInfoDb seqlevelsStyle seqlevelsStyle<- genomeStyles
 #' @importFrom SummarizedExperiment rowRanges
 #' @importFrom stats pbeta
 filterVcfBasic <- function(vcf, tumor.id.in.vcf = NULL,

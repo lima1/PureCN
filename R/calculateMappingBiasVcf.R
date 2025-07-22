@@ -133,7 +133,7 @@ calculateMappingBiasVcf <- function(normal.panel.vcf.file,
 #'
 #' @export calculateMappingBiasGatk4
 #' @importFrom data.table dcast
-#' @importFrom GenomeInfoDb rankSeqlevels
+#' @importFrom Seqinfo rankSeqlevels
 calculateMappingBiasGatk4 <- function(workspace, reference.genome,
                                     min.normals = 1,
                                     min.normals.betafit = 7,
