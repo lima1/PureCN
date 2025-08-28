@@ -1,5 +1,7 @@
 context("getSexFromCoverage")
 
+library(GenomeInfoDb)  # for renameSeqlevels()
+
 tumor.coverage.file <- system.file("extdata", "example_tumor.txt.gz", 
     package = "PureCN")
 coverage <- readCoverageFile(tumor.coverage.file)
