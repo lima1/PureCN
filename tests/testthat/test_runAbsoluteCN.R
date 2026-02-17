@@ -47,7 +47,7 @@ test_that("VCF is not necessary to produce output", {
         fun.segmentation = segmentationPSCBS),
         "segmentationPSCBS requires VCF")
 
-    expect_output(ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
+    expect_message(ret <- runAbsoluteCN(normal.coverage.file = normal.coverage.file,
         tumor.coverage.file = tumor.coverage.file,
         candidates = purecn.example.output$candidates,
         normalDB = normalDB,

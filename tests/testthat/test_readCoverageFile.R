@@ -18,7 +18,7 @@ test_that("Example data matches and pooling works", {
 test_that("Overlapping intervals were merged and warned", {    
     tumor.overlapping.coverage.file <- system.file("extdata", 
         "test_coverage_overlapping_intervals.txt", package = "PureCN")
-    expect_output(coverage <- readCoverageFile(tumor.overlapping.coverage.file),
+    expect_message(coverage <- readCoverageFile(tumor.overlapping.coverage.file),
                   "WARN")
     expect_equal(length(coverage), 3)
     expect_equal(start(coverage), c(1216042, 1216606, 1216791))

@@ -1,3 +1,11 @@
+Changes in version 2.16.1
+-------------------------
+
+BUGFIXES
+
+    o Fix for failing tests due to upstream changes
+
+
 Changes in version 2.16.0
 -------------------------
 
