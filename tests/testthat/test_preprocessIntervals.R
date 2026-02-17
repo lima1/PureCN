@@ -114,12 +114,12 @@ test_that("Offtarget settings work as expected", {
     mappability4 <- mappability
     mappability4$name <- as.character(mappability$score)
     mappability4$score <- NULL
-    expect_output( gcMap <- preprocessIntervals(intervals, reference.file, 
+    expect_message( gcMap <- preprocessIntervals(intervals, reference.file, 
                                             mappability = mappability4), 
                   "not numeric")
     expect_equal(gcMap$mappability, c(1, 1, 0.7, 1, 1), tolerance = 0.001)
 
-    expect_output(gcMap <- preprocessIntervals(intervals, reference.file,
+    expect_message(gcMap <- preprocessIntervals(intervals, reference.file,
         mappability = mappability, min.mappability = c(1,1,1)),
         "Removing 1 intervals with low mappability score")
     expect_equal(gcMap$mappability, c(1, 1, 1, 1), tolerance = 0.001)
@@ -137,7 +137,7 @@ test_that("Offtarget settings work as expected", {
     expect_equal(gcMap$mappability, c(1, 1, 1, 1, 0.7, 1, 1, 1, 1), 
         tolerance = 0.001)
 
-    expect_output(gr <-preprocessIntervals(intervals[1:2], reference.file, 
+    expect_message(gr <-preprocessIntervals(intervals[1:2], reference.file, 
         off.target = TRUE, off.target.padding = -5, 
         average.off.target.width = 100, min.off.target.width = 10), 
         "contigs from off-target regions: seq2")

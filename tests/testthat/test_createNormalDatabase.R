@@ -42,7 +42,7 @@ test_that("Exceptions happen with wrong input", {
     normal <- readCoverageFile(normal.coverage.file)
     correctCoverageBias(normal, interval.file)
     output.file <- tempfile(fileext = ".txt")
-    expect_output(correctCoverageBias(normal[sample(length(normal)), 
+    expect_message(correctCoverageBias(normal[sample(length(normal)), 
         ], interval.file, output.file), "WARN")
     createNormalDatabase(c(normal.coverage.files, output.file))
     best.normal.coverage.file <- calculateTangentNormal(tumor.coverage.file, 
@@ -52,7 +52,7 @@ test_that("Exceptions happen with wrong input", {
     expect_error(calculateTangentNormal(normal3.coverage.file, normalDB),
        "not align")
     expect_error(createNormalDatabase(normal.coverage.file), "At least 2")
-    expect_output(createNormalDatabase( c(normal.coverage.file, normal.coverage.file, 
+    expect_message(createNormalDatabase( c(normal.coverage.file, normal.coverage.file, 
                                           normal2.coverage.file)), "duplicated")
     file.remove(output.file)
 })

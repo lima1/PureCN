@@ -11,13 +11,13 @@ chrX <- renameSeqlevels(chr22, c(chr22 = "chrX"))
 test_that("Warning with missing coverage data", {
     sex <- getSexFromCoverage(coverage) 
     expect_true(is.na(sex))
-    expect_output( getSexFromCoverage(coverage), "WARN" )
+    expect_message( getSexFromCoverage(coverage), "WARN" )
 })
 
 test_that("Warning with missing coverage data in file", {
     sex <- getSexFromCoverage(tumor.coverage.file) 
     expect_true(is.na(sex))
-    expect_output( getSexFromCoverage(coverage), "WARN" )
+    expect_message( getSexFromCoverage(coverage), "WARN" )
 })
 
 test_that("Male correct from coverage data", {

@@ -48,11 +48,11 @@ test_that("M2 VCF with POP_AF flag is annotated with DB flag", {
     expect_equal(c(TRUE, rep(FALSE, 10)), info(vcf.m2)$DB)
     expect_equal(unlist(info(vcf.m2)$POP_AF > 0.001), info(vcf.m2)$DB)
 
-    expect_output(filterVcfMuTect(vcf.m2, use.somatic.status = FALSE), 
+    expect_message(filterVcfMuTect(vcf.m2, use.somatic.status = FALSE), 
         "Less than half of variants are annoted as germline database member")
     output.file <- tempfile(fileext = ".vcf")
     writeVcf(vcf.m2, file = output.file)
-    expect_output(vcf.m2 <- PureCN:::.readAndCheckVcf(output.file, "hg38"),
+    expect_message(vcf.m2 <- PureCN:::.readAndCheckVcf(output.file, "hg38"),
         "Will ignore POP_AF")
     expect_equal(c(TRUE, rep(FALSE, 10)), info(vcf.m2)$DB)
     expect_equal(unlist(info(vcf.m2)$POP_AF > 0.001), info(vcf.m2)$DB)
@@ -83,7 +83,7 @@ test_that("issue 62 is fixed", {
 
 test_that("issue 109 is fixed", {
     vcf.file <- system.file("extdata", "issue109.vcf.gz", package = "PureCN")
-    expect_output(x <- PureCN:::.readAndCheckVcf(vcf.file), "AD field misses ref counts")
+    expect_message(x <- PureCN:::.readAndCheckVcf(vcf.file), "AD field misses ref counts")
     expect_equivalent(c(272, 2), geno(x)$AD[[1,1]])
     expect_equivalent(274, geno(x)$DP[1,1])
     expect_equivalent(2/274, geno(x)$FA[[1,1]])
@@ -92,7 +92,7 @@ test_that("issue 109 is fixed", {
 test_that("Missing FA does not cause crash", {
      tmp <- geno(vcf)$FA[2,1][[1]] 
      geno(vcf)$FA[2,1][[1]] <- NA
-     expect_output( 
+     expect_message( 
         x <- PureCN:::.readAndCheckVcf(vcf, "hg19"), rownames(vcf)[2])
      expect_equivalent(PureCN:::.countVariants(vcf),
                        PureCN:::.countVariants(x) + 1)
@@ -102,7 +102,7 @@ test_that("Missing FA does not cause crash", {
 test_that("issue 184 is fixed", {
     vcf.file <- system.file("extdata", "issue184.vcf.gz", package = "PureCN")
     vcf.184 <- PureCN:::.readAndCheckVcf(vcf.file)
-    expect_output(x <- PureCN:::.getTumorIdInVcf(vcf.184), "GT field in VCF contains missing values")
+    expect_message(x <- PureCN:::.getTumorIdInVcf(vcf.184), "GT field in VCF contains missing values")
     expect_equivalent("TC_098_1.2", x)
 })
 
@@ -136,7 +136,7 @@ test_that("issue 249", {
 
 test_that("issue 320", {
     # set random BQ to NA
-    expect_output(x <- filterVcfBasic(vcf, use.somatic.status = FALSE, min.base.quality = 34),
+    expect_message(x <- filterVcfBasic(vcf, use.somatic.status = FALSE, min.base.quality = 34),
         "Many variants removed by min.base.quality")
     expect_equal(34, min(sapply(geno(x$vcf)$BQ[,1], function(x) x[1])))
 })

@@ -81,7 +81,7 @@ test_that("overwriting works as expected", {
 test_that("warning occurs with missing curation file", {
     ret <- createCurationFile(file.rds)
     file.remove(gsub(".rds", ".csv", file.rds))
-    expect_output(retx <- readCurationFile(file.rds), "does not exist, creating")
+    expect_message(retx <- readCurationFile(file.rds), "does not exist, creating")
     expect_equal(retx$results[[1]]$purity, purecn.example.output$results[[1]]$purity)
     expect_equal(retx$results[[1]]$ploidy, purecn.example.output$results[[1]]$ploidy)
 })
